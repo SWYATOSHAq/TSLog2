@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nZMJvv9qZYgcJrvuR+9o9N3081waER25f+YD9Rjj4EMHrBfptCvaHLR0pDWawdOzHefyffuPRtLF6zJlfolKGQ==",
+  "dgSpecHash": "ZNHlQ9eae5mhh84epPL51Xg0CKfOeaWEguN26eql38MVKv53VFaZNbRkEHiSPGh2+b97mHcHN01qYUcxgy6W2g==",
   "success": true,
-  "projectFilePath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
+  "projectFilePath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

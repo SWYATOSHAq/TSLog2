@@ -27,19 +27,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\m.burov\\.nuget\\packages\\": {}
+    "C:\\Users\\v.vorotnikov\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
+      "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
       "projectName": "TSLog.Links",
-      "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
-      "packagesPath": "C:\\Users\\m.burov\\.nuget\\packages\\",
-      "outputPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\obj\\",
+      "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
+      "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
+      "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\m.burov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -53,8 +53,8 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "C:\\m.burov\\Projects\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
-              "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.BO\\TSLog.BO.csproj"
+            "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
+              "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj"
             }
           }
         }

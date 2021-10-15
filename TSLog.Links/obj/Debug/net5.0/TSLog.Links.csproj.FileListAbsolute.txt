@@ -12,3 +12,18 @@ C:\m.burov\Projects\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.pdb
 C:\m.burov\Projects\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.BO.dll
 C:\m.burov\Projects\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.BO.pdb
 C:\m.burov\Projects\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.csproj.AssemblyReference.cache
+D:\C#\prod dev\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.Links.deps.json
+D:\C#\prod dev\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.Links.dll
+D:\C#\prod dev\TSLog2\TSLog.Links\bin\Debug\net5.0\ref\TSLog.Links.dll
+D:\C#\prod dev\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.Links.pdb
+D:\C#\prod dev\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.BO.dll
+D:\C#\prod dev\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.BO.pdb
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.csproj.AssemblyReference.cache
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.GeneratedMSBuildEditorConfig.editorconfig
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.AssemblyInfoInputs.cache
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.AssemblyInfo.cs
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.csproj.CoreCompileInputs.cache
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.csproj.CopyComplete
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.dll
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\ref\TSLog.Links.dll
+D:\C#\prod dev\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.pdb

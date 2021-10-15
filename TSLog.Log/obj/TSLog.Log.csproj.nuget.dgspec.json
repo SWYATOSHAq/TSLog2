@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\m.burov\\Projects\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {}
+    "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {}
   },
   "projects": {
-    "C:\\m.burov\\Projects\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {
+    "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
+        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
         "projectName": "TSLog.Log",
-        "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
-        "packagesPath": "C:\\Users\\m.burov\\.nuget\\packages\\",
-        "outputPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Log\\obj\\",
+        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
+        "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
+        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\m.burov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

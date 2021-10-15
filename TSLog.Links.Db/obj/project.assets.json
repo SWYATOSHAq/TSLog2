@@ -859,19 +859,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\m.burov\\.nuget\\packages\\": {}
+    "C:\\Users\\v.vorotnikov\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
+      "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
       "projectName": "TSLog.Links.Db",
-      "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
-      "packagesPath": "C:\\Users\\m.burov\\.nuget\\packages\\",
-      "outputPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Db\\obj\\",
+      "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
+      "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
+      "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\m.burov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -885,11 +885,11 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
-              "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\TSLog.Db.csproj"
+            "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
+              "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj"
             },
-            "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
-              "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
+            "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
+              "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
             }
           }
         }

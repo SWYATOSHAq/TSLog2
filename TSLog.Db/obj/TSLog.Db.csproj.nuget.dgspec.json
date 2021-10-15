@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {}
+    "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {}
   },
   "projects": {
-    "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
+    "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
+        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
         "projectName": "TSLog.Common",
-        "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
-        "packagesPath": "C:\\Users\\m.burov\\.nuget\\packages\\",
-        "outputPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\obj\\",
+        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
+        "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
+        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\m.burov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -58,17 +58,17 @@
         }
       }
     },
-    "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
+    "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
         "projectName": "TSLog.Db",
-        "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
-        "packagesPath": "C:\\Users\\m.burov\\.nuget\\packages\\",
-        "outputPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Db\\obj\\",
+        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+        "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
+        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\m.burov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -82,8 +82,8 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
-                "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Common\\TSLog.Common.csproj"
+              "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
+                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj"
               }
             }
           }
