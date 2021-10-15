@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TSLog.Db\TSLog.Db.csproj" />
+    <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+C:\m.burov\Projects\TSLog2\TSLog.BO\bin\Debug\net5.0\TSLog.BO.deps.json
+C:\m.burov\Projects\TSLog2\TSLog.BO\bin\Debug\net5.0\TSLog.BO.dll
+C:\m.burov\Projects\TSLog2\TSLog.BO\bin\Debug\net5.0\ref\TSLog.BO.dll
+C:\m.burov\Projects\TSLog2\TSLog.BO\bin\Debug\net5.0\TSLog.BO.pdb
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.GeneratedMSBuildEditorConfig.editorconfig
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.AssemblyInfoInputs.cache
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.AssemblyInfo.cs
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.csproj.CoreCompileInputs.cache
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.dll
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\ref\TSLog.BO.dll
+C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.pdb
