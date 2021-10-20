@@ -9,3 +9,15 @@ C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.csproj.CoreCompile
 C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.dll
 C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\ref\TSLog.BO.dll
 C:\m.burov\Projects\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.pdb
+D:\C#\_\TSLog2\TSLog.BO\bin\Debug\net5.0\TSLog.BO.deps.json
+D:\C#\_\TSLog2\TSLog.BO\bin\Debug\net5.0\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.BO\bin\Debug\net5.0\ref\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.BO\bin\Debug\net5.0\TSLog.BO.pdb
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.csproj.AssemblyReference.cache
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.GeneratedMSBuildEditorConfig.editorconfig
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.AssemblyInfoInputs.cache
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.AssemblyInfo.cs
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.csproj.CoreCompileInputs.cache
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\ref\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.BO\obj\Debug\net5.0\TSLog.BO.pdb

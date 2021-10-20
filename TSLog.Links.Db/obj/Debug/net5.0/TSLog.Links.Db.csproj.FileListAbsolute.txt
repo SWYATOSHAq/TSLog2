@@ -37,3 +37,5 @@ D:\C#\_\TSLog2\TSLog.Links.Db\bin\Debug\net5.0\TSLog.Db.pdb
 D:\C#\_\TSLog2\TSLog.Links.Db\bin\Debug\net5.0\TSLog.Links.pdb
 D:\C#\_\TSLog2\TSLog.Links.Db\bin\Debug\net5.0\TSLog.Common.pdb
 D:\C#\_\TSLog2\TSLog.Links.Db\obj\Debug\net5.0\TSLog.Links.Db.csproj.CopyComplete
+D:\C#\_\TSLog2\TSLog.Links.Db\bin\Debug\net5.0\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.Links.Db\bin\Debug\net5.0\TSLog.BO.pdb

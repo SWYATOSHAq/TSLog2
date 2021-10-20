@@ -98,3 +98,5 @@ D:\C#\_\TSLog2\TSLog.Links.Services\obj\Debug\net5.0\scopedcss\bundle\TSLog.Link
 D:\C#\_\TSLog2\TSLog.Links.Services\obj\Debug\net5.0\TSLog.Links.Services.RazorTargetAssemblyInfo.cache
 D:\C#\_\TSLog2\TSLog.Links.Services\obj\Debug\net5.0\TSLog.Links.Services.csproj.CopyComplete
 D:\C#\_\TSLog2\TSLog.Links.Services\obj\Debug\net5.0\TSLog.Links.Services.genruntimeconfig.cache
+D:\C#\_\TSLog2\TSLog.Links.Services\bin\Debug\net5.0\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.Links.Services\bin\Debug\net5.0\TSLog.BO.pdb

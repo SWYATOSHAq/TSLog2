@@ -24,3 +24,6 @@ D:\C#\_\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.csproj.CoreCompileInputs
 D:\C#\_\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.dll
 D:\C#\_\TSLog2\TSLog.Links\obj\Debug\net5.0\ref\TSLog.Links.dll
 D:\C#\_\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.pdb
+D:\C#\_\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.BO.dll
+D:\C#\_\TSLog2\TSLog.Links\bin\Debug\net5.0\TSLog.BO.pdb
+D:\C#\_\TSLog2\TSLog.Links\obj\Debug\net5.0\TSLog.Links.csproj.CopyComplete
