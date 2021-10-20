@@ -29,6 +29,8 @@ namespace TSLog.Links.Services
             storage.Connect("ecco", password);
 
             services.AddSingleton<ILinksStorage>(storage);
+
+
             var temp = services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true; // false by default

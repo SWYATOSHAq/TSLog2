@@ -7,27 +7,14 @@
   "targets": {
     ".NETCoreApp,Version=v5.0": {
       "TSLog.Links/1.0.0": {
-        "dependencies": {
-          "TSLog.BO": "1.0.0"
-        },
         "runtime": {
           "TSLog.Links.dll": {}
-        }
-      },
-      "TSLog.BO/1.0.0": {
-        "runtime": {
-          "TSLog.BO.dll": {}
         }
       }
     }
   },
   "libraries": {
     "TSLog.Links/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "TSLog.BO/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

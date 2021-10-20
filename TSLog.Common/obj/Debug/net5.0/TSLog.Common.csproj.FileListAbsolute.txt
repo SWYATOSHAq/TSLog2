@@ -10,3 +10,15 @@ C:\m.burov\Projects\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.dll
 C:\m.burov\Projects\TSLog2\TSLog.Common\obj\Debug\net5.0\ref\TSLog.Common.dll
 C:\m.burov\Projects\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.pdb
 C:\m.burov\Projects\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.csproj.AssemblyReference.cache
+D:\C#\_\TSLog2\TSLog.Common\bin\Debug\net5.0\TSLog.Common.deps.json
+D:\C#\_\TSLog2\TSLog.Common\bin\Debug\net5.0\TSLog.Common.dll
+D:\C#\_\TSLog2\TSLog.Common\bin\Debug\net5.0\ref\TSLog.Common.dll
+D:\C#\_\TSLog2\TSLog.Common\bin\Debug\net5.0\TSLog.Common.pdb
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.csproj.AssemblyReference.cache
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.GeneratedMSBuildEditorConfig.editorconfig
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.AssemblyInfoInputs.cache
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.AssemblyInfo.cs
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.csproj.CoreCompileInputs.cache
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.dll
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\ref\TSLog.Common.dll
+D:\C#\_\TSLog2\TSLog.Common\obj\Debug\net5.0\TSLog.Common.pdb

@@ -40,7 +40,9 @@ namespace TSLog.Links.Db
                     while (r.Read())
                     {
                         var or = new OrderResponse(-1, 'O', "", 1);
-                        or.Data = Convert.ToString(r["id"]) + " - " + Convert.ToString(r["name"]);
+                        //or.Data = Convert.ToString(r["id"]) + " - " + Convert.ToString(r["name"]);
+                        or.OrderId = Convert.ToString(r["id"]);
+                        or.OrderNumber = Convert.ToString(r["name"]);
                         result.Add(or);
                     }
                     r.Close();

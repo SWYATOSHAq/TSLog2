@@ -7,16 +7,23 @@ namespace TSLog.Links.Services.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly ILinksStorage _storage = null;
+        private readonly ILinksOrdersStorage _storage = null;
         public OrdersController(ILinksStorage storage)
         {
-            _storage = storage;
+            _storage = (ILinksOrdersStorage) storage;
         }
 
         [HttpPost]
         public string PostOrder(OrderNotofocation order)
         {
-            return string.Empty;
+            //return string.Empty;
+            var items = _storage.GetOrderResponses();
+            var sb = new StringBuilder();
+            foreach (var i in items)
+            {
+                sb.Append(i.OrderId + "\n");
+            }
+            return sb.ToString();
         }
 
         [HttpGet]
@@ -25,46 +32,46 @@ namespace TSLog.Links.Services.Controllers
             return string.Empty;
         }
 
-        [HttpGet("orderId")]
+        [HttpGet("{orderId}")]
         public string GetOrderResponse(string orderId)
         {
             return string.Empty;
         }
 
-        [HttpGet]
+        [HttpGet("PickingStartNotifications")]
         public string GetPickingStartNotifications()
         {
             return string.Empty;
         }
 
-        [HttpGet("orderId")]
-        public string GetPickingStartNotification(string orderId)
+        [HttpGet("PickingStartNotifications/{notificationId}")]
+        public string GetPickingStartNotification(string notificationId)
         {
-            return string.Empty;
+            return "req PickingStartNotifications notification: " + notificationId;
         }
 
-        [HttpGet]
+        [HttpGet("PickingFinishNotifications")]
         public string GetPickingFinishNotifications()
         {
             return string.Empty;
         }
 
-        [HttpGet("orderId")]
-        public string GetPickingFinishNotification(string orderId)
+        [HttpGet("PickingFinishNotifications/{notificationId}")]
+        public string GetPickingFinishNotification(string notificationId)
         {
-            return string.Empty;
+            return "req PickingFinishNotifications notification: " + notificationId;
         }
 
-        [HttpGet]
+        [HttpGet("ShippingNotifications")]
         public string GetShippingNotifications()
         {
             return string.Empty;
         }
 
-        [HttpGet("orderId")]
-        public string GetShippingNotification(string orderId)
+        [HttpGet("ShippingNotifications/{notificationId}")]
+        public string GetShippingNotification(string notificationId)
         {
-            return string.Empty;
+            return "req ShippingNotifications notification: " + notificationId;
         }
     }
 }

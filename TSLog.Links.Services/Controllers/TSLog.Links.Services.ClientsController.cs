@@ -1,12 +1,48 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace TSLog.Links.Services.Controllers
 {
-    public class TSLog : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ClientsController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly ILinksClientsStorage _storage = null;
+        public ClientsController(ILinksStorage storage)
         {
-            return View();
+            _storage = (ILinksClientsStorage) storage;
+        }
+
+        [HttpPost]
+        public string PostClients(string data)
+        {
+            return string.Empty;
+            //var items = _storage.GetOrderResponses();
+            //var sb = new StringBuilder();
+            //foreach (var i in items)
+            //{
+            //    sb.Append(i.OrderId + "\n");
+            //}
+            //return sb.ToString();
+        }
+
+        [HttpGet]
+        public string GetClients()
+        {
+            return string.Empty;
+            //var items = _storage.GetOrderResponses();
+            //var sb = new StringBuilder();
+            //foreach (var i in items)
+            //{
+            //    sb.Append(i.OrderId + "\n");
+            //}
+            //return sb.ToString();
+        }
+
+        [HttpGet("{clientId}")]
+        public string GetClientById(string clientId)
+        {
+            return string.Empty;
         }
     }
 }

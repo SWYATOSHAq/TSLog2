@@ -1042,19 +1042,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\m.burov\\.nuget\\packages\\": {}
+    "C:\\Users\\v.vorotnikov\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
+      "projectUniqueName": "D:\\C#\\_\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
       "projectName": "TSLog.Links.Services",
-      "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
-      "packagesPath": "C:\\Users\\m.burov\\.nuget\\packages\\",
-      "outputPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Services\\obj\\",
+      "projectPath": "D:\\C#\\_\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
+      "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
+      "outputPath": "D:\\C#\\_\\TSLog2\\TSLog.Links.Services\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\m.burov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1068,11 +1068,11 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj": {
-              "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj"
+            "D:\\C#\\_\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj": {
+              "projectPath": "D:\\C#\\_\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj"
             },
-            "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
-              "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
+            "D:\\C#\\_\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
+              "projectPath": "D:\\C#\\_\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
             }
           }
         }

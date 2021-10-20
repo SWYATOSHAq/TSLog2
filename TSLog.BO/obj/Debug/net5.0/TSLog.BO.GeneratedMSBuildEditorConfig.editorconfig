@@ -7,4 +7,4 @@ build_property.PublishSingleFile =
 build_property.IncludeAllContentForSelfExtract = 
 build_property._SupportedPlatformList = Android,iOS,Linux,macOS,Windows
 build_property.RootNamespace = TSLog.BO
-build_property.ProjectDir = C:\m.burov\Projects\TSLog2\TSLog.BO\
+build_property.ProjectDir = D:\C#\_\TSLog2\TSLog.BO\
