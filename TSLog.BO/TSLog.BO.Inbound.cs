@@ -16,9 +16,27 @@ namespace TSLog.BO
         {
             public int Number { get; set; }
             public Product Product { get; set; }
-            public double Quantity { get; set; }
+            public double Quantity { get; set; } // Количество в единицах учета 
+            public double Price { get; set; } // Цена в рублях для документов MX-1.
+            public string OKEI { get; set; } // Код ОКЕИ
+            public DateTime ArrivalPlanDate { get; set; } // Плановая дата приемки в формате dd.mm.yyyy hh24:mi:ss 
+            public string Info { get; set; } // Дополнительная информация  Возможно, по согласованию, включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий} 
+            public string BatchNumber { get; set; } // Партия 
+            public string BatchNumber2 { get; set; } // Партия2 (?)
+
+
         }
-        public string Id { get; set; }
+        public string GUID { get; set; }
+        public OperationType Operation { get; set; }
+        public string ClientDocId { get; set; }
+
+        public Partner Client { get; set; }
+        public Partner Vendor { get; set; }
+
+        //
         public DateTime Date { get; set; }
+        public Line Body { get; set; }
+
     }
+
 }
