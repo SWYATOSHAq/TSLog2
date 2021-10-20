@@ -7,36 +7,36 @@ namespace TSLog.Links.Services.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ILinksStorage _storage = null;
+        private readonly ILinksProductsStorage _storage = null;
         public ProductsController(ILinksStorage storage)
         {
-            _storage = storage;
+            _storage = (ILinksProductsStorage) storage;
         }
 
         [HttpPost]
         public string PostProducts(string data)
         {
-            //return string.Empty;
-            var items = _storage.GetOrderResponses();
-            var sb = new StringBuilder();
-            foreach (var i in items)
-            {
-                sb.Append(i.OrderId + "\n");
-            }
-            return sb.ToString();
+            return string.Empty;
+            //var items = _storage.GetOrderResponses();
+            //var sb = new StringBuilder();
+            //foreach (var i in items)
+            //{
+            //    sb.Append(i.OrderId + "\n");
+            //}
+            //return sb.ToString();
         }
 
         [HttpGet]
         public string GetProducts()
         {
-            //return string.Empty;
-            var items = _storage.GetOrderResponses();
-            var sb = new StringBuilder();
-            foreach (var i in items)
-            {
-                sb.Append(i.OrderId + "\n");
-            }
-            return sb.ToString();
+            return string.Empty;
+            //var items = _storage.GetOrderResponses();
+            //var sb = new StringBuilder();
+            //foreach (var i in items)
+            //{
+            //    sb.Append(i.OrderId + "\n");
+            //}
+            //return sb.ToString();
         }
 
         [HttpGet("{clientId}")]
