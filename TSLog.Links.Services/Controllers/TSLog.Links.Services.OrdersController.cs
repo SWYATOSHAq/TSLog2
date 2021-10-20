@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -27,9 +28,14 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpGet]
-        public string GetOrderResponses() 
+        public ActionResult<OrderResponse[]> GetOrderResponses()
         {
-            return string.Empty;
+            // ------------------------------
+            // DEBUG place by Valerian
+
+            return _storage.GetOrderResponses();
+            // ------------------------------
+            //return string.Empty;
         }
 
         [HttpGet("{orderId}")]

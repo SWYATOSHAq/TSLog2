@@ -25,12 +25,18 @@ namespace TSLog.Links.Db
         }
         public InboundResponse GetInboundResponse(string partnerId, string partnerInboundId)
         {
+            // TODO: cache data then find info in it
             return null;
         }
         public void PostOrderNotification(OrderNotofocation message)
         { }
         public OrderResponse[] GetOrderResponses()
         {
+            /*
+             
+             
+             */
+
             List<OrderResponse> result = new List<OrderResponse>();
             using (var cmd = base._connection.CreateCommand())
             {
@@ -41,8 +47,10 @@ namespace TSLog.Links.Db
                     {
                         var or = new OrderResponse(-1, 'O', "", 1);
                         //or.Data = Convert.ToString(r["id"]) + " - " + Convert.ToString(r["name"]);
+                        //
                         or.OrderId = Convert.ToString(r["id"]);
                         or.OrderNumber = Convert.ToString(r["name"]);
+                        //
                         result.Add(or);
                     }
                     r.Close();
@@ -52,6 +60,7 @@ namespace TSLog.Links.Db
         }
         public OrderResponse GetOrderResponse(string partnerId, string partnerOrderId)
         {
+            // TODO: cache data then find info in it
             return null;
         }
         public PickingStartNotification[] GetPickingStartNotifications()
