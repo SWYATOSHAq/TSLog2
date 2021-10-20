@@ -7,6 +7,14 @@ namespace TSLog.Links.Db
     public class DbLinksStorage : DbStorage, ILinksStorage
     {
         public DbLinksStorage(string dataSource) : base(dataSource) { }
+        public void PostProductsList(ProductsList message)
+        {
+            //
+        }
+        public void PostClientsList(ClientsList message)
+        {
+            //
+        }
         public void PostInboundNotification(InboyndNotification message)
         {
             //

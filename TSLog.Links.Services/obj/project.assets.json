@@ -344,16 +344,6 @@
           }
         }
       },
-      "TSLog.BO/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v5.0",
-        "compile": {
-          "bin/placeholder/TSLog.BO.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/TSLog.BO.dll": {}
-        }
-      },
       "TSLog.Common/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
@@ -381,9 +371,6 @@
       "TSLog.Links/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
-        "dependencies": {
-          "TSLog.BO": "1.0.0"
-        },
         "compile": {
           "bin/placeholder/TSLog.Links.dll": {}
         },
@@ -1025,11 +1012,6 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
-    },
-    "TSLog.BO/1.0.0": {
-      "type": "project",
-      "path": "../TSLog.BO/TSLog.BO.csproj",
-      "msbuildProject": "../TSLog.BO/TSLog.BO.csproj"
     },
     "TSLog.Common/1.0.0": {
       "type": "project",

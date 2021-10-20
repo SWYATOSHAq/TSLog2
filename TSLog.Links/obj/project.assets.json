@@ -1,30 +1,11 @@
 {
   "version": 3,
   "targets": {
-    "net5.0": {
-      "TSLog.BO/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v5.0",
-        "compile": {
-          "bin/placeholder/TSLog.BO.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/TSLog.BO.dll": {}
-        }
-      }
-    }
+    "net5.0": {}
   },
-  "libraries": {
-    "TSLog.BO/1.0.0": {
-      "type": "project",
-      "path": "../TSLog.BO/TSLog.BO.csproj",
-      "msbuildProject": "../TSLog.BO/TSLog.BO.csproj"
-    }
-  },
+  "libraries": {},
   "projectFileDependencyGroups": {
-    "net5.0": [
-      "TSLog.BO >= 1.0.0"
-    ]
+    "net5.0": []
   },
   "packageFolders": {
     "C:\\Users\\m.burov\\.nuget\\packages\\": {}
@@ -52,11 +33,7 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "projectReferences": {
-            "C:\\m.burov\\Projects\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
-              "projectPath": "C:\\m.burov\\Projects\\TSLog2\\TSLog.BO\\TSLog.BO.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {

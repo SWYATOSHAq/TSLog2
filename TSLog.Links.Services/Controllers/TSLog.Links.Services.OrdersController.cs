@@ -13,16 +13,58 @@ namespace TSLog.Links.Services.Controllers
             _storage = storage;
         }
 
-        [HttpPost("{id}")]
-        public string Index(long id)
+        [HttpPost]
+        public string PostOrder(OrderNotofocation order)
         {
-            var items = _storage.GetOrderResponses();
-            var sb = new StringBuilder();
-            foreach (var i in items) 
-            {
-                sb.Append(i.Data + "\n");
-            }
-            return sb.ToString();
+            return string.Empty;
+        }
+
+        [HttpGet]
+        public string GetOrderResponses() 
+        {
+            return string.Empty;
+        }
+
+        [HttpGet("orderId")]
+        public string GetOrderResponse(string orderId)
+        {
+            return string.Empty;
+        }
+
+        [HttpGet]
+        public string GetPickingStartNotifications()
+        {
+            return string.Empty;
+        }
+
+        [HttpGet("orderId")]
+        public string GetPickingStartNotification(string orderId)
+        {
+            return string.Empty;
+        }
+
+        [HttpGet]
+        public string GetPickingFinishNotifications()
+        {
+            return string.Empty;
+        }
+
+        [HttpGet("orderId")]
+        public string GetPickingFinishNotification(string orderId)
+        {
+            return string.Empty;
+        }
+
+        [HttpGet]
+        public string GetShippingNotifications()
+        {
+            return string.Empty;
+        }
+
+        [HttpGet("orderId")]
+        public string GetShippingNotification(string orderId)
+        {
+            return string.Empty;
         }
     }
 }

@@ -6,10 +6,16 @@ namespace TSLog.Links.Services.Controllers
     [ApiController]
     public class InboundsController : ControllerBase
     {
-        [HttpPost("{id}")]
-        public string Index(long id)
+        [HttpPost]
+        public string PostInbound(string data)
         {
-            return "inbound - " + id.ToString();
+            return string.Empty;
+        }
+        
+        [HttpGet("{inboundId}")]
+        public string GetInboundNotification(string inboundId) 
+        {
+            return string.Empty;
         }
     }
 }
