@@ -1,4 +1,5 @@
 ﻿using System;
+using TSLog.BO;
 
 namespace TSLog.Links
 {
@@ -14,12 +15,14 @@ namespace TSLog.Links
 
     public interface ILinksProductsStorage
     {
-        public void PostProductsList(ProductsList message);
+        public void PostProductsList(ProductsList message, Partner client);
+        public ProductsList GetProductsList(Partner client);
     }
     //
     public interface ILinksClientsStorage
     {
-        public void PostClientsList(ClientsList message);
+        public void PostClientsList(ClientsList message, Partner client);
+        public ClientsList GetClientsList(Partner client);
     }
     //
     public interface ILinksInboundsStorage

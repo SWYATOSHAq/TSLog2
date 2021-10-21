@@ -27,9 +27,12 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpGet]
-        public string GetProducts()
+        public ActionResult<BO.Product[]> GetProducts()
         {
-            return string.Empty;
+            var data = _storage.GetProductsList(new BO.Partner{ Id="0120", Name="1234" }).ProductsData.ToArray(); // TODO get client from reqest context
+
+            return data;
+
             //var items = _storage.GetOrderResponses();
             //var sb = new StringBuilder();
             //foreach (var i in items)
