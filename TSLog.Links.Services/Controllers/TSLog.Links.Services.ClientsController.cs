@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using TSLog.BO;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -27,9 +28,9 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpGet]
-        public string GetClients()
+        public ActionResult<Partner[]> GetClients()
         {
-            return string.Empty;
+            return _storage.GetClientsList().clients.ToArray();
             //var items = _storage.GetOrderResponses();
             //var sb = new StringBuilder();
             //foreach (var i in items)

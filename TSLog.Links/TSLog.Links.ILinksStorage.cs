@@ -22,7 +22,7 @@ namespace TSLog.Links
     public interface ILinksClientsStorage
     {
         public void PostClientsList(ClientsList message, Partner client);
-        public ClientsList GetClientsList(Partner client);
+        public ClientsList GetClientsList(bool loadPartners = false);
     }
     //
     public interface ILinksInboundsStorage

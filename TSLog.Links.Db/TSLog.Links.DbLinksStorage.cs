@@ -133,55 +133,26 @@ namespace TSLog.Links.Db
             return products;
         }
 
-        public ClientsList GetClientsList(Partner client)
+        public ClientsList GetClientsList(bool loadPartners = false) // TODO to delete (just for debug)
         {
             ClientsList clients = new ClientsList(-1, 'O', "", 1);
 
             using (var cmd = base._connection.CreateCommand())
             {
-                cmd.CommandText = "select * from ECCO2_S1_PDBA.art_t a where a.mndnr = :client_id"; // TODO check if there  is more efficient and not breakable way
-                cmd.Parameters.Add(new OracleParameter("client_id", client.Id));
+                cmd.CommandText = "select * from ECCO2_S1_PDBA.gp_t WHERE gpknzmnd = :is_partner AND rownum < :limit"; // TODO check if there  is more efficient and not breakable way
+                cmd.Parameters.Add(new OracleParameter("limit", 100));
+                cmd.Parameters.Add(new OracleParameter("is_partner", loadPartners?1:0));
 
                 using (var r = cmd.ExecuteReader())
                 {
                     while (r.Read())
                     {
                         var tmpClient = new Partner();
-                        //
-                        //var product = new Product();
 
-                        //product.Id = Convert.ToString(r["artid"]);
-                        //product.Name = Convert.ToString(r["artbez"]);
-
-                        //product.Group = Convert.ToString(r["ArtGrpNam"]);
-                        //product.Gtin = Convert.ToString(r["ArtEan"]);
-
-                        //product.Netto = Convert.ToInt32(r["artgewnet"]);
-                        //product.Brutto = Convert.ToInt32(r["artgewbru"]);
-
-                        //product.Length = Convert.ToInt32(r["ArtLng"]);
-                        //product.Width = Convert.ToInt32(r["ArtBre"]);
-                        //product.Heigth = Convert.ToInt32(r["ArtHoe"]);
-                        //product.Volume = Convert.ToInt32(r["ArtVol"]);
-
-                        //product.UnitType = Convert.ToString(r["ArtMgEh"]);
-                        //product.UnitLinerial = Convert.ToString(r["ARTABMEH"]);
-                        //product.UnitVolume = Convert.ToString(r["ArtVolEh"]);
-                        //product.UnitWeight = Convert.ToString(r["ARTGEWEH"]);
-
-                        ////product.MaxAmountPerPalet = Convert.ToInt32(r["ArtLttMax"]); // ArtLtt
-                        ////product.AmountPerPackage = Convert.ToInt32(r["ArtLttMgPack"]); // ArtLtt
-                        //product.ExpirationDateInDays = Convert.ToInt32(r["ARTMHDTAGEWEDEFLT"]);
-                        //product.Price = r["ARTWERTVK"] == DBNull.Value ? 0 : Convert.ToDouble(r["ARTWERTVK"]);
-                        ////
-                        //product.Info1 = Convert.ToString(r["ArtInfo1"]);
-                        //product.Info2 = Convert.ToString(r["ArtInfo2"]);
-                        //product.Info3 = Convert.ToString(r["ArtInfo3"]);
-                        //product.Info4 = Convert.ToString(r["ArtInfo4"]);
-                        //product.Info5 = Convert.ToString(r["ArtInfo5"]);
-                        //product.Info6 = Convert.ToString(r["ArtInfo6"]);
-                        ////
-                        //products.ProductsData.Add(product);
+                        tmpClient.Id = Convert.ToString(r["gpnam"]);
+                        tmpClient.Name = Convert.ToString(r["gpnam1"]);
+                        tmpClient.Info1 = Convert.ToString(r["gpadr1"]);
+                        tmpClient.Info2 = Convert.ToString(r["gpadr2"]);
 
                     }
                     r.Close();
