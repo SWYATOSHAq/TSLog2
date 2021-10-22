@@ -7,9 +7,9 @@ namespace TSLog.Links
     {
         public ClientsList(long id, char kind, string type, byte version, string body = null) : base(id, kind, type, version, body)
         {
-            clients = new List<Partner>();
+            clients = new List<LegalEntity>();
         }
 
-        public List<Partner> clients { get; set; }
+        public List<LegalEntity> clients { get; set; }
     }
 }

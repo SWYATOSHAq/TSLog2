@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using TSLog.BO;
 
 namespace TSLog.Links
 {
-    public class OrderNotofocation : Message
+    public class OutboundInstruction : Message
     {   
         public class Line
         {
             public int Number { get; set; }
-            public string ProductId { get; set; }            
+            public Product Product { get; set; }            
             public double Quantity { get; set; }
             public string measureUnitCode { get; set; }
         }
@@ -19,19 +20,19 @@ namespace TSLog.Links
         public DateTime OrderDate { get; set; }
         public DateTime OrderPalnDeliveryDate { get; set; }
 
-        public OrderNotofocation(long id, char kind, string type, byte version, string body = null)
+        public OutboundInstruction(long id, char kind, string type, byte version, string body = null)
             : base(id, kind, type, version, body)
         {
-            _lines = new Dictionary<string, Line>();
+            _lines = new Dictionary<Product, Line>();
         }
 
-        private IDictionary<string, Line> _lines = null;
+        private IDictionary<Product, Line> _lines = null;
         public void AddLine(Line line) 
         {
-            if (!_lines.ContainsKey(line.ProductId))
-                _lines.Add(line.ProductId, line);
+            if (!_lines.ContainsKey(line.Product))
+                _lines.Add(line.Product, line);
             else
-                _lines[line.ProductId].Quantity += line.Quantity;
+                _lines[line.Product].Quantity += line.Quantity;
         }
     }
 }

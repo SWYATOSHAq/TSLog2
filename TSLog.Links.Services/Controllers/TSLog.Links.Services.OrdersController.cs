@@ -15,7 +15,7 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpPost]
-        public string PostOrder(OrderNotofocation order)
+        public string PostOrder(OutboundInstruction order)
         {
             //return string.Empty;
             var items = _storage.GetOrderResponses();
@@ -28,7 +28,7 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpGet]
-        public ActionResult<OrderResponse[]> GetOrderResponses()
+        public ActionResult<OutboundNotification[]> GetOrderResponses()
         {
             // ------------------------------
             // DEBUG place by Valerian

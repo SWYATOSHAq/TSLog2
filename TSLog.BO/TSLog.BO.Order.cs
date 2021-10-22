@@ -21,8 +21,8 @@ namespace TSLog.BO
 
         public string GUID { get; set; }
         public string ClientDocId { get; set; }
-        public Partner Client { get; set; }
-        public Partner Vendor { get; set; }
+        public LegalEntity Client { get; set; }
+        public LegalEntity Vendor { get; set; }
         public OperationType Operation { get; set; } // Тип документа 
         //
         public DateTime ShipDate { get; set; } // Плановая дата отгрузки в формате dd.mm.yyyy hh24:mi:ss 

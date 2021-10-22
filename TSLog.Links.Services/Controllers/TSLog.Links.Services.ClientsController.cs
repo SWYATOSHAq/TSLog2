@@ -28,7 +28,7 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Partner[]> GetClients()
+        public ActionResult<LegalEntity[]> GetClients()
         {
             return _storage.GetClientsList().clients.ToArray();
             //var items = _storage.GetOrderResponses();

@@ -9,37 +9,45 @@ namespace TSLog.Links.Db
     public class DbLinksStorage : DbStorage, ILinksStorage
     {
         public DbLinksStorage(string dataSource) : base(dataSource) { }
-        public void PostProductsList(ProductsList message, Partner client)
+
+        public void PostProductsList(ProductsList message, LegalEntity client)
         {
             //
         }
-        public void PostClientsList(ClientsList message, Partner client)
+
+        public void PostClientsList(ClientsList message, LegalEntity client)
         {
             //
         }
-        public void PostInboundNotification(InboyndNotification message)
+
+        public void PostInboundNotification(InboundInstruction message)
         {
             //
         }
-        public InboundResponse[] GetInboundResponses()
+
+        public InboundNotification[] GetInboundResponses()
         {
             return null;
         }
-        public InboundResponse GetInboundResponse(string partnerId, string partnerInboundId)
+
+        public InboundNotification GetInboundResponse(string partnerId, string partnerInboundId)
         {
             // TODO: cache data then find info in it
             return null;
         }
-        public void PostOrderNotification(OrderNotofocation message)
+
+        public void PostOrderNotification(OutboundInstruction message)
         { }
-        public OrderResponse[] GetOrderResponses()
+
+        public OutboundNotification[] GetOrderResponses()
         {
             /*
              
              
              */
 
-            List<OrderResponse> result = new List<OrderResponse>();
+
+            List<OutboundNotification> result = new List<OutboundNotification>();
             using (var cmd = base._connection.CreateCommand())
             {
                 cmd.CommandText = "select * from v_partner";
@@ -47,7 +55,8 @@ namespace TSLog.Links.Db
                 {
                     while (r.Read())
                     {
-                        var or = new OrderResponse(-1, 'O', "", 1);
+
+                        var or = new OutboundNotification(-1, 'O', "", 1);
                         //or.Data = Convert.ToString(r["id"]) + " - " + Convert.ToString(r["name"]);
                         //
                         or.OrderId = Convert.ToString(r["id"]);
@@ -60,25 +69,30 @@ namespace TSLog.Links.Db
             }
             return result.ToArray();
         }
-        public OrderResponse GetOrderResponse(string partnerId, string partnerOrderId)
+
+        public OutboundNotification GetOrderResponse(string partnerId, string partnerOrderId)
         {
             // TODO: cache data then find info in it
             return null;
         }
-        public PickingStartNotification[] GetPickingStartNotifications()
-        {
-            return null;
-        }
-        public PickingFinishNotification[] GetPickingFinishNotifications()
-        {
-            return null;
-        }
-        public ShippingNotification[] GetShippingNotifications()
+
+        public OutboundNotification[] GetPickingStartNotifications()
         {
             return null;
         }
 
-        public ProductsList GetProductsList(Partner client)
+        public OutboundNotification[] GetPickingFinishNotifications()
+        {
+            return null;
+        }
+
+        public OutboundNotification[] GetShippingNotifications()
+        {
+            return null;
+        }
+
+
+        public ProductsList GetProductsList(LegalEntity client)
         {
             ProductsList products = new ProductsList(-1, 'O', "", 1);
 
@@ -91,9 +105,12 @@ namespace TSLog.Links.Db
                 {
                     while (r.Read())
                     {
-                        var tmpProduct = new Product();
 
-                        tmpProduct.Id = Convert.ToString(r["artid"]);
+
+
+                        var id = Convert.ToString(r["artid"]);
+                        var tmpProduct = new Product(-1, id);
+
                         tmpProduct.Name = Convert.ToString(r["artbez"]);
 
                         tmpProduct.Group = Convert.ToString(r["ArtGrpNam"]);
@@ -133,26 +150,22 @@ namespace TSLog.Links.Db
             return products;
         }
 
+
         public ClientsList GetClientsList(bool loadPartners = false) // TODO to delete (just for debug)
         {
             ClientsList clients = new ClientsList(-1, 'O', "", 1);
 
             using (var cmd = base._connection.CreateCommand())
             {
-                cmd.CommandText = "select * from ECCO2_S1_PDBA.gp_t WHERE gpknzmnd = :is_partner AND rownum < :limit"; // TODO check if there  is more efficient and not breakable way
-                cmd.Parameters.Add(new OracleParameter("limit", 100));
-                cmd.Parameters.Add(new OracleParameter("is_partner", loadPartners?1:0));
+
 
                 using (var r = cmd.ExecuteReader())
                 {
                     while (r.Read())
                     {
-                        var tmpClient = new Partner();
 
-                        tmpClient.Id = Convert.ToString(r["gpnam"]);
-                        tmpClient.Name = Convert.ToString(r["gpnam1"]);
-                        tmpClient.Info1 = Convert.ToString(r["gpadr1"]);
-                        tmpClient.Info2 = Convert.ToString(r["gpadr2"]);
+                        var tmpClient = new LegalEntity(-1, "");
+
 
                     }
                     r.Close();

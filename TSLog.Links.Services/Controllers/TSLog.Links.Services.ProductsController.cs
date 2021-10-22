@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using TSLog.BO;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -29,7 +30,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet]
         public ActionResult<BO.Product[]> GetProducts()
         {
-            var data = _storage.GetProductsList(new BO.Partner{ Id="0120", Name="1234" }).ProductsData.ToArray(); // TODO get client from reqest context
+            var data = _storage.GetProductsList(new LegalEntity(-1, "1234")).ProductsData.ToArray(); // TODO get client from reqest context
 
             return data;
 

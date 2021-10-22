@@ -17,7 +17,7 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=Tr100067168|Werk=0000|MndNr=0014|ArtNr=AR00000119|LttNam=EURO|ArtLttKnzDeflt=1|ArtLttMgMax=999999999|
         |MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=Tr100067168|Werk=0000|MndNr=0014|ArtNr=AR00000119|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|
          */
-        public string Convert(string transactionId, Partner client, Product product, string warehouseCode = "0000")
+        public string Convert(string transactionId, LegalEntity client, Product product, string warehouseCode = "0000")
         {
             var ret = "";
 

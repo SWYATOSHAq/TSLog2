@@ -15,30 +15,32 @@ namespace TSLog.Links
 
     public interface ILinksProductsStorage
     {
-        public void PostProductsList(ProductsList message, Partner client);
-        public ProductsList GetProductsList(Partner client);
+
+        public void PostProductsList(ProductsList message, LegalEntity client);
+        public ProductsList GetProductsList(LegalEntity client);
     }
     //
     public interface ILinksClientsStorage
     {
-        public void PostClientsList(ClientsList message, Partner client);
+        public void PostClientsList(ClientsList message, LegalEntity client);
         public ClientsList GetClientsList(bool loadPartners = false);
     }
     //
     public interface ILinksInboundsStorage
     {
-        public void PostInboundNotification(InboyndNotification message);
-        public InboundResponse[] GetInboundResponses();
+
+        public void PostInboundNotification(InboundInstruction message);
+        public InboundNotification[] GetInboundResponses();
 
     }
     //
     public interface ILinksOrdersStorage
     {
-        public void PostOrderNotification(OrderNotofocation message);
-        public OrderResponse[] GetOrderResponses();
-        public PickingStartNotification[] GetPickingStartNotifications();
-        public PickingFinishNotification[] GetPickingFinishNotifications();
-        public ShippingNotification[] GetShippingNotifications();
+        public void PostOrderNotification(OutboundInstruction message);
+        public OutboundNotification[] GetOrderResponses();
+        public OutboundNotification[] GetPickingStartNotifications();
+        public OutboundNotification[] GetPickingFinishNotifications();
+        public OutboundNotification[] GetShippingNotifications();
     }
 
 }
