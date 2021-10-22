@@ -3,19 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31727.386
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.BO", "TSLog.BO\TSLog.BO.csproj", "{9C56DF56-98F7-4916-8CEE-BCE79B8FFC77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.BO", "TSLog.BO\TSLog.BO.csproj", "{9C56DF56-98F7-4916-8CEE-BCE79B8FFC77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Log", "TSLog.Log\TSLog.Log.csproj", "{84B83441-0932-49F7-A3DC-167D8420EF22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Log", "TSLog.Log\TSLog.Log.csproj", "{84B83441-0932-49F7-A3DC-167D8420EF22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Common", "TSLog.Common\TSLog.Common.csproj", "{36691376-8772-4DCC-A55E-F5D8F48A2FA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Common", "TSLog.Common\TSLog.Common.csproj", "{36691376-8772-4DCC-A55E-F5D8F48A2FA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links", "TSLog.Links\TSLog.Links.csproj", "{5BA1492A-DD14-4DC3-8E69-BFF7C830818B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links", "TSLog.Links\TSLog.Links.csproj", "{5BA1492A-DD14-4DC3-8E69-BFF7C830818B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.Db", "TSLog.Links.Db\TSLog.Links.Db.csproj", "{A0DF08EA-8F36-49B5-BE50-02DC4D4ADD0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Db", "TSLog.Links.Db\TSLog.Links.Db.csproj", "{A0DF08EA-8F36-49B5-BE50-02DC4D4ADD0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Db", "TSLog.Db\TSLog.Db.csproj", "{4289295D-DF21-4DAC-8901-205FA066FF20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Db", "TSLog.Db\TSLog.Db.csproj", "{4289295D-DF21-4DAC-8901-205FA066FF20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.Services", "TSLog.Links.Services\TSLog.Links.Services.csproj", "{9CD4CC6D-8278-423A-AC57-B9278695FC9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Services", "TSLog.Links.Services\TSLog.Links.Services.csproj", "{9CD4CC6D-8278-423A-AC57-B9278695FC9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSlog.Links.PSI.DataConverter", "TSlog.Links.PSI.DataConverter\TSlog.Links.PSI.DataConverter.csproj", "{5C6F272F-8645-4E42-9D5B-7C1548FBA362}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{9CD4CC6D-8278-423A-AC57-B9278695FC9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CD4CC6D-8278-423A-AC57-B9278695FC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CD4CC6D-8278-423A-AC57-B9278695FC9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
