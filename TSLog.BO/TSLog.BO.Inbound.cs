@@ -35,7 +35,7 @@ namespace TSLog.BO
 
         //
         public DateTime Date { get; set; }
-        public Line Body { get; set; }
+        public Line[] Body { get; set; }
 
     }
 
