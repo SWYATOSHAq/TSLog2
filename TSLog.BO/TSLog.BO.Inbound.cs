@@ -30,8 +30,8 @@ namespace TSLog.BO
         public OperationType Operation { get; set; }
         public string ClientDocId { get; set; }
 
-        public Partner Client { get; set; }
-        public Partner Vendor { get; set; }
+        public LegalEntity Client { get; set; }
+        public LegalEntity Vendor { get; set; }
 
         //
         public DateTime Date { get; set; }
