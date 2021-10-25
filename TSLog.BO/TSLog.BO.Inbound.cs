@@ -8,6 +8,8 @@ namespace TSLog.BO
 {
     public class Inbound
     {
+        public object Id;
+
         // шапка
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={1497144A-EAAA-437E-84A0-D1AF487D853E}
         // позиция
@@ -35,7 +37,7 @@ namespace TSLog.BO
 
         //
         public DateTime Date { get; set; }
-        public Line Body { get; set; }
+        public Line[] Body { get; set; }
 
     }
 
