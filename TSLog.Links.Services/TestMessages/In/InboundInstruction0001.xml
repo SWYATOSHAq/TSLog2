@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><warehousing_inbound_instruction:warehousingInboundInstructionMessage xmlns:warehousing_inbound_instruction="urn:gs1:ecom:warehousing_inbound_instruction:xsd:3" xmlns:sh="http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:gs1:ecom:warehousing_inbound_instruction:xsd:3 ../Schemas/gs1/ecom/WarehousingInboundInstruction.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<warehousing_inbound_instruction:warehousingInboundInstructionMessage xmlns:warehousing_inbound_instruction="urn:gs1:ecom:warehousing_inbound_instruction:xsd:3" xmlns:sh="http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:gs1:ecom:warehousing_inbound_instruction:xsd:3 ../Schemas/gs1/ecom/WarehousingInboundInstruction.xsd">
     <sh:StandardBusinessDocumentHeader>
 		<sh:HeaderVersion>1.0</sh:HeaderVersion>
 		<sh:Sender>
-			<sh:Identifier Authority="GS1"/>
+			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
 				<sh:Contact>John Doe</sh:Contact>
 				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
@@ -12,14 +13,14 @@
 			</sh:ContactInformation>
 		</sh:Sender>
 		<sh:Receiver>
-			<sh:Identifier Authority="GS1"/>
+			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
 			<sh:ContactInformation>
 				<sh:Contact>Mary Smith</sh:Contact>
 				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
-			</sh:ContactInformation>
+			</sh:ContactInformation>		
 		</sh:Receiver>
 		<sh:DocumentIdentification>
 			<sh:Standard>GS1</sh:Standard>
@@ -39,7 +40,7 @@
         </warehousingInboundInstructionIdentification>
         <logisticServicesBuyer>			
 			<!--<gln>2222222000004</gln>-->
-			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0010</additionalPartyIdentification>
+			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
         </logisticServicesBuyer>
         <logisticServicesSeller>
             <!--<gln>3333333000001</gln>-->
@@ -51,7 +52,7 @@
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0010</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
             </shipper>
             <receiver>
                 <!---<gln>3333333000018</gln>-->

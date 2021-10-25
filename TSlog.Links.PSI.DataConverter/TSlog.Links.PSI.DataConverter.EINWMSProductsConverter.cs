@@ -1,5 +1,4 @@
-﻿using System;
-using TSLog.BO;
+﻿using TSLog.BO;
 
 namespace TSlog.Links.PSI.DataConverter
 {

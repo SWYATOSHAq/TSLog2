@@ -2,13 +2,105 @@
 using System;
 using System.Collections.Generic;
 using TSLog.BO;
+using TSLog.Common;
 using TSLog.Db;
 
 namespace TSLog.Links.Db
 {
     public class DbLinksStorage : DbStorage, ILinksStorage
     {
-        public DbLinksStorage(string dataSource) : base(dataSource) { }
+        public DbLinksStorage(string dataSource, Catalog<LegalEntity> partners, Catalog<Product> products) 
+            : base(dataSource) 
+        {
+            if (partners == null)
+                throw new ArgumentNullException("partners");
+            if (products == null)
+                throw new ArgumentNullException("products");
+            _partners = partners;
+            _products = products;
+        }
+
+        #region TODO: Разнести по разным сборкам!!! (Colkhozing)
+        public Catalog<LegalEntity> _partners = null;
+        public Catalog<Product> _products = null;
+
+        public LegalEntity GetPartner(string code) 
+        {
+            var partner = _partners[code];
+            if (partner == null)
+            {
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = string.Format("select * from ecco.v_partner p where p.id = {0}", Utils.ToSql(code));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            partner = new LegalEntity(-1,
+                                Convert.ToString(reader["id"]),
+                                Convert.ToString(reader["name"]));
+                            _partners.Add(partner);
+                        }
+                        reader.Close();
+                    }
+                }
+                if (partner != null && partner != LegalEntity.Null)
+                    _partners.Add(partner);
+            }
+            return partner != null ? partner : LegalEntity.Null;
+        }
+        public LegalEntity[] GetPartners()
+        {
+            var partners = new List<LegalEntity>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = "select * from ecco.v_partner p";
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read()) 
+                    {
+                        var partner = new LegalEntity(-1, 
+                            Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]));
+                        partners.Add(partner);
+                    }
+                    reader.Close();
+                }
+            }
+            return partners.ToArray();
+        }
+        public Product GetProduct(string code)
+        {
+            code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
+            var product = _products[code];
+            if (product == null)
+            {
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = string.Format("select * from ecco.v_product p where p.id = {0}", Utils.ToSql(code));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            product = new Product(-1,
+                                Convert.ToString(reader["id"]),
+                                Convert.ToString(reader["name"]));
+                            _products.Add(product);
+                        }
+                        reader.Close();
+                    }
+                }
+                if (product != null && product != Product.Null)
+                    _products.Add(product);
+            }
+            return product != null ? product : Product.Null;
+        }
+        public Product[] GetProducts()
+        {
+            var products = new List<Product>();
+            return products.ToArray();
+        }
+        #endregion
 
         public void PostProductsList(ProductsList message, LegalEntity client)
         {
@@ -41,12 +133,6 @@ namespace TSLog.Links.Db
 
         public OutboundNotification[] GetOrderResponses()
         {
-            /*
-             
-             
-             */
-
-
             List<OutboundNotification> result = new List<OutboundNotification>();
             using (var cmd = base._connection.CreateCommand())
             {
@@ -56,7 +142,7 @@ namespace TSLog.Links.Db
                     while (r.Read())
                     {
 
-                        var or = new OutboundNotification(-1, 'O', "", 1);
+                        var or = new OutboundNotification(-1, 1);
                         //or.Data = Convert.ToString(r["id"]) + " - " + Convert.ToString(r["name"]);
                         //
                         or.OrderId = Convert.ToString(r["id"]);
@@ -91,10 +177,9 @@ namespace TSLog.Links.Db
             return null;
         }
 
-
         public ProductsList GetProductsList(LegalEntity client)
         {
-            ProductsList products = new ProductsList(-1, 'O', "", 1);
+            ProductsList products = new ProductsList(-1, 1);
 
             using (var cmd = base._connection.CreateCommand())
             {
@@ -111,7 +196,7 @@ namespace TSLog.Links.Db
                         var id = Convert.ToString(r["artid"]);
                         var tmpProduct = new Product(-1, id);
 
-                        tmpProduct.Name = Convert.ToString(r["artbez"]);
+                        //tmpProduct.Name = Convert.ToString(r["artbez"]);
 
                         tmpProduct.Group = Convert.ToString(r["ArtGrpNam"]);
                         tmpProduct.Gtin = Convert.ToString(r["ArtEan"]);
@@ -141,7 +226,7 @@ namespace TSLog.Links.Db
                         tmpProduct.Info5 = Convert.ToString(r["ArtInfo5"]);
                         tmpProduct.Info6 = Convert.ToString(r["ArtInfo6"]);
                         //
-                        products.ProductsData.Add(tmpProduct);
+                        products.AddProduct(tmpProduct);
 
                     }
                     r.Close();
@@ -149,7 +234,6 @@ namespace TSLog.Links.Db
             }
             return products;
         }
-
 
         public ClientsList GetClientsList(bool loadPartners = false) // TODO to delete (just for debug)
         {

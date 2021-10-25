@@ -1,5 +1,4 @@
-﻿using System;
-using TSLog.BO;
+﻿using TSLog.BO;
 
 namespace TSLog.Links
 {
@@ -9,6 +8,11 @@ namespace TSLog.Links
         //ILinksClientsStorage 
         //ILinksInboundsStorage 
         //ILinksOrdersStorage
+
+        // Lite colkhozing))
+        public LegalEntity GetPartner(string code);
+        public LegalEntity[] GetPartners();
+        public Product GetProduct(string code);
     }
 
     // split ILinksStorage to several interfaces to cust ILinksStorage to 

@@ -11,8 +11,20 @@
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={B2A883FB-F8F9-4C05-9552-4A09398C8EF0}
         
         public string Group { get; set; } // Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.). Необходимо согласовать с технологами Оператора.
-        public string Gtin { get; set; } // Значение штрихкода 
-        //
+        /// <summary>
+        /// Global trade item number
+        /// </summary>
+        public string Gtin 
+        {
+            get
+            {
+                return Code;
+            }
+            set
+            {
+                Code = value;
+            }
+        }
         public int Netto { get; set; } // Вес единицы артикула нетто (кг до г) 
         public int Brutto { get; set; } // Вес единицы артикула брутто (кг до г) 
         //
@@ -41,5 +53,16 @@
         public Product(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)
         { }
+
+        private static Product _null = null;
+        new public static Product Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new Product(0, "NULL", "Заглушка");
+                return _null;
+            }
+        }
     }
 }
