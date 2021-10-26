@@ -8,7 +8,8 @@ namespace TSLog.BO
 {
     public class Inbound
     {
-        public object Id;
+        public string Id;
+
 
         // шапка
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={1497144A-EAAA-437E-84A0-D1AF487D853E}
@@ -31,11 +32,11 @@ namespace TSLog.BO
             /// </summary>
             public string OKEI { get; set; }
             /// <summary>
-            /// Плановая дата приемки в формате dd.mm.yyyy hh24:mi:ss 
+            /// (ArrivalPlanDate) Плановая дата приемки в формате dd.mm.yyyy hh24:mi:ss 
             /// </summary>
             public DateTime ArrivalPlanDate { get; set; }
             /// <summary>
-            /// Дополнительная информация  Возможно, по согласованию, включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий}
+            /// (Info) Дополнительная информация  Возможно, по согласованию, включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий}
             /// </summary>
             public string Info { get; set; }
             /// <summary>
