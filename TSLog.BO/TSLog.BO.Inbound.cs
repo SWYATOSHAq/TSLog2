@@ -18,25 +18,67 @@ namespace TSLog.BO
         {
             public int Number { get; set; }
             public Product Product { get; set; }
-            public double Quantity { get; set; } // Количество в единицах учета 
-            public double Price { get; set; } // Цена в рублях для документов MX-1.
-            public string OKEI { get; set; } // Код ОКЕИ
-            public DateTime ArrivalPlanDate { get; set; } // Плановая дата приемки в формате dd.mm.yyyy hh24:mi:ss 
-            public string Info { get; set; } // Дополнительная информация  Возможно, по согласованию, включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий} 
-            public string BatchNumber { get; set; } // Партия 
-            public string BatchNumber2 { get; set; } // Партия2 (?)
+            /// <summary>
+            /// (Qty) Количество в единицах учета 
+            /// </summary>
+            public double Quantity { get; set; }
+            /// <summary>
+            /// (Price) Цена в рублях для документов MX-1.
+            /// </summary>
+            public double Price { get; set; }
+            /// <summary>
+            /// (OKAI) Код ОКЕИ
+            /// </summary>
+            public string OKEI { get; set; }
+            /// <summary>
+            /// Плановая дата приемки в формате dd.mm.yyyy hh24:mi:ss 
+            /// </summary>
+            public DateTime ArrivalPlanDate { get; set; }
+            /// <summary>
+            /// Дополнительная информация  Возможно, по согласованию, включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий}
+            /// </summary>
+            public string Info { get; set; }
+            /// <summary>
+            /// Партия 
+            /// </summary>
+            public string BatchNumber { get; set; } 
+            /// <summary>
+            /// Партия2 (?)
+            /// </summary>
+            public string BatchNumber2 { get; set; } 
 
 
         }
+        /// <summary>
+        /// (CustDocGUID) Код GUID номера документа
+        /// </summary>
         public string GUID { get; set; }
+        /// <summary>
+        /// (EcOperation) Тип документа
+        /// </summary>
         public OperationType Operation { get; set; }
+        /// <summary>
+        /// (CustDocId) Номер документа клиента
+        /// </summary>
         public string ClientDocId { get; set; }
+        /// <summary>
+        /// (MndNr) Цифровой идентификатор клиента
+        /// </summary>
 
         public LegalEntity Client { get; set; }
+        /// <summary>
+        /// (CustVendId) Код контрагента (поставщика/грузополучателя)
+        /// </summary>
         public LegalEntity Vendor { get; set; }
 
         //
+        /// <summary>
+        /// отметка о дате и времени
+        /// </summary>
         public DateTime Date { get; set; }
+        /// <summary>
+        /// тело документа
+        /// </summary>
         public Line[] Body { get; set; }
 
     }

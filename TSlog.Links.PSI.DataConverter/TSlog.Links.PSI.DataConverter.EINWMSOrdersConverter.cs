@@ -24,17 +24,17 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067139|Werk=0000|MndNr=0002|AufNr=WM00022398|
 
         */
-        public string Convert(string transactionId, LegalEntity client, Inbound inbound, string warehouseCode = "0000")
+        public string Convert(string transactionId, LegalEntity client, Order order, string warehouseCode = "0000")
         {
             var ret = "";
 
             // header
-            ret += $"|MsgNam={MessageName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr=WM00002252|Aktion=Ins|AuaNam=VKZH_HOR|LfaEmpfNam1=7bed80e6-6dab-11ea-80e0-00505691c78c|AufWwsBeleg=ַ-ֲֶֽװ-008569|AufDzVsSoll=18.10.2021 0:00:00|LfaKdOrt1=|LfaKdOrt2=|AufInfo1=|AufInfo2=6b35df4f-2c21-11ec-80f4-00505691c78c|AufInfo3=187|AufInfo4=|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr={order.ClientDocId}|Aktion=Ins|AuaNam=VKZH_HOR|LfaEmpfNam1={order.GUID}|AufWwsBeleg=ַ-ֲֶֽװ-008569|AufDzVsSoll=18.10.2021 0:00:00|LfaKdOrt1=|LfaKdOrt2=|AufInfo1=|AufInfo2=6b35df4f-2c21-11ec-80f4-00505691c78c|AufInfo3=187|AufInfo4=|\n";
             // body
-            foreach (var row in inbound.Body)
-                ret += $"|MsgNam={MessageRowName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr=WM00002252|AupNr=2|AupMgSoll=1,00|ArtNr=AR00000062|BstQlf=10|AupInfo1=רע|AupInfo2=796|AupInfo6=|AupWert=240,00|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|\n";
+            foreach (var row in order.Body)
+                ret += $"|MsgNam={MessageRowName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr={order.ClientDocId}|AupNr=2|AupMgSoll=1,00|ArtNr=AR00000062|BstQlf=10|AupInfo1=רע|AupInfo2=796|AupInfo6=|AupWert=240,00|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|\n";
             // footer
-            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr=WM00002252|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr={order.ClientDocId}|\n";
 
             return ret;
         }

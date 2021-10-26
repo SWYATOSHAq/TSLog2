@@ -9,34 +9,101 @@
 
         // сама таблица товара
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={B2A883FB-F8F9-4C05-9552-4A09398C8EF0}
-        
-        public string Group { get; set; } // Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.). Необходимо согласовать с технологами Оператора.
-        public string Gtin { get; set; } // Значение штрихкода 
+
+        /// <summary>
+        /// (ArtGrpNam) Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.). Необходимо согласовать с технологами Оператора.
+        /// </summary>
+        public string Group { get; set; }
+        /// <summary>
+        /// (ArtEan) Значение штрихкода 
+        /// </summary>
+        public string Gtin { get; set; }
         //
-        public int Netto { get; set; } // Вес единицы артикула нетто (кг до г) 
-        public int Brutto { get; set; } // Вес единицы артикула брутто (кг до г) 
+        /// <summary>
+        /// (ArtNetWeight) Вес единицы артикула нетто (кг до г) 
+        /// </summary>
+        public int Netto { get; set; }
+        /// <summary>
+        /// (ArtGrossWeight) Вес единицы артикула брутто (кг до г) 
+        /// </summary>
+        public int Brutto { get; set; }
         //
-        public int Length { get; set; } // Длина (км до мм) 
-        public int Width { get; set; } // Ширина (км до мм) 
-        public int Heigth { get; set; } // Высота (км до мм) 
-        public int Volume { get; set; } // Объем  (м3 до мм3) 
+        /// <summary>
+        /// (ArtLng) Длина (км до мм) 
+        /// </summary>
+        public int Length { get; set; }
+        /// <summary>
+        /// (ArtBre) Ширина (км до мм) 
+        /// </summary>
+        public int Width { get; set; }
+        /// <summary>
+        /// (ArtHoe) Высота (км до мм) 
+        /// </summary>
+        public int Heigth { get; set; }
+        /// <summary>
+        /// (ArtVol) Объем  (м3 до мм3) 
+        /// </summary>
+        public int Volume { get; set; }
         //
-        public string UnitType { get; set; } // Единица измерения по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
-        public string UnitLinerial { get; set; } // Единица измерения линейных размеров по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
-        public string UnitVolume { get; set; } // Единица измерения объема по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
-        public string UnitWeight { get; set; } // Единица измерения веса по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
+        /// <summary>
+        /// (ArtMgEh) Единица измерения по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
+        /// </summary>
+        public string UnitType { get; set; }
+        /// <summary>
+        /// (ArtAmbEh) Единица измерения линейных размеров по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
+        /// </summary>
+        public string UnitLinerial { get; set; }
+        /// <summary>
+        /// (ArtVolEh) Единица измерения объема по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
+        /// </summary>
+        public string UnitVolume { get; set; }
+        /// <summary>
+        /// (ArtWeiEh) Единица измерения веса по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
+        /// </summary>
+        public string UnitWeight { get; set; }
         //
-        public int MaxAmountPerPalet { get; set; } // Максимальное количество единиц артикула на одном паллете 
-        public int AmountPerPackage { get; set; } // Кол-во в упаковке / квант товара 
-        public int ExpirationDateInDays { get; set; } // Срок годности в днях 
-        public double Price { get; set; } // Базовая цена товара.
+        /// <summary>
+        /// (ArtLttMax) Максимальное количество единиц артикула на одном паллете 
+        /// </summary>
+        public int MaxAmountPerPalet { get; set; }
+        /// <summary>
+        /// (ArtLttMgPack) Кол-во в упаковке / квант товара 
+        /// </summary>
+        public int AmountPerPackage { get; set; }
+        /// <summary>
+        /// Срок годности в днях 
+        /// </summary>
+        public int ExpirationDateInDays { get; set; }
+        /// <summary>
+        /// (ArtPrice) Базовая цена товара.
+        /// </summary>
+        public double Price { get; set; }
         //
-        public string Info1 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
-        public string Info2 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
-        public string Info3 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
-        public string Info4 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
-        public string Info5 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
-        public string Info6 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
+
+        /// <summary>
+        /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
+        /// </summary>
+        public string Info1 { get; set; }
+        /// <summary>
+        /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
+        /// </summary>
+        public string Info2 { get; set; }
+        /// <summary>
+        /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
+        /// </summary>
+        public string Info3 { get; set; }
+        /// <summary>
+        /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
+        /// </summary>
+        public string Info4 { get; set; }
+        /// <summary>
+        /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
+        /// </summary>
+        public string Info5 { get; set; }
+        /// <summary>
+        /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
+        /// </summary>
+        public string Info6 { get; set; } 
 
         public Product(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)

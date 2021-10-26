@@ -8,6 +8,7 @@ namespace TSLog.BO
 {
     public class Order
     {
+
         // шапка
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={7896B268-8251-47A6-95CC-6603BDD743D4}
         // позиция
