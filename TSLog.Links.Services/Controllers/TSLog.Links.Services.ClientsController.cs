@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using TSLog.BO;
 
 namespace TSLog.Links.Services.Controllers
@@ -30,7 +29,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet]
         public ActionResult<LegalEntity[]> GetClients()
         {
-            return _storage.GetClientsList().clients.ToArray();
+            return _storage.GetClientsList().Clients;
             //var items = _storage.GetOrderResponses();
             //var sb = new StringBuilder();
             //foreach (var i in items)

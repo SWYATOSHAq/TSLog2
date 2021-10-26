@@ -1,5 +1,8 @@
 ﻿namespace TSLog.BO
 {
+    /// <summary>
+    /// Товар (карточка товара)
+    /// </summary>
     public class Product : Entity
     {
         // если это позиция прихода
@@ -25,6 +28,12 @@
                 Code = value;
             }
         }
+
+        new public string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
+        }
         public int Netto { get; set; } // Вес единицы артикула нетто (кг до г) 
         public int Brutto { get; set; } // Вес единицы артикула брутто (кг до г) 
         //
@@ -43,6 +52,11 @@
         public int ExpirationDateInDays { get; set; } // Срок годности в днях 
         public double Price { get; set; } // Базовая цена товара.
         //
+        new public string Note
+        {
+            get { return base.Note; }
+            set { base.Note = value; }
+        }
         public string Info1 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
         public string Info2 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  
         public string Info3 { get; set; } // Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}  

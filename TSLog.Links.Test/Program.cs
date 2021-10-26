@@ -17,7 +17,9 @@ namespace TSLog.Links.Test
             var partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры");
             var products = new Catalog<Product>("PRODUCTS", "Товары");
 
-            var storage = new DbLinksStorage(dataSource, partners, products);
+            var storage = new DbLinksStorage(dataSource);
+            storage.Partners = partners;
+            storage.Products = products;
             var password = new SecureString();
             foreach (var symbol in "e")
                 password.AppendChar(symbol);

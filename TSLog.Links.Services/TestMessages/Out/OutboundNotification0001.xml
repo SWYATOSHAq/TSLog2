@@ -48,10 +48,12 @@
                 <gsin>33333330000114050</gsin>
             </shipmentIdentification>
             <shipper>
-                <gln>3333333000018</gln>
+                <!--<gln>3333333000018</gln>-->
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSOG</additionalPartyIdentification>
             </shipper>
             <receiver>
-                <gln>4444444000008</gln>
+                <!--<gln>4444444000008</gln>-->
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
             </receiver>
             <warehousingOutboundStatusCode>READY_TO_SHIP</warehousingOutboundStatusCode>
             <warehousingOutboundNotificationShipmentItem>

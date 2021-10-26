@@ -5,23 +5,40 @@ using TSLog.BO;
 
 namespace TSLog.Links
 {
+    /// <summary>
+    /// Заказ на сборку (и доставку) товара
+    /// </summary>
     public class OutboundNotification : Message
     {
         /// <summary>
         /// Товарная позиция ответа на заказ, уведомления о старте сборки, уведомления об окончании сборки, уведомления об отгрузке
         /// </summary>
-        public class Line : LineBase
+        public class Line: LineBase
         {
-            public Line(int number, Product product, double quantity) 
+            public double PlanQuantity
+            {
+                get { return Quantity; }
+                set { Quantity = value; } 
+            }
+            public double FactQuantity { get; set; }
+            public Line(int number, Product product, double quantity)
                 : base(number, product, quantity)
             { }
         }
 
-        public string OrderId { get; set; }
-        public string OrderNumber { get; set; }
-        public string PartnerOrderNumber { get; set; }
-
+        public string OutboundId { get; set; }
+        public string OutboundNumber { get; set; }
+        public string PartnerOutboundNumber { get; set; }
+        /// <summary>
+        /// Статус (состояние)
+        /// </summary>
+        public string State { get; set; }
+        public LegalEntity ServiceBuyer { get; set; }
+        public LegalEntity ServiceSeller { get; set; }
+        public LegalEntity Shipper { get; set; }
+        public LegalEntity Receiver { get; set; }
         private IDictionary<Product, Line> _lines = null;
+
         public OutboundNotification(long id, byte version, string body = null)
             : base(id, 'O', "OUTBOUND_NOTIFICATION", version, body)
         {

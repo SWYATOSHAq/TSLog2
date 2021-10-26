@@ -1,5 +1,8 @@
 ﻿namespace TSLog.BO
 {
+    /// <summary>
+    /// Единица измерения
+    /// </summary>
     public class MeasureUnit : Entity
     {
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={6512FD8B-4D58-49B0-9A36-AF01F2EED2FF}
@@ -14,16 +17,17 @@
         /// <summary>
         /// Базовая единица измерения, коэффициент преобразования которой равен 1
         /// </summary>
-        public MeasureUnit Baseunit { get; set; }
+        public MeasureUnit BaseUnit { get; set; }
 
         private static MeasureUnit _null = null;
-
-        public MeasureUnit(long id, string code, string name = "", string note = "") 
+        public MeasureUnit(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)
         {
             //
         }
-
+        /// <summary>
+        /// NULL object
+        /// </summary>
         new public static MeasureUnit Null
         {
             get

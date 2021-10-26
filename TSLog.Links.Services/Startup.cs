@@ -22,15 +22,15 @@ namespace TSLog.Links.Services
         {
             // TODO: Connection params брать из конфига 
 
-            var storage = new DbLinksStorage("(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))",
-                null, null);
+            var dataSource = 
+                "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
+            var storage = new DbLinksStorage(dataSource);
             var password = new SecureString();
             foreach (var symbol in "e")
                 password.AppendChar(symbol);
             storage.Connect("ecco", password);
 
             services.AddSingleton<ILinksStorage>(storage);
-
 
             var temp = services.AddControllers(options =>
             {
