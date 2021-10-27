@@ -1,4 +1,5 @@
-﻿using TSLog.BO;
+﻿using System;
+using TSLog.BO;
 
 namespace TSlog.Links.PSI.DataConverter
 {
@@ -7,9 +8,17 @@ namespace TSlog.Links.PSI.DataConverter
         public virtual string MessageName() { return "WMS"; }
         public virtual string WMSAPIVersion() { return "1.9.3"; }
 
-        public static string PrepareStringParam(string param, string defaultValue, )
+        public static string PrepStrPar(string param, bool isUpper = false, string defaultValue = "")
         {
-            return param == null ? defaultValue : param;
+            var ret = param == null ? defaultValue : param;
+            return isUpper ? ret.ToUpper() : ret;
+        }
+
+        public static string TruncateLongString(string str, int maxLength, int start = 0)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+
+            return str.Substring(start, Math.Min(str.Length, maxLength));
         }
 
         public static string TranslateMeasurmentUnit(string unit)

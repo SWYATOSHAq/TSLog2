@@ -1,5 +1,4 @@
-﻿using System;
-using TSLog.BO;
+﻿using TSLog.BO;
 using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter
@@ -25,12 +24,6 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067139|Werk=0000|MndNr=0002|AufNr=WM00022398|
         */
 
-        static string TruncateLongString(string str, int maxLength, int start = 0)
-        {
-            if (string.IsNullOrEmpty(str)) return str;
-
-            return str.Substring(start, Math.Min(str.Length, maxLength));
-        }
 
         public string Convert(string transactionId, OutboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
         {

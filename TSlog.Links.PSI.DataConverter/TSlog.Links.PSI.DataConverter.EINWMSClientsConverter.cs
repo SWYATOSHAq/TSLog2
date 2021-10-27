@@ -16,7 +16,7 @@ namespace TSlog.Links.PSI.DataConverter
          */
         public string Convert(string transactionId, LegalEntity client, LegalEntity vendor, string warehouseCode = "0000", bool canAddNewLineSymbol = true)
         {
-            return $"|MsgNam={MessageName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Code}|GpNam={vendor.Code}|GpBez={vendor.Name}|GpAdr1={(vendor.Address == null ? "...": vendor.Address)}|GpInfo1={(vendor.Info1 == null ? "" : vendor.Info1)}|GpInfo2={(vendor.Info2 == null ? "" : vendor.Info2)}|{(canAddNewLineSymbol?'\n':"")}";
+            return $"|MsgNam={PrepStrPar(MessageName(), true)}|VersionsNr={PrepStrPar(WMSAPIVersion(), true)}|TrxId={PrepStrPar(transactionId)}|Werk={PrepStrPar(warehouseCode)}|MndNr={PrepStrPar(client.Code)}|GpNam={PrepStrPar((vendor.Code))}|GpBez={vendor.Name}|GpAdr1={(vendor.Address == null ? "...": vendor.Address)}|GpInfo1={(vendor.Info1 == null ? "" : vendor.Info1)}|GpInfo2={(vendor.Info2 == null ? "" : vendor.Info2)}|{(canAddNewLineSymbol?'\n':"")}";
         }
     }
 }
