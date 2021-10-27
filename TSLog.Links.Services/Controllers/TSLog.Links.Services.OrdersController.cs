@@ -22,7 +22,7 @@ namespace TSLog.Links.Services.Controllers
             var sb = new StringBuilder();
             foreach (var i in items)
             {
-                sb.Append(i.OrderId + "\n");
+                sb.Append(i.OutboundId + "\n");
             }
             return sb.ToString();
         }

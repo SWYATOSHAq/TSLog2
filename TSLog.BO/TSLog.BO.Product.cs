@@ -2,6 +2,9 @@
 
 namespace TSLog.BO
 {
+    /// <summary>
+    /// Товар (карточка товара)
+    /// </summary>
     public class Product : Entity
     {
         // если это позиция прихода
@@ -11,16 +14,30 @@ namespace TSLog.BO
 
         // сама таблица товара
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={B2A883FB-F8F9-4C05-9552-4A09398C8EF0}
-
         /// <summary>
         /// (ArtGrpNam) Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.). Необходимо согласовать с технологами Оператора.
         /// </summary>
         public string Group { get; set; }
         /// <summary>
-        /// (ArtEan) Значение штрихкода 
+        /// Global trade item number
         /// </summary>
-        public string Gtin { get; set; }
-        //
+        public string Gtin 
+        {
+            get
+            {
+                return Code;
+            }
+            set
+            {
+                Code = value;
+            }
+        }
+
+        new public string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
+        }
         /// <summary>
         /// (ArtNetWeight) Вес единицы артикула нетто (кг до г) 
         /// </summary>
@@ -46,7 +63,6 @@ namespace TSLog.BO
         /// (ArtVol) Объем  (м3 до мм3) 
         /// </summary>
         public int Volume { get; set; }
-        //
         /// <summary>
         /// (ArtMgEh) Единица измерения по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
         /// </summary>
@@ -63,7 +79,6 @@ namespace TSLog.BO
         /// (ArtWeiEh) Единица измерения веса по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет 
         /// </summary>
         public string UnitWeight { get; set; }
-        //
         /// <summary>
         /// (ArtLttMax) Максимальное количество единиц артикула на одном паллете 
         /// </summary>
@@ -80,7 +95,11 @@ namespace TSLog.BO
         /// (ArtPrice) Базовая цена товара.
         /// </summary>
         public double Price { get; set; }
-        //
+        new public string Note
+        {
+            get { return base.Note; }
+            set { base.Note = value; }
+        }
 
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
@@ -110,5 +129,16 @@ namespace TSLog.BO
         public Product(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)
         { }
+
+        private static Product _null = null;
+        new public static Product Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new Product(0, "NULL", "Заглушка");
+                return _null;
+            }
+        }
     }
 }

@@ -17,9 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Db", "TSLog.Db\TSLog.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Services", "TSLog.Links.Services\TSLog.Links.Services.csproj", "{9CD4CC6D-8278-423A-AC57-B9278695FC9C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Gs1EdiXmlConverter", "TSLog.Links.Gs1EdiXmlConverter\TSLog.Links.Gs1EdiXmlConverter.csproj", "{B0825315-94AF-4ABC-9CA5-4A366E67B826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Gs1EdiXml", "TSLog.Links.Gs1EdiXmlConverter\TSLog.Links.Gs1EdiXml.csproj", "{B0825315-94AF-4ABC-9CA5-4A366E67B826}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSlog.Links.PSI.DataConverter", "TSlog.Links.PSI.DataConverter\TSlog.Links.PSI.DataConverter.csproj", "{5C6F272F-8645-4E42-9D5B-7C1548FBA362}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Test", "TSLog.Links.Test\TSLog.Links.Test.csproj", "{144CA9E8-A9E5-4515-B4AF-4A03ECBA4202}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C6F272F-8645-4E42-9D5B-7C1548FBA362}.Release|Any CPU.Build.0 = Release|Any CPU
+		{144CA9E8-A9E5-4515-B4AF-4A03ECBA4202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{144CA9E8-A9E5-4515-B4AF-4A03ECBA4202}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{144CA9E8-A9E5-4515-B4AF-4A03ECBA4202}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{144CA9E8-A9E5-4515-B4AF-4A03ECBA4202}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

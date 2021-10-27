@@ -1,15 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TSLog.BO;
 
 namespace TSLog.Links
 {
+    /// <summary>
+    /// Справочник клиентов
+    /// </summary>
     public class ClientsList : Message
     {
-        public ClientsList(long id, char kind, string type, byte version, string body = null) : base(id, kind, type, version, body)
+        public ClientsList(long id, byte version, string body = null) 
+            : base(id, 'I', "CLIENTS_LIST", version, body)
         {
-            clients = new List<LegalEntity>();
+            _clients = new List<LegalEntity>();
         }
 
-        public List<LegalEntity> clients { get; set; }
+        private List<LegalEntity> _clients = null;
+        public void AddClient(LegalEntity client)
+        {
+            if (client == null)
+                throw new ArgumentNullException("client");
+            if (client != LegalEntity.Null)
+                _clients.Add(client);
+        }
+        public void AddClients(LegalEntity[] clients)
+        {
+            if (clients == null)
+                throw new ArgumentNullException("clients");
+            foreach (var client in clients)
+                AddClient(client);
+        }
+        public LegalEntity[] Clients
+        {
+            get
+            {
+                return _clients.ToArray();
+            }
+        }
     }
 }

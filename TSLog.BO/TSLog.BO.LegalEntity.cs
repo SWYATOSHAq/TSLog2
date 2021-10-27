@@ -22,5 +22,16 @@
         public LegalEntity(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)
         { }
+
+        private static LegalEntity _null = null;
+        new public static LegalEntity Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new LegalEntity(0, "NULL", "Заглушка");
+                return _null;
+            }
+        }
     }
 }

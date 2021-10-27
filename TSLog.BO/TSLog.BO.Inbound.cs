@@ -1,20 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TSLog.BO
 {
-    public class Inbound
+    public class Inbound : Entity
     {
-        public string Id;
-
+        /// <summary>
+        /// Приход товара на склад
+        /// </summary>
+        public Inbound(string id, string number, string note = "", bool isActive = true)
+            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note, isActive)
+        {
+        }
 
         // шапка
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={1497144A-EAAA-437E-84A0-D1AF487D853E}
         // позиция
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={7221368A-BD9A-4759-89BF-304C7B61931C}
+        /// <summary>
+        /// Товарная позиция прихода
+        /// </summary>
         public class Line
         {
             /// <summary>
@@ -50,8 +54,6 @@ namespace TSLog.BO
             /// Партия2 (?)
             /// </summary>
             public string BatchNumber2 { get; set; } 
-
-
         }
         /// <summary>
         /// (CustDocGUID) Код GUID номера документа
@@ -92,7 +94,5 @@ namespace TSLog.BO
         /// тело документа
         /// </summary>
         public Line[] Body { get; set; }
-
     }
-
 }
