@@ -46,14 +46,7 @@ namespace TSLog.BO
             /// (Info) Дополнительная информация  Возможно, по согласованию, включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий}
             /// </summary>
             public string Info { get; set; }
-            /// <summary>
-            /// Партия 
-            /// </summary>
-            public string BatchNumber { get; set; } 
-            /// <summary>
-            /// Партия2 (?)
-            /// </summary>
-            public string BatchNumber2 { get; set; } 
+
         }
         /// <summary>
         /// (CustDocGUID) Код GUID номера документа

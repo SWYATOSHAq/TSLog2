@@ -124,7 +124,16 @@ namespace TSLog.BO
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий} 
         /// </summary>
-        public string Info6 { get; set; } 
+        public string Info6 { get; set; }
+
+        /// <summary>
+        /// Партия 
+        /// </summary>
+        public string BatchNumber { get; set; }
+        /// <summary>
+        /// Партия2 (?)
+        /// </summary>
+        public string BatchNumber2 { get; set; }
 
         public Product(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)
