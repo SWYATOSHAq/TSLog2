@@ -200,14 +200,9 @@ namespace TSLog.Links.Gs1EdiXml
 
         private InboundInstruction.Line InboundInstructionLineFromXml(XmlReader reader)
         {
-            //< lineItemNumber > 1 </ lineItemNumber >
-            //< transactionalTradeItem >
-            //< gtin > 02222222003333 </ gtin >
             if (reader == null)
                 throw new ArgumentNullException("reader");
-
             var closeTag = reader.Name;
-
             var gtin = string.Empty;
             var quantity = 0.0;
             var logisticUnits = new List<LogisticUnit>();
@@ -215,16 +210,21 @@ namespace TSLog.Links.Gs1EdiXml
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    if (reader.Name == "transactionalTradeItem")
-                        reader.Read();
-                    else if (reader.Name == "gtin")
-                        gtin = reader.ReadElementContentAsString();
-
-                    else if (reader.Name == "plannedReceiptQuantity")
-                        quantity = reader.ReadElementContentAsDouble();
-
-                    else
-                        reader.Read();
+                    switch (reader.Name)
+                    {
+                        case "transactionalTradeItem":
+                            reader.Read();
+                            break;
+                        case "gtin":
+                            gtin = reader.ReadElementContentAsString();
+                            break;
+                        case "plannedReceiptQuantity":
+                            quantity = reader.ReadElementContentAsDouble();
+                            break;
+                        default:
+                            reader.Read();
+                            break;
+                    }
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement)
                 {
@@ -244,7 +244,7 @@ namespace TSLog.Links.Gs1EdiXml
         }
         public InboundInstruction InboundInstructionFromXml(XmlReader reader)
         {
-            var message = new InboundInstruction(1);
+            var inboundInstruction = new InboundInstruction(1);
 
             LegalEntity sender = null;
             LegalEntity recipient = null;
@@ -266,85 +266,100 @@ namespace TSLog.Links.Gs1EdiXml
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    if (reader.Name == "sh:Sender")
-                        sender = SideFromXml(reader);
-                    else if (reader.Name == "sh:Receiver")
-                        recipient = SideFromXml(reader);
+                    switch (reader.Name)
+                    {
+                        case "sh:Sender":
+                            sender = SideFromXml(reader);
+                            break;
+                        case "sh:Receiver":
+                            recipient = SideFromXml(reader);
+                            break;
+                        case "creationDateTime":
+                            inboundInstruction.InboundDate = Convert.ToDateTime(reader.ReadElementContentAsString());
+                            break;
+                        case "entityIdentification":
+                            inboundInstruction.Number = reader.ReadElementContentAsString();
+                            break;
+                        case "logisticServicesBuyer":
+                            serviceBuyer = LegalEntityFromXml(reader);
+                            break;
+                        case "logisticServicesSeller":
+                            serviceSeller = LegalEntityFromXml(reader);
+                            break;
 
-                    else if (reader.Name == "creationDateTime")
-                        message.InboundDate = Convert.ToDateTime(reader.ReadElementContentAsString());
-                    else if (reader.Name == "entityIdentification")
-                        message.Number = reader.ReadElementContentAsString();
+                        // Global Shipment Identification Number,
+                        // Глобальный номер для идентификации отгрузки
+                        case "gsin":
+                            inboundInstruction.PartnerInboundNumber = reader.ReadElementContentAsString();
+                            break;
 
-                    else if (reader.Name == "logisticServicesBuyer")
-                        serviceBuyer = LegalEntityFromXml(reader);
-                    else if (reader.Name == "logisticServicesSeller")
-                        serviceSeller = LegalEntityFromXml(reader);
+                        case "warehousingInboundInstructionShipment":
+                            reader.Read();
+                            break;
+                        case "shipmentIdentification":
+                            reader.Read();
+                            break;
+                        case "shipper":
+                            shipper = LegalEntityFromXml(reader);
+                            break;
+                        case "receiver":
+                            receiver = LegalEntityFromXml(reader);
+                            break;
+                        case "logisticUnit":
+                            logisticUnits.Add(LogisticUnitFromXml(reader));
+                            break;
+                        case "plannedReceipt":
+                            reader.Read();
+                            break;
+                        case "logisticEventPeriod":
+                            reader.Read();
+                            break;
 
-                    // Global Shipment Identification Number,
-                    // Глобальный номер для идентификации отгрузки
-                    else if (reader.Name == "gsin")
-                        message.PartnerInboundNumber = reader.ReadElementContentAsString();
+                        /* TODO: parse this block
+                        <packageTotal>
+                            <packageTypeCode>AF</packageTypeCode>
+                            <totalPackageQuantity>2</totalPackageQuantity>
+                        </packageTotal>
+                        <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode> */
 
-                    else if (reader.Name == "warehousingInboundInstructionShipment")
-                        reader.Read();
-                    else if (reader.Name == "shipmentIdentification")
-                        reader.Read();
+                        case "beginDate":
+                            beginDate = reader.ReadElementContentAsString();
+                            break;
+                        case "beginTime":
+                            beginTime = reader.ReadElementContentAsString();
+                            break;
+                        case "endDate":
+                            endDate = reader.ReadElementContentAsString();
+                            break;
+                        case "endTime":
+                            endTime = reader.ReadElementContentAsString();
+                            break;
+                        case "warehousingInboundInstructionShipmentItem":
+                            lines.Add(InboundInstructionLineFromXml(reader));
+                            break;
 
-                    else if (reader.Name == "shipper")
-                        shipper = LegalEntityFromXml(reader);
-                    else if (reader.Name == "receiver")
-                        receiver = LegalEntityFromXml(reader);
-
-                    else if (reader.Name == "logisticUnit")
-                        logisticUnits.Add(LogisticUnitFromXml(reader));
-
-                    /* TODO: parse this block
-                    <packageTotal>
-                        <packageTypeCode>AF</packageTypeCode>
-                        <totalPackageQuantity>2</totalPackageQuantity>
-                    </packageTotal>
-                    <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode>
-                    */
-                    else if (reader.Name == "plannedReceipt")
-                        reader.Read();
-                    else if (reader.Name == "logisticEventPeriod")
-                        reader.Read();
-
-                    else if (reader.Name == "beginDate")
-                        beginDate = reader.ReadElementContentAsString();
-                    else if (reader.Name == "beginTime")
-                        beginTime = reader.ReadElementContentAsString();
-                    else if (reader.Name == "endDate")
-                        endDate = reader.ReadElementContentAsString();
-                    else if (reader.Name == "endTime")
-                        endTime = reader.ReadElementContentAsString();
-
-                    else if (reader.Name == "warehousingInboundInstructionShipmentItem")
-                        lines.Add(InboundInstructionLineFromXml(reader));
-
-                    else
-                        reader.Read();
+                        default:
+                            reader.Read();
+                            break;
+                    }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
-                    reader.Read();
                 else
                     reader.Read();
             }
-            message.Sender = sender;
-            message.Recipient = recipient;
-            message.ServiceBuyer = serviceBuyer;
-            message.ServiceSeller = serviceSeller;
-            message.Shipper = shipper;
-            message.Receiver = receiver;
+            inboundInstruction.Sender = sender;
+            inboundInstruction.Recipient = recipient;
+            inboundInstruction.ServiceBuyer = serviceBuyer;
+            inboundInstruction.ServiceSeller = serviceSeller;
+            inboundInstruction.Shipper = shipper;
+            inboundInstruction.Receiver = receiver;
                         
-            message.PlanDeliveryBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
-            message.PlanDeliveryEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
+            inboundInstruction.PlanDeliveryBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
+            inboundInstruction.PlanDeliveryEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
 
-            message.AddLogisticUnits(logisticUnits.ToArray());
-            message.AddLines(lines.ToArray());
+            inboundInstruction.AddLogisticUnits(logisticUnits.ToArray());
+            inboundInstruction.AddLines(lines.ToArray());
                 
-            return message;
+            return inboundInstruction;
         }
         public string InboundNotificationToXml(InboundNotification inboundNotification)
         {
@@ -444,15 +459,21 @@ namespace TSLog.Links.Gs1EdiXml
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    if (reader.Name == "transactionalTradeItem")
-                        reader.Read();
-                    else if (reader.Name == "gtin")
-                        gtin = reader.ReadElementContentAsString();
-
-                    else if (reader.Name == "plannedDespatchQuantity")
-                        quantity = reader.ReadElementContentAsDouble();
-                    else
-                        reader.Read();
+                    switch (reader.Name)
+                    {
+                        case "transactionalTradeItem":
+                            reader.Read();
+                            break;
+                        case "gtin":
+                            gtin = reader.ReadElementContentAsString();
+                            break;
+                        case "plannedDespatchQuantity":
+                            quantity = reader.ReadElementContentAsDouble();
+                            break;
+                        default:
+                            reader.Read();
+                            break;
+                    }
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement)
                 {
@@ -473,81 +494,87 @@ namespace TSLog.Links.Gs1EdiXml
         public OutboundInstruction OutboundInstructionFromXml(XmlReader reader)
         {
             var outboundInstruction = new OutboundInstruction(-1, 1);
-
             LegalEntity sender = null;
             LegalEntity recipient = null;
-
             LegalEntity serviceBuyer = null;
             LegalEntity serviceSeller = null;
             LegalEntity shipper = null;
             LegalEntity receiver = null;
-
             var beginDate = string.Empty;
             var beginTime = string.Empty;
             var endDate = string.Empty;
             var endTime = string.Empty;
-
             var lines = new List<OutboundInstruction.Line>();
 
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    if (reader.Name == "sh:Sender")
-                        sender = SideFromXml(reader);
-                    else if (reader.Name == "sh:Receiver")
-                        recipient = SideFromXml(reader);
-
-                    else if (reader.Name == "creationDateTime")
-                        outboundInstruction.Date = Convert.ToDateTime(reader.ReadElementContentAsString());
-                    else if (reader.Name == "entityIdentification")
-                        outboundInstruction.Number = reader.ReadElementContentAsString();
-
-                    else if (reader.Name == "logisticServicesBuyer")
-                        serviceBuyer = LegalEntityFromXml(reader);
-                    else if (reader.Name == "logisticServicesSeller")
-                        serviceSeller = LegalEntityFromXml(reader);
-
-                    else if (reader.Name == "shipper")
-                        shipper = LegalEntityFromXml(reader);
-                    else if (reader.Name == "receiver")
-                        receiver = LegalEntityFromXml(reader);
-
-                    else if (reader.Name == "plannedDelivery")
-                        reader.Read();
-                    else if (reader.Name == "logisticEventPeriod")
-                        reader.Read();
-                    else if (reader.Name == "beginDate")
-                        beginDate = reader.ReadElementContentAsString();
-                    else if (reader.Name == "beginTime")
-                        beginTime = reader.ReadElementContentAsString();
-                    else if (reader.Name == "endDate")
-                        endDate = reader.ReadElementContentAsString();
-                    else if (reader.Name == "endTime")
-                        endTime = reader.ReadElementContentAsString();
-
-                    else if (reader.Name == "warehousingOutboundInstructionShipmentItem")
-                        lines.Add(OutboundInstructionLineFromXml(reader));
-
-                    else
-                        reader.Read();
+                    switch (reader.Name)
+                    {
+                        case "sh:Sender":
+                            sender = SideFromXml(reader);
+                            break;
+                        case "sh:Receiver":
+                            recipient = SideFromXml(reader);
+                            break;
+                        case "creationDateTime":
+                            outboundInstruction.Date = Convert.ToDateTime(reader.ReadElementContentAsString());
+                            break;
+                        case "entityIdentification":
+                            outboundInstruction.Number = reader.ReadElementContentAsString();
+                            break;
+                        case "logisticServicesBuyer":
+                            serviceBuyer = LegalEntityFromXml(reader);
+                            break;
+                        case "logisticServicesSeller":
+                            serviceSeller = LegalEntityFromXml(reader);
+                            break;
+                        case "shipper":
+                            shipper = LegalEntityFromXml(reader);
+                            break;
+                        case "receiver":
+                            receiver = LegalEntityFromXml(reader);
+                            break;
+                        case "plannedDelivery":
+                            reader.Read();
+                            break;
+                        case "logisticEventPeriod":
+                            reader.Read();
+                            break;
+                        case "beginDate":
+                            beginDate = reader.ReadElementContentAsString();
+                            break;
+                        case "beginTime":
+                            beginTime = reader.ReadElementContentAsString();
+                            break;
+                        case "endDate":
+                            endDate = reader.ReadElementContentAsString();
+                            break;
+                        case "endTime":
+                            endTime = reader.ReadElementContentAsString();
+                            break;
+                        case "warehousingOutboundInstructionShipmentItem":
+                            lines.Add(OutboundInstructionLineFromXml(reader));
+                            break;
+                        default:
+                            reader.Read();
+                            break;
+                    }
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement)
                     reader.Read();
                 else
                     reader.Read();
             }
-
             outboundInstruction.Sender = sender;
             outboundInstruction.Recipient = recipient;
             outboundInstruction.ServiceBuyer = serviceBuyer;
             outboundInstruction.ServiceSeller = serviceSeller;
             outboundInstruction.Shipper = shipper;
             outboundInstruction.Receiver = receiver;
-
             outboundInstruction.PlanDeliveryBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             outboundInstruction.PlanDeliveryEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
-
             outboundInstruction.AddLines(lines.ToArray());
 
             return outboundInstruction;

@@ -11,19 +11,29 @@
         /// </summary>
         public string Category { get; private set; }
         /// <summary>
-        /// Коэффициент преобразования: определяет номер этой единицы измерения, который соответствует базовой единице измерения.
+        /// Признак базовой Е. И.
         /// </summary>
+        public bool IsBasic { get; private set; }
+        /// <summary>
+        /// Коэффициент преобразования: определяет номер этой единицы измерения, который соответствует базовой единице измерения.
+        /// </summary>        
         public double Coefficient { get; private set; }
         /// <summary>
         /// Базовая единица измерения, коэффициент преобразования которой равен 1
         /// </summary>
+        public bool IsDefault { get; private set; }
         public MeasureUnit BaseUnit { get; set; }
 
         private static MeasureUnit _null = null;
-        public MeasureUnit(long id, string code, string name = "", string note = "")
-            : base(id, code, name, note)
+        public MeasureUnit(long id, string code, string name, string shortName, string note,
+            string category, bool isBasic, double coefficient, bool isDefault)
+            : base(id, code, name, shortName, string.Empty, string.Empty, note)
         {
-            //
+            Category = !string.IsNullOrWhiteSpace(category) ? category.Trim() : string.Empty;
+            IsBasic = isBasic;
+            Coefficient = coefficient > 0.0 ? coefficient : 1.0;
+            IsDefault = isDefault;
+
         }
         /// <summary>
         /// NULL object
@@ -33,7 +43,7 @@
             get
             {
                 if (_null == null)
-                    _null = new MeasureUnit(0, "NULl", "Заглушка");
+                    _null = new MeasureUnit(0, "NULL", "Заглушка", "Заглушка", string.Empty, "COMMON", true, 1.0, true);
                 return _null;
             }
         }

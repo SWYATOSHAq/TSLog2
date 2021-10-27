@@ -7,8 +7,8 @@ namespace TSLog.BO
         /// <summary>
         /// Приход товара на склад
         /// </summary>
-        public Inbound(long id, string code, string name = "", string note = "", bool isActive = true)
-            : base(id, code, name, note, isActive)
+        public Inbound(string id, string number, string note = "", bool isActive = true)
+            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note, isActive)
         {
         }
 

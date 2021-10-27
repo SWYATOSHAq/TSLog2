@@ -18,6 +18,18 @@
         /// </summary>
         public string Name { get; protected set; } 
         /// <summary>
+        /// Короткое название
+        /// </summary>
+        public string ShortName { get; protected set; }
+        /// <summary>
+        /// Альтернативное название
+        /// </summary>        
+        public string AltName { get; protected set; }
+        /// <summary>
+        /// Название для отображения
+        /// </summary>
+        public string DisplayName { get; protected set; }
+        /// <summary>
         /// Примечание
         /// </summary>
         public string Note { get; protected set; }
@@ -25,11 +37,15 @@
         /// Признак архивной сущности
         /// </summary>
         public bool IsActive { get; protected set; }
-        public Entity(long id, string code, string name = "", string note = "", bool isActive = true)
+        public Entity(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "", 
+            string note = "", bool isActive = true)
         {
             Id = id;
             Code = code;
             Name = name;
+            ShortName = shortName;
+            AltName = altName;
+            DisplayName = displayName;
             Note = note;
             IsActive = isActive;
         }

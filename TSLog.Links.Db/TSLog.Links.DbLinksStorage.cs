@@ -12,11 +12,15 @@ namespace TSLog.Links.Db
     /// <summary>
     /// Класс для работы с хранилищем БД Oracle
     /// </summary>
-    public class DbLinksStorage: DbStorage, ILinksStorage
+    public class DbLinksStorage : DbStorage, ILinksStorage
     {
         public DbLinksStorage(string dataSource)
             : base(dataSource)
         { }
+
+        public string CommonSchema { private get; set; }
+        public string LinksSchema { private get; set; }
+        public string WmsSchema { private get; set; }
 
         #region TODO: Разнести по разным сборкам!!! (Colkhozing)
         public Catalog<Entity> InboundsStaes { get; set; }
@@ -36,6 +40,36 @@ namespace TSLog.Links.Db
         public Catalog<Product> Products { get; set; }
 
         #region "Общие" бизнес объекты
+        public Entity[] GetInboundStates()
+        {
+            return null;
+        }
+        public Entity GetOutboundStates()
+        {
+            return null;
+        }
+        public MeasureUnit[] GetMeasureUnits()
+        {
+            var measureUnits = new List<MeasureUnit>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_measure_unit";
+                using (var reader = command.ExecuteReader())
+                {
+                    var measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]), 
+                        Convert.ToString(reader["code"]), 
+                        Convert.ToString(reader["name"]),
+                        Convert.ToString(reader["short_name"]),                        
+                        Convert.ToString(reader["note"]),
+                        Convert.ToString(reader["category"]),
+                        Convert.ToInt32(reader["is_basic"]) == 1,
+                        Convert.ToDouble(reader["coefficient"]),
+                        Convert.ToInt32(reader["is_default"]) == 1);
+                    measureUnits.Add(measureUnit);
+                }
+            }
+            return measureUnits.ToArray();
+        }
         public LegalEntity GetPartner(string code) 
         {
             var partner = Partners[code];
@@ -152,13 +186,29 @@ namespace TSLog.Links.Db
         #endregion
         #endregion
 
-        public void PostProductsList(ProductsList message, LegalEntity client)
+        public void PostProductsList(ProductsList productsList, LegalEntity partner)
         {
-            //
+            if (productsList == null)
+                throw new ArgumentNullException(nameof(productsList));
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = "";
+                command.ExecuteNonQuery();
+            }
         }
-        public void PostClientsList(ClientsList message, LegalEntity client)
+        public void PostClientsList(ClientsList clientsList, LegalEntity partner)
         {
-            //
+            if (clientsList == null)
+                throw new ArgumentNullException(nameof(clientsList));
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = "";
+                command.ExecuteNonQuery();
+            }
         }
 
         #region Inbound instruction and notification
@@ -197,7 +247,7 @@ namespace TSLog.Links.Db
         private InboundNotification.Line[] GetInboundNotificationLines(InboundNotification inboundNotification)
         {
             if (inboundNotification == null)
-                throw new ArgumentNullException("inboundNotification");
+                throw new ArgumentNullException(nameof(inboundNotification));
             var lines = new List<InboundNotification.Line>();
 
             using (var command = _connection.CreateCommand())
@@ -239,7 +289,7 @@ namespace TSLog.Links.Db
         public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId)
         {
             if (partner == null)
-                throw new ArgumentNullException("partner");
+                throw new ArgumentNullException(nameof(partner));
             InboundNotification inboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
@@ -260,15 +310,26 @@ namespace TSLog.Links.Db
             }
             return inboundNotification;
         }
-        public InboundNotification[] GetInboundNotifications(LegalEntity partner)
+        public InboundNotification[] GetInboundNotifications(LegalEntity[] partners = null)
         {
-            if (partner == null)
-                throw new ArgumentNullException("partner");
             var inboundNotifications = new List<InboundNotification>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from links.v_inbound_notification inm where inm.partner_id = :partner_id";
-                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                var sql = new StringBuilder("select * from links.v_inbound_notification inm");
+                var where = new StringBuilder();
+                if (partners != null && partners.Length > 0) 
+                {
+                    foreach (var partner in partners)
+                    {
+                        if (where.Length > 0)
+                            where.Append(", ");
+                        where.Append(partner.Id);
+                    }
+                    where.Insert(0, "\nwhere inm.partner_id in (");
+                    where.Append(")");
+                    sql.Append(where);
+                }
+                command.CommandText = sql.ToString();
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -325,7 +386,7 @@ namespace TSLog.Links.Db
         private OutboundNotification.Line[] GetOutboundNotificationLines(OutboundNotification outboundNotification)
         {
             if (outboundNotification == null)
-                throw new ArgumentNullException("outboundNotification");
+                throw new ArgumentNullException(nameof(outboundNotification));
             var lines = new List<OutboundNotification.Line>();
             using (var command = _connection.CreateCommand())
             {
@@ -366,7 +427,7 @@ namespace TSLog.Links.Db
         public OutboundNotification GetOutboundNotification(LegalEntity partner, string partnerOutboundId)
         {
             if (partner == null)
-                throw new ArgumentNullException("partner");
+                throw new ArgumentNullException(nameof(partner));
             OutboundNotification outboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
@@ -423,7 +484,7 @@ namespace TSLog.Links.Db
                 if (where.Length > 0)
                 {
                     where.Insert(0, "where ");
-                    sql.Append(where.ToString());
+                    sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
                 using (var reader = command.ExecuteReader())
@@ -441,28 +502,12 @@ namespace TSLog.Links.Db
 
         public OutboundNotification[] GetOrderResponses()
         {
-            var messages = new List<OutboundNotification>();
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = "select * from links.v_ountbound_notification onm";
-                using (var reader = command.ExecuteReader()) 
-                {
-                    while (reader.Read())
-                    {
-                        var or = new OutboundNotification(-1, 1);
-                        or.OutboundId = Convert.ToString(reader["id"]);
-                        or.OutboundNumber = Convert.ToString(reader["name"]);
-                        messages.Add(or);
-                    }
-                    reader.Close();
-                }
-            }
-            return messages.ToArray();
+            return null;
         }
         public OutboundNotification GetOrderResponse(LegalEntity partner, string partnerOrderId)
         {
             if (partner == null)
-                throw new ArgumentNullException("partner");
+                throw new ArgumentNullException(nameof(partner));
             return null;
         }
         public OutboundNotification[] GetPickingStartNotifications()

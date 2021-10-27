@@ -30,7 +30,7 @@ namespace TSLog.Links
         public void PostInboundInstruction(InboundInstruction inboundInstruction);
         public InboundNotification GetInboundNotification(string inboundId);
         public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId);
-        public InboundNotification[] GetInboundNotifications(LegalEntity partner);
+        public InboundNotification[] GetInboundNotifications(LegalEntity[] partners = null);
 
     }
     //
