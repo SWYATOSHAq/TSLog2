@@ -17,6 +17,9 @@ namespace TSLog.BO
         // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={7221368A-BD9A-4759-89BF-304C7B61931C}
         public class Line
         {
+            /// <summary>
+            /// номер строки
+            /// </summary>
             public int Number { get; set; }
             public Product Product { get; set; }
             /// <summary>
@@ -55,6 +58,10 @@ namespace TSLog.BO
         /// </summary>
         public string GUID { get; set; }
         /// <summary>
+        /// (WeaKlaNam) Класс поступающего заказа на товар
+        /// </summary>
+        public string InboundKind { get; set; }
+        /// <summary>
         /// (EcOperation) Тип документа
         /// </summary>
         public OperationType Operation { get; set; }
@@ -74,9 +81,13 @@ namespace TSLog.BO
 
         //
         /// <summary>
-        /// отметка о дате и времени
+        /// отметка о дате и времени (дата формирования документа)
         /// </summary>
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; }        
+        /// <summary>
+        /// отметка о дате и времени (дата потенциального прихода)
+        /// </summary>
+        public DateTime PotentialInboundDate { get; set; }
         /// <summary>
         /// тело документа
         /// </summary>

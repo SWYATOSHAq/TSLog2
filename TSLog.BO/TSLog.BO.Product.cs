@@ -1,4 +1,6 @@
-﻿namespace TSLog.BO
+﻿using System;
+
+namespace TSLog.BO
 {
     public class Product : Entity
     {
@@ -73,7 +75,7 @@
         /// <summary>
         /// Срок годности в днях 
         /// </summary>
-        public int ExpirationDateInDays { get; set; }
+        public DateTime ExpirationDate { get; set; }
         /// <summary>
         /// (ArtPrice) Базовая цена товара.
         /// </summary>

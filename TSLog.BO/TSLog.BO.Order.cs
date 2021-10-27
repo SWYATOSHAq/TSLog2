@@ -24,16 +24,37 @@ namespace TSLog.BO
         public string ClientDocId { get; set; }
         public LegalEntity Client { get; set; }
         public LegalEntity Vendor { get; set; }
-        public OperationType Operation { get; set; } // Тип документа 
+        // Тип документа 
+        public OperationType Operation { get; set; }
+        /// <summary>
+        /// Плановая дата отгрузки в формате dd.mm.yyyy hh24:mi:ss 
+        /// </summary>
+        public DateTime ShipDate { get; set; }
         //
-        public DateTime ShipDate { get; set; } // Плановая дата отгрузки в формате dd.mm.yyyy hh24:mi:ss 
-        //
-        public string DeliveryName { get; set; } // Наименование точки доставки 
-        public string DeliveryZip { get; set; } // Индекс адреса доставки 
-        public string DeliveryCity { get; set; } // Город доставки 
-        public string DeliveryAddress1 { get; set; } // Улица и дом доставки (строка 1) 
-        public string DeliveryAddress2 { get; set; } // Улица и дом доставки (строка 2)
-        public string DeliveryComment { get; set; } // Комментарий к доставке. Возможно, по согласованию, включать текст в виде {BOX=002564}{TYPE=RZN}{COMMENT = комментарий}
+        /// <summary>
+        /// Наименование точки доставки 
+        /// </summary>
+        public string DeliveryName { get; set; }
+        /// <summary>
+        /// Индекс адреса доставки 
+        /// </summary>
+        public string DeliveryZip { get; set; }
+        /// <summary>
+        /// Город доставки 
+        /// </summary>
+        public string DeliveryCity { get; set; }
+        /// <summary>
+        /// Улица и дом доставки (строка 2)
+        /// </summary>
+        public string DeliveryAddress1 { get; set; }
+        /// <summary>
+        /// Улица и дом доставки (строка 1) 
+        /// </summary>
+        public string DeliveryAddress2 { get; set; }
+        /// <summary>
+        /// Комментарий к доставке. Возможно, по согласованию, включать текст в виде {BOX=002564}{TYPE=RZN}{COMMENT = комментарий}
+        /// </summary>
+        public string DeliveryComment { get; set; }
         //
         public DateTime Date { get; set; }
         //
