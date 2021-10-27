@@ -9,33 +9,27 @@ namespace TSLog.Links
     /// </summary>
     public class ClientsList : Message
     {
-        public ClientsList(long id, byte version, string body = null) 
-            : base(id, 'I', "CLIENTS_LIST", version, body)
+        public ClientsList(long id, byte version) 
+            : base(id, 'I', "CLIENTS_LIST", version)
         {
             _clients = new List<LegalEntity>();
         }
 
-        private List<LegalEntity> _clients = null;
+        private readonly List<LegalEntity> _clients = null;
         public void AddClient(LegalEntity client)
         {
             if (client == null)
-                throw new ArgumentNullException("client");
+                throw new ArgumentNullException(nameof(client));
             if (client != LegalEntity.Null)
                 _clients.Add(client);
         }
         public void AddClients(LegalEntity[] clients)
         {
             if (clients == null)
-                throw new ArgumentNullException("clients");
+                throw new ArgumentNullException(nameof(clients));
             foreach (var client in clients)
                 AddClient(client);
         }
-        public LegalEntity[] Clients
-        {
-            get
-            {
-                return _clients.ToArray();
-            }
-        }
+        public LegalEntity[] Clients => _clients.ToArray();
     }
 }

@@ -10,30 +10,7 @@ namespace TSLog.Links
     /// </summary>
     public class InboundNotification : Message
     {
-        /// <summary>
-        /// Товарная позиция уведомления о приёмке
-        /// </summary>
-        public class Line: LineBase
-        {
-            /// <summary>
-            /// Планируемое количество
-            /// </summary>
-            public double PlanQuantity
-            {
-                get { return Quantity; }
-                set { Quantity = value; }
-            }
-            /// <summary>
-            /// Фактическое количество
-            /// </summary>
-            public double FactQuantity { get; set; }
-            public Line(int id, Product product, double quantity)
-                    : base(id, product, quantity)
-            { }
-        }
-
-        public LegalEntity Partner { get; set; }
-        public string InboundId { get; set; }
+        public Inbound Inbound { get; set; }
         public string InboundInstructionNumber { get; set; }
         public string PartnerInboundNumber { get; set; }
         public DateTime InboundDate { get; set; }
@@ -52,37 +29,8 @@ namespace TSLog.Links
         /// </summary>
         public string Note { get; set; }
 
-        private IDictionary<string, LogisticUnit> _logisticUnits = null;
-        private IDictionary<Product, Line> _lines = null;        
-        public InboundNotification(long id, byte version, string body = null) 
+        public InboundNotification(long id, byte version, string body = null)
             : base(id, 'O', "INBOUND_NOTIFICATION", version, body)
-        {
-            _logisticUnits = new Dictionary<string, LogisticUnit>();
-            _lines = new Dictionary<Product, Line>();
-        }
-        public void AddLine(Line line)
-        {
-            if (line == null)
-                throw new ArgumentNullException("line");
-            if (!_lines.ContainsKey(line.Product))
-                _lines.Add(line.Product, line);
-            else
-                _lines[line.Product].Quantity += line.Quantity;
-
-        }
-        public void AddLines(Line[] lines)
-        {
-            if (lines == null)
-                throw new ArgumentNullException("lines");
-            foreach (var line in lines)
-                AddLine(line);
-        }
-        public Line[] Lines
-        {
-            get
-            {
-                return _lines.Values.ToArray();
-            }
-        }
+        { }
     }
 }

@@ -18,15 +18,24 @@ namespace TSLog.Links.Db
             : base(dataSource)
         { }
 
+        /// <summary>
+        /// Схема общими объектами БД (ecco)
+        /// </summary>
         public string CommonSchema { private get; set; }
+        /// <summary>
+        /// Схема с объектами для азличной интеграции (links)
+        /// </summary>
         public string LinksSchema { private get; set; }
+        /// <summary>
+        /// Схема с объектами WMS
+        /// </summary>
         public string WmsSchema { private get; set; }
 
         #region TODO: Разнести по разным сборкам!!! (Colkhozing)
-        public Catalog<Entity> InboundsStaes { get; set; }
-        public Catalog<Entity> OutboundStates { get; set; }
-        public Catalog<MeasureUnit> MeasureUnits { get; set; }
-        public Catalog<LegalEntity> Partners { get; set; }
+        public Catalog<Entity> InboundStates { private get; set; }
+        public Catalog<Entity> OutboundStates { private get; set; }
+        public Catalog<MeasureUnit> MeasureUnits { private get; set; }
+        public Catalog<LegalEntity> Partners { private get; set; }
         private LegalEntity _tslog = null;
         public LegalEntity Tslog
         {
@@ -37,16 +46,33 @@ namespace TSLog.Links.Db
                 return _tslog;
             }
         }
-        public Catalog<Product> Products { get; set; }
+        public Catalog<Product> Products { private get; set; }
 
         #region "Общие" бизнес объекты
         public Entity[] GetInboundStates()
         {
-            return null;
+            var inboundStates = new List<Entity>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_state s";
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var state = new Entity(Convert.ToInt32(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["name"]),
+                        Convert.ToString(reader["short_name"]),
+                        Convert.ToString(reader["ge_name"]));
+                        inboundStates.Add(state);
+                    }
+                }
+            }
+            return inboundStates.ToArray();
         }
-        public Entity GetOutboundStates()
+        public Entity[] GetOutboundStates()
         {
-            return null;
+            return GetInboundStates();
         }
         public MeasureUnit[] GetMeasureUnits()
         {
@@ -56,16 +82,19 @@ namespace TSLog.Links.Db
                 command.CommandText = $"select * from {CommonSchema}.v_measure_unit";
                 using (var reader = command.ExecuteReader())
                 {
-                    var measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]), 
-                        Convert.ToString(reader["code"]), 
+                    while (reader.Read())
+                    {
+                        var measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]),
+                        Convert.ToString(reader["code"]),
                         Convert.ToString(reader["name"]),
-                        Convert.ToString(reader["short_name"]),                        
+                        Convert.ToString(reader["short_name"]),
                         Convert.ToString(reader["note"]),
                         Convert.ToString(reader["category"]),
                         Convert.ToInt32(reader["is_basic"]) == 1,
                         Convert.ToDouble(reader["coefficient"]),
                         Convert.ToInt32(reader["is_default"]) == 1);
-                    measureUnits.Add(measureUnit);
+                        measureUnits.Add(measureUnit);
+                    }
                 }
             }
             return measureUnits.ToArray();
@@ -77,7 +106,8 @@ namespace TSLog.Links.Db
             {
                 using (var command = _connection.CreateCommand())
                 {
-                    command.CommandText = string.Format("select * from ecco.v_partner p where p.id = {0}", Utils.ToSql(code));
+                    command.CommandText = $"select * from {CommonSchema}.v_partner p where p.id = :id";
+                    command.Parameters.Add(new OracleParameter("id", code));
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -100,7 +130,7 @@ namespace TSLog.Links.Db
             var partners = new List<LegalEntity>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from ecco.v_partner p";
+                command.CommandText = $"select * from {CommonSchema}.v_partner p";
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read()) 
@@ -123,7 +153,7 @@ namespace TSLog.Links.Db
             {
                 using (var command = _connection.CreateCommand())
                 {
-                    command.CommandText = string.Format("select * from ecco.v_product p where p.id = :id");
+                    command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
                     command.Parameters.Add(new OracleParameter("id", code));
                     using (var reader = command.ExecuteReader())
                     {
@@ -142,13 +172,26 @@ namespace TSLog.Links.Db
             }
             return product != null ? product : Product.Null;
         }
-        public Product[] GetProducts(LegalEntity partner)
+        public Product[] GetProducts(LegalEntity[] partners = null)
         {
             var products = new List<Product>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = string.Format("select * from ecco.v_product p where p.partner_id = :partner_id");
-                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                var sql = new StringBuilder($"select * from {CommonSchema}.v_product p");
+                var where = new StringBuilder();
+                if (partners != null && partners.Length > 0)
+                {
+                    foreach (var partner in partners)
+                    {
+                        if (where.Length > 0)
+                            where.Append(", ");
+                        where.Append(Utils.ToSql(partner.Id));
+                    }
+                    where.Insert(0, "\nwhere p.partner_id in (");
+                    where.Append(')');
+                    sql.Append(where);
+                }
+                command.CommandText = sql.ToString();                
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -162,27 +205,7 @@ namespace TSLog.Links.Db
                 }
             }
             return products.ToArray();
-        }
-        public Product[] GetProducts()
-        {
-            var products = new List<Product>();
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = string.Format("select * from ecco.v_product p");
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        var product = new Product(-1,
-                            Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]));
-                        Products.Add(product);
-                    }
-                    reader.Close();
-                }
-            }
-            return products.ToArray();
-        }
+        }        
         #endregion
         #endregion
 
@@ -215,19 +238,20 @@ namespace TSLog.Links.Db
         public void PostInboundInstruction(InboundInstruction inboundInstruction)
         {
             if (inboundInstruction == null)
-                throw new ArgumentNullException("inboundInstruction");
+                throw new ArgumentNullException(nameof(inboundInstruction));
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = "";
                 command.ExecuteNonQuery();
             }
         }
-        private InboundNotification.Line CreateInboundNotificationLine(DbDataReader reader)
+        private Inbound.Line CreateInboundNotificationLine(DbDataReader reader)
         {
             var product = GetProduct(Convert.ToString(reader["product_id"]));
             var planQuantity = Convert.ToDouble(reader["plan_quantity"]);
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
-            var line = new InboundNotification.Line(-1, product, planQuantity);
+            MeasureUnit measureUnit = null;
+            var line = new Inbound.Line(-1, product, 0.0, null, planQuantity, measureUnit);
             line.FactQuantity = factQuantity;
             return line;
         }
@@ -235,8 +259,8 @@ namespace TSLog.Links.Db
         {
             var id = Convert.ToString(reader["inbound_id"]);
             var inboundNotification = new InboundNotification(-1, 1);
-            inboundNotification.InboundId = id;
-            inboundNotification.Partner = GetPartner(Convert.ToString(reader["partner_id"]));
+            //inboundNotification.Inbound.Code = id;
+            inboundNotification.Inbound.Partner = GetPartner(Convert.ToString(reader["partner_id"]));
             inboundNotification.State = Convert.ToString(reader["state_code"]);
             inboundNotification.PartnerInboundNumber = Convert.ToString(reader["partner_inbound_number"]);
             inboundNotification.InboundPlanDeliveryDate = Convert.ToDateTime(reader["plan_delivery_date"]);
@@ -244,16 +268,16 @@ namespace TSLog.Links.Db
             inboundNotification.Note = Convert.ToString(reader["note"]);
             return inboundNotification;
         }
-        private InboundNotification.Line[] GetInboundNotificationLines(InboundNotification inboundNotification)
+        private Inbound.Line[] GetInboundNotificationLines(InboundNotification inboundNotification)
         {
             if (inboundNotification == null)
                 throw new ArgumentNullException(nameof(inboundNotification));
-            var lines = new List<InboundNotification.Line>();
+            var lines = new List<Inbound.Line>();
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from links.v_inbound_notification_line inml where inml.inbound_id = :inbound_id";
-                command.Parameters.Add(new OracleParameter("inbound_id", inboundNotification.InboundId));
+                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification_line inml where inml.inbound_id = :inbound_id";
+                command.Parameters.Add(new OracleParameter("inbound_id", inboundNotification.Inbound.Code));
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -271,7 +295,7 @@ namespace TSLog.Links.Db
             InboundNotification inboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from links.v_inbound_notification inm  where inm.inbound_id = :inbound_id";
+                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm  where inm.inbound_id = :inbound_id";
                 command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
                 using (var reader = command.ExecuteReader())
                 {
@@ -279,7 +303,7 @@ namespace TSLog.Links.Db
                     {
                         inboundNotification = CreateInboundNotification(reader);
                         var lines = GetInboundNotificationLines(inboundNotification);
-                        inboundNotification.AddLines(lines);
+                        inboundNotification.Inbound.AddLines(lines);
                     }
                     reader.Close();
                 }
@@ -293,7 +317,7 @@ namespace TSLog.Links.Db
             InboundNotification inboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from links.v_inbound_notification inm " + "\n"
+                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm " + "\n"
                     + "where inm.partner_inbound_id = :partner_inbound_id and inm.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_inbound_id", partnerInboundId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
@@ -303,7 +327,7 @@ namespace TSLog.Links.Db
                     {
                         inboundNotification = CreateInboundNotification(reader);
                         var lines = GetInboundNotificationLines(inboundNotification);
-                        inboundNotification.AddLines(lines);
+                        inboundNotification.Inbound.AddLines(lines);
                     }
                     reader.Close();
                 }
@@ -315,7 +339,7 @@ namespace TSLog.Links.Db
             var inboundNotifications = new List<InboundNotification>();
             using (var command = _connection.CreateCommand())
             {
-                var sql = new StringBuilder("select * from links.v_inbound_notification inm");
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_inbound_notification inm");
                 var where = new StringBuilder();
                 if (partners != null && partners.Length > 0) 
                 {
@@ -335,7 +359,7 @@ namespace TSLog.Links.Db
                     while (reader.Read())
                     {
                         var inboundNotification = CreateInboundNotification(reader);
-                        inboundNotification.AddLines(GetInboundNotificationLines(inboundNotification));
+                        inboundNotification.Inbound.AddLines(GetInboundNotificationLines(inboundNotification));
                         inboundNotifications.Add(inboundNotification);
                     }
                     reader.Close();
@@ -349,49 +373,50 @@ namespace TSLog.Links.Db
         public void PostOutboundInstruction(OutboundInstruction outboundInstruction)
         {
             if (outboundInstruction == null)
-                throw new ArgumentNullException("outboundInstruction");
+                throw new ArgumentNullException(nameof(outboundInstruction));
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = "";
                 command.ExecuteNonQuery();
             }
         }
-        private OutboundNotification.Line CreateOutboundNotificationLine(DbDataReader reader)
+        private Outbound.Line CreateOutboundNotificationLine(DbDataReader reader)
         {
             var product = GetProduct(Convert.ToString(reader["product_id"]));
             var planQuantity = Convert.ToDouble(reader["plan_quantity"]);
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
-            var line = new OutboundNotification.Line(-1, product, planQuantity);
+            MeasureUnit measureUnit = null;
+            var line = new Outbound.Line(-1, product, planQuantity, measureUnit);
             line.FactQuantity = factQuantity;
             return line;
         }
         private OutboundNotification CreateOutboundNotification(DbDataReader reader)
         {
-            var message = new OutboundNotification(-1, 1);
-            message.OutboundId = Convert.ToString(reader["outbound_id"]);
-            message.OutboundNumber = Convert.ToString(reader["outbound_number"]);
-            message.PartnerOutboundNumber = Convert.ToString(reader["partner_outbound_number"]);
-            message.State = Convert.ToString(reader["state_code"]);
+            var outboundNotification = new OutboundNotification(-1, 1);
+            //message.Outbound.Code = Convert.ToString(reader["outbound_id"]);
+            outboundNotification.Outbound.Number = Convert.ToString(reader["outbound_number"]);
+            outboundNotification.PartnerOutboundNumber = Convert.ToString(reader["partner_outbound_number"]);
+            outboundNotification.State = Convert.ToString(reader["state_code"]);
 
             var partner = GetPartner(Convert.ToString(reader["partner_id"]));
-            message.Sender = Tslog;
-            message.Recipient = partner;
-            message.ServiceSeller = Tslog;
-            message.ServiceBuyer = partner;
-            message.Shipper = Tslog;
-            message.Receiver = partner;
+            outboundNotification.Sender = Tslog;
+            outboundNotification.Recipient = partner;
+            outboundNotification.ServiceSeller = Tslog;
+            outboundNotification.ServiceBuyer = partner;
+            outboundNotification.Shipper = Tslog;
+            outboundNotification.Receiver = partner;
 
-            return message;
+            return outboundNotification;
         }
-        private OutboundNotification.Line[] GetOutboundNotificationLines(OutboundNotification outboundNotification)
+        private Outbound.Line[] GetOutboundNotificationLines(OutboundNotification outboundNotification)
         {
             if (outboundNotification == null)
                 throw new ArgumentNullException(nameof(outboundNotification));
-            var lines = new List<OutboundNotification.Line>();
+            var lines = new List<Outbound.Line>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from v_outbound_notification_line onml where onml.outbond_id = :outbond_id";
-                command.Parameters.Add(new OracleParameter("outbond_id", outboundNotification.OutboundId));
+                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification_line onml where onml.outbond_id = :outbond_id";
+                command.Parameters.Add(new OracleParameter("outbond_id", outboundNotification.Outbound.Code));
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -409,7 +434,7 @@ namespace TSLog.Links.Db
             OutboundNotification outboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from liks.v_outbound_notification onm where onm.outbound_id = :outbound_id";
+                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm where onm.outbound_id = :outbound_id";
                 command.Parameters.Add(new OracleParameter("outbound_id", outboundId));
                 using (var reader = command.ExecuteReader())
                 {
@@ -417,7 +442,7 @@ namespace TSLog.Links.Db
                     {
                         outboundNotification = CreateOutboundNotification(reader);
                         var lines = GetOutboundNotificationLines(outboundNotification);
-                        outboundNotification.AddLines(lines);
+                        outboundNotification.Outbound.AddLines(lines);
                     }
                     reader.Close();
                 }
@@ -431,7 +456,7 @@ namespace TSLog.Links.Db
             OutboundNotification outboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = "select * from liks.v_outbound_notification onm" + "\n"
+                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm" + "\n"
                     + "where onm.partner_outbound_id = :partner_outbound_id and onm.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutboundId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
@@ -441,7 +466,7 @@ namespace TSLog.Links.Db
                     {
                         outboundNotification = CreateOutboundNotification(reader);
                         var lines = GetOutboundNotificationLines(outboundNotification);
-                        outboundNotification.AddLines(lines);
+                        outboundNotification.Outbound.AddLines(lines);
                     }
                     reader.Close();
                 }
@@ -455,7 +480,7 @@ namespace TSLog.Links.Db
             {
                 var partnerIds = new StringBuilder();
                 var stateCodes = string.Empty;                
-                var sql = new StringBuilder("select * from links.v_outbound_notification onm");
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_outbound_notification onm");
                 var where = new StringBuilder();
                 if (partners.Length > 0)
                 {
@@ -492,7 +517,7 @@ namespace TSLog.Links.Db
                     var outboundNotification = CreateOutboundNotification(reader);
                     outboundNotifications.Add(outboundNotification);
                     var lines = GetOutboundNotificationLines(outboundNotification);
-                    outboundNotification.AddLines(lines);
+                    outboundNotification.Outbound.AddLines(lines);
                     reader.Close();
                 }
             }
@@ -527,10 +552,10 @@ namespace TSLog.Links.Db
         public ProductsList GetProductsList(LegalEntity partner)
         {
             var products = new ProductsList(-1, 1);
-            using (var command = base._connection.CreateCommand())
+            using (var command = _connection.CreateCommand())
             {
                 // TODO: check if there is more efficient and not breakable way
-                command.CommandText = "select * ecco.v_product p where p.partner_id = :partner_id"; 
+                command.CommandText = $"select * {CommonSchema}.v_product p where p.partner_id = :partner_id"; 
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
 
                 using (var reader = command.ExecuteReader())

@@ -9,18 +9,18 @@ namespace TSLog.Links
     /// </summary>
     public class ProductsList : Message
     {
-        public List<Product> _products { get; private set; }
+        private readonly List<Product> _products = null;
         public LegalEntity DataSource { get; set; }
         public LegalEntity DataRecipient { get; set; }
-        public ProductsList(long id, byte version, string body = null)
-            : base(id, 'I', "PRODUCTS_LIST", version, body)
+        public ProductsList(long id, byte version)
+            : base(id, 'I', "PRODUCTS_LIST", version)
         {
             _products = new List<Product>();
         }
         public void AddProduct(Product product)
         {
             if (product == null)
-                throw new ArgumentNullException("product");
+                throw new ArgumentNullException(nameof(product));
             if (product != Product.Null)
                 _products.Add(product);
         }
@@ -31,12 +31,6 @@ namespace TSLog.Links
             foreach (var product in products)
                 AddProduct(product);
         }
-        public Product[] Products
-        {
-            get
-            {
-                return _products.ToArray();
-            }
-        }
+        public Product[] Products => _products.ToArray();
     }
 }

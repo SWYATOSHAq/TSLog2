@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TSLog.BO
 {
@@ -8,8 +9,8 @@ namespace TSLog.BO
     /// <typeparam name="T">Тип справочнико объекта</typeparam>
     public class Catalog<T> where T: Entity
     {
-        private IDictionary<long, T> _entitiesIds = null;
-        private IDictionary<string, T> _entitiesCodes = null;
+        private readonly IDictionary<long, T> _entitiesIds = null;
+        private readonly IDictionary<string, T> _entitiesCodes = null;
 
         public string Code { get; private set; }
         public string Name { get; private set; }
@@ -25,14 +26,18 @@ namespace TSLog.BO
 
         public void Add(T entity)
         {
-            if (entity.Id > 0 && !_entitiesIds.ContainsKey(entity.Id))
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            if (entity.Id >= 0 && !_entitiesIds.ContainsKey(entity.Id))
                 _entitiesIds.Add(entity.Id, entity);
-            if (string.IsNullOrWhiteSpace(entity.Code) && !_entitiesCodes.ContainsKey(entity.Code))
+            if (!string.IsNullOrWhiteSpace(entity.Code) && !_entitiesCodes.ContainsKey(entity.Code))
                 _entitiesCodes.Add(entity.Code, entity);
 
         }
         public void Add(T[] entities)
         {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
             foreach (var entity in entities)
                 Add(entity);
         }
@@ -40,7 +45,7 @@ namespace TSLog.BO
         {
             get
             {
-                if (id <= 0)
+                if (id < 0)
                     id = -1;
                 return _entitiesIds.ContainsKey(id) ? _entitiesIds[id] : null;
             }
