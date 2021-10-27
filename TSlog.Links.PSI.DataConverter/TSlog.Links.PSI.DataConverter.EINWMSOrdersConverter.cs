@@ -1,5 +1,6 @@
 ﻿using System;
 using TSLog.BO;
+using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter
 {
@@ -31,8 +32,11 @@ namespace TSlog.Links.PSI.DataConverter
             return str.Substring(start, Math.Min(str.Length, maxLength));
         }
 
-        public string Convert(string transactionId, LegalEntity client, Order order, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
+        public string Convert(string transactionId, OutboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
         {
+            LegalEntity client = instruction.ServiceBuyer;
+            Order order = instruction.Order;
+
             var common = $"VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Code}";
             var ret = "";
 

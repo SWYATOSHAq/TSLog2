@@ -9,6 +9,8 @@ namespace TSLog.Links
     /// </summary>
     public class OutboundInstruction : Message
     {
+        public Order Order { get; set; }
+
         /// <summary>
         /// Товарная позиция заказа на сборку и доставку
         /// </summary>

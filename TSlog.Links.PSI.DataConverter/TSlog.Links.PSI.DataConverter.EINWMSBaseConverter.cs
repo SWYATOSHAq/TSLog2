@@ -7,6 +7,10 @@ namespace TSlog.Links.PSI.DataConverter
         public virtual string MessageName() { return "WMS"; }
         public virtual string WMSAPIVersion() { return "1.9.3"; }
 
+        public static string PrepareStringParam(string param, string defaultValue, )
+        {
+            return param == null ? defaultValue : param;
+        }
 
         public static string TranslateMeasurmentUnit(string unit)
         {

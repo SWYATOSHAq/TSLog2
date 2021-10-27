@@ -1,5 +1,6 @@
 ﻿using System;
 using TSLog.BO;
+using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter
 {
@@ -23,8 +24,11 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, LegalEntity client, Inbound inbound, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10")
+        public string Convert(string transactionId, InboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10")
         {
+            LegalEntity client = instruction.ServiceBuyer;
+            Inbound inbound = instruction.Inbound;
+
             // TODO: read how to serealize fields from external struct (for example from ini file)
 
             var common = $"VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Code}";

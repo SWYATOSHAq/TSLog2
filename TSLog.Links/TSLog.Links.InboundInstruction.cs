@@ -10,6 +10,7 @@ namespace TSLog.Links
     /// </summary>
     public class InboundInstruction : Message
     {
+        public Inbound Inbound { get; set; }
         /// <summary>
         /// Товарная позиция запроса на приход товара на склад
         /// </summary>

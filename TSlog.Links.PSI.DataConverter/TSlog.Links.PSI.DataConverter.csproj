@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TSLog.BO\TSLog.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
   </ItemGroup>
 
 </Project>
