@@ -6,9 +6,9 @@ namespace TSlog.Links.PSI.DataConverter
 {
     public class EINWMSInboundsConverter : EINWMSBaseConverter
     {
-        static string NAME = "WEA";
-        static string ROWNAME = "WEP";
-        static string POSTFIX = "ANLABSCHL";
+        const string NAME = "WEA";
+        const string ROWNAME = "WEP";
+        const string POSTFIX = "ANLABSCHL";
         public override string MessageName()
         {
             return $"{base.MessageName()}.{NAME}";
@@ -24,23 +24,23 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, InboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10")
+        public string Convert(string transactionId, InboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
         {
             LegalEntity client = instruction.ServiceBuyer;
             Inbound inbound = instruction.Inbound;
 
             // TODO: read how to serealize fields from external struct (for example from ini file)
 
-            var common = $"VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Code}";
+            var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}|TrxId={PrepStrPar(transactionId)}|Werk={PrepStrPar(warehouseCode)}|MndNr={PrepStrPar(client.Code)}";
             var ret = "";
 
             // header
-            ret += $"|MsgNam={MessageName().ToUpper()}|{common}|WeaNr={inbound.Code}|Aktion={action}|WeaKlaNam={(inbound.InboundKind == null ? "NORMAL" : inbound.InboundKind)}|GpNamLief={inbound.Vendor.Code}|WeaWwsBeleg={inbound.ClientDocId}|WeaDzAnliefSoll={/* ? */ inbound.PotentialInboundDate.ToString("dd.MM.yyyy HH:mm:ss") /* ? */}|WeaInfo2={inbound.GUID}|WeaInfo3={inbound.Operation.ToString()}|\n";
+            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}|{common}|WeaNr={PrepStrPar(inbound.Code)}|Aktion={PrepStrPar(action)}|WeaKlaNam={PrepStrPar(inbound.InboundKind, true, "NORMAL")}|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}|WeaWwsBeleg={PrepStrPar(inbound.ClientDocId, true)}|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PotentialInboundDate.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}|WeaInfo2={PrepStrPar(inbound.GUID, true)}|WeaInfo3={PrepStrPar(inbound.Operation.ToString(), true)}|\n";
             // body
             foreach (var row in inbound.Body)
-                ret += $"|MsgNam={MessageRowName().ToUpper()}|{common}|WeaNr={inbound.Code}|WepNr={row.Number}|WepMgSoll={row.Quantity}|ArtNr={row.Product.Code}|BstQlf={defaultQualification}|WepInfo1={row.Price}|WepInfo2={row.OKEI}|WepInfo3={row.Info}|BstChgNam={row.Product.BatchNumber}|BstChgNam2={row.Product.BatchNumber2}|BstDzMhd={row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss")}|WepMgEhWWS={TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client))}|\n";
+                ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}|{common}|WeaNr={PrepStrPar(inbound.Code)}|WepNr={PrepStrPar(row.Number.ToString())}|WepMgSoll={PrepStrPar(row.Quantity.ToString())}|ArtNr={PrepStrPar(row.Product.Code)}|BstQlf={PrepStrPar(defaultQualification)}|WepInfo1={PrepStrPar(row.Price.ToString(), true)}|WepInfo2={PrepStrPar(row.OKEI, true)}|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}|BstChgNam={PrepStrPar(row.Product.BatchNumber, true)}|BstChgNam2={PrepStrPar(row.Product.BatchNumber2, true)}|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client)), true)}|\n";
             // footer
-            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|{common}|WeaNr={inbound.Code}|\n";
+            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}|{common}|WeaNr={PrepStrPar(inbound.Code)}|\n";
 
             return ret;
         }

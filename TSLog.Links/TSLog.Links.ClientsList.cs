@@ -9,6 +9,7 @@ namespace TSLog.Links
     /// </summary>
     public class ClientsList : Message
     {
+        public LegalEntity Partner { get; set; }
         public ClientsList(long id, byte version, string body = null) 
             : base(id, 'I', "CLIENTS_LIST", version, body)
         {
