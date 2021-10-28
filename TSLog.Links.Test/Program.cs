@@ -24,8 +24,8 @@ namespace TSLog.Links.Test
             storage.CommonSchema = "ecco";
             storage.LinksSchema = "links";
             storage.WmsSchema = "ecco2_s1_pdba";
-            storage.InboundStates = inboundStates;
-            storage.OutboundStates = outboundStates;
+            storage.InboundsStates = inboundStates;
+            storage.OutboundsStates = outboundStates;
             storage.MeasureUnits = measureUnits;
             storage.Partners = partners;
             storage.Products = products;            
@@ -34,8 +34,8 @@ namespace TSLog.Links.Test
                 password.AppendChar(symbol);
             storage.Connect("ecco", password);
 
-            inboundStates.Add(storage.GetInboundStates());
-            outboundStates.Add(storage.GetOutboundStates());
+            inboundStates.Add(storage.GetInboundsStates());
+            outboundStates.Add(storage.GetOutboundsStates());
             measureUnits.Add(storage.GetMeasureUnits());
 
             var xmlConverter = new Gs1EdiXmlConverter();

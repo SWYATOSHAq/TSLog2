@@ -11,13 +11,14 @@ namespace TSLog.Links.Gs1EdiXml
     public class Gs1EdiXmlConverter
     {
         private ILinksStorage _storage = null;
+        /// <summary>
+        /// Хранилище бизнес-объектов
+        /// </summary>
         public ILinksStorage LinksStorage
         {
             set
             {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-                _storage = value;
+                _storage = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 
@@ -122,6 +123,8 @@ namespace TSLog.Links.Gs1EdiXml
         #region Клиенты (контрагенты)
         public LegalEntity[] ClientsFromXml(XmlReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var clients = new List<LegalEntity>();
             return clients.ToArray();
         }
@@ -280,6 +283,8 @@ namespace TSLog.Links.Gs1EdiXml
         }
         public InboundInstruction InboundInstructionFromXml(XmlReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var inboundId = string.Empty;
             var inboundNumber = string.Empty;
             var inboundDate = DateTime.MinValue;
@@ -412,6 +417,8 @@ namespace TSLog.Links.Gs1EdiXml
         }
         public string InboundNotificationToXml(InboundNotification inboundNotification)
         {
+            if (inboundNotification == null)
+                throw new ArgumentNullException(nameof(inboundNotification));
             var xmlDocument = new XmlDocument();
             var xmlRoot = xmlDocument.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationMessage"));
 
@@ -542,6 +549,8 @@ namespace TSLog.Links.Gs1EdiXml
         }
         public OutboundInstruction OutboundInstructionFromXml(XmlReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var outboundId = string.Empty;
             var outboundNumber = string.Empty;
             var outboundDate = DateTime.MinValue;
@@ -647,6 +656,8 @@ namespace TSLog.Links.Gs1EdiXml
         }
         public string OutboundNotificationToXml(OutboundNotification outboundNotification)
         {
+            if (outboundNotification == null)
+                throw new ArgumentNullException(nameof(outboundNotification));
             var xmlDocument = new XmlDocument();
             var xmlRoot = xmlDocument.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationMessage"));
 

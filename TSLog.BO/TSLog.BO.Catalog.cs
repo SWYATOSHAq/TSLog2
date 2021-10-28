@@ -11,19 +11,30 @@ namespace TSLog.BO
     {
         private readonly IDictionary<long, T> _entitiesIds = null;
         private readonly IDictionary<string, T> _entitiesCodes = null;
-
+        /// <summary>
+        /// Код
+        /// </summary>
         public string Code { get; private set; }
+        /// <summary>
+        /// Название
+        /// </summary>
         public string Name { get; private set; }
+        /// <summary>
+        /// Примечания и комментарии на естественном языке
+        /// </summary>
         public string Note { get; private set; }
         public Catalog(string code, string name, string note = "")
         {
-            Code = code;
-            Name = name;
-            Note = note;
+            Code = !string.IsNullOrWhiteSpace(code) ? code.Trim().ToUpper() : string.Empty;
+            Name = !string.IsNullOrWhiteSpace(name) ? name.Trim() : string.Empty;
+            Note = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             _entitiesIds = new Dictionary<long, T>();
             _entitiesCodes = new Dictionary<string, T>();
         }
-
+        /// <summary>
+        /// Добавление сущности
+        /// </summary>
+        /// <param name="entity">Сущность</param>
         public void Add(T entity)
         {
             if (entity == null)
@@ -34,6 +45,10 @@ namespace TSLog.BO
                 _entitiesCodes.Add(entity.Code, entity);
 
         }
+        /// <summary>
+        /// Добавление сущностей
+        /// </summary>
+        /// <param name="entities">Сущности</param>
         public void Add(T[] entities)
         {
             if (entities == null)
@@ -41,6 +56,11 @@ namespace TSLog.BO
             foreach (var entity in entities)
                 Add(entity);
         }
+        /// <summary>
+        /// Получение сущности по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Сущность</returns>
         public T this[long id]
         {
             get
@@ -50,6 +70,11 @@ namespace TSLog.BO
                 return _entitiesIds.ContainsKey(id) ? _entitiesIds[id] : null;
             }
         }
+        /// <summary>
+        /// Получение сущности по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Сущность</returns>
         public T this[string code]
         {
             get

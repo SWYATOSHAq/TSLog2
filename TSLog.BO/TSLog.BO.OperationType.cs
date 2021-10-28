@@ -1,5 +1,8 @@
 ﻿namespace TSLog.BO
 {
+    /// <summary>
+    /// Тип операции
+    /// </summary>
     public enum OperationType
     {
         /// <summary>

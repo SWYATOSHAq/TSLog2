@@ -11,7 +11,8 @@ namespace TSLog.Links
     {
         private readonly List<LegalEntity> _clients = null;
         public ClientsList(long id, string number, byte version, DateTime date, 
-            LegalEntity sender, LegalEntity recipient, LegalEntity dataSource, LegalEntity dataRecipient, string note = "") 
+            LegalEntity sender, LegalEntity recipient, LegalEntity dataSource, LegalEntity dataRecipient, 
+            string note = "") 
             : base(id, number, 'I', "CLIENTS_LIST", version, date, sender, recipient, note)
         {
             DataSource = dataSource ?? throw new ArgumentNullException(nameof(dataSource));

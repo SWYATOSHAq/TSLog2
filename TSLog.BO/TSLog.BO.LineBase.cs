@@ -23,17 +23,12 @@ namespace TSLog.BO
         /// Единица измерения
         /// </summary>
         public MeasureUnit MeasureUnit { get; private set; }
-
         public LineBase(int number, Product product, double quantity, MeasureUnit measureUnit)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-            if (measureUnit == null)
-                throw new ArgumentNullException(nameof(measureUnit));
             Number = number > 0 ? number : -1;
-            Product = product;
+            Product = product ?? throw new ArgumentNullException(nameof(product));
             Quantity = quantity > 0.0 ? quantity : 0.0;
-            MeasureUnit = measureUnit;
+            MeasureUnit = measureUnit ?? throw new ArgumentNullException(nameof(measureUnit));
         }
     }
 }

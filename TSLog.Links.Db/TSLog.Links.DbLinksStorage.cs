@@ -16,7 +16,11 @@ namespace TSLog.Links.Db
     {
         public DbLinksStorage(string dataSource)
             : base(dataSource)
-        { }
+        {
+            CommonSchema = "ecco";
+            LinksSchema = "links";
+            WmsSchema = "ecco2_s1_pdba";
+        }
 
         /// <summary>
         /// Схема общими объектами БД (ecco)
@@ -32,11 +36,30 @@ namespace TSLog.Links.Db
         public string WmsSchema { private get; set; }
 
         #region TODO: Разнести по разным сборкам!!! (Colkhozing)
-        public Catalog<Entity> InboundStates { private get; set; }
-        public Catalog<Entity> OutboundStates { private get; set; }
-        public Catalog<MeasureUnit> MeasureUnits { private get; set; }
-        public Catalog<LegalEntity> Partners { private get; set; }
+        /// <summary>
+        /// Статусы (состояния) приходов
+        /// </summary>
+        public Catalog<Entity> InboundsStates { private get; set; } = null;
+        /// <summary>
+        /// Статусы (состояния) расходов
+        /// </summary>
+        public Catalog<Entity> OutboundsStates { private get; set; } = null;
+        /// <summary>
+        /// Валюты
+        /// </summary>
+        public Catalog<Entity> Currencies { private get; set; } = null;
+        /// <summary>
+        /// Единицы измерения
+        /// </summary>
+        public Catalog<MeasureUnit> MeasureUnits { private get; set; } = null;
+        /// <summary>
+        /// Партнёры (покупатели наших складских и логистических услуг)
+        /// </summary>
+        public Catalog<LegalEntity> Partners { private get; set; } = null;
         private LegalEntity _tslog = null;
+        /// <summary>
+        /// ТехСкладЛогистик
+        /// </summary>
         public LegalEntity Tslog
         {
             get
@@ -46,14 +69,36 @@ namespace TSLog.Links.Db
                 return _tslog;
             }
         }
-        public Catalog<Product> Products { private get; set; }
+        /// <summary>
+        /// Товары
+        /// </summary>
+        public Catalog<Product> Products { private get; set; } = null;
 
         #region "Общие" бизнес объекты
         public Entity GetInboundState(string stateCode)
         {
-            return null;
+            stateCode = !string.IsNullOrWhiteSpace(stateCode) ? stateCode.Trim() : string.Empty;
+            var inboundState = InboundsStates[stateCode];
+            if (inboundState != null && inboundState != Entity.Null)
+                return inboundState;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_state s where s.code = :code";
+                command.Parameters.Add(new OracleParameter("code", stateCode));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        inboundState = new Entity(Convert.ToInt32(reader["id"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["short_name"]),
+                            Convert.ToString(reader["ge_name"]));
+                    reader.Close();
+                }
+            }
+            return inboundState ?? Entity.Null;
         }
-        public Entity[] GetInboundStates()
+        public Entity[] GetInboundsStates()
         {
             var inboundStates = new List<Entity>();
             using (var command = _connection.CreateCommand())
@@ -70,21 +115,25 @@ namespace TSLog.Links.Db
                         Convert.ToString(reader["ge_name"]));
                         inboundStates.Add(state);
                     }
+                    reader.Close();
                 }
             }
             return inboundStates.ToArray();
         }
         public Entity GetOutboundState(string stateCode)
         {
-            return null;
+            return GetInboundState(stateCode);
         }
-        public Entity[] GetOutboundStates()
+        public Entity[] GetOutboundsStates()
         {
-            return GetInboundStates();
+            return GetInboundsStates();
         }
         public Entity GetCurrency(string currencyCode)
         {
-            var currency = Entity.Null;
+            currencyCode = !string.IsNullOrWhiteSpace(currencyCode) ? currencyCode.Trim() : string.Empty;
+            var currency = Currencies[currencyCode];
+            if (currency != null && currency != Entity.Null)
+                return currency;
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_currency c where c.code = :code";
@@ -102,7 +151,7 @@ namespace TSLog.Links.Db
                     reader.Close();
                 }
             }
-            return currency;
+            return currency ?? Entity.Null;
         }
         public Entity[] GetCurrncies()
         {
@@ -130,7 +179,10 @@ namespace TSLog.Links.Db
         }
         public MeasureUnit GetMeasureUnit(string measureUnitCode)
         {
-            var measureUnit = MeasureUnit.Null;
+            measureUnitCode = !string.IsNullOrWhiteSpace(measureUnitCode) ? measureUnitCode.Trim() : string.Empty;
+            var measureUnit = MeasureUnits[measureUnitCode];
+            if (measureUnit != null && measureUnit != MeasureUnit.Null)
+                return measureUnit;
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_measure_unit m where m.code = :code";
@@ -147,9 +199,10 @@ namespace TSLog.Links.Db
                             Convert.ToInt32(reader["is_basic"]) == 1,
                             Convert.ToDouble(reader["coefficient"]),
                             Convert.ToInt32(reader["is_default"]) == 1);
+                    reader.Close();
                 }
             }
-            return measureUnit;
+            return measureUnit ?? MeasureUnit.Null;
         }
         public MeasureUnit[] GetMeasureUnits()
         {
@@ -162,45 +215,46 @@ namespace TSLog.Links.Db
                     while (reader.Read())
                     {
                         var measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]),
-                        Convert.ToString(reader["code"]),
-                        Convert.ToString(reader["name"]),
-                        Convert.ToString(reader["short_name"]),
-                        Convert.ToString(reader["note"]),
-                        Convert.ToString(reader["category"]),
-                        Convert.ToInt32(reader["is_basic"]) == 1,
-                        Convert.ToDouble(reader["coefficient"]),
-                        Convert.ToInt32(reader["is_default"]) == 1);
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["short_name"]),
+                            Convert.ToString(reader["note"]),
+                            Convert.ToString(reader["category"]),
+                            Convert.ToInt32(reader["is_basic"]) == 1,
+                            Convert.ToDouble(reader["coefficient"]),
+                            Convert.ToInt32(reader["is_default"]) == 1);
                         measureUnits.Add(measureUnit);
                     }
+                    reader.Close();
                 }
             }
             return measureUnits.ToArray();
         }        
-        public LegalEntity GetPartner(string code) 
+        public LegalEntity GetPartner(string partnerCode) 
         {
-            var partner = Partners[code];
-            if (partner == null)
+            partnerCode = !string.IsNullOrWhiteSpace(partnerCode) ? partnerCode.Trim() : string.Empty;
+            var partner = Partners[partnerCode];
+            if (partner != null && partner != LegalEntity.Null)
+                return partner;
+            using (var command = _connection.CreateCommand())
             {
-                using (var command = _connection.CreateCommand())
+                command.CommandText = $"select * from {CommonSchema}.v_partner p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", partnerCode));
+                using (var reader = command.ExecuteReader())
                 {
-                    command.CommandText = $"select * from {CommonSchema}.v_partner p where p.id = :id";
-                    command.Parameters.Add(new OracleParameter("id", code));
-                    using (var reader = command.ExecuteReader())
+                    if (reader.Read())
                     {
-                        if (reader.Read())
-                        {
-                            partner = new LegalEntity(-1,
-                                Convert.ToString(reader["id"]),
-                                Convert.ToString(reader["name"]));
-                            Partners.Add(partner);
-                        }
-                        reader.Close();
+                        partner = new LegalEntity(-1,
+                            Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]));
+                        Partners.Add(partner);
                     }
+                    reader.Close();
                 }
-                if (partner != null && partner != LegalEntity.Null)
-                    Partners.Add(partner);
             }
-            return partner != null ? partner : LegalEntity.Null;
+            if (partner != null && partner != LegalEntity.Null)
+                Partners.Add(partner);
+            return partner ?? LegalEntity.Null;
         }
         public LegalEntity[] GetPartners()
         {
@@ -222,32 +276,31 @@ namespace TSLog.Links.Db
             }
             return partners.ToArray();
         }
-        public Product GetProduct(string code)
+        public Product GetProduct(string productCode)
         {
-            code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
-            var product = Products[code];
-            if (product == null)
+            productCode = !string.IsNullOrWhiteSpace(productCode) ? productCode.Trim() : string.Empty;
+            var product = Products[productCode];
+            if (product != null && product != Product.Null)
+                return product;
+            using (var command = _connection.CreateCommand())
             {
-                using (var command = _connection.CreateCommand())
+                command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", productCode));
+                using (var reader = command.ExecuteReader())
                 {
-                    command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
-                    command.Parameters.Add(new OracleParameter("id", code));
-                    using (var reader = command.ExecuteReader())
+                    if (reader.Read())
                     {
-                        if (reader.Read())
-                        {
-                            product = new Product(-1,
-                                Convert.ToString(reader["id"]),
-                                Convert.ToString(reader["name"]));
-                            Products.Add(product);
-                        }
-                        reader.Close();
+                        product = new Product(-1,
+                            Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]));
+                        Products.Add(product);
                     }
+                    reader.Close();
                 }
-                if (product != null && product != Product.Null)
-                    Products.Add(product);
             }
-            return product != null ? product : Product.Null;
+            if (product != null && product != Product.Null)
+                Products.Add(product);
+            return product ?? Product.Null;
         }
         public Product[] GetProducts(LegalEntity[] partners = null)
         {
@@ -282,10 +335,11 @@ namespace TSLog.Links.Db
                 }
             }
             return products.ToArray();
-        }        
+        }
         #endregion
         #endregion
 
+        #region Products and clients lists
         public void PostProductsList(ProductsList productsList, LegalEntity partner)
         {
             if (productsList == null)
@@ -310,6 +364,7 @@ namespace TSLog.Links.Db
                 command.ExecuteNonQuery();
             }
         }
+        #endregion
 
         #region Inbound instruction and notification
         public void PostInboundInstruction(InboundInstruction inboundInstruction)
@@ -324,6 +379,8 @@ namespace TSLog.Links.Db
         }
         private Inbound.Line CreateInboundNotificationLine(DbDataReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var number = -1;
             var product = GetProduct(Convert.ToString(reader["product_id"]));
             var price = 0.0;
@@ -338,6 +395,8 @@ namespace TSLog.Links.Db
         }
         private InboundNotification CreateInboundNotification(DbDataReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var inboundId = Convert.ToString(reader["inbound_id"]);
             var inboundNumber = Convert.ToString(reader["inbound_number"]);
             var inboundDate = DateTime.MinValue;
@@ -380,7 +439,6 @@ namespace TSLog.Links.Db
             if (inboundNotification == null)
                 throw new ArgumentNullException(nameof(inboundNotification));
             var lines = new List<Inbound.Line>();
-
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_inbound_notification_line inml where inml.inbound_id = :inbound_id";
@@ -489,6 +547,8 @@ namespace TSLog.Links.Db
         }
         private Outbound.Line CreateOutboundNotificationLine(DbDataReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var number = -1;
             var product = GetProduct(Convert.ToString(reader["product_id"]));
             var price = 0.0;
@@ -504,6 +564,8 @@ namespace TSLog.Links.Db
         }
         private OutboundNotification CreateOutboundNotification(DbDataReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
             var outboundId = Convert.ToString(reader["outbound_id"]);            
             var outboundNumber = Convert.ToString(reader["outbound_number"]);
             var outboundPartnerId = Convert.ToString(reader["partner_id"]);
@@ -671,6 +733,7 @@ namespace TSLog.Links.Db
         }
         #endregion
 
+        #region DEBUG
         public ProductsList GetProductsList(LegalEntity partner) // TODO: to delete (just for debug)
         {
             throw new NotImplementedException();
@@ -679,5 +742,6 @@ namespace TSLog.Links.Db
         {
             throw new NotImplementedException();
         }
+        #endregion
     }
 }

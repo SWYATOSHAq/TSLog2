@@ -49,7 +49,7 @@ namespace TSLog.Links
         /// </summary>
         public string Note { get; private set; }
         public Message(long id, string number, char kind, string type, byte version, DateTime date, 
-            LegalEntity sender, LegalEntity recipient, string note = null)
+            LegalEntity sender, LegalEntity recipient, string note = "")
         {
             Id = id > 0 ? id : -1;
             Number = !string.IsNullOrWhiteSpace(number) ? number.Trim() : string.Empty;

@@ -5,9 +5,9 @@
     /// </summary>
     public class MeasureUnit : Entity
     {
-        // https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={6512FD8B-4D58-49B0-9A36-AF01F2EED2FF}
         /// <summary>
         /// Размерность единицы измерения (объем, вес, длина и т. д.)
+        /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={6512FD8B-4D58-49B0-9A36-AF01F2EED2FF}
         /// </summary>
         public string Category { get; private set; }
         /// <summary>
@@ -22,11 +22,14 @@
         /// Базовая единица измерения, коэффициент преобразования которой равен 1
         /// </summary>
         public bool IsDefault { get; private set; }
+        /// <summary>
+        /// Базовая Е. И.
+        /// </summary>
         public MeasureUnit BaseUnit { get; set; }
 
         private static MeasureUnit _null = null;
         public MeasureUnit(long id, string code, string name, string shortName, string note,
-            string category, bool isBasic, double coefficient, bool isDefault)
+            string category, bool isBasic, double coefficient, bool isDefault = false)
             : base(id, code, name, shortName, string.Empty, string.Empty, note)
         {
             Category = !string.IsNullOrWhiteSpace(category) ? category.Trim() : string.Empty;
@@ -36,14 +39,14 @@
 
         }
         /// <summary>
-        /// NULL object
+        /// Null object
         /// </summary>
         new public static MeasureUnit Null
         {
             get
             {
                 if (_null == null)
-                    _null = new MeasureUnit(0, "NULL", "Заглушка", "Заглушка", string.Empty, "COMMON", true, 1.0, true);
+                    _null = new MeasureUnit(0, "NULL", "Заглушка", "Заглушка", string.Empty, "COMMON", true, 1.0);
                 return _null;
             }
         }
