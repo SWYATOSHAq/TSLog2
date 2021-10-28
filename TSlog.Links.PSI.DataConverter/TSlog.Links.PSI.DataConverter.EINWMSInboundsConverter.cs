@@ -31,7 +31,7 @@ namespace TSlog.Links.PSI.DataConverter
             var ret = "";
 
             // header
-            ret += $"|MsgNam={MessageName().ToUpper()}|{common}|WeaNr={inbound.Id}|Aktion={action}|WeaKlaNam={(inbound.InboundKind == null ? "NORMAL" : inbound.InboundKind)}|GpNamLief={inbound.Vendor.Id}|WeaWwsBeleg={inbound.ClientDocId}|WeaDzAnliefSoll={/* ? */ inbound.PotentialInboundDate.ToString("dd.MM.yyyy HH:mm:ss") /* ? */}|WeaInfo2={inbound.GUID}|WeaInfo3={inbound.Operation.ToString()}|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}|{common}|WeaNr={inbound.Id}|Aktion={action}|WeaKlaNam={(inbound.Kind == null ? "NORMAL" : inbound.Kind)}|GpNamLief={inbound.Vendor.Id}|WeaWwsBeleg={inbound.PartnerNumber}|WeaDzAnliefSoll={/* ? */ inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss") /* ? */}|WeaInfo2={inbound.GUID}|WeaInfo3={inbound.Operation.ToString()}|\n";
             // body
             foreach (var row in inbound.Lines)
                 ret += $"|MsgNam={MessageRowName().ToUpper()}|{common}|WeaNr={inbound.Id}|WepNr={row.Number}|WepMgSoll={row.Quantity}|ArtNr={row.Product.Id}|BstQlf={defaultQualification}|WepInfo1={row.Price}|WepInfo2={row.OKEI}|WepInfo3={row.Info}|BstChgNam={row.BatchNumber}|BstChgNam2={row.BatchNumber2}|BstDzMhd={row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss")}|WepMgEhWWS={TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client))}|\n";

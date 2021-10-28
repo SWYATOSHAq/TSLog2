@@ -49,6 +49,10 @@ namespace TSLog.Links.Db
         public Catalog<Product> Products { private get; set; }
 
         #region "Общие" бизнес объекты
+        public Entity GetInboundState(string stateCode)
+        {
+            return null;
+        }
         public Entity[] GetInboundStates()
         {
             var inboundStates = new List<Entity>();
@@ -70,9 +74,82 @@ namespace TSLog.Links.Db
             }
             return inboundStates.ToArray();
         }
+        public Entity GetOutboundState(string stateCode)
+        {
+            return null;
+        }
         public Entity[] GetOutboundStates()
         {
             return GetInboundStates();
+        }
+        public Entity GetCurrency(string currencyCode)
+        {
+            var currency = Entity.Null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_currency c where c.code = :code";
+                command.Parameters.Add(new OracleParameter("code", currencyCode));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        currency = new Entity(Convert.ToInt32(reader["is"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["name"]),
+                            string.Empty,
+                            string.Empty,
+                            string.Empty,
+                            Convert.ToString(reader["note"]));
+                    reader.Close();
+                }
+            }
+            return currency;
+        }
+        public Entity[] GetCurrncies()
+        {
+            var currencies = new List<Entity>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_currency";
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var currency = new Entity(Convert.ToInt32(reader["is"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["name"]),
+                            string.Empty,
+                            string.Empty,
+                            string.Empty,
+                            Convert.ToString(reader["note"]));
+                        currencies.Add(currency);
+                    }
+                    reader.Close();
+                }
+            }
+            return currencies.ToArray();
+        }
+        public MeasureUnit GetMeasureUnit(string measureUnitCode)
+        {
+            var measureUnit = MeasureUnit.Null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_measure_unit m where m.code = :code";
+                command.Parameters.Add(new OracleParameter("code", measureUnitCode));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["short_name"]),
+                            Convert.ToString(reader["note"]),
+                            Convert.ToString(reader["category"]),
+                            Convert.ToInt32(reader["is_basic"]) == 1,
+                            Convert.ToDouble(reader["coefficient"]),
+                            Convert.ToInt32(reader["is_default"]) == 1);
+                }
+            }
+            return measureUnit;
         }
         public MeasureUnit[] GetMeasureUnits()
         {
@@ -98,7 +175,7 @@ namespace TSLog.Links.Db
                 }
             }
             return measureUnits.ToArray();
-        }
+        }        
         public LegalEntity GetPartner(string code) 
         {
             var partner = Partners[code];
@@ -247,25 +324,55 @@ namespace TSLog.Links.Db
         }
         private Inbound.Line CreateInboundNotificationLine(DbDataReader reader)
         {
+            var number = -1;
             var product = GetProduct(Convert.ToString(reader["product_id"]));
+            var price = 0.0;
+            var currencyCode = string.Empty;
+            var currency = GetCurrency(currencyCode);
             var planQuantity = Convert.ToDouble(reader["plan_quantity"]);
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
-            MeasureUnit measureUnit = null;
-            var line = new Inbound.Line(-1, product, 0.0, null, planQuantity, measureUnit);
-            line.FactQuantity = factQuantity;
+            var measureUnitCode = string.Empty;
+            var measureUnit = GetMeasureUnit(measureUnitCode);
+            var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
             return line;
         }
         private InboundNotification CreateInboundNotification(DbDataReader reader)
         {
-            var id = Convert.ToString(reader["inbound_id"]);
-            var inboundNotification = new InboundNotification(-1, 1);
-            //inboundNotification.Inbound.Code = id;
-            inboundNotification.Inbound.Partner = GetPartner(Convert.ToString(reader["partner_id"]));
-            inboundNotification.State = Convert.ToString(reader["state_code"]);
-            inboundNotification.PartnerInboundNumber = Convert.ToString(reader["partner_inbound_number"]);
-            inboundNotification.InboundPlanDeliveryDate = Convert.ToDateTime(reader["plan_delivery_date"]);
-            inboundNotification.FactInboundDeliveryDate = Convert.ToDateTime(reader["fact_delivery_date"]);
-            inboundNotification.Note = Convert.ToString(reader["note"]);
+            var inboundId = Convert.ToString(reader["inbound_id"]);
+            var inboundNumber = Convert.ToString(reader["inbound_number"]);
+            var inboundDate = DateTime.MinValue;
+            var inboundPartnerId = Convert.ToString(reader["partner_id"]);
+            var inboundPartner = GetPartner(inboundPartnerId);
+            var inboundPartnerNumber = Convert.ToString(reader["partner_inbound_number"]); ;
+            var inboundStateCode = Convert.ToString(reader["state_code"]);
+            var inboundState = GetInboundState(inboundStateCode);
+            var inboundPlanAcceptanceBegin = Convert.ToDateTime(reader["plan_delivery_date"]);
+            var inboundPlanAcceptanceEnd = Convert.ToDateTime(reader["plan_delivery_date"]);
+            var inboundFactAccpeptanceBegin = Convert.ToDateTime(reader["fact_delivery_date"]);
+            var inboundFactAcceptanceEnd = Convert.ToDateTime(reader["fact_delivery_date"]);
+            var inboundNote = Convert.ToString(reader["note"]);
+
+            var inbound = new Inbound(inboundId, inboundNumber, inboundDate, inboundPartner, inboundPartnerNumber, inboundState, inboundNote);
+            inbound.PlanAcceptanceBegin = inboundPlanAcceptanceBegin;
+            inbound.PlanAcceptanceEnd = inboundPlanAcceptanceEnd;
+            inbound.FactAcceptanceBegin = inboundFactAccpeptanceBegin;
+            inbound.FactAcceptanceEnd = inboundFactAcceptanceEnd;
+
+            var id = -1;
+            var number = string.Empty;
+            var date = DateTime.Now; // Дата создания сообщения
+            var version = (byte)1;            
+            var sender = Tslog;
+            var recipient = inboundPartner;
+            var serviceSeller = Tslog;
+            var serviceBuyer = inboundPartner;
+            var shipper = inboundPartner;
+            var receiver = Tslog;
+            var note = inboundNote;
+
+            var inboundNotification = new InboundNotification(id, number, version, date, inbound,  
+                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver,
+                note);
             return inboundNotification;
         }
         private Inbound.Line[] GetInboundNotificationLines(InboundNotification inboundNotification)
@@ -382,30 +489,45 @@ namespace TSLog.Links.Db
         }
         private Outbound.Line CreateOutboundNotificationLine(DbDataReader reader)
         {
+            var number = -1;
             var product = GetProduct(Convert.ToString(reader["product_id"]));
+            var price = 0.0;
+            var currencyCode = string.Empty;
+            var currency = GetCurrency(currencyCode);
             var planQuantity = Convert.ToDouble(reader["plan_quantity"]);
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
-            MeasureUnit measureUnit = null;
-            var line = new Outbound.Line(-1, product, planQuantity, measureUnit);
+            var measureUnitCode = string.Empty;
+            var measureUnit = GetMeasureUnit(measureUnitCode);
+            var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
             line.FactQuantity = factQuantity;
             return line;
         }
         private OutboundNotification CreateOutboundNotification(DbDataReader reader)
         {
-            var outboundNotification = new OutboundNotification(-1, 1);
-            //message.Outbound.Code = Convert.ToString(reader["outbound_id"]);
-            outboundNotification.Outbound.Number = Convert.ToString(reader["outbound_number"]);
-            outboundNotification.PartnerOutboundNumber = Convert.ToString(reader["partner_outbound_number"]);
-            outboundNotification.State = Convert.ToString(reader["state_code"]);
+            var outboundId = Convert.ToString(reader["outbound_id"]);            
+            var outboundNumber = Convert.ToString(reader["outbound_number"]);
+            var outboundPartnerId = Convert.ToString(reader["partner_id"]);
+            var outboundPartner = GetPartner(outboundPartnerId);
+            var outboundPartnerNumber = Convert.ToString(reader["partner_outbound_number"]);
+            var outboundStateCode = Convert.ToString(reader["state_code"]);
+            var outboundState = GetOutboundState(outboundStateCode);
+            var outboundNote = string.Empty;
+            var outbound = new Outbound(outboundId, outboundNumber, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
 
-            var partner = GetPartner(Convert.ToString(reader["partner_id"]));
-            outboundNotification.Sender = Tslog;
-            outboundNotification.Recipient = partner;
-            outboundNotification.ServiceSeller = Tslog;
-            outboundNotification.ServiceBuyer = partner;
-            outboundNotification.Shipper = Tslog;
-            outboundNotification.Receiver = partner;
+            var id = -1;
+            var number = string.Empty;
+            var date = DateTime.Now; // Теуцщая дата и время сообщения
+            var version = (byte)1;
+            var sender = Tslog;
+            var recipient = outboundPartner;
+            var serviceSeller = Tslog;
+            var serviceBuyer = outboundPartner;
+            var shipper = Tslog;
+            var receiver = outboundPartner;
+            var note = string.Empty;
 
+            var outboundNotification = new OutboundNotification(id, number, version, date, outbound,
+                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
             return outboundNotification;
         }
         private Outbound.Line[] GetOutboundNotificationLines(OutboundNotification outboundNotification)
@@ -549,76 +671,13 @@ namespace TSLog.Links.Db
         }
         #endregion
 
-        public ProductsList GetProductsList(LegalEntity partner)
+        public ProductsList GetProductsList(LegalEntity partner) // TODO: to delete (just for debug)
         {
-            var products = new ProductsList(-1, 1);
-            using (var command = _connection.CreateCommand())
-            {
-                // TODO: check if there is more efficient and not breakable way
-                command.CommandText = $"select * {CommonSchema}.v_product p where p.partner_id = :partner_id"; 
-                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var id = Convert.ToString(reader["id"]);
-                        var product = new Product(-1, id);
-
-                        product.Name = Convert.ToString(reader["name"]);
-                        //product.Group = Convert.ToString(reader["ArtGrpNam"]);
-                        product.Gtin = Convert.ToString(reader["gtin"]);
-
-                        product.Netto = Convert.ToInt32(reader["net_weight"]);
-                        product.Brutto = Convert.ToInt32(reader["gross_weight"]);
-                        product.UnitWeight = Convert.ToString(reader["weight_measure"]);
-
-                        product.Length = Convert.ToInt32(reader["length"]);
-                        product.Width = Convert.ToInt32(reader["width"]);
-                        product.Heigth = Convert.ToInt32(reader["height"]);
-                        product.UnitLinerial = Convert.ToString(reader["length_measure"]);
-
-                        product.Volume = Convert.ToInt32(reader["volume"]);
-                        product.UnitVolume = Convert.ToString(reader["volume_measure"]);
-
-                        //tmpProduct.UnitType = Convert.ToString(reader["ArtMgEh"]);
-                        //product.MaxAmountPerPalet = Convert.ToInt32(r["ArtLttMax"]); // ArtLtt
-                        //product.AmountPerPackage = Convert.ToInt32(r["ArtLttMgPack"]); // ArtLtt
-                        //tmpProduct.ExpirationDateInDays = Convert.ToInt32(reader["ARTMHDTAGEWEDEFLT"]);
-                        //tmpProduct.Price = reader["ARTWERTVK"] == DBNull.Value ? 0 : Convert.ToDouble(reader["ARTWERTVK"]);
-                        //
-                        product.Note = Convert.ToString(reader["note1"]);
-                        //tmpProduct.Info1 = Convert.ToString(reader["ArtInfo1"]);
-                        //tmpProduct.Info2 = Convert.ToString(reader["ArtInfo2"]);
-                        //tmpProduct.Info3 = Convert.ToString(reader["ArtInfo3"]);
-                        //tmpProduct.Info4 = Convert.ToString(reader["ArtInfo4"]);
-                        //tmpProduct.Info5 = Convert.ToString(reader["ArtInfo5"]);
-                        //tmpProduct.Info6 = Convert.ToString(reader["ArtInfo6"]);
-                        //
-                        products.AddProduct(product);
-
-                    }
-                    reader.Close();
-                }
-            }
-            return products;
-        }
+            throw new NotImplementedException();
+        } 
         public ClientsList GetClientsList(bool loadPartners = false) // TODO: to delete (just for debug)
         {
-            var clients = new ClientsList(-1, 1);
-            using (var command = base._connection.CreateCommand())
-            {
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var client = new LegalEntity(-1, "");
-                        clients.AddClient(client);
-                    }
-                    reader.Close();
-                }
-            }
-            return clients;
+            throw new NotImplementedException();
         }
     }
 }

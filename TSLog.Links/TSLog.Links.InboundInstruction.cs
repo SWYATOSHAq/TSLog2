@@ -9,17 +9,36 @@ namespace TSLog.Links
     public class InboundInstruction : Message
     {
         /// <summary>
-        /// Товарная позиция запроса на приход товара на склад
+        /// Приход товара на склад
         /// </summary>
-        public Inbound Inbound { get; set; }
-        public DateTime PlanDeliveryBegin { get; set; }
-        public DateTime PlanDeliveryEnd { get; set; }
-        public LegalEntity ServiceSeller { get; set; }
-        public LegalEntity ServiceBuyer { get; set; }
-        public LegalEntity Shipper { get; set; }
-        public LegalEntity Receiver { get; set; }
-        public InboundInstruction(byte version, string body = null)
-            : base(-1, 'I', "INBOUND_INSTRUCTION", version, body)
-        { }
+        public Inbound Inbound { get; private set; }
+        /// <summary>
+        /// Продавец складских и логистических услуг
+        /// </summary>
+        public LegalEntity ServiceSeller { get; private set; }
+        /// <summary>
+        /// Покупатель складских и логистических услуг
+        /// </summary>
+        public LegalEntity ServiceBuyer { get; private set; }
+        /// <summary>
+        /// Отправитель груза
+        /// </summary>
+        public LegalEntity Shipper { get; private set; }
+        /// <summary>
+        /// Получатель груза
+        /// </summary>
+        public LegalEntity Receiver { get; private set; }
+        public InboundInstruction(long id, string number, byte version, DateTime date, Inbound inbound,
+            LegalEntity sender, LegalEntity recipient, 
+            LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
+            string note = "")
+            : base(id, number, 'I', "INBOUND_INSTRUCTION", version, date, sender, recipient, note)
+        {
+            Inbound = inbound ?? throw new ArgumentNullException(nameof(inbound));
+            ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));
+            ServiceBuyer = serviceBuyer ?? throw new ArgumentNullException(nameof(serviceBuyer));
+            Shipper = shipper ?? throw new ArgumentNullException(nameof(shipper));
+            Receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
+        }
     }
 }
