@@ -1,8 +1,29 @@
-﻿public enum OperationType
+﻿namespace TSLog.BO
 {
-    MovingProducts = 128, // - Перемещение товаров 
-    Realization = 187, // - Реализация       
-    ReturnFromCommissionAgent = 25, // - Возврат от комиссионера 
-    ReturningProductsFromCustomer = 32, // - Возврат товаров от клиента 
-    PurchaseByImport = 59 // - Закупка по импорту
+    /// <summary>
+    /// Тип операции
+    /// </summary>
+    public enum OperationType
+    {
+        /// <summary>
+        /// Перемещение товаров
+        /// </summary>
+        MovingProducts = 128,
+        /// <summary>
+        /// Реализация 
+        /// </summary>
+        Realization = 187,
+        /// <summary>
+        /// Возврат от комиссионера
+        /// </summary>
+        ReturnFromCommissionAgent = 25,
+        /// <summary>
+        /// Возврат товаров от клиента
+        /// </summary>
+        ReturningProductsFromCustomer = 32,
+        /// <summary>
+        /// Закупка по импорту
+        /// </summary>
+        PurchaseByImport = 59
+    }
 }

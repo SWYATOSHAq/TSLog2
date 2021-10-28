@@ -40,13 +40,13 @@
         public Entity(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "", 
             string note = "", bool isActive = true)
         {
-            Id = id;
-            Code = code;
-            Name = name;
-            ShortName = shortName;
-            AltName = altName;
-            DisplayName = displayName;
-            Note = note;
+            Id = id >= 0 ? id : -1;
+            Code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
+            Name = !string.IsNullOrWhiteSpace(name) ? name.Trim() : string.Empty;
+            ShortName = !string.IsNullOrWhiteSpace(shortName) ? shortName.Trim() : string.Empty;
+            AltName = !string.IsNullOrWhiteSpace(altName) ? altName.Trim() : string.Empty;
+            DisplayName = !string.IsNullOrWhiteSpace(displayName) ? displayName.Trim() : string.Empty;
+            Note = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             IsActive = isActive;
         }
         

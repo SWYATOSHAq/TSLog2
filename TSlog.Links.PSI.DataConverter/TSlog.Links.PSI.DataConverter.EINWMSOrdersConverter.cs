@@ -1,5 +1,5 @@
-﻿using TSLog.BO;
-using TSLog.Links;
+﻿using System;
+using TSLog.BO;
 
 namespace TSlog.Links.PSI.DataConverter
 {
@@ -22,27 +22,21 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=Tr100067139|Werk=0000|MndNr=0002|AufNr=WM00022398|AupNr=2|AupMgSoll=1|ArtNr=A0002N0202509|BstQlf=10|AupInfo1=ST|AupInfo2=|AupInfo6={OrderNum=99575939}{OrderBarCode=!vyzeoYGR}{OrderCode=407358 1080}|AupWert=391|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
         |MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=Tr100067139|Werk=0000|MndNr=0002|AufNr=WM00022398|AupNr=9|AupMgSoll=1|ArtNr=AR00172722|BstQlf=10|AupInfo1=ST|AupInfo2=|AupInfo6={OrderNum=99583046}{OrderBarCode=!vyzsAzch}{OrderCode=407363 5891}|AupWert=306|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
         |MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067139|Werk=0000|MndNr=0002|AufNr=WM00022398|
+
         */
-
-
-        public string Convert(string transactionId, OutboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
+        public string Convert(string transactionId, LegalEntity client, Outbound order, string warehouseCode = "0000")
         {
-            LegalEntity client = instruction.ServiceBuyer;
-            Order order = instruction.Order;
-
-            var common = $"VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Code}";
             var ret = "";
 
             // header
-            ret += $"|MsgNam={MessageName().ToUpper()}|{common}|AufNr={order.ClientDocId}|Aktion={action}|AuaNam={(order.OrderKind == null ? "NORMAL" : order.OrderKind)}|LfaEmpfNam1={order.Vendor.Code}|AufWwsBeleg=ַ{order.ClientDocId}|AufDzVsSoll={order.ShipDate.ToString("dd.MM.yyyy HH:mm:ss")}|LfaKdOrt1={TruncateLongString(order.DeliveryAddress1, deliveryAdderssLenCut)}|LfaKdOrt2={TruncateLongString(order.DeliveryAddress1, order.DeliveryAddress1.Length, deliveryAdderssLenCut) /* cut from deliveryAdderssLenCut to end */}|AufInfo1={order.DeliveryComment}|AufInfo2={order.GUID}|AufInfo3={order.Operation}|AufInfo4={order.DeliveryAddress1}|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr={order.PartnerNumer}|Aktion=Ins|AuaNam=VKZH_HOR|LfaEmpfNam1={order.GUID}|AufWwsBeleg=ַ-ֲֶֽװ-008569|AufDzVsSoll=18.10.2021 0:00:00|LfaKdOrt1=|LfaKdOrt2=|AufInfo1=|AufInfo2=6b35df4f-2c21-11ec-80f4-00505691c78c|AufInfo3=187|AufInfo4=|\n";
             // body
-            foreach (var row in order.Body)
-                ret += $"|MsgNam={MessageRowName().ToUpper()}|{common}|AufNr={order.ClientDocId}|AupNr={row.Number}|AupMgSoll={row.Quantity}|ArtNr={row.Product.Code}|BstQlf={defaultQualification}|AupInfo1={row.Unit}|AupInfo2={row.OKEI}|AupInfo6={TruncateLongString(row.Info, 200)}|AupWert={row.Product.Price}|BstChgNam={row.Product.BatchNumber}|BstChgNam2={row.Product.BatchNumber}|BstDzMhd={row.Product.ExpirationDate.ToString("dd.MM.yyyy")}|AupMgEhWWS={TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client))}|\n";
+            foreach (var row in order.Lines)
+                ret += $"|MsgNam={MessageRowName().ToUpper()}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr={order.PartnerNumer}|AupNr=2|AupMgSoll=1,00|ArtNr=AR00000062|BstQlf=10|AupInfo1=רע|AupInfo2=796|AupInfo6=|AupWert=240,00|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|\n";
             // footer
-            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|{common}|AufNr={order.ClientDocId}|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}|AufNr={order.PartnerNumer}|\n";
 
             return ret;
         }
-
     }
 }

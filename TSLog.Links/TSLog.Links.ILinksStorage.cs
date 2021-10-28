@@ -5,6 +5,10 @@ namespace TSLog.Links
     public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksInboundsStorage, ILinksOrdersStorage
     {
         // Lite colkhozing))
+        public Entity GetInboundState(string stateCode);
+        public Entity GetOutboundState(string stateCode);
+        public Entity GetCurrency(string currencyCode);
+        public MeasureUnit GetMeasureUnit(string measureUnitCode);
         public LegalEntity GetPartner(string code);
         public LegalEntity[] GetPartners();
         public Product GetProduct(string code);

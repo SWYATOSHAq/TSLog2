@@ -1,6 +1,5 @@
 ﻿using System;
 using TSLog.BO;
-using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter
 {
@@ -24,23 +23,20 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, InboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10")
+        public string Convert(string transactionId, LegalEntity client, Inbound inbound, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10")
         {
-            LegalEntity client = instruction.ServiceBuyer;
-            Inbound inbound = instruction.Inbound;
-
             // TODO: read how to serealize fields from external struct (for example from ini file)
 
-            var common = $"VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Code}";
+            var common = $"VersionsNr={WMSAPIVersion().ToUpper()}|TrxId={transactionId}|Werk={warehouseCode}|MndNr={client.Id}";
             var ret = "";
 
             // header
-            ret += $"|MsgNam={MessageName().ToUpper()}|{common}|WeaNr={inbound.Code}|Aktion={action}|WeaKlaNam={(inbound.InboundKind == null ? "NORMAL" : inbound.InboundKind)}|GpNamLief={inbound.Vendor.Code}|WeaWwsBeleg={inbound.ClientDocId}|WeaDzAnliefSoll={/* ? */ inbound.PotentialInboundDate.ToString("dd.MM.yyyy HH:mm:ss") /* ? */}|WeaInfo2={inbound.GUID}|WeaInfo3={inbound.Operation.ToString()}|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}|{common}|WeaNr={inbound.Id}|Aktion={action}|WeaKlaNam={(inbound.Kind == null ? "NORMAL" : inbound.Kind)}|GpNamLief={inbound.Vendor.Id}|WeaWwsBeleg={inbound.PartnerNumber}|WeaDzAnliefSoll={/* ? */ inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss") /* ? */}|WeaInfo2={inbound.GUID}|WeaInfo3={inbound.Operation.ToString()}|\n";
             // body
-            foreach (var row in inbound.Body)
-                ret += $"|MsgNam={MessageRowName().ToUpper()}|{common}|WeaNr={inbound.Code}|WepNr={row.Number}|WepMgSoll={row.Quantity}|ArtNr={row.Product.Code}|BstQlf={defaultQualification}|WepInfo1={row.Price}|WepInfo2={row.OKEI}|WepInfo3={row.Info}|BstChgNam={row.Product.BatchNumber}|BstChgNam2={row.Product.BatchNumber2}|BstDzMhd={row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss")}|WepMgEhWWS={TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client))}|\n";
+            foreach (var row in inbound.Lines)
+                ret += $"|MsgNam={MessageRowName().ToUpper()}|{common}|WeaNr={inbound.Id}|WepNr={row.Number}|WepMgSoll={row.Quantity}|ArtNr={row.Product.Id}|BstQlf={defaultQualification}|WepInfo1={row.Price}|WepInfo2={row.OKEI}|WepInfo3={row.Info}|BstChgNam={row.BatchNumber}|BstChgNam2={row.BatchNumber2}|BstDzMhd={row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss")}|WepMgEhWWS={TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client))}|\n";
             // footer
-            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|{common}|WeaNr={inbound.Code}|\n";
+            ret += $"|MsgNam={MessageName().ToUpper()}{POSTFIX}|{common}|WeaNr={inbound.Id}|\n";
 
             return ret;
         }

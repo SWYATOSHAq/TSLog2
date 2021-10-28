@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using TSLog.BO;
 
 namespace TSLog.Links
@@ -12,51 +11,36 @@ namespace TSLog.Links
         public Order Order { get; set; }
 
         /// <summary>
-        /// Товарная позиция заказа на сборку и доставку
+        /// Отгрузка со склада
         /// </summary>
-        public class Line : LineBase
+        public Outbound Outbound { get; private set; }
+        /// <summary>
+        /// Продавец складских и логистических услуг
+        /// </summary>
+        public LegalEntity ServiceSeller { get; private set; }
+        /// <summary>
+        /// Покупатель складских и логистических услуг
+        /// </summary>
+        public LegalEntity ServiceBuyer { get; private set; }        
+        /// <summary>
+        /// Отправитель груза
+        /// </summary>
+        public LegalEntity Shipper { get; private set; }
+        /// <summary>
+        /// Получатель груза
+        /// </summary>
+        public LegalEntity Receiver { get; private set; }
+        public OutboundInstruction(long id, string number, byte version, DateTime date, Outbound outbound,
+            LegalEntity sender, LegalEntity recipient,
+            LegalEntity serviceBuyer, LegalEntity serviceSeller, LegalEntity shipper, LegalEntity receiver,
+            string note = "")
+            : base(id, number, 'I', "OUTBOUND_INSTRUCTION", version, date, sender, recipient)
         {
-            public Line(int number, Product product, double quantity = 0)
-                : base(number, product, quantity)
-            {
-                //
-            }
-        }
-
-        public string OrderId { get; set; }
-        public string OrderNumber { get; set; }
-        public string PartnerOrderNumber { get; set; }
-        public DateTime OrderDate { get; set; }
-        public DateTime PlanDeliveryBegin { get; set; }
-        public DateTime PlanDeliveryEnd { get; set; }
-
-        public LegalEntity ServiceBuyer { get; set; }
-        public LegalEntity ServiceSeller { get; set; }
-        public LegalEntity Shipper { get; set; }
-        public LegalEntity Receiver { get; set; }
-
-        public OutboundInstruction(long id, byte version, string body = null)
-            : base(id, 'I', "OUTBOUND_INSTRUCTION", version, body)
-        {
-            _lines = new Dictionary<Product, Line>();
-        }
-
-        private IDictionary<Product, Line> _lines = null;
-        public void AddLine(Line line)
-        {
-            if (line == null)
-                throw new ArgumentNullException("line");
-            if (!_lines.ContainsKey(line.Product))
-                _lines.Add(line.Product, line);
-            else
-                _lines[line.Product].Quantity += line.Quantity;
-        }
-        public void AddLines(Line[] lines)
-        {
-            if (lines == null)
-                throw new ArgumentNullException("lines");
-            foreach (var line in lines)
-                AddLine(line);
+            Outbound = outbound ?? throw new ArgumentNullException(nameof(outbound));
+            ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));
+            ServiceBuyer = serviceBuyer ?? throw new ArgumentNullException(nameof(serviceBuyer));
+            Shipper = shipper ?? throw new ArgumentNullException(nameof(shipper));
+            Receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
         }
     }
 }

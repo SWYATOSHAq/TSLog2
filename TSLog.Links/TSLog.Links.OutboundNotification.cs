@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using TSLog.BO;
 
 namespace TSLog.Links
@@ -11,61 +9,37 @@ namespace TSLog.Links
     public class OutboundNotification : Message
     {
         /// <summary>
-        /// Товарная позиция ответа на заказ, уведомления о старте сборки, уведомления об окончании сборки, уведомления об отгрузке
+        /// Отгрузка товара со склада
         /// </summary>
-        public class Line: LineBase
-        {
-            public double PlanQuantity
-            {
-                get { return Quantity; }
-                set { Quantity = value; } 
-            }
-            public double FactQuantity { get; set; }
-            public Line(int number, Product product, double quantity)
-                : base(number, product, quantity)
-            { }
-        }
-
-        public string OutboundId { get; set; }
-        public string OutboundNumber { get; set; }
-        public string PartnerOutboundNumber { get; set; }
+        public Outbound Outbound { get; private set; }
         /// <summary>
-        /// Статус (состояние)
+        /// Продавец складских и логистических услуг
         /// </summary>
-        public string State { get; set; }
-        public LegalEntity ServiceBuyer { get; set; }
-        public LegalEntity ServiceSeller { get; set; }
-        public LegalEntity Shipper { get; set; }
-        public LegalEntity Receiver { get; set; }
-        private IDictionary<Product, Line> _lines = null;
+        public LegalEntity ServiceSeller { get; private set; }
+        /// <summary>
+        /// Покупатель складских и логистических услуг
+        /// </summary>
+        public LegalEntity ServiceBuyer { get; private set; }        
+        /// <summary>
+        /// Отправитель груза
+        /// </summary>
+        public LegalEntity Shipper { get; private set; }
+        /// <summary>
+        /// Получатель груза
+        /// </summary>
+        public LegalEntity Receiver { get; private set; }
 
-        public OutboundNotification(long id, byte version, string body = null)
-            : base(id, 'O', "OUTBOUND_NOTIFICATION", version, body)
+        public OutboundNotification(long id, string number, byte version, DateTime date, Outbound outbound,
+            LegalEntity sender, LegalEntity recipient,
+            LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
+            string note = "")
+            : base(id, number,  'O', "OUTBOUND_NOTIFICATION", version, date, sender, recipient, note)
         {
-            _lines = new Dictionary<Product, Line>();
-        }
-        public void AddLine(Line line)
-        {
-            if (line == null)
-                throw new ArgumentNullException("line");
-            if (!_lines.ContainsKey(line.Product))
-                _lines.Add(line.Product, line);
-            else
-                _lines[line.Product].Quantity += line.Quantity;
-        }
-        public void AddLines(Line[] lines)
-        {
-            if (lines == null)
-                throw new ArgumentNullException("lines");
-            foreach (var line in lines)
-                AddLine(line);
-        }
-        public Line[] Lines
-        {
-            get
-            {
-                return _lines.Values.ToArray();
-            }
+            Outbound = outbound ?? throw new ArgumentNullException(nameof(outbound));
+            ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));
+            ServiceBuyer = serviceBuyer ?? throw new ArgumentNullException(nameof(serviceBuyer));
+            Shipper = shipper ?? throw new ArgumentNullException(nameof(shipper));
+            Receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
         }
     }
 }

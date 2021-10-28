@@ -8,22 +8,59 @@ namespace TSLog.Links
     /// </summary>
     public class Message
     {
-        public long Id { get; set; }
-        public string Number { get; set; }
-        public char Kind { get; set; }
-        public string Type { get; set; }
-        public byte Version { get; set; }
-        public DateTime Date { get; set; }
-        public LegalEntity Sender { get; set; }
-        public LegalEntity Recipient { get; set; }
+        /// <summary>
+        /// Идентификатор
+        /// </summary>
+        public long Id { get; private set; }
+        /// <summary>
+        /// Номер
+        /// </summary>
+        public string Number { get; private set; }
+        /// <summary>
+        /// Вид
+        /// </summary>
+        public char Kind { get; private set; }
+        /// <summary>
+        /// Тип
+        /// </summary>
+        public string Type { get; private set; }
+        /// <summary>
+        /// Версия
+        /// </summary>
+        public byte Version { get; private set; }
+        /// <summary>
+        /// Дата (создания)
+        /// </summary>
+        public DateTime Date { get; private set; }
+        /// <summary>
+        /// Отправитель
+        /// </summary>
+        public LegalEntity Sender { get; private set; }
+        /// <summary>
+        /// Получатель
+        /// </summary>
+        public LegalEntity Recipient { get; private set; }
+        /// <summary>
+        /// Тело
+        /// </summary>
         public string Body { get; set; }
-        public Message(long id, char kind, string type, byte version, string body = null)
+        /// <summary>
+        /// Примечания и комментарии на естественном языке
+        /// </summary>
+        public string Note { get; private set; }
+        public Message(long id, string number, char kind, string type, byte version, DateTime date, 
+            LegalEntity sender, LegalEntity recipient, string note = "")
         {
             Id = id > 0 ? id : -1;
+            Number = !string.IsNullOrWhiteSpace(number) ? number.Trim() : string.Empty;
             Kind = char.ToUpper(kind);
-            Type = !string.IsNullOrWhiteSpace(type) ? type.Trim() : string.Empty;
+            Type = !string.IsNullOrWhiteSpace(type) ? type.Trim() : string.Empty;            
             Version = version > 0 ? version : Convert.ToByte(1);
-            Body = body;
+            Date = date >= DateTime.Now ? date : DateTime.Now;
+            Sender = sender ?? throw new ArgumentNullException(nameof(sender));
+            Recipient = recipient ?? throw new ArgumentNullException(nameof(recipient));
+            Body = string.Empty; 
+            Note = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
         }
     }
 }
