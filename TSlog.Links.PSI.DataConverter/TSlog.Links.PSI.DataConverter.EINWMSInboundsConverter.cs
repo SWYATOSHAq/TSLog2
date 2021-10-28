@@ -24,24 +24,54 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, InboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
+        public string Convert(string transactionId, InboundInstruction instruction, 
+            string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
         {
-            LegalEntity client = instruction.ServiceBuyer;
-            Inbound inbound = instruction.Inbound;
+            var partner = instruction.ServiceBuyer;
+            var inbound = instruction.Inbound;
 
             // TODO: read how to serealize fields from external struct (for example from ini file)
 
-            var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}|TrxId={PrepStrPar(transactionId)}|Werk={PrepStrPar(warehouseCode)}|MndNr={PrepStrPar(client.Code)}";
+            var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}" +
+                $"|TrxId={PrepStrPar(transactionId)}" +
+                $"|Werk={PrepStrPar(warehouseCode)}" +
+                $"|MndNr={PrepStrPar(partner.Code)}";
             var ret = "";
 
             // header
-            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}|{common}|WeaNr={PrepStrPar(inbound.Code)}|Aktion={PrepStrPar(action)}|WeaKlaNam={PrepStrPar(inbound.Type.Code, true, "NORMAL")}|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}|WeaWwsBeleg={PrepStrPar(inbound.PartnerNumber, true)}|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}|WeaInfo2={PrepStrPar(inbound.GUID, true)}|WeaInfo3={PrepStrPar(inbound.Operation.ToString(), true)}|\n";
+            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}" +
+                $"|{common}" +
+                $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                $"|Aktion={PrepStrPar(action)}" +
+                $"|WeaKlaNam={PrepStrPar(inbound.Type.Code, true, "NORMAL")}" +
+                $"|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}" +
+                $"|WeaWwsBeleg={PrepStrPar(inbound.PartnerNumber, true)}" +
+                $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
+                $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +
+                $"|WeaInfo3={PrepStrPar(inbound.Operation.ToString(), true)}" +
+                $"|\n";
             // body
             foreach (var row in inbound.Lines)
-                ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}|{common}|WeaNr={PrepStrPar(inbound.Code)}|WepNr={PrepStrPar(row.Number.ToString())}|WepMgSoll={PrepStrPar(row.Quantity.ToString())}|ArtNr={PrepStrPar(row.Product.Code)}|BstQlf={PrepStrPar(defaultQualification)}|WepInfo1={PrepStrPar(row.Price.ToString(), true)}|WepInfo2={PrepStrPar(row.OKEI, true)}|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}|BstChgNam={PrepStrPar(row.BatchNumber, true)}|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client)), true)}|\n";
+                ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
+                    $"|{common}" +
+                    $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                    $"|WepNr={PrepStrPar(row.Number.ToString())}" +
+                    $"|WepMgSoll={PrepStrPar(row.Quantity.ToString())}" +
+                    $"|ArtNr={PrepStrPar(row.Product.Code)}" +
+                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
+                    $"|WepInfo1={PrepStrPar(row.Price.ToString(), true)}" +
+                    $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +
+                    $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
+                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +
+                    $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +
+                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +
+                    $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
+                    $"|\n";
             // footer
-            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}|{common}|WeaNr={PrepStrPar(inbound.Code)}|\n";
-
+            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
+                $"|{common}" +
+                $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                $"|\n";
             return ret;
         }
     }
