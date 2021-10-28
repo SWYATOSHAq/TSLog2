@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -7,11 +8,10 @@ namespace TSLog.Links.Services.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly ILinksOrdersStorage _storage = null;
-
+        private readonly ILinksOutboundsStorage _storage = null;
         public OrdersController(ILinksStorage storage)
         {
-            _storage = (ILinksOrdersStorage)storage;
+            _storage = (ILinksOutboundsStorage)storage;
         }
 
         [HttpPost]
