@@ -14,12 +14,24 @@ namespace TSlog.Links.PSI.DataConverter
             return isUpper ? ret.ToUpper() : ret;
         }
 
+        public static string PrepStrPar(int param, int defaultValue = 0)
+        {
+            var ret = param < 0 ? defaultValue : param;
+            return ret.ToString();
+        }
+        public static string PrepStrPar(double param, double defaultValue = 0)
+        {
+            var ret = param < 0 ? defaultValue : param;
+            return ret.ToString();
+        }
+
         public static string TruncateLongString(string str, int maxLength, int start = 0)
         {
             if (string.IsNullOrEmpty(str)) return str;
 
             return str.Substring(start, Math.Min(str.Length, maxLength));
         }
+
 
         public static string TranslateMeasurmentUnit(string unit)
         {
@@ -132,6 +144,7 @@ namespace TSlog.Links.PSI.DataConverter
                     ret = "г";
                     break;
                 default:
+                    ret = "шт";
                     break;
             }
 
