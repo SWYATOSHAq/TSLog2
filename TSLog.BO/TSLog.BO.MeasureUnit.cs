@@ -10,24 +10,29 @@
         /// Размерность единицы измерения (объем, вес, длина и т. д.)
         /// </summary>
         public string Category { get; private set; }
+
         /// <summary>
         /// Признак базовой Е. И.
         /// </summary>
         public bool IsBasic { get; private set; }
+
         /// <summary>
         /// Коэффициент преобразования: определяет номер этой единицы измерения, который соответствует базовой единице измерения.
-        /// </summary>        
+        /// </summary>
         public double Coefficient { get; private set; }
+
         /// <summary>
         /// Базовая единица измерения, коэффициент преобразования которой равен 1
         /// </summary>
         public bool IsDefault { get; private set; }
+
         /// <summary>
         /// Базовая Е. И.
         /// </summary>
         public MeasureUnit BaseUnit { get; set; }
 
         private static MeasureUnit _null = null;
+
         public MeasureUnit(long id, string code, string name, string shortName, string note,
             string category, bool isBasic, double coefficient, bool isDefault = false)
             : base(id, code, name, shortName, string.Empty, string.Empty, note)
@@ -36,8 +41,8 @@
             IsBasic = isBasic;
             Coefficient = coefficient > 0.0 ? coefficient : 1.0;
             IsDefault = isDefault;
-
         }
+
         /// <summary>
         /// Null object
         /// </summary>

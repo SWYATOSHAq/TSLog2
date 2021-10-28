@@ -14,24 +14,28 @@ namespace TSLog.BO
         /// Товарная позиция прихода
         /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={7221368A-BD9A-4759-89BF-304C7B61931C}
         /// </summary>
-        public class Line: LineBase
+        public class Line : LineBase
         {
             /// <summary>
             /// Цена за единицу измерения
             /// </summary>
             public double Price { get; set; }
+
             /// <summary>
             /// Валюта (для цены)
             /// </summary>
             public Entity Currency { get; set; }
+
             /// <summary>
             /// Сумма
             /// </summary>
             public double Sum => Price * Quantity;
+
             /// <summary>
             /// Планируемое количество
             /// </summary>
             public double PlanQuantity { get; set; }
+
             /// <summary>
             /// Фактическое количество
             /// </summary>
@@ -46,28 +50,34 @@ namespace TSLog.BO
                     Quantity = value;
                 }
             }
+
             /// <summary>
             /// (OKAI) Код ОКЕИ
             /// </summary>
             public string OKEI { get; set; }
+
             /// <summary>
-            /// (Info) Дополнительная информация  Возможно, по согласованию, 
+            /// (Info) Дополнительная информация  Возможно, по согласованию,
             /// включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий}
             /// </summary>
             public string Info { get; set; }
+
             /// <summary>
-            /// Номер партии 
+            /// Номер партии
             /// </summary>
             public string BatchNumber { get; set; }
+
             /// <summary>
             /// Альтернативный номер партии
             /// </summary>
             public string BatchNumber2 { get; set; }
+
             private readonly IDictionary<LogisticUnit, double> _logisticUnits = null;
+
             public Line(int number, Product product, double price, Entity currency,
                 double planQuantity, double factQuantity, MeasureUnit measureUnit, string note = "")
                 : base(number, product, factQuantity, measureUnit)
-            {                
+            {
                 Price = price > 0.0 ? price : 0.0;
                 if (currency == null && price > 0.0)
                     throw new ArgumentNullException(nameof(currency));
@@ -76,6 +86,7 @@ namespace TSLog.BO
                 _logisticUnits = new Dictionary<LogisticUnit, double>();
                 Info = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             }
+
             /// <summary>
             /// Добавляет логистическую единицу
             /// </summary>
@@ -93,9 +104,10 @@ namespace TSLog.BO
                     _logisticUnits[logisticUnit] += quantity;
             }
         }
+
         /// <summary>
         /// Идентификатор
-        /// </summary>       
+        /// </summary>
         new public string Id
         {
             get
@@ -107,65 +119,81 @@ namespace TSLog.BO
                 Code = !string.IsNullOrWhiteSpace(value) ? value.Trim() : string.Empty;
             }
         }
+
         /// <summary>
         /// (CustDocGUID) Код GUID номера документа
         /// </summary>
         public string GUID { get; private set; }
+
         /// <summary>
         /// (WeaKlaNam) Класс поступающего заказа на товар
         /// </summary>
         public string Kind { get; set; }
+
         /// <summary>
         ///  Номер
         /// </summary>
         public string Number { get; set; }
+
         /// <summary>
         /// Номер прихода в системе партнёра
         /// </summary>
         public string PartnerNumber { get; private set; }
+
         /// <summary>
         /// Статус (состояние)
         /// </summary>
         public Entity State { get; set; }
+
         /// <summary>
         /// Тип
         /// </summary>
         public Entity Type { get; set; }
+
         /// <summary>
         /// (EcOperation) Тип документа
         /// </summary>
         public OperationType Operation { get; private set; }
+
         /// <summary>
         /// Партнёр (покупатель наших складских и логистических услуг)
         /// </summary>
         public LegalEntity Partner { get; private set; }
+
         /// <summary>
         /// (CustVendId) Код контрагента (поставщика/грузополучателя)
         /// </summary>
         public LegalEntity Vendor { get; set; }
+
         /// <summary>
         /// Отметка о дате и времени (дата формирования документа)
         /// </summary>
         public DateTime Date { get; private set; }
+
         /// <summary>
         /// Плановая дата и время начала приемки
         /// </summary>
         public DateTime PlanAcceptanceBegin { get; set; }
+
         /// <summary>
         /// Плановая дата и время окончания приемки
         /// </summary>
         public DateTime PlanAcceptanceEnd { get; set; }
+
         /// <summary>
         /// Фактическая дата и время начала приемки
         /// </summary>
         public DateTime FactAcceptanceBegin { get; set; }
+
         /// <summary>
         /// Фактическая дата и время окончания приемки
         /// </summary>
         public DateTime FactAcceptanceEnd { get; set; }
+
         private readonly IDictionary<Product, Line> _lines = null;
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = null;
-        public Inbound(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state, 
+
+        public Inbound(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state,
             string note = "")
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
         {
@@ -181,6 +209,7 @@ namespace TSLog.BO
             _lines = new Dictionary<Product, Line>();
             _logisticUnits = new Dictionary<string, LogisticUnit>();
         }
+
         /// <summary>
         /// Добавляет товарную позицию
         /// </summary>
@@ -194,6 +223,7 @@ namespace TSLog.BO
             else
                 _lines[line.Product].Quantity += line.Quantity;
         }
+
         /// <summary>
         /// Добавляет несколько товарных позиций
         /// </summary>
@@ -205,10 +235,12 @@ namespace TSLog.BO
             foreach (var line in lines)
                 AddLine(line);
         }
+
         /// <summary>
         /// Товарные позиции прихода
         /// </summary>
         public Line[] Lines => _lines.Values.ToArray();
+
         /// <summary>
         /// Добавить место
         /// </summary>
@@ -222,6 +254,7 @@ namespace TSLog.BO
             else
                 throw new ArgumentException($"logistic unit {logisticUnit.Sscc} already exists");
         }
+
         /// <summary>
         /// Добавить места
         /// </summary>
@@ -233,6 +266,7 @@ namespace TSLog.BO
             foreach (var logisticUnit in logisticUnits)
                 AddLogisticUnit(logisticUnit);
         }
+
         /// <summary>
         /// Места прихода
         /// </summary>

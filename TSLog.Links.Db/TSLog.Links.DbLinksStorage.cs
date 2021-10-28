@@ -26,37 +26,46 @@ namespace TSLog.Links.Db
         /// Схема общими объектами БД (ecco)
         /// </summary>
         public string CommonSchema { private get; set; }
+
         /// <summary>
         /// Схема с объектами для азличной интеграции (links)
         /// </summary>
         public string LinksSchema { private get; set; }
+
         /// <summary>
         /// Схема с объектами WMS
         /// </summary>
         public string WmsSchema { private get; set; }
 
         #region TODO: Разнести по разным сборкам!!! (Colkhozing)
+
         /// <summary>
         /// Статусы (состояния) приходов
         /// </summary>
         public Catalog<Entity> InboundsStates { private get; set; } = null;
+
         /// <summary>
         /// Статусы (состояния) расходов
         /// </summary>
         public Catalog<Entity> OutboundsStates { private get; set; } = null;
+
         /// <summary>
         /// Валюты
         /// </summary>
         public Catalog<Entity> Currencies { private get; set; } = null;
+
         /// <summary>
         /// Единицы измерения
         /// </summary>
         public Catalog<MeasureUnit> MeasureUnits { private get; set; } = null;
+
         /// <summary>
         /// Партнёры (покупатели наших складских и логистических услуг)
         /// </summary>
         public Catalog<LegalEntity> Partners { private get; set; } = null;
+
         private LegalEntity _tslog = null;
+
         /// <summary>
         /// ТехСкладЛогистик
         /// </summary>
@@ -69,12 +78,14 @@ namespace TSLog.Links.Db
                 return _tslog;
             }
         }
+
         /// <summary>
         /// Товары
         /// </summary>
         public Catalog<Product> Products { private get; set; } = null;
 
         #region "Общие" бизнес объекты
+
         public Entity GetInboundState(string stateCode)
         {
             stateCode = !string.IsNullOrWhiteSpace(stateCode) ? stateCode.Trim() : string.Empty;
@@ -98,6 +109,7 @@ namespace TSLog.Links.Db
             }
             return inboundState ?? Entity.Null;
         }
+
         public Entity[] GetInboundsStates()
         {
             var inboundStates = new List<Entity>();
@@ -120,14 +132,17 @@ namespace TSLog.Links.Db
             }
             return inboundStates.ToArray();
         }
+
         public Entity GetOutboundState(string stateCode)
         {
             return GetInboundState(stateCode);
         }
+
         public Entity[] GetOutboundsStates()
         {
             return GetInboundsStates();
         }
+
         public Entity GetCurrency(string currencyCode)
         {
             currencyCode = !string.IsNullOrWhiteSpace(currencyCode) ? currencyCode.Trim() : string.Empty;
@@ -153,6 +168,7 @@ namespace TSLog.Links.Db
             }
             return currency ?? Entity.Null;
         }
+
         public Entity[] GetCurrncies()
         {
             var currencies = new List<Entity>();
@@ -177,6 +193,7 @@ namespace TSLog.Links.Db
             }
             return currencies.ToArray();
         }
+
         public MeasureUnit GetMeasureUnit(string measureUnitCode)
         {
             measureUnitCode = !string.IsNullOrWhiteSpace(measureUnitCode) ? measureUnitCode.Trim() : string.Empty;
@@ -204,6 +221,7 @@ namespace TSLog.Links.Db
             }
             return measureUnit ?? MeasureUnit.Null;
         }
+
         public MeasureUnit[] GetMeasureUnits()
         {
             var measureUnits = new List<MeasureUnit>();
@@ -229,8 +247,9 @@ namespace TSLog.Links.Db
                 }
             }
             return measureUnits.ToArray();
-        }        
-        public LegalEntity GetPartner(string partnerCode) 
+        }
+
+        public LegalEntity GetPartner(string partnerCode)
         {
             partnerCode = !string.IsNullOrWhiteSpace(partnerCode) ? partnerCode.Trim() : string.Empty;
             var partner = Partners[partnerCode];
@@ -256,6 +275,7 @@ namespace TSLog.Links.Db
                 Partners.Add(partner);
             return partner ?? LegalEntity.Null;
         }
+
         public LegalEntity[] GetPartners()
         {
             var partners = new List<LegalEntity>();
@@ -264,9 +284,9 @@ namespace TSLog.Links.Db
                 command.CommandText = $"select * from {CommonSchema}.v_partner p";
                 using (var reader = command.ExecuteReader())
                 {
-                    while (reader.Read()) 
+                    while (reader.Read())
                     {
-                        var partner = new LegalEntity(-1, 
+                        var partner = new LegalEntity(-1,
                             Convert.ToString(reader["id"]),
                             Convert.ToString(reader["name"]));
                         partners.Add(partner);
@@ -276,6 +296,7 @@ namespace TSLog.Links.Db
             }
             return partners.ToArray();
         }
+
         public Product GetProduct(string productCode)
         {
             productCode = !string.IsNullOrWhiteSpace(productCode) ? productCode.Trim() : string.Empty;
@@ -303,6 +324,7 @@ namespace TSLog.Links.Db
                 Products.Add(product);
             return product ?? Product.Null;
         }
+
         public Product[] GetProducts(LegalEntity[] partners = null)
         {
             var products = new List<Product>();
@@ -322,7 +344,7 @@ namespace TSLog.Links.Db
                     where.Append(')');
                     sql.Append(where);
                 }
-                command.CommandText = sql.ToString();                
+                command.CommandText = sql.ToString();
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -338,10 +360,13 @@ namespace TSLog.Links.Db
             }
             return products.ToArray();
         }
-        #endregion
-        #endregion
+
+        #endregion "Общие" бизнес объекты
+
+        #endregion TODO: Разнести по разным сборкам!!! (Colkhozing)
 
         #region Products and clients lists
+
         public void PostProductsList(ProductsList productsList, LegalEntity partner)
         {
             if (productsList == null)
@@ -354,6 +379,7 @@ namespace TSLog.Links.Db
                 command.ExecuteNonQuery();
             }
         }
+
         public void PostClientsList(ClientsList clientsList, LegalEntity partner)
         {
             if (clientsList == null)
@@ -366,9 +392,11 @@ namespace TSLog.Links.Db
                 command.ExecuteNonQuery();
             }
         }
-        #endregion
+
+        #endregion Products and clients lists
 
         #region Inbound instruction and notification
+
         public void PostInboundInstruction(InboundInstruction inboundInstruction)
         {
             if (inboundInstruction == null)
@@ -379,6 +407,7 @@ namespace TSLog.Links.Db
                 command.ExecuteNonQuery();
             }
         }
+
         private Inbound.Line CreateInboundNotificationLine(DbDataReader reader)
         {
             if (reader == null)
@@ -395,6 +424,7 @@ namespace TSLog.Links.Db
             var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
             return line;
         }
+
         private InboundNotification CreateInboundNotification(DbDataReader reader)
         {
             if (reader == null)
@@ -422,7 +452,7 @@ namespace TSLog.Links.Db
             var id = -1;
             var number = string.Empty;
             var date = DateTime.Now; // Дата создания сообщения
-            var version = (byte)1;            
+            var version = (byte)1;
             var sender = Tslog;
             var recipient = inboundPartner;
             var serviceSeller = Tslog;
@@ -431,11 +461,12 @@ namespace TSLog.Links.Db
             var receiver = Tslog;
             var note = inboundNote;
 
-            var inboundNotification = new InboundNotification(id, number, version, date, inbound,  
+            var inboundNotification = new InboundNotification(id, number, version, date, inbound,
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver,
                 note);
             return inboundNotification;
         }
+
         private Inbound.Line[] GetInboundNotificationLines(InboundNotification inboundNotification)
         {
             if (inboundNotification == null)
@@ -457,6 +488,7 @@ namespace TSLog.Links.Db
             }
             return lines.ToArray();
         }
+
         public InboundNotification GetInboundNotification(string inboundId)
         {
             InboundNotification inboundNotification = null;
@@ -477,6 +509,7 @@ namespace TSLog.Links.Db
             }
             return inboundNotification;
         }
+
         public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId)
         {
             if (partner == null)
@@ -501,6 +534,7 @@ namespace TSLog.Links.Db
             }
             return inboundNotification;
         }
+
         public InboundNotification[] GetInboundNotifications(LegalEntity[] partners = null)
         {
             var inboundNotifications = new List<InboundNotification>();
@@ -508,7 +542,7 @@ namespace TSLog.Links.Db
             {
                 var sql = new StringBuilder($"select * from {LinksSchema}.v_inbound_notification inm");
                 var where = new StringBuilder();
-                if (partners != null && partners.Length > 0) 
+                if (partners != null && partners.Length > 0)
                 {
                     foreach (var partner in partners)
                     {
@@ -534,9 +568,11 @@ namespace TSLog.Links.Db
             }
             return inboundNotifications.ToArray();
         }
-        #endregion
+
+        #endregion Inbound instruction and notification
 
         #region Outbound instruction and notification
+
         public void PostOutboundInstruction(OutboundInstruction outboundInstruction)
         {
             if (outboundInstruction == null)
@@ -547,6 +583,7 @@ namespace TSLog.Links.Db
                 command.ExecuteNonQuery();
             }
         }
+
         private Outbound.Line CreateOutboundNotificationLine(DbDataReader reader)
         {
             if (reader == null)
@@ -564,11 +601,12 @@ namespace TSLog.Links.Db
             line.FactQuantity = factQuantity;
             return line;
         }
+
         private OutboundNotification CreateOutboundNotification(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var outboundId = Convert.ToString(reader["outbound_id"]);            
+            var outboundId = Convert.ToString(reader["outbound_id"]);
             var outboundNumber = Convert.ToString(reader["outbound_number"]);
             var outboundPartnerId = Convert.ToString(reader["partner_id"]);
             var outboundPartner = GetPartner(outboundPartnerId);
@@ -594,6 +632,7 @@ namespace TSLog.Links.Db
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
             return outboundNotification;
         }
+
         private Outbound.Line[] GetOutboundNotificationLines(OutboundNotification outboundNotification)
         {
             if (outboundNotification == null)
@@ -615,6 +654,7 @@ namespace TSLog.Links.Db
             }
             return lines.ToArray();
         }
+
         public OutboundNotification GetOutboundNotification(string outboundId)
         {
             OutboundNotification outboundNotification = null;
@@ -635,6 +675,7 @@ namespace TSLog.Links.Db
             }
             return outboundNotification;
         }
+
         public OutboundNotification GetOutboundNotification(LegalEntity partner, string partnerOutboundId)
         {
             if (partner == null)
@@ -659,13 +700,14 @@ namespace TSLog.Links.Db
             }
             return outboundNotification;
         }
+
         public OutboundNotification[] GetOutboundNotifications(LegalEntity[] partners = null, Entity[] states = null)
         {
             var outboundNotifications = new List<OutboundNotification>();
             using (var command = _connection.CreateCommand())
             {
                 var partnerIds = new StringBuilder();
-                var stateCodes = string.Empty;                
+                var stateCodes = string.Empty;
                 var sql = new StringBuilder($"select * from {LinksSchema}.v_outbound_notification onm");
                 var where = new StringBuilder();
                 if (partners.Length > 0)
@@ -710,40 +752,47 @@ namespace TSLog.Links.Db
             return outboundNotifications.ToArray();
         }
 
-
         public OutboundNotification[] GetOrderResponses()
         {
             return null;
         }
+
         public OutboundNotification GetOrderResponse(LegalEntity partner, string partnerOrderId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
             return null;
         }
+
         public OutboundNotification[] GetPickingStartNotifications()
         {
             return null;
         }
+
         public OutboundNotification[] GetPickingFinishNotifications()
         {
             return null;
         }
+
         public OutboundNotification[] GetShippingNotifications()
         {
             return null;
         }
-        #endregion
+
+        #endregion Outbound instruction and notification
 
         #region DEBUG
+
         public ProductsList GetProductsList(LegalEntity partner) // TODO: to delete (just for debug)
         {
             throw new NotImplementedException();
-        } 
+        }
+
         public ClientsList GetClientsList(bool loadPartners = false) // TODO: to delete (just for debug)
         {
             throw new NotImplementedException();
         }
-        #endregion
+
+        #endregion DEBUG
     }
 }

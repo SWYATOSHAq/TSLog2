@@ -9,7 +9,7 @@ namespace TSLog.Links.Test
 {
     public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var dataSource =
                 "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
@@ -28,7 +28,7 @@ namespace TSLog.Links.Test
             storage.OutboundsStates = outboundStates;
             storage.MeasureUnits = measureUnits;
             storage.Partners = partners;
-            storage.Products = products;            
+            storage.Products = products;
             var password = new SecureString();
             foreach (var symbol in "e")
                 password.AppendChar(symbol);

@@ -20,9 +20,9 @@ namespace TSLog.Links.Services
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // TODO: Connection params брать из конфига 
+            // TODO: Connection params брать из конфига
 
-            var dataSource = 
+            var dataSource =
                 "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
             var storage = new DbLinksStorage(dataSource);
             var password = new SecureString();
@@ -35,9 +35,8 @@ namespace TSLog.Links.Services
             var temp = services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true; // false by default
-            });                        
+            });
             temp.AddXmlSerializerFormatters();
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

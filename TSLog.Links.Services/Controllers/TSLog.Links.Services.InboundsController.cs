@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -8,9 +7,10 @@ namespace TSLog.Links.Services.Controllers
     public class InboundsController : ControllerBase
     {
         private readonly ILinksInboundsStorage _storage = null;
+
         public InboundsController(ILinksStorage storage)
         {
-            _storage = (ILinksInboundsStorage) storage;
+            _storage = (ILinksInboundsStorage)storage;
         }
 
         [HttpPost]
@@ -25,9 +25,9 @@ namespace TSLog.Links.Services.Controllers
             //}
             //return sb.ToString();
         }
-        
+
         [HttpGet("{inboundId}")]
-        public string GetInboundNotification(string inboundId) 
+        public string GetInboundNotification(string inboundId)
         {
             return string.Empty;
         }

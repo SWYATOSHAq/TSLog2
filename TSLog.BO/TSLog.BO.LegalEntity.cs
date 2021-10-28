@@ -16,23 +16,28 @@
                 return Code;
             }
         }
+
         /// <summary>
         /// Дополнительная информация (адрес)
         /// </summary>
         public string Address { get; set; }
+
         /// <summary>
         /// Дополнительная информация
         /// </summary>
         public string Info1 { get; set; }
+
         /// <summary>
-        /// Дополнительная информация 
+        /// Дополнительная информация
         /// </summary>
-        public string Info2 { get; set; } 
+        public string Info2 { get; set; }
+
         public LegalEntity(long id, string code, string name = "", string note = "")
             : base(id, code, name, note)
         { }
 
         private static LegalEntity _null = null;
+
         /// <summary>
         /// Null object
         /// </summary>

@@ -9,16 +9,19 @@ namespace TSLog.Log
     public class LogWriter : IDisposable
     {
         private readonly StreamWriter _stream = null;
-        public LogWriter(string fileName) 
+
+        public LogWriter(string fileName)
         {
             _stream = new StreamWriter(fileName);
         }
+
         public void Dispose()
         {
             _stream.Close();
             _stream.Dispose();
         }
-        public void WriteLog(string message) 
+
+        public void WriteLog(string message)
         {
             _stream.WriteLine(message);
         }

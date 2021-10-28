@@ -16,28 +16,33 @@ namespace TSLog.BO
         /// <summary>
         /// Товарная позиция расхода
         /// </summary>
-        public class Line: LineBase
+        public class Line : LineBase
         {
             /// <summary>
             /// Цена (за единицу товара)
             /// </summary>
             public double Price { get; set; }
+
             /// <summary>
             /// Валюта
             /// </summary>
             public Entity Currency { get; set; }
+
             /// <summary>
             /// Сумма
             /// </summary>
             public double Sum => Price * Quantity;
+
             /// <summary>
             /// Код ОКЕИ
             /// </summary>
             public string OKEI { get; private set; }
+
             /// <summary>
             /// Плановое количество
             /// </summary>
             public double PlanQuantity { get; set; }
+
             /// <summary>
             /// Фактическое количество
             /// </summary>
@@ -52,20 +57,25 @@ namespace TSLog.BO
                     Quantity = value > 0.0 ? value : 0.0;
                 }
             }
+
             /// <summary>
             /// Дополнительная информация (структурированная или нет)
             /// </summary>
             public string Info { get; set; }
+
             /// <summary>
-            /// Номер партии 
+            /// Номер партии
             /// </summary>
             public string BatchNumber { get; set; }
+
             /// <summary>
             /// Альтернативный номер партии
             /// </summary>
             public string BatchNumber2 { get; set; }
+
             private readonly IDictionary<LogisticUnit, double> _logisticUnits = null;
-            public Line(int number, Product product, double price, Entity currency, 
+
+            public Line(int number, Product product, double price, Entity currency,
                 double planQuantity, double factQuantity, MeasureUnit measureUnit)
                 : base(number, product, factQuantity, measureUnit)
             {
@@ -76,6 +86,7 @@ namespace TSLog.BO
                 PlanQuantity = planQuantity > 0.0 ? planQuantity : 0.0;
                 _logisticUnits = new Dictionary<LogisticUnit, double>();
             }
+
             /// <summary>
             /// Добавляет логистическую единицу
             /// </summary>
@@ -93,9 +104,10 @@ namespace TSLog.BO
                     _logisticUnits[logisticUnit] += quantity;
             }
         }
+
         /// <summary>
         /// Идентификатор
-        /// </summary>       
+        /// </summary>
         new public string Id
         {
             get
@@ -107,82 +119,103 @@ namespace TSLog.BO
                 Code = !string.IsNullOrWhiteSpace(value) ? value.Trim() : string.Empty;
             }
         }
+
         public string GUID { get; private set; }
+
         /// <summary>
         /// Номер
         /// </summary>
         public string Number { get; set; }
+
         /// <summary>
         /// Номер в системе партнёра
         /// </summary>
         public string PartnerNumer { get; private set; }
+
         /// <summary>
         /// Статус (состояние)
         /// </summary>
         public Entity State { get; set; }
+
         /// <summary>
         /// Тип
         /// </summary>
         public Entity Type { get; set; }
+
         /// <summary>
         /// Партнёр (покупатель наших складских и логистических услуг)
         /// </summary>
         public LegalEntity Partner { get; private set; }
+
         /// <summary>
         /// Конечный получатель заказа
         /// </summary>
         public LegalEntity Vendor { get; set; }
+
         /// <summary>
-        /// Тип документа 
-        /// </summary>        
+        /// Тип документа
+        /// </summary>
         public OperationType Operation { get; private set; }
+
         /// <summary>
         /// Дата (формирования)
         /// </summary>
         public DateTime Date { get; private set; }
+
         /// <summary>
         /// Плановая дата и время начала отгрузки
         /// </summary>
         public DateTime PlanShippingBegin { get; set; }
+
         /// <summary>
         /// Плановая дата и время окончания отгрузки
         /// </summary>
         public DateTime PlanShippingEnd { get; set; }
+
         /// <summary>
         /// Фактическая дата и время начала отгрузки
         /// </summary>
         public DateTime FactShippingBegin { get; set; }
+
         /// <summary>
         /// Фактическая дата и время окончания отгрузки
         /// </summary>
         public DateTime FactShippingEnd { get; set; }
+
         /// <summary>
-        /// Наименование точки доставки 
+        /// Наименование точки доставки
         /// </summary>
         public string DeliveryName { get; set; }
+
         /// <summary>
-        /// Индекс адреса доставки 
+        /// Индекс адреса доставки
         /// </summary>
         public string DeliveryZip { get; set; }
+
         /// <summary>
-        /// Город доставки 
+        /// Город доставки
         /// </summary>
         public string DeliveryCity { get; set; }
+
         /// <summary>
         /// Улица и дом доставки (строка 2)
         /// </summary>
         public string DeliveryAddress1 { get; set; }
+
         /// <summary>
-        /// Улица и дом доставки (строка 1) 
+        /// Улица и дом доставки (строка 1)
         /// </summary>
         public string DeliveryAddress2 { get; set; }
+
         /// <summary>
         /// Комментарий к доставке. Возможно, по согласованию, включать текст в виде {BOX=002564}{TYPE=RZN}{COMMENT = комментарий}
         /// </summary>
         public string DeliveryComment { get; set; }
+
         private readonly IDictionary<Product, Line> _lines = null;
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = null;
-        public Outbound(string id, string number, LegalEntity partner, string partnerNumber, Entity state, string note = "") 
+
+        public Outbound(string id, string number, LegalEntity partner, string partnerNumber, Entity state, string note = "")
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
         {
             if (string.IsNullOrWhiteSpace(number))
@@ -196,6 +229,7 @@ namespace TSLog.BO
             _lines = new Dictionary<Product, Line>();
             _logisticUnits = new Dictionary<string, LogisticUnit>();
         }
+
         /// <summary>
         /// Добавляет товарную позицию
         /// </summary>
@@ -209,6 +243,7 @@ namespace TSLog.BO
             else
                 _lines[line.Product].Quantity += line.Quantity;
         }
+
         /// <summary>
         /// Добавляет товарные позиции
         /// </summary>
@@ -220,10 +255,12 @@ namespace TSLog.BO
             foreach (var line in lines)
                 AddLine(line);
         }
+
         /// <summary>
         /// Товарные позиции расхода
         /// </summary>
         public Line[] Lines => _lines.Values.ToArray();
+
         /// <summary>
         /// Добавялет место
         /// </summary>
@@ -237,6 +274,7 @@ namespace TSLog.BO
             else
                 throw new ArgumentException($"logistic unit {logisticUnit.Sscc} already exists");
         }
+
         /// <summary>
         /// Добавляет места
         /// </summary>
@@ -248,6 +286,7 @@ namespace TSLog.BO
             foreach (var logisticUnit in logisticUnits)
                 AddLogisticUnit(logisticUnit);
         }
+
         /// <summary>
         /// Места
         /// </summary>

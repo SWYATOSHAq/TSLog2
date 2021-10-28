@@ -11,18 +11,22 @@ namespace TSLog.BO
         /// номер строки
         /// </summary>
         public int Number { get; private set; }
+
         /// <summary>
         /// Товар
         /// </summary>
         public Product Product { get; private set; }
+
         /// <summary>
         /// Количество в единицах измерения (ВСЕГДА фактическое)
         /// </summary>
         public double Quantity { get; set; }
+
         /// <summary>
         /// Единица измерения
         /// </summary>
         public MeasureUnit MeasureUnit { get; set; }
+
         public LineBase(int number, Product product, double quantity, MeasureUnit measureUnit)
         {
             Number = number > 0 ? number : -1;

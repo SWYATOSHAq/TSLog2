@@ -1,22 +1,23 @@
-﻿using System;
-using TSLog.BO;
-using TSLog.Links;
+﻿using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter
 {
     public class EINWMSInboundsConverter : EINWMSBaseConverter
     {
-        const string NAME = "WEA";
-        const string ROWNAME = "WEP";
-        const string POSTFIX = "ANLABSCHL";
+        private const string NAME = "WEA";
+        private const string ROWNAME = "WEP";
+        private const string POSTFIX = "ANLABSCHL";
+
         public override string MessageName()
         {
             return $"{base.MessageName()}.{NAME}";
         }
+
         public string MessageRowName()
         {
             return $"{base.MessageName()}.{ROWNAME}";
         }
+
         /*
         |MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=|WeaInfo2=|WeaInfo3=|
         |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=1|WepMgSoll=2592|ArtNr=AR00000001|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
@@ -24,7 +25,7 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, InboundInstruction instruction, 
+        public string Convert(string transactionId, InboundInstruction instruction,
             string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
         {
             var partner = instruction.ServiceBuyer;

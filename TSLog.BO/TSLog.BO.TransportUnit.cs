@@ -9,10 +9,11 @@
         /// <summary>
         /// Товарная позиция ТЕ
         /// </summary>
-        public class Line 
-        { 
+        public class Line
+        {
             public string Id { get; set; }
         }
+
         public string Id { get; set; }
     }
 }

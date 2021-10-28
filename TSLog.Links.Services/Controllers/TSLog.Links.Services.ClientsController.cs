@@ -8,9 +8,10 @@ namespace TSLog.Links.Services.Controllers
     public class ClientsController : ControllerBase
     {
         private readonly ILinksClientsStorage _storage = null;
+
         public ClientsController(ILinksStorage storage)
         {
-            _storage = (ILinksClientsStorage) storage;
+            _storage = (ILinksClientsStorage)storage;
         }
 
         [HttpPost]

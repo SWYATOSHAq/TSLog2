@@ -20,13 +20,13 @@
 				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
-			</sh:ContactInformation>		
+			</sh:ContactInformation>
 		</sh:Receiver>
 		<sh:DocumentIdentification>
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type/>
+			<sh:Type />
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>
@@ -38,7 +38,7 @@
         <warehousingInboundInstructionIdentification>
             <entityIdentification>INSREC00123</entityIdentification>
         </warehousingInboundInstructionIdentification>
-        <logisticServicesBuyer>			
+        <logisticServicesBuyer>
 			<!--<gln>2222222000004</gln>-->
 			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
         </logisticServicesBuyer>

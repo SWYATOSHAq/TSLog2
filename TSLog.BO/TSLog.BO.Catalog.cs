@@ -7,22 +7,26 @@ namespace TSLog.BO
     /// Каталог справочных объектов
     /// </summary>
     /// <typeparam name="T">Тип справочнико объекта</typeparam>
-    public class Catalog<T> where T: Entity
+    public class Catalog<T> where T : Entity
     {
         private readonly IDictionary<long, T> _entitiesIds = null;
         private readonly IDictionary<string, T> _entitiesCodes = null;
+
         /// <summary>
         /// Код
         /// </summary>
         public string Code { get; private set; }
+
         /// <summary>
         /// Название
         /// </summary>
         public string Name { get; private set; }
+
         /// <summary>
         /// Примечания и комментарии на естественном языке
         /// </summary>
         public string Note { get; private set; }
+
         public Catalog(string code, string name, string note = "")
         {
             Code = !string.IsNullOrWhiteSpace(code) ? code.Trim().ToUpper() : string.Empty;
@@ -31,6 +35,7 @@ namespace TSLog.BO
             _entitiesIds = new Dictionary<long, T>();
             _entitiesCodes = new Dictionary<string, T>();
         }
+
         /// <summary>
         /// Добавление сущности
         /// </summary>
@@ -43,8 +48,8 @@ namespace TSLog.BO
                 _entitiesIds.Add(entity.Id, entity);
             if (!string.IsNullOrWhiteSpace(entity.Code) && !_entitiesCodes.ContainsKey(entity.Code))
                 _entitiesCodes.Add(entity.Code, entity);
-
         }
+
         /// <summary>
         /// Добавление сущностей
         /// </summary>
@@ -56,6 +61,7 @@ namespace TSLog.BO
             foreach (var entity in entities)
                 Add(entity);
         }
+
         /// <summary>
         /// Получение сущности по идентификатору
         /// </summary>
@@ -70,6 +76,7 @@ namespace TSLog.BO
                 return _entitiesIds.ContainsKey(id) ? _entitiesIds[id] : null;
             }
         }
+
         /// <summary>
         /// Получение сущности по коду
         /// </summary>

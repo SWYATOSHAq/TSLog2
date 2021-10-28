@@ -12,30 +12,37 @@ namespace TSLog.Links
         /// Приход
         /// </summary>
         public Inbound Inbound { get; set; }
+
         /// <summary>
         /// Номер запроса на приход
         /// </summary>
         public string InstructionNumber { get; set; }
+
         /// <summary>
         /// Статус (состояние)
         /// </summary>
         public string State { get; set; }
+
         /// <summary>
         /// Продавец складских и логистических услуг
         /// </summary>
         public LegalEntity ServiceSeller { get; private set; }
+
         /// <summary>
         /// Покупатель складских и логистических услуг
         /// </summary>
         public LegalEntity ServiceBuyer { get; private set; }
+
         /// <summary>
         /// Отправитель груза
         /// </summary>
         public LegalEntity Shipper { get; private set; }
+
         /// <summary>
         /// Получатель груза
         /// </summary>
         public LegalEntity Receiver { get; private set; }
+
         /// <summary>
         /// Примечания и комментарии на естественном языке
         /// </summary>
