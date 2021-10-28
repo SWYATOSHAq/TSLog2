@@ -136,6 +136,7 @@ namespace TSLog.Links.Gs1EdiXml
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var closeTag = reader.Name;
+            var id = string.Empty;
             var code = string.Empty;
             var name = string.Empty;
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
@@ -162,7 +163,7 @@ namespace TSLog.Links.Gs1EdiXml
                 {
                     if (reader.Name == closeTag)
                     {
-                        var product = new Product(-1, code, name, name);
+                        var product = new Product(id, code, name, name);
                         return product;
                     }
                     else

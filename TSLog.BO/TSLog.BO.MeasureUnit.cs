@@ -2,12 +2,12 @@
 {
     /// <summary>
     /// Единица измерения
+    /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={6512FD8B-4D58-49B0-9A36-AF01F2EED2FF}
     /// </summary>
     public class MeasureUnit : Entity
     {
         /// <summary>
         /// Размерность единицы измерения (объем, вес, длина и т. д.)
-        /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={6512FD8B-4D58-49B0-9A36-AF01F2EED2FF}
         /// </summary>
         public string Category { get; private set; }
         /// <summary>

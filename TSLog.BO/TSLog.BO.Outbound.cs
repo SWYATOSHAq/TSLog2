@@ -21,19 +21,23 @@ namespace TSLog.BO
             /// <summary>
             /// Цена (за единицу товара)
             /// </summary>
-            public double Price { get; private set; }
+            public double Price { get; set; }
             /// <summary>
             /// Валюта
             /// </summary>
-            public Entity Currency { get; private set; }
+            public Entity Currency { get; set; }
             /// <summary>
             /// Сумма
             /// </summary>
             public double Sum => Price * Quantity;
             /// <summary>
+            /// Код ОКЕИ
+            /// </summary>
+            public string OKEI { get; private set; }
+            /// <summary>
             /// Плановое количество
             /// </summary>
-            public double PlanQuantity { get; private set; }
+            public double PlanQuantity { get; set; }
             /// <summary>
             /// Фактическое количество
             /// </summary>
@@ -48,6 +52,18 @@ namespace TSLog.BO
                     Quantity = value > 0.0 ? value : 0.0;
                 }
             }
+            /// <summary>
+            /// Дополнительная информация (структурированная или нет)
+            /// </summary>
+            public string Info { get; set; }
+            /// <summary>
+            /// Номер партии 
+            /// </summary>
+            public string BatchNumber { get; set; }
+            /// <summary>
+            /// Альтернативный номер партии
+            /// </summary>
+            public string BatchNumber2 { get; set; }
             private readonly IDictionary<LogisticUnit, double> _logisticUnits = null;
             public Line(int number, Product product, double price, Entity currency, 
                 double planQuantity, double factQuantity, MeasureUnit measureUnit)
@@ -60,6 +76,11 @@ namespace TSLog.BO
                 PlanQuantity = planQuantity > 0.0 ? planQuantity : 0.0;
                 _logisticUnits = new Dictionary<LogisticUnit, double>();
             }
+            /// <summary>
+            /// Добавляет логистическую единицу
+            /// </summary>
+            /// <param name="logisticUnit">Логистическая единица</param>
+            /// <param name="quantity">Количество товара на добавляемой логистической единице</param>
             public void AddLogisticUnit(LogisticUnit logisticUnit, double quantity)
             {
                 if (quantity <= 0.0)
@@ -81,8 +102,12 @@ namespace TSLog.BO
             {
                 return Code;
             }
+            set
+            {
+                Code = !string.IsNullOrWhiteSpace(value) ? value.Trim() : string.Empty;
+            }
         }
-        public string GUID { get; set; }
+        public string GUID { get; private set; }
         /// <summary>
         /// Номер
         /// </summary>
@@ -90,24 +115,31 @@ namespace TSLog.BO
         /// <summary>
         /// Номер в системе партнёра
         /// </summary>
-        public string PartnerNumer { get; set; }
+        public string PartnerNumer { get; private set; }
         /// <summary>
         /// Статус (состояние)
         /// </summary>
-        public Entity State { get; private set; }
+        public Entity State { get; set; }
+        /// <summary>
+        /// Тип
+        /// </summary>
+        public Entity Type { get; set; }
         /// <summary>
         /// Партнёр (покупатель наших складских и логистических услуг)
         /// </summary>
-        public LegalEntity Partner { get; set; }
+        public LegalEntity Partner { get; private set; }
+        /// <summary>
+        /// Конечный получатель заказа
+        /// </summary>
         public LegalEntity Vendor { get; set; }
         /// <summary>
         /// Тип документа 
         /// </summary>        
-        public OperationType Operation { get; set; }
+        public OperationType Operation { get; private set; }
         /// <summary>
         /// Дата (формирования)
         /// </summary>
-        public DateTime Date { get; set; }
+        public DateTime Date { get; private set; }
         /// <summary>
         /// Плановая дата и время начала отгрузки
         /// </summary>

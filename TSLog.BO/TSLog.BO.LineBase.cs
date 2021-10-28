@@ -16,13 +16,13 @@ namespace TSLog.BO
         /// </summary>
         public Product Product { get; private set; }
         /// <summary>
-        /// Количество в единицах измерения
+        /// Количество в единицах измерения (ВСЕГДА фактическое)
         /// </summary>
         public double Quantity { get; set; }
         /// <summary>
         /// Единица измерения
         /// </summary>
-        public MeasureUnit MeasureUnit { get; private set; }
+        public MeasureUnit MeasureUnit { get; set; }
         public LineBase(int number, Product product, double quantity, MeasureUnit measureUnit)
         {
             Number = number > 0 ? number : -1;

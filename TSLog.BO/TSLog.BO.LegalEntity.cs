@@ -2,12 +2,22 @@
 {
     /// <summary>
     /// Юридическое лицо (организация)
+    /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={DD97C915-2553-4B50-8753-EFDF79AEC6C0}
     /// </summary>
     public class LegalEntity : Entity
     {
         /// <summary>
+        /// Идентификатор
+        /// </summary>
+        new public string Id
+        {
+            get
+            {
+                return Code;
+            }
+        }
+        /// <summary>
         /// Дополнительная информация (адрес)
-        /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={DD97C915-2553-4B50-8753-EFDF79AEC6C0}
         /// </summary>
         public string Address { get; set; }
         /// <summary>

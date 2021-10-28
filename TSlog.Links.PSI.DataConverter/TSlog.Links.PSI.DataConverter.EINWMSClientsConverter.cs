@@ -17,7 +17,7 @@ namespace TSlog.Links.PSI.DataConverter
          */
         public string Convert(string transactionId, ClientsList list, string warehouseCode = "0000", bool canAddNewLineSymbol = true)
         {
-            LegalEntity client = list.Partner;
+            LegalEntity client = list.DataSource;
 
             string ret = "";
             foreach (var vendor in list.Clients)

@@ -290,8 +290,9 @@ namespace TSLog.Links.Db
                 {
                     if (reader.Read())
                     {
-                        product = new Product(-1,
-                            Convert.ToString(reader["id"]),
+                        product = new Product(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["gtin"]),
                             Convert.ToString(reader["name"]));
                         Products.Add(product);
                     }
@@ -326,8 +327,9 @@ namespace TSLog.Links.Db
                 {
                     if (reader.Read())
                     {
-                        var product = new Product(-1,
-                            Convert.ToString(reader["id"]),
+                        var product = new Product(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["gtin"]),
                             Convert.ToString(reader["name"]));
                         Products.Add(product);
                     }

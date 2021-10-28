@@ -27,19 +27,19 @@ namespace TSlog.Links.PSI.DataConverter
 
         public string Convert(string transactionId, OutboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
         {
-            LegalEntity client = instruction.ServiceBuyer;
-            Order order = instruction.Order;
+            var client = instruction.ServiceBuyer;
+            var outbound = instruction.Outbound;
 
             var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}|TrxId={PrepStrPar(transactionId)}|Werk={PrepStrPar(warehouseCode)}|MndNr={PrepStrPar(client.Code)}";
             var ret = "";
 
             // header
-            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}|{common}|AufNr={PrepStrPar(order.ClientDocId)}|Aktion={PrepStrPar(action)}|AuaNam={PrepStrPar(order.OrderKind, true,"NORMAL")}|LfaEmpfNam1={PrepStrPar(order.Vendor.Code, true)}|AufWwsBeleg=ַ{PrepStrPar(order.ClientDocId, true)}|AufDzVsSoll={PrepStrPar(order.ShipDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}|LfaKdOrt1={PrepStrPar(TruncateLongString(order.DeliveryAddress1, deliveryAdderssLenCut), true)}|LfaKdOrt2={PrepStrPar(TruncateLongString(order.DeliveryAddress1, order.DeliveryAddress1.Length, deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}|AufInfo1={PrepStrPar(TruncateLongString(order.DeliveryComment, maxInfoSize), true)}|AufInfo2={PrepStrPar(order.GUID, true)}|AufInfo3={PrepStrPar(order.Operation.ToString(), true)}|AufInfo4={PrepStrPar(order.DeliveryAddress1, true)}|\n";
+            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}|{common}|AufNr={PrepStrPar(outbound.PartnerNumer)}|Aktion={PrepStrPar(action)}|AuaNam={PrepStrPar(outbound.Type.Code, true,"NORMAL")}|LfaEmpfNam1={PrepStrPar(outbound.Vendor.Code, true)}|AufWwsBeleg=ַ{PrepStrPar(outbound.PartnerNumer, true)}|AufDzVsSoll={PrepStrPar(outbound.PlanShippingBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)}|LfaKdOrt1={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, deliveryAdderssLenCut), true)}|LfaKdOrt2={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, outbound.DeliveryAddress1.Length, deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}|AufInfo1={PrepStrPar(TruncateLongString(outbound.DeliveryComment, maxInfoSize), true)}|AufInfo2={PrepStrPar(outbound.GUID, true)}|AufInfo3={PrepStrPar(outbound.Operation.ToString(), true)}|AufInfo4={PrepStrPar(outbound.DeliveryAddress1, true)}|\n";
             // body
-            foreach (var row in order.Body)
-                ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}|{common}|AufNr={PrepStrPar(order.ClientDocId)}|AupNr={PrepStrPar(row.Number.ToString())}|AupMgSoll={PrepStrPar(row.Quantity.ToString(), true)}|ArtNr={PrepStrPar(row.Product.Code, true)}|BstQlf={defaultQualification}|AupInfo1={PrepStrPar(row.Unit, true)}|AupInfo2={PrepStrPar(row.OKEI, true)}|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}|AupWert={PrepStrPar(row.Product.Price.ToString(), true)}|BstChgNam={PrepStrPar(row.Product.BatchNumber, true)}|BstChgNam2={PrepStrPar(row.Product.BatchNumber, true)}|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy"), true)}|AupMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client)), true)}|\n";
+            foreach (var row in outbound.Lines)
+                ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}|{common}|AufNr={PrepStrPar(outbound.PartnerNumer)}|AupNr={PrepStrPar(row.Number.ToString())}|AupMgSoll={PrepStrPar(row.Quantity.ToString(), true)}|ArtNr={PrepStrPar(row.Product.Code, true)}|BstQlf={defaultQualification}|AupInfo1={PrepStrPar(row.MeasureUnit.Code, true)}|AupInfo2={PrepStrPar(row.OKEI, true)}|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}|AupWert={PrepStrPar(row.Product.Price.ToString(), true)}|BstChgNam={PrepStrPar(row.BatchNumber, true)}|BstChgNam2={PrepStrPar(row.BatchNumber, true)}|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy"), true)}|AupMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(client)), true)}|\n";
             // footer
-            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{POSTFIX}|{common}|AufNr={PrepStrPar(order.ClientDocId)}|\n";
+            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{POSTFIX}|{common}|AufNr={PrepStrPar(outbound.PartnerNumer)}|\n";
 
             return ret;
         }

@@ -19,11 +19,11 @@ namespace TSLog.BO
             /// <summary>
             /// Цена за единицу измерения
             /// </summary>
-            public double Price { get; private set; }
+            public double Price { get; set; }
             /// <summary>
             /// Валюта (для цены)
             /// </summary>
-            public Entity Currency { get; private set; }
+            public Entity Currency { get; set; }
             /// <summary>
             /// Сумма
             /// </summary>
@@ -31,7 +31,7 @@ namespace TSLog.BO
             /// <summary>
             /// Планируемое количество
             /// </summary>
-            public double PlanQuantity { get; private set; }
+            public double PlanQuantity { get; set; }
             /// <summary>
             /// Фактическое количество
             /// </summary>
@@ -54,7 +54,7 @@ namespace TSLog.BO
             /// (Info) Дополнительная информация  Возможно, по согласованию, 
             /// включать информацию в виде {BOX=002564}{TYPE=RZN}{COMMENT=комментарий}
             /// </summary>
-            public string Info { get; private set; }
+            public string Info { get; set; }
             /// <summary>
             /// Номер партии 
             /// </summary>
@@ -76,6 +76,11 @@ namespace TSLog.BO
                 _logisticUnits = new Dictionary<LogisticUnit, double>();
                 Info = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             }
+            /// <summary>
+            /// Добавляет логистическую единицу
+            /// </summary>
+            /// <param name="logisticUnit">Логистическая единица</param>
+            /// <param name="quantity">Количество товара на добавляемой логистической единице</param>
             public void AddLogisticUnit(LogisticUnit logisticUnit, double quantity)
             {
                 if (quantity <= 0.0)
@@ -97,11 +102,15 @@ namespace TSLog.BO
             {
                 return Code;
             }
+            set
+            {
+                Code = !string.IsNullOrWhiteSpace(value) ? value.Trim() : string.Empty;
+            }
         }
         /// <summary>
         /// (CustDocGUID) Код GUID номера документа
         /// </summary>
-        public string GUID { get; set; }
+        public string GUID { get; private set; }
         /// <summary>
         /// (WeaKlaNam) Класс поступающего заказа на товар
         /// </summary>
@@ -113,19 +122,23 @@ namespace TSLog.BO
         /// <summary>
         /// Номер прихода в системе партнёра
         /// </summary>
-        public string PartnerNumber { get; set; }
+        public string PartnerNumber { get; private set; }
         /// <summary>
         /// Статус (состояние)
         /// </summary>
-        public Entity State { get; private set; }
+        public Entity State { get; set; }
+        /// <summary>
+        /// Тип
+        /// </summary>
+        public Entity Type { get; set; }
         /// <summary>
         /// (EcOperation) Тип документа
         /// </summary>
-        public OperationType Operation { get; set; }
+        public OperationType Operation { get; private set; }
         /// <summary>
         /// Партнёр (покупатель наших складских и логистических услуг)
         /// </summary>
-        public LegalEntity Partner { get; set; }
+        public LegalEntity Partner { get; private set; }
         /// <summary>
         /// (CustVendId) Код контрагента (поставщика/грузополучателя)
         /// </summary>

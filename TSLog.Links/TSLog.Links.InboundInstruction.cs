@@ -8,7 +8,6 @@ namespace TSLog.Links
     /// </summary>
     public class InboundInstruction : Message
     {
-        public Inbound Inbound { get; set; }
         /// <summary>
         /// Приход товара на склад
         /// </summary>
