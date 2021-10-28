@@ -6,6 +6,9 @@ using TSLog.Common;
 
 namespace TSLog.Db
 {
+    /// <summary>
+    /// Базовый класс для работы с хранилищем БД Oracle
+    /// </summary>
     public class DbStorage : IDisposable
     {
         protected OracleConnection _connection = null;
@@ -27,8 +30,11 @@ namespace TSLog.Db
             stringBuilder.Clear();
         }
         public void Execute(string sql) 
-        { 
-            //
+        {
+            using (var command = _connection.CreateCommand())
+            {
+                command.ExecuteNonQuery();
+            }
         }
         public void Disconnect()
         {
