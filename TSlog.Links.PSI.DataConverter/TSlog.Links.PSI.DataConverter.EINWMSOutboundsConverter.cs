@@ -46,7 +46,7 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|AufWwsBeleg=ַ{PrepStrPar(outbound.PartnerNumer, true)}" +
                 $"|AufDzVsSoll={PrepStrPar(outbound.PlanShippingBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +
                 $"|LfaKdOrt1={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, deliveryAdderssLenCut), true)}" +
-                $"|LfaKdOrt2={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, outbound.DeliveryAddress1.Length, deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}" +
+                $"|LfaKdOrt2={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, outbound.DeliveryAddress1?.Length ?? 0 , deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}" +
                 $"|AufInfo1={PrepStrPar(TruncateLongString(outbound.DeliveryComment, maxInfoSize), true)}" +
                 $"|AufInfo2={PrepStrPar(outbound.GUID, true)}" +
                 $"|AufInfo3={PrepStrPar(outbound.Operation.ToString(), true)}" +

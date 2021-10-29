@@ -628,7 +628,6 @@ namespace TSLog.Links.Gs1EdiXml
             var shipper = LegalEntity.Null;
             var receiver = LegalEntity.Null;
             var note = string.Empty;
-            var deliveryAddess = string.Empty;
 
             var beginDate = string.Empty;
             var beginTime = string.Empty;
@@ -702,10 +701,6 @@ namespace TSLog.Links.Gs1EdiXml
                             lines.Add(OutboundInstructionLineFromXml(reader));
                             break;
 
-                        case "deliveryAdderss":
-                            deliveryAddess = reader.ReadElementContentAsString();
-                            break;
-
                         default:
                             reader.Read();
                             break;
@@ -729,7 +724,7 @@ namespace TSLog.Links.Gs1EdiXml
             outbound.PlanShippingBegin = outboundPlanShippingBegin;
             outbound.PlanShippingEnd = outboundPlanShippingEnd;
             outbound.Vendor = receiver;
-            outbound.DeliveryAddress1 = deliveryAddess;
+            outbound.DeliveryAddress1 = receiver.Address;
 
             note = outboundNote;
             var outboundInstruction = new OutboundInstruction(id, number, version, date, outbound,

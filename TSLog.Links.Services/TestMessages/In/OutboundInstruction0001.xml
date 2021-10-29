@@ -50,12 +50,12 @@
                 <!--<gln>3333333000018</gln>-->
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
 				<address>
-					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 10</streetAddressOne>
 				</address>
             </shipper>
             <receiver>
                 <!--<gln>4444444000008</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">RT02-1</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">СК11133</additionalPartyIdentification>
 				<address>
 					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
 				</address>
