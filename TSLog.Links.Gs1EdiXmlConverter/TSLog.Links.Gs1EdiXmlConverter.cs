@@ -52,8 +52,10 @@ namespace TSLog.Links.Gs1EdiXml
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var code = string.Empty;
             var closeTag = reader.Name;
+            var id = string.Empty;
+            var address = string.Empty;
+            
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -64,7 +66,13 @@ namespace TSLog.Links.Gs1EdiXml
                             reader.Read();
                             break;
                         case "additionalPartyIdentification":
-                            code = reader.ReadElementContentAsString();
+                            id = reader.ReadElementContentAsString();
+                            break;
+                        case "address":
+                            reader.Read();
+                            break;
+                        case "streetAddressOne":
+                            address = reader.ReadElementContentAsString();
                             break;
                         default:
                             reader.Read();
@@ -73,9 +81,9 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    var legalEntity = _storage.GetPartner(code);
+                    var legalEntity = _storage.GetPartner(id);
                     if (legalEntity == null)
-                        throw new Exception($"Legal entity {code} not found");
+                        throw new Exception($"Legal entity {id} not found");
                     return legalEntity;
                 }
                 else
@@ -157,15 +165,10 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
+                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    if (reader.Name == closeTag)
-                    {
-                        var product = new Product(id, code, name, name);
-                        return product;
-                    }
-                    else
-                        reader.Read();
+                    var product = new Product(id, code, name, name);
+                    return product;
                 }
                 else
                     reader.Read();
@@ -213,8 +216,6 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
-                    reader.Read();
                 else
                     reader.Read();
             }
@@ -561,21 +562,14 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
+                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    if (reader.Name == closeTag)
-                    {
-                        var product = _storage.GetProduct(gtin);
-                        var currency = _storage.GetCurrency(currencyCode);
-                        var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
-                        var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
-                        return line;
-                    }
-                    else
-                        reader.Read();
+                    var product = _storage.GetProduct(gtin);
+                    var currency = _storage.GetCurrency(currencyCode);
+                    var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
+                    var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
+                    return line;
                 }
-                else
-                    reader.Read();
             }
             return null;
         }
@@ -668,8 +662,6 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement)
-                    reader.Read();
                 else
                     reader.Read();
             }
@@ -734,15 +726,12 @@ namespace TSLog.Links.Gs1EdiXml
                 xmlLine.AppendChild(xmlDocument.CreateElement("lineItemNumber")).InnerText = lineNumber.ToString();
                 xmlLine.AppendChild(xmlDocument.CreateElement("transactionalTradeItem")).AppendChild(xmlDocument.CreateElement("gtin")).InnerText = 
                     line.Product.Gtin;
-
                 xmlLine.AppendChild(xmlDocument.CreateElement("plannedDespatchQuantity")).InnerText = line.PlanQuantity.ToString();
                 xmlLine.AppendChild(xmlDocument.CreateElement("actualDespatchQuantity")).InnerText = line.FactQuantity.ToString();
-
                 lineNumber++;
             }
             return xmlDocument.OuterXml;
         }
-
         #endregion
     }
 }

@@ -49,10 +49,16 @@
             <shipper>
                 <!--<gln>3333333000018</gln>-->
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
+				<address>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+				</address>
             </shipper>
             <receiver>
                 <!--<gln>4444444000008</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">XXXX</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
+				<address>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+				</address>
             </receiver>
 			<warehousingDespatchTypeCode>WAREHOUSE_SHIPMENT</warehousingDespatchTypeCode>
             <plannedDelivery>
