@@ -197,8 +197,6 @@ namespace TSLog.BO
             string note = "")
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
         {
-            if (string.IsNullOrWhiteSpace(number))
-                throw new ArgumentException("number is empty");
             Number = number.Trim();
             Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));

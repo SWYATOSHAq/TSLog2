@@ -132,7 +132,7 @@ namespace TSLog.Links.Db
                 {
                     while (reader.Read())
                     {
-                        var outboundType = new Entity(Convert.ToInt32(reader["id"]),
+                        var outboundType = new Entity(Convert.ToInt32(reader["id"]), 
                             Convert.ToString(reader["code"]),
                             Convert.ToString(reader["name"]));
                         outboundTypes.Add(outboundType);
@@ -290,9 +290,9 @@ namespace TSLog.Links.Db
                 {
                     if (reader.Read())
                     {
-                        partner = new LegalEntity(-1,
-                            Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]));
+                        partner = new LegalEntity(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["note"]));
                         Partners.Add(partner);
                     }
                     reader.Close();
@@ -312,9 +312,9 @@ namespace TSLog.Links.Db
                 {
                     while (reader.Read())
                     {
-                        var partner = new LegalEntity(-1,
-                            Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]));
+                        var partner = new LegalEntity(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["note"]));
                         partners.Add(partner);
                     }
                     reader.Close();
@@ -568,13 +568,14 @@ namespace TSLog.Links.Db
                 throw new ArgumentNullException(nameof(reader));
             var outboundId = Convert.ToString(reader["outbound_id"]);
             var outboundNumber = Convert.ToString(reader["outbound_number"]);
+            var outboundDate = DateTime.MinValue;
             var outboundPartnerId = Convert.ToString(reader["partner_id"]);
             var outboundPartner = GetPartner(outboundPartnerId);
             var outboundPartnerNumber = Convert.ToString(reader["partner_outbound_number"]);
             var outboundStateCode = Convert.ToString(reader["state_code"]);
             var outboundState = GetOutboundState(outboundStateCode);
             var outboundNote = string.Empty;
-            var outbound = new Outbound(outboundId, outboundNumber, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
+            var outbound = new Outbound(outboundId, outboundNumber, outboundDate, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
 
             var id = -1;
             var number = string.Empty;

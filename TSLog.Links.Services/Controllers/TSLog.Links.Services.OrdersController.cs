@@ -11,7 +11,7 @@ namespace TSLog.Links.Services.Controllers
         private readonly ILinksOutboundsStorage _storage = null;
         public OrdersController(ILinksStorage storage)
         {
-            _storage = (ILinksOutboundsStorage)storage;
+            _storage = (ILinksOutboundsStorage) storage;
         }
 
         [HttpPost]
