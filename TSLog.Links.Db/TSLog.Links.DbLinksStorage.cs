@@ -569,13 +569,14 @@ namespace TSLog.Links.Db
                 throw new ArgumentNullException(nameof(reader));
             var outboundId = Convert.ToString(reader["outbound_id"]);            
             var outboundNumber = Convert.ToString(reader["outbound_number"]);
+            var outboundDate = DateTime.MinValue;
             var outboundPartnerId = Convert.ToString(reader["partner_id"]);
             var outboundPartner = GetPartner(outboundPartnerId);
             var outboundPartnerNumber = Convert.ToString(reader["partner_outbound_number"]);
             var outboundStateCode = Convert.ToString(reader["state_code"]);
             var outboundState = GetOutboundState(outboundStateCode);
             var outboundNote = string.Empty;
-            var outbound = new Outbound(outboundId, outboundNumber, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
+            var outbound = new Outbound(outboundId, outboundNumber, outboundDate, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
 
             var id = -1;
             var number = string.Empty;

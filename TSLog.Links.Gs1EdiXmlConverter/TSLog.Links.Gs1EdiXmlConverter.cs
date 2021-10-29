@@ -48,14 +48,15 @@ namespace TSLog.Links.Gs1EdiXml
             }
             return LegalEntity.Null;
         }
-        private LegalEntity LegalEntityFromXml(XmlReader reader)
+        private LegalEntity LegalEntityFromXml(XmlReader reader, bool createNew = false)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var closeTag = reader.Name;
             var id = string.Empty;
-            var address = string.Empty;
-            
+            var name = string.Empty;
+            var note = string.Empty;
+            var fullAddress = string.Empty;
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -72,7 +73,7 @@ namespace TSLog.Links.Gs1EdiXml
                             reader.Read();
                             break;
                         case "streetAddressOne":
-                            address = reader.ReadElementContentAsString();
+                            fullAddress = reader.ReadElementContentAsString();
                             break;
                         default:
                             reader.Read();
@@ -81,15 +82,25 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    var legalEntity = _storage.GetPartner(id);
-                    if (legalEntity == null)
-                        throw new Exception($"Legal entity {id} not found");
+
+                    var legalEntity = LegalEntity.Null;
+                    if (!createNew)
+                    {
+                        legalEntity = _storage.GetPartner(id);
+                        if (legalEntity == null || legalEntity == LegalEntity.Null)
+                            throw new Exception($"Legal entity {id} not found");
+                    }
+                    else
+                    {
+                        legalEntity = new LegalEntity(id, name, note);
+                        legalEntity.Address = fullAddress;
+                    }
                     return legalEntity;
                 }
                 else
                     reader.Read();
             }
-            return null;
+            return LegalEntity.Null;
         }
         private LogisticUnit LogisticUnitFromXml(XmlReader reader)
         {
@@ -631,7 +642,7 @@ namespace TSLog.Links.Gs1EdiXml
                             serviceSeller = LegalEntityFromXml(reader);
                             break;
                         case "shipper":
-                            shipper = LegalEntityFromXml(reader);
+                            shipper = LegalEntityFromXml(reader);                            
                             break;
                         case "receiver":
                             receiver = LegalEntityFromXml(reader);
@@ -669,7 +680,8 @@ namespace TSLog.Links.Gs1EdiXml
             outboundPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             outboundPlanShippingEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
             outboundState = _storage.GetOutboundState(outboundStateCode);
-            var outbound = new Outbound(outboundId, outboundNumber, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
+            var outbound = new Outbound(outboundId, outboundNumber, outboundDate, 
+                outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
             outbound.PlanShippingBegin = outboundPlanShippingBegin;
             outbound.PlanShippingEnd = outboundPlanShippingEnd;
             

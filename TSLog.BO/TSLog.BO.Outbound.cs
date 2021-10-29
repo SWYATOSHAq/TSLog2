@@ -182,12 +182,13 @@ namespace TSLog.BO
         public string DeliveryComment { get; set; }
         private readonly IDictionary<Product, Line> _lines = null;
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = null;
-        public Outbound(string id, string number, LegalEntity partner, string partnerNumber, Entity state, string note = "") 
+        public Outbound(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state, string note = "") 
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
         {
             if (string.IsNullOrWhiteSpace(number))
                 throw new ArgumentException("number is empty");
             Number = number.Trim();
+            Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));
             if (string.IsNullOrWhiteSpace(partnerNumber))
                 throw new ArgumentException("partnerNumber is empty");
