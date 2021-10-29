@@ -5,8 +5,8 @@
 		<sh:Sender>
 			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>John Doe</sh:Contact>
-				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Aleksandr@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
@@ -15,10 +15,10 @@
 		<sh:Receiver>
 			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>Mary Smith</sh:Contact>
-				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
-				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
-				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
 			</sh:ContactInformation>
 		</sh:Receiver>
@@ -32,7 +32,7 @@
 		</sh:DocumentIdentification>
 	</sh:StandardBusinessDocumentHeader>
     <warehousingInboundInstruction>
-        <creationDateTime>2012-07-11T12:15:00.000-05:00</creationDateTime>
+        <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
         <warehousingInboundInstructionIdentification>
@@ -52,7 +52,7 @@
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">RT02-1</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">00ЗК-16</additionalPartyIdentification>
             </shipper>
             <receiver>
                 <!---<gln>3333333000018</gln>-->
@@ -66,24 +66,32 @@
                 <sscc>311111110000123554</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
-            <packageTotal>
+            <logisticUnit>
+                <sscc>311111110000123553</sscc>
+                <packageTypeCode>CARTON</packageTypeCode>
+            </logisticUnit>
+            <logisticUnit>
+                <sscc>311111110000123552</sscc>
                 <packageTypeCode>AF</packageTypeCode>
-                <totalPackageQuantity>2</totalPackageQuantity>
-            </packageTotal>
+            </logisticUnit>
+            <logisticUnit>
+                <sscc>311111110000123551</sscc>
+                <packageTypeCode>CARTON</packageTypeCode>
+            </logisticUnit>
             <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode>
             <plannedReceipt>
                 <logisticEventPeriod>
-                    <beginDate>2012-07-12</beginDate>
-                    <beginTime>10:00:00</beginTime>
-                    <endDate>2012-07-12</endDate>
-                    <endTime>11:00:00</endTime>
+                    <beginDate>2021-12-31</beginDate>
+                    <beginTime>23:58:00</beginTime>
+                    <endDate>2021-12-31</endDate>
+                    <endTime>23:59:00</endTime>
                 </logisticEventPeriod>
             </plannedReceipt>
             <carrierPickUpDropOffDetails>
                 <transportResponsiblePerson>
-                    <personName>LENMAN</personName>
+                    <personName>Billy Harington</personName>
                     <identityDocument>
-                        <identityDocumentNumber>12345</identityDocumentNumber>
+                        <identityDocumentNumber>69420</identityDocumentNumber>
                         <identityDocumentType>DRIVERS_LICENSE</identityDocumentType>
                     </identityDocument>
                 </transportResponsiblePerson>
@@ -105,7 +113,19 @@
                     <sscc>311111110000123554</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
-                <plannedReceiptQuantity>40</plannedReceiptQuantity>
+                <logisticUnit>
+                    <sscc>311111110000123553</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>311111110000123552</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>311111110000123551</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <plannedReceiptQuantity>100</plannedReceiptQuantity>
             </warehousingInboundInstructionShipmentItem>
         </warehousingInboundInstructionShipment>
     </warehousingInboundInstruction>

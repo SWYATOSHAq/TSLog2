@@ -268,7 +268,7 @@ namespace TSLog.Links.Db
             get
             {
                 if (_tslog == null)
-                    _tslog = new LegalEntity(1, "TSLOG", "ТехСкладЛогистик");
+                    _tslog = new LegalEntity("TSLOG", "TSL", "ТехСкладЛогистик");
                 return _tslog;
             }
         }
@@ -276,10 +276,21 @@ namespace TSLog.Links.Db
         /// Товары
         /// </summary>
         public Catalog<Product> Products { private get; set; } = null;
+        public LegalEntity GetLegalEntity(string partnerCode)
+        {
+            // TODO add GetLegalEntity with all of partners of partners
+            var ret = new LegalEntity("LEGAL_ENTITY", "just a legal entity", "just a legal entity for debug");
+            ret.Address = "Odinsovo, ulitza Zarevo, dom 36";
+            return ret;
+        }
         public LegalEntity GetPartner(string partnerCode)
         {
             partnerCode = !string.IsNullOrWhiteSpace(partnerCode) ? partnerCode.Trim() : string.Empty;
             var partner = Partners[partnerCode];
+
+            if (partnerCode == Tslog.Code) // check if Tslog
+                partner = Tslog;
+
             if (partner != null && partner != LegalEntity.Null)
                 return partner;
             using (var command = _connection.CreateCommand())
@@ -292,7 +303,10 @@ namespace TSLog.Links.Db
                     {
                         partner = new LegalEntity(Convert.ToString(reader["id"]),
                             Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["note"]));
+                            Convert.ToString(reader["note1"])
+                            );
+                        partner.Address = Convert.ToString(reader["address"]);
+
                         Partners.Add(partner);
                     }
                     reader.Close();

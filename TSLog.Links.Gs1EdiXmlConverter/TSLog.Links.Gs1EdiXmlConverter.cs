@@ -88,6 +88,10 @@ namespace TSLog.Links.Gs1EdiXml
                     if (!createNew)
                     {
                         legalEntity = _storage.GetPartner(id);
+
+                        if (legalEntity == null || legalEntity == LegalEntity.Null)
+                            legalEntity = _storage.GetLegalEntity(id);
+
                         if (legalEntity == null || legalEntity == LegalEntity.Null)
                             throw new Exception($"Legal entity {id} not found");
                     }
@@ -318,7 +322,7 @@ namespace TSLog.Links.Gs1EdiXml
                             var sscc = InboundInstructionLineLogisticUnitFromXml(reader, out logisticUnitQuantity);
                             if (!logisticUnits.ContainsKey(sscc))
                                 throw new Exception($"Место по коду {sscc} не найдено");
-                            if (!logisticUnits.ContainsKey(sscc))
+                            if (!lineLogisticUnits.ContainsKey(logisticUnits[sscc]))
                                 lineLogisticUnits.Add(logisticUnits[sscc], logisticUnitQuantity);
                             else
                                 lineLogisticUnits[logisticUnits[sscc]] += logisticUnitQuantity;
@@ -636,6 +640,8 @@ namespace TSLog.Links.Gs1EdiXml
                     var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
                     return line;
                 }
+                else 
+                  reader.Read();
             }
             return null;
         }

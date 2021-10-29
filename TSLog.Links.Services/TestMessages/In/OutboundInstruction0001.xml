@@ -55,7 +55,7 @@
             </shipper>
             <receiver>
                 <!--<gln>4444444000008</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">СК11133</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">9999</additionalPartyIdentification>
 				<address>
 					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
 				</address>

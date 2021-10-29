@@ -10,6 +10,7 @@ namespace TSLog.Links
         public Entity GetCurrency(string currencyCode);
         public MeasureUnit GetMeasureUnit(string measureUnitCode);
         public LegalEntity GetPartner(string code);
+        public LegalEntity GetLegalEntity(string partnerCode);
         public LegalEntity[] GetPartners();
         public Product GetProduct(string code);
     }
