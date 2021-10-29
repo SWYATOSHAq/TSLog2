@@ -42,9 +42,9 @@ namespace TSlog.Links.PSI.DataConverter
             // header
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}" +
                 $"|{common}" +
-                $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                $"|WeaNr={PrepStrPar(inbound.Number)}" +
                 $"|Aktion={PrepStrPar(action)}" +
-                $"|WeaKlaNam={PrepStrPar(inbound.Type.Code, true, "NORMAL")}" +
+                $"|WeaKlaNam={PrepStrPar(inbound.Type?.Code, true, "NORMAL")}" +
                 $"|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}" +
                 $"|WeaWwsBeleg={PrepStrPar(inbound.PartnerNumber, true)}" +
                 $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
@@ -55,7 +55,7 @@ namespace TSlog.Links.PSI.DataConverter
             foreach (var row in inbound.Lines)
                 ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
                     $"|{common}" +
-                    $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                    $"|WeaNr={PrepStrPar(inbound.Number)}" +
                     $"|WepNr={PrepStrPar(row.Number.ToString())}" +
                     $"|WepMgSoll={PrepStrPar(row.Quantity.ToString())}" +
                     $"|ArtNr={PrepStrPar(row.Product.Code)}" +
@@ -71,7 +71,7 @@ namespace TSlog.Links.PSI.DataConverter
             // footer
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
                 $"|{common}" +
-                $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                $"|WeaNr={PrepStrPar(inbound.Number)}" +
                 $"|\n";
             return ret;
         }

@@ -17,7 +17,7 @@ namespace TSlog.Links.PSI.DataConverter
 
         public static string PrepStrPar(string param, bool isUpper = false, string defaultValue = "")
         {
-            var ret = param == null ? defaultValue : param;
+            var ret = string.IsNullOrWhiteSpace( param) ? defaultValue : param;
             return isUpper ? ret.ToUpper() : ret;
         }
 

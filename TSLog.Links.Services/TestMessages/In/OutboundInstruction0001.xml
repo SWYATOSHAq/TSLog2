@@ -25,7 +25,7 @@
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type />
+			<sh:Type/>
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>
@@ -49,10 +49,16 @@
             <shipper>
                 <!--<gln>3333333000018</gln>-->
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
+				<address>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+				</address>
             </shipper>
             <receiver>
                 <!--<gln>4444444000008</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">XXXX</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">RT02-1</additionalPartyIdentification>
+				<address>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+				</address>
             </receiver>
 			<warehousingDespatchTypeCode>WAREHOUSE_SHIPMENT</warehousingDespatchTypeCode>
             <plannedDelivery>

@@ -41,7 +41,7 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|{common}" +
                 $"|AufNr={PrepStrPar(outbound.PartnerNumer)}" +
                 $"|Aktion={PrepStrPar(action)}" +
-                $"|AuaNam={PrepStrPar(outbound.Type.Code, true, "NORMAL")}" +
+                $"|AuaNam={PrepStrPar(outbound.Type?.Code, true, "NORMAL")}" +
                 $"|LfaEmpfNam1={PrepStrPar(outbound.Vendor.Code, true)}" +
                 $"|AufWwsBeleg=ַ{PrepStrPar(outbound.PartnerNumer, true)}" +
                 $"|AufDzVsSoll={PrepStrPar(outbound.PlanShippingBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +

@@ -316,6 +316,7 @@ namespace TSLog.Links.Gs1EdiXml
             var inboundState = Entity.Null;
             var planAcceptanceBegin = DateTime.MinValue;
             var planAcceptanceEnd = DateTime.MinValue;
+            var inboundType = Entity.Null;
             var inboundNote = string.Empty;
             var inboundLogisticUnits = new List<LogisticUnit>();
             var inboundLines = new List<Inbound.Line>();
@@ -436,12 +437,21 @@ namespace TSLog.Links.Gs1EdiXml
                 else
                     reader.Read();
             }
+            // load from db (number dispenser idk)
+            // TODO добавить в Oracle функцию генерации разнородных ID
+            inboundNumber = "Tr100067168";
+
+            // TODO загружать тип из XML
+            //inboundType = new Entity(-1, "loaded_from_xml");
+
             var inbound = new Inbound(inboundId, inboundNumber, inboundDate,
                 inboundPartner, inboundPartnerNumber, inboundState, inboundNote);
             planAcceptanceBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             planAcceptanceEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
             inbound.PlanAcceptanceBegin = planAcceptanceBegin;
             inbound.PlanAcceptanceEnd = planAcceptanceEnd;
+            inbound.Type = inboundType;
+            inbound.Vendor = shipper; // todo check if there is this Gp in our DB 
 
             var inboundInstruction = new InboundInstruction(id, number, version, date, inbound,
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
@@ -618,6 +628,7 @@ namespace TSLog.Links.Gs1EdiXml
             var shipper = LegalEntity.Null;
             var receiver = LegalEntity.Null;
             var note = string.Empty;
+            var deliveryAddess = string.Empty;
 
             var beginDate = string.Empty;
             var beginTime = string.Empty;
@@ -691,6 +702,10 @@ namespace TSLog.Links.Gs1EdiXml
                             lines.Add(OutboundInstructionLineFromXml(reader));
                             break;
 
+                        case "deliveryAdderss":
+                            deliveryAddess = reader.ReadElementContentAsString();
+                            break;
+
                         default:
                             reader.Read();
                             break;
@@ -701,6 +716,11 @@ namespace TSLog.Links.Gs1EdiXml
                 else
                     reader.Read();
             }
+
+            // load from db (number dispenser idk)
+            // TODO добавить в Oracle функцию генерации разнородных ID
+            outboundNumber = "Tr100067168";
+
             outboundPartner = serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
             outboundPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             outboundPlanShippingEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
@@ -708,6 +728,8 @@ namespace TSLog.Links.Gs1EdiXml
             var outbound = new Outbound(outboundId, outboundNumber, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
             outbound.PlanShippingBegin = outboundPlanShippingBegin;
             outbound.PlanShippingEnd = outboundPlanShippingEnd;
+            outbound.Vendor = receiver;
+            outbound.DeliveryAddress1 = deliveryAddess;
 
             note = outboundNote;
             var outboundInstruction = new OutboundInstruction(id, number, version, date, outbound,
