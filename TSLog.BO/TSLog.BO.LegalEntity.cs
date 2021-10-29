@@ -28,8 +28,8 @@
         /// Дополнительная информация 
         /// </summary>
         public string Info2 { get; set; } 
-        public LegalEntity(long id, string code, string name = "", string note = "")
-            : base(id, code, name, note)
+        public LegalEntity(string id, string name = "", string note = "")
+            : base(-1, id, name, note)
         { }
 
         private static LegalEntity _null = null;
@@ -41,7 +41,7 @@
             get
             {
                 if (_null == null)
-                    _null = new LegalEntity(0, "NULL", "Заглушка");
+                    _null = new LegalEntity("NULL", "Заглушка", "Заглушка");
                 return _null;
             }
         }

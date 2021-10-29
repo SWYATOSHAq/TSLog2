@@ -30,7 +30,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet]
         public ActionResult<BO.Product[]> GetProducts()
         {
-            var data = _storage.GetProductsList(new LegalEntity(-1, "1234")).Products; // TODO get client from reqest context
+            var data = _storage.GetProductsList(new LegalEntity("1234")).Products; // TODO get client from reqest context
 
             return data;
 

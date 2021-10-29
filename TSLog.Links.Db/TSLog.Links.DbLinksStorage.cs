@@ -267,8 +267,9 @@ namespace TSLog.Links.Db
         {
             get
             {
-                if (_tslog == null)
-                    _tslog = new LegalEntity(1, "TSLOG", "ТехСкладЛогистик");
+                // TODO: брать из БД
+                if (_tslog == null)                    
+                    _tslog = new LegalEntity("TSLOG", "ТехСкладЛогистик", "ТехСкладЛогистик");
                 return _tslog;
             }
         }
@@ -290,9 +291,9 @@ namespace TSLog.Links.Db
                 {
                     if (reader.Read())
                     {
-                        partner = new LegalEntity(-1,
-                            Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]));
+                        partner = new LegalEntity(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["note"]));
                         Partners.Add(partner);
                     }
                     reader.Close();
@@ -312,9 +313,9 @@ namespace TSLog.Links.Db
                 {
                     while (reader.Read())
                     {
-                        var partner = new LegalEntity(-1,
-                            Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]));
+                        var partner = new LegalEntity(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["note"]));
                         partners.Add(partner);
                     }
                     reader.Close();
