@@ -581,6 +581,8 @@ namespace TSLog.Links.Gs1EdiXml
                     var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
                     return line;
                 }
+                else
+                    reader.Read();
             }
             return null;
         }
