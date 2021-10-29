@@ -35,9 +35,18 @@ namespace TSlog.Links.PSI.DataConverter
 
         public static string TruncateLongString(string str, int maxLength, int start = 0)
         {
-            if (string.IsNullOrEmpty(str)) return str;
+            string ret = "";
+            if (string.IsNullOrEmpty(str)) ret = "";
+            else
+            {
+                if (start > str.Length)
+                    ret = "";
+                else
+                    ret = str.Substring(start, Math.Min(str.Length, maxLength));
+            }
 
-            return str.Substring(start, Math.Min(str.Length, maxLength));
+
+            return ret; 
         }
 
         public static string TranslateMeasurmentUnit(string unit)
