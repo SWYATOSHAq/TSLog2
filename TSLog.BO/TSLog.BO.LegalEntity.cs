@@ -30,7 +30,8 @@
         /// <summary>
         /// Дополнительная информация
         /// </summary>
-        public string Info2 { get; set; } 
+        public string Info2 { get; set; }
+
         public LegalEntity(string id, string name = "", string note = "")
             : base(-1, id, name, note)
         { }

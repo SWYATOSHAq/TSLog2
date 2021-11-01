@@ -37,7 +37,6 @@ namespace TSLog.Links.Test
             storage.OutboundsStates.Add(storage.GetOutboundsStates());
             storage.MeasureUnits.Add(storage.GetMeasureUnits());
             storage.Currencies.Add(storage.GetCurrncies());
-            
 
             var xmlConverter = new Gs1EdiXmlConverter();
             xmlConverter.LinksStorage = storage;
@@ -56,15 +55,15 @@ namespace TSLog.Links.Test
             var converterInbounds = new EINWMSInboundsConverter();
             Console.WriteLine(converterInbounds.Convert("test69420TODO", inboundInstruction));
 
-            //// outbound test
-            //Console.WriteLine(">outbound<");
-            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\OutboundInstruction0001.xml";
-            //reader = new XmlTextReader(fileName);
-            //var outboundInstruction = xmlConverter.OutboundInstructionFromXml(reader);
-            //Console.WriteLine(outboundInstruction.Number);
-            //Console.WriteLine("---serialization---");
-            //var converterOutbounds = new EINWMSOutboundsConverter();
-            //Console.WriteLine(converterOutbounds.Convert("test69420TODO", outboundInstruction));
+            // outbound test
+            Console.WriteLine(">outbound<");
+            fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\OutboundInstruction0001.xml";
+            reader = new XmlTextReader(fileName);
+            var outboundInstruction = xmlConverter.OutboundInstructionFromXml(reader);
+            Console.WriteLine(outboundInstruction.Number);
+            Console.WriteLine("---serialization---");
+            var converterOutbounds = new EINWMSOutboundsConverter();
+            Console.WriteLine(converterOutbounds.Convert("test69420TODO", outboundInstruction));
 
             //// item test
             //Console.WriteLine(">item<");
@@ -75,7 +74,6 @@ namespace TSLog.Links.Test
             //Console.WriteLine("---serialization---");
             //var converterProducts = new EINWMSProductsConverter();
             //Console.WriteLine(converterProducts.Convert("test69420TODO", itemDataNotification));
-
 
             Console.WriteLine(">finished<");
             reader.Close();

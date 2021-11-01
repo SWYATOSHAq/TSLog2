@@ -47,7 +47,7 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|Aktion={PrepStrPar(action)}" +
                 $"|WeaKlaNam={PrepStrPar(inbound.Type?.Code, true, "NORMAL")}" +
                 $"|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}" +
-                $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" + 
+                $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" +
                 $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
                 $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +  // ?
                 $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // ?
@@ -58,10 +58,10 @@ namespace TSlog.Links.PSI.DataConverter
                    $"|{common}" +
                    $"|WeaNr={PrepStrPar(inbound.Number)}" +
                    $"|WepNr={PrepStrPar(row.Number)}" +
-                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity.ToString())}" +
+                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" +
                    $"|ArtNr={PrepStrPar(row.Product.Code)}" +
                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
-                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero:true)}" +
+                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" +
                    $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // ?
                    $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // ?
@@ -69,7 +69,7 @@ namespace TSlog.Links.PSI.DataConverter
                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate)}" +
                    $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
                    $"|\n";
-            
+
             // footer
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
                 $"|{common}" +

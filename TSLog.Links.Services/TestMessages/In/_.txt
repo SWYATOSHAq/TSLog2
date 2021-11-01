@@ -1,15 +1,19 @@
 >inboud<
-INSREC00123
-|serialization|
-|MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=LEGAL_ENTITY|WeaWwsBeleg=11111110000834053|WeaDzAnliefSoll=31.12.2021 23:58:00|WeaInfo2=|WeaInfo3=0|
-|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|WepNr=-1|WepMgSoll=0|ArtNr=NULL|BstQlf=10|WepInfo1=0|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=01.01.0001 00:00:00|WepMgEhWWS=ST|
-|MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|
+---serialization---
+|MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA(TODO)|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=31.12.2021 23:58:00|WeaInfo2=|WeaInfo3=|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=1|WepMgSoll=2592|ArtNr=AR00000044|BstQlf=10|WepInfo1=69|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=2|WepMgSoll=4320|ArtNr=AR00000051|BstQlf=10|WepInfo1=100|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=3|WepMgSoll=100|ArtNr=AR00000054|BstQlf=10|WepInfo1=130,4|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|
 
 >outbound<
 
-|serialization|
-|MsgNam=WMS.AUF|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=TSLOG|AufNr=INSDES00123|Aktion=Ins|AuaNam=NORMAL|LfaEmpfNam1=LEGAL_ENTITY|AufWwsBeleg=?INSDES00123|AufDzVsSoll=31.12.2021 23:58:00|LfaKdOrt1=ODINSOVO, ULITZA ZAREVO, DOM 36|LfaKdOrt2=|AufInfo1=|AufInfo2=|AufInfo3=0|AufInfo4=ODINSOVO, ULITZA ZAREVO, DOM 36|
-|MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=TSLOG|AufNr=INSDES00123|
+---serialization---
+|MsgNam=WMS.AUF|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=TSLOG|AufNr=WM0012TODO|Aktion=Ins|AuaNam=NORMAL|LfaEmpfNam1=VEND_ASKANIA(TODO)|AufWwsBeleg=ASK521|AufDzVsSoll=31.12.2021 23:58:00|LfaKdOrt1=ODINSOVO, ULITZA TEST, 69|LfaKdOrt2=|AufInfo1=|AufInfo2=|AufInfo3=UNDEFINED|AufInfo4=ODINSOVO, ULITZA TEST, 69|
+|MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=TSLOG|AufNr=WM0012TODO|AupNr=1|AupMgSoll=1221|ArtNr=AR00000044|BstQlf=10|AupInfo1=NULL|AupInfo2=|AupInfo6=|AupWert=0|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
+|MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=TSLOG|AufNr=WM0012TODO|AupNr=2|AupMgSoll=3443|ArtNr=AR00000051|BstQlf=10|AupInfo1=NULL|AupInfo2=|AupInfo6=|AupWert=0|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
+|MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=TSLOG|AufNr=WM0012TODO|AupNr=3|AupMgSoll=4554|ArtNr=AR00000054|BstQlf=10|AupInfo1=NULL|AupInfo2=|AupInfo6=|AupWert=0|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
+|MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=TSLOG|AufNr=WM0012TODO|
 
 >item<
 

@@ -35,7 +35,7 @@
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
         <warehousingOutboundInstructionIdentification>
-            <entityIdentification>INSDES00123</entityIdentification>
+            <entityIdentification>ASK521</entityIdentification>
         </warehousingOutboundInstructionIdentification>
         <logisticServicesBuyer>
             <!--<gln>2222222000004</gln>-->
@@ -76,9 +76,9 @@
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>01111111000120</gtin>
+                    <gtin>4630001591380</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>30</plannedDespatchQuantity>
+                <plannedDespatchQuantity>1221</plannedDespatchQuantity>
                 <inlineServiceInstruction>
                     <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
                     <warehousingServiceAttribute>
@@ -90,9 +90,9 @@
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>2</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>01111111000121</gtin>
+                    <gtin>2301000018896</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>30</plannedDespatchQuantity>
+                <plannedDespatchQuantity>3443</plannedDespatchQuantity>
                 <inlineServiceInstruction>
                     <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
                     <warehousingServiceAttribute>
@@ -104,9 +104,9 @@
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>3</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>01111111000122</gtin>
+                    <gtin>2301000018926</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>30</plannedDespatchQuantity>
+                <plannedDespatchQuantity>4554</plannedDespatchQuantity>
                 <inlineServiceInstruction>
                     <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
                     <warehousingServiceAttribute>

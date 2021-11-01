@@ -17,7 +17,7 @@ namespace TSlog.Links.PSI.DataConverter
 
         public static string PrepStrPar(string param, bool isUpper = false, string defaultValue = "")
         {
-            var ret = string.IsNullOrWhiteSpace( param) ? defaultValue : param;
+            var ret = string.IsNullOrWhiteSpace(param) ? defaultValue : param;
             return isUpper ? ret.ToUpper() : ret;
         }
 
@@ -26,17 +26,19 @@ namespace TSlog.Links.PSI.DataConverter
             var ret = param < 0 ? defaultValue : param;
             return ret.ToString();
         }
+
         public static string PrepStrPar(OperationType param, string defaultValue = "")
         {
             var ret = param == OperationType.Undefined ? defaultValue : param.ToString();
             return ret.ToString();
         }
-        public static string PrepStrPar(DateTime param, string defaultValue = "")
+
+        public static string PrepStrPar(DateTime param, string defaultValue = "", string template = "dd.MM.yyyy HH:mm:ss")
         {
-            var ret = param == DateTime.MinValue ? defaultValue : param.ToString("dd.MM.yyyy HH:mm:ss");
+            var ret = param == DateTime.MinValue ? defaultValue : param.ToString(template);
             return ret;
         }
-        
+
         public static string PrepStrPar(double param, double defaultValue = 0, bool retEmptyOnZero = false)
         {
             var retVal = param < 0 ? defaultValue : param;
@@ -60,8 +62,7 @@ namespace TSlog.Links.PSI.DataConverter
                     ret = str.Substring(start, Math.Min(str.Length, maxLength));
             }
 
-
-            return ret; 
+            return ret;
         }
 
         public static string TranslateMeasurmentUnit(string unit)

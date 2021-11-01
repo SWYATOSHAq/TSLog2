@@ -49,6 +49,7 @@ namespace TSLog.Links.Gs1EdiXml
             }
             return LegalEntity.Null;
         }
+
         private LegalEntity LegalEntityFromXml(XmlReader reader, bool createNew = false)
         {
             if (reader == null)
@@ -67,15 +68,19 @@ namespace TSLog.Links.Gs1EdiXml
                         case "gln":
                             reader.Read();
                             break;
+
                         case "additionalPartyIdentification":
                             id = reader.ReadElementContentAsString();
                             break;
+
                         case "address":
                             reader.Read();
                             break;
+
                         case "streetAddressOne":
                             fullAddress = reader.ReadElementContentAsString();
                             break;
+
                         default:
                             reader.Read();
                             break;
@@ -83,7 +88,6 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-
                     var legalEntity = LegalEntity.Null;
                     if (!createNew)
                     {
@@ -124,9 +128,11 @@ namespace TSLog.Links.Gs1EdiXml
                         case "sscc":
                             sscc = reader.ReadElementContentAsString();
                             break;
+
                         case "packageTypeCode":
                             typeCode = reader.ReadElementContentAsString();
                             break;
+
                         default:
                             reader.Read();
                             break;
@@ -152,9 +158,11 @@ namespace TSLog.Links.Gs1EdiXml
             var clients = new List<LegalEntity>();
             return clients.ToArray();
         }
-        #endregion
+
+        #endregion Клиенты (контрагенты)
 
         #region Товары
+
         private Product ProductFromXml(XmlReader reader)
         {
             if (reader == null)
@@ -250,16 +258,18 @@ namespace TSLog.Links.Gs1EdiXml
             productsList.AddProducts(products.ToArray());
             return productsList;
         }
-        #endregion
+
+        #endregion Товары
 
         #region Приход товара на склад
+
         private string InboundInstructionLineLogisticUnitFromXml(XmlReader reader, out double quantity)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var closeTag = reader.Name;
             var sscc = string.Empty;
-            quantity = 0.0;            
+            quantity = 0.0;
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -269,9 +279,11 @@ namespace TSLog.Links.Gs1EdiXml
                         case "sscc":
                             sscc = reader.ReadElementContentAsString();
                             break;
+
                         case "tradeItemQuantity":
                             quantity = reader.ReadElementContentAsDouble();
                             break;
+
                         default:
                             reader.Read();
                             break;
@@ -284,6 +296,7 @@ namespace TSLog.Links.Gs1EdiXml
             }
             return sscc;
         }
+
         private Inbound.Line InboundInstructionLineFromXml(XmlReader reader, IDictionary<string, LogisticUnit> logisticUnits)
         {
             if (reader == null)
@@ -501,6 +514,7 @@ namespace TSLog.Links.Gs1EdiXml
                             var inboundLine = InboundInstructionLineFromXml(reader, inboundLogisticUnits);
                             inboundLines.Add(inboundLine);
                             break;
+
                         default:
                             reader.Read();
                             break;
@@ -526,7 +540,7 @@ namespace TSLog.Links.Gs1EdiXml
             inbound.AddLogisticUnits(inboundLogisticUnits.Values.ToArray());
             inbound.AddLines(inboundLines.ToArray());
             inbound.Type = inboundType;
-            inbound.Vendor = shipper; // todo check if there is this Gp in our DB 
+            inbound.Vendor = shipper; // todo check if there is this Gp in our DB
 
             var inboundInstruction = new InboundInstruction(id, number, version, date, inbound,
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
@@ -572,7 +586,7 @@ namespace TSLog.Links.Gs1EdiXml
             var xmlShipment = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationShipment"));
             var xmlShipmentIdentification = xmlShipment.AppendChild(xmlDocument.CreateElement("shipmentIdentification"));
             xmlShipmentIdentification.AppendChild(xmlDocument.CreateElement("gsin")).InnerText = inboundNotification.Inbound.Id;
-            
+
             var xmlShipper = xmlShipment.AppendChild(xmlDocument.CreateElement("shipper"));
             xmlShipper.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = inboundNotification.Shipper.Code;
 
@@ -651,6 +665,10 @@ namespace TSLog.Links.Gs1EdiXml
                             planQuantity = reader.ReadElementContentAsDouble();
                             break;
 
+                        case "lineItemNumber":
+                            number = reader.ReadElementContentAsInt();
+                            break;
+
                         default:
                             reader.Read();
                             break;
@@ -664,8 +682,8 @@ namespace TSLog.Links.Gs1EdiXml
                     var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
                     return line;
                 }
-                else 
-                  reader.Read();
+                else
+                    reader.Read();
             }
             return null;
         }
@@ -734,7 +752,7 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "shipper":
-                            shipper = LegalEntityFromXml(reader);                            
+                            shipper = LegalEntityFromXml(reader);
                             break;
 
                         case "receiver":
@@ -786,8 +804,11 @@ namespace TSLog.Links.Gs1EdiXml
             outboundPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             outboundPlanShippingEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
             outboundState = _storage.GetOutboundState(outboundStateCode);
-            var outbound = new Outbound(outboundId, outboundNumber, outboundDate, 
+            var outbound = new Outbound(outboundId, outboundNumber, outboundDate,
                 outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
+
+            outbound.AddLines(lines.ToArray());
+
             outbound.PlanShippingBegin = outboundPlanShippingBegin;
             outbound.PlanShippingEnd = outboundPlanShippingEnd;
             outbound.Vendor = receiver;
