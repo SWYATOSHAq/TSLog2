@@ -1,0 +1,3 @@
+|MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=LEGAL_ENTITY|WeaWwsBeleg=11111110000834053|WeaDzAnliefSoll=31.12.2021 23:58:00|WeaInfo2=|WeaInfo3=0|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|WepNr=-1|WepMgSoll=0|ArtNr=NULL|BstQlf=10|WepInfo1=0|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=01.01.0001 00:00:00|WepMgEhWWS=ST|
+|MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|

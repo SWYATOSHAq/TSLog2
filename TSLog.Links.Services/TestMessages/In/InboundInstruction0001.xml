@@ -6,7 +6,7 @@
 			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
 				<sh:Contact>Mihail B.</sh:Contact>
-				<sh:EmailAddress>Aleksandr@purchasing.example.com</sh:EmailAddress>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
@@ -48,7 +48,7 @@
         </logisticServicesSeller>
         <warehousingInboundInstructionShipment>
             <shipmentIdentification>
-                <gsin>11111110000834053</gsin>
+                <gsin>ASK521</gsin>
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
@@ -59,23 +59,23 @@
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
             </receiver>
             <logisticUnit>
-                <sscc>311111110000123455</sscc>
+                <sscc>CONTAINER1</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>311111110000123554</sscc>
+                <sscc>CONTAINER2</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>311111110000123553</sscc>
+                <sscc>CONTAINER3</sscc>
                 <packageTypeCode>CARTON</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>311111110000123552</sscc>
+                <sscc>CONTAINER4</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>311111110000123551</sscc>
+                <sscc>CONTAINER5</sscc>
                 <packageTypeCode>CARTON</packageTypeCode>
             </logisticUnit>
             <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode>
@@ -103,26 +103,80 @@
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>02222222003333</gtin>
+                    <gtin>4630001591380</gtin>
                 </transactionalTradeItem>
                 <logisticUnit>
-                    <sscc>311111110000123455</sscc>
+                    <sscc>CONTAINER1</sscc>
+                    <tradeItemQuantity>2512</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER2</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>311111110000123554</sscc>
+                    <sscc>CONTAINER3</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>311111110000123553</sscc>
+                    <sscc>CONTAINER4</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>311111110000123552</sscc>
+                    <sscc>CONTAINER5</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <plannedReceiptQuantity>2592</plannedReceiptQuantity>
+            </warehousingInboundInstructionShipmentItem>
+            <warehousingInboundInstructionShipmentItem>
+                <lineItemNumber>1</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>2301000018896</gtin>
+                </transactionalTradeItem>
+                <logisticUnit>
+                    <sscc>CONTAINER1</sscc>
+                    <tradeItemQuantity>4240</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER2</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>311111110000123551</sscc>
+                    <sscc>CONTAINER3</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER4</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER5</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <plannedReceiptQuantity>4320</plannedReceiptQuantity>
+            </warehousingInboundInstructionShipmentItem>
+            <warehousingInboundInstructionShipmentItem>
+                <lineItemNumber>1</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>2301000018926</gtin>
+                </transactionalTradeItem>
+                <logisticUnit>
+                    <sscc>CONTAINER1</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER2</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER3</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER4</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER5</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <plannedReceiptQuantity>100</plannedReceiptQuantity>

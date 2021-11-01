@@ -18,6 +18,7 @@ namespace TSlog.Links.PSI.DataConverter
             return $"{base.MessageName()}.{ROWNAME}";
         }
 
+        // ART 00500000AR00000044 Test on
         /*
         |MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=|WeaInfo2=|WeaInfo3=|
         |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=1|WepMgSoll=2592|ArtNr=AR00000001|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
@@ -49,25 +50,29 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|WeaWwsBeleg={PrepStrPar(inbound.PartnerNumber, true)}" +
                 $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
                 $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +
-                $"|WeaInfo3={PrepStrPar(inbound.Operation.ToString(), true)}" +
+                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +
                 $"|\n";
             // body
+            var iter = 1;
             foreach (var row in inbound.Lines)
+            {
                 ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
-                    $"|{common}" +
-                    $"|WeaNr={PrepStrPar(inbound.Number)}" +
-                    $"|WepNr={PrepStrPar(row.Number.ToString())}" +
-                    $"|WepMgSoll={PrepStrPar(row.Quantity.ToString())}" +
-                    $"|ArtNr={PrepStrPar(row.Product.Code)}" +
-                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
-                    $"|WepInfo1={PrepStrPar(row.Price.ToString(), true)}" +
-                    $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +
-                    $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
-                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +
-                    $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +
-                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +
-                    $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
-                    $"|\n";
+                   $"|{common}" +
+                   $"|WeaNr={PrepStrPar(inbound.Number)}" +
+                   $"|WepNr={PrepStrPar(iter)}" +
+                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity.ToString())}" +
+                   $"|ArtNr={PrepStrPar(row.Product.Code)}" +
+                   $"|BstQlf={PrepStrPar(defaultQualification)}" +
+                   $"|WepInfo1={PrepStrPar(row.Price.ToString(), true)}" +
+                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +
+                   $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
+                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +
+                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +
+                   $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +
+                   $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
+                   $"|\n";
+                iter++;
+            }
             // footer
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
                 $"|{common}" +

@@ -299,6 +299,9 @@ namespace TSLog.Links.Gs1EdiXml
             var factQuantity = 0.0;
             var measureUnitCode = string.Empty;
             var lineLogisticUnits = new Dictionary<LogisticUnit, double>();
+
+            var planQuantityByLogsiticUnits = 0.0;
+
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -340,7 +343,20 @@ namespace TSLog.Links.Gs1EdiXml
                     var currency = _storage.GetCurrency(currencyCode);
                     var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
                     foreach (var pair in lineLogisticUnits)
+                    {
+                        planQuantityByLogsiticUnits += pair.Value;
                         line.AddLogisticUnit(pair.Key, pair.Value);
+                    }
+
+                    if (lineLogisticUnits.Count == 0)
+                        planQuantityByLogsiticUnits = planQuantity;
+
+                    // check for data integrity (planQuantity)
+                    if (planQuantityByLogsiticUnits != planQuantity)
+                    {
+                        throw new Exception($"data integrity exception: количество plannedReceiptQuantity ({planQuantity}) и количетво на logisticUnit ({planQuantityByLogsiticUnits}) отличается");
+                    }
+
                     return line;
                 }
                 else
@@ -487,7 +503,7 @@ namespace TSLog.Links.Gs1EdiXml
             }
             // load from db (number dispenser idk)
             // TODO добавить в Oracle функцию генерации разнородных ID
-            inboundNumber = "Tr100067168";
+            inboundNumber = "WM0012345TODO";
 
             // TODO загружать тип из XML
             //inboundType = new Entity(-1, "loaded_from_xml");
@@ -756,7 +772,7 @@ namespace TSLog.Links.Gs1EdiXml
 
             // load from db (number dispenser idk)
             // TODO добавить в Oracle функцию генерации разнородных ID
-            outboundNumber = "Tr100067168";
+            outboundNumber = "WM0012TODO";
 
             outboundPartner = serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
             outboundPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));

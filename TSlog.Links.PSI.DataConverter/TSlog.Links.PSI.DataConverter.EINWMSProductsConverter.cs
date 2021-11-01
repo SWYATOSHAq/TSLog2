@@ -66,7 +66,7 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|ArtEan={PrepStrPar(product.Gtin)}" +
                 $"|ArtLng={PrepStrPar(product.Length)}" +
                 $"|ArtBre={PrepStrPar(product.Width)}" +
-                $"|ArtHoe={PrepStrPar(product.Heigth)}" +
+                $"|ArtHoe={PrepStrPar(product.Height)}" +
                 $"|ArtVol={PrepStrPar(product.Volume)}" +
                 $"|ArtAbmEh={TranslateMeasurmentUnit(PrepStrPar(product.UnitLinerial, defaultValue: "см"))}" +
                 $"|ArtVolEh={TranslateMeasurmentUnit(PrepStrPar(product.UnitVolume, defaultValue: "СМ3"))}" +

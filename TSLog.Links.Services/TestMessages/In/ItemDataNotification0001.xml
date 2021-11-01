@@ -2,10 +2,10 @@
     <sh:StandardBusinessDocumentHeader>
 		<sh:HeaderVersion>1.0</sh:HeaderVersion>
 		<sh:Sender>
-			<sh:Identifier Authority="GS1">50</sh:Identifier>
+			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>John Doe</sh:Contact>
-				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
@@ -14,10 +14,10 @@
 		<sh:Receiver>
 			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>Mary Smith</sh:Contact>
-				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
-				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
-				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
 			</sh:ContactInformation>
 		</sh:Receiver>

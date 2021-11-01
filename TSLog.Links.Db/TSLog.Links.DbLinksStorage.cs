@@ -279,7 +279,7 @@ namespace TSLog.Links.Db
         public LegalEntity GetLegalEntity(string partnerCode)
         {
             // TODO add GetLegalEntity with all of partners of partners
-            var ret = new LegalEntity("LEGAL_ENTITY", "just a legal entity", "just a legal entity for debug");
+            var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
             ret.Address = "Odinsovo, ulitza Zarevo, dom 36";
             return ret;
         }
@@ -344,8 +344,8 @@ namespace TSLog.Links.Db
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
-                command.Parameters.Add(new OracleParameter("id", productCode));
+                command.CommandText = $"select * from {CommonSchema}.v_product p where p.gtin = :gtin";
+                command.Parameters.Add(new OracleParameter("gtin", productCode));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -353,7 +353,24 @@ namespace TSLog.Links.Db
                         product = new Product(Convert.ToString(reader["id"]),
                             Convert.ToString(reader["code"]),
                             Convert.ToString(reader["gtin"]),
-                            Convert.ToString(reader["name"]));
+                            Convert.ToString(reader["name"]),
+                            note: Convert.ToString(reader["note1"]));
+
+                        product.Length = Convert.ToInt32(reader[nameof(product.Length)]);
+                        product.Width = Convert.ToInt32(reader[nameof(product.Width)]);
+                        product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
+                        product.UnitLinerial = Convert.ToString(reader["length_measure"]);
+
+                        product.Netto = Convert.ToInt32(reader["net_weight"]);
+                        product.Netto = Convert.ToInt32(reader["gross_weight"]);
+                        product.UnitWeight = Convert.ToString(reader["weight_measure"]);
+
+                        product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
+                        product.UnitVolume = Convert.ToString(reader["volume_measure"]);
+
+                        if (!Convert.IsDBNull(reader[nameof(product.Price)]))
+                            product.Price = Convert.ToDouble(reader[nameof(product.Price)]);
+
                         Products.Add(product);
                     }
                     reader.Close();

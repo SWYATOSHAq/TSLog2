@@ -5,6 +5,7 @@
     /// </summary>
     public enum OperationType
     {
+        Undefined = 0,
         /// <summary>
         /// Перемещение товаров
         /// </summary>

@@ -68,7 +68,7 @@ namespace TSLog.BO
         /// <summary>
         /// (ArtHoe) Высота (км до мм)
         /// </summary>
-        public int Heigth { get; set; }
+        public int Height { get; set; }
 
         /// <summary>
         /// (ArtVol) Объем  (м3 до мм3)

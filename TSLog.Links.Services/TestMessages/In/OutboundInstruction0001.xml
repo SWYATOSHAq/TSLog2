@@ -5,7 +5,7 @@
 			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
 				<sh:Contact>Mihail B.</sh:Contact>
-				<sh:EmailAddress>Aleksandr@purchasing.example.com</sh:EmailAddress>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>

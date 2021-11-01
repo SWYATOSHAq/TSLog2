@@ -1,0 +1,21 @@
+>inboud<
+INSREC00123
+|serialization|
+|MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=LEGAL_ENTITY|WeaWwsBeleg=11111110000834053|WeaDzAnliefSoll=31.12.2021 23:58:00|WeaInfo2=|WeaInfo3=0|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|WepNr=-1|WepMgSoll=0|ArtNr=NULL|BstQlf=10|WepInfo1=0|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=01.01.0001 00:00:00|WepMgEhWWS=ST|
+|MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|WeaNr=Tr100067168|
+
+>outbound<
+
+|serialization|
+|MsgNam=WMS.AUF|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=TSLOG|AufNr=INSDES00123|Aktion=Ins|AuaNam=NORMAL|LfaEmpfNam1=LEGAL_ENTITY|AufWwsBeleg=?INSDES00123|AufDzVsSoll=31.12.2021 23:58:00|LfaKdOrt1=ODINSOVO, ULITZA ZAREVO, DOM 36|LfaKdOrt2=|AufInfo1=|AufInfo2=|AufInfo3=0|AufInfo4=ODINSOVO, ULITZA ZAREVO, DOM 36|
+|MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=TSLOG|AufNr=INSDES00123|
+
+>item<
+
+|serialization|
+|MsgNam=WMS.ART|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|ArtNr=40987650003484|ArtGrpNam=|ArtBez=Ingredient ABC|ArtInfo1=|ArtInfo2=|ArtInfo3=|ArtKnzSetDisas=0|ArtKnzWwsMld=1|ArtEan=Ingredient ABC|ArtLng=0|ArtBre=0|ArtHoe=0|ArtVol=0|ArtAbmEh=CM|ArtVolEh=CM3|ArtGewEh=KG|ArtMgEh=ST|ArtMgEhWWS=ST|ArtGewNet=0|ArtGewBru=0|ArtMhdTageWeDeflt=999|ArtWertVk=0|ArtWwsBeleg=40987650003484|ArtRepNam=40987650003484|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|ArtNr=40987650003484|LttNam=EURO|ArtLttKnzDeflt=1|ArtLttMgMax=999999999|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|ArtNr=40987650003484|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|
+
+>finished<

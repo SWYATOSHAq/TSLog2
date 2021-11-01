@@ -26,6 +26,11 @@ namespace TSlog.Links.PSI.DataConverter
             var ret = param < 0 ? defaultValue : param;
             return ret.ToString();
         }
+        public static string PrepStrPar(OperationType param, string defaultValue = "")
+        {
+            var ret = param == OperationType.Undefined ? defaultValue : param.ToString();
+            return ret.ToString();
+        }
 
         public static string PrepStrPar(double param, double defaultValue = 0)
         {
@@ -167,8 +172,12 @@ namespace TSlog.Links.PSI.DataConverter
                     ret = "ST";
                     break;
 
+                case "":
+                    ret = "ST";
+                    break;
+
                 default:
-                    ret = "ST"; // huh
+                    ret = unit; // huh
                     break;
             }
 
