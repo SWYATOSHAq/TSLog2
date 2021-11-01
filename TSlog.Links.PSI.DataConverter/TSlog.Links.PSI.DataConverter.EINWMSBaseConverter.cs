@@ -31,11 +31,21 @@ namespace TSlog.Links.PSI.DataConverter
             var ret = param == OperationType.Undefined ? defaultValue : param.ToString();
             return ret.ToString();
         }
-
-        public static string PrepStrPar(double param, double defaultValue = 0)
+        public static string PrepStrPar(DateTime param, string defaultValue = "")
         {
-            var ret = param < 0 ? defaultValue : param;
-            return ret.ToString();
+            var ret = param == DateTime.MinValue ? defaultValue : param.ToString("dd.MM.yyyy HH:mm:ss");
+            return ret;
+        }
+        
+        public static string PrepStrPar(double param, double defaultValue = 0, bool retEmptyOnZero = false)
+        {
+            var retVal = param < 0 ? defaultValue : param;
+
+            var ret = retVal.ToString();
+            if (retVal == 0)
+                ret = "";
+
+            return ret;
         }
 
         public static string TruncateLongString(string str, int maxLength, int start = 0)

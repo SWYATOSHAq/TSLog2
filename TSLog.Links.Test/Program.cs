@@ -52,8 +52,7 @@ namespace TSLog.Links.Test
             fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\InboundInstruction0001.xml";
             reader = new XmlTextReader(fileName);
             var inboundInstruction = xmlConverter.InboundInstructionFromXml(reader);
-            Console.WriteLine(inboundInstruction.Number);
-            Console.WriteLine("|serialization|");
+            Console.WriteLine("---serialization---");
             var converterInbounds = new EINWMSInboundsConverter();
             Console.WriteLine(converterInbounds.Convert("test69420TODO", inboundInstruction));
 
@@ -63,7 +62,7 @@ namespace TSLog.Links.Test
             //reader = new XmlTextReader(fileName);
             //var outboundInstruction = xmlConverter.OutboundInstructionFromXml(reader);
             //Console.WriteLine(outboundInstruction.Number);
-            //Console.WriteLine("|serialization|");
+            //Console.WriteLine("---serialization---");
             //var converterOutbounds = new EINWMSOutboundsConverter();
             //Console.WriteLine(converterOutbounds.Convert("test69420TODO", outboundInstruction));
 
@@ -73,7 +72,7 @@ namespace TSLog.Links.Test
             //reader = new XmlTextReader(fileName);
             //var itemDataNotification = xmlConverter.ProductsListFromXml(reader);
             //Console.WriteLine(itemDataNotification.Number);
-            //Console.WriteLine("|serialization|");
+            //Console.WriteLine("---serialization---");
             //var converterProducts = new EINWMSProductsConverter();
             //Console.WriteLine(converterProducts.Convert("test69420TODO", itemDataNotification));
 

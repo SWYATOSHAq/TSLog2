@@ -36,7 +36,7 @@
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
         <warehousingInboundInstructionIdentification>
-            <entityIdentification>INSREC00123</entityIdentification>
+            <entityIdentification>ASK521</entityIdentification>
         </warehousingInboundInstructionIdentification>
         <logisticServicesBuyer>
 			<!--<gln>2222222000004</gln>-->
@@ -48,7 +48,7 @@
         </logisticServicesSeller>
         <warehousingInboundInstructionShipment>
             <shipmentIdentification>
-                <gsin>ASK521</gsin>
+                <gsin>6239487612356</gsin>
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
@@ -102,6 +102,7 @@
             </carrierPickUpDropOffDetails>
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">69.00</associatedInvoicePrice>
                 <transactionalTradeItem>
                     <gtin>4630001591380</gtin>
                 </transactionalTradeItem>
@@ -128,7 +129,8 @@
                 <plannedReceiptQuantity>2592</plannedReceiptQuantity>
             </warehousingInboundInstructionShipmentItem>
             <warehousingInboundInstructionShipmentItem>
-                <lineItemNumber>1</lineItemNumber>
+                <lineItemNumber>2</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">100.00</associatedInvoicePrice>
                 <transactionalTradeItem>
                     <gtin>2301000018896</gtin>
                 </transactionalTradeItem>
@@ -155,7 +157,8 @@
                 <plannedReceiptQuantity>4320</plannedReceiptQuantity>
             </warehousingInboundInstructionShipmentItem>
             <warehousingInboundInstructionShipmentItem>
-                <lineItemNumber>1</lineItemNumber>
+                <lineItemNumber>3</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">130.40</associatedInvoicePrice>
                 <transactionalTradeItem>
                     <gtin>2301000018926</gtin>
                 </transactionalTradeItem>

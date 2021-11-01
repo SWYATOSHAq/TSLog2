@@ -316,6 +316,14 @@ namespace TSLog.Links.Gs1EdiXml
                             gtin = reader.ReadElementContentAsString();
                             break;
 
+                        case "associatedInvoicePrice":
+                            price = reader.ReadElementContentAsDouble();
+                            break;
+
+                        case "lineItemNumber":
+                            number = reader.ReadElementContentAsInt();
+                            break;
+
                         case "plannedReceiptQuantity":
                             planQuantity = reader.ReadElementContentAsDouble();
                             break;
