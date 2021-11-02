@@ -55,7 +55,8 @@ namespace TSlog.Links.PSI.DataConverter
             string defMeasurment = PrepStrPar(TranslateMeasurmentUnit(PrepStrPar(product.UnitType, defaultValue: GetDefaultMeasurmentUnit(partner))), true);
 
             ret += $"|MsgNam={PrepStrPar(MessageName().ToUpper(), true)}" +
-                $"|{common}|ArtNr={PrepStrPar(product.Code)}" +
+                $"|{common}" +
+                $"|ArtNr={PrepStrPar(product.Code)}" +
                 $"|ArtGrpNam={PrepStrPar(product.Group, true)}" +
                 $"|ArtBez={PrepStrPar(product.Name)}" +
                 $"|ArtInfo1={PrepStrPar(TruncateLongString(product.Info1, 200), true)}" +

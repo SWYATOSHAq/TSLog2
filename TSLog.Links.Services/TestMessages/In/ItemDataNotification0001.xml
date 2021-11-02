@@ -46,9 +46,54 @@
         </dataRecipient>
         <itemDataNotificationLineItem>
             <lineItemNumber>1</lineItemNumber>
-            <tradeItemDescription languageCode="en">Ingredient ABC</tradeItemDescription>
+            <tradeItemDescription languageCode="en">Ананас сироп  1,0 ПЭТ</tradeItemDescription>
 			<tradeItemIdentification>
 				<gtin>40987650000346</gtin>
+			</tradeItemIdentification>
+            <itemDataTradingPartnerNeutral>
+                <effectiveDateTime>2004-01-01T18:12:00.000-05:00</effectiveDateTime>
+                <tradeItemBaseUnitOfMeasure>CS</tradeItemBaseUnitOfMeasure>
+                <startAvailabilityDateTime>2004-02-01T00:00:00.000-05:00</startAvailabilityDateTime>
+                <cancelledDateTime>2004-05-24T18:12:00.000-05:00</cancelledDateTime>
+                <tradeItemClassificationCode additionalTradeItemClassificationCodeListCode="5">10005267</tradeItemClassificationCode>
+                <itemDataWeightAndDimension>
+                    <depth measurementUnitCode="CMT">20</depth>
+                    <diameter measurementUnitCode="CMT">12</diameter>
+                    <grossWeight measurementUnitCode="KGM">1.5</grossWeight>
+                    <height measurementUnitCode="CM">10</height>
+                    <netWeight measurementUnitCode="KGM">1.5</netWeight>
+                    <width measurementUnitCode="CMT">10</width>
+                </itemDataWeightAndDimension>
+            </itemDataTradingPartnerNeutral>
+            <itemDataTradingPartnerDependent>
+                <tradeItemSpecificUnitOfMeasure>KGM</tradeItemSpecificUnitOfMeasure>
+                <orderQuantityMaximum measurementUnitCode="CS">100</orderQuantityMaximum>
+                <orderQuantityMinimum measurementUnitCode="CS">5</orderQuantityMinimum>
+                <orderQuantityMultiple measurementUnitCode="CS">5</orderQuantityMultiple>
+                <tradeItemProductionLeadTime timeMeasurementUnitCode="DAY">15</tradeItemProductionLeadTime>
+                <tradeItemShipmentLeadTime timeMeasurementUnitCode="DAY">20</tradeItemShipmentLeadTime>
+                <tradeItemSubstitutionDateTime>2005-05-24T18:12:00.000-05:00</tradeItemSubstitutionDateTime>
+                <substituteItem>
+                    <gtin>40987650003484</gtin>
+                </substituteItem>
+                <itemDataStockRequirements>
+                    <requiredStockLevel measurementUnitCode="CS">5</requiredStockLevel>
+                    <stockRequirementTypeCode>SAFETY_STOCK</stockRequirementTypeCode>
+                    <requiredStockLevelValidityDateTime>2005-05-24T18:12:00.000-05:00</requiredStockLevelValidityDateTime>
+                </itemDataStockRequirements>
+                <itemDataLogisticUnitInformation>
+                    <tradeItemQuantity>5</tradeItemQuantity>
+                    <packageTypeCode>CS</packageTypeCode>
+                    <tradeItemQuantityPerLayer>4</tradeItemQuantityPerLayer>
+                    <numberOfLayers>4</numberOfLayers>
+                </itemDataLogisticUnitInformation>
+            </itemDataTradingPartnerDependent>
+        </itemDataNotificationLineItem>
+        <itemDataNotificationLineItem>
+            <lineItemNumber>1</lineItemNumber>
+            <tradeItemDescription languageCode="en">Вишня сироп  1,0 ПЭТ</tradeItemDescription>
+			<tradeItemIdentification>
+				<gtin>40987650000347</gtin>
 			</tradeItemIdentification>
             <itemDataTradingPartnerNeutral>
                 <effectiveDateTime>2004-01-01T18:12:00.000-05:00</effectiveDateTime>

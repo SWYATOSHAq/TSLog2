@@ -35,7 +35,7 @@ namespace TSLog.Links
 
         public OutboundInstruction(long id, string number, byte version, DateTime date, Outbound outbound,
             LegalEntity sender, LegalEntity recipient,
-            LegalEntity serviceBuyer, LegalEntity serviceSeller, LegalEntity shipper, LegalEntity receiver,
+             LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
             string note = "")
             : base(id, number, 'I', "OUTBOUND_INSTRUCTION", version, date, sender, recipient)
         {

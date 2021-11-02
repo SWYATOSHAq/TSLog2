@@ -65,15 +65,15 @@ namespace TSLog.Links.Test
             var converterOutbounds = new EINWMSOutboundsConverter();
             Console.WriteLine(converterOutbounds.Convert("test69420TODO", outboundInstruction));
 
-            //// item test
-            //Console.WriteLine(">item<");
-            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ItemDataNotification0001.xml";
-            //reader = new XmlTextReader(fileName);
-            //var itemDataNotification = xmlConverter.ProductsListFromXml(reader);
-            //Console.WriteLine(itemDataNotification.Number);
-            //Console.WriteLine("---serialization---");
-            //var converterProducts = new EINWMSProductsConverter();
-            //Console.WriteLine(converterProducts.Convert("test69420TODO", itemDataNotification));
+            // item test
+            Console.WriteLine(">item<");
+            fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ItemDataNotification0001.xml";
+            reader = new XmlTextReader(fileName);
+            var itemDataNotification = xmlConverter.ProductsListFromXml(reader);
+            Console.WriteLine(itemDataNotification.Number);
+            Console.WriteLine("---serialization---");
+            var converterProducts = new EINWMSProductsConverter();
+            Console.WriteLine(converterProducts.Convert("test69420TODO", itemDataNotification));
 
             Console.WriteLine(">finished<");
             reader.Close();

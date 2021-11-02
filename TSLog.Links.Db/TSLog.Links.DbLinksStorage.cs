@@ -301,10 +301,40 @@ namespace TSLog.Links.Db
 
         public LegalEntity GetLegalEntity(string partnerCode)
         {
-            // TODO add GetLegalEntity with all of partners of partners
-            var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
-            ret.Address = "Odinsovo, ulitza TEST, 69";
-            return ret;
+            //var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
+            //ret.Address = "Odinsovo, ulitza TEST, 69";
+            //return ret;
+
+            partnerCode = !string.IsNullOrWhiteSpace(partnerCode) ? partnerCode.Trim() : string.Empty;
+            var partner = Partners[partnerCode];
+
+            if (partnerCode == Tslog.Code) // check if Tslog
+                partner = Tslog;
+
+            if (partner != null && partner != LegalEntity.Null)
+                return partner;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_legal_entity p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", partnerCode));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        partner = new LegalEntity(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["note1"])
+                            );
+                        partner.Address = Convert.ToString(reader["address1"]);
+
+                        Partners.Add(partner);
+                    }
+                    reader.Close();
+                }
+            }
+            if (partner != null && partner != LegalEntity.Null)
+                Partners.Add(partner);
+            return partner ?? LegalEntity.Null;
         }
 
         public LegalEntity GetPartner(string partnerCode)

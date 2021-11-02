@@ -47,12 +47,12 @@ namespace TSLog.BO
         /// <summary>
         /// (ArtNetWeight) Вес единицы артикула нетто (кг до г)
         /// </summary>
-        public int Netto { get; set; }
+        public double Netto { get; set; }
 
         /// <summary>
         /// (ArtGrossWeight) Вес единицы артикула брутто (кг до г)
         /// </summary>
-        public int Brutto { get; set; }
+        public double Brutto { get; set; }
 
         //
         /// <summary>

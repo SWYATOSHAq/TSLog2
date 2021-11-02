@@ -170,7 +170,16 @@ namespace TSLog.Links.Gs1EdiXml
             var closeTag = reader.Name;
             var id = string.Empty;
             var code = string.Empty;
+            var gtin = string.Empty;
             var name = string.Empty;
+
+            var depth = 0;
+            var width = 0;
+            var height = 0;
+
+            var grossWeight = 0.0;
+            var netWeight = 0.0;
+
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -186,7 +195,27 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "gtin":
-                            code = reader.ReadElementContentAsString();
+                            gtin = reader.ReadElementContentAsString();
+                            break;
+
+                        case "depth":
+                            depth = reader.ReadElementContentAsInt();
+                            break;
+
+                        case "height":
+                            width = reader.ReadElementContentAsInt();
+                            break;
+
+                        case "width":
+                            height = reader.ReadElementContentAsInt();
+                            break;
+
+                        case "netWeight":
+                            netWeight = reader.ReadElementContentAsDouble();
+                            break;
+
+                        case "grossWeight":
+                            grossWeight = reader.ReadElementContentAsDouble();
                             break;
 
                         default:
@@ -196,7 +225,19 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    var product = new Product(id, code, name, name);
+                    // load from db (number dispenser idk)
+                    // TODO добавить в Oracle функцию генерации разнородных ID
+                    code = "WM0012345TODO";
+
+                    var product = new Product(id, code, gtin, name);
+
+                    product.Width = width;
+                    product.Height = height;
+                    product.Length = depth;
+
+                    product.Netto = netWeight;
+                    product.Brutto = grossWeight;
+
                     return product;
                 }
                 else
@@ -254,6 +295,7 @@ namespace TSLog.Links.Gs1EdiXml
                 else
                     reader.Read();
             }
+
             var productsList = new ProductsList(id, number, version, date, sender, recipient, dataSource, dataRecipient, note);
             productsList.AddProducts(products.ToArray());
             return productsList;

@@ -44,12 +44,12 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|AuaNam={PrepStrPar(outbound.Type?.Code, true, "NORMAL")}" +
                 $"|LfaEmpfNam1={PrepStrPar(outbound.Vendor.Code, true)}" +
                 $"|AufWwsBeleg={PrepStrPar(outbound.PartnerNumer)}" +
-                $"|AufDzVsSoll={PrepStrPar(outbound.PlanShippingBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +
+                $"|AufDzVsSoll={PrepStrPar(outbound.PlanShippingBegin, template: "dd.MM.yyyy HH:mm:ss")}" +
                 $"|LfaKdOrt1={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, deliveryAdderssLenCut), true)}" +
                 $"|LfaKdOrt2={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, outbound.DeliveryAddress1?.Length ?? 0, deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}" +
                 $"|AufInfo1={PrepStrPar(TruncateLongString(outbound.DeliveryComment, maxInfoSize), true)}" +
                 $"|AufInfo2={PrepStrPar(outbound.GUID, true)}" +
-                $"|AufInfo3={PrepStrPar(outbound.Operation.ToString(), true)}" +
+                $"|AufInfo3={PrepStrPar(outbound.Operation)}" + // ?
                 $"|AufInfo4={PrepStrPar(outbound.DeliveryAddress1, true)}" +
                 $"|\n";
             // body

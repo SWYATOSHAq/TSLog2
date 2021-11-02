@@ -52,7 +52,7 @@
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">00ЗК-16</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">СК9689</additionalPartyIdentification>
             </shipper>
             <receiver>
                 <!---<gln>3333333000018</gln>-->
