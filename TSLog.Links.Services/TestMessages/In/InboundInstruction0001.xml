@@ -49,6 +49,7 @@
         <warehousingInboundInstructionShipment>
             <shipmentIdentification>
                 <gsin>11111110000834053</gsin>
+				<additionalShipmentIdentification additionalShipmentIdentificationTypeCode="0001">ASK521</additionalShipmentIdentification>
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
@@ -94,6 +95,7 @@
             </carrierPickUpDropOffDetails>
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">100.00</associatedInvoicePrice>
                 <transactionalTradeItem>
                     <gtin>02222222003333</gtin>
                 </transactionalTradeItem>
