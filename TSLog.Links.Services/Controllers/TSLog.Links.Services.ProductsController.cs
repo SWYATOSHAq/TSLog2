@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using TSLog.BO;
 
 namespace TSLog.Links.Services.Controllers
@@ -9,9 +8,10 @@ namespace TSLog.Links.Services.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ILinksProductsStorage _storage = null;
+
         public ProductsController(ILinksStorage storage)
         {
-            _storage = (ILinksProductsStorage) storage;
+            _storage = (ILinksProductsStorage)storage;
         }
 
         [HttpPost]

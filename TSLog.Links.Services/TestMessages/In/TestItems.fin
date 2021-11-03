@@ -1,0 +1,3 @@
+|MsgNam=WMS.ART|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|ArtNr=40987650003484|ArtGrpNam=|ArtBez=Ingredient ABC|ArtInfo1=|ArtInfo2=|ArtInfo3=|ArtKnzSetDisas=0|ArtKnzWwsMld=1|ArtEan=Ingredient ABC|ArtLng=0|ArtBre=0|ArtHoe=0|ArtVol=0|ArtAbmEh=CM|ArtVolEh=CM3|ArtGewEh=KG|ArtMgEh=ST|ArtMgEhWWS=ST|ArtGewNet=0|ArtGewBru=0|ArtMhdTageWeDeflt=999|ArtWertVk=0|ArtWwsBeleg=40987650003484|ArtRepNam=40987650003484|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|ArtNr=40987650003484|LttNam=EURO|ArtLttKnzDeflt=1|ArtLttMgMax=999999999|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420|Werk=0000|MndNr=0050|ArtNr=40987650003484|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|

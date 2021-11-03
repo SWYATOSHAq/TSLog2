@@ -10,14 +10,17 @@ namespace TSLog.Links
     public class ProductsList : Message
     {
         private readonly List<Product> _products = null;
+
         /// <summary>
         /// Отправитель данных
         /// </summary>
         public LegalEntity DataSource { get; private set; }
+
         /// <summary>
         /// Получатель данных
         /// </summary>
         public LegalEntity DataRecipient { get; private set; }
+
         public ProductsList(long id, string number, byte version, DateTime date,
             LegalEntity sender, LegalEntity recipient, LegalEntity dataSource, LegalEntity dataRecipient, string note = "")
             : base(id, number, 'I', "PRODUCTS_LIST", version, date, sender, recipient, note)
@@ -26,6 +29,7 @@ namespace TSLog.Links
             DataRecipient = dataRecipient ?? throw new ArgumentNullException(nameof(dataRecipient));
             _products = new List<Product>();
         }
+
         /// <summary>
         /// Добавить товар
         /// </summary>
@@ -37,6 +41,7 @@ namespace TSLog.Links
             if (product != Product.Null)
                 _products.Add(product);
         }
+
         /// <summary>
         /// Добавить товары
         /// </summary>
@@ -48,6 +53,7 @@ namespace TSLog.Links
             foreach (var product in products)
                 AddProduct(product);
         }
+
         /// <summary>
         /// Товары
         /// </summary>

@@ -7,8 +7,9 @@ namespace TSlog.Links.PSI.DataConverter
 {
     public class EINWMSProductsConverter : EINWMSBaseConverter
     {
-        const string NAME = "ART";
-        const string POSTFIX = "LTT";
+        private const string NAME = "ART";
+        private const string POSTFIX = "LTT";
+
         public override string MessageName()
         {
             return $"{base.MessageName()}.{NAME}";
@@ -19,6 +20,7 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=Tr100067168|Werk=0000|MndNr=0014|ArtNr=AR00000119|LttNam=EURO|ArtLttKnzDeflt=1|ArtLttMgMax=999999999|
         |MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=Tr100067168|Werk=0000|MndNr=0014|ArtNr=AR00000119|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|
          */
+
         private string SpecialAssignedTransportUnittypes()
         {
             return "";
@@ -36,8 +38,8 @@ namespace TSlog.Links.PSI.DataConverter
             return ret;
         }
 
-        public string Convert(string transactionId, LegalEntity partner, Product product, 
-            string warehouseCode = "0000", string defaultTransportUnit = "1" /*EURO*/, bool forceUseProductIdFromBox = false, 
+        public string Convert(string transactionId, LegalEntity partner, Product product,
+            string warehouseCode = "0000", string defaultTransportUnit = "1" /*EURO*/, bool forceUseProductIdFromBox = false,
             bool verboseToWWSOnChange = true)
         {
             var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}" +
@@ -53,10 +55,11 @@ namespace TSlog.Links.PSI.DataConverter
             string defMeasurment = PrepStrPar(TranslateMeasurmentUnit(PrepStrPar(product.UnitType, defaultValue: GetDefaultMeasurmentUnit(partner))), true);
 
             ret += $"|MsgNam={PrepStrPar(MessageName().ToUpper(), true)}" +
-                $"|{common}|ArtNr={PrepStrPar(product.Code)}" +
+                $"|{common}" +
+                $"|ArtNr={PrepStrPar(product.Code)}" +
                 $"|ArtGrpNam={PrepStrPar(product.Group, true)}" +
                 $"|ArtBez={PrepStrPar(product.Name)}" +
-                $"|ArtInfo1={PrepStrPar(TruncateLongString(product.Info1, 200),true)}" +
+                $"|ArtInfo1={PrepStrPar(TruncateLongString(product.Info1, 200), true)}" +
                 $"|ArtInfo2={PrepStrPar(TruncateLongString(product.Info2, 200), true)}" +
                 $"|ArtInfo3={PrepStrPar(TruncateLongString(product.Info3, 200), true)}" +
                 $"|ArtKnzSetDisas={(forceUseProductIdFromBox ? 1 : 0)}" +
@@ -64,7 +67,7 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|ArtEan={PrepStrPar(product.Gtin)}" +
                 $"|ArtLng={PrepStrPar(product.Length)}" +
                 $"|ArtBre={PrepStrPar(product.Width)}" +
-                $"|ArtHoe={PrepStrPar(product.Heigth)}" +
+                $"|ArtHoe={PrepStrPar(product.Height)}" +
                 $"|ArtVol={PrepStrPar(product.Volume)}" +
                 $"|ArtAbmEh={TranslateMeasurmentUnit(PrepStrPar(product.UnitLinerial, defaultValue: "см"))}" +
                 $"|ArtVolEh={TranslateMeasurmentUnit(PrepStrPar(product.UnitVolume, defaultValue: "СМ3"))}" +

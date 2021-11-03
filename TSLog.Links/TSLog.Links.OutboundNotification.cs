@@ -12,18 +12,22 @@ namespace TSLog.Links
         /// Отгрузка товара со склада
         /// </summary>
         public Outbound Outbound { get; private set; }
+
         /// <summary>
         /// Продавец складских и логистических услуг
         /// </summary>
         public LegalEntity ServiceSeller { get; private set; }
+
         /// <summary>
         /// Покупатель складских и логистических услуг
         /// </summary>
-        public LegalEntity ServiceBuyer { get; private set; }        
+        public LegalEntity ServiceBuyer { get; private set; }
+
         /// <summary>
         /// Отправитель груза
         /// </summary>
         public LegalEntity Shipper { get; private set; }
+
         /// <summary>
         /// Получатель груза
         /// </summary>
@@ -33,7 +37,7 @@ namespace TSLog.Links
             LegalEntity sender, LegalEntity recipient,
             LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
             string note = "")
-            : base(id, number,  'O', "OUTBOUND_NOTIFICATION", version, date, sender, recipient, note)
+            : base(id, number, 'O', "OUTBOUND_NOTIFICATION", version, date, sender, recipient, note)
         {
             Outbound = outbound ?? throw new ArgumentNullException(nameof(outbound));
             ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));

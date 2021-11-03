@@ -29,31 +29,36 @@ namespace TSLog.Common
         {
             return !string.IsNullOrWhiteSpace(value) ? string.Format("'{0}'", value) : "null";
         }
+
         public static string ToSql(int value)
         {
             return value > 0 ? value.ToString() : "null";
         }
+
         public static string ToSql(long value)
         {
             return value > 0 ? value.ToString() : "null";
         }
+
         public static string ToSql(double value)
         {
             return value.ToString().Replace(',', '.');
         }
+
         public static string ToSql(DateTime value)
         {
             return value != DateTime.MinValue ? string.Format("'{0}'", value.ToString("dd.MM.yyyy")) : "null";
         }
+
         public static string ToSqlXmlText(string text)
         {
             return text == null ? null : text.Trim().Replace("\"", "&quot;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("'", " ");
         }
+
         public static bool ValidFilePath(string path)
         {
             return (new Regex(PathRegEx, RegexOptions.Compiled | RegexOptions.IgnoreCase)).IsMatch(path);
         }
-
 
         public static string ClearNumber(string number)
         {

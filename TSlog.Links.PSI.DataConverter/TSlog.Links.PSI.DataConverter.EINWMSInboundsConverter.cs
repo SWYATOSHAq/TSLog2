@@ -1,22 +1,24 @@
-﻿using System;
-using TSLog.BO;
-using TSLog.Links;
+﻿using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter
 {
     public class EINWMSInboundsConverter : EINWMSBaseConverter
     {
-        const string NAME = "WEA";
-        const string ROWNAME = "WEP";
-        const string POSTFIX = "ANLABSCHL";
+        private const string NAME = "WEA";
+        private const string ROWNAME = "WEP";
+        private const string POSTFIX = "ANLABSCHL";
+
         public override string MessageName()
         {
             return $"{base.MessageName()}.{NAME}";
         }
+
         public string MessageRowName()
         {
             return $"{base.MessageName()}.{ROWNAME}";
         }
+
+        // ART 00500000AR00000044 Test on
         /*
         |MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=|WeaInfo2=|WeaInfo3=|
         |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=1|WepMgSoll=2592|ArtNr=AR00000001|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
@@ -24,7 +26,7 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, InboundInstruction instruction, 
+        public string Convert(string transactionId, InboundInstruction instruction,
             string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
         {
             var partner = instruction.ServiceBuyer;
@@ -41,36 +43,42 @@ namespace TSlog.Links.PSI.DataConverter
             // header
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}" +
                 $"|{common}" +
-                $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                $"|WeaNr={PrepStrPar(inbound.Number)}" +
                 $"|Aktion={PrepStrPar(action)}" +
-                $"|WeaKlaNam={PrepStrPar(inbound.Type.Code, true, "NORMAL")}" +
+                $"|WeaKlaNam={PrepStrPar(inbound.Type?.Code, true, "NORMAL")}" +
                 $"|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}" +
-                $"|WeaWwsBeleg={PrepStrPar(inbound.PartnerNumber, true)}" +
+                $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" +
                 $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
-                $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +
-                $"|WeaInfo3={PrepStrPar(inbound.Operation.ToString(), true)}" +
+                $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +  // дополнительный идентефикатор (GUID)
+                                                                    /*
+                                                                    <avpList>
+                                                                        <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
+                                                                    </avpList>
+                                                                     */
+                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // тип операции </>
                 $"|\n";
             // body
             foreach (var row in inbound.Lines)
                 ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
-                    $"|{common}" +
-                    $"|WeaNr={PrepStrPar(inbound.Code)}" +
-                    $"|WepNr={PrepStrPar(row.Number.ToString())}" +
-                    $"|WepMgSoll={PrepStrPar(row.Quantity.ToString())}" +
-                    $"|ArtNr={PrepStrPar(row.Product.Code)}" +
-                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
-                    $"|WepInfo1={PrepStrPar(row.Price.ToString(), true)}" +
-                    $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +
-                    $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
-                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +
-                    $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +
-                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate.ToString("dd.MM.yyyy HH:mm:ss"), true)}" +
-                    $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
-                    $"|\n";
+                   $"|{common}" +
+                   $"|WeaNr={PrepStrPar(inbound.Number)}" +
+                   $"|WepNr={PrepStrPar(row.Number)}" +
+                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" +
+                   $"|ArtNr={PrepStrPar(row.Product.Code)}" +
+                   $"|BstQlf={PrepStrPar(defaultQualification)}" +
+                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена </>
+                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ </>
+                   $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
+                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // номер партии </>
+                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // номер партии 2 </>
+                   $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate)}" +
+                   $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
+                   $"|\n";
+
             // footer
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
                 $"|{common}" +
-                $"|WeaNr={PrepStrPar(inbound.Code)}" +
+                $"|WeaNr={PrepStrPar(inbound.Number)}" +
                 $"|\n";
             return ret;
         }

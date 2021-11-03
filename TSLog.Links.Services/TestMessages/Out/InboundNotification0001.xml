@@ -25,7 +25,7 @@
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type/>
+			<sh:Type />
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>
@@ -56,7 +56,7 @@
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
             </receiver>
             <logisticUnit>
-                <sscc>311111110000123455</sscc>				
+                <sscc>311111110000123455</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>

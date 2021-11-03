@@ -1,0 +1,5 @@
+|MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA(TODO)|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=31.12.2021 23:58:00|WeaInfo2=|WeaInfo3=|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=1|WepMgSoll=2592|ArtNr=AR00000044|BstQlf=10|WepInfo1=69|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=2|WepMgSoll=4320|ArtNr=AR00000051|BstQlf=10|WepInfo1=100|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=3|WepMgSoll=100|ArtNr=AR00000054|BstQlf=10|WepInfo1=130,4|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|

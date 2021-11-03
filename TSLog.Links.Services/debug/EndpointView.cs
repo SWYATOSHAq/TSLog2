@@ -3,12 +3,10 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 // [GET] https://localhost:5001/-/info/endpoints
 // https://stackoverflow.com/questions/28435734/how-to-get-a-list-of-all-routes-in-asp-net-core
 // TODO debug, delete on release
-
 
 [Route("/-/{controller}")]
 public class InfoController : Controller

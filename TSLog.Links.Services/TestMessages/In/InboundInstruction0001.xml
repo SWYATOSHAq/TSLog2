@@ -5,8 +5,8 @@
 		<sh:Sender>
 			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>John Doe</sh:Contact>
-				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
@@ -15,30 +15,36 @@
 		<sh:Receiver>
 			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>Mary Smith</sh:Contact>
-				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
-				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
-				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
-			</sh:ContactInformation>		
+			</sh:ContactInformation>
 		</sh:Receiver>
 		<sh:DocumentIdentification>
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type/>
+			<sh:Type />
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>
 	</sh:StandardBusinessDocumentHeader>
     <warehousingInboundInstruction>
-        <creationDateTime>2012-07-11T12:15:00.000-05:00</creationDateTime>
+        <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
+		<extension>
+		  <operationType>MovingProducts</operationType>
+		</extension>
+		<avpList>
+		  <eComStringAttributeValuePairList attributeName="GUID">36deef97-359c-11ec-aff2-005056c00008</eComStringAttributeValuePairList>
+		</avpList>
         <warehousingInboundInstructionIdentification>
-            <entityIdentification>INSREC00123</entityIdentification>
+            <entityIdentification>ASK521</entityIdentification>
         </warehousingInboundInstructionIdentification>
-        <logisticServicesBuyer>			
+        <logisticServicesBuyer>
 			<!--<gln>2222222000004</gln>-->
 			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
         </logisticServicesBuyer>
@@ -48,43 +54,51 @@
         </logisticServicesSeller>
         <warehousingInboundInstructionShipment>
             <shipmentIdentification>
-                <gsin>11111110000834053</gsin>
+                <gsin>6239487612356</gsin>
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">СК9689</additionalPartyIdentification>
             </shipper>
             <receiver>
                 <!---<gln>3333333000018</gln>-->
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
             </receiver>
             <logisticUnit>
-                <sscc>311111110000123455</sscc>
+                <sscc>CONTAINER1</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>311111110000123554</sscc>
+                <sscc>CONTAINER2</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
-            <packageTotal>
+            <logisticUnit>
+                <sscc>CONTAINER3</sscc>
+                <packageTypeCode>CARTON</packageTypeCode>
+            </logisticUnit>
+            <logisticUnit>
+                <sscc>CONTAINER4</sscc>
                 <packageTypeCode>AF</packageTypeCode>
-                <totalPackageQuantity>2</totalPackageQuantity>
-            </packageTotal>
+            </logisticUnit>
+            <logisticUnit>
+                <sscc>CONTAINER5</sscc>
+                <packageTypeCode>CARTON</packageTypeCode>
+            </logisticUnit>
             <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode>
             <plannedReceipt>
                 <logisticEventPeriod>
-                    <beginDate>2012-07-12</beginDate>
-                    <beginTime>10:00:00</beginTime>
-                    <endDate>2012-07-12</endDate>
-                    <endTime>11:00:00</endTime>
+                    <beginDate>2021-12-31</beginDate>
+                    <beginTime>23:58:00</beginTime>
+                    <endDate>2021-12-31</endDate>
+                    <endTime>23:59:00</endTime>
                 </logisticEventPeriod>
             </plannedReceipt>
             <carrierPickUpDropOffDetails>
                 <transportResponsiblePerson>
-                    <personName>LENMAN</personName>
+                    <personName>Billy Harington</personName>
                     <identityDocument>
-                        <identityDocumentNumber>12345</identityDocumentNumber>
-                        <identityDocumentType>DRIVERS_LICENSE</identityDocumentType>
+                        <identityDocumentNumber>YBUJBI</identityDocumentNumber>
+                        <identityDocumentType>LICENSE_ID</identityDocumentType>
                     </identityDocument>
                 </transportResponsiblePerson>
                 <transportMeans>
@@ -94,18 +108,87 @@
             </carrierPickUpDropOffDetails>
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">69.00</associatedInvoicePrice>
                 <transactionalTradeItem>
-                    <gtin>02222222003333</gtin>
+                    <gtin>4630001591380</gtin>
                 </transactionalTradeItem>
                 <logisticUnit>
-                    <sscc>311111110000123455</sscc>
+                    <sscc>CONTAINER1</sscc>
+                    <tradeItemQuantity>2512</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER2</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>311111110000123554</sscc>
+                    <sscc>CONTAINER3</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
-                <plannedReceiptQuantity>40</plannedReceiptQuantity>
+                <logisticUnit>
+                    <sscc>CONTAINER4</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER5</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <plannedReceiptQuantity>2592</plannedReceiptQuantity>
+            </warehousingInboundInstructionShipmentItem>
+            <warehousingInboundInstructionShipmentItem>
+                <lineItemNumber>2</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">100.00</associatedInvoicePrice>
+                <transactionalTradeItem>
+                    <gtin>2301000018896</gtin>
+                </transactionalTradeItem>
+                <logisticUnit>
+                    <sscc>CONTAINER1</sscc>
+                    <tradeItemQuantity>4240</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER2</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER3</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER4</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER5</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <plannedReceiptQuantity>4320</plannedReceiptQuantity>
+            </warehousingInboundInstructionShipmentItem>
+            <warehousingInboundInstructionShipmentItem>
+                <lineItemNumber>3</lineItemNumber>
+				<associatedInvoicePrice currencyCode="RUB">130.40</associatedInvoicePrice>
+                <transactionalTradeItem>
+                    <gtin>2301000018926</gtin>
+                </transactionalTradeItem>
+                <logisticUnit>
+                    <sscc>CONTAINER1</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER2</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER3</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER4</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>CONTAINER5</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <plannedReceiptQuantity>100</plannedReceiptQuantity>
             </warehousingInboundInstructionShipmentItem>
         </warehousingInboundInstructionShipment>
     </warehousingInboundInstruction>

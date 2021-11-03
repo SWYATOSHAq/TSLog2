@@ -2,7 +2,7 @@
     <sh:StandardBusinessDocumentHeader>
 		<sh:HeaderVersion>1.0</sh:HeaderVersion>
 		<sh:Sender>
-			<sh:Identifier Authority="GS1"/>
+			<sh:Identifier Authority="GS1" />
 			<sh:ContactInformation>
 				<sh:Contact>John Doe</sh:Contact>
 				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
@@ -12,7 +12,7 @@
 			</sh:ContactInformation>
 		</sh:Sender>
 		<sh:Receiver>
-			<sh:Identifier Authority="GS1"/>
+			<sh:Identifier Authority="GS1" />
 			<sh:ContactInformation>
 				<sh:Contact>Mary Smith</sh:Contact>
 				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
@@ -25,7 +25,7 @@
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type/>
+			<sh:Type />
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>

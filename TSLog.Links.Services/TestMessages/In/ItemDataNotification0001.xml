@@ -2,10 +2,10 @@
     <sh:StandardBusinessDocumentHeader>
 		<sh:HeaderVersion>1.0</sh:HeaderVersion>
 		<sh:Sender>
-			<sh:Identifier Authority="GS1">50</sh:Identifier>
+			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>John Doe</sh:Contact>
-				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
@@ -14,10 +14,10 @@
 		<sh:Receiver>
 			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>Mary Smith</sh:Contact>
-				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
-				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
-				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
 			</sh:ContactInformation>
 		</sh:Receiver>
@@ -25,7 +25,7 @@
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type/>
+			<sh:Type />
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>
@@ -46,9 +46,54 @@
         </dataRecipient>
         <itemDataNotificationLineItem>
             <lineItemNumber>1</lineItemNumber>
-            <tradeItemDescription languageCode="en">Ingredient ABC</tradeItemDescription>
+            <tradeItemDescription languageCode="en">Ананас сироп  1,0 ПЭТ</tradeItemDescription>
 			<tradeItemIdentification>
 				<gtin>40987650000346</gtin>
+			</tradeItemIdentification>
+            <itemDataTradingPartnerNeutral>
+                <effectiveDateTime>2004-01-01T18:12:00.000-05:00</effectiveDateTime>
+                <tradeItemBaseUnitOfMeasure>CS</tradeItemBaseUnitOfMeasure>
+                <startAvailabilityDateTime>2004-02-01T00:00:00.000-05:00</startAvailabilityDateTime>
+                <cancelledDateTime>2004-05-24T18:12:00.000-05:00</cancelledDateTime>
+                <tradeItemClassificationCode additionalTradeItemClassificationCodeListCode="5">10005267</tradeItemClassificationCode>
+                <itemDataWeightAndDimension>
+                    <depth measurementUnitCode="CMT">20</depth>
+                    <diameter measurementUnitCode="CMT">12</diameter>
+                    <grossWeight measurementUnitCode="KGM">1.5</grossWeight>
+                    <height measurementUnitCode="CM">10</height>
+                    <netWeight measurementUnitCode="KGM">1.5</netWeight>
+                    <width measurementUnitCode="CMT">10</width>
+                </itemDataWeightAndDimension>
+            </itemDataTradingPartnerNeutral>
+            <itemDataTradingPartnerDependent>
+                <tradeItemSpecificUnitOfMeasure>KGM</tradeItemSpecificUnitOfMeasure>
+                <orderQuantityMaximum measurementUnitCode="CS">100</orderQuantityMaximum>
+                <orderQuantityMinimum measurementUnitCode="CS">5</orderQuantityMinimum>
+                <orderQuantityMultiple measurementUnitCode="CS">5</orderQuantityMultiple>
+                <tradeItemProductionLeadTime timeMeasurementUnitCode="DAY">15</tradeItemProductionLeadTime>
+                <tradeItemShipmentLeadTime timeMeasurementUnitCode="DAY">20</tradeItemShipmentLeadTime>
+                <tradeItemSubstitutionDateTime>2005-05-24T18:12:00.000-05:00</tradeItemSubstitutionDateTime>
+                <substituteItem>
+                    <gtin>40987650003484</gtin>
+                </substituteItem>
+                <itemDataStockRequirements>
+                    <requiredStockLevel measurementUnitCode="CS">5</requiredStockLevel>
+                    <stockRequirementTypeCode>SAFETY_STOCK</stockRequirementTypeCode>
+                    <requiredStockLevelValidityDateTime>2005-05-24T18:12:00.000-05:00</requiredStockLevelValidityDateTime>
+                </itemDataStockRequirements>
+                <itemDataLogisticUnitInformation>
+                    <tradeItemQuantity>5</tradeItemQuantity>
+                    <packageTypeCode>CS</packageTypeCode>
+                    <tradeItemQuantityPerLayer>4</tradeItemQuantityPerLayer>
+                    <numberOfLayers>4</numberOfLayers>
+                </itemDataLogisticUnitInformation>
+            </itemDataTradingPartnerDependent>
+        </itemDataNotificationLineItem>
+        <itemDataNotificationLineItem>
+            <lineItemNumber>1</lineItemNumber>
+            <tradeItemDescription languageCode="en">Вишня сироп  1,0 ПЭТ</tradeItemDescription>
+			<tradeItemIdentification>
+				<gtin>40987650000347</gtin>
 			</tradeItemIdentification>
             <itemDataTradingPartnerNeutral>
                 <effectiveDateTime>2004-01-01T18:12:00.000-05:00</effectiveDateTime>

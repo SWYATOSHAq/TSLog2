@@ -12,25 +12,30 @@ namespace TSLog.Links
         /// Отгрузка со склада
         /// </summary>
         public Outbound Outbound { get; private set; }
+
         /// <summary>
         /// Продавец складских и логистических услуг
         /// </summary>
         public LegalEntity ServiceSeller { get; private set; }
+
         /// <summary>
         /// Покупатель складских и логистических услуг
         /// </summary>
-        public LegalEntity ServiceBuyer { get; private set; }        
+        public LegalEntity ServiceBuyer { get; private set; }
+
         /// <summary>
         /// Отправитель груза
         /// </summary>
         public LegalEntity Shipper { get; private set; }
+
         /// <summary>
         /// Получатель груза
         /// </summary>
         public LegalEntity Receiver { get; private set; }
+
         public OutboundInstruction(long id, string number, byte version, DateTime date, Outbound outbound,
             LegalEntity sender, LegalEntity recipient,
-            LegalEntity serviceBuyer, LegalEntity serviceSeller, LegalEntity shipper, LegalEntity receiver,
+             LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
             string note = "")
             : base(id, number, 'I', "OUTBOUND_INSTRUCTION", version, date, sender, recipient)
         {

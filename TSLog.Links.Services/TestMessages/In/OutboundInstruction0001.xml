@@ -4,8 +4,8 @@
 		<sh:Sender>
 			<sh:Identifier Authority="GS1">0050</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>John Doe</sh:Contact>
-				<sh:EmailAddress>John_Doe@purchasing.XYZretailer.com</sh:EmailAddress>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
 				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
 				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
@@ -14,10 +14,10 @@
 		<sh:Receiver>
 			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
 			<sh:ContactInformation>
-				<sh:Contact>Mary Smith</sh:Contact>
-				<sh:EmailAddress>Mary_Smith@widgets.com</sh:EmailAddress>
-				<sh:FaxNumber>+1-312-555-1214</sh:FaxNumber>
-				<sh:TelephoneNumber>+1-312-555-2125</sh:TelephoneNumber>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
 				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
 			</sh:ContactInformation>
 		</sh:Receiver>
@@ -31,11 +31,11 @@
 		</sh:DocumentIdentification>
 	</sh:StandardBusinessDocumentHeader>
     <warehousingOutboundInstruction>
-        <creationDateTime>2012-07-17T12:15:00.000-05:00</creationDateTime>
+        <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
         <warehousingOutboundInstructionIdentification>
-            <entityIdentification>INSDES00123</entityIdentification>
+            <entityIdentification>ASK521</entityIdentification>
         </warehousingOutboundInstructionIdentification>
         <logisticServicesBuyer>
             <!--<gln>2222222000004</gln>-->
@@ -50,12 +50,12 @@
                 <!--<gln>3333333000018</gln>-->
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
 				<address>
-					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 10</streetAddressOne>
 				</address>
             </shipper>
             <receiver>
                 <!--<gln>4444444000008</gln>-->
-				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">СК9689</additionalPartyIdentification>
 				<address>
 					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
 				</address>
@@ -63,10 +63,10 @@
 			<warehousingDespatchTypeCode>WAREHOUSE_SHIPMENT</warehousingDespatchTypeCode>
             <plannedDelivery>
                 <logisticEventPeriod>
-                    <beginDate>2012-07-18</beginDate>
-                    <beginTime>15:00:00</beginTime>
-                    <endDate>2012-07-18</endDate>
-                    <endTime>16:00:00</endTime>
+                    <beginDate>2021-12-31</beginDate>
+                    <beginTime>23:58:00</beginTime>
+                    <endDate>2021-12-31</endDate>
+                    <endTime>23:59:00</endTime>
                 </logisticEventPeriod>
             </plannedDelivery>
             <shipmentTransportationInformation>
@@ -76,9 +76,37 @@
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>01111111000120</gtin>
+                    <gtin>4630001591380</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>30</plannedDespatchQuantity>
+                <plannedDespatchQuantity>1221</plannedDespatchQuantity>
+                <inlineServiceInstruction>
+                    <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
+                    <warehousingServiceAttribute>
+                        <warehousingServiceAttributeTypeCode>PALLET_HEIGHT</warehousingServiceAttributeTypeCode>
+                        <warehousingServiceAttributeMeasurement measurementUnitCode="CM">180</warehousingServiceAttributeMeasurement>
+                    </warehousingServiceAttribute>
+                </inlineServiceInstruction>
+            </warehousingOutboundInstructionShipmentItem>
+            <warehousingOutboundInstructionShipmentItem>
+                <lineItemNumber>2</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>2301000018896</gtin>
+                </transactionalTradeItem>
+                <plannedDespatchQuantity>3443</plannedDespatchQuantity>
+                <inlineServiceInstruction>
+                    <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
+                    <warehousingServiceAttribute>
+                        <warehousingServiceAttributeTypeCode>PALLET_HEIGHT</warehousingServiceAttributeTypeCode>
+                        <warehousingServiceAttributeMeasurement measurementUnitCode="CM">180</warehousingServiceAttributeMeasurement>
+                    </warehousingServiceAttribute>
+                </inlineServiceInstruction>
+            </warehousingOutboundInstructionShipmentItem>
+            <warehousingOutboundInstructionShipmentItem>
+                <lineItemNumber>3</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>2301000018926</gtin>
+                </transactionalTradeItem>
+                <plannedDespatchQuantity>4554</plannedDespatchQuantity>
                 <inlineServiceInstruction>
                     <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
                     <warehousingServiceAttribute>
