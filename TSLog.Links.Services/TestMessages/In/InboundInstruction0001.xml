@@ -35,6 +35,9 @@
         <creationDateTime>2012-07-11T12:15:00.000-05:00</creationDateTime>
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
+		<avpList>
+			<eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
+		</avpList>
         <warehousingInboundInstructionIdentification>
             <entityIdentification>INSREC00123</entityIdentification>
         </warehousingInboundInstructionIdentification>
