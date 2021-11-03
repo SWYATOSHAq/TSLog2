@@ -49,8 +49,13 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}" +
                 $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" +
                 $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
-                $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +  // ?
-                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // ?
+                $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +  // дополнительный идентефикатор (GUID)
+                                                                    /*
+                                                                    <avpList>
+                                                                        <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
+                                                                    </avpList>
+                                                                     */
+                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // тип операции </>
                 $"|\n";
             // body
             foreach (var row in inbound.Lines)
@@ -61,11 +66,11 @@ namespace TSlog.Links.PSI.DataConverter
                    $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" +
                    $"|ArtNr={PrepStrPar(row.Product.Code)}" +
                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
-                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" +
-                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // ?
+                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена </>
+                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ </>
                    $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
-                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // ?
-                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // ?
+                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // номер партии </>
+                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // номер партии 2 </>
                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate)}" +
                    $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
                    $"|\n";

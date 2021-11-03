@@ -35,6 +35,12 @@
         <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
+		<extension>
+		  <operationType>MovingProducts</operationType>
+		</extension>
+		<avpList>
+		  <eComStringAttributeValuePairList attributeName="GUID">36deef97-359c-11ec-aff2-005056c00008</eComStringAttributeValuePairList>
+		</avpList>
         <warehousingInboundInstructionIdentification>
             <entityIdentification>ASK521</entityIdentification>
         </warehousingInboundInstructionIdentification>
@@ -91,8 +97,8 @@
                 <transportResponsiblePerson>
                     <personName>Billy Harington</personName>
                     <identityDocument>
-                        <identityDocumentNumber>69420</identityDocumentNumber>
-                        <identityDocumentType>DRIVERS_LICENSE</identityDocumentType>
+                        <identityDocumentNumber>YBUJBI</identityDocumentNumber>
+                        <identityDocumentType>LICENSE_ID</identityDocumentType>
                     </identityDocument>
                 </transportResponsiblePerson>
                 <transportMeans>
