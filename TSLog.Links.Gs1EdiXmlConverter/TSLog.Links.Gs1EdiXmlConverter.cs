@@ -354,6 +354,10 @@ namespace TSLog.Links.Gs1EdiXml
             var factQuantity = 0.0;
             var measureUnitCode = string.Empty;
             var lineLogisticUnits = new Dictionary<LogisticUnit, double>();
+            var note = string.Empty;
+            var OKEI = string.Empty;
+            var BatchNumber = string.Empty;
+            var BatchNumber2 = string.Empty;
 
             var planQuantityByLogsiticUnits = 0.0;
 
@@ -383,6 +387,28 @@ namespace TSLog.Links.Gs1EdiXml
                             planQuantity = reader.ReadElementContentAsDouble();
                             break;
 
+                        case "note":
+                            note = reader.ReadElementContentAsString();
+                            break;
+
+                        case "eComStringAttributeValuePairList":
+                            var tmpAttributeVal = reader.GetAttribute(0);
+                            switch (tmpAttributeVal)
+                            {
+                                case "OKEI":
+                                    OKEI = reader.ReadElementContentAsString();
+                                    break;
+                                case "BatchNumber":
+                                    BatchNumber = reader.ReadElementContentAsString();
+                                    break;
+                                case "BatchNumber2":
+                                    BatchNumber2 = reader.ReadElementContentAsString();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+
                         case "logisticUnit":
                             var logisticUnitQuantity = 0.0;
                             var sscc = InboundInstructionLineLogisticUnitFromXml(reader, out logisticUnitQuantity);
@@ -404,7 +430,11 @@ namespace TSLog.Links.Gs1EdiXml
                     var product = _storage.GetProduct(gtin);
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
                     var currency = _storage.GetCurrency(currencyCode);
-                    var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
+                    var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit, note);
+                    line.OKEI = OKEI;
+                    line.BatchNumber = BatchNumber;
+                    line.BatchNumber2 = BatchNumber2;
+
                     foreach (var pair in lineLogisticUnits)
                     {
                         planQuantityByLogsiticUnits += pair.Value;

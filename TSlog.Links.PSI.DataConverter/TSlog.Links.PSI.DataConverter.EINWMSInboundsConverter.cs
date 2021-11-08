@@ -55,7 +55,7 @@ namespace TSlog.Links.PSI.DataConverter
                                                                         <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
                                                                     </avpList>
                                                                      */
-                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // тип операции </>
+                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // тип операции <operationType/>
                 $"|\n";
             // body
             foreach (var row in inbound.Lines)
@@ -66,11 +66,11 @@ namespace TSlog.Links.PSI.DataConverter
                    $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" +
                    $"|ArtNr={PrepStrPar(row.Product.Code)}" +
                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
-                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена </>
-                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ </>
-                   $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
-                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // номер партии </>
-                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // номер партии 2 </>
+                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена <associatedInvoicePrice/>
+                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ <eComStringAttributeValuePairList attributeName="OKEI"/>
+                   $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // <info/>
+                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // номер партии <eComStringAttributeValuePairList attributeName="BatchNumber"/>
+                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // номер партии 2 <eComStringAttributeValuePairList attributeName="BatchNumber2"/>
                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate)}" +
                    $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
                    $"|\n";

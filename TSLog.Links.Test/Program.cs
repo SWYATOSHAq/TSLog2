@@ -77,6 +77,7 @@ namespace TSLog.Links.Test
 
             Console.WriteLine(">finished<");
             reader.Close();
+
             Console.ReadLine();
         }
     }
