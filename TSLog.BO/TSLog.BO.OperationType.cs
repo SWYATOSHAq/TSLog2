@@ -1,8 +1,11 @@
-﻿namespace TSLog.BO
+﻿using System;
+
+namespace TSLog.BO
 {
     /// <summary>
     /// Тип операции
     /// </summary>
+    [Flags]
     public enum OperationType
     {
         Undefined = 0,
@@ -33,5 +36,15 @@
         PurchaseByImport = 59
     }
 
+    public static class OperationConverter
+    {
+        static public OperationType Convert(string str)
+        {
+            OperationType ret;
+            if (! Enum.TryParse(str, out ret))
+                ret = OperationType.Undefined;
 
+            return ret;
+        }
+    }
 }

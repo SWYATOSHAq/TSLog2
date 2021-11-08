@@ -29,7 +29,7 @@ namespace TSlog.Links.PSI.DataConverter
 
         public static string PrepStrPar(OperationType param, string defaultValue = "")
         {
-            var ret = param == OperationType.Undefined ? defaultValue : param.ToString();
+            var ret = param == OperationType.Undefined ? defaultValue : ((int)param).ToString();
             return ret.ToString();
         }
 

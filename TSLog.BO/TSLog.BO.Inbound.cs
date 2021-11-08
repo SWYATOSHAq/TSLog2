@@ -123,7 +123,7 @@ namespace TSLog.BO
         /// <summary>
         /// (CustDocGUID) Код GUID номера документа
         /// </summary>
-        public string GUID { get; private set; }
+        public string GUID { get; set; }
 
         /// <summary>
         /// (WeaKlaNam) Класс поступающего заказа на товар
@@ -153,7 +153,7 @@ namespace TSLog.BO
         /// <summary>
         /// (EcOperation) Тип документа
         /// </summary>
-        public OperationType Operation { get; private set; }
+        public OperationType Operation { get; set; }
 
         /// <summary>
         /// Партнёр (покупатель наших складских и логистических услуг)

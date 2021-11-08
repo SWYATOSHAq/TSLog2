@@ -458,6 +458,9 @@ namespace TSLog.Links.Gs1EdiXml
             var receiver = LegalEntity.Null;
             var note = string.Empty;
 
+            var operationType = OperationType.Undefined;
+            var additionalGUID = string.Empty;
+
             var beginDate = string.Empty;
             var beginTime = string.Empty;
             var endDate = string.Empty;
@@ -512,6 +515,16 @@ namespace TSLog.Links.Gs1EdiXml
 
                         case "receiver":
                             receiver = LegalEntityFromXml(reader);
+                            break;
+                        //
+
+                        case "operationType":
+                            operationType = OperationConverter.Convert(reader.ReadElementContentAsString());
+                            break;
+
+                        case "eComStringAttributeValuePairList":
+                            if (reader.GetAttribute(0) == "GUID")
+                                additionalGUID = reader.ReadElementContentAsString();
                             break;
 
                         case "logisticUnit":
@@ -583,6 +596,8 @@ namespace TSLog.Links.Gs1EdiXml
             inbound.AddLines(inboundLines.ToArray());
             inbound.Type = inboundType;
             inbound.Vendor = shipper; // todo check if there is this Gp in our DB
+            inbound.Operation = operationType;
+            inbound.GUID = additionalGUID;
 
             var inboundInstruction = new InboundInstruction(id, number, version, date, inbound,
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
