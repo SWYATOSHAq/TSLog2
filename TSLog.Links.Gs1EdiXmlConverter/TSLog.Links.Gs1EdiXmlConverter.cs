@@ -748,6 +748,10 @@ namespace TSLog.Links.Gs1EdiXml
                             gtin = reader.ReadElementContentAsString();
                             break;
 
+                        case "measureUnitCode": // 
+                            measureUnitCode = reader.ReadElementContentAsString();
+                            break;
+
                         case "plannedDespatchQuantity":
                             planQuantity = reader.ReadElementContentAsDouble();
                             break;

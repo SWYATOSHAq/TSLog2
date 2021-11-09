@@ -63,8 +63,8 @@ namespace TSlog.Links.PSI.DataConverter
                    $"|{common}" +
                    $"|WeaNr={PrepStrPar(inbound.Number)}" +
                    $"|WepNr={PrepStrPar(row.Number)}" +
-                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" +
-                   $"|ArtNr={PrepStrPar(row.Product.Code)}" +
+                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" + // plannedReceiptQuantity
+                   $"|ArtNr={PrepStrPar(row.Product.Code)}" + // gtin + DB data
                    $"|BstQlf={PrepStrPar(defaultQualification)}" +
                    $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена <associatedInvoicePrice/>
                    $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ <eComStringAttributeValuePairList attributeName="OKEI"/>

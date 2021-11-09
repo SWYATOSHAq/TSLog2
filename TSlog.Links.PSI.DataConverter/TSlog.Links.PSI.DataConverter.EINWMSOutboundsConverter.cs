@@ -57,17 +57,17 @@ namespace TSlog.Links.PSI.DataConverter
                 ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
                     $"|{common}" +
                     $"|AufNr={PrepStrPar(outbound.Number)}" +
-                    $"|AupNr={PrepStrPar(row.Number.ToString())}" +
+                    $"|AupNr={PrepStrPar(row.Number)}" +
                     $"|AupMgSoll={PrepStrPar(row.PlanQuantity)}" +
                     $"|ArtNr={PrepStrPar(row.Product.Code, true)}" +
                     $"|BstQlf={defaultQualification}" +
-                    $"|AupInfo1={PrepStrPar(row.MeasureUnit.Code, true)}" +
+                    $"|AupInfo1={PrepStrPar(row.MeasureUnit.Code, true)}" + // ?
                     $"|AupInfo2={PrepStrPar(row.OKEI, true)}" + // ?
-                    $"|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" +
+                    $"|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // ?
                     $"|AupWert={PrepStrPar(row.Product.Price.ToString(), true)}" +
-                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +
-                    $"|BstChgNam2={PrepStrPar(row.BatchNumber, true)}" +
-                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate, template: "dd.MM.yyyy")}" +
+                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" + // ?
+                    $"|BstChgNam2={PrepStrPar(row.BatchNumber, true)}" + // ?
+                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate, template: "dd.MM.yyyy")}" + // ?  
                     $"|AupMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
                     $"|\n";
             // footer

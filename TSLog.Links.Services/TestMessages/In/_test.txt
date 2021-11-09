@@ -1,0 +1,28 @@
+>inboud<
+---serialization---
+|MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=‘Š9689|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=31.12.2021 23:58:00|WeaInfo2=36DEEF97-359C-11EC-AFF2-005056C00008|WeaInfo3=128|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=1|WepMgSoll=2592|ArtNr=AR00000044|BstQlf=10|WepInfo1=69|WepInfo2=792|WepInfo3={ORDERNUM=99841841}{ORDERBARCODE=!VZD/LAYX}{ORDERCODE=408472 4416}|BstChgNam=ALFA_TEST|BstChgNam2=5677_TEST|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=2|WepMgSoll=4320|ArtNr=AR00000051|BstQlf=10|WepInfo1=100|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|WepNr=3|WepMgSoll=100|ArtNr=AR00000054|BstQlf=10|WepInfo1=130,4|WepInfo2=|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+|MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|WeaNr=WM0012345TODO|
+
+>outbound<
+
+---serialization---
+|MsgNam=WMS.AUF|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|AufNr=WM0012TODO|Aktion=Ins|AuaNam=NORMAL|LfaEmpfNam1=‘Š9689|AufWwsBeleg=ASK521|AufDzVsSoll=31.12.2021 23:58:00|LfaKdOrt1=...|LfaKdOrt2=|AufInfo1=|AufInfo2=|AufInfo3=|AufInfo4=...|
+|MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|AufNr=WM0012TODO|AupNr=1|AupMgSoll=1221|ArtNr=AR00000044|BstQlf=10|AupInfo1=NULL|AupInfo2=|AupInfo6=|AupWert=0|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
+|MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|AufNr=WM0012TODO|AupNr=2|AupMgSoll=3443|ArtNr=AR00000051|BstQlf=10|AupInfo1=NULL|AupInfo2=|AupInfo6=|AupWert=0|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
+|MsgNam=WMS.AUP|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|AufNr=WM0012TODO|AupNr=3|AupMgSoll=4554|ArtNr=AR00000054|BstQlf=10|AupInfo1=NULL|AupInfo2=|AupInfo6=|AupWert=0|BstChgNam=|BstChgNam2=|BstDzMhd=|AupMgEhWWS=ST|
+|MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|AufNr=WM0012TODO|
+
+>item<
+
+---serialization---
+|MsgNam=WMS.ART|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|ArtNr=WM0012345TODO|ArtGrpNam=|ArtBez=€­ ­ á á¨à®¯  1,0 ’|ArtInfo1=|ArtInfo2=|ArtInfo3=|ArtKnzSetDisas=0|ArtKnzWwsMld=1|ArtEan=40987650003484|ArtLng=20|ArtBre=10|ArtHoe=10|ArtVol=0|ArtAbmEh=CM|ArtVolEh=CM3|ArtGewEh=KG|ArtMgEh=ST|ArtMgEhWWS=ST|ArtGewNet=1,5|ArtGewBru=1,5|ArtMhdTageWeDeflt=999|ArtWertVk=|ArtWwsBeleg=WM0012345TODO|ArtRepNam=WM0012345TODO|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|ArtNr=WM0012345TODO|LttNam=EURO|ArtLttKnzDeflt=1|ArtLttMgMax=999999999|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|ArtNr=WM0012345TODO|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|
+|MsgNam=WMS.ART|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|ArtNr=WM0012345TODO|ArtGrpNam=|ArtBez=‚¨è­ï á¨à®¯  1,0 ’|ArtInfo1=|ArtInfo2=|ArtInfo3=|ArtKnzSetDisas=0|ArtKnzWwsMld=1|ArtEan=40987650003484|ArtLng=20|ArtBre=10|ArtHoe=10|ArtVol=0|ArtAbmEh=CM|ArtVolEh=CM3|ArtGewEh=KG|ArtMgEh=ST|ArtMgEhWWS=ST|ArtGewNet=1,5|ArtGewBru=1,5|ArtMhdTageWeDeflt=999|ArtWertVk=|ArtWwsBeleg=WM0012345TODO|ArtRepNam=WM0012345TODO|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|ArtNr=WM0012345TODO|LttNam=EURO|ArtLttKnzDeflt=1|ArtLttMgMax=999999999|
+|MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=test69420TODO|Werk=0000|MndNr=0050|ArtNr=WM0012345TODO|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|
+
+>finished<
