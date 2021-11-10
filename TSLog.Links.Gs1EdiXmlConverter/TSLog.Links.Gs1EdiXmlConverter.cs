@@ -163,13 +163,12 @@ namespace TSLog.Links.Gs1EdiXml
 
         #region Товары
 
-        private Product ProductFromXml(XmlReader reader)
+        private Product ProductFromXml(XmlReader reader, string prodctCode)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var closeTag = reader.Name;
             var id = string.Empty;
-            var code = string.Empty;
             var gtin = string.Empty;
             var name = string.Empty;
 
@@ -225,11 +224,8 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    // load from db (number dispenser idk)
-                    // TODO добавить в Oracle функцию генерации разнородных ID
-                    code = "WM0012345TODO";
 
-                    var product = new Product(id, code, gtin, name);
+                    var product = new Product(id, prodctCode, gtin, name);
 
                     product.Width = width;
                     product.Height = height;
@@ -283,7 +279,8 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "itemDataNotificationLineItem":
-                            var product = ProductFromXml(reader);
+                            var code = _storage.GenerateObjectId(DocumentObjectTypes.ArticleWMS.ToString(), dataSource);
+                            var product = ProductFromXml(reader, code);
                             products.Add(product);
                             break;
 
@@ -611,9 +608,7 @@ namespace TSLog.Links.Gs1EdiXml
                 else
                     reader.Read();
             }
-            // load from db (number dispenser idk)
-            // TODO добавить в Oracle функцию генерации разнородных ID
-            inboundNumber = "WM0012345TODO";
+            inboundNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
 
             // TODO загружать тип из XML
             //inboundType = new Entity(-1, "loaded_from_xml");
@@ -939,9 +934,7 @@ namespace TSLog.Links.Gs1EdiXml
                     reader.Read();
             }
 
-            // load from db (number dispenser idk)
-            // TODO добавить в Oracle функцию генерации разнородных ID
-            outboundNumber = "WM0012TODO";
+            outboundNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
 
             outboundPartner = serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
             outboundPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
@@ -1022,5 +1015,10 @@ namespace TSLog.Links.Gs1EdiXml
         }
 
         #endregion Убытие товара со склада
+    }
+
+    enum DocumentObjectTypes
+    {
+        ArticleWMS, DocWMS
     }
 }

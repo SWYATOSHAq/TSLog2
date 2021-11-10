@@ -2,7 +2,7 @@
 
 namespace TSLog.Links
 {
-    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksInboundsStorage, ILinksOutboundsStorage
+    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksInboundsStorage, ILinksOutboundsStorage, ILinksGenIdentifier
     {
         // Lite colkhozing))
         public Entity GetInboundState(string stateCode);
@@ -59,5 +59,11 @@ namespace TSLog.Links
         public OutboundNotification[] GetPickingFinishNotifications();
 
         public OutboundNotification[] GetShippingNotifications();
+    }
+
+    public interface ILinksGenIdentifier
+    {
+        public string GenerateTransactionId();
+        public string GenerateObjectId(string ObjectName, LegalEntity partner);
     }
 }

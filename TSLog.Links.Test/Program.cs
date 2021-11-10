@@ -53,7 +53,7 @@ namespace TSLog.Links.Test
             var inboundInstruction = xmlConverter.InboundInstructionFromXml(reader);
             Console.WriteLine("---serialization---");
             var converterInbounds = new EINWMSInboundsConverter();
-            Console.WriteLine(converterInbounds.Convert("test69420TODO", inboundInstruction));
+            Console.WriteLine(converterInbounds.Convert(storage.GenerateTransactionId(), inboundInstruction));
 
             // outbound test
             Console.WriteLine(">outbound<");
@@ -63,7 +63,7 @@ namespace TSLog.Links.Test
             Console.WriteLine(outboundInstruction.Number);
             Console.WriteLine("---serialization---");
             var converterOutbounds = new EINWMSOutboundsConverter();
-            Console.WriteLine(converterOutbounds.Convert("test69420TODO", outboundInstruction));
+            Console.WriteLine(converterOutbounds.Convert(storage.GenerateTransactionId(), outboundInstruction));
 
             // item test
             Console.WriteLine(">item<");
@@ -73,7 +73,7 @@ namespace TSLog.Links.Test
             Console.WriteLine(itemDataNotification.Number);
             Console.WriteLine("---serialization---");
             var converterProducts = new EINWMSProductsConverter();
-            Console.WriteLine(converterProducts.Convert("test69420TODO", itemDataNotification));
+            Console.WriteLine(converterProducts.Convert(storage.GenerateTransactionId(), itemDataNotification));
 
             Console.WriteLine(">finished<");
             reader.Close();

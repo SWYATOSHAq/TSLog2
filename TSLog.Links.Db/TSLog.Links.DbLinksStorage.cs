@@ -299,6 +299,51 @@ namespace TSLog.Links.Db
         /// </summary>
         public Catalog<Product> Products { private get; set; } = null;
 
+
+
+        public string GenerateTransactionId()
+        {
+            var ret = string.Empty;
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select {LinksSchema}.common.gen_transaction_id id from dual";
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        ret = Convert.ToString(reader["id"]);
+                    }
+                    reader.Close();
+                }
+            }
+
+            return ret;
+        }
+
+        public string GenerateObjectId(string ObjectName, LegalEntity partner)
+        {
+            var ret = string.Empty;
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select {LinksSchema}.COMMON.gen_object_id(:obj, :mndnr) id from dual";
+                command.Parameters.Add(new OracleParameter("obj", ObjectName));
+                command.Parameters.Add(new OracleParameter("mndnr", partner.Code));
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        ret = Convert.ToString(reader["id"]);
+                    }
+                    reader.Close();
+                }
+            }
+
+            return ret;
+        }
+
         public LegalEntity GetLegalEntity(string partnerCode)
         {
             //var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
