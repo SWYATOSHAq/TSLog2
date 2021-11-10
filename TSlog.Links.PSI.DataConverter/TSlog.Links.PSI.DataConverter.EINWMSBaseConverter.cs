@@ -27,6 +27,16 @@ namespace TSlog.Links.PSI.DataConverter
             return ret.ToString();
         }
 
+        public static string PrepStrPar(MeasureUnit param, string defaultValue = "")
+        {
+            var ret = "";
+            if (param == MeasureUnit.Null)
+                ret = defaultValue;
+            else
+                ret = param.Code;
+                //param < 0 ? defaultValue : param;
+            return ret;
+        }
         public static string PrepStrPar(OperationType param, string defaultValue = "")
         {
             var ret = param == OperationType.Undefined ? defaultValue : ((int)param).ToString();

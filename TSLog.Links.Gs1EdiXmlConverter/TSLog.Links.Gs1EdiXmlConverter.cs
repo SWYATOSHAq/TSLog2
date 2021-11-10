@@ -734,6 +734,12 @@ namespace TSLog.Links.Gs1EdiXml
             var planQuantity = 0.0;
             var factQuantity = 0.0;
             var measureUnitCode = string.Empty;
+
+            var OKEI = string.Empty;
+            var BatchNumber = string.Empty;
+            var BatchNumber2 = string.Empty;
+            var note = string.Empty;
+
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
                 if (reader.NodeType == XmlNodeType.Element)
@@ -748,12 +754,34 @@ namespace TSLog.Links.Gs1EdiXml
                             gtin = reader.ReadElementContentAsString();
                             break;
 
-                        case "measureUnitCode": // 
-                            measureUnitCode = reader.ReadElementContentAsString();
+                        case "plannedDespatchQuantity":
+                            var tmpMeasureUnit = reader.GetAttribute("measurementUnitCode");
+                            planQuantity = reader.ReadElementContentAsDouble();
+
+                            if (tmpMeasureUnit  != null)
+                                measureUnitCode = tmpMeasureUnit;
                             break;
 
-                        case "plannedDespatchQuantity":
-                            planQuantity = reader.ReadElementContentAsDouble();
+                        case "note":
+                            note = reader.ReadElementContentAsString();
+                            break;
+
+                        case "eComStringAttributeValuePairList":
+                            var tmpAttributeVal = reader.GetAttribute(0);
+                            switch (tmpAttributeVal)
+                            {
+                                case "OKEI":
+                                    OKEI = reader.ReadElementContentAsString();
+                                    break;
+                                case "BatchNumber":
+                                    BatchNumber = reader.ReadElementContentAsString();
+                                    break;
+                                case "BatchNumber2":
+                                    BatchNumber2 = reader.ReadElementContentAsString();
+                                    break;
+                                default:
+                                    break;
+                            }
                             break;
 
                         case "lineItemNumber":
@@ -771,6 +799,12 @@ namespace TSLog.Links.Gs1EdiXml
                     var currency = _storage.GetCurrency(currencyCode);
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
                     var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
+
+                    line.OKEI = OKEI;
+                    line.BatchNumber = BatchNumber;
+                    line.BatchNumber2 = BatchNumber2;
+                    line.Info = note;
+
                     return line;
                 }
                 else
@@ -811,6 +845,9 @@ namespace TSLog.Links.Gs1EdiXml
             var endDate = string.Empty;
             var endTime = string.Empty;
             var lines = new List<Outbound.Line>();
+
+            var operationType = OperationType.Undefined;
+            var additionalGUID = string.Empty;
 
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
@@ -856,6 +893,15 @@ namespace TSLog.Links.Gs1EdiXml
 
                         case "logisticEventPeriod":
                             reader.Read();
+                            break;
+
+                        case "operationType":
+                            operationType = OperationConverter.Convert(reader.ReadElementContentAsString());
+                            break;
+
+                        case "eComStringAttributeValuePairList":
+                            if (reader.GetAttribute(0) == "GUID")
+                                additionalGUID = reader.ReadElementContentAsString();
                             break;
 
                         case "beginDate":
@@ -904,6 +950,9 @@ namespace TSLog.Links.Gs1EdiXml
             outbound.PlanShippingEnd = outboundPlanShippingEnd;
             outbound.Vendor = receiver;
             outbound.DeliveryAddress1 = receiver.Address;
+
+            outbound.Operation = operationType;
+            outbound.GUID = additionalGUID;
 
             note = outboundNote;
             var outboundInstruction = new OutboundInstruction(id, number, version, date, outbound,

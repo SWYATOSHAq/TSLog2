@@ -36,7 +36,7 @@ namespace TSLog.BO
             /// <summary>
             /// Код ОКЕИ
             /// </summary>
-            public string OKEI { get; private set; }
+            public string OKEI { get; set; }
 
             /// <summary>
             /// Плановое количество
@@ -120,7 +120,7 @@ namespace TSLog.BO
             }
         }
 
-        public string GUID { get; private set; }
+        public string GUID { get; set; }
 
         /// <summary>
         /// Номер
@@ -155,7 +155,7 @@ namespace TSLog.BO
         /// <summary>
         /// Тип документа
         /// </summary>
-        public OperationType Operation { get; private set; }
+        public OperationType Operation { get; set; }
 
         /// <summary>
         /// Дата (формирования)

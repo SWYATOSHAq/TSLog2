@@ -34,6 +34,12 @@
         <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>
         <documentStatusCode>ORIGINAL</documentStatusCode>
         <documentActionCode>ADD</documentActionCode>
+		<extension>
+		  <operationType>MovingProducts</operationType>
+		</extension>
+		<avpList>
+		  <eComStringAttributeValuePairList attributeName="GUID">36deef97-359c-11ec-aff2-005056c00009</eComStringAttributeValuePairList>
+		</avpList>
         <warehousingOutboundInstructionIdentification>
             <entityIdentification>ASK521</entityIdentification>
         </warehousingOutboundInstructionIdentification>
@@ -78,42 +84,27 @@
                 <transactionalTradeItem>
                     <gtin>4630001591380</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>1221</plannedDespatchQuantity>
-                <inlineServiceInstruction>
-                    <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
-                    <warehousingServiceAttribute>
-                        <warehousingServiceAttributeTypeCode>PALLET_HEIGHT</warehousingServiceAttributeTypeCode>
-                        <warehousingServiceAttributeMeasurement measurementUnitCode="CM">180</warehousingServiceAttributeMeasurement>
-                    </warehousingServiceAttribute>
-                </inlineServiceInstruction>
+				<note>{BoxNum=99841841}{Sorter=2}</note>						
+				<avpList>
+					<eComStringAttributeValuePairList attributeName="OKEI">792</eComStringAttributeValuePairList>
+					<eComStringAttributeValuePairList attributeName="BatchNumber">alfa_test</eComStringAttributeValuePairList>
+					<eComStringAttributeValuePairList attributeName="BatchNumber2">5677_test</eComStringAttributeValuePairList>
+				</avpList>
+                <plannedDespatchQuantity measurementUnitCode="ST">1221</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>2</lineItemNumber>
                 <transactionalTradeItem>
                     <gtin>2301000018896</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>3443</plannedDespatchQuantity>
-                <inlineServiceInstruction>
-                    <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
-                    <warehousingServiceAttribute>
-                        <warehousingServiceAttributeTypeCode>PALLET_HEIGHT</warehousingServiceAttributeTypeCode>
-                        <warehousingServiceAttributeMeasurement measurementUnitCode="CM">180</warehousingServiceAttributeMeasurement>
-                    </warehousingServiceAttribute>
-                </inlineServiceInstruction>
+                <plannedDespatchQuantity >3443</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>3</lineItemNumber>
                 <transactionalTradeItem>
                     <gtin>2301000018926</gtin>
                 </transactionalTradeItem>
-                <plannedDespatchQuantity>4554</plannedDespatchQuantity>
-                <inlineServiceInstruction>
-                    <warehousingServiceConditionCode>BUILD_PALLET</warehousingServiceConditionCode>
-                    <warehousingServiceAttribute>
-                        <warehousingServiceAttributeTypeCode>PALLET_HEIGHT</warehousingServiceAttributeTypeCode>
-                        <warehousingServiceAttributeMeasurement measurementUnitCode="CM">180</warehousingServiceAttributeMeasurement>
-                    </warehousingServiceAttribute>
-                </inlineServiceInstruction>
+                <plannedDespatchQuantity measurementUnitCode="ST">4554</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>
         </warehousingOutboundInstructionShipment>
     </warehousingOutboundInstruction>

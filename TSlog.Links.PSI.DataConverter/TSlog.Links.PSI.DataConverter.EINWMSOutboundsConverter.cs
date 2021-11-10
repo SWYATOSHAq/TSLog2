@@ -48,11 +48,13 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|LfaKdOrt1={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, deliveryAdderssLenCut), true)}" +
                 $"|LfaKdOrt2={PrepStrPar(TruncateLongString(outbound.DeliveryAddress1, outbound.DeliveryAddress1?.Length ?? 0, deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}" +
                 $"|AufInfo1={PrepStrPar(TruncateLongString(outbound.DeliveryComment, maxInfoSize), true)}" +
-                $"|AufInfo2={PrepStrPar(outbound.GUID, true)}" +
-                $"|AufInfo3={PrepStrPar(outbound.Operation)}" + // ?
+                $"|AufInfo2={PrepStrPar(outbound.GUID, true)}" + // <eComStringAttributeValuePairList attributeName="GUID">
+                $"|AufInfo3={PrepStrPar(outbound.Operation)}" + // <operationType>
                 $"|AufInfo4={PrepStrPar(outbound.DeliveryAddress1, true)}" +
                 $"|\n";
             // body
+            var defmeasureUnit = TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner));
+
             foreach (var row in outbound.Lines)
                 ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
                     $"|{common}" +
@@ -61,14 +63,14 @@ namespace TSlog.Links.PSI.DataConverter
                     $"|AupMgSoll={PrepStrPar(row.PlanQuantity)}" +
                     $"|ArtNr={PrepStrPar(row.Product.Code, true)}" +
                     $"|BstQlf={defaultQualification}" +
-                    $"|AupInfo1={PrepStrPar(row.MeasureUnit.Code, true)}" + // ?
-                    $"|AupInfo2={PrepStrPar(row.OKEI, true)}" + // ?
-                    $"|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // ?
+                    $"|AupInfo1={PrepStrPar(row.MeasureUnit, defmeasureUnit)}" + // <plannedDespatchQuantity measurementUnitCode="ST">
+                    $"|AupInfo2={PrepStrPar(row.OKEI, true)}" + // <eComStringAttributeValuePairList attributeName="OKEI">
+                    $"|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // <note>
                     $"|AupWert={PrepStrPar(row.Product.Price.ToString(), true)}" +
-                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" + // ?
-                    $"|BstChgNam2={PrepStrPar(row.BatchNumber, true)}" + // ?
-                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate, template: "dd.MM.yyyy")}" + // ?  
-                    $"|AupMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
+                    $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" + // <eComStringAttributeValuePairList attributeName="BatchNumber">
+                    $"|BstChgNam2={PrepStrPar(row.BatchNumber, true)}" + // <eComStringAttributeValuePairList attributeName="BatchNumber2">
+                    $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate, template: "dd.MM.yyyy")}" + 
+                    $"|AupMgEhWWS={PrepStrPar(defmeasureUnit, true)}" +
                     $"|\n";
             // footer
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{POSTFIX}" +
