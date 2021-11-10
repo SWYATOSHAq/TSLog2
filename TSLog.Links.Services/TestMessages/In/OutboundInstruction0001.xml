@@ -81,28 +81,28 @@
             </shipmentTransportationInformation>
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
+                <note languageCode="RU">{BoxNum=99841841}{Sorter=2}</note>						
                 <transactionalTradeItem>
-                    <gtin>4630001591380</gtin>
-                </transactionalTradeItem>
-				<note>{BoxNum=99841841}{Sorter=2}</note>						
+                    <gtin>04630001591380</gtin>
+                </transactionalTradeItem>								
 				<avpList>
 					<eComStringAttributeValuePairList attributeName="OKEI">792</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber">alfa_test</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber2">5677_test</eComStringAttributeValuePairList>
-				</avpList>
-                <plannedDespatchQuantity measurementUnitCode="ST">1221</plannedDespatchQuantity>
+				</avpList>                
+				<plannedDespatchQuantity measurementUnitCode="ST">1221</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>2</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>2301000018896</gtin>
+                    <gtin>02301000018896</gtin>
                 </transactionalTradeItem>
                 <plannedDespatchQuantity >3443</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>3</lineItemNumber>
                 <transactionalTradeItem>
-                    <gtin>2301000018926</gtin>
+                    <gtin>02301000018926</gtin>
                 </transactionalTradeItem>
                 <plannedDespatchQuantity measurementUnitCode="ST">4554</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>

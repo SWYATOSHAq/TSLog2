@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><warehousing_outbound_instruction:warehousingOutboundInstructionMessage xmlns:warehousing_outbound_instruction="urn:gs1:ecom:warehousing_outbound_instruction:xsd:3" xmlns:sh="http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:gs1:ecom:warehousing_outbound_instruction:xsd:3 ../Schemas/gs1/ecom/WarehousingOutboundInstruction.xsd">
+    <sh:StandardBusinessDocumentHeader>
+		<sh:HeaderVersion>1.0</sh:HeaderVersion>
+		<sh:Sender>
+			<sh:Identifier Authority="GS1">0050</sh:Identifier>
+			<sh:ContactInformation>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
+				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
+				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
+				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
+			</sh:ContactInformation>
+		</sh:Sender>
+		<sh:Receiver>
+			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
+			<sh:ContactInformation>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
+				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
+			</sh:ContactInformation>
+		</sh:Receiver>
+		<sh:DocumentIdentification>
+			<sh:Standard>GS1</sh:Standard>
+			<sh:TypeVersion>3.4</sh:TypeVersion>
+			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
+			<sh:Type/>
+			<sh:MultipleType>false</sh:MultipleType>
+			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
+		</sh:DocumentIdentification>
+	</sh:StandardBusinessDocumentHeader>
+    <warehousingOutboundInstruction>
+        <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>
+        <documentStatusCode>ORIGINAL</documentStatusCode>
+        <documentActionCode>ADD</documentActionCode>
+		<extension>
+		  <operationType>MovingProducts</operationType>
+		</extension>
+		<avpList>
+		  <eComStringAttributeValuePairList attributeName="GUID">36deef97-359c-11ec-aff2-005056c00009</eComStringAttributeValuePairList>
+		</avpList>
+        <warehousingOutboundInstructionIdentification>
+            <entityIdentification>ASK521</entityIdentification>
+        </warehousingOutboundInstructionIdentification>
+        <logisticServicesBuyer>
+            <!--<gln>2222222000004</gln>-->
+			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
+        </logisticServicesBuyer>
+        <logisticServicesSeller>
+            <!--<gln>3333333000001</gln>-->
+			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
+        </logisticServicesSeller>
+        <warehousingOutboundInstructionShipment>
+            <shipper>
+                <!--<gln>3333333000018</gln>-->
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
+				<address>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 10</streetAddressOne>
+				</address>
+            </shipper>
+            <receiver>
+                <!--<gln>4444444000008</gln>-->
+				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">СК9689</additionalPartyIdentification>
+				<address>
+					<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>
+				</address>
+            </receiver>
+			<warehousingDespatchTypeCode>WAREHOUSE_SHIPMENT</warehousingDespatchTypeCode>
+            <plannedDelivery>
+                <logisticEventPeriod>
+                    <beginDate>2021-12-31</beginDate>
+                    <beginTime>23:58:00</beginTime>
+                    <endDate>2021-12-31</endDate>
+                    <endTime>23:59:00</endTime>
+                </logisticEventPeriod>
+            </plannedDelivery>
+            <shipmentTransportationInformation>
+                <transportServiceCategoryType>30</transportServiceCategoryType>
+                <transportServiceLevelCode>STANDARD_SERVICE</transportServiceLevelCode>
+            </shipmentTransportationInformation>
+            <warehousingOutboundInstructionShipmentItem>
+                <lineItemNumber>1</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>4630001591380</gtin>
+                </transactionalTradeItem>
+				<note>{BoxNum=99841841}{Sorter=2}</note>						
+				<avpList>
+					<eComStringAttributeValuePairList attributeName="OKEI">792</eComStringAttributeValuePairList>
+					<eComStringAttributeValuePairList attributeName="BatchNumber">alfa_test</eComStringAttributeValuePairList>
+					<eComStringAttributeValuePairList attributeName="BatchNumber2">5677_test</eComStringAttributeValuePairList>
+				</avpList>
+                <plannedDespatchQuantity measurementUnitCode="ST">1221</plannedDespatchQuantity>
+            </warehousingOutboundInstructionShipmentItem>
+            <warehousingOutboundInstructionShipmentItem>
+                <lineItemNumber>2</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>2301000018896</gtin>
+                </transactionalTradeItem>
+                <plannedDespatchQuantity >3443</plannedDespatchQuantity>
+            </warehousingOutboundInstructionShipmentItem>
+            <warehousingOutboundInstructionShipmentItem>
+                <lineItemNumber>3</lineItemNumber>
+                <transactionalTradeItem>
+                    <gtin>2301000018926</gtin>
+                </transactionalTradeItem>
+                <plannedDespatchQuantity measurementUnitCode="ST">4554</plannedDespatchQuantity>
+            </warehousingOutboundInstructionShipmentItem>
+        </warehousingOutboundInstructionShipment>
+    </warehousingOutboundInstruction>
+</warehousing_outbound_instruction:warehousingOutboundInstructionMessage>

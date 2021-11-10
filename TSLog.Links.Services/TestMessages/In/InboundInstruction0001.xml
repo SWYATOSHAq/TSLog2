@@ -54,7 +54,7 @@
         </logisticServicesSeller>
         <warehousingInboundInstructionShipment>
             <shipmentIdentification>
-                <gsin>6239487612356</gsin>
+                <gsin>62394876123561111</gsin>
             </shipmentIdentification>
             <shipper>
                 <!--<gln>1111111000007</gln>-->
@@ -65,23 +65,23 @@
 				<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
             </receiver>
             <logisticUnit>
-                <sscc>CONTAINER1</sscc>
+                <sscc>111111111111111111</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>CONTAINER2</sscc>
+                <sscc>111111111111111112</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>CONTAINER3</sscc>
+                <sscc>111111111111111113</sscc>
                 <packageTypeCode>CARTON</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>CONTAINER4</sscc>
+                <sscc>111111111111111114</sscc>
                 <packageTypeCode>AF</packageTypeCode>
             </logisticUnit>
             <logisticUnit>
-                <sscc>CONTAINER5</sscc>
+                <sscc>111111111111111115</sscc>
                 <packageTypeCode>CARTON</packageTypeCode>
             </logisticUnit>
             <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode>
@@ -109,61 +109,61 @@
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
 				<associatedInvoicePrice currencyCode="RUB">69.00</associatedInvoicePrice>
-				<note>{OrderNum=99841841}{OrderBarCode=!vzd/LAYx}{OrderCode=408472 4416}</note>		
-				<avpList>
+				<note languageCode="RU">{OrderNum=99841841}{OrderBarCode=!vzd/LAYx}{OrderCode=408472 4416}</note>		
+                <transactionalTradeItem>
+                    <gtin>04630001591380</gtin>
+                </transactionalTradeItem>
+                <logisticUnit>
+                    <sscc>111111111111111111</sscc>
+                    <tradeItemQuantity>2512</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>111111111111111112</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>111111111111111113</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>111111111111111114</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>
+                <logisticUnit>
+                    <sscc>111111111111111115</sscc>
+                    <tradeItemQuantity>20</tradeItemQuantity>
+                </logisticUnit>                
+                <avpList>
 					<eComStringAttributeValuePairList attributeName="OKEI">792</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber">alfa_test</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber2">5677_test</eComStringAttributeValuePairList>
 				</avpList>
-                <transactionalTradeItem>
-                    <gtin>4630001591380</gtin>
-                </transactionalTradeItem>
-                <logisticUnit>
-                    <sscc>CONTAINER1</sscc>
-                    <tradeItemQuantity>2512</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER2</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER3</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER4</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER5</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <plannedReceiptQuantity>2592</plannedReceiptQuantity>
+				<plannedReceiptQuantity>2592</plannedReceiptQuantity>
             </warehousingInboundInstructionShipmentItem>
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>2</lineItemNumber>
 				<associatedInvoicePrice currencyCode="RUB">100.00</associatedInvoicePrice>
                 <transactionalTradeItem>
-                    <gtin>2301000018896</gtin>
+                    <gtin>02301000018896</gtin>
                 </transactionalTradeItem>
                 <logisticUnit>
-                    <sscc>CONTAINER1</sscc>
+                    <sscc>111111111111111111</sscc>
                     <tradeItemQuantity>4240</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>CONTAINER2</sscc>
+                    <sscc>111111111111111112</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>CONTAINER3</sscc>
+                    <sscc>111111111111111113</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>CONTAINER4</sscc>
+                    <sscc>111111111111111114</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <logisticUnit>
-                    <sscc>CONTAINER5</sscc>
+                    <sscc>111111111111111115</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
                 </logisticUnit>
                 <plannedReceiptQuantity>4320</plannedReceiptQuantity>
@@ -172,28 +172,8 @@
                 <lineItemNumber>3</lineItemNumber>
 				<associatedInvoicePrice currencyCode="RUB">130.40</associatedInvoicePrice>
                 <transactionalTradeItem>
-                    <gtin>2301000018926</gtin>
+                    <gtin>02301000018926</gtin>
                 </transactionalTradeItem>
-                <logisticUnit>
-                    <sscc>CONTAINER1</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER2</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER3</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER4</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
-                <logisticUnit>
-                    <sscc>CONTAINER5</sscc>
-                    <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>
                 <plannedReceiptQuantity>100</plannedReceiptQuantity>
             </warehousingInboundInstructionShipmentItem>
         </warehousingInboundInstructionShipment>

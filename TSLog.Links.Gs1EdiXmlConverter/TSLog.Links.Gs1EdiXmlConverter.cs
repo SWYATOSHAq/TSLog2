@@ -428,6 +428,9 @@ namespace TSLog.Links.Gs1EdiXml
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
                     var product = _storage.GetProduct(gtin);
+                    if (product == Product.Null)
+                        product = _storage.GetProduct(gtin.TrimStart('0')); // try again // TODO throw an eror becouse we CANT accept gtin with wrong length
+
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
                     var currency = _storage.GetCurrency(currencyCode);
                     var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit, note);
@@ -795,7 +798,10 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    var product = _storage.GetProduct(gtin);
+                    var product = _storage.GetProduct(gtin); 
+                    if (product == Product.Null)
+                        product = _storage.GetProduct(gtin.TrimStart('0')); // try again // TODO throw an eror becouse we CANT accept gtin with wrong length
+
                     var currency = _storage.GetCurrency(currencyCode);
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
                     var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
