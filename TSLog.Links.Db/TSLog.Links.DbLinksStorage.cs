@@ -578,7 +578,7 @@ namespace TSLog.Links.Db
             var currency = GetCurrency(currencyCode);
             var planQuantity = Convert.ToDouble(reader["plan_quantity"]);
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
-            var measureUnitCode = string.Empty;
+            var measureUnitCode = Convert.ToString(reader["measure_unit_code"]);
             var measureUnit = GetMeasureUnit(measureUnitCode);
             var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
             return line;

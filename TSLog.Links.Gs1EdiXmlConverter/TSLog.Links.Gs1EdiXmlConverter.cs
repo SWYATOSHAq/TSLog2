@@ -667,7 +667,7 @@ namespace TSLog.Links.Gs1EdiXml
             xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
 
             var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationIdentification"));
-            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = inboundNotification.Id.ToString();
+            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = inboundNotification.Inbound.Code;// inboundNotification.Id.ToString(); // TODO idk what to use as entityIdentification
 
             var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));
             xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = inboundNotification.ServiceBuyer.Code;
@@ -988,7 +988,7 @@ namespace TSLog.Links.Gs1EdiXml
             xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
 
             var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationIdentification"));
-            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = outboundNotification.Id.ToString();
+            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = outboundNotification.Outbound.Code;// outboundNotification.Id.ToString(); // TODO idk what tu use in entityIdentification
 
             var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));
             xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("gln")).InnerText = "";
