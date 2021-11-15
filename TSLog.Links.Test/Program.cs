@@ -24,8 +24,9 @@ namespace TSLog.Links.Test
             storage.OutboundsStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов");
             storage.MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения");
             storage.Partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры");
-            storage.Products = new Catalog<Product>("PRODUCTS", "Товары");
             storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
+
+            storage.Products = new ProductCatalog<Product>("PRODUCTS", "Товары");
 
             var password = new SecureString();
             foreach (var symbol in "e")
@@ -42,51 +43,51 @@ namespace TSLog.Links.Test
             xmlConverter.LinksStorage = storage;
 
             // ===========================================
-            // reader test
-            var fileName = "";
-            XmlReader reader;
+            //// reader test
+            //var fileName = "";
+            //XmlReader reader;
 
-            // inboud test
-            Console.WriteLine(">inboud<");
-            fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\InboundInstruction0001.xml";
-            reader = new XmlTextReader(fileName);
-            var inboundInstruction = xmlConverter.InboundInstructionFromXml(reader);
-            Console.WriteLine("---serialization---");
-            var converterInbounds = new EINWMSInboundsConverter();
-            Console.WriteLine(converterInbounds.Convert(storage.GenerateTransactionId(), inboundInstruction));
-
-            // outbound test
-            Console.WriteLine(">outbound<");
-            fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\OutboundInstruction0001.xml";
-            reader = new XmlTextReader(fileName);
-            var outboundInstruction = xmlConverter.OutboundInstructionFromXml(reader);
-            Console.WriteLine(outboundInstruction.Number);
-            Console.WriteLine("---serialization---");
-            var converterOutbounds = new EINWMSOutboundsConverter();
-            Console.WriteLine(converterOutbounds.Convert(storage.GenerateTransactionId(), outboundInstruction));
-
-            // item test
-            Console.WriteLine(">item<");
-            fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ItemDataNotification0001.xml";
-            reader = new XmlTextReader(fileName);
-            var itemDataNotification = xmlConverter.ProductsListFromXml(reader);
-            Console.WriteLine(itemDataNotification.Number);
-            Console.WriteLine("---serialization---");
-            var converterProducts = new EINWMSProductsConverter();
-            Console.WriteLine(converterProducts.Convert(storage.GenerateTransactionId(), itemDataNotification));
-
-            //// Clients test
-            //Console.WriteLine(">Clients<");
-            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ClientsDataNotification0001.xml"; // ???
+            //// inboud test
+            //Console.WriteLine(">inboud<");
+            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\InboundInstruction0001.xml";
             //reader = new XmlTextReader(fileName);
-            //var clientsList = xmlConverter.ClientsFromXml(reader); // ???
-            ////Console.WriteLine(itemDataNotification.Number);
+            //var inboundInstruction = xmlConverter.InboundInstructionFromXml(reader);
             //Console.WriteLine("---serialization---");
-            //var converterClients = new EINWMSClientsConverter();
-            //Console.WriteLine(converterClients.Convert(storage.GenerateTransactionId(), clientsList));
+            //var converterInbounds = new EINWMSInboundsConverter();
+            //Console.WriteLine(converterInbounds.Convert(storage.GenerateTransactionId(), inboundInstruction));
 
-            Console.WriteLine(">finished<");
-            reader.Close();
+            //// outbound test
+            //Console.WriteLine(">outbound<");
+            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\OutboundInstruction0001.xml";
+            //reader = new XmlTextReader(fileName);
+            //var outboundInstruction = xmlConverter.OutboundInstructionFromXml(reader);
+            //Console.WriteLine(outboundInstruction.Number);
+            //Console.WriteLine("---serialization---");
+            //var converterOutbounds = new EINWMSOutboundsConverter();
+            //Console.WriteLine(converterOutbounds.Convert(storage.GenerateTransactionId(), outboundInstruction));
+
+            //// item test
+            //Console.WriteLine(">item<");
+            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ItemDataNotification0001.xml";
+            //reader = new XmlTextReader(fileName);
+            //var itemDataNotification = xmlConverter.ProductsListFromXml(reader);
+            //Console.WriteLine(itemDataNotification.Number);
+            //Console.WriteLine("---serialization---");
+            //var converterProducts = new EINWMSProductsConverter();
+            //Console.WriteLine(converterProducts.Convert(storage.GenerateTransactionId(), itemDataNotification));
+
+            ////// Clients test
+            ////Console.WriteLine(">Clients<");
+            ////fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ClientsDataNotification0001.xml"; // ???
+            ////reader = new XmlTextReader(fileName);
+            ////var clientsList = xmlConverter.ClientsFromXml(reader); // ???
+            //////Console.WriteLine(itemDataNotification.Number);
+            ////Console.WriteLine("---serialization---");
+            ////var converterClients = new EINWMSClientsConverter();
+            ////Console.WriteLine(converterClients.Convert(storage.GenerateTransactionId(), clientsList));
+
+            //Console.WriteLine(">finished<");
+            //reader.Close();
 
 
             ////// test response

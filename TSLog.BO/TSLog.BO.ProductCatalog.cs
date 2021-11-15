@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TSLog.BO
+{
+    public class ProductCatalog<T> : Catalog<T> where T : Entity
+    {
+        private Dictionary<string, T> _entitiesInternalCodes;
+
+        public ProductCatalog(string code, string name, string note = ""): base(code, name, note)
+        {
+            _entitiesInternalCodes = new Dictionary<string, T>();
+        }
+
+        public new void Add(T entity)
+        {
+            if (!string.IsNullOrWhiteSpace(entity.Code) && !_entitiesInternalCodes.ContainsKey(entity.Code))
+                _entitiesInternalCodes.Add(entity.Code, entity);
+
+            //
+            base.Add(entity);
+        }
+
+        public T GetByInternalCode(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return null;
+            code = code.Trim();
+            return _entitiesInternalCodes.ContainsKey(code) ? _entitiesInternalCodes[code] : null;
+        }
+    }
+}

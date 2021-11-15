@@ -297,7 +297,7 @@ namespace TSLog.Links.Db
         /// <summary>
         /// Товары
         /// </summary>
-        public Catalog<Product> Products { private get; set; } = null;
+        public ProductCatalog<Product> Products { private get; set; } = null;
 
 
 
@@ -482,6 +482,51 @@ namespace TSLog.Links.Db
             return product ?? Product.Null;
         }
 
+        public Product GetProductByInternalID(string productCode) // TODO
+        {
+            productCode = !string.IsNullOrWhiteSpace(productCode) ? productCode.Trim() : string.Empty;
+            var product = Products.GetByInternalCode(productCode);
+            if (product != null && product != Product.Null)
+                return product;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", productCode));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        product = new Product(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["code"]),
+                            Convert.ToString(reader["gtin"]),
+                            Convert.ToString(reader["name"]),
+                            note: Convert.ToString(reader["note1"]));
+
+                        product.Length = Convert.ToInt32(reader[nameof(product.Length)]);
+                        product.Width = Convert.ToInt32(reader[nameof(product.Width)]);
+                        product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
+                        product.UnitLinerial = Convert.ToString(reader["length_measure"]);
+
+                        product.Netto = Convert.ToInt32(reader["net_weight"]);
+                        product.Netto = Convert.ToInt32(reader["gross_weight"]);
+                        product.UnitWeight = Convert.ToString(reader["weight_measure"]);
+
+                        product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
+                        product.UnitVolume = Convert.ToString(reader["volume_measure"]);
+
+                        if (!Convert.IsDBNull(reader[nameof(product.Price)]))
+                            product.Price = Convert.ToDouble(reader[nameof(product.Price)]);
+
+                        Products.Add(product);
+                    }
+                    reader.Close();
+                }
+            }
+            if (product != null && product != Product.Null)
+                Products.Add(product);
+            return product ?? Product.Null;
+        }
+
         public Product[] GetProducts(LegalEntity[] partners = null)
         {
             var products = new List<Product>();
@@ -527,7 +572,7 @@ namespace TSLog.Links.Db
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var number = -1;
-            var product = GetProduct(Convert.ToString(reader["product_id"]));
+            var product = GetProductByInternalID(Convert.ToString(reader["product_id"]));
             var price = 0.0;
             var currencyCode = string.Empty;
             var currency = GetCurrency(currencyCode);
@@ -548,7 +593,7 @@ namespace TSLog.Links.Db
             var inboundDate = DateTime.MinValue;
             var inboundPartnerId = Convert.ToString(reader["partner_id"]);
             var inboundPartner = GetPartner(inboundPartnerId);
-            var inboundPartnerNumber = Convert.ToString(reader["partner_inbound_number"]); ;
+            var inboundPartnerNumber = Convert.ToString(reader["partner_inbound_number"]);
             var inboundStateCode = Convert.ToString(reader["state_code"]);
             var inboundState = GetInboundState(inboundStateCode);
             var inboundPlanAcceptanceBegin = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
@@ -624,7 +669,7 @@ namespace TSLog.Links.Db
             return inboundNotification;
         }
 
-        public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId)
+        public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId) 
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -692,7 +737,7 @@ namespace TSLog.Links.Db
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var number = -1;
-            var product = GetProduct(Convert.ToString(reader["product_id"]));
+            var product = GetProductByInternalID(Convert.ToString(reader["product_id"]));
             var price = 0.0;
             var currencyCode = string.Empty;
             var currency = GetCurrency(currencyCode);
