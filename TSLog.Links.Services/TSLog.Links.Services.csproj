@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TSLog.BO\TSLog.BO.csproj" />
     <ProjectReference Include="..\TSLog.Links.Db\TSLog.Links.Db.csproj" />
+    <ProjectReference Include="..\TSLog.Links.Gs1EdiXmlConverter\TSLog.Links.Gs1EdiXml.csproj" />
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
   </ItemGroup>
 
