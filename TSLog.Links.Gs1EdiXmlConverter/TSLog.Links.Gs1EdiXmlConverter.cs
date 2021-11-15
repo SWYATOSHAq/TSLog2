@@ -151,12 +151,19 @@ namespace TSLog.Links.Gs1EdiXml
 
         #region Клиенты (контрагенты)
 
-        public LegalEntity[] ClientsFromXml(XmlReader reader)
+        public ClientsList ClientsFromXml(XmlReader reader)
         {
+            // TODO
+            var clientsList = new ClientsList(-1, "", 0, DateTime.Now, LegalEntity.Null, LegalEntity.Null, LegalEntity.Null, LegalEntity.Null, "pizdec");
+
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var clients = new List<LegalEntity>();
-            return clients.ToArray();
+
+            //return clients.ToArray();
+            clientsList.AddClients(clients.ToArray()); // TODO ???
+
+            return clientsList;
         }
 
         #endregion Клиенты (контрагенты)

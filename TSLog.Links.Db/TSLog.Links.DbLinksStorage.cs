@@ -551,10 +551,10 @@ namespace TSLog.Links.Db
             var inboundPartnerNumber = Convert.ToString(reader["partner_inbound_number"]); ;
             var inboundStateCode = Convert.ToString(reader["state_code"]);
             var inboundState = GetInboundState(inboundStateCode);
-            var inboundPlanAcceptanceBegin = Convert.ToDateTime(reader["plan_delivery_date"]);
-            var inboundPlanAcceptanceEnd = Convert.ToDateTime(reader["plan_delivery_date"]);
-            var inboundFactAccpeptanceBegin = Convert.ToDateTime(reader["fact_delivery_date"]);
-            var inboundFactAcceptanceEnd = Convert.ToDateTime(reader["fact_delivery_date"]);
+            var inboundPlanAcceptanceBegin = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
+            var inboundPlanAcceptanceEnd = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
+            var inboundFactAccpeptanceBegin = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
+            var inboundFactAcceptanceEnd = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
             var inboundNote = Convert.ToString(reader["note"]);
 
             var inbound = new Inbound(inboundId, inboundNumber, inboundDate, inboundPartner, inboundPartnerNumber, inboundState, inboundNote);
@@ -632,7 +632,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm " + "\n"
-                    + "where inm.partner_inbound_id = :partner_inbound_id and inm.partner_id = :partner_id";
+                    + "where inm.partner_inbound_number = :partner_inbound_id and inm.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_inbound_id", partnerInboundId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
@@ -744,7 +744,7 @@ namespace TSLog.Links.Db
             var lines = new List<Outbound.Line>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification_line onml where onml.outbond_id = :outbond_id";
+                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification_line onml where onml.outbound_id = :outbond_id";
                 command.Parameters.Add(new OracleParameter("outbond_id", outboundNotification.Outbound.Code));
                 using (var reader = command.ExecuteReader())
                 {
@@ -788,7 +788,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm" + "\n"
-                    + "where onm.partner_outbound_id = :partner_outbound_id and onm.partner_id = :partner_id";
+                    + "where onm.partner_outbound_number = :partner_outbound_id and onm.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutboundId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())

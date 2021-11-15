@@ -75,10 +75,45 @@ namespace TSLog.Links.Test
             var converterProducts = new EINWMSProductsConverter();
             Console.WriteLine(converterProducts.Convert(storage.GenerateTransactionId(), itemDataNotification));
 
+            //// Clients test
+            //Console.WriteLine(">Clients<");
+            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ClientsDataNotification0001.xml"; // ???
+            //reader = new XmlTextReader(fileName);
+            //var clientsList = xmlConverter.ClientsFromXml(reader); // ???
+            ////Console.WriteLine(itemDataNotification.Number);
+            //Console.WriteLine("---serialization---");
+            //var converterClients = new EINWMSClientsConverter();
+            //Console.WriteLine(converterClients.Convert(storage.GenerateTransactionId(), clientsList));
+
             Console.WriteLine(">finished<");
             reader.Close();
 
+
+            ////// test response
+            LegalEntity partner = storage.GetPartner("0014");
+            string xml;
+
+            // GetInboundNotification
+            Console.WriteLine(">GetInboundNotification<");
+
+            var notifocationInbound = storage.GetInboundNotification(partner, "П-ВЖНФ-000400");
+            xml = xmlConverter.InboundNotificationToXml(notifocationInbound);
+            xml = PrepXML(xml);
+            Console.WriteLine(xml);
+
+            // GetOutboundNotification
+            Console.WriteLine(">GetOutboundNotification<");
+
+            var notifocationOutbound = storage.GetOutboundNotification(partner, "З-ВЖНФ-006613");
+            xml = xmlConverter.OutboundNotificationToXml(notifocationOutbound);
+            xml = PrepXML(xml);
+            Console.WriteLine(xml);
+
             Console.ReadLine();
+        }
+        private static string PrepXML(string a)
+        {
+            return a.Replace("><", "}{").Replace(">", ">\n\t").Replace("<", "\n<").Replace("}{", ">\n<");
         }
     }
 }
