@@ -10,6 +10,12 @@ namespace TSLog.Common
 {
     public static class Utils
     {
+
+        public static string PrepXML(string a)
+        {
+            return a.Replace("><", "}{").Replace(">", ">\n\t").Replace("<", "\n<").Replace("}{", ">\n<");
+        }
+
         public static string SecureStringToString(SecureString value)
         {
             var bstr = Marshal.SecureStringToBSTR(value);
@@ -166,5 +172,6 @@ namespace TSLog.Common
                 }
             return address;
         }
+
     }
 }

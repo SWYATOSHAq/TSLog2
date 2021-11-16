@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TSLog.Common;
+using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -7,16 +9,20 @@ namespace TSLog.Links.Services.Controllers
     public class InboundsController : ControllerBase
     {
         private readonly ILinksInboundsStorage _storage = null;
+        private readonly Gs1EdiXmlConverter _xmlConverter = null;
 
-        public InboundsController(ILinksStorage storage)
+        public InboundsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksInboundsStorage)storage;
+            _xmlConverter = xmlConverter;
         }
 
         [HttpPost]
         public string PostInbound(string data)
         {
-            return string.Empty;
+            return data;
+
+            //return string.Empty;
             //var items = _storage.GetOrderResponses();
             //var sb = new StringBuilder();
             //foreach (var i in items)
@@ -26,10 +32,22 @@ namespace TSLog.Links.Services.Controllers
             //return sb.ToString();
         }
 
-        [HttpGet("{inboundId}")]
-        public string GetInboundNotification(string inboundId)
+        //[HttpGet("{inboundId}")]
+        //public string GetInboundNotification(string inboundId)
+        //{
+        //    return string.Empty;
+        //}
+
+        [HttpGet("InboundNotifications/{notificationId}")]
+        public string GetPickingFinishNotification(string notificationId)
         {
-            return string.Empty;
+
+            var notifocationInbound = _storage.GetInboundNotification(notificationId);
+            var xml = _xmlConverter.InboundNotificationToXml(notifocationInbound);
+            xml = Utils.PrepXML(xml);
+
+
+            return xml;
         }
     }
 }

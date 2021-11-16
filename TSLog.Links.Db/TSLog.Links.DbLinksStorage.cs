@@ -934,12 +934,12 @@ namespace TSLog.Links.Db
 
         public ProductsList GetProductsList(LegalEntity partner) // TODO: to delete (just for debug)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public ClientsList GetClientsList(bool loadPartners = false) // TODO: to delete (just for debug)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         #endregion DEBUG

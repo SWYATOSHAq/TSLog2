@@ -5,11 +5,11 @@ namespace TSLog.Links.Services.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ControllerBase
+    public class OutboundsController : ControllerBase
     {
         private readonly ILinksOutboundsStorage _storage = null;
 
-        public OrdersController(ILinksStorage storage)
+        public OutboundsController(ILinksStorage storage)
         {
             _storage = (ILinksOutboundsStorage)storage;
         }
@@ -27,16 +27,16 @@ namespace TSLog.Links.Services.Controllers
             return sb.ToString();
         }
 
-        [HttpGet]
-        public ActionResult<OutboundNotification[]> GetOrderResponses()
-        {
-            // ------------------------------
-            // DEBUG place by Valerian
+        //[HttpGet]
+        //public ActionResult<OutboundNotification[]> GetOrderResponses()
+        //{
+        //    // ------------------------------
+        //    // DEBUG place by Valerian
 
-            return _storage.GetOrderResponses();
-            // ------------------------------
-            //return string.Empty;
-        }
+        //    return _storage.GetOrderResponses();
+        //    // ------------------------------
+        //    //return string.Empty;
+        //}
 
         [HttpGet("{orderId}")]
         public string GetOrderResponse(string orderId)
@@ -53,6 +53,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingStartNotifications/{notificationId}")]
         public string GetPickingStartNotification(string notificationId)
         {
+
+
             return "req PickingStartNotifications notification: " + notificationId;
         }
 

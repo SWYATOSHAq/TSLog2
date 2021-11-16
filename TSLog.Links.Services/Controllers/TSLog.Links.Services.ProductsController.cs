@@ -1,5 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.IO.Pipelines;
+using System.Threading.Tasks;
 using TSLog.BO;
+using TSLog.Common;
+using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -8,16 +13,26 @@ namespace TSLog.Links.Services.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ILinksProductsStorage _storage = null;
+        private readonly Gs1EdiXmlConverter _xmlConverter = null;
 
-        public ProductsController(ILinksStorage storage)
+        public ProductsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
-            _storage = (ILinksProductsStorage)storage;
+            _storage = storage as ILinksProductsStorage;
+            _xmlConverter = xmlConverter;
         }
+        
 
         [HttpPost]
-        public string PostProducts(string data)
+        public string PostProducts([NakedBody] string raw)
         {
-            return string.Empty;
+            var a = Request;
+
+            return "fuck you " + raw;
+
+            //Stream req = Request.Body;
+            //req.Seek(0, System.IO.SeekOrigin.Begin);
+            //string content = new StreamReader(req).ReadToEnd();
+            //return $"suck on my {content}";
             //var items = _storage.GetOrderResponses();
             //var sb = new StringBuilder();
             //foreach (var i in items)
@@ -27,26 +42,26 @@ namespace TSLog.Links.Services.Controllers
             //return sb.ToString();
         }
 
-        [HttpGet]
-        public ActionResult<BO.Product[]> GetProducts()
-        {
-            var data = _storage.GetProductsList(new LegalEntity("1234")).Products; // TODO get client from reqest context
+        //[HttpGet]
+        //public ActionResult<BO.Product[]> GetProducts()
+        //{
+        //    var data = _storage.GetProductsList(new LegalEntity("1234")).Products; // TODO get client from reqest context
 
-            return data;
+        //    return data;
 
-            //var items = _storage.GetOrderResponses();
-            //var sb = new StringBuilder();
-            //foreach (var i in items)
-            //{
-            //    sb.Append(i.OrderId + "\n");
-            //}
-            //return sb.ToString();
-        }
+        //    //var items = _storage.GetOrderResponses();
+        //    //var sb = new StringBuilder();
+        //    //foreach (var i in items)
+        //    //{
+        //    //    sb.Append(i.OrderId + "\n");
+        //    //}
+        //    //return sb.ToString();
+        //}
 
-        [HttpGet("{clientId}")]
-        public string GetProductById(string clientId)
-        {
-            return string.Empty;
-        }
+        //[HttpGet("{clientId}")]
+        //public string GetProductById(string clientId)
+        //{
+        //    return string.Empty;
+        //}
     }
 }
