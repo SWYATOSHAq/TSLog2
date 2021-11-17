@@ -669,6 +669,28 @@ namespace TSLog.Links.Db
             return inboundNotification;
         }
 
+        public InboundNotification GetInboundNotification(string inboundId, string stateCode)
+        {
+            InboundNotification inboundNotification = null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm  where inm.inbound_id = :inbound_id";
+                command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
+                command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        inboundNotification = CreateInboundNotification(reader);
+                        var lines = GetInboundNotificationLines(inboundNotification);
+                        inboundNotification.Inbound.AddLines(lines);
+                    }
+                    reader.Close();
+                }
+            }
+            return inboundNotification;
+        }
+
         public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId) 
         {
             if (partner == null)

@@ -2,6 +2,8 @@
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
+using System.Xml;
+using TSlog.Links.PSI.DataConverter;
 using TSLog.BO;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
@@ -23,11 +25,19 @@ namespace TSLog.Links.Services.Controllers
         
 
         [HttpPost]
-        public string PostProducts([NakedBody] string raw)
+        public async Task<string> PostProducts()
         {
-            var a = Request;
+            string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
-            return "fuck you " + raw;
+            var reader = new XmlTextReader(content,XmlNodeType.Document, null);
+            var itemDataNotification = _xmlConverter.ProductsListFromXml(reader);
+            var converterProducts = new EINWMSProductsConverter();
+
+            var fileContent = converterProducts.Convert(_storage.GenerateTransactionId(), itemDataNotification);
+
+            UtilsIO.WriteFileToWMSINFolder(fileContent, System.IO.Path.GetRandomFileName()); // TODO
+
+            return ""+ fileContent;
 
             //Stream req = Request.Body;
             //req.Seek(0, System.IO.SeekOrigin.Begin);

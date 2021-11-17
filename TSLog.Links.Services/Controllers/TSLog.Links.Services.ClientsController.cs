@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TSLog.BO;
+using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -8,10 +9,12 @@ namespace TSLog.Links.Services.Controllers
     public class ClientsController : ControllerBase
     {
         private readonly ILinksClientsStorage _storage = null;
+        private readonly Gs1EdiXmlConverter _xmlConverter = null;
 
-        public ClientsController(ILinksStorage storage)
+        public ClientsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksClientsStorage)storage;
+            _xmlConverter = xmlConverter;
         }
 
         [HttpPost]

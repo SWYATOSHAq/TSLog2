@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using TSLog.Common;
+using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -8,10 +10,12 @@ namespace TSLog.Links.Services.Controllers
     public class OutboundsController : ControllerBase
     {
         private readonly ILinksOutboundsStorage _storage = null;
+        private readonly Gs1EdiXmlConverter _xmlConverter = null;
 
-        public OutboundsController(ILinksStorage storage)
+        public OutboundsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksOutboundsStorage)storage;
+            _xmlConverter = xmlConverter;
         }
 
         [HttpPost]
@@ -53,9 +57,24 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingStartNotifications/{notificationId}")]
         public string GetPickingStartNotification(string notificationId)
         {
+            /*
+            * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
+            * в данный запрос вшит фрагмент бизнес процесса
+            * 
+            * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
+            * 
+            * при переводе с KMW на PC - уведомление о том что заказ подобран
+            * при переводе с PC на WRS - уведомление о том что заказ упакован
+            * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
+            */
+
+            //var notifocationInbound = _storage.GetOutboundNotification(notificationId); //  TODO pass a param with code of picking
+            //var xml = _xmlConverter.OutboundNotificationToXml(notifocationInbound);
+            //xml = Utils.PrepXML(xml);
 
 
-            return "req PickingStartNotifications notification: " + notificationId;
+            //return xml;
+            return "";
         }
 
         [HttpGet("PickingFinishNotifications")]
@@ -67,7 +86,24 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingFinishNotifications/{notificationId}")]
         public string GetPickingFinishNotification(string notificationId)
         {
-            return "req PickingFinishNotifications notification: " + notificationId;
+            /*
+            * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
+            * в данный запрос вшит фрагмент бизнес процесса
+            * 
+            * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
+            * 
+            * при переводе с KMW на PC - уведомление о том что заказ подобран
+            * при переводе с PC на WRS - уведомление о том что заказ упакован
+            * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
+            */
+
+            //var notifocationInbound = _storage.GetOutboundNotification(notificationId); // TODO pass a param with picking finish code
+            //var xml = _xmlConverter.OutboundNotificationToXml(notifocationInbound);
+            //xml = Utils.PrepXML(xml);
+
+
+            //return xml;
+            return "";
         }
 
         [HttpGet("ShippingNotifications")]
@@ -79,7 +115,26 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ShippingNotifications/{notificationId}")]
         public string GetShippingNotification(string notificationId)
         {
-            return "req ShippingNotifications notification: " + notificationId;
+            /*
+             * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
+             * в данный запрос вшит фрагмент бизнес процесса
+             * 
+             * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
+             * 
+             * при переводе с KMW на PC - уведомление о том что заказ подобран
+             * при переводе с PC на WRS - уведомление о том что заказ упакован
+             * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
+             */
+
+
+            //var notifocationInbound = _storage.GetShippingNotification(notificationId); 
+            //var xml = _xmlConverter.OutboundNotificationToXml(notifocationInbound);
+            //xml = Utils.PrepXML(xml);
+
+
+            //return xml;
+            return "";
         }
     }
+
 }

@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class InboundsController : ControllerBase
@@ -18,9 +20,11 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpPost]
-        public string PostInbound(string data)
+        public string PostInbound([FromBody] string a)
         {
-            return data;
+            //string incomingText = Request.Content.ReadAsStringAsync().Result;
+
+            return a;
 
             //return string.Empty;
             //var items = _storage.GetOrderResponses();
@@ -41,7 +45,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("InboundNotifications/{notificationId}")]
         public string GetPickingFinishNotification(string notificationId)
         {
-
+            // todo dont work
             var notifocationInbound = _storage.GetInboundNotification(notificationId);
             var xml = _xmlConverter.InboundNotificationToXml(notifocationInbound);
             xml = Utils.PrepXML(xml);

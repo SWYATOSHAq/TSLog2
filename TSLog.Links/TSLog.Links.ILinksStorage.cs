@@ -2,9 +2,9 @@
 
 namespace TSLog.Links
 {
-    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksInboundsStorage, ILinksOutboundsStorage, ILinksGenIdentifier
+    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksInboundsStorage, ILinksOutboundsStorage
     {
-        // Lite colkhozing))
+        // Lite colkhozing)) // TODO burn it to ashes
         public Entity GetInboundState(string stateCode);
 
         public Entity GetOutboundState(string stateCode);
@@ -23,19 +23,19 @@ namespace TSLog.Links
     }
 
     // Split ILinksStorage to several interfaces to cust ILinksStorage to
-    public interface ILinksProductsStorage
+    public interface ILinksProductsStorage : ILinksBase
     {
         public ProductsList GetProductsList(LegalEntity client);
     }
 
-    public interface ILinksClientsStorage
+    public interface ILinksClientsStorage : ILinksBase
     {
         public ClientsList GetClientsList(bool loadPartners = false);
 
         public LegalEntity Tslog { get; }
     }
 
-    public interface ILinksInboundsStorage
+    public interface ILinksInboundsStorage : ILinksBase
     {
         public InboundNotification GetInboundNotification(string inboundId);
 
@@ -44,7 +44,7 @@ namespace TSLog.Links
         public InboundNotification[] GetInboundNotifications(LegalEntity[] partners = null);
     }
 
-    public interface ILinksOutboundsStorage
+    public interface ILinksOutboundsStorage : ILinksBase
     {
         public OutboundNotification GetOutboundNotification(string outboundId);
 
@@ -60,6 +60,9 @@ namespace TSLog.Links
 
         public OutboundNotification[] GetShippingNotifications();
     }
+
+    public interface ILinksBase : ILinksGenIdentifier
+    { } // pass ILinksGenIdentifier to every part of ILinksStorage
 
     public interface ILinksGenIdentifier
     {

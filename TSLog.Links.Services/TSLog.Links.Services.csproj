@@ -14,10 +14,12 @@
     <ProjectReference Include="..\TSLog.BO\TSLog.BO.csproj" />
     <ProjectReference Include="..\TSLog.Links.Db\TSLog.Links.Db.csproj" />
     <ProjectReference Include="..\TSLog.Links.Gs1EdiXmlConverter\TSLog.Links.Gs1EdiXml.csproj" />
+    <ProjectReference Include="..\TSlog.Links.PSI.DataConverter\TSlog.Links.PSI.DataConverter.csproj" />
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="helper\" />
     <Folder Include="TestMessages\Out\" />
   </ItemGroup>
 
