@@ -32,9 +32,12 @@
         /// </summary>
         public string Info2 { get; set; }
 
-        public LegalEntity(string id, string name = "", string note = "")
+        public LegalEntity(string id, string name = "", string note = "", string info1 = "", string info2 = "")
             : base(-1, id, name, note)
-        { }
+        {
+            Info1 = info1;
+            Info2 = info2;
+        }
 
         private static LegalEntity _null = null;
 

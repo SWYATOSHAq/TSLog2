@@ -58,6 +58,8 @@ namespace TSLog.Links.Gs1EdiXml
             var id = string.Empty;
             var name = string.Empty;
             var note = string.Empty;
+            var infoOne = string.Empty;
+            var infoTwo = string.Empty;
             var fullAddress = string.Empty;
             while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
             {
@@ -75,6 +77,22 @@ namespace TSLog.Links.Gs1EdiXml
 
                         case "address":
                             reader.Read();
+                            break;
+
+                        case "note":
+                            note = reader.ReadElementContentAsString();
+                            break;
+
+                        case "infoOne":
+                            infoOne = reader.ReadElementContentAsString();
+                            break;
+
+                        case "infoTwo":
+                            infoTwo = reader.ReadElementContentAsString();
+                            break;
+
+                        case "entityName":
+                            name = reader.ReadElementContentAsString();
                             break;
 
                         case "streetAddressOne":
@@ -101,7 +119,7 @@ namespace TSLog.Links.Gs1EdiXml
                     }
                     else
                     {
-                        legalEntity = new LegalEntity(id, name, note);
+                        legalEntity = new LegalEntity(id, name, note, infoOne, infoTwo);
                         legalEntity.Address = fullAddress;
                     }
                     return legalEntity;
@@ -153,17 +171,70 @@ namespace TSLog.Links.Gs1EdiXml
 
         public ClientsList ClientsFromXml(XmlReader reader)
         {
-            // TODO
-            var clientsList = new ClientsList(-1, "", 0, DateTime.Now, LegalEntity.Null, LegalEntity.Null, LegalEntity.Null, LegalEntity.Null, "pizdec");
-
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
+            var id = -1;
+            var number = string.Empty;
+            var version = (byte)1;
+            var date = DateTime.MinValue;
+            var sender = LegalEntity.Null;
+            var recipient = LegalEntity.Null;
+            var dataSource = LegalEntity.Null;
+            var dataRecipient = LegalEntity.Null;
+            var note = string.Empty;
             var clients = new List<LegalEntity>();
+            while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    switch (reader.Name)
+                    {
+                        case "sh:Sender":
+                            sender = SideFromXml(reader);
+                            break;
 
-            //return clients.ToArray();
-            clientsList.AddClients(clients.ToArray()); // TODO ???
+                        case "sh:Receiver":
+                            recipient = SideFromXml(reader);
+                            break;
 
+                        case "dataSource":
+                            dataSource = LegalEntityFromXml(reader);
+                            break;
+
+                        case "dataRecipient":
+                            dataRecipient = LegalEntityFromXml(reader);
+                            break;
+
+                        case "entityDataNotificationLineItem":
+                            var product = LegalEntityFromXml(reader, true);
+                            clients.Add(product);
+                            break;
+
+                        default:
+                            reader.Read();
+                            break;
+                    }
+                }
+                else
+                    reader.Read();
+            }
+
+            var clientsList = new ClientsList(id, number, version, date, sender, recipient, dataSource, dataRecipient, note);
+            clientsList.AddClients(clients.ToArray());
             return clientsList;
+
+
+            //// TODO
+            //var clientsList = new ClientsList(-1, "", 0, DateTime.Now, LegalEntity.Null, LegalEntity.Null, LegalEntity.Null, LegalEntity.Null, "pizdec");
+
+            //if (reader == null)
+            //    throw new ArgumentNullException(nameof(reader));
+            //var clients = new List<LegalEntity>();
+
+            ////return clients.ToArray();
+            //clientsList.AddClients(clients.ToArray()); // TODO ???
+
+            //return clientsList;
         }
 
         #endregion Клиенты (контрагенты)

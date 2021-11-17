@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><item_data_notification:itemDataNotificationMessage xmlns:item_data_notification="urn:gs1:ecom:item_data_notification:xsd:3" xmlns:sh="http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:gs1:ecom:item_data_notification:xsd:3 ../Schemas/gs1/ecom/ItemDataNotification.xsd">
+    <sh:StandardBusinessDocumentHeader>
+		<sh:HeaderVersion>1.0</sh:HeaderVersion>
+		<sh:Sender>
+			<sh:Identifier Authority="GS1">0050</sh:Identifier>
+			<sh:ContactInformation>
+				<sh:Contact>Mihail B.</sh:Contact>
+				<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>
+				<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>
+				<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>
+				<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>
+			</sh:ContactInformation>
+		</sh:Sender>
+		<sh:Receiver>
+			<sh:Identifier Authority="GS1">TSLOG</sh:Identifier>
+			<sh:ContactInformation>
+				<sh:Contact>Valerian V.</sh:Contact>
+				<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>
+				<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>
+				<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>
+				<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>
+			</sh:ContactInformation>
+		</sh:Receiver>
+		<sh:DocumentIdentification>
+			<sh:Standard>GS1</sh:Standard>
+			<sh:TypeVersion>3.4</sh:TypeVersion>
+			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
+			<sh:Type />
+			<sh:MultipleType>false</sh:MultipleType>
+			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
+		</sh:DocumentIdentification>
+	</sh:StandardBusinessDocumentHeader>
+    <entityDataNotification>
+        <creationDateTime>2004-05-24T18:12:00.000-05:00</creationDateTime>
+        <documentStatusCode>ORIGINAL</documentStatusCode>
+        <entityDataNotificationIdentification>
+            <entityIdentification>ID37788</entityIdentification>
+        </entityDataNotificationIdentification>
+        <dataSource>
+            <!--<gln>4098765000010</gln>-->
+			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">0050</additionalPartyIdentification>
+        </dataSource>
+        <dataRecipient>
+            <!--<gln>5412345000013</gln>-->
+			<additionalPartyIdentification additionalPartyIdentificationTypeCode="Code">TSLOG</additionalPartyIdentification>
+        </dataRecipient>
+        <entityDataNotificationLineItem>
+            <lineItemNumber>1</lineItemNumber>
+			<additionalPartyIdentification>eb8077ef-fe50-467c-8b4d-44eb058e74f2</additionalPartyIdentification>
+			<entityName>Rostov 12/88</entityName>
+			<entityDescription>
+				<infoOne languageCode="ru">некоторая информация</infoOne>
+				<infoTwo languageCode="ru">некоторая информация2: electric boogalo</infoTwo>
+				<streetAddressOne languageCode="ru">Rostov, street Red, house 16</streetAddressOne>
+			</entityDescription>
+        </entityDataNotificationLineItem>
+        <entityDataNotificationLineItem>
+            <lineItemNumber>2</lineItemNumber>
+			<additionalPartyIdentification>fc114317-109b-4c51-bbbb-c2497834680d</additionalPartyIdentification>
+			<entityName>novgorod main storage</entityName>
+        </entityDataNotificationLineItem>
+        
+    </entityDataNotification>
+</item_data_notification:itemDataNotificationMessage>
