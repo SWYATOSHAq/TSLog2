@@ -91,7 +91,7 @@ namespace TSLog.Common
 
             var derivedPassword = new PasswordDeriveBytes(password, saltValueBytes, hashAlgorithm, passwordIterations);
             var keyBytes = derivedPassword.GetBytes(keySize / 8);
-            var symmetricKey = new RijndaelManaged();
+            using var symmetricKey = new RijndaelManaged();
             symmetricKey.Mode = CipherMode.CBC;
 
             byte[] cipherTextBytes = null;
@@ -99,14 +99,12 @@ namespace TSLog.Common
             {
                 using (var memStream = new MemoryStream())
                 {
-                    using (var cryptoStream = new CryptoStream(memStream, encryptor, CryptoStreamMode.Write))
-                    {
-                        cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-                        cryptoStream.FlushFinalBlock();
-                        cipherTextBytes = memStream.ToArray();
-                        memStream.Close();
-                        cryptoStream.Close();
-                    }
+                    using var cryptoStream = new CryptoStream(memStream, encryptor, CryptoStreamMode.Write);
+                    cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
+                    cryptoStream.FlushFinalBlock();
+                    cipherTextBytes = memStream.ToArray();
+                    memStream.Close();
+                    cryptoStream.Close();
                 }
             }
             symmetricKey.Clear();
@@ -127,8 +125,10 @@ namespace TSLog.Common
             var derivedPassword = new PasswordDeriveBytes(password, saltValueBytes, hashAlgorithm, passwordIterations);
             var keyBytes = derivedPassword.GetBytes(keySize / 8);
 
-            var symmetricKey = new RijndaelManaged();
-            symmetricKey.Mode = CipherMode.CBC;
+            var symmetricKey = new RijndaelManaged
+            {
+                Mode = CipherMode.CBC
+            };
 
             var plainTextBytes = new byte[cipherTextBytes.Length];
             int byteCount = 0;
@@ -136,12 +136,10 @@ namespace TSLog.Common
             {
                 using (var memStream = new MemoryStream(cipherTextBytes))
                 {
-                    using (var cryptoStream = new CryptoStream(memStream, decryptor, CryptoStreamMode.Read))
-                    {
-                        byteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                        memStream.Close();
-                        cryptoStream.Close();
-                    }
+                    using var cryptoStream = new CryptoStream(memStream, decryptor, CryptoStreamMode.Read);
+                    byteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+                    memStream.Close();
+                    cryptoStream.Close();
                 }
             }
             symmetricKey.Clear();

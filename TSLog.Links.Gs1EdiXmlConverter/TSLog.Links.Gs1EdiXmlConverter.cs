@@ -119,8 +119,10 @@ namespace TSLog.Links.Gs1EdiXml
                     }
                     else
                     {
-                        legalEntity = new LegalEntity(id, name, note, infoOne, infoTwo);
-                        legalEntity.Address = fullAddress;
+                        legalEntity = new LegalEntity(id, name, note, infoOne, infoTwo)
+                        {
+                            Address = fullAddress
+                        };
                     }
                     return legalEntity;
                 }
@@ -303,14 +305,15 @@ namespace TSLog.Links.Gs1EdiXml
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
 
-                    var product = new Product(id, prodctCode, gtin, name);
+                    var product = new Product(id, prodctCode, gtin, name)
+                    {
+                        Width = width,
+                        Height = height,
+                        Length = depth,
 
-                    product.Width = width;
-                    product.Height = height;
-                    product.Length = depth;
-
-                    product.Netto = netWeight;
-                    product.Brutto = grossWeight;
+                        Netto = netWeight,
+                        Brutto = grossWeight
+                    };
 
                     return product;
                 }
@@ -508,10 +511,12 @@ namespace TSLog.Links.Gs1EdiXml
 
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
                     var currency = _storage.GetCurrency(currencyCode);
-                    var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit, note);
-                    line.OKEI = OKEI;
-                    line.BatchNumber = BatchNumber;
-                    line.BatchNumber2 = BatchNumber2;
+                    var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit, note)
+                    {
+                        OKEI = OKEI,
+                        BatchNumber = BatchNumber,
+                        BatchNumber2 = BatchNumber2
+                    };
 
                     foreach (var pair in lineLogisticUnits)
                     {
@@ -877,12 +882,13 @@ namespace TSLog.Links.Gs1EdiXml
 
                     var currency = _storage.GetCurrency(currencyCode);
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
-                    var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
-
-                    line.OKEI = OKEI;
-                    line.BatchNumber = BatchNumber;
-                    line.BatchNumber2 = BatchNumber2;
-                    line.Info = note;
+                    var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
+                    {
+                        OKEI = OKEI,
+                        BatchNumber = BatchNumber,
+                        BatchNumber2 = BatchNumber2,
+                        Info = note
+                    };
 
                     return line;
                 }

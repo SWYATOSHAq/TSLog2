@@ -13,12 +13,6 @@ namespace TSLog.Links
 
         public MeasureUnit GetMeasureUnit(string measureUnitCode);
 
-        public LegalEntity GetPartner(string code);
-
-        public LegalEntity GetLegalEntity(string partnerCode);
-
-        public LegalEntity[] GetPartners();
-
         public Product GetProduct(string code);
     }
 
@@ -31,6 +25,13 @@ namespace TSLog.Links
     public interface ILinksClientsStorage : ILinksBase
     {
         public ClientsList GetClientsList(bool loadPartners = false);
+
+        public LegalEntity GetPartner(string code);
+
+
+        public LegalEntity GetLegalEntity(string partnerCode);
+
+        public LegalEntity[] GetPartners();
 
         public LegalEntity Tslog { get; }
     }

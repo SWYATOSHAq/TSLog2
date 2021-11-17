@@ -3,6 +3,7 @@ using System.Security;
 using System.Xml;
 using TSlog.Links.PSI.DataConverter;
 using TSLog.BO;
+using TSLog.Common;
 using TSLog.Links.Db;
 using TSLog.Links.Gs1EdiXml;
 
@@ -15,18 +16,20 @@ namespace TSLog.Links.Test
             var dataSource =
                 "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
 
-            var storage = new DbLinksStorage(dataSource);
-            storage.CommonSchema = "ecco";
-            storage.LinksSchema = "links";
-            storage.WmsSchema = "ecco2_s1_pdba";
+            var storage = new DbLinksStorage(dataSource)
+            {
+                CommonSchema = "ecco",
+                LinksSchema = "links",
+                WmsSchema = "ecco2_s1_pdba",
 
-            storage.InboundsStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов");
-            storage.OutboundsStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов");
-            storage.MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения");
-            storage.Partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры");
-            storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
+                InboundsStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов"),
+                OutboundsStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов"),
+                MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения"),
+                Partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры"),
+                Currencies = new Catalog<Entity>("CURRENCIES", "валюты"),
 
-            storage.Products = new ProductCatalog<Product>("PRODUCTS", "Товары");
+                Products = new ProductCatalog<Product>("PRODUCTS", "Товары")
+            };
 
             var password = new SecureString();
             foreach (var symbol in "e")
@@ -39,13 +42,15 @@ namespace TSLog.Links.Test
             storage.MeasureUnits.Add(storage.GetMeasureUnits());
             storage.Currencies.Add(storage.GetCurrncies());
 
-            var xmlConverter = new Gs1EdiXmlConverter();
-            xmlConverter.LinksStorage = storage;
+            var xmlConverter = new Gs1EdiXmlConverter
+            {
+                LinksStorage = storage
+            };
 
             // ===========================================
             //// reader test
-            var fileName = "";
-            XmlReader reader;
+            //var fileName = "";
+            //XmlReader reader;
 
             //// inboud test
             //Console.WriteLine(">inboud<");
@@ -76,18 +81,18 @@ namespace TSLog.Links.Test
             //var converterProducts = new EINWMSProductsConverter();
             //Console.WriteLine(converterProducts.Convert(storage.GenerateTransactionId(), itemDataNotification));
 
-            // Clients test
-            Console.WriteLine(">Clients<");
-            fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ClientsDataNotification0001.xml"; // ???
-            reader = new XmlTextReader(fileName);
-            var clientsList = xmlConverter.ClientsFromXml(reader); // ???
-            //Console.WriteLine(itemDataNotification.Number);
-            Console.WriteLine("---serialization---");
-            var converterClients = new EINWMSClientsConverter();
-            Console.WriteLine(converterClients.Convert(storage.GenerateTransactionId(), clientsList));
+            //// Clients test
+            //Console.WriteLine(">Clients<");
+            //fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ClientsDataNotification0001.xml";
+            //reader = new XmlTextReader(fileName);
+            //var clientsList = xmlConverter.ClientsFromXml(reader);
+            ////Console.WriteLine(itemDataNotification.Number);
+            //Console.WriteLine("---serialization---");
+            //var converterClients = new EINWMSClientsConverter();
+            //Console.WriteLine(converterClients.Convert(storage.GenerateTransactionId(), clientsList));
 
-            Console.WriteLine(">finished<");
-            reader.Close();
+            //Console.WriteLine(">finished<");
+            //reader.Close();
 
 
             //////// test response
@@ -99,7 +104,7 @@ namespace TSLog.Links.Test
 
             //var notifocationInbound = storage.GetInboundNotification(partner, "П-ВЖНФ-000400");
             //xml = xmlConverter.InboundNotificationToXml(notifocationInbound);
-            //xml = PrepXML(xml);
+            //xml = Utils.PrepXML(xml);
             //Console.WriteLine(xml);
 
             //// GetOutboundNotification
@@ -107,14 +112,10 @@ namespace TSLog.Links.Test
 
             //var notifocationOutbound = storage.GetOutboundNotification(partner, "З-ВЖНФ-006613");
             //xml = xmlConverter.OutboundNotificationToXml(notifocationOutbound);
-            //xml = PrepXML(xml);
+            //xml = Utils.PrepXML(xml);
             //Console.WriteLine(xml);
 
-            Console.ReadLine();
-        }
-        private static string PrepXML(string a)
-        {
-            return a.Replace("><", "}{").Replace(">", ">\n\t").Replace("<", "\n<").Replace("}{", ">\n<");
+            //Console.ReadLine();
         }
     }
 }

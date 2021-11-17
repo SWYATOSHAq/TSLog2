@@ -40,18 +40,6 @@ namespace TSLog.Links.Services.Controllers
             UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
 
             return ""+ fileContent; // todo retrun smth userfull
-
-            //Stream req = Request.Body;
-            //req.Seek(0, System.IO.SeekOrigin.Begin);
-            //string content = new StreamReader(req).ReadToEnd();
-            //return $"suck on my {content}";
-            //var items = _storage.GetOrderResponses();
-            //var sb = new StringBuilder();
-            //foreach (var i in items)
-            //{
-            //    sb.Append(i.OrderId + "\n");
-            //}
-            //return sb.ToString();
         }
 
         //[HttpGet]
@@ -75,5 +63,11 @@ namespace TSLog.Links.Services.Controllers
         //{
         //    return string.Empty;
         //}
+
+        // ==========================================================
+
+        // остатки по факту (stock)
+        // номенклатура
+        // 
     }
 }

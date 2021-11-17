@@ -24,7 +24,7 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpPost]
-        public async Task<string> PostClients(string data)
+        public async Task<string> PostClients()
         {
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
@@ -40,23 +40,10 @@ namespace TSLog.Links.Services.Controllers
             return "" + fileContent; // todo retrun smth userfull
         }
 
-        //[HttpGet]
-        //public ActionResult<LegalEntity[]> GetClients()
-        //{
-        //    return _storage.GetClientsList().Clients;
-        //    //var items = _storage.GetOrderResponses();
-        //    //var sb = new StringBuilder();
-        //    //foreach (var i in items)
-        //    //{
-        //    //    sb.Append(i.OrderId + "\n");
-        //    //}
-        //    //return sb.ToString();
-        //}
-
         [HttpGet("{clientId}")]
-        public string GetClientById(string clientId)
+        public LegalEntity GetClientById(string clientId)
         {
-            return string.Empty;
+            return _storage.GetLegalEntity(clientId);
         }
     }
 }

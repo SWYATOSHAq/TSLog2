@@ -144,6 +144,12 @@ namespace TSLog.Links.Services.Controllers
             //return xml;
             return "";
         }
+
+        // =======================
+
+        // отгрузка ФАКТ ПО МЕСТАМ
+        // отгрузка
+
     }
 
 }

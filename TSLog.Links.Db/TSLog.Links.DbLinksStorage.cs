@@ -74,16 +74,14 @@ namespace TSLog.Links.Db
             {
                 command.CommandText = $"select * from {CommonSchema}.v_state s where s.code = :code";
                 command.Parameters.Add(new OracleParameter("code", stateCode));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                        inboundState = new Entity(Convert.ToInt32(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["short_name"]),
-                            Convert.ToString(reader["ge_name"]));
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    inboundState = new Entity(Convert.ToInt32(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["name"]),
+                        Convert.ToString(reader["short_name"]),
+                        Convert.ToString(reader["ge_name"]));
+                reader.Close();
             }
             return inboundState ?? Entity.Null;
         }
@@ -94,19 +92,17 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_state s";
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var state = new Entity(Convert.ToInt32(reader["id"]),
-                        Convert.ToString(reader["code"]),
-                        Convert.ToString(reader["name"]),
-                        Convert.ToString(reader["short_name"]),
-                        Convert.ToString(reader["ge_name"]));
-                        inboundStates.Add(state);
-                    }
-                    reader.Close();
+                    var state = new Entity(Convert.ToInt32(reader["id"]),
+                    Convert.ToString(reader["code"]),
+                    Convert.ToString(reader["name"]),
+                    Convert.ToString(reader["short_name"]),
+                    Convert.ToString(reader["ge_name"]));
+                    inboundStates.Add(state);
                 }
+                reader.Close();
             }
             return inboundStates.ToArray();
         }
@@ -121,14 +117,12 @@ namespace TSLog.Links.Db
             {
                 command.CommandText = $"select * from {CommonSchema}.v_outbound_type ot where ot.code = :code";
                 command.Parameters.Add(new OracleParameter("code", typeCode));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                        outboundType = new Entity(Convert.ToInt32(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]));
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    outboundType = new Entity(Convert.ToInt32(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["name"]));
+                reader.Close();
             }
             return outboundType ?? Entity.Null;
         }
@@ -139,17 +133,15 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_outbound_type ot";
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var outboundType = new Entity(Convert.ToInt32(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]));
-                        outboundTypes.Add(outboundType);
-                    }
-                    reader.Close();
+                    var outboundType = new Entity(Convert.ToInt32(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["name"]));
+                    outboundTypes.Add(outboundType);
                 }
+                reader.Close();
             }
             return outboundTypes.ToArray();
         }
@@ -196,21 +188,19 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_currency";
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var currency = new Entity(Convert.ToInt32(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]),
-                            string.Empty,
-                            string.Empty,
-                            string.Empty,
-                            Convert.ToString(reader["note"]));
-                        currencies.Add(currency);
-                    }
-                    reader.Close();
+                    var currency = new Entity(Convert.ToInt32(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["name"]),
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        Convert.ToString(reader["note"]));
+                    currencies.Add(currency);
                 }
+                reader.Close();
             }
             return currencies.ToArray();
         }
@@ -369,8 +359,10 @@ namespace TSLog.Links.Db
                         partner = new LegalEntity(Convert.ToString(reader["id"]),
                             Convert.ToString(reader["name"]),
                             Convert.ToString(reader["note1"])
-                            );
-                        partner.Address = Convert.ToString(reader["address1"]);
+                            )
+                        {
+                            Address = Convert.ToString(reader["address1"])
+                        };
 
                         Partners.Add(partner);
                     }
@@ -403,8 +395,10 @@ namespace TSLog.Links.Db
                         partner = new LegalEntity(Convert.ToString(reader["id"]),
                             Convert.ToString(reader["name"]),
                             Convert.ToString(reader["note1"])
-                            );
-                        partner.Address = Convert.ToString(reader["address"]);
+                            )
+                        {
+                            Address = Convert.ToString(reader["address"])
+                        };
 
                         Partners.Add(partner);
                     }
@@ -602,11 +596,13 @@ namespace TSLog.Links.Db
             var inboundFactAcceptanceEnd = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
             var inboundNote = Convert.ToString(reader["note"]);
 
-            var inbound = new Inbound(inboundId, inboundNumber, inboundDate, inboundPartner, inboundPartnerNumber, inboundState, inboundNote);
-            inbound.PlanAcceptanceBegin = inboundPlanAcceptanceBegin;
-            inbound.PlanAcceptanceEnd = inboundPlanAcceptanceEnd;
-            inbound.FactAcceptanceBegin = inboundFactAccpeptanceBegin;
-            inbound.FactAcceptanceEnd = inboundFactAcceptanceEnd;
+            var inbound = new Inbound(inboundId, inboundNumber, inboundDate, inboundPartner, inboundPartnerNumber, inboundState, inboundNote)
+            {
+                PlanAcceptanceBegin = inboundPlanAcceptanceBegin,
+                PlanAcceptanceEnd = inboundPlanAcceptanceEnd,
+                FactAcceptanceBegin = inboundFactAccpeptanceBegin,
+                FactAcceptanceEnd = inboundFactAcceptanceEnd
+            };
 
             var id = -1;
             var number = string.Empty;
@@ -732,7 +728,7 @@ namespace TSLog.Links.Db
                         where.Append(partner.Id);
                     }
                     where.Insert(0, "\nwhere inm.partner_id in (");
-                    where.Append(")");
+                    where.Append(')');
                     sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
@@ -767,8 +763,10 @@ namespace TSLog.Links.Db
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
             var measureUnitCode = string.Empty;
             var measureUnit = GetMeasureUnit(measureUnitCode);
-            var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
-            line.FactQuantity = factQuantity;
+            var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
+            {
+                FactQuantity = factQuantity
+            };
             return line;
         }
 

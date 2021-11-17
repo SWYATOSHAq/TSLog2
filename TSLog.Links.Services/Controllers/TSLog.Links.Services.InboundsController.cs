@@ -66,5 +66,8 @@ namespace TSLog.Links.Services.Controllers
 
             return xml;
         }
+
+        // =======================
+        //  приемка фактическая / приемка по системе
     }
 }
