@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
@@ -33,11 +34,14 @@ namespace TSLog.Links.Services.Controllers
             var itemDataNotification = _xmlConverter.ProductsListFromXml(reader);
             var converterProducts = new EINWMSProductsConverter();
 
-            var fileContent = converterProducts.Convert(_storage.GenerateTransactionId(), itemDataNotification);
+            var transactionNumber = _storage.GenerateTransactionId();
+            var fileContent = converterProducts.Convert(transactionNumber, itemDataNotification);
 
-            UtilsIO.WriteFileToWMSINFolder(fileContent, System.IO.Path.GetRandomFileName()); // TODO
+            var fileName = $"wms_{DateTime.Now:yyyyMMdd HHmmss}.{transactionNumber}.ein".ToUpper();
 
-            return ""+ fileContent;
+            UtilsIO.WriteFileToWMSINFolder(fileContent, fileName);
+
+            return ""+ fileContent; // todo retrun smth userfull
 
             //Stream req = Request.Body;
             //req.Seek(0, System.IO.SeekOrigin.Begin);

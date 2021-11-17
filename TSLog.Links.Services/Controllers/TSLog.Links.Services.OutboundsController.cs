@@ -1,5 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using TSlog.Links.PSI.DataConverter;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
 
@@ -19,16 +24,22 @@ namespace TSLog.Links.Services.Controllers
         }
 
         [HttpPost]
-        public string PostOrder(OutboundInstruction order)
+        public async Task<string> PostOrder()
         {
-            //return string.Empty;
-            var items = _storage.GetOrderResponses();
-            var sb = new StringBuilder();
-            foreach (var i in items)
-            {
-                sb.Append(i.Id + "\n");
-            }
-            return sb.ToString();
+            string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
+
+            var reader = new XmlTextReader(content, XmlNodeType.Document, null);
+            var outboundInstruction = _xmlConverter.OutboundInstructionFromXml(reader);
+            var converterProducts = new EINWMSOutboundsConverter();
+
+            var transactionNumber = _storage.GenerateTransactionId();
+            var fileContent = converterProducts.Convert(transactionNumber, outboundInstruction);
+
+            var fileName = $"wms_{DateTime.Now:yyyyMMdd HHmmss}.{transactionNumber}.ein".ToUpper();
+
+            UtilsIO.WriteFileToWMSINFolder(fileContent, fileName);
+
+            return "" + fileContent; // todo retrun smth userfull
         }
 
         //[HttpGet]
