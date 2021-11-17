@@ -35,9 +35,7 @@ namespace TSLog.Links.Services.Controllers
             var transactionNumber = _storage.GenerateTransactionId();
             var fileContent = converterProducts.Convert(transactionNumber, inboundInstruction);
 
-            var fileName = $"wms_{DateTime.Now:yyyyMMdd HHmmss}.{transactionNumber}.ein".ToUpper();
-
-            UtilsIO.WriteFileToWMSINFolder(fileContent, fileName);
+            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
 
             return "" + fileContent; // todo retrun smth userfull
 
