@@ -923,29 +923,29 @@ namespace TSLog.Links.Db
 
         public OutboundNotification[] GetOrderResponses()
         {
-            return null;
+            return null; // TODO
         }
 
         public OutboundNotification GetOrderResponse(LegalEntity partner, string partnerOrderId)
         {
-            if (partner == null)
+            if (partner == null) // TODO
                 throw new ArgumentNullException(nameof(partner));
             return null;
         }
 
         public OutboundNotification[] GetPickingStartNotifications()
         {
-            return null;
+            return null; // TODO
         }
 
         public OutboundNotification[] GetPickingFinishNotifications()
         {
-            return null;
+            return null; // TODO
         }
 
         public OutboundNotification[] GetShippingNotifications()
         {
-            return null;
+            return null; // TODO
         }
 
         #endregion Outbound instruction and notification
@@ -954,12 +954,12 @@ namespace TSLog.Links.Db
 
         public ProductsList GetProductsList(LegalEntity partner) // TODO: to delete (just for debug)
         {
-            return null;
+            return null; // TODO
         }
 
         public ClientsList GetClientsList(bool loadPartners = false) // TODO: to delete (just for debug)
         {
-            return null;
+            return null; // TODo
         }
 
         #endregion DEBUG
