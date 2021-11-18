@@ -4,14 +4,14 @@ using TSLog.BO;
 namespace TSLog.Links
 {
     /// <summary>
-    ///  Заказ на сборку и доставку
+    /// Заказ на сборку (и доставку) товара
     /// </summary>
-    public class OutboundInstruction : Message
+    public class PickingBeginNotice : Message
     {
         /// <summary>
-        /// Отгрузка со склада
+        /// Отгрузка товара со склада
         /// </summary>
-        public Outbound Outbound { get; private set; }
+        public Outgo Outgo { get; private set; }
 
         /// <summary>
         /// Продавец складских и логистических услуг
@@ -33,13 +33,13 @@ namespace TSLog.Links
         /// </summary>
         public LegalEntity Receiver { get; private set; }
 
-        public OutboundInstruction(long id, string number, byte version, DateTime date, Outbound outbound,
+        public PickingBeginNotice(long id, string number, byte version, DateTime date, Outgo outgo,
             LegalEntity sender, LegalEntity recipient,
-             LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
+            LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
             string note = "")
-            : base(id, number, 'I', "OUTBOUND_INSTRUCTION", version, date, sender, recipient)
+            : base(id, number, 'O', "PICKING_BEGIN_NOTICE", version, date, sender, recipient, note)
         {
-            Outbound = outbound ?? throw new ArgumentNullException(nameof(outbound));
+            Outgo = outgo ?? throw new ArgumentNullException(nameof(outgo));
             ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));
             ServiceBuyer = serviceBuyer ?? throw new ArgumentNullException(nameof(serviceBuyer));
             Shipper = shipper ?? throw new ArgumentNullException(nameof(shipper));

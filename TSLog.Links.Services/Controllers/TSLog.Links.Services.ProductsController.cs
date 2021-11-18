@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.IO;
-using System.IO.Pipelines;
 using System.Threading.Tasks;
 using System.Xml;
 using TSlog.Links.PSI.DataConverter;
-using TSLog.BO;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
 
@@ -38,35 +35,21 @@ namespace TSLog.Links.Services.Controllers
 
             UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
 
-            return ""+ fileContent; // todo retrun smth userfull
+            return "" + fileContent; // todo retrun smth userfull
         }
 
-        //[HttpGet]
-        //public ActionResult<BO.Product[]> GetProducts()
-        //{
-        //    var data = _storage.GetProductsList(new LegalEntity("1234")).Products; // TODO get client from reqest context
+        [HttpGet("balances/{productId}")]
+        public string GetBalance(string productId)
+        {
+            // TODO: realize
+            return string.Empty;
+        }
 
-        //    return data;
-
-        //    //var items = _storage.GetOrderResponses();
-        //    //var sb = new StringBuilder();
-        //    //foreach (var i in items)
-        //    //{
-        //    //    sb.Append(i.OrderId + "\n");
-        //    //}
-        //    //return sb.ToString();
-        //}
-
-        //[HttpGet("{clientId}")]
-        //public string GetProductById(string clientId)
-        //{
-        //    return string.Empty;
-        //}
-
-        // ==========================================================
-
-        // остатки по факту (stock)
-        // номенклатура
-        //
+        [HttpGet("balances")]
+        public string GetBalances()
+        {
+            // TODO: realize
+            return string.Empty;
+        }
     }
 }

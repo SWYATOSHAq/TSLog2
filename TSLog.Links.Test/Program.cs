@@ -22,8 +22,8 @@ namespace TSLog.Links.Test
                 LinksSchema = "links",
                 WmsSchema = "ecco2_s1_pdba",
 
-                InboundsStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов"),
-                OutboundsStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов"),
+                IncomeStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов"),
+                OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов"),
                 MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения"),
                 Partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры"),
                 Currencies = new Catalog<Entity>("CURRENCIES", "валюты"),
@@ -37,8 +37,8 @@ namespace TSLog.Links.Test
             storage.Connect("ecco", password);
 
             // preload units and states
-            storage.InboundsStates.Add(storage.GetInboundsStates());
-            storage.OutboundsStates.Add(storage.GetOutboundsStates());
+            storage.IncomeStates.Add(storage.GetIncomeStates());
+            storage.OutgoStates.Add(storage.GetOutgoStates());
             storage.MeasureUnits.Add(storage.GetMeasureUnits());
             storage.Currencies.Add(storage.GetCurrncies());
 

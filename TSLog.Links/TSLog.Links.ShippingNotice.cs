@@ -4,14 +4,14 @@ using TSLog.BO;
 namespace TSLog.Links
 {
     /// <summary>
-    /// Сообщение запрос на приход товара на склад
+    /// Заказ на сборку (и доставку) товара
     /// </summary>
-    public class InboundInstruction : Message
+    public class ShippingNotice : Message
     {
         /// <summary>
-        /// Приход товара на склад
+        /// Отгрузка товара со склада
         /// </summary>
-        public Inbound Inbound { get; private set; }
+        public Outgo Outgo { get; private set; }
 
         /// <summary>
         /// Продавец складских и логистических услуг
@@ -33,13 +33,13 @@ namespace TSLog.Links
         /// </summary>
         public LegalEntity Receiver { get; private set; }
 
-        public InboundInstruction(long id, string number, byte version, DateTime date, Inbound inbound,
+        public ShippingNotice(long id, string number, byte version, DateTime date, Outgo outgo,
             LegalEntity sender, LegalEntity recipient,
             LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
             string note = "")
-            : base(id, number, 'I', "INBOUND_INSTRUCTION", version, date, sender, recipient, note)
+            : base(id, number, 'O', "SHIPPING_NOTICE", version, date, sender, recipient, note)
         {
-            Inbound = inbound ?? throw new ArgumentNullException(nameof(inbound));
+            Outgo = outgo ?? throw new ArgumentNullException(nameof(outgo));
             ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));
             ServiceBuyer = serviceBuyer ?? throw new ArgumentNullException(nameof(serviceBuyer));
             Shipper = shipper ?? throw new ArgumentNullException(nameof(shipper));

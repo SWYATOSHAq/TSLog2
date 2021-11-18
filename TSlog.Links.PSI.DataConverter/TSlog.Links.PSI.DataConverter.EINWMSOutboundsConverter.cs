@@ -25,10 +25,10 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.AUFANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067139|Werk=0000|MndNr=0002|AufNr=WM00022398|
         */
 
-        public string Convert(string transactionId, OutboundInstruction instruction, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
+        public string Convert(string transactionId, OutgoRequest instruction, string warehouseCode = "0000", string action = "Ins", int deliveryAdderssLenCut = 50, string defaultQualification = "10", int maxInfoSize = 200)
         {
             var partner = instruction.ServiceBuyer;
-            var outbound = instruction.Outbound;
+            var outbound = instruction.Outgo;
 
             var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}" +
                 $"|TrxId={PrepStrPar(transactionId)}" +

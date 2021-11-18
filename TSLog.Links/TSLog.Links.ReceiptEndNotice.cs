@@ -4,14 +4,24 @@ using TSLog.BO;
 namespace TSLog.Links
 {
     /// <summary>
-    /// Заказ на сборку (и доставку) товара
+    /// Уведомление о приёмке прихода
     /// </summary>
-    public class OutboundNotification : Message
+    public class ReceiptEndNotice : Message
     {
         /// <summary>
-        /// Отгрузка товара со склада
+        /// Приход
         /// </summary>
-        public Outbound Outbound { get; private set; }
+        public Income Income { get; set; }
+
+        /// <summary>
+        /// Номер запроса на приход
+        /// </summary>
+        public string InstructionNumber { get; set; }
+
+        /// <summary>
+        /// Статус (состояние)
+        /// </summary>
+        public string State { get; set; }
 
         /// <summary>
         /// Продавец складских и логистических услуг
@@ -33,13 +43,16 @@ namespace TSLog.Links
         /// </summary>
         public LegalEntity Receiver { get; private set; }
 
-        public OutboundNotification(long id, string number, byte version, DateTime date, Outbound outbound,
+        /// <summary>
+        /// Примечания и комментарии на естественном языке
+        /// </summary>
+        public ReceiptEndNotice(long id, string number, byte version, DateTime date, Income income,
             LegalEntity sender, LegalEntity recipient,
-            LegalEntity serviceSeller, LegalEntity serviceBuyer, LegalEntity shipper, LegalEntity receiver,
+            LegalEntity serviceBuyer, LegalEntity serviceSeller, LegalEntity shipper, LegalEntity receiver,
             string note = "")
-            : base(id, number, 'O', "OUTBOUND_NOTIFICATION", version, date, sender, recipient, note)
+            : base(id, number, 'O', "RECEIPT_END_NOTICE", version, date, sender, recipient, note)
         {
-            Outbound = outbound ?? throw new ArgumentNullException(nameof(outbound));
+            Income = income ?? throw new ArgumentNullException(nameof(income));
             ServiceSeller = serviceSeller ?? throw new ArgumentNullException(nameof(serviceSeller));
             ServiceBuyer = serviceBuyer ?? throw new ArgumentNullException(nameof(serviceBuyer));
             Shipper = shipper ?? throw new ArgumentNullException(nameof(shipper));

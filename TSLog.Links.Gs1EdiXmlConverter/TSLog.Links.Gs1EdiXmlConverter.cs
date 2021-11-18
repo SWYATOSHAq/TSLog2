@@ -383,7 +383,7 @@ namespace TSLog.Links.Gs1EdiXml
 
         #region Приход товара на склад
 
-        private string InboundInstructionLineLogisticUnitFromXml(XmlReader reader, out double quantity)
+        private string IncomeRequestLineLogisticUnitFromXml(XmlReader reader, out double quantity)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -417,7 +417,7 @@ namespace TSLog.Links.Gs1EdiXml
             return sscc;
         }
 
-        private Inbound.Line InboundInstructionLineFromXml(XmlReader reader, IDictionary<string, LogisticUnit> logisticUnits)
+        private Income.Line IncomeRequestLineFromXml(XmlReader reader, IDictionary<string, LogisticUnit> logisticUnits)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -489,7 +489,7 @@ namespace TSLog.Links.Gs1EdiXml
 
                         case "logisticUnit":
                             var logisticUnitQuantity = 0.0;
-                            var sscc = InboundInstructionLineLogisticUnitFromXml(reader, out logisticUnitQuantity);
+                            var sscc = IncomeRequestLineLogisticUnitFromXml(reader, out logisticUnitQuantity);
                             if (!logisticUnits.ContainsKey(sscc))
                                 throw new Exception($"Место по коду {sscc} не найдено");
                             if (!lineLogisticUnits.ContainsKey(logisticUnits[sscc]))
@@ -511,7 +511,7 @@ namespace TSLog.Links.Gs1EdiXml
 
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
                     var currency = _storage.GetCurrency(currencyCode);
-                    var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit, note)
+                    var line = new Income.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit, note)
                     {
                         OKEI = OKEI,
                         BatchNumber = BatchNumber,
@@ -541,23 +541,23 @@ namespace TSLog.Links.Gs1EdiXml
             return null;
         }
 
-        public InboundInstruction InboundInstructionFromXml(XmlReader reader)
+        public IncomeRequest IncomeRequestFromXml(XmlReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var inboundId = string.Empty;
-            var inboundNumber = string.Empty;
-            var inboundDate = DateTime.MinValue;
-            var inboundPartner = LegalEntity.Null;
-            var inboundPartnerNumber = string.Empty;
-            var inboundStateCode = string.Empty;
-            var inboundState = Entity.Null;
+            var incomeId = string.Empty;
+            var incomeNumber = string.Empty;
+            var incomeDate = DateTime.MinValue;
+            var incomePartner = LegalEntity.Null;
+            var incomePartnerNumber = string.Empty;
+            var incomeStateCode = string.Empty;
+            var incomeState = Entity.Null;
             var planAcceptanceBegin = DateTime.MinValue;
             var planAcceptanceEnd = DateTime.MinValue;
-            var inboundType = Entity.Null;
-            var inboundNote = string.Empty;
-            var inboundLogisticUnits = new Dictionary<string, LogisticUnit>();
-            var inboundLines = new List<Inbound.Line>();
+            var incomeType = Entity.Null;
+            var incomeNote = string.Empty;
+            var incomeLogisticUnits = new Dictionary<string, LogisticUnit>();
+            var incomeLines = new List<Income.Line>();
 
             var id = -1;
             var version = (byte)1;
@@ -593,7 +593,7 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "creationDateTime":
-                            inboundDate = Convert.ToDateTime(reader.ReadElementContentAsString());
+                            incomeDate = Convert.ToDateTime(reader.ReadElementContentAsString());
                             break;
 
                         case "entityIdentification":
@@ -611,7 +611,7 @@ namespace TSLog.Links.Gs1EdiXml
                         // Global Shipment Identification Number,
                         // Глобальный номер для идентификации отгрузки
                         case "gsin":
-                            inboundPartnerNumber = reader.ReadElementContentAsString();
+                            incomePartnerNumber = reader.ReadElementContentAsString();
                             break;
 
                         case "warehousingInboundInstructionShipment":
@@ -642,9 +642,9 @@ namespace TSLog.Links.Gs1EdiXml
 
                         case "logisticUnit":
                             var inboundLogisticUnit = LogisticUnitFromXml(reader);
-                            if (inboundLogisticUnits.ContainsKey(inboundLogisticUnit.Sscc))
+                            if (incomeLogisticUnits.ContainsKey(inboundLogisticUnit.Sscc))
                                 throw new Exception($"SSCC код {inboundLogisticUnit.Sscc} места дублируется");
-                            inboundLogisticUnits.Add(inboundLogisticUnit.Sscc, inboundLogisticUnit);
+                            incomeLogisticUnits.Add(inboundLogisticUnit.Sscc, inboundLogisticUnit);
                             break;
 
                         case "plannedReceipt":
@@ -679,8 +679,8 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "warehousingInboundInstructionShipmentItem":
-                            var inboundLine = InboundInstructionLineFromXml(reader, inboundLogisticUnits);
-                            inboundLines.Add(inboundLine);
+                            var inboundLine = IncomeRequestLineFromXml(reader, incomeLogisticUnits);
+                            incomeLines.Add(inboundLine);
                             break;
 
                         default:
@@ -691,40 +691,40 @@ namespace TSLog.Links.Gs1EdiXml
                 else
                     reader.Read();
             }
-            inboundNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
+            incomeNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
 
             // TODO загружать тип из XML
             //inboundType = new Entity(-1, "loaded_from_xml");
 
-            inboundState = _storage.GetInboundState(inboundStateCode);
-            var inbound = new Inbound(inboundId, inboundNumber, inboundDate,
-                inboundPartner, inboundPartnerNumber, inboundState, inboundNote);
+            incomeState = _storage.GetIncomeState(incomeStateCode);
+            var income = new Income(incomeId, incomeNumber, incomeDate,
+                incomePartner, incomePartnerNumber, incomeState, incomeNote);
             planAcceptanceBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             planAcceptanceEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
-            inbound.PlanAcceptanceBegin = planAcceptanceBegin;
-            inbound.PlanAcceptanceEnd = planAcceptanceEnd;
-            inbound.AddLogisticUnits(inboundLogisticUnits.Values.ToArray());
-            inbound.AddLines(inboundLines.ToArray());
-            inbound.Type = inboundType;
-            inbound.Vendor = shipper; // todo check if there is this Gp in our DB
-            inbound.Operation = operationType;
-            inbound.GUID = additionalGUID;
+            income.PlanAcceptanceBegin = planAcceptanceBegin;
+            income.PlanAcceptanceEnd = planAcceptanceEnd;
+            income.AddLogisticUnits(incomeLogisticUnits.Values.ToArray());
+            income.AddLines(incomeLines.ToArray());
+            income.Type = incomeType;
+            income.Vendor = shipper; // todo check if there is this Gp in our DB
+            income.Operation = operationType;
+            income.GUID = additionalGUID;
 
-            var inboundInstruction = new InboundInstruction(id, number, version, date, inbound,
+            var incomeRequest = new IncomeRequest(id, number, version, date, income,
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
 
             // TODO: сопоставить позиции с местами
 
             //inboundInstruction.Inbound.AddLogisticUnits(logisticUnits.ToArray());
-            inboundInstruction.Inbound.AddLines(inboundLines.ToArray());
+            incomeRequest.Income.AddLines(incomeLines.ToArray());
 
-            return inboundInstruction;
+            return incomeRequest;
         }
 
-        public string InboundNotificationToXml(InboundNotification inboundNotification)
+        public string ReceiptEndNoticeToXml(ReceiptEndNotice receiptEndNotice)
         {
-            if (inboundNotification == null)
-                throw new ArgumentNullException(nameof(inboundNotification));
+            if (receiptEndNotice == null)
+                throw new ArgumentNullException(nameof(receiptEndNotice));
             var xmlDocument = new XmlDocument();
             var xmlRoot = xmlDocument.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationMessage"));
 
@@ -732,36 +732,36 @@ namespace TSLog.Links.Gs1EdiXml
             xmlHeader.AppendChild(xmlDocument.CreateElement("sh:HeaderVersion")).InnerText = "1.0";
 
             var xmlSender = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Sender"));
-            xmlSender.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = inboundNotification.Sender.Code;
+            xmlSender.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = receiptEndNotice.Sender.Code;
             var xmlRecipient = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Receiver"));
-            xmlRecipient.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = inboundNotification.Recipient.Code;
+            xmlRecipient.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = receiptEndNotice.Recipient.Code;
 
             var xmlBody = xmlRoot.AppendChild(xmlDocument.CreateElement("warehousingInboundNotification"));
 
-            xmlBody.AppendChild(xmlDocument.CreateElement("creationDateTime")).InnerText = inboundNotification.Date.ToString();
+            xmlBody.AppendChild(xmlDocument.CreateElement("creationDateTime")).InnerText = receiptEndNotice.Date.ToString();
             xmlBody.AppendChild(xmlDocument.CreateElement("documentStatusCode")).InnerText = "ORIGINAL";
             xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
 
             var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationIdentification"));
-            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = inboundNotification.Inbound.Code;// inboundNotification.Id.ToString(); // TODO idk what to use as entityIdentification
+            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = receiptEndNotice.Income.Code;// inboundNotification.Id.ToString(); // TODO idk what to use as entityIdentification
 
             var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));
-            xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = inboundNotification.ServiceBuyer.Code;
+            xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = receiptEndNotice.ServiceBuyer.Code;
 
             var xmlServiceSeller = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesSeller"));
-            xmlServiceSeller.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = inboundNotification.ServiceSeller.Code;
+            xmlServiceSeller.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = receiptEndNotice.ServiceSeller.Code;
 
             var xmlShipment = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationShipment"));
             var xmlShipmentIdentification = xmlShipment.AppendChild(xmlDocument.CreateElement("shipmentIdentification"));
-            xmlShipmentIdentification.AppendChild(xmlDocument.CreateElement("gsin")).InnerText = inboundNotification.Inbound.Id;
+            xmlShipmentIdentification.AppendChild(xmlDocument.CreateElement("gsin")).InnerText = receiptEndNotice.Income.Id;
 
             var xmlShipper = xmlShipment.AppendChild(xmlDocument.CreateElement("shipper"));
-            xmlShipper.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = inboundNotification.Shipper.Code;
+            xmlShipper.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = receiptEndNotice.Shipper.Code;
 
             var xmlReceiver = xmlShipment.AppendChild(xmlDocument.CreateElement("receiver"));
-            xmlReceiver.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = inboundNotification.Receiver.Code;
+            xmlReceiver.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText = receiptEndNotice.Receiver.Code;
 
-            foreach (var logisticUnit in inboundNotification.Inbound.LogisticUnits)
+            foreach (var logisticUnit in receiptEndNotice.Income.LogisticUnits)
             {
                 var xmlLogisticUnit = xmlShipment.AppendChild(xmlDocument.CreateElement("logisticUnit"));
                 xmlLogisticUnit.AppendChild(xmlDocument.CreateElement("sscc")).InnerText = logisticUnit.Sscc;
@@ -772,18 +772,18 @@ namespace TSLog.Links.Gs1EdiXml
                 <totalPackageQuantity>2</totalPackageQuantity>
             </packageTotal> */
 
-            xmlShipment.AppendChild(xmlDocument.CreateElement("warehousingInboundStatusCode")).InnerText = inboundNotification.State;
+            xmlShipment.AppendChild(xmlDocument.CreateElement("warehousingInboundStatusCode")).InnerText = receiptEndNotice.State;
             var xmlActualReceipt = xmlShipment.AppendChild(xmlDocument.CreateElement("actualReceipt"));
             // time
             xmlActualReceipt.AppendChild(xmlDocument.CreateElement("logisticEventDateTime")).AppendChild(xmlDocument.CreateElement("date")).InnerText =
-                inboundNotification.Inbound.FactAcceptanceEnd.ToString();
+                receiptEndNotice.Income.FactAcceptanceEnd.ToString();
 
             var xmlInboundInstruction = xmlShipment.AppendChild(xmlDocument.CreateElement("warehousingInboundInstruction"));
             xmlInboundInstruction.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText =
-                inboundNotification.InstructionNumber;
+                receiptEndNotice.InstructionNumber;
 
             // Items
-            foreach (var line in inboundNotification.Inbound.Lines)
+            foreach (var line in receiptEndNotice.Income.Lines)
             {
                 var xmlLine = xmlShipment.AppendChild(xmlDocument.CreateElement("warehousingInboundNotificationShipmentItem"));
 
@@ -803,7 +803,7 @@ namespace TSLog.Links.Gs1EdiXml
 
         #region Убытие товара со склада
 
-        private Outbound.Line OutboundInstructionLineFromXml(XmlReader reader)
+        private Outgo.Line OutgoRequestLineFromXml(XmlReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -882,7 +882,7 @@ namespace TSLog.Links.Gs1EdiXml
 
                     var currency = _storage.GetCurrency(currencyCode);
                     var measureUnit = _storage.GetMeasureUnit(measureUnitCode);
-                    var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
+                    var line = new Outgo.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
                     {
                         OKEI = OKEI,
                         BatchNumber = BatchNumber,
@@ -898,20 +898,20 @@ namespace TSLog.Links.Gs1EdiXml
             return null;
         }
 
-        public OutboundInstruction OutboundInstructionFromXml(XmlReader reader)
+        public OutgoRequest OutgoRequestFromXml(XmlReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var outboundId = string.Empty;
-            var outboundNumber = string.Empty;
-            var outboundDate = DateTime.MinValue;
-            var outboundPartner = LegalEntity.Null;
-            var outboundPartnerNumber = string.Empty;
-            var outboundPlanShippingBegin = DateTime.MinValue;
-            var outboundPlanShippingEnd = DateTime.MinValue;
-            var outboundStateCode = string.Empty;
-            var outboundState = Entity.Null;
-            var outboundNote = string.Empty;
+            var outgoId = string.Empty;
+            var outgoNumber = string.Empty;
+            var outgoDate = DateTime.MinValue;
+            var outgoPartner = LegalEntity.Null;
+            var outgoPartnerNumber = string.Empty;
+            var outgoPlanShippingBegin = DateTime.MinValue;
+            var outgoPlanShippingEnd = DateTime.MinValue;
+            var outgoStateCode = string.Empty;
+            var outgoState = Entity.Null;
+            var outgoNote = string.Empty;
 
             var id = -1;
             var number = string.Empty;
@@ -929,7 +929,7 @@ namespace TSLog.Links.Gs1EdiXml
             var beginTime = string.Empty;
             var endDate = string.Empty;
             var endTime = string.Empty;
-            var lines = new List<Outbound.Line>();
+            var lines = new List<Outgo.Line>();
 
             var operationType = OperationType.Undefined;
             var additionalGUID = string.Empty;
@@ -949,11 +949,11 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "creationDateTime":
-                            outboundDate = Convert.ToDateTime(reader.ReadElementContentAsString());
+                            outgoDate = Convert.ToDateTime(reader.ReadElementContentAsString());
                             break;
 
                         case "entityIdentification":
-                            outboundPartnerNumber = reader.ReadElementContentAsString();
+                            outgoPartnerNumber = reader.ReadElementContentAsString();
                             break;
 
                         case "logisticServicesBuyer":
@@ -1006,7 +1006,7 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "warehousingOutboundInstructionShipmentItem":
-                            lines.Add(OutboundInstructionLineFromXml(reader));
+                            lines.Add(OutgoRequestLineFromXml(reader));
                             break;
 
                         default:
@@ -1018,35 +1018,35 @@ namespace TSLog.Links.Gs1EdiXml
                     reader.Read();
             }
 
-            outboundNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
+            outgoNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
 
-            outboundPartner = serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
-            outboundPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
-            outboundPlanShippingEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
-            outboundState = _storage.GetOutboundState(outboundStateCode);
-            var outbound = new Outbound(outboundId, outboundNumber, outboundDate,
-                outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
+            outgoPartner = serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
+            outgoPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
+            outgoPlanShippingEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
+            outgoState = _storage.GetOutgoState(outgoStateCode);
+            var outbound = new Outgo(outgoId, outgoNumber, outgoDate,
+                outgoPartner, outgoPartnerNumber, outgoState, outgoNote);
 
             outbound.AddLines(lines.ToArray());
 
-            outbound.PlanShippingBegin = outboundPlanShippingBegin;
-            outbound.PlanShippingEnd = outboundPlanShippingEnd;
+            outbound.PlanShippingBegin = outgoPlanShippingBegin;
+            outbound.PlanShippingEnd = outgoPlanShippingEnd;
             outbound.Vendor = receiver;
             outbound.DeliveryAddress1 = receiver.Address;
 
             outbound.Operation = operationType;
             outbound.GUID = additionalGUID;
 
-            note = outboundNote;
-            var outboundInstruction = new OutboundInstruction(id, number, version, date, outbound,
+            note = outgoNote;
+            var outboundInstruction = new OutgoRequest(id, number, version, date, outbound,
                 sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
             return outboundInstruction;
         }
 
-        public string OutboundNotificationToXml(OutboundNotification outboundNotification)
+        public string PickingBeginNoticeToXml(PickingBeginNotice pickingBeginNotice)
         {
-            if (outboundNotification == null)
-                throw new ArgumentNullException(nameof(outboundNotification));
+            if (pickingBeginNotice == null)
+                throw new ArgumentNullException(nameof(pickingBeginNotice));
             var xmlDocument = new XmlDocument();
             var xmlRoot = xmlDocument.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationMessage"));
 
@@ -1054,18 +1054,18 @@ namespace TSLog.Links.Gs1EdiXml
             xmlHeader.AppendChild(xmlDocument.CreateElement("sh:HeaderVersion")).InnerText = "1.0";
 
             var xmlSender = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Sender"));
-            xmlSender.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = outboundNotification.Sender.Code;
+            xmlSender.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = pickingBeginNotice.Sender.Code;
 
             var xmlRecipient = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Receiver"));
-            xmlRecipient.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = outboundNotification.Recipient.Code;
+            xmlRecipient.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = pickingBeginNotice.Recipient.Code;
 
             var xmlBody = xmlRoot.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotification"));
-            xmlBody.AppendChild(xmlDocument.CreateElement("creationDateTime")).InnerText = outboundNotification.Date.ToString();
+            xmlBody.AppendChild(xmlDocument.CreateElement("creationDateTime")).InnerText = pickingBeginNotice.Date.ToString();
             xmlBody.AppendChild(xmlDocument.CreateElement("documentStatusCode")).InnerText = "ORIGINAL";
             xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
 
             var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationIdentification"));
-            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = outboundNotification.Outbound.Code;// outboundNotification.Id.ToString(); // TODO idk what tu use in entityIdentification
+            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = pickingBeginNotice.Outgo.Code;// outboundNotification.Id.ToString(); // TODO idk what tu use in entityIdentification
 
             var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));
             xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("gln")).InnerText = "";
@@ -1076,16 +1076,16 @@ namespace TSLog.Links.Gs1EdiXml
             var xmlShippment = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationShipment"));
             var xmlShipper = xmlShippment.AppendChild(xmlDocument.CreateElement("shipper"));
             xmlShipper.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText =
-                outboundNotification.Shipper.Code;
+                pickingBeginNotice.Shipper.Code;
             var xmlReceiver = xmlShippment.AppendChild(xmlDocument.CreateElement("receiver"));
             xmlReceiver.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText =
-                outboundNotification.Shipper.Code;
+                pickingBeginNotice.Shipper.Code;
 
             xmlShippment.AppendChild(xmlDocument.CreateElement("warehousingOutboundStatusCode")).InnerText =
-                outboundNotification.Outbound.State.Code;
+                pickingBeginNotice.Outgo.State.Code;
 
             var lineNumber = 1;
-            foreach (var line in outboundNotification.Outbound.Lines)
+            foreach (var line in pickingBeginNotice.Outgo.Lines)
             {
                 var xmlLine = xmlShippment.AppendChild(xmlDocument.CreateElement("warehousingOutboundInstructionShipmentItem"));
                 xmlLine.AppendChild(xmlDocument.CreateElement("lineItemNumber")).InnerText = lineNumber.ToString();
@@ -1098,11 +1098,115 @@ namespace TSLog.Links.Gs1EdiXml
             return xmlDocument.OuterXml;
         }
 
-        #endregion Убытие товара со склада
-    }
+        public string PickingEndNoticeToXml(PickingEndNotice pickingEndNotice)
+        {
+            if (pickingEndNotice == null)
+                throw new ArgumentNullException(nameof(pickingEndNotice));
+            var xmlDocument = new XmlDocument();
+            var xmlRoot = xmlDocument.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationMessage"));
 
-    enum DocumentObjectTypes
-    {
-        ArticleWMS, DocWMS
+            var xmlHeader = xmlRoot.AppendChild(xmlDocument.CreateElement("sh:StandardBusinessDocumentHeader"));
+            xmlHeader.AppendChild(xmlDocument.CreateElement("sh:HeaderVersion")).InnerText = "1.0";
+
+            var xmlSender = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Sender"));
+            xmlSender.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = pickingEndNotice.Sender.Code;
+
+            var xmlRecipient = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Receiver"));
+            xmlRecipient.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = pickingEndNotice.Recipient.Code;
+
+            var xmlBody = xmlRoot.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotification"));
+            xmlBody.AppendChild(xmlDocument.CreateElement("creationDateTime")).InnerText = pickingEndNotice.Date.ToString();
+            xmlBody.AppendChild(xmlDocument.CreateElement("documentStatusCode")).InnerText = "ORIGINAL";
+            xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
+
+            var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationIdentification"));
+            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = pickingEndNotice.Outgo.Code;// outboundNotification.Id.ToString(); // TODO idk what tu use in entityIdentification
+
+            var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));
+            xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("gln")).InnerText = "";
+
+            var xmlServiceSeller = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesSeller"));
+            xmlServiceSeller.AppendChild(xmlDocument.CreateElement("gln")).InnerText = "";
+
+            var xmlShippment = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationShipment"));
+            var xmlShipper = xmlShippment.AppendChild(xmlDocument.CreateElement("shipper"));
+            xmlShipper.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText =
+                pickingEndNotice.Shipper.Code;
+            var xmlReceiver = xmlShippment.AppendChild(xmlDocument.CreateElement("receiver"));
+            xmlReceiver.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText =
+                pickingEndNotice.Shipper.Code;
+
+            xmlShippment.AppendChild(xmlDocument.CreateElement("warehousingOutboundStatusCode")).InnerText =
+                pickingEndNotice.Outgo.State.Code;
+
+            var lineNumber = 1;
+            foreach (var line in pickingEndNotice.Outgo.Lines)
+            {
+                var xmlLine = xmlShippment.AppendChild(xmlDocument.CreateElement("warehousingOutboundInstructionShipmentItem"));
+                xmlLine.AppendChild(xmlDocument.CreateElement("lineItemNumber")).InnerText = lineNumber.ToString();
+                xmlLine.AppendChild(xmlDocument.CreateElement("transactionalTradeItem")).AppendChild(xmlDocument.CreateElement("gtin")).InnerText =
+                    line.Product.Gtin;
+                xmlLine.AppendChild(xmlDocument.CreateElement("plannedDespatchQuantity")).InnerText = line.PlanQuantity.ToString();
+                xmlLine.AppendChild(xmlDocument.CreateElement("actualDespatchQuantity")).InnerText = line.FactQuantity.ToString();
+                lineNumber++;
+            }
+            return xmlDocument.OuterXml;
+        }
+
+        public string ShippingNoticeToXml(PickingEndNotice shippingNoticeToXml)
+        {
+            if (shippingNoticeToXml == null)
+                throw new ArgumentNullException(nameof(shippingNoticeToXml));
+            var xmlDocument = new XmlDocument();
+            var xmlRoot = xmlDocument.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationMessage"));
+
+            var xmlHeader = xmlRoot.AppendChild(xmlDocument.CreateElement("sh:StandardBusinessDocumentHeader"));
+            xmlHeader.AppendChild(xmlDocument.CreateElement("sh:HeaderVersion")).InnerText = "1.0";
+
+            var xmlSender = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Sender"));
+            xmlSender.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = shippingNoticeToXml.Sender.Code;
+
+            var xmlRecipient = xmlHeader.AppendChild(xmlDocument.CreateElement("sh:Receiver"));
+            xmlRecipient.AppendChild(xmlDocument.CreateElement("sh:Identifier")).InnerText = shippingNoticeToXml.Recipient.Code;
+
+            var xmlBody = xmlRoot.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotification"));
+            xmlBody.AppendChild(xmlDocument.CreateElement("creationDateTime")).InnerText = shippingNoticeToXml.Date.ToString();
+            xmlBody.AppendChild(xmlDocument.CreateElement("documentStatusCode")).InnerText = "ORIGINAL";
+            xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
+
+            var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationIdentification"));
+            xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = shippingNoticeToXml.Outgo.Code;// outboundNotification.Id.ToString(); // TODO idk what tu use in entityIdentification
+
+            var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));
+            xmlServiceBuyer.AppendChild(xmlDocument.CreateElement("gln")).InnerText = "";
+
+            var xmlServiceSeller = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesSeller"));
+            xmlServiceSeller.AppendChild(xmlDocument.CreateElement("gln")).InnerText = "";
+
+            var xmlShippment = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationShipment"));
+            var xmlShipper = xmlShippment.AppendChild(xmlDocument.CreateElement("shipper"));
+            xmlShipper.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText =
+                shippingNoticeToXml.Shipper.Code;
+            var xmlReceiver = xmlShippment.AppendChild(xmlDocument.CreateElement("receiver"));
+            xmlReceiver.AppendChild(xmlDocument.CreateElement("additionalPartyIdentification")).InnerText =
+                shippingNoticeToXml.Shipper.Code;
+
+            xmlShippment.AppendChild(xmlDocument.CreateElement("warehousingOutboundStatusCode")).InnerText =
+                shippingNoticeToXml.Outgo.State.Code;
+
+            var lineNumber = 1;
+            foreach (var line in shippingNoticeToXml.Outgo.Lines)
+            {
+                var xmlLine = xmlShippment.AppendChild(xmlDocument.CreateElement("warehousingOutboundInstructionShipmentItem"));
+                xmlLine.AppendChild(xmlDocument.CreateElement("lineItemNumber")).InnerText = lineNumber.ToString();
+                xmlLine.AppendChild(xmlDocument.CreateElement("transactionalTradeItem")).AppendChild(xmlDocument.CreateElement("gtin")).InnerText =
+                    line.Product.Gtin;
+                xmlLine.AppendChild(xmlDocument.CreateElement("plannedDespatchQuantity")).InnerText = line.PlanQuantity.ToString();
+                xmlLine.AppendChild(xmlDocument.CreateElement("actualDespatchQuantity")).InnerText = line.FactQuantity.ToString();
+                lineNumber++;
+            }
+            return xmlDocument.OuterXml;
+        }
+        #endregion Убытие товара со склада
     }
 }
