@@ -1,0 +1,480 @@
+{
+	"info": {
+		"_postman_id": "df6fb8f9-b2b1-490d-a213-a5b1c1a39015",
+		"name": "Tslog_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "post",
+			"item": [
+				{
+					"name": "post inboind",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<warehousing_inbound_instruction:warehousingInboundInstructionMessage xmlns:warehousing_inbound_instruction=\"urn:gs1:ecom:warehousing_inbound_instruction:xsd:3\" xmlns:sh=\"http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:gs1:ecom:warehousing_inbound_instruction:xsd:3 ../Schemas/gs1/ecom/WarehousingInboundInstruction.xsd\">\r\n    <sh:StandardBusinessDocumentHeader>\r\n\t\t<sh:HeaderVersion>1.0</sh:HeaderVersion>\r\n\t\t<sh:Sender>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">0050</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Mihail B.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Sender>\r\n\t\t<sh:Receiver>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">TSLOG</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Valerian V.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Receiver>\r\n\t\t<sh:DocumentIdentification>\r\n\t\t\t<sh:Standard>GS1</sh:Standard>\r\n\t\t\t<sh:TypeVersion>3.4</sh:TypeVersion>\r\n\t\t\t<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>\r\n\t\t\t<sh:Type />\r\n\t\t\t<sh:MultipleType>false</sh:MultipleType>\r\n\t\t\t<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>\r\n\t\t</sh:DocumentIdentification>\r\n\t</sh:StandardBusinessDocumentHeader>\r\n    <warehousingInboundInstruction>\r\n        <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>\r\n        <documentStatusCode>ORIGINAL</documentStatusCode>\r\n        <documentActionCode>ADD</documentActionCode>\r\n\t\t<extension>\r\n\t\t  <operationType>MovingProducts</operationType>\r\n\t\t</extension>\r\n\t\t<avpList>\r\n\t\t  <eComStringAttributeValuePairList attributeName=\"GUID\">36deef97-359c-11ec-aff2-005056c00008</eComStringAttributeValuePairList>\r\n\t\t</avpList>\r\n        <warehousingInboundInstructionIdentification>\r\n            <entityIdentification>ASK521</entityIdentification>\r\n        </warehousingInboundInstructionIdentification>\r\n        <logisticServicesBuyer>\r\n\t\t\t<!--<gln>2222222000004</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">0050</additionalPartyIdentification>\r\n        </logisticServicesBuyer>\r\n        <logisticServicesSeller>\r\n            <!--<gln>3333333000001</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">TSLOG</additionalPartyIdentification>\r\n        </logisticServicesSeller>\r\n        <warehousingInboundInstructionShipment>\r\n            <shipmentIdentification>\r\n                <gsin>62394876123561111</gsin>\r\n            </shipmentIdentification>\r\n            <shipper>\r\n                <!--<gln>1111111000007</gln>-->\r\n\t\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">СК9689</additionalPartyIdentification>\r\n            </shipper>\r\n            <receiver>\r\n                <!---<gln>3333333000018</gln>-->\r\n\t\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">TSLOG</additionalPartyIdentification>\r\n            </receiver>\r\n            <logisticUnit>\r\n                <sscc>111111111111111111</sscc>\r\n                <packageTypeCode>AF</packageTypeCode>\r\n            </logisticUnit>\r\n            <logisticUnit>\r\n                <sscc>111111111111111112</sscc>\r\n                <packageTypeCode>AF</packageTypeCode>\r\n            </logisticUnit>\r\n            <logisticUnit>\r\n                <sscc>111111111111111113</sscc>\r\n                <packageTypeCode>CARTON</packageTypeCode>\r\n            </logisticUnit>\r\n            <logisticUnit>\r\n                <sscc>111111111111111114</sscc>\r\n                <packageTypeCode>AF</packageTypeCode>\r\n            </logisticUnit>\r\n            <logisticUnit>\r\n                <sscc>111111111111111115</sscc>\r\n                <packageTypeCode>CARTON</packageTypeCode>\r\n            </logisticUnit>\r\n            <warehousingReceiptTypeCode>PRIORITY_RECEIPT</warehousingReceiptTypeCode>\r\n            <plannedReceipt>\r\n                <logisticEventPeriod>\r\n                    <beginDate>2021-12-31</beginDate>\r\n                    <beginTime>23:58:00</beginTime>\r\n                    <endDate>2021-12-31</endDate>\r\n                    <endTime>23:59:00</endTime>\r\n                </logisticEventPeriod>\r\n            </plannedReceipt>\r\n            <carrierPickUpDropOffDetails>\r\n                <transportResponsiblePerson>\r\n                    <personName>Billy Harington</personName>\r\n                    <identityDocument>\r\n                        <identityDocumentNumber>YBUJBI</identityDocumentNumber>\r\n                        <identityDocumentType>LICENSE_ID</identityDocumentType>\r\n                    </identityDocument>\r\n                </transportResponsiblePerson>\r\n                <transportMeans>\r\n\t\t\t\t\t<transportMeansType>31</transportMeansType>\r\n                    <transportMeansID>11-BB-AA</transportMeansID>\r\n                </transportMeans>\r\n            </carrierPickUpDropOffDetails>\r\n            <warehousingInboundInstructionShipmentItem>\r\n                <lineItemNumber>1</lineItemNumber>\r\n\t\t\t\t<associatedInvoicePrice currencyCode=\"RUB\">69.00</associatedInvoicePrice>\r\n\t\t\t\t<note languageCode=\"RU\">{OrderNum=99841841}{OrderBarCode=!vzd/LAYx}{OrderCode=408472 4416}</note>\t\t\r\n                <transactionalTradeItem>\r\n                    <gtin>04630001591380</gtin>\r\n                </transactionalTradeItem>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111111</sscc>\r\n                    <tradeItemQuantity>2512</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111112</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111113</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111114</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111115</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>                \r\n                <avpList>\r\n\t\t\t\t\t<eComStringAttributeValuePairList attributeName=\"OKEI\">792</eComStringAttributeValuePairList>\r\n\t\t\t\t\t<eComStringAttributeValuePairList attributeName=\"BatchNumber\">alfa_test</eComStringAttributeValuePairList>\r\n\t\t\t\t\t<eComStringAttributeValuePairList attributeName=\"BatchNumber2\">5677_test</eComStringAttributeValuePairList>\r\n\t\t\t\t</avpList>\r\n\t\t\t\t<plannedReceiptQuantity>2592</plannedReceiptQuantity>\r\n            </warehousingInboundInstructionShipmentItem>\r\n            <warehousingInboundInstructionShipmentItem>\r\n                <lineItemNumber>2</lineItemNumber>\r\n\t\t\t\t<associatedInvoicePrice currencyCode=\"RUB\">100.00</associatedInvoicePrice>\r\n                <transactionalTradeItem>\r\n                    <gtin>02301000018896</gtin>\r\n                </transactionalTradeItem>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111111</sscc>\r\n                    <tradeItemQuantity>4240</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111112</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111113</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111114</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <logisticUnit>\r\n                    <sscc>111111111111111115</sscc>\r\n                    <tradeItemQuantity>20</tradeItemQuantity>\r\n                </logisticUnit>\r\n                <plannedReceiptQuantity>4320</plannedReceiptQuantity>\r\n            </warehousingInboundInstructionShipmentItem>\r\n            <warehousingInboundInstructionShipmentItem>\r\n                <lineItemNumber>3</lineItemNumber>\r\n\t\t\t\t<associatedInvoicePrice currencyCode=\"RUB\">130.40</associatedInvoicePrice>\r\n                <transactionalTradeItem>\r\n                    <gtin>02301000018926</gtin>\r\n                </transactionalTradeItem>\r\n                <plannedReceiptQuantity>100</plannedReceiptQuantity>\r\n            </warehousingInboundInstructionShipmentItem>\r\n        </warehousingInboundInstructionShipment>\r\n    </warehousingInboundInstruction>\r\n</warehousing_inbound_instruction:warehousingInboundInstructionMessage>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/Inbounds",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"Inbounds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post products",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><item_data_notification:itemDataNotificationMessage xmlns:item_data_notification=\"urn:gs1:ecom:item_data_notification:xsd:3\" xmlns:sh=\"http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:gs1:ecom:item_data_notification:xsd:3 ../Schemas/gs1/ecom/ItemDataNotification.xsd\">\r\n    <sh:StandardBusinessDocumentHeader>\r\n\t\t<sh:HeaderVersion>1.0</sh:HeaderVersion>\r\n\t\t<sh:Sender>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">0050</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Mihail B.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Sender>\r\n\t\t<sh:Receiver>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">TSLOG</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Valerian V.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Receiver>\r\n\t\t<sh:DocumentIdentification>\r\n\t\t\t<sh:Standard>GS1</sh:Standard>\r\n\t\t\t<sh:TypeVersion>3.4</sh:TypeVersion>\r\n\t\t\t<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>\r\n\t\t\t<sh:Type />\r\n\t\t\t<sh:MultipleType>false</sh:MultipleType>\r\n\t\t\t<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>\r\n\t\t</sh:DocumentIdentification>\r\n\t</sh:StandardBusinessDocumentHeader>\r\n    <itemDataNotification>\r\n        <creationDateTime>2004-05-24T18:12:00.000-05:00</creationDateTime>\r\n        <documentStatusCode>ORIGINAL</documentStatusCode>\r\n        <itemDataNotificationIdentification>\r\n            <entityIdentification>ID37788</entityIdentification>\r\n        </itemDataNotificationIdentification>\r\n        <dataSource>\r\n            <!--<gln>4098765000010</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">0050</additionalPartyIdentification>\r\n        </dataSource>\r\n        <dataRecipient>\r\n            <!--<gln>5412345000013</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">TSLOG</additionalPartyIdentification>\r\n        </dataRecipient>\r\n        <itemDataNotificationLineItem>\r\n            <lineItemNumber>1</lineItemNumber>\r\n            <tradeItemDescription languageCode=\"en\">Ананас сироп  1,0 ПЭТ</tradeItemDescription>\r\n\t\t\t<tradeItemIdentification>\r\n\t\t\t\t<gtin>40987650000346</gtin>\r\n\t\t\t</tradeItemIdentification>\r\n            <itemDataTradingPartnerNeutral>\r\n                <effectiveDateTime>2004-01-01T18:12:00.000-05:00</effectiveDateTime>\r\n                <tradeItemBaseUnitOfMeasure>CS</tradeItemBaseUnitOfMeasure>\r\n                <startAvailabilityDateTime>2004-02-01T00:00:00.000-05:00</startAvailabilityDateTime>\r\n                <cancelledDateTime>2004-05-24T18:12:00.000-05:00</cancelledDateTime>\r\n                <tradeItemClassificationCode additionalTradeItemClassificationCodeListCode=\"5\">10005267</tradeItemClassificationCode>\r\n                <itemDataWeightAndDimension>\r\n                    <depth measurementUnitCode=\"CMT\">20</depth>\r\n                    <diameter measurementUnitCode=\"CMT\">12</diameter>\r\n                    <grossWeight measurementUnitCode=\"KGM\">1.5</grossWeight>\r\n                    <height measurementUnitCode=\"CM\">10</height>\r\n                    <netWeight measurementUnitCode=\"KGM\">1.5</netWeight>\r\n                    <width measurementUnitCode=\"CMT\">10</width>\r\n                </itemDataWeightAndDimension>\r\n            </itemDataTradingPartnerNeutral>\r\n            <itemDataTradingPartnerDependent>\r\n                <tradeItemSpecificUnitOfMeasure>KGM</tradeItemSpecificUnitOfMeasure>\r\n                <orderQuantityMaximum measurementUnitCode=\"CS\">100</orderQuantityMaximum>\r\n                <orderQuantityMinimum measurementUnitCode=\"CS\">5</orderQuantityMinimum>\r\n                <orderQuantityMultiple measurementUnitCode=\"CS\">5</orderQuantityMultiple>\r\n                <tradeItemProductionLeadTime timeMeasurementUnitCode=\"DAY\">15</tradeItemProductionLeadTime>\r\n                <tradeItemShipmentLeadTime timeMeasurementUnitCode=\"DAY\">20</tradeItemShipmentLeadTime>\r\n                <tradeItemSubstitutionDateTime>2005-05-24T18:12:00.000-05:00</tradeItemSubstitutionDateTime>\r\n                <substituteItem>\r\n                    <gtin>40987650003484</gtin>\r\n                </substituteItem>\r\n                <itemDataStockRequirements>\r\n                    <requiredStockLevel measurementUnitCode=\"CS\">5</requiredStockLevel>\r\n                    <stockRequirementTypeCode>SAFETY_STOCK</stockRequirementTypeCode>\r\n                    <requiredStockLevelValidityDateTime>2005-05-24T18:12:00.000-05:00</requiredStockLevelValidityDateTime>\r\n                </itemDataStockRequirements>\r\n                <itemDataLogisticUnitInformation>\r\n                    <tradeItemQuantity>5</tradeItemQuantity>\r\n                    <packageTypeCode>CS</packageTypeCode>\r\n                    <tradeItemQuantityPerLayer>4</tradeItemQuantityPerLayer>\r\n                    <numberOfLayers>4</numberOfLayers>\r\n                </itemDataLogisticUnitInformation>\r\n            </itemDataTradingPartnerDependent>\r\n        </itemDataNotificationLineItem>\r\n        <itemDataNotificationLineItem>\r\n            <lineItemNumber>1</lineItemNumber>\r\n            <tradeItemDescription languageCode=\"en\">Вишня сироп  1,0 ПЭТ</tradeItemDescription>\r\n\t\t\t<tradeItemIdentification>\r\n\t\t\t\t<gtin>40987650000347</gtin>\r\n\t\t\t</tradeItemIdentification>\r\n            <itemDataTradingPartnerNeutral>\r\n                <effectiveDateTime>2004-01-01T18:12:00.000-05:00</effectiveDateTime>\r\n                <tradeItemBaseUnitOfMeasure>CS</tradeItemBaseUnitOfMeasure>\r\n                <startAvailabilityDateTime>2004-02-01T00:00:00.000-05:00</startAvailabilityDateTime>\r\n                <cancelledDateTime>2004-05-24T18:12:00.000-05:00</cancelledDateTime>\r\n                <tradeItemClassificationCode additionalTradeItemClassificationCodeListCode=\"5\">10005267</tradeItemClassificationCode>\r\n                <itemDataWeightAndDimension>\r\n                    <depth measurementUnitCode=\"CMT\">20</depth>\r\n                    <diameter measurementUnitCode=\"CMT\">12</diameter>\r\n                    <grossWeight measurementUnitCode=\"KGM\">1.5</grossWeight>\r\n                    <height measurementUnitCode=\"CM\">10</height>\r\n                    <netWeight measurementUnitCode=\"KGM\">1.5</netWeight>\r\n                    <width measurementUnitCode=\"CMT\">10</width>\r\n                </itemDataWeightAndDimension>\r\n            </itemDataTradingPartnerNeutral>\r\n            <itemDataTradingPartnerDependent>\r\n                <tradeItemSpecificUnitOfMeasure>KGM</tradeItemSpecificUnitOfMeasure>\r\n                <orderQuantityMaximum measurementUnitCode=\"CS\">100</orderQuantityMaximum>\r\n                <orderQuantityMinimum measurementUnitCode=\"CS\">5</orderQuantityMinimum>\r\n                <orderQuantityMultiple measurementUnitCode=\"CS\">5</orderQuantityMultiple>\r\n                <tradeItemProductionLeadTime timeMeasurementUnitCode=\"DAY\">15</tradeItemProductionLeadTime>\r\n                <tradeItemShipmentLeadTime timeMeasurementUnitCode=\"DAY\">20</tradeItemShipmentLeadTime>\r\n                <tradeItemSubstitutionDateTime>2005-05-24T18:12:00.000-05:00</tradeItemSubstitutionDateTime>\r\n                <substituteItem>\r\n                    <gtin>40987650003484</gtin>\r\n                </substituteItem>\r\n                <itemDataStockRequirements>\r\n                    <requiredStockLevel measurementUnitCode=\"CS\">5</requiredStockLevel>\r\n                    <stockRequirementTypeCode>SAFETY_STOCK</stockRequirementTypeCode>\r\n                    <requiredStockLevelValidityDateTime>2005-05-24T18:12:00.000-05:00</requiredStockLevelValidityDateTime>\r\n                </itemDataStockRequirements>\r\n                <itemDataLogisticUnitInformation>\r\n                    <tradeItemQuantity>5</tradeItemQuantity>\r\n                    <packageTypeCode>CS</packageTypeCode>\r\n                    <tradeItemQuantityPerLayer>4</tradeItemQuantityPerLayer>\r\n                    <numberOfLayers>4</numberOfLayers>\r\n                </itemDataLogisticUnitInformation>\r\n            </itemDataTradingPartnerDependent>\r\n        </itemDataNotificationLineItem>\r\n    </itemDataNotification>\r\n</item_data_notification:itemDataNotificationMessage>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/Products",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"Products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post outbound",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<warehousing_outbound_instruction:warehousingOutboundInstructionMessage xmlns:warehousing_outbound_instruction=\"urn:gs1:ecom:warehousing_outbound_instruction:xsd:3\" xmlns:sh=\"http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:gs1:ecom:warehousing_outbound_instruction:xsd:3 ../Schemas/gs1/ecom/WarehousingOutboundInstruction.xsd\">\r\n    <sh:StandardBusinessDocumentHeader>\r\n\t\t<sh:HeaderVersion>1.0</sh:HeaderVersion>\r\n\t\t<sh:Sender>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">0050</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Mihail B.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Sender>\r\n\t\t<sh:Receiver>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">TSLOG</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Valerian V.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Receiver>\r\n\t\t<sh:DocumentIdentification>\r\n\t\t\t<sh:Standard>GS1</sh:Standard>\r\n\t\t\t<sh:TypeVersion>3.4</sh:TypeVersion>\r\n\t\t\t<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>\r\n\t\t\t<sh:Type/>\r\n\t\t\t<sh:MultipleType>false</sh:MultipleType>\r\n\t\t\t<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>\r\n\t\t</sh:DocumentIdentification>\r\n\t</sh:StandardBusinessDocumentHeader>\r\n    <warehousingOutboundInstruction>\r\n        <creationDateTime>2021-10-29T12:15:00.000-05:00</creationDateTime>\r\n        <documentStatusCode>ORIGINAL</documentStatusCode>\r\n        <documentActionCode>ADD</documentActionCode>\r\n\t\t<extension>\r\n\t\t  <operationType>MovingProducts</operationType>\r\n\t\t</extension>\r\n\t\t<avpList>\r\n\t\t  <eComStringAttributeValuePairList attributeName=\"GUID\">36deef97-359c-11ec-aff2-005056c00009</eComStringAttributeValuePairList>\r\n\t\t</avpList>\r\n        <warehousingOutboundInstructionIdentification>\r\n            <entityIdentification>ASK521</entityIdentification>\r\n        </warehousingOutboundInstructionIdentification>\r\n        <logisticServicesBuyer>\r\n            <!--<gln>2222222000004</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">0050</additionalPartyIdentification>\r\n        </logisticServicesBuyer>\r\n        <logisticServicesSeller>\r\n            <!--<gln>3333333000001</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">TSLOG</additionalPartyIdentification>\r\n        </logisticServicesSeller>\r\n        <warehousingOutboundInstructionShipment>\r\n            <shipper>\r\n                <!--<gln>3333333000018</gln>-->\r\n\t\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">TSLOG</additionalPartyIdentification>\r\n\t\t\t\t<address>\r\n\t\t\t\t\t<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 10</streetAddressOne>\r\n\t\t\t\t</address>\r\n            </shipper>\r\n            <receiver>\r\n                <!--<gln>4444444000008</gln>-->\r\n\t\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">СК9689</additionalPartyIdentification>\r\n\t\t\t\t<address>\r\n\t\t\t\t\t<streetAddressOne>Московская обл., г. Одинцово, ул. Маршала Жукова, д. 32</streetAddressOne>\r\n\t\t\t\t</address>\r\n            </receiver>\r\n\t\t\t<warehousingDespatchTypeCode>WAREHOUSE_SHIPMENT</warehousingDespatchTypeCode>\r\n            <plannedDelivery>\r\n                <logisticEventPeriod>\r\n                    <beginDate>2021-12-31</beginDate>\r\n                    <beginTime>23:58:00</beginTime>\r\n                    <endDate>2021-12-31</endDate>\r\n                    <endTime>23:59:00</endTime>\r\n                </logisticEventPeriod>\r\n            </plannedDelivery>\r\n            <shipmentTransportationInformation>\r\n                <transportServiceCategoryType>30</transportServiceCategoryType>\r\n                <transportServiceLevelCode>STANDARD_SERVICE</transportServiceLevelCode>\r\n            </shipmentTransportationInformation>\r\n            <warehousingOutboundInstructionShipmentItem>\r\n                <lineItemNumber>1</lineItemNumber>\r\n                <note languageCode=\"RU\">{BoxNum=99841841}{Sorter=2}</note>\t\t\t\t\t\t\r\n                <transactionalTradeItem>\r\n                    <gtin>04630001591380</gtin>\r\n                </transactionalTradeItem>\t\t\t\t\t\t\t\t\r\n\t\t\t\t<avpList>\r\n\t\t\t\t\t<eComStringAttributeValuePairList attributeName=\"OKEI\">792</eComStringAttributeValuePairList>\r\n\t\t\t\t\t<eComStringAttributeValuePairList attributeName=\"BatchNumber\">alfa_test</eComStringAttributeValuePairList>\r\n\t\t\t\t\t<eComStringAttributeValuePairList attributeName=\"BatchNumber2\">5677_test</eComStringAttributeValuePairList>\r\n\t\t\t\t</avpList>                \r\n\t\t\t\t<plannedDespatchQuantity measurementUnitCode=\"ST\">1221</plannedDespatchQuantity>\r\n            </warehousingOutboundInstructionShipmentItem>\r\n            <warehousingOutboundInstructionShipmentItem>\r\n                <lineItemNumber>2</lineItemNumber>\r\n                <transactionalTradeItem>\r\n                    <gtin>02301000018896</gtin>\r\n                </transactionalTradeItem>\r\n                <plannedDespatchQuantity >3443</plannedDespatchQuantity>\r\n            </warehousingOutboundInstructionShipmentItem>\r\n            <warehousingOutboundInstructionShipmentItem>\r\n                <lineItemNumber>3</lineItemNumber>\r\n                <transactionalTradeItem>\r\n                    <gtin>02301000018926</gtin>\r\n                </transactionalTradeItem>\r\n                <plannedDespatchQuantity measurementUnitCode=\"ST\">4554</plannedDespatchQuantity>\r\n            </warehousingOutboundInstructionShipmentItem>\r\n        </warehousingOutboundInstructionShipment>\r\n    </warehousingOutboundInstruction>\r\n</warehousing_outbound_instruction:warehousingOutboundInstructionMessage>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/Outbounds",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"Outbounds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post Clients",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><item_data_notification:itemDataNotificationMessage xmlns:item_data_notification=\"urn:gs1:ecom:item_data_notification:xsd:3\" xmlns:sh=\"http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:gs1:ecom:item_data_notification:xsd:3 ../Schemas/gs1/ecom/ItemDataNotification.xsd\">\r\n    <sh:StandardBusinessDocumentHeader>\r\n\t\t<sh:HeaderVersion>1.0</sh:HeaderVersion>\r\n\t\t<sh:Sender>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">0050</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Mihail B.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Mihail@purchasing.example.com</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>+1-212-555-1213</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>+1-212-555-2122</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Buyer</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Sender>\r\n\t\t<sh:Receiver>\r\n\t\t\t<sh:Identifier Authority=\"GS1\">TSLOG</sh:Identifier>\r\n\t\t\t<sh:ContactInformation>\r\n\t\t\t\t<sh:Contact>Valerian V.</sh:Contact>\r\n\t\t\t\t<sh:EmailAddress>Valerian@tslog.ru</sh:EmailAddress>\r\n\t\t\t\t<sh:FaxNumber>8-800-555-3535</sh:FaxNumber>\r\n\t\t\t\t<sh:TelephoneNumber>8-800-555-3535</sh:TelephoneNumber>\r\n\t\t\t\t<sh:ContactTypeIdentifier>Seller</sh:ContactTypeIdentifier>\r\n\t\t\t</sh:ContactInformation>\r\n\t\t</sh:Receiver>\r\n\t\t<sh:DocumentIdentification>\r\n\t\t\t<sh:Standard>GS1</sh:Standard>\r\n\t\t\t<sh:TypeVersion>3.4</sh:TypeVersion>\r\n\t\t\t<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>\r\n\t\t\t<sh:Type />\r\n\t\t\t<sh:MultipleType>false</sh:MultipleType>\r\n\t\t\t<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>\r\n\t\t</sh:DocumentIdentification>\r\n\t</sh:StandardBusinessDocumentHeader>\r\n    <entityDataNotification>\r\n        <creationDateTime>2004-05-24T18:12:00.000-05:00</creationDateTime>\r\n        <documentStatusCode>ORIGINAL</documentStatusCode>\r\n        <entityDataNotificationIdentification>\r\n            <entityIdentification>ID37788</entityIdentification>\r\n        </entityDataNotificationIdentification>\r\n        <dataSource>\r\n            <!--<gln>4098765000010</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">0050</additionalPartyIdentification>\r\n        </dataSource>\r\n        <dataRecipient>\r\n            <!--<gln>5412345000013</gln>-->\r\n\t\t\t<additionalPartyIdentification additionalPartyIdentificationTypeCode=\"Code\">TSLOG</additionalPartyIdentification>\r\n        </dataRecipient>\r\n        <entityDataNotificationLineItem>\r\n            <lineItemNumber>1</lineItemNumber>\r\n\t\t\t<additionalPartyIdentification>eb8077ef-fe50-467c-8b4d-44eb058e74f2</additionalPartyIdentification>\r\n\t\t\t<entityName>Rostov 12/88</entityName>\r\n\t\t\t<entityDescription>\r\n\t\t\t\t<infoOne languageCode=\"ru\">некоторая информация</infoOne>\r\n\t\t\t\t<infoTwo languageCode=\"ru\">некоторая информация2: electric boogalo</infoTwo>\r\n\t\t\t\t<streetAddressOne languageCode=\"ru\">Rostov, street Red, house 16</streetAddressOne>\r\n\t\t\t</entityDescription>\r\n        </entityDataNotificationLineItem>\r\n        <entityDataNotificationLineItem>\r\n            <lineItemNumber>2</lineItemNumber>\r\n\t\t\t<additionalPartyIdentification>fc114317-109b-4c51-bbbb-c2497834680d</additionalPartyIdentification>\r\n\t\t\t<entityName>novgorod main storage</entityName>\r\n        </entityDataNotificationLineItem>\r\n        \r\n    </entityDataNotification>\r\n</item_data_notification:itemDataNotificationMessage>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:5001/api/Clients",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"Clients"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "get",
+			"item": [
+				{
+					"name": "clients",
+					"item": [
+						{
+							"name": "getClientByID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Clients/CUSTTABLE_000000325",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Clients",
+										"CUSTTABLE_000000325"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Incomes",
+					"item": [
+						{
+							"name": "IncomeResponses",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Incomes/IncomeResponses/00020000WM00000008",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Incomes",
+										"IncomeResponses",
+										"00020000WM00000008"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "IncomeResponses all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Incomes/IncomeResponses",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Incomes",
+										"IncomeResponses"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ReceiptEndNotices",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Incomes/IncomeResponses/123",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Incomes",
+										"IncomeResponses",
+										"123"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ReceiptEndNotices all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Incomes/ReceiptEndNotices",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Incomes",
+										"ReceiptEndNotices"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Outbounds",
+					"item": [
+						{
+							"name": "OutgoResposes all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/OutgoResposes",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"OutgoResposes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "OutgoResposes",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/OutgoResposes/00800000WM00035291",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"OutgoResposes",
+										"00800000WM00035291"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PickingBeginNotifications all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/PickingBeginNotifications",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"PickingBeginNotifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PickingBeginNotifications",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/PickingBeginNotifications/00800000WM00035291",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"PickingBeginNotifications",
+										"00800000WM00035291"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PickingEndNotifications all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/PickingEndNotifications",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"PickingEndNotifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PickingEndNotifications",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/PickingEndNotifications/00800000WM00035291",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"PickingEndNotifications",
+										"00800000WM00035291"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ShippingNotifications all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/ShippingNotifications",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"ShippingNotifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ShippingNotifications",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Outgoes/ShippingNotifications/00800000WM00035291",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Outgoes",
+										"ShippingNotifications",
+										"00800000WM00035291"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "products",
+					"item": [
+						{
+							"name": "Product balance all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Products/balances",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Products",
+										"balances"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Product balance",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:5001/api/Products/balances/00500000AR00000018",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "5001",
+									"path": [
+										"api",
+										"Products",
+										"balances",
+										"00500000AR00000018"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
