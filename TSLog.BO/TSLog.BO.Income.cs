@@ -108,7 +108,7 @@ namespace TSLog.BO
         /// <summary>
         /// Идентификатор
         /// </summary>
-        new public string Id
+        public new string Id
         {
             get
             {

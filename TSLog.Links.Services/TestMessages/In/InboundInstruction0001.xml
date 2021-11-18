@@ -109,7 +109,7 @@
             <warehousingInboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
 				<associatedInvoicePrice currencyCode="RUB">69.00</associatedInvoicePrice>
-				<note languageCode="RU">{OrderNum=99841841}{OrderBarCode=!vzd/LAYx}{OrderCode=408472 4416}</note>		
+				<note languageCode="RU">{OrderNum=99841841}{OrderBarCode=!vzd/LAYx}{OrderCode=408472 4416}</note>
                 <transactionalTradeItem>
                     <gtin>04630001591380</gtin>
                 </transactionalTradeItem>
@@ -132,7 +132,7 @@
                 <logisticUnit>
                     <sscc>111111111111111115</sscc>
                     <tradeItemQuantity>20</tradeItemQuantity>
-                </logisticUnit>                
+                </logisticUnit>
                 <avpList>
 					<eComStringAttributeValuePairList attributeName="OKEI">792</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber">alfa_test</eComStringAttributeValuePairList>

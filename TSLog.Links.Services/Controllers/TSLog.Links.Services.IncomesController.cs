@@ -1,21 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using TSlog.Links.PSI.DataConverter;
+using TSLog.BO;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class IncomesController : ControllerBase
     {
         private readonly ILinksInboundsStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
+        private readonly bool DebugMode = true;
 
         public IncomesController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
@@ -30,23 +31,16 @@ namespace TSLog.Links.Services.Controllers
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
             var incomeRequest = _xmlConverter.IncomeRequestFromXml(reader);
-            var converterProducts = new EINWMSInboundsConverter();
+            var incomesConverter = new EINWMSInboundsConverter();
 
-            var transactionNumber = _storage.GenerateTransactionId();
-            var fileContent = converterProducts.Convert(transactionNumber, incomeRequest);
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = incomesConverter.Convert(transactionId, incomeRequest);
+            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
 
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
-
-            return "" + fileContent; // todo retrun smth userfull
-
-            //return string.Empty;
-            //var items = _storage.GetOrderResponses();
-            //var sb = new StringBuilder();
-            //foreach (var i in items)
-            //{
-            //    sb.Append(i.OrderId + "\n");
-            //}
-            //return sb.ToString();
+            if (!DebugMode)
+                return "<status code=\"0\">Запрос на приход отправлен на загрузку</status>";
+            else
+                return "" + fileContent;
         }
 
         [HttpGet("IncomeResponses/{incomeId}")]
@@ -63,23 +57,25 @@ namespace TSLog.Links.Services.Controllers
             return string.Empty;
         }
 
-
         [HttpGet("ReceiptEndNotices/{incomeId}")]
-        public string GetReceiptEndNoticeNotification(string incomeId)
+        public string GetReceiptEndNotice(string incomeId)
         {
-            // todo dont work
             var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);
             var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
-            xml = Utils.PrepXML(xml);
-
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
             return xml;
         }
 
         [HttpGet("ReceiptEndNotices")]
-        public string GetReceiptEndNoticeNotifications()
+        public string GetReceiptEndNotices()
         {
-            // TODO: realize
-            return string.Empty;
+            var partners = new List<LegalEntity>().ToArray();
+            var receiptEndNotices = _storage.GetReceiptEndNoticies(partners);
+            var xml = _xmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
     }
 }

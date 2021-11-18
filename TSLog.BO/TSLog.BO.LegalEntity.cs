@@ -9,7 +9,7 @@
         /// <summary>
         /// Идентификатор
         /// </summary>
-        new public string Id
+        public new string Id
         {
             get
             {
@@ -44,7 +44,7 @@
         /// <summary>
         /// Null object
         /// </summary>
-        new public static LegalEntity Null
+        public new static LegalEntity Null
         {
             get
             {

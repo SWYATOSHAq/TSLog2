@@ -10,7 +10,6 @@ namespace TSLog.Common
 {
     public static class Utils
     {
-
         public static string PrepXML(string a)
         {
             return a.Replace("><", "}{").Replace(">", ">\n\t").Replace("<", "\n<").Replace("}{", ">\n<");
@@ -170,6 +169,5 @@ namespace TSLog.Common
                 }
             return address;
         }
-
     }
 }

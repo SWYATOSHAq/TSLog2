@@ -22,7 +22,7 @@ namespace TSLog.BO
         /// <summary>
         /// Идентификатор
         /// </summary>
-        new public string Id { get; set; }
+        public new string Id { get; set; }
 
         /// <summary>
         /// Global trade item number
@@ -32,7 +32,7 @@ namespace TSLog.BO
         /// <summary>
         /// Название
         /// </summary>
-        new public string Name
+        public new string Name
         {
             get
             {
@@ -118,7 +118,7 @@ namespace TSLog.BO
         /// <summary>
         /// Примечания и комментарии на естественном языке
         /// </summary>
-        new public string Note
+        public new string Note
         {
             get
             {
@@ -174,7 +174,7 @@ namespace TSLog.BO
         /// <summary>
         /// Null object
         /// </summary>
-        new public static Product Null
+        public new static Product Null
         {
             get
             {

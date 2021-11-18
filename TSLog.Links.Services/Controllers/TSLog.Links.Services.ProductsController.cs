@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using TSlog.Links.PSI.DataConverter;
+using TSLog.BO;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
 
@@ -14,6 +15,7 @@ namespace TSLog.Links.Services.Controllers
     {
         private readonly ILinksProductsStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
+        private readonly bool DebugMode = true;
 
         public ProductsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
@@ -26,16 +28,24 @@ namespace TSLog.Links.Services.Controllers
         {
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
-            var reader = new XmlTextReader(content,XmlNodeType.Document, null);
-            var itemDataNotification = _xmlConverter.ProductsListFromXml(reader);
-            var converterProducts = new EINWMSProductsConverter();
+            var reader = new XmlTextReader(content, XmlNodeType.Document, null);
+            var productsListRequest = _xmlConverter.ProductsListFromXml(reader);
+            var productsConverter = new EINWMSProductsConverter();
 
-            var transactionNumber = _storage.GenerateTransactionId();
-            var fileContent = converterProducts.Convert(transactionNumber, itemDataNotification);
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = productsConverter.Convert(transactionId, productsListRequest);
+            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
 
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
+            if (!DebugMode)
+                return "<status code=\"0\">Справочник товаров отправлен на загрузку</status>";
+            else
+                return "" + fileContent;
+        }
 
-            return "" + fileContent; // todo retrun smth userfull
+        [HttpGet("{productId}")]
+        public Product GetClientById(string productId)
+        {
+            return _storage.GetProductByGtin(productId);
         }
 
         [HttpGet("balances/{productId}")]

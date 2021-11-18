@@ -34,9 +34,10 @@ namespace TSlog.Links.PSI.DataConverter
                 ret = defaultValue;
             else
                 ret = param.Code;
-                //param < 0 ? defaultValue : param;
+            //param < 0 ? defaultValue : param;
             return ret;
         }
+
         public static string PrepStrPar(OperationType param, string defaultValue = "")
         {
             var ret = param == OperationType.Undefined ? defaultValue : ((int)param).ToString();

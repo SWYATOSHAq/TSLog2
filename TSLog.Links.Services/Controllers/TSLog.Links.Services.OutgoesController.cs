@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using TSlog.Links.PSI.DataConverter;
+using TSLog.BO;
 using TSLog.Common;
 using TSLog.Links.Gs1EdiXml;
 
@@ -16,6 +16,7 @@ namespace TSLog.Links.Services.Controllers
     {
         private readonly ILinksOutboundsStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
+        private readonly bool DebugMode = true;
 
         public OutgoesController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
@@ -30,16 +31,17 @@ namespace TSLog.Links.Services.Controllers
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
             var outgoRequest = _xmlConverter.OutgoRequestFromXml(reader);
-            var converterProducts = new EINWMSOutboundsConverter();
+            var outgoesConverter = new EINWMSOutboundsConverter();
 
-            var transactionNumber = _storage.GenerateTransactionId();
-            var fileContent = converterProducts.Convert(transactionNumber, outgoRequest);
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = outgoesConverter.Convert(transactionId, outgoRequest);
+            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
 
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
-
-            return "" + fileContent; // todo retrun smth userfull
+            if (!DebugMode)
+                return "<status code=\"0\">Запрос на расход отправлен на загрузку</status>";
+            else
+                return "" + fileContent;
         }
-
 
         [HttpGet("OutgoResposes/{outgoId}")]
         public string GetOutgoResponse(string outgoId)
@@ -55,99 +57,100 @@ namespace TSLog.Links.Services.Controllers
             return string.Empty;
         }
 
-        [HttpGet("PickingBeginNotifications/{outgoId}")]
-        public string GetPickingBeginNotification(string outgoId)
+        [HttpGet("PickingBeginNotices/{outgoId}")]
+        public string GetPickingBeginNotice(string outgoId)
         {
             /*
             * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
             * в данный запрос вшит фрагмент бизнес процесса
-            * 
+            *
             * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
-            * 
+            *
             * при переводе с KMW на PC - уведомление о том что заказ подобран
             * при переводе с PC на WRS - уведомление о том что заказ упакован
             * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
             */
 
-            //var notifocationInbound = _storage.GetOutboundNotification(notificationId); //  TODO pass a param with code of picking
-            //var xml = _xmlConverter.OutboundNotificationToXml(notifocationInbound);
-            //xml = Utils.PrepXML(xml);
-
-
-            //return xml;
-            // TODO: realize
-            return "";
+            var pickingBeginNotice = _storage.GetPickingBeginNotice(outgoId);
+            var xml = _xmlConverter.PickingBeginNoticeToXml(pickingBeginNotice);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
 
-        [HttpGet("PickingBeginNotifications")]
-        public string GetPickingBeginNotifications()
+        [HttpGet("PickingBeginNotices")]
+        public string GetPickingBeginNotices()
         {
-            // TODO: realize
-            return string.Empty;
+            var partners = new List<LegalEntity>().ToArray();
+            var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
+            var xml = _xmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
 
-        [HttpGet("PickingEndNotifications/{notificationId}")]
-        public string GetPickingEndNotification(string outgoId)
+        [HttpGet("PickingEndNotices/{outgoId}")]
+        public string GetPickingEndNotice(string outgoId)
         {
             /*
             * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
             * в данный запрос вшит фрагмент бизнес процесса
-            * 
+            *
             * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
-            * 
+            *
             * при переводе с KMW на PC - уведомление о том что заказ подобран
             * при переводе с PC на WRS - уведомление о том что заказ упакован
             * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
             */
 
-            //var notifocationInbound = _storage.GetOutboundNotification(notificationId); // TODO pass a param with picking finish code
-            //var xml = _xmlConverter.OutboundNotificationToXml(notifocationInbound);
-            //xml = Utils.PrepXML(xml);
-
-
-            //return xml;
-            // TODO: realize
-            return "";
+            var pickingEndNotice = _storage.GetPickingEndNotice(outgoId);
+            var xml = _xmlConverter.PickingEndNoticeToXml(pickingEndNotice);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
 
-        [HttpGet("PickingEndNotifications")]
-        public string GetPickingEndNotifications()
+        [HttpGet("PickingEndNotices")]
+        public string GetPickingEndNotices()
         {
-            // TODO: realize
-            return string.Empty;
+            var partners = new List<LegalEntity>().ToArray();
+            var pickingEndNotices = _storage.GetPickingEndNotices(partners);
+            var xml = _xmlConverter.PickingEndNoticesToXml(pickingEndNotices);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
 
-        [HttpGet("ShippingNotifications/{outgoId}")]
-        public string GetShippingNotification(string outgoId)
+        [HttpGet("ShippingNotices/{outgoId}")]
+        public string GetShippingNotice(string outgoId)
         {
             /*
              * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
              * в данный запрос вшит фрагмент бизнес процесса
-             * 
+             *
              * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
-             * 
+             *
              * при переводе с KMW на PC - уведомление о том что заказ подобран
              * при переводе с PC на WRS - уведомление о том что заказ упакован
              * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
              */
 
-
-            //var notifocationInbound = _storage.GetShippingNotification(notificationId); 
-            //var xml = _xmlConverter.OutboundNotificationToXml(notifocationInbound);
-            //xml = Utils.PrepXML(xml);
-
-
-            //return xml;
-            // TODO: realize
-            return "";
+            var shippingNotice = _storage.GetShippingNotice(outgoId);
+            var xml = _xmlConverter.ShippingNoticeToXml(shippingNotice);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
 
-        [HttpGet("ShippingNotifications")]
-        public string GetShippingNotifications()
+        [HttpGet("ShippingNotices")]
+        public string GetShippingNotices()
         {
-            // TODO: realize
-            return string.Empty;
+            var partners = new List<LegalEntity>().ToArray();
+            var shippingNotices = _storage.GetShippingNotices(partners);
+            var xml = _xmlConverter.ShippingNoticesToXml(shippingNotices);
+            if (DebugMode)
+                xml = Utils.PrepXML(xml);
+            return xml;
         }
     }
-
 }

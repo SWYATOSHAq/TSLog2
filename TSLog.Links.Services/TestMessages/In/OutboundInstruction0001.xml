@@ -25,7 +25,7 @@
 			<sh:Standard>GS1</sh:Standard>
 			<sh:TypeVersion>3.4</sh:TypeVersion>
 			<sh:InstanceIdentifier>100002</sh:InstanceIdentifier>
-			<sh:Type/>
+			<sh:Type />
 			<sh:MultipleType>false</sh:MultipleType>
 			<sh:CreationDateAndTime>2006-01-10T12:00:01.000-05:00</sh:CreationDateAndTime>
 		</sh:DocumentIdentification>
@@ -81,15 +81,15 @@
             </shipmentTransportationInformation>
             <warehousingOutboundInstructionShipmentItem>
                 <lineItemNumber>1</lineItemNumber>
-                <note languageCode="RU">{BoxNum=99841841}{Sorter=2}</note>						
+                <note languageCode="RU">{BoxNum=99841841}{Sorter=2}</note>
                 <transactionalTradeItem>
                     <gtin>04630001591380</gtin>
-                </transactionalTradeItem>								
+                </transactionalTradeItem>
 				<avpList>
 					<eComStringAttributeValuePairList attributeName="OKEI">792</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber">alfa_test</eComStringAttributeValuePairList>
 					<eComStringAttributeValuePairList attributeName="BatchNumber2">5677_test</eComStringAttributeValuePairList>
-				</avpList>                
+				</avpList>
 				<plannedDespatchQuantity measurementUnitCode="ST">1221</plannedDespatchQuantity>
             </warehousingOutboundInstructionShipmentItem>
             <warehousingOutboundInstructionShipmentItem>

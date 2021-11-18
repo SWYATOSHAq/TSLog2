@@ -1,9 +1,5 @@
-﻿using System;
-using System.Security;
-using System.Xml;
-using TSlog.Links.PSI.DataConverter;
+﻿using System.Security;
 using TSLog.BO;
-using TSLog.Common;
 using TSLog.Links.Db;
 using TSLog.Links.Gs1EdiXml;
 
@@ -93,7 +89,6 @@ namespace TSLog.Links.Test
 
             //Console.WriteLine(">finished<");
             //reader.Close();
-
 
             //////// test response
             //LegalEntity partner = storage.GetPartner("0014");

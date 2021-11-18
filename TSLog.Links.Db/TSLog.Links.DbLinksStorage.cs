@@ -67,28 +67,28 @@ namespace TSLog.Links.Db
         public Entity GetIncomeState(string stateCode)
         {
             stateCode = !string.IsNullOrWhiteSpace(stateCode) ? stateCode.Trim() : string.Empty;
-            var inboundState = IncomeStates[stateCode];
-            if (inboundState != null && inboundState != Entity.Null)
-                return inboundState;
+            var incomeState = IncomeStates[stateCode];
+            if (incomeState != null && incomeState != Entity.Null)
+                return incomeState;
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_state s where s.code = :code";
                 command.Parameters.Add(new OracleParameter("code", stateCode));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
-                    inboundState = new Entity(Convert.ToInt32(reader["id"]),
+                    incomeState = new Entity(Convert.ToInt32(reader["id"]),
                         Convert.ToString(reader["code"]),
                         Convert.ToString(reader["name"]),
                         Convert.ToString(reader["short_name"]),
                         Convert.ToString(reader["ge_name"]));
                 reader.Close();
             }
-            return inboundState ?? Entity.Null;
+            return incomeState ?? Entity.Null;
         }
 
         public Entity[] GetIncomeStates()
         {
-            var inboundStates = new List<Entity>();
+            var incomeStates = new List<Entity>();
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_state s";
@@ -100,50 +100,50 @@ namespace TSLog.Links.Db
                     Convert.ToString(reader["name"]),
                     Convert.ToString(reader["short_name"]),
                     Convert.ToString(reader["ge_name"]));
-                    inboundStates.Add(state);
+                    incomeStates.Add(state);
                 }
                 reader.Close();
             }
-            return inboundStates.ToArray();
+            return incomeStates.ToArray();
         }
 
         public Entity GetOutgoType(string typeCode)
         {
             typeCode = !string.IsNullOrWhiteSpace(typeCode) ? typeCode : string.Empty;
-            var outboundType = OutgoTypes[typeCode];
-            if (outboundType != null && outboundType != Entity.Null)
-                return outboundType;
+            var outgoType = OutgoTypes[typeCode];
+            if (outgoType != null && outgoType != Entity.Null)
+                return outgoType;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_outbound_type ot where ot.code = :code";
+                command.CommandText = $"select * from {CommonSchema}.v_outgo_type ot where ot.code = :code";
                 command.Parameters.Add(new OracleParameter("code", typeCode));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
-                    outboundType = new Entity(Convert.ToInt32(reader["id"]),
+                    outgoType = new Entity(Convert.ToInt32(reader["id"]),
                         Convert.ToString(reader["code"]),
                         Convert.ToString(reader["name"]));
                 reader.Close();
             }
-            return outboundType ?? Entity.Null;
+            return outgoType ?? Entity.Null;
         }
 
         public Entity[] GetOutgoTypes()
         {
-            var outboundTypes = new List<Entity>();
+            var outgoTypes = new List<Entity>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_outbound_type ot";
+                command.CommandText = $"select * from {CommonSchema}.v_outgo_type ot";
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    var outboundType = new Entity(Convert.ToInt32(reader["id"]),
+                    var outgoType = new Entity(Convert.ToInt32(reader["id"]),
                         Convert.ToString(reader["code"]),
                         Convert.ToString(reader["name"]));
-                    outboundTypes.Add(outboundType);
+                    outgoTypes.Add(outgoType);
                 }
                 reader.Close();
             }
-            return outboundTypes.ToArray();
+            return outgoTypes.ToArray();
         }
 
         public Entity GetOutgoState(string stateCode)
@@ -262,8 +262,6 @@ namespace TSLog.Links.Db
 
         #endregion "Constant" domains
 
-        #region Products and clients
-
         /// <summary>
         /// Партнёры (покупатели наших складских и логистических услуг)
         /// </summary>
@@ -289,97 +287,48 @@ namespace TSLog.Links.Db
         /// </summary>
         public ProductCatalog<Product> Products { private get; set; } = null;
 
-
-
         public string GenerateTransactionId()
         {
-            var ret = string.Empty;
-
+            var transactionId = string.Empty;
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select {LinksSchema}.common.gen_transaction_id id from dual";
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
-                    {
-                        ret = Convert.ToString(reader["id"]);
-                    }
+                        transactionId = Convert.ToString(reader["id"]);
                     reader.Close();
                 }
             }
-
-            return ret;
+            return transactionId;
         }
 
-        public string GenerateObjectId(string ObjectName, LegalEntity partner)
+        public string GenerateObjectId(string objectName, LegalEntity partner)
         {
-            var ret = string.Empty;
-
+            var objectId = string.Empty;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select {LinksSchema}.COMMON.gen_object_id(:obj, :mndnr) id from dual";
-                command.Parameters.Add(new OracleParameter("obj", ObjectName));
-                command.Parameters.Add(new OracleParameter("mndnr", partner.Code));
-
+                command.CommandText = $"select {LinksSchema}.common.gen_object_id(:obj, :partner_id) id from dual";
+                command.Parameters.Add(new OracleParameter("obj", objectName));
+                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
-                    {
-                        ret = Convert.ToString(reader["id"]);
-                    }
+                        objectId = Convert.ToString(reader["id"]);
                     reader.Close();
                 }
             }
-
-            return ret;
+            return objectId;
         }
 
-        public LegalEntity GetLegalEntity(string partnerCode)
+        #region Clients
+
+        public LegalEntity GetPartner(string id)
         {
-            //var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
-            //ret.Address = "Odinsovo, ulitza TEST, 69";
-            //return ret;
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
+            var partner = Partners[id];
 
-            partnerCode = !string.IsNullOrWhiteSpace(partnerCode) ? partnerCode.Trim() : string.Empty;
-            var partner = Partners[partnerCode];
-
-            if (partnerCode == Tslog.Code) // check if Tslog
-                partner = Tslog;
-
-            if (partner != null && partner != LegalEntity.Null)
-                return partner;
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = $"select * from {CommonSchema}.v_legal_entity p where p.id = :id";
-                command.Parameters.Add(new OracleParameter("id", partnerCode));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        partner = new LegalEntity(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["note1"])
-                            )
-                        {
-                            Address = Convert.ToString(reader["address1"])
-                        };
-
-                        Partners.Add(partner);
-                    }
-                    reader.Close();
-                }
-            }
-            if (partner != null && partner != LegalEntity.Null)
-                Partners.Add(partner);
-            return partner ?? LegalEntity.Null;
-        }
-
-        public LegalEntity GetPartner(string partnerCode)
-        {
-            partnerCode = !string.IsNullOrWhiteSpace(partnerCode) ? partnerCode.Trim() : string.Empty;
-            var partner = Partners[partnerCode];
-
-            if (partnerCode == Tslog.Code) // check if Tslog
+            if (id == Tslog.Code) // check if Tslog
                 partner = Tslog;
 
             if (partner != null && partner != LegalEntity.Null)
@@ -387,7 +336,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_partner p where p.id = :id";
-                command.Parameters.Add(new OracleParameter("id", partnerCode));
+                command.Parameters.Add(new OracleParameter("id", id));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -431,16 +380,64 @@ namespace TSLog.Links.Db
             return partners.ToArray();
         }
 
-        public Product GetProduct(string productCode)
+        public LegalEntity GetLegalEntity(string id)
         {
-            productCode = !string.IsNullOrWhiteSpace(productCode) ? productCode.Trim() : string.Empty;
-            var product = Products[productCode];
+            //var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
+            //ret.Address = "Odinsovo, ulitza TEST, 69";
+            //return ret;
+
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
+            var partner = Partners[id];
+
+            if (id == Tslog.Code) // check if Tslog
+                partner = Tslog;
+
+            if (partner != null && partner != LegalEntity.Null)
+                return partner;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_legal_entity p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", id));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        partner = new LegalEntity(Convert.ToString(reader["id"]),
+                            Convert.ToString(reader["name"]),
+                            Convert.ToString(reader["note1"])
+                            )
+                        {
+                            Address = Convert.ToString(reader["address1"])
+                        };
+
+                        Partners.Add(partner);
+                    }
+                    reader.Close();
+                }
+            }
+            if (partner != null && partner != LegalEntity.Null)
+                Partners.Add(partner);
+            return partner ?? LegalEntity.Null;
+        }
+
+        public LegalEntity[] GetLegalEntities(LegalEntity[] partners = null)
+        {
+            return null;
+        }
+
+        #endregion
+
+        #region Products
+        public Product GetProduct(string id)
+        {
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
+            var product = Products.GetByInternalCode(id);
             if (product != null && product != Product.Null)
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_product p where p.gtin = :gtin";
-                command.Parameters.Add(new OracleParameter("gtin", productCode));
+                command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", id));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -476,16 +473,16 @@ namespace TSLog.Links.Db
             return product ?? Product.Null;
         }
 
-        public Product GetProductByInternalID(string productCode) // TODO
+        public Product GetProductByGtin(string gtin)
         {
-            productCode = !string.IsNullOrWhiteSpace(productCode) ? productCode.Trim() : string.Empty;
-            var product = Products.GetByInternalCode(productCode);
+            gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
+            var product = Products[gtin];
             if (product != null && product != Product.Null)
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
-                command.Parameters.Add(new OracleParameter("id", productCode));
+                command.CommandText = $"select * from {CommonSchema}.v_product p where p.gtin = :gtin";
+                command.Parameters.Add(new OracleParameter("gtin", gtin));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -519,6 +516,12 @@ namespace TSLog.Links.Db
             if (product != null && product != Product.Null)
                 Products.Add(product);
             return product ?? Product.Null;
+        }
+
+        public Product GetProduct(LegalEntity partner, string partnerProductId)
+        {
+            // TODO: realize
+            return null;
         }
 
         public Product[] GetProducts(LegalEntity[] partners = null)
@@ -557,7 +560,7 @@ namespace TSLog.Links.Db
             return products.ToArray();
         }
 
-        #endregion Products and clients
+        #endregion
 
         #region Inbound instruction and notification
 
@@ -566,7 +569,7 @@ namespace TSLog.Links.Db
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var number = -1;
-            var product = GetProductByInternalID(Convert.ToString(reader["product_id"]));
+            var product = GetProduct(Convert.ToString(reader["product_id"]));
             var price = 0.0;
             var currencyCode = string.Empty;
             var currency = GetCurrency(currencyCode);
@@ -643,7 +646,7 @@ namespace TSLog.Links.Db
                 note);
             return receiptEndNotice;
         }
-        
+
         public ReceiptEndNotice GetReceiptEndNotice(string incomeId)
         {
             ReceiptEndNotice receiptEndNotice = null;
@@ -727,12 +730,13 @@ namespace TSLog.Links.Db
         #endregion Inbound instruction and notification
 
         #region Outbound instruction and notification
+
         private Outgo.Line CreateOutgoLine(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var number = -1;
-            var product = GetProductByInternalID(Convert.ToString(reader["product_id"]));
+            var product = GetProduct(Convert.ToString(reader["product_id"]));
             var price = 0.0;
             var currencyCode = string.Empty;
             var currency = GetCurrency(currencyCode);
@@ -770,6 +774,7 @@ namespace TSLog.Links.Db
         }
 
         #region PickingBeginNotice
+
         private PickingBeginNotice CreatePickingBeginNotice(DbDataReader reader)
         {
             if (reader == null)
@@ -830,9 +835,9 @@ namespace TSLog.Links.Db
             PickingBeginNotice pickingBeginNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm" + "\n"
-                    + "where onm.partner_outbound_number = :partner_outbound_id and onm.partner_id = :partner_id";
-                command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutgoId));
+                command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pbn" + "\n"
+                    + "where pbn.partner_outgo_number = :partner_outgo_id and onm.partner_id = :partner_id";
+                command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
                 {
@@ -848,7 +853,7 @@ namespace TSLog.Links.Db
             return pickingBeginNotice;
         }
 
-        public PickingBeginNotice[] GetPickingBeginNotices(LegalEntity[] partners = null, Entity[] states = null)
+        public PickingBeginNotice[] GetPickingBeginNotices(LegalEntity[] partners = null)
         {
             var pickingBeginNotices = new List<PickingBeginNotice>();
             using (var command = _connection.CreateCommand())
@@ -869,18 +874,6 @@ namespace TSLog.Links.Db
                         where.Append("\n and ");
                     where.Append(string.Format("pbn.partner_id in ({0})", partnerIds));
                 }
-                if (states.Length > 0)
-                {
-                    foreach (var state in states)
-                    {
-                        if (partnerIds.Length > 0)
-                            partnerIds.Append(", ");
-                        partnerIds.Append(string.Format("\'{0}\'", state.Code));
-                    }
-                    if (where.Length > 0)
-                        where.Append("\n and ");
-                    where.Append(string.Format("pbn.state_code in ({0})", stateCodes));
-                }
                 if (where.Length > 0)
                 {
                     where.Insert(0, "where ");
@@ -898,9 +891,11 @@ namespace TSLog.Links.Db
             }
             return pickingBeginNotices.ToArray();
         }
-        #endregion
+
+        #endregion PickingBeginNotice
 
         #region PickingEndNotice
+
         private PickingEndNotice CreatePickingEndNotice(DbDataReader reader)
         {
             if (reader == null)
@@ -961,9 +956,9 @@ namespace TSLog.Links.Db
             PickingEndNotice pickingEndNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm" + "\n"
-                    + "where onm.partner_outbound_number = :partner_outbound_id and onm.partner_id = :partner_id";
-                command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutgoId));
+                command.CommandText = $"select * from {LinksSchema}.v_picking_end_notice pen" + "\n"
+                    + "where pen.partner_outbound_number = :partner_outgo_id and pen.partner_id = :partner_id";
+                command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
                 {
@@ -979,7 +974,7 @@ namespace TSLog.Links.Db
             return pickingEndNotice;
         }
 
-        public PickingEndNotice[] GetPickingEndNotices(LegalEntity[] partners = null, Entity[] states = null)
+        public PickingEndNotice[] GetPickingEndNotices(LegalEntity[] partners = null)
         {
             var pickingEndNotices = new List<PickingEndNotice>();
             using (var command = _connection.CreateCommand())
@@ -1000,18 +995,6 @@ namespace TSLog.Links.Db
                         where.Append("\n and ");
                     where.Append(string.Format("pen.partner_id in ({0})", partnerIds));
                 }
-                if (states.Length > 0)
-                {
-                    foreach (var state in states)
-                    {
-                        if (partnerIds.Length > 0)
-                            partnerIds.Append(", ");
-                        partnerIds.Append(string.Format("\'{0}\'", state.Code));
-                    }
-                    if (where.Length > 0)
-                        where.Append("\n and ");
-                    where.Append(string.Format("pen.state_code in ({0})", stateCodes));
-                }
                 if (where.Length > 0)
                 {
                     where.Insert(0, "where ");
@@ -1029,9 +1012,11 @@ namespace TSLog.Links.Db
             }
             return pickingEndNotices.ToArray();
         }
-        #endregion
+
+        #endregion PickingEndNotice
 
         #region ShippingNotice
+
         private ShippingNotice CreateShippingNotice(DbDataReader reader)
         {
             if (reader == null)
@@ -1110,7 +1095,7 @@ namespace TSLog.Links.Db
             return shippingNotice;
         }
 
-        public ShippingNotice[] GetShippingNotices(LegalEntity[] partners = null, Entity[] states = null)
+        public ShippingNotice[] GetShippingNotices(LegalEntity[] partners = null)
         {
             var shippingNotices = new List<ShippingNotice>();
             using (var command = _connection.CreateCommand())
@@ -1131,18 +1116,6 @@ namespace TSLog.Links.Db
                         where.Append("\n and ");
                     where.Append(string.Format("sn.partner_id in ({0})", partnerIds));
                 }
-                if (states.Length > 0)
-                {
-                    foreach (var state in states)
-                    {
-                        if (partnerIds.Length > 0)
-                            partnerIds.Append(", ");
-                        partnerIds.Append(string.Format("\'{0}\'", state.Code));
-                    }
-                    if (where.Length > 0)
-                        where.Append("\n and ");
-                    where.Append(string.Format("sn.state_code in ({0})", stateCodes));
-                }
                 if (where.Length > 0)
                 {
                     where.Insert(0, "where ");
@@ -1160,21 +1133,9 @@ namespace TSLog.Links.Db
             }
             return shippingNotices.ToArray();
         }
-        #endregion
+
+        #endregion ShippingNotice
+
         #endregion Outbound instruction and notification
-
-        #region DEBUG
-
-        public ProductsList GetProductsList(LegalEntity partner) // TODO: to delete (just for debug)
-        {
-            return null; // TODO
-        }
-
-        public ClientsList GetClientsList(bool loadPartners = false) // TODO: to delete (just for debug)
-        {
-            return null; // TODo
-        }
-
-        #endregion DEBUG
     }
 }

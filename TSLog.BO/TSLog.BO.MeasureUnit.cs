@@ -46,7 +46,7 @@
         /// <summary>
         /// Null object
         /// </summary>
-        new public static MeasureUnit Null
+        public new static MeasureUnit Null
         {
             get
             {

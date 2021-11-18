@@ -30,7 +30,7 @@ namespace TSlog.Links.PSI.DataConverter
             string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
         {
             var partner = instruction.ServiceBuyer;
-            var inbound = instruction.Income;
+            var income = instruction.Income;
 
             // TODO: read how to serealize fields from external struct (for example from ini file)
 
@@ -43,25 +43,25 @@ namespace TSlog.Links.PSI.DataConverter
             // header
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}" +
                 $"|{common}" +
-                $"|WeaNr={PrepStrPar(inbound.Number)}" +
+                $"|WeaNr={PrepStrPar(income.Number)}" +
                 $"|Aktion={PrepStrPar(action)}" +
-                $"|WeaKlaNam={PrepStrPar(inbound.Type?.Code, true, "NORMAL")}" +
-                $"|GpNamLief={PrepStrPar(inbound.Vendor.Code, true)}" +
+                $"|WeaKlaNam={PrepStrPar(income.Type?.Code, true, "NORMAL")}" +
+                $"|GpNamLief={PrepStrPar(income.Vendor.Code, true)}" +
                 $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" +
-                $"|WeaDzAnliefSoll={/* ? */PrepStrPar(inbound.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
-                $"|WeaInfo2={PrepStrPar(inbound.GUID, true)}" +  // дополнительный идентефикатор (GUID)
-                                                                    /*
-                                                                    <avpList>
-                                                                        <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
-                                                                    </avpList>
-                                                                     */
-                $"|WeaInfo3={PrepStrPar(inbound.Operation)}" +  // тип операции <operationType/>
+                $"|WeaDzAnliefSoll={/* ? */PrepStrPar(income.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
+                $"|WeaInfo2={PrepStrPar(income.GUID, true)}" +  // дополнительный идентефикатор (GUID)
+                /*
+                <avpList>
+                    <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
+                </avpList>
+                 */
+                $"|WeaInfo3={PrepStrPar(income.Operation)}" +  // тип операции <operationType/>
                 $"|\n";
             // body
-            foreach (var row in inbound.Lines)
+            foreach (var row in income.Lines)
                 ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
                    $"|{common}" +
-                   $"|WeaNr={PrepStrPar(inbound.Number)}" +
+                   $"|WeaNr={PrepStrPar(income.Number)}" +
                    $"|WepNr={PrepStrPar(row.Number)}" +
                    $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" + // plannedReceiptQuantity
                    $"|ArtNr={PrepStrPar(row.Product.Code)}" + // gtin + DB data
@@ -78,7 +78,7 @@ namespace TSlog.Links.PSI.DataConverter
             // footer
             ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
                 $"|{common}" +
-                $"|WeaNr={PrepStrPar(inbound.Number)}" +
+                $"|WeaNr={PrepStrPar(income.Number)}" +
                 $"|\n";
             return ret;
         }

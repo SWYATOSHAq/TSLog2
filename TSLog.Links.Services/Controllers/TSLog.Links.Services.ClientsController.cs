@@ -15,6 +15,7 @@ namespace TSLog.Links.Services.Controllers
     {
         private readonly ILinksClientsStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
+        private readonly bool DebugMode = true;
 
         public ClientsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
@@ -28,15 +29,17 @@ namespace TSLog.Links.Services.Controllers
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var clientsList = _xmlConverter.ClientsFromXml(reader);
-            var converterClients = new EINWMSClientsConverter();
+            var clientsListRequest = _xmlConverter.ClientsFromXml(reader);
+            var clientsConverter = new EINWMSClientsConverter();
 
-            var transactionNumber = _storage.GenerateTransactionId();
-            var fileContent = converterClients.Convert(transactionNumber, clientsList);
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = clientsConverter.Convert(transactionId, clientsListRequest);
+            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
 
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
-
-            return "" + fileContent; // todo retrun smth userfull
+            if (!DebugMode)
+                return "<status code=\"0\">Справочник клиентов отправлен на загрузку</status>";
+            else
+                return "" + fileContent;
         }
 
         [HttpGet("{clientId}")]

@@ -38,10 +38,10 @@ namespace TSLog.BO
 
     public static class OperationConverter
     {
-        static public OperationType Convert(string str)
+        public static OperationType Convert(string str)
         {
             OperationType ret;
-            if (! Enum.TryParse(str, out ret))
+            if (!Enum.TryParse(str, out ret))
                 ret = OperationType.Undefined;
 
             return ret;
