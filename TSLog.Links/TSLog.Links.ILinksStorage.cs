@@ -62,7 +62,7 @@ namespace TSLog.Links
 
         public MeasureUnit GetMeasureUnit(string measureUnitCode);
 
-    } 
+    }
 
     public interface ILinksGenIdentifier
     {
