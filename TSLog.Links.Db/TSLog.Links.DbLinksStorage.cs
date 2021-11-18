@@ -42,17 +42,17 @@ namespace TSLog.Links.Db
         /// <summary>
         /// Статусы (состояния) приходов
         /// </summary>
-        public Catalog<Entity> InboundsStates { get; set; } = null;
+        public Catalog<Entity> IncomeStates { get; set; } = null;
 
         /// <summary>
         /// Типы отгрузок
         /// </summary>
-        public Catalog<Entity> OutboundsTypes { get; set; } = null;
+        public Catalog<Entity> OutgoTypes { get; set; } = null;
 
         /// <summary>
         /// Статусы (состояния) расходов
         /// </summary>
-        public Catalog<Entity> OutboundsStates { get; set; } = null;
+        public Catalog<Entity> OutgoStates { get; set; } = null;
 
         /// <summary>
         /// Валюты
@@ -64,10 +64,10 @@ namespace TSLog.Links.Db
         /// </summary>
         public Catalog<MeasureUnit> MeasureUnits { get; set; } = null;
 
-        public Entity GetInboundState(string stateCode)
+        public Entity GetIncomeState(string stateCode)
         {
             stateCode = !string.IsNullOrWhiteSpace(stateCode) ? stateCode.Trim() : string.Empty;
-            var inboundState = InboundsStates[stateCode];
+            var inboundState = IncomeStates[stateCode];
             if (inboundState != null && inboundState != Entity.Null)
                 return inboundState;
             using (var command = _connection.CreateCommand())
@@ -86,7 +86,7 @@ namespace TSLog.Links.Db
             return inboundState ?? Entity.Null;
         }
 
-        public Entity[] GetInboundsStates()
+        public Entity[] GetIncomeStates()
         {
             var inboundStates = new List<Entity>();
             using (var command = _connection.CreateCommand())
@@ -107,10 +107,10 @@ namespace TSLog.Links.Db
             return inboundStates.ToArray();
         }
 
-        public Entity GetOutboundType(string typeCode)
+        public Entity GetOutgoType(string typeCode)
         {
             typeCode = !string.IsNullOrWhiteSpace(typeCode) ? typeCode : string.Empty;
-            var outboundType = OutboundsTypes[typeCode];
+            var outboundType = OutgoTypes[typeCode];
             if (outboundType != null && outboundType != Entity.Null)
                 return outboundType;
             using (var command = _connection.CreateCommand())
@@ -127,7 +127,7 @@ namespace TSLog.Links.Db
             return outboundType ?? Entity.Null;
         }
 
-        public Entity[] GetOutboundsTypes()
+        public Entity[] GetOutgoTypes()
         {
             var outboundTypes = new List<Entity>();
             using (var command = _connection.CreateCommand())
@@ -146,14 +146,14 @@ namespace TSLog.Links.Db
             return outboundTypes.ToArray();
         }
 
-        public Entity GetOutboundState(string stateCode)
+        public Entity GetOutgoState(string stateCode)
         {
-            return GetInboundState(stateCode);
+            return GetIncomeState(stateCode);
         }
 
-        public Entity[] GetOutboundsStates()
+        public Entity[] GetOutgoStates()
         {
-            return GetInboundsStates();
+            return GetIncomeStates();
         }
 
         public Entity GetCurrency(string currencyCode)
@@ -561,7 +561,7 @@ namespace TSLog.Links.Db
 
         #region Inbound instruction and notification
 
-        private Inbound.Line CreateInboundNotificationLine(DbDataReader reader)
+        private Income.Line CreateIncomeLine(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -574,68 +574,24 @@ namespace TSLog.Links.Db
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
             var measureUnitCode = Convert.ToString(reader["quantity_measure_unit_code"]);
             var measureUnit = GetMeasureUnit(measureUnitCode);
-            var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
+            var line = new Income.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
             return line;
         }
 
-        private InboundNotification CreateInboundNotification(DbDataReader reader)
+        private Income.Line[] GetIncomeLines(Income income)
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var inboundId = Convert.ToString(reader["inbound_id"]);
-            var inboundNumber = Convert.ToString(reader["inbound_number"]);
-            var inboundDate = DateTime.MinValue;
-            var inboundPartnerId = Convert.ToString(reader["partner_id"]);
-            var inboundPartner = GetPartner(inboundPartnerId);
-            var inboundPartnerNumber = Convert.ToString(reader["partner_inbound_number"]);
-            var inboundStateCode = Convert.ToString(reader["state_code"]);
-            var inboundState = GetInboundState(inboundStateCode);
-            var inboundPlanAcceptanceBegin = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
-            var inboundPlanAcceptanceEnd = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
-            var inboundFactAccpeptanceBegin = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
-            var inboundFactAcceptanceEnd = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
-            var inboundNote = Convert.ToString(reader["note"]);
-
-            var inbound = new Inbound(inboundId, inboundNumber, inboundDate, inboundPartner, inboundPartnerNumber, inboundState, inboundNote)
-            {
-                PlanAcceptanceBegin = inboundPlanAcceptanceBegin,
-                PlanAcceptanceEnd = inboundPlanAcceptanceEnd,
-                FactAcceptanceBegin = inboundFactAccpeptanceBegin,
-                FactAcceptanceEnd = inboundFactAcceptanceEnd
-            };
-
-            var id = -1;
-            var number = string.Empty;
-            var date = DateTime.Now; // Дата создания сообщения
-            var version = (byte)1;
-            var sender = Tslog;
-            var recipient = inboundPartner;
-            var serviceSeller = Tslog;
-            var serviceBuyer = inboundPartner;
-            var shipper = inboundPartner;
-            var receiver = Tslog;
-            var note = inboundNote;
-
-            var inboundNotification = new InboundNotification(id, number, version, date, inbound,
-                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver,
-                note);
-            return inboundNotification;
-        }
-
-        private Inbound.Line[] GetInboundNotificationLines(InboundNotification inboundNotification)
-        {
-            if (inboundNotification == null)
-                throw new ArgumentNullException(nameof(inboundNotification));
-            var lines = new List<Inbound.Line>();
+            if (income == null)
+                throw new ArgumentNullException(nameof(income));
+            var lines = new List<Income.Line>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_income_line inml where inml.income_id = :income_id";
-                command.Parameters.Add(new OracleParameter("income_id", inboundNotification.Inbound.Code));
+                command.CommandText = $"select * from {CommonSchema}.v_income_line il where il.income_id = :income_id";
+                command.Parameters.Add(new OracleParameter("income_id", income.Code));
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var line = CreateInboundNotificationLine(reader);
+                        var line = CreateIncomeLine(reader);
                         lines.Add(line);
                     }
                     reader.Close();
@@ -644,80 +600,102 @@ namespace TSLog.Links.Db
             return lines.ToArray();
         }
 
-        public InboundNotification GetInboundNotification(string inboundId)
+        private ReceiptEndNotice CreateReceiptEndNotice(DbDataReader reader)
         {
-            InboundNotification inboundNotification = null;
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var incomeId = Convert.ToString(reader["income_id"]);
+            var incomeNumber = Convert.ToString(reader["income_number"]);
+            var incomeDate = DateTime.MinValue;
+            var incomePartnerId = Convert.ToString(reader["partner_id"]);
+            var incomePartner = GetPartner(incomePartnerId);
+            var incomePartnerNumber = Convert.ToString(reader["partner_income_number"]);
+            var incomeStateCode = Convert.ToString(reader["state_code"]);
+            var incomeState = GetIncomeState(incomeStateCode);
+            var incomePlanReceiptBegin = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
+            var incomePlanReceiptEnd = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
+            var incomeFactReceiptBegin = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
+            var incomeFactReceiptEnd = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
+            var incomeNote = Convert.ToString(reader["note"]);
+
+            var income = new Income(incomeId, incomeNumber, incomeDate, incomePartner, incomePartnerNumber, incomeState, incomeNote)
+            {
+                PlanAcceptanceBegin = incomePlanReceiptBegin,
+                PlanAcceptanceEnd = incomePlanReceiptEnd,
+                FactAcceptanceBegin = incomeFactReceiptBegin,
+                FactAcceptanceEnd = incomeFactReceiptEnd
+            };
+
+            var id = -1;
+            var number = string.Empty;
+            var date = DateTime.Now; // Дата создания сообщения
+            var version = (byte)1;
+            var sender = Tslog;
+            var recipient = incomePartner;
+            var serviceSeller = Tslog;
+            var serviceBuyer = incomePartner;
+            var shipper = incomePartner;
+            var receiver = Tslog;
+            var note = incomeNote;
+
+            var receiptEndNotice = new ReceiptEndNotice(id, number, version, date, income,
+                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver,
+                note);
+            return receiptEndNotice;
+        }
+        
+        public ReceiptEndNotice GetReceiptEndNotice(string incomeId)
+        {
+            ReceiptEndNotice receiptEndNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice inm  where inm.inbound_id = :inbound_id";
-                command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
+                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice ren  where ren.income_id = :income_id";
+                command.Parameters.Add(new OracleParameter("income_id", incomeId));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        inboundNotification = CreateInboundNotification(reader);
-                        var lines = GetInboundNotificationLines(inboundNotification);
-                        inboundNotification.Inbound.AddLines(lines);
+                        receiptEndNotice = CreateReceiptEndNotice(reader);
+                        var lines = GetIncomeLines(receiptEndNotice.Income);
+                        receiptEndNotice.Income.AddLines(lines);
                     }
                     reader.Close();
                 }
             }
-            return inboundNotification;
+            return receiptEndNotice;
         }
 
-        public InboundNotification GetInboundNotification(string inboundId, string stateCode)
-        {
-            InboundNotification inboundNotification = null;
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice inm  where inm.inbound_id = :inbound_id";
-                command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
-                command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        inboundNotification = CreateInboundNotification(reader);
-                        var lines = GetInboundNotificationLines(inboundNotification);
-                        inboundNotification.Inbound.AddLines(lines);
-                    }
-                    reader.Close();
-                }
-            }
-            return inboundNotification;
-        }
-
-        public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId)
+        public ReceiptEndNotice GetReceiptEndNotice(LegalEntity partner, string partnerIncomeId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
-            InboundNotification inboundNotification = null;
+            ReceiptEndNotice receiptEndNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice inm " + "\n"
-                    + "where inm.partner_inbound_number = :partner_inbound_id and inm.partner_id = :partner_id";
-                command.Parameters.Add(new OracleParameter("partner_inbound_id", partnerInboundId));
+                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice ren " + "\n"
+                    + "where ren.partner_income_number = :partner_income_id and inm.partner_id = :partner_id";
+                command.Parameters.Add(new OracleParameter("partner_income_id", partnerIncomeId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        inboundNotification = CreateInboundNotification(reader);
-                        var lines = GetInboundNotificationLines(inboundNotification);
-                        inboundNotification.Inbound.AddLines(lines);
+                        receiptEndNotice = CreateReceiptEndNotice(reader);
+                        var lines = GetIncomeLines(receiptEndNotice.Income);
+                        receiptEndNotice.Income.AddLines(lines);
                     }
                     reader.Close();
                 }
             }
-            return inboundNotification;
+            return receiptEndNotice;
         }
 
-        public InboundNotification[] GetInboundNotifications(LegalEntity[] partners = null)
+        public ReceiptEndNotice[] GetReceiptEndNoticies(LegalEntity[] partners = null)
         {
-            var inboundNotifications = new List<InboundNotification>();
+            var receiptEndNoticies = new List<ReceiptEndNotice>();
             using (var command = _connection.CreateCommand())
             {
-                var sql = new StringBuilder($"select * from {LinksSchema}.v_receipt_end_notice inm");
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_receipt_end_notice ren");
                 var where = new StringBuilder();
                 if (partners != null && partners.Length > 0)
                 {
@@ -727,7 +705,7 @@ namespace TSLog.Links.Db
                             where.Append(", ");
                         where.Append(partner.Id);
                     }
-                    where.Insert(0, "\nwhere inm.partner_id in (");
+                    where.Insert(0, "\nwhere ren.partner_id in (");
                     where.Append(')');
                     sql.Append(where);
                 }
@@ -736,21 +714,20 @@ namespace TSLog.Links.Db
                 {
                     while (reader.Read())
                     {
-                        var inboundNotification = CreateInboundNotification(reader);
-                        inboundNotification.Inbound.AddLines(GetInboundNotificationLines(inboundNotification));
-                        inboundNotifications.Add(inboundNotification);
+                        var receiptEndNotice = CreateReceiptEndNotice(reader);
+                        receiptEndNotice.Income.AddLines(GetIncomeLines(receiptEndNotice.Income));
+                        receiptEndNoticies.Add(receiptEndNotice);
                     }
                     reader.Close();
                 }
             }
-            return inboundNotifications.ToArray();
+            return receiptEndNoticies.ToArray();
         }
 
         #endregion Inbound instruction and notification
 
         #region Outbound instruction and notification
-
-        private Outbound.Line CreateOutboundNotificationLine(DbDataReader reader)
+        private Outgo.Line CreateOutgoLine(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -763,59 +740,27 @@ namespace TSLog.Links.Db
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
             var measureUnitCode = string.Empty;
             var measureUnit = GetMeasureUnit(measureUnitCode);
-            var line = new Outbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
+            var line = new Outgo.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
             {
                 FactQuantity = factQuantity
             };
             return line;
         }
 
-        private OutboundNotification CreateOutboundNotification(DbDataReader reader)
+        private Outgo.Line[] GetOutgoLines(Outgo outgo)
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var outboundId = Convert.ToString(reader["outbound_id"]);
-            var outboundNumber = Convert.ToString(reader["outbound_number"]);
-            var outboundDate = DateTime.MinValue;
-            var outboundPartnerId = Convert.ToString(reader["partner_id"]);
-            var outboundPartner = GetPartner(outboundPartnerId);
-            var outboundPartnerNumber = Convert.ToString(reader["partner_outbound_number"]);
-            var outboundStateCode = Convert.ToString(reader["state_code"]);
-            var outboundState = GetOutboundState(outboundStateCode);
-            var outboundNote = string.Empty;
-            var outbound = new Outbound(outboundId, outboundNumber, outboundDate, outboundPartner, outboundPartnerNumber, outboundState, outboundNote);
-
-            var id = -1;
-            var number = string.Empty;
-            var date = DateTime.Now; // Теуцщая дата и время сообщения
-            var version = (byte)1;
-            var sender = Tslog;
-            var recipient = outboundPartner;
-            var serviceSeller = Tslog;
-            var serviceBuyer = outboundPartner;
-            var shipper = Tslog;
-            var receiver = outboundPartner;
-            var note = string.Empty;
-
-            var outboundNotification = new OutboundNotification(id, number, version, date, outbound,
-                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
-            return outboundNotification;
-        }
-
-        private Outbound.Line[] GetOutboundNotificationLines(OutboundNotification outboundNotification)
-        {
-            if (outboundNotification == null)
-                throw new ArgumentNullException(nameof(outboundNotification));
-            var lines = new List<Outbound.Line>();
+            if (outgo == null)
+                throw new ArgumentNullException(nameof(outgo));
+            var lines = new List<Outgo.Line>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification_line onml where onml.outbound_id = :outbond_id";
-                command.Parameters.Add(new OracleParameter("outbond_id", outboundNotification.Outbound.Code));
+                command.CommandText = $"select * from {CommonSchema}.v_outgo_line ol where ol.outgo_id = :outgo_id";
+                command.Parameters.Add(new OracleParameter("outgo_id", outgo.Code));
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var line = CreateOutboundNotificationLine(reader);
+                        var line = CreateOutgoLine(reader);
                         lines.Add(line);
                     }
                     reader.Close();
@@ -824,60 +769,93 @@ namespace TSLog.Links.Db
             return lines.ToArray();
         }
 
-        public OutboundNotification GetOutboundNotification(string outboundId)
+        #region PickingBeginNotice
+        private PickingBeginNotice CreatePickingBeginNotice(DbDataReader reader)
         {
-            OutboundNotification outboundNotification = null;
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var outgoId = Convert.ToString(reader["outgo_id"]);
+            var outgoNumber = Convert.ToString(reader["outgo_number"]);
+            var outgoDate = DateTime.MinValue;
+            var outgoPartnerId = Convert.ToString(reader["partner_id"]);
+            var outgoPartner = GetPartner(outgoPartnerId);
+            var outgoPartnerNumber = Convert.ToString(reader["partner_outgo_number"]);
+            var outgoStateCode = Convert.ToString(reader["state_code"]);
+            var outgoState = GetOutgoState(outgoStateCode);
+            var outgoNote = string.Empty;
+            var outgo = new Outgo(outgoId, outgoNumber, outgoDate, outgoPartner, outgoPartnerNumber, outgoState, outgoNote);
+
+            var id = -1;
+            var number = string.Empty;
+            var date = DateTime.Now; // Теуцщая дата и время сообщения
+            var version = (byte)1;
+            var sender = Tslog;
+            var recipient = outgoPartner;
+            var serviceSeller = Tslog;
+            var serviceBuyer = outgoPartner;
+            var shipper = Tslog;
+            var receiver = outgoPartner;
+            var note = string.Empty;
+
+            var pickingStartNotice = new PickingBeginNotice(id, number, version, date, outgo,
+                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
+            return pickingStartNotice;
+        }
+
+        public PickingBeginNotice GetPickingBeginNotice(string outgoId)
+        {
+            PickingBeginNotice pickingBeginNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm where onm.outbound_id = :outbound_id";
-                command.Parameters.Add(new OracleParameter("outbound_id", outboundId));
+                command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pbn where pbn.outgo_id = :outgo_id";
+                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        outboundNotification = CreateOutboundNotification(reader);
-                        var lines = GetOutboundNotificationLines(outboundNotification);
-                        outboundNotification.Outbound.AddLines(lines);
+                        pickingBeginNotice = CreatePickingBeginNotice(reader);
+                        var lines = GetOutgoLines(pickingBeginNotice.Outgo);
+                        pickingBeginNotice.Outgo.AddLines(lines);
                     }
                     reader.Close();
                 }
             }
-            return outboundNotification;
+            return pickingBeginNotice;
         }
 
-        public OutboundNotification GetOutboundNotification(LegalEntity partner, string partnerOutboundId)
+        public PickingBeginNotice GetPickingBeginNotice(LegalEntity partner, string partnerOutgoId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
-            OutboundNotification outboundNotification = null;
+            PickingBeginNotice pickingBeginNotice = null;
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm" + "\n"
                     + "where onm.partner_outbound_number = :partner_outbound_id and onm.partner_id = :partner_id";
-                command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutboundId));
+                command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        outboundNotification = CreateOutboundNotification(reader);
-                        var lines = GetOutboundNotificationLines(outboundNotification);
-                        outboundNotification.Outbound.AddLines(lines);
+                        pickingBeginNotice = CreatePickingBeginNotice(reader);
+                        var lines = GetOutgoLines(pickingBeginNotice.Outgo);
+                        pickingBeginNotice.Outgo.AddLines(lines);
                     }
                     reader.Close();
                 }
             }
-            return outboundNotification;
+            return pickingBeginNotice;
         }
 
-        public OutboundNotification[] GetOutboundNotifications(LegalEntity[] partners = null, Entity[] states = null)
+        public PickingBeginNotice[] GetPickingBeginNotices(LegalEntity[] partners = null, Entity[] states = null)
         {
-            var outboundNotifications = new List<OutboundNotification>();
+            var pickingBeginNotices = new List<PickingBeginNotice>();
             using (var command = _connection.CreateCommand())
             {
                 var partnerIds = new StringBuilder();
                 var stateCodes = string.Empty;
-                var sql = new StringBuilder($"select * from {LinksSchema}.v_outbound_notification onm");
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_picking_begin_notice pbn");
                 var where = new StringBuilder();
                 if (partners.Length > 0)
                 {
@@ -889,7 +867,7 @@ namespace TSLog.Links.Db
                     }
                     if (where.Length > 0)
                         where.Append("\n and ");
-                    where.Append(string.Format("onm.partner_id in ({0})", partnerIds));
+                    where.Append(string.Format("pbn.partner_id in ({0})", partnerIds));
                 }
                 if (states.Length > 0)
                 {
@@ -901,7 +879,7 @@ namespace TSLog.Links.Db
                     }
                     if (where.Length > 0)
                         where.Append("\n and ");
-                    where.Append(string.Format("onm.state_code in ({0})", stateCodes));
+                    where.Append(string.Format("pbn.state_code in ({0})", stateCodes));
                 }
                 if (where.Length > 0)
                 {
@@ -911,43 +889,278 @@ namespace TSLog.Links.Db
                 command.CommandText = sql.ToString();
                 using (var reader = command.ExecuteReader())
                 {
-                    var outboundNotification = CreateOutboundNotification(reader);
-                    outboundNotifications.Add(outboundNotification);
-                    var lines = GetOutboundNotificationLines(outboundNotification);
-                    outboundNotification.Outbound.AddLines(lines);
+                    var pickingBeginNotice = CreatePickingBeginNotice(reader);
+                    pickingBeginNotices.Add(pickingBeginNotice);
+                    var lines = GetOutgoLines(pickingBeginNotice.Outgo);
+                    pickingBeginNotice.Outgo.AddLines(lines);
                     reader.Close();
                 }
             }
-            return outboundNotifications.ToArray();
+            return pickingBeginNotices.ToArray();
+        }
+        #endregion
+
+        #region PickingEndNotice
+        private PickingEndNotice CreatePickingEndNotice(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var outgoId = Convert.ToString(reader["outgo_id"]);
+            var outgoNumber = Convert.ToString(reader["outgo_number"]);
+            var outgoDate = DateTime.MinValue;
+            var outgoPartnerId = Convert.ToString(reader["partner_id"]);
+            var outgoPartner = GetPartner(outgoPartnerId);
+            var outgoPartnerNumber = Convert.ToString(reader["partner_outgo_number"]);
+            var outgoStateCode = Convert.ToString(reader["state_code"]);
+            var outgoState = GetOutgoState(outgoStateCode);
+            var outgoNote = string.Empty;
+            var outgo = new Outgo(outgoId, outgoNumber, outgoDate, outgoPartner, outgoPartnerNumber, outgoState, outgoNote);
+
+            var id = -1;
+            var number = string.Empty;
+            var date = DateTime.Now; // Текущая дата и время сообщения
+            var version = (byte)1;
+            var sender = Tslog;
+            var recipient = outgoPartner;
+            var serviceSeller = Tslog;
+            var serviceBuyer = outgoPartner;
+            var shipper = Tslog;
+            var receiver = outgoPartner;
+            var note = string.Empty;
+
+            var pickingStartNotice = new PickingEndNotice(id, number, version, date, outgo,
+                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
+            return pickingStartNotice;
         }
 
-        public OutboundNotification[] GetOrderResponses()
+        public PickingEndNotice GetPickingEndNotice(string outgoId)
         {
-            return null; // TODO
+            PickingEndNotice pickingEndNotice = null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pbn where pbn.outgo_id = :outgo_id";
+                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        pickingEndNotice = CreatePickingEndNotice(reader);
+                        var lines = GetOutgoLines(pickingEndNotice.Outgo);
+                        pickingEndNotice.Outgo.AddLines(lines);
+                    }
+                    reader.Close();
+                }
+            }
+            return pickingEndNotice;
         }
 
-        public OutboundNotification GetOrderResponse(LegalEntity partner, string partnerOrderId)
+        public PickingEndNotice GetPickingEndNotice(LegalEntity partner, string partnerOutgoId)
         {
-            if (partner == null) // TODO
+            if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
-            return null;
+            PickingEndNotice pickingEndNotice = null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {LinksSchema}.v_outbound_notification onm" + "\n"
+                    + "where onm.partner_outbound_number = :partner_outbound_id and onm.partner_id = :partner_id";
+                command.Parameters.Add(new OracleParameter("partner_outbound_id", partnerOutgoId));
+                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        pickingEndNotice = CreatePickingEndNotice(reader);
+                        var lines = GetOutgoLines(pickingEndNotice.Outgo);
+                        pickingEndNotice.Outgo.AddLines(lines);
+                    }
+                    reader.Close();
+                }
+            }
+            return pickingEndNotice;
         }
 
-        public OutboundNotification[] GetPickingStartNotifications()
+        public PickingEndNotice[] GetPickingEndNotices(LegalEntity[] partners = null, Entity[] states = null)
         {
-            return null; // TODO
+            var pickingEndNotices = new List<PickingEndNotice>();
+            using (var command = _connection.CreateCommand())
+            {
+                var partnerIds = new StringBuilder();
+                var stateCodes = string.Empty;
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_picking_end_notice pen");
+                var where = new StringBuilder();
+                if (partners.Length > 0)
+                {
+                    foreach (var partner in partners)
+                    {
+                        if (partnerIds.Length > 0)
+                            partnerIds.Append(", ");
+                        partnerIds.Append(string.Format("\'{0}\'", partner.Id));
+                    }
+                    if (where.Length > 0)
+                        where.Append("\n and ");
+                    where.Append(string.Format("pen.partner_id in ({0})", partnerIds));
+                }
+                if (states.Length > 0)
+                {
+                    foreach (var state in states)
+                    {
+                        if (partnerIds.Length > 0)
+                            partnerIds.Append(", ");
+                        partnerIds.Append(string.Format("\'{0}\'", state.Code));
+                    }
+                    if (where.Length > 0)
+                        where.Append("\n and ");
+                    where.Append(string.Format("pen.state_code in ({0})", stateCodes));
+                }
+                if (where.Length > 0)
+                {
+                    where.Insert(0, "where ");
+                    sql.Append(where);
+                }
+                command.CommandText = sql.ToString();
+                using (var reader = command.ExecuteReader())
+                {
+                    var pickingEndNotice = CreatePickingEndNotice(reader);
+                    pickingEndNotices.Add(pickingEndNotice);
+                    var lines = GetOutgoLines(pickingEndNotice.Outgo);
+                    pickingEndNotice.Outgo.AddLines(lines);
+                    reader.Close();
+                }
+            }
+            return pickingEndNotices.ToArray();
         }
+        #endregion
 
-        public OutboundNotification[] GetPickingFinishNotifications()
+        #region ShippingNotice
+        private ShippingNotice CreateShippingNotice(DbDataReader reader)
         {
-            return null; // TODO
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var outgoId = Convert.ToString(reader["outgo_id"]);
+            var outgoNumber = Convert.ToString(reader["outgo_number"]);
+            var outgoDate = DateTime.MinValue;
+            var outgoPartnerId = Convert.ToString(reader["partner_id"]);
+            var outgoPartner = GetPartner(outgoPartnerId);
+            var outgoPartnerNumber = Convert.ToString(reader["partner_outgo_number"]);
+            var outgoStateCode = Convert.ToString(reader["state_code"]);
+            var outgoState = GetOutgoState(outgoStateCode);
+            var outgoNote = string.Empty;
+            var outgo = new Outgo(outgoId, outgoNumber, outgoDate, outgoPartner, outgoPartnerNumber, outgoState, outgoNote);
+
+            var id = -1;
+            var number = string.Empty;
+            var date = DateTime.Now; // Теуцщая дата и время сообщения
+            var version = (byte)1;
+            var sender = Tslog;
+            var recipient = outgoPartner;
+            var serviceSeller = Tslog;
+            var serviceBuyer = outgoPartner;
+            var shipper = Tslog;
+            var receiver = outgoPartner;
+            var note = string.Empty;
+
+            var shippingNotice = new ShippingNotice(id, number, version, date, outgo,
+                sender, recipient, serviceSeller, serviceBuyer, shipper, receiver, note);
+            return shippingNotice;
         }
 
-        public OutboundNotification[] GetShippingNotifications()
+        public ShippingNotice GetShippingNotice(string outgoId)
         {
-            return null; // TODO
+            ShippingNotice shippingNotice = null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {LinksSchema}.v_shipping_notice sn where ns.outgo_id = :outgo_id";
+                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        shippingNotice = CreateShippingNotice(reader);
+                        var lines = GetOutgoLines(shippingNotice.Outgo);
+                        shippingNotice.Outgo.AddLines(lines);
+                    }
+                    reader.Close();
+                }
+            }
+            return shippingNotice;
         }
 
+        public ShippingNotice GetShippingNotice(LegalEntity partner, string partnerOutgoId)
+        {
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            ShippingNotice shippingNotice = null;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {LinksSchema}.v_shipping_notice sn" + "\n"
+                    + "where onm.partner_outgo_number = :partner_outgo_id and sn.partner_id = :partner_id";
+                command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
+                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        shippingNotice = CreateShippingNotice(reader);
+                        var lines = GetOutgoLines(shippingNotice.Outgo);
+                        shippingNotice.Outgo.AddLines(lines);
+                    }
+                    reader.Close();
+                }
+            }
+            return shippingNotice;
+        }
+
+        public ShippingNotice[] GetShippingNotices(LegalEntity[] partners = null, Entity[] states = null)
+        {
+            var shippingNotices = new List<ShippingNotice>();
+            using (var command = _connection.CreateCommand())
+            {
+                var partnerIds = new StringBuilder();
+                var stateCodes = string.Empty;
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_shipping_notice sn");
+                var where = new StringBuilder();
+                if (partners.Length > 0)
+                {
+                    foreach (var partner in partners)
+                    {
+                        if (partnerIds.Length > 0)
+                            partnerIds.Append(", ");
+                        partnerIds.Append(string.Format("\'{0}\'", partner.Id));
+                    }
+                    if (where.Length > 0)
+                        where.Append("\n and ");
+                    where.Append(string.Format("sn.partner_id in ({0})", partnerIds));
+                }
+                if (states.Length > 0)
+                {
+                    foreach (var state in states)
+                    {
+                        if (partnerIds.Length > 0)
+                            partnerIds.Append(", ");
+                        partnerIds.Append(string.Format("\'{0}\'", state.Code));
+                    }
+                    if (where.Length > 0)
+                        where.Append("\n and ");
+                    where.Append(string.Format("sn.state_code in ({0})", stateCodes));
+                }
+                if (where.Length > 0)
+                {
+                    where.Insert(0, "where ");
+                    sql.Append(where);
+                }
+                command.CommandText = sql.ToString();
+                using (var reader = command.ExecuteReader())
+                {
+                    var shippingNotice = CreateShippingNotice(reader);
+                    shippingNotices.Add(shippingNotice);
+                    var lines = GetOutgoLines(shippingNotice.Outgo);
+                    shippingNotice.Outgo.AddLines(lines);
+                    reader.Close();
+                }
+            }
+            return shippingNotices.ToArray();
+        }
+        #endregion
         #endregion Outbound instruction and notification
 
         #region DEBUG

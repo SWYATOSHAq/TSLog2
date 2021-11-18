@@ -26,11 +26,11 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
         */
 
-        public string Convert(string transactionId, InboundInstruction instruction,
+        public string Convert(string transactionId, IncomeRequest instruction,
             string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
         {
             var partner = instruction.ServiceBuyer;
-            var inbound = instruction.Inbound;
+            var inbound = instruction.Income;
 
             // TODO: read how to serealize fields from external struct (for example from ini file)
 

@@ -12,28 +12,28 @@ namespace TSLog.Links.Services.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class InboundsController : ControllerBase
+    public class IncomesController : ControllerBase
     {
         private readonly ILinksInboundsStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
 
-        public InboundsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public IncomesController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksInboundsStorage)storage;
             _xmlConverter = xmlConverter;
         }
 
         [HttpPost]
-        public async Task<string> PostInbound()
+        public async Task<string> PostIncomeRequest()
         {
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var inboundInstruction = _xmlConverter.InboundInstructionFromXml(reader);
+            var incomeRequest = _xmlConverter.IncomeRequestFromXml(reader);
             var converterProducts = new EINWMSInboundsConverter();
 
             var transactionNumber = _storage.GenerateTransactionId();
-            var fileContent = converterProducts.Convert(transactionNumber, inboundInstruction);
+            var fileContent = converterProducts.Convert(transactionNumber, incomeRequest);
 
             UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
 
@@ -49,25 +49,37 @@ namespace TSLog.Links.Services.Controllers
             //return sb.ToString();
         }
 
-        //[HttpGet("{inboundId}")]
-        //public string GetInboundNotification(string inboundId)
-        //{
-        //    return string.Empty;
-        //}
+        [HttpGet("IncomeResponses/{incomeId}")]
+        public string GetIncomeResponse(string incomeId)
+        {
+            // TODO: realize
+            return string.Empty;
+        }
 
-        [HttpGet("InboundNotifications/{notificationId}")]
-        public string GetPickingFinishNotification(string notificationId)
+        [HttpGet("IncomeResponses")]
+        public string GetIncomeResponses()
+        {
+            // TODO: realize
+            return string.Empty;
+        }
+
+
+        [HttpGet("ReceiptEndNotices/{incomeId}")]
+        public string GetReceiptEndNoticeNotification(string incomeId)
         {
             // todo dont work
-            var notifocationInbound = _storage.GetInboundNotification(notificationId);
-            var xml = _xmlConverter.InboundNotificationToXml(notifocationInbound);
+            var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);
+            var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
             xml = Utils.PrepXML(xml);
-
 
             return xml;
         }
 
-        // =======================
-        //  приемка фактическая / приемка по системе
+        [HttpGet("ReceiptEndNotices")]
+        public string GetReceiptEndNoticeNotifications()
+        {
+            // TODO: realize
+            return string.Empty;
+        }
     }
 }

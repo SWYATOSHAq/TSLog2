@@ -12,59 +12,51 @@ namespace TSLog.Links.Services.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OutboundsController : ControllerBase
+    public class OutgoesController : ControllerBase
     {
         private readonly ILinksOutboundsStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
 
-        public OutboundsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public OutgoesController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksOutboundsStorage)storage;
             _xmlConverter = xmlConverter;
         }
 
         [HttpPost]
-        public async Task<string> PostOrder()
+        public async Task<string> PostOutgoRequest()
         {
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var outboundInstruction = _xmlConverter.OutboundInstructionFromXml(reader);
+            var outgoRequest = _xmlConverter.OutgoRequestFromXml(reader);
             var converterProducts = new EINWMSOutboundsConverter();
 
             var transactionNumber = _storage.GenerateTransactionId();
-            var fileContent = converterProducts.Convert(transactionNumber, outboundInstruction);
+            var fileContent = converterProducts.Convert(transactionNumber, outgoRequest);
 
             UtilsIO.WriteFileToWMSINFolder(fileContent, transactionNumber);
 
             return "" + fileContent; // todo retrun smth userfull
         }
 
-        //[HttpGet]
-        //public ActionResult<OutboundNotification[]> GetOrderResponses()
-        //{
-        //    // ------------------------------
-        //    // DEBUG place by Valerian
 
-        //    return _storage.GetOrderResponses();
-        //    // ------------------------------
-        //    //return string.Empty;
-        //}
-
-        [HttpGet("{orderId}")]
-        public string GetOrderResponse(string orderId)
+        [HttpGet("OutgoResposes/{outgoId}")]
+        public string GetOutgoResponse(string outgoId)
         {
+            // TODO: realize
             return string.Empty;
         }
 
-        [HttpGet("PickingStartNotifications")]
-        public string GetPickingStartNotifications()
+        [HttpGet("OutgoResposes")]
+        public string GetOutgoResponses()
         {
+            // TODO: realize
             return string.Empty;
         }
 
-        [HttpGet("PickingStartNotifications/{notificationId}")]
-        public string GetPickingStartNotification(string notificationId)
+        [HttpGet("PickingBeginNotifications/{outgoId}")]
+        public string GetPickingBeginNotification(string outgoId)
         {
             /*
             * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
@@ -83,17 +75,19 @@ namespace TSLog.Links.Services.Controllers
 
 
             //return xml;
+            // TODO: realize
             return "";
         }
 
-        [HttpGet("PickingFinishNotifications")]
-        public string GetPickingFinishNotifications()
+        [HttpGet("PickingBeginNotifications")]
+        public string GetPickingBeginNotifications()
         {
+            // TODO: realize
             return string.Empty;
         }
 
-        [HttpGet("PickingFinishNotifications/{notificationId}")]
-        public string GetPickingFinishNotification(string notificationId)
+        [HttpGet("PickingEndNotifications/{notificationId}")]
+        public string GetPickingEndNotification(string outgoId)
         {
             /*
             * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
@@ -112,17 +106,19 @@ namespace TSLog.Links.Services.Controllers
 
 
             //return xml;
+            // TODO: realize
             return "";
         }
 
-        [HttpGet("ShippingNotifications")]
-        public string GetShippingNotifications()
+        [HttpGet("PickingEndNotifications")]
+        public string GetPickingEndNotifications()
         {
+            // TODO: realize
             return string.Empty;
         }
 
-        [HttpGet("ShippingNotifications/{notificationId}")]
-        public string GetShippingNotification(string notificationId)
+        [HttpGet("ShippingNotifications/{outgoId}")]
+        public string GetShippingNotification(string outgoId)
         {
             /*
              * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
@@ -142,14 +138,16 @@ namespace TSLog.Links.Services.Controllers
 
 
             //return xml;
+            // TODO: realize
             return "";
         }
 
-        // =======================
-
-        // отгрузка ФАКТ ПО МЕСТАМ
-        // отгрузка
-
+        [HttpGet("ShippingNotifications")]
+        public string GetShippingNotifications()
+        {
+            // TODO: realize
+            return string.Empty;
+        }
     }
 
 }

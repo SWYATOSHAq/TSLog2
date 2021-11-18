@@ -30,30 +30,36 @@ namespace TSLog.Links
 
     public interface ILinksInboundsStorage : ILinksBase
     {
-        public InboundNotification GetInboundNotification(string inboundId);
+        public Entity GetIncomeState(string stateCode);
+        public ReceiptEndNotice GetReceiptEndNotice(string incomeId);
 
-        public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId);
+        public ReceiptEndNotice GetReceiptEndNotice(LegalEntity partner, string partnerInboundId);
 
-        public InboundNotification[] GetInboundNotifications(LegalEntity[] partners = null);
-        public Entity GetInboundState(string stateCode);
+        public ReceiptEndNotice[] GetReceiptEndNoticies(LegalEntity[] partners = null);        
     }
 
     public interface ILinksOutboundsStorage : ILinksBase
     {
-        public OutboundNotification GetOutboundNotification(string outboundId);
+        public Entity GetOutgoState(string stateCode);
+        public PickingBeginNotice GetPickingBeginNotice(string outgoId);
 
-        public OutboundNotification GetOutboundNotification(LegalEntity partner, string partnerOutboundId);
+        public PickingBeginNotice GetPickingBeginNotice(LegalEntity partner, string partnerOutgoId);
 
-        public OutboundNotification[] GetOutboundNotifications(LegalEntity[] partners = null, Entity[] states = null);
+        public PickingBeginNotice[] GetPickingBeginNotices(LegalEntity[] partners = null, Entity[] states = null);
 
-        public OutboundNotification[] GetOrderResponses();
 
-        public OutboundNotification[] GetPickingStartNotifications();
+        public PickingEndNotice GetPickingEndNotice(string outgoId);
 
-        public OutboundNotification[] GetPickingFinishNotifications();
+        public PickingEndNotice GetPickingEndNotice(LegalEntity partner, string partnerOutgoId);
 
-        public OutboundNotification[] GetShippingNotifications();
-        public Entity GetOutboundState(string stateCode);
+        public PickingEndNotice[] GetPickingEndNotices(LegalEntity[] partners = null, Entity[] states = null);
+
+
+        public ShippingNotice GetShippingNotice(string outgoId);
+
+        public ShippingNotice GetShippingNotice(LegalEntity partner, string partnerOutgoId);
+
+        public ShippingNotice[] GetShippingNotices(LegalEntity[] partners = null, Entity[] states = null);
     }
 
     public interface ILinksBase : ILinksGenIdentifier // pass ILinksGenIdentifier to every part of ILinksStorage
