@@ -23,7 +23,6 @@ namespace TSLog.Links.Services.Controllers
             _storage = storage as ILinksProductsStorage;
             _xmlConverter = xmlConverter;
         }
-        
 
         [HttpPost]
         public async Task<string> PostProducts()
@@ -68,6 +67,6 @@ namespace TSLog.Links.Services.Controllers
 
         // остатки по факту (stock)
         // номенклатура
-        // 
+        //
     }
 }

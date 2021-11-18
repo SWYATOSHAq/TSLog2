@@ -572,7 +572,7 @@ namespace TSLog.Links.Db
             var currency = GetCurrency(currencyCode);
             var planQuantity = Convert.ToDouble(reader["plan_quantity"]);
             var factQuantity = Convert.ToDouble(reader["fact_quantity"]);
-            var measureUnitCode = Convert.ToString(reader["measure_unit_code"]);
+            var measureUnitCode = Convert.ToString(reader["quantity_measure_unit_code"]);
             var measureUnit = GetMeasureUnit(measureUnitCode);
             var line = new Inbound.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
             return line;
@@ -629,8 +629,8 @@ namespace TSLog.Links.Db
             var lines = new List<Inbound.Line>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification_line inml where inml.inbound_id = :inbound_id";
-                command.Parameters.Add(new OracleParameter("inbound_id", inboundNotification.Inbound.Code));
+                command.CommandText = $"select * from {CommonSchema}.v_income_line inml where inml.income_id = :income_id";
+                command.Parameters.Add(new OracleParameter("income_id", inboundNotification.Inbound.Code));
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -649,7 +649,7 @@ namespace TSLog.Links.Db
             InboundNotification inboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm  where inm.inbound_id = :inbound_id";
+                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice inm  where inm.inbound_id = :inbound_id";
                 command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
                 using (var reader = command.ExecuteReader())
                 {
@@ -670,7 +670,7 @@ namespace TSLog.Links.Db
             InboundNotification inboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm  where inm.inbound_id = :inbound_id";
+                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice inm  where inm.inbound_id = :inbound_id";
                 command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
                 command.Parameters.Add(new OracleParameter("inbound_id", inboundId));
                 using (var reader = command.ExecuteReader())
@@ -687,14 +687,14 @@ namespace TSLog.Links.Db
             return inboundNotification;
         }
 
-        public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId) 
+        public InboundNotification GetInboundNotification(LegalEntity partner, string partnerInboundId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
             InboundNotification inboundNotification = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_inbound_notification inm " + "\n"
+                command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice inm " + "\n"
                     + "where inm.partner_inbound_number = :partner_inbound_id and inm.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_inbound_id", partnerInboundId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
@@ -717,7 +717,7 @@ namespace TSLog.Links.Db
             var inboundNotifications = new List<InboundNotification>();
             using (var command = _connection.CreateCommand())
             {
-                var sql = new StringBuilder($"select * from {LinksSchema}.v_inbound_notification inm");
+                var sql = new StringBuilder($"select * from {LinksSchema}.v_receipt_end_notice inm");
                 var where = new StringBuilder();
                 if (partners != null && partners.Length > 0)
                 {
