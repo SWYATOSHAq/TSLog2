@@ -24,7 +24,7 @@ namespace Auth.Services
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
         private List<User> _users = new List<User>
         {
-            new User { Id = 1, FirstName = "Test", LastName = "User", Username = "admin", Password = "1" }
+            new User { Id = 1, PartnerId = "Test", PartnerName = "User", Name = "admin", Password = "1" }
 
             // TODO: load from db
         };
@@ -39,7 +39,7 @@ namespace Auth.Services
 
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
         {
-            var user = _users.SingleOrDefault(x => x.Username == model.Username && x.Password == model.Password);
+            var user = _users.SingleOrDefault(x => x.Name == model.Username && x.Password == model.Password);
 
             // TODO: realize
             //DB.loadLegalEntityByHashedPass(model.Username, model.Password);

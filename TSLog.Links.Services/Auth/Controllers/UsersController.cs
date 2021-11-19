@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Auth.Models;
 using Auth.Services;
+using TSLog.Links;
 
 namespace Auth.Controllers
 {
@@ -8,17 +9,17 @@ namespace Auth.Controllers
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private IUserService _userService;
+        private ILinksUsers _databaseUsers;
 
-        public UsersController(IUserService userService)
+        public UsersController(ILinksUsers databaseUsers)
         {
-            _userService = userService;
+            _databaseUsers = databaseUsers;
         }
 
         [HttpPost("authenticate")]
         public IActionResult Authenticate(AuthenticateRequest model)
         {
-            var response = _userService.Authenticate(model);
+            var response = _databaseUsers.Authenticate(model);
 
             if (response == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -26,14 +27,14 @@ namespace Auth.Controllers
             return Ok(response);
         }
 
-        //[Authorize]
-        //[HttpGet]
-        //public IActionResult GetAll()
-        //{
-        //    // no snitch :) 
-        //
-        //    var users = _userService.GetAll();
-        //    return Ok(users);
-        //}
+        [Authorize]
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            // no snitch :)
+
+            var users = _databaseUsers.GetAllUsers();
+            return Ok(users);
+        }
     }
 }

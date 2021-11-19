@@ -2,7 +2,7 @@
 
 namespace TSLog.Links
 {
-    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksIncomesStorage, ILinksOutgoesStorage
+    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksIncomesStorage, ILinksOutgoesStorage, ILinksUsers
     {
     }
 
@@ -21,7 +21,7 @@ namespace TSLog.Links
     {
         public LegalEntity GetPartner(string id);
 
-        public LegalEntity[] GetPartners();       
+        public LegalEntity[] GetPartners();
 
         public LegalEntity GetLegalEntity(string id);
 
@@ -77,4 +77,13 @@ namespace TSLog.Links
 
         public string GenerateObjectId(string objectName, LegalEntity partner);
     }
+
+    public interface ILinksUsers // TODO: change used entities
+    {
+        public User[] GetAllUsers();
+
+        public  Authenticate(AuthenticateRequest model);
+    }
+
+
 }

@@ -1,13 +1,13 @@
 using System.Text.Json.Serialization;
 
-namespace Auth.Entities
+namespace TSLog.Links
 {
     public class User
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Username { get; set; }
+        public string PartnerId { get; set; }
+        public string PartnerName { get; set; }
+        public string Name { get; set; }
 
         [JsonIgnore]
         public string Password { get; set; }
