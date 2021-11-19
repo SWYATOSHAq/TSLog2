@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "41xJJKHM2/uMjr51+kCjsnZ0S3y1wXOtkd1Uio6VUnIGaVcJVvX0mRi2sLJ6PYy/o0fbMq0ycvIPb18D59B5Fw==",
+  "dgSpecHash": "RQU6JdDdIzS+xwGQZf6aLZnB4YIJ35HBJDxqhba+oEHcBjFK59Fhtc9U68zJqB9Sdq138SlZl94l5ep3NHheFw==",
   "success": true,
-  "projectFilePath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
+  "projectFilePath": "D:\\C#\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\v.vorotnikov\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\v.vorotnikov\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",

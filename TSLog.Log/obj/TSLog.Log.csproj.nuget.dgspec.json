@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {}
+    "D:\\C#\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {}
   },
   "projects": {
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.Log\\TSLog.Log.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
         "projectName": "TSLog.Log",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.Log\\TSLog.Log.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Log\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.Log\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",

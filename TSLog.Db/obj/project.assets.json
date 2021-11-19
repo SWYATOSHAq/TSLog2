@@ -812,11 +812,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+      "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
       "projectName": "TSLog.Db",
-      "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+      "projectPath": "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
       "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-      "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\obj\\",
+      "outputPath": "D:\\C#\\TSLog2\\TSLog.Db\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -833,8 +833,8 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
-              "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj"
+            "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
+              "projectPath": "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj"
             }
           }
         }

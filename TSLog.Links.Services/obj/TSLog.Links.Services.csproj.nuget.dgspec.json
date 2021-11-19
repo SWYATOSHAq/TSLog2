@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj": {}
+    "D:\\C#\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj": {}
   },
   "projects": {
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.BO\\TSLog.BO.csproj",
         "projectName": "TSLog.BO",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.BO\\TSLog.BO.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.BO\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -58,14 +58,14 @@
         }
       }
     },
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
         "projectName": "TSLog.Common",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.Common\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -112,14 +112,14 @@
         }
       }
     },
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
         "projectName": "TSLog.Db",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.Db\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -136,8 +136,8 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
-                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Common\\TSLog.Common.csproj"
+              "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj": {
+                "projectPath": "D:\\C#\\TSLog2\\TSLog.Common\\TSLog.Common.csproj"
               }
             }
           }
@@ -176,14 +176,14 @@
         }
       }
     },
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
         "projectName": "TSLog.Links.Db",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.Links.Db\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -200,11 +200,11 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
-                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj"
+              "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj": {
+                "projectPath": "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj"
               },
-              "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
-                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
+              "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
+                "projectPath": "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
               }
             }
           }
@@ -237,14 +237,14 @@
         }
       }
     },
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
         "projectName": "TSLog.Links.Services",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.Links.Services\\TSLog.Links.Services.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Services\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.Links.Services\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -261,11 +261,11 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj": {
-                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj"
+              "D:\\C#\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj": {
+                "projectPath": "D:\\C#\\TSLog2\\TSLog.Links.Db\\TSLog.Links.Db.csproj"
               },
-              "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
-                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
+              "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
+                "projectPath": "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj"
               }
             }
           }
@@ -311,14 +311,14 @@
         }
       }
     },
-    "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
+    "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
+        "projectUniqueName": "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
         "projectName": "TSLog.Links",
-        "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
+        "projectPath": "D:\\C#\\TSLog2\\TSLog.Links\\TSLog.Links.csproj",
         "packagesPath": "C:\\Users\\v.vorotnikov\\.nuget\\packages\\",
-        "outputPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Links\\obj\\",
+        "outputPath": "D:\\C#\\TSLog2\\TSLog.Links\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\v.vorotnikov\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -335,8 +335,8 @@
           "net5.0": {
             "targetAlias": "net5.0",
             "projectReferences": {
-              "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
-                "projectPath": "D:\\C#\\prod dev\\TSLog2\\TSLog.BO\\TSLog.BO.csproj"
+              "D:\\C#\\TSLog2\\TSLog.BO\\TSLog.BO.csproj": {
+                "projectPath": "D:\\C#\\TSLog2\\TSLog.BO\\TSLog.BO.csproj"
               }
             }
           }

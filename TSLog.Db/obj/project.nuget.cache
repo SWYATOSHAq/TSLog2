@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ce3WYW5INFGAMKozyJiR8voE7LfoDDvLvwB56RI9BRvuIOj41iMm+ieJ7tGB57ZI/m9ZCeohzoISanlAkCsgJQ==",
+  "dgSpecHash": "OpJ33FFowvl+tpkP8OH963H9ChvV5j71X5SRHM44bFwLUxQwy96Tp/HKME9bV3HIgDhKkYHHVBGFLp/nHyoifA==",
   "success": true,
-  "projectFilePath": "D:\\C#\\prod dev\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
+  "projectFilePath": "D:\\C#\\TSLog2\\TSLog.Db\\TSLog.Db.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\v.vorotnikov\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.1\\microsoft.netcore.platforms.5.0.1.nupkg.sha512",
     "C:\\Users\\v.vorotnikov\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
