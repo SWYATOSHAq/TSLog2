@@ -1,3 +1,5 @@
+using Auth.Helpers;
+using Auth.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +24,16 @@ namespace TSLog.Links.Services
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // auth
+            services.AddCors();
+            // configure strongly typed settings object
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            // configure DI for application services
+            services.AddScoped<IUserService, UserService>();
+            // auth
+
             InitSingletons(services);
+
             var temp = services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true; // false by default
@@ -37,7 +48,16 @@ namespace TSLog.Links.Services
                 app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
             app.UseRouting();
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
             app.UseAuthorization();
+            // custom jwt auth middleware
+            app.UseMiddleware<JwtMiddleware>();
+            //
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -46,15 +66,13 @@ namespace TSLog.Links.Services
 
         private void InitSingletons(IServiceCollection services)
         {
-            // TODO: Connection params брать из конфига
-
             // ---------------------------------------
             // init storage
             // this storage is then used to get dada from db
             // information on how data access is then split is in ILinksStorage interface
 
             var dataSource = Configuration.GetValue<string>("ConnectionSettings:DataSource");
-            var storage = new DbLinksStorage(dataSource);            
+            var storage = new DbLinksStorage(dataSource);
 
             storage.CommonSchema = Configuration.GetValue<string>("ConnectionSettings:CommonSchema");
             storage.WmsSchema = Configuration.GetValue<string>("ConnectionSettings:WmsSchema");
@@ -67,7 +85,7 @@ namespace TSLog.Links.Services
             storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
 
             storage.Products = new ProductCatalog<Product>("PRODUCTS", "Товары");
-            
+
             var login = Configuration.GetValue<string>("ConnectionSettings:Login");
             var password = Configuration.GetValue<string>("ConnectionSettings:Password");
 

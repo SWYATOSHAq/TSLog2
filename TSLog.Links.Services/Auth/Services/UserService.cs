@@ -16,7 +16,6 @@ namespace Auth.Services
     public interface IUserService
     {
         AuthenticateResponse Authenticate(AuthenticateRequest model);
-        IEnumerable<User> GetAll();
         User GetById(int id);
     }
 
@@ -26,10 +25,12 @@ namespace Auth.Services
         private List<User> _users = new List<User>
         {
             new User { Id = 1, FirstName = "Test", LastName = "User", Username = "admin", Password = "1" }
+
             // TODO: load from db
         };
 
         private readonly AppSettings _appSettings;
+        //private readonly AppSettings _appSettings;
 
         public UserService(IOptions<AppSettings> appSettings)
         {
@@ -40,6 +41,9 @@ namespace Auth.Services
         {
             var user = _users.SingleOrDefault(x => x.Username == model.Username && x.Password == model.Password);
 
+            // TODO: realize
+            //DB.loadLegalEntityByHashedPass(model.Username, model.Password);
+
             // return null if user not found
             if (user == null) return null;
 
@@ -49,14 +53,11 @@ namespace Auth.Services
             return new AuthenticateResponse(user, token);
         }
 
-        public IEnumerable<User> GetAll()
-        {
-            return _users;
-        }
 
         public User GetById(int id)
         {
             return _users.FirstOrDefault(x => x.Id == id);
+            // TODO: realize
         }
 
         // helper methods
