@@ -22,8 +22,7 @@ namespace TSLog.Links.Services
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            InitSingletrons(services);
-
+            InitSingletons(services);
             var temp = services.AddControllers(options =>
             {
                 options.RespectBrowserAcceptHeader = true; // false by default
@@ -45,7 +44,7 @@ namespace TSLog.Links.Services
             });
         }
 
-        private void InitSingletrons(IServiceCollection services)
+        private void InitSingletons(IServiceCollection services)
         {
             // TODO: Connection params брать из конфига
 
@@ -53,13 +52,13 @@ namespace TSLog.Links.Services
             // init storage
             // this storage is then used to get dada from db
             // information on how data access is then split is in ILinksStorage interface
-            var dataSource =
-               "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
 
-            var storage = new DbLinksStorage(dataSource);
-            storage.CommonSchema = "ecco";
-            storage.LinksSchema = "links";
-            storage.WmsSchema = "ecco2_s1_pdba";
+            var dataSource = Configuration.GetValue<string>("ConnectionSettings:DataSource");
+            var storage = new DbLinksStorage(dataSource);            
+
+            storage.CommonSchema = Configuration.GetValue<string>("ConnectionSettings:CommonSchema");
+            storage.WmsSchema = Configuration.GetValue<string>("ConnectionSettings:WmsSchema");
+            storage.LinksSchema = Configuration.GetValue<string>("ConnectionSettings:LinksSchema");
 
             storage.IncomeStates = new Catalog<Entity>("INBOUND_STATES", "—осто€и€ приходов");
             storage.OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "—осто€и€ расходов");
@@ -68,11 +67,15 @@ namespace TSLog.Links.Services
             storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
 
             storage.Products = new ProductCatalog<Product>("PRODUCTS", "“овары");
+            
+            var login = Configuration.GetValue<string>("ConnectionSettings:Login");
+            var password = Configuration.GetValue<string>("ConnectionSettings:Password");
 
-            var password = new SecureString();
-            foreach (var symbol in "e")
-                password.AppendChar(symbol);
-            storage.Connect("ecco", password);
+            var securePassword = new SecureString();
+            foreach (var symbol in password)
+                securePassword.AppendChar(symbol);
+            password = string.Empty;
+            storage.Connect(login, securePassword);
 
             // preload units and states
             storage.IncomeStates.Add(storage.GetIncomeStates());

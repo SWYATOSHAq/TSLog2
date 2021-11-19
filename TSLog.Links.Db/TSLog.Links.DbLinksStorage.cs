@@ -693,9 +693,9 @@ namespace TSLog.Links.Db
             return receiptEndNotice;
         }
 
-        public ReceiptEndNotice[] GetReceiptEndNoticies(LegalEntity[] partners = null)
+        public ReceiptEndNotice[] GetReceiptEndNotices(LegalEntity[] partners = null)
         {
-            var receiptEndNoticies = new List<ReceiptEndNotice>();
+            var receiptEndNotices = new List<ReceiptEndNotice>();
             using (var command = _connection.CreateCommand())
             {
                 var sql = new StringBuilder($"select * from {LinksSchema}.v_receipt_end_notice ren");
@@ -719,12 +719,12 @@ namespace TSLog.Links.Db
                     {
                         var receiptEndNotice = CreateReceiptEndNotice(reader);
                         receiptEndNotice.Income.AddLines(GetIncomeLines(receiptEndNotice.Income));
-                        receiptEndNoticies.Add(receiptEndNotice);
+                        receiptEndNotices.Add(receiptEndNotice);
                     }
                     reader.Close();
                 }
             }
-            return receiptEndNoticies.ToArray();
+            return receiptEndNotices.ToArray();
         }
 
         #endregion Inbound instruction and notification
@@ -933,7 +933,7 @@ namespace TSLog.Links.Db
             PickingEndNotice pickingEndNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pbn where pbn.outgo_id = :outgo_id";
+                command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pen where pen.outgo_id = :outgo_id";
                 command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
                 using (var reader = command.ExecuteReader())
                 {
