@@ -9,7 +9,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpPost("{id}")]
         public string Index(long id)
         {
-            return "inbound test - " + id.ToString();
+            return "inbound - " + id.ToString();
         }
     }
 }
