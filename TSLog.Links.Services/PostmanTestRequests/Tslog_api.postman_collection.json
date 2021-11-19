@@ -9,7 +9,7 @@
 			"name": "post",
 			"item": [
 				{
-					"name": "post inboind",
+					"name": "post incomes",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -23,7 +23,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:5001/api/Inbounds",
+							"raw": "https://localhost:5001/api/incomes",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -31,7 +31,7 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"Inbounds"
+								"incomes"
 							]
 						}
 					},
@@ -70,7 +70,7 @@
 					"response": []
 				},
 				{
-					"name": "post outbound",
+					"name": "post outgoes",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -84,7 +84,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:5001/api/Outbounds",
+							"raw": "https://localhost:5001/api/outgoes",
 							"protocol": "https",
 							"host": [
 								"localhost"
@@ -92,7 +92,7 @@
 							"port": "5001",
 							"path": [
 								"api",
-								"Outbounds"
+								"outgoes"
 							]
 						}
 					},
@@ -137,9 +137,28 @@
 					"item": [
 						{
 							"name": "getClientByID",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"disabledSystemHeaders": {}
+							},
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/xml",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "xml"
+										}
+									}
+								},
 								"url": {
 									"raw": "https://localhost:5001/api/Clients/CUSTTABLE_000000325",
 									"protocol": "https",
@@ -167,7 +186,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Incomes/IncomeResponses/00020000WM00000008",
+									"raw": "https://localhost:5001/api/Incomes/IncomeResponses/123",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -177,7 +196,7 @@
 										"api",
 										"Incomes",
 										"IncomeResponses",
-										"00020000WM00000008"
+										"123"
 									]
 								}
 							},
@@ -210,7 +229,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Incomes/IncomeResponses/123",
+									"raw": "https://localhost:5001/api/Incomes/ReceiptEndNotices/00020000WM00000006",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -219,8 +238,8 @@
 									"path": [
 										"api",
 										"Incomes",
-										"IncomeResponses",
-										"123"
+										"ReceiptEndNotices",
+										"00020000WM00000006"
 									]
 								}
 							},
@@ -279,7 +298,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/OutgoResposes/00800000WM00035291",
+									"raw": "https://localhost:5001/api/Outgoes/OutgoResposes/123",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -289,19 +308,19 @@
 										"api",
 										"Outgoes",
 										"OutgoResposes",
-										"00800000WM00035291"
+										"123"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "PickingBeginNotifications all",
+							"name": "PickingBeginNotices all",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/PickingBeginNotifications",
+									"raw": "https://localhost:5001/api/Outgoes/PickingBeginNotices",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -310,19 +329,19 @@
 									"path": [
 										"api",
 										"Outgoes",
-										"PickingBeginNotifications"
+										"PickingBeginNotices"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "PickingBeginNotifications",
+							"name": "PickingBeginNotices",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/PickingBeginNotifications/00800000WM00035291",
+									"raw": "https://localhost:5001/api/Outgoes/PickingBeginNotices/00800000WM00035174",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -331,8 +350,8 @@
 									"path": [
 										"api",
 										"Outgoes",
-										"PickingBeginNotifications",
-										"00800000WM00035291"
+										"PickingBeginNotices",
+										"00800000WM00035174"
 									]
 								}
 							},
@@ -344,7 +363,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/PickingEndNotifications",
+									"raw": "https://localhost:5001/api/Outgoes/PickingEndNotices",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -353,7 +372,7 @@
 									"path": [
 										"api",
 										"Outgoes",
-										"PickingEndNotifications"
+										"PickingEndNotices"
 									]
 								}
 							},
@@ -365,7 +384,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/PickingEndNotifications/00800000WM00035291",
+									"raw": "https://localhost:5001/api/Outgoes/PickingEndNotices/00800000WM00035175",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -374,8 +393,8 @@
 									"path": [
 										"api",
 										"Outgoes",
-										"PickingEndNotifications",
-										"00800000WM00035291"
+										"PickingEndNotices",
+										"00800000WM00035175"
 									]
 								}
 							},
@@ -387,7 +406,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/ShippingNotifications",
+									"raw": "https://localhost:5001/api/Outgoes/ShippingNotices",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -396,7 +415,7 @@
 									"path": [
 										"api",
 										"Outgoes",
-										"ShippingNotifications"
+										"ShippingNotices"
 									]
 								}
 							},
@@ -408,7 +427,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Outgoes/ShippingNotifications/00800000WM00035291",
+									"raw": "https://localhost:5001/api/Outgoes/ShippingNotices/00080000WM00000210",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -417,8 +436,8 @@
 									"path": [
 										"api",
 										"Outgoes",
-										"ShippingNotifications",
-										"00800000WM00035291"
+										"ShippingNotices",
+										"00080000WM00000210"
 									]
 								}
 							},
@@ -456,7 +475,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://localhost:5001/api/Products/balances/00500000AR00000018",
+									"raw": "https://localhost:5001/api/Products/balances/123",
 									"protocol": "https",
 									"host": [
 										"localhost"
@@ -466,7 +485,7 @@
 										"api",
 										"Products",
 										"balances",
-										"00500000AR00000018"
+										"123"
 									]
 								}
 							},

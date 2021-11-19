@@ -1054,7 +1054,7 @@ namespace TSLog.Links.Db
             ShippingNotice shippingNotice = null;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {LinksSchema}.v_shipping_notice sn where ns.outgo_id = :outgo_id";
+                command.CommandText = $"select * from {LinksSchema}.v_shipping_notice sn where sn.outgo_id = :outgo_id";
                 command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
                 using (var reader = command.ExecuteReader())
                 {
