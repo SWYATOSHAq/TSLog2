@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
@@ -17,10 +18,11 @@ namespace TSLog.Links.Services.Controllers
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
         private readonly bool DebugMode = true;
 
-        public ClientsController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public ClientsController(IConfiguration configuration, ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksClientsStorage)storage;
             _xmlConverter = xmlConverter;
+            DebugMode = configuration.GetValue<bool>("DebugMode");
         }
 
         [HttpPost]

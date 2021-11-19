@@ -17,8 +17,4 @@
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TestMessages\Out\" />
-  </ItemGroup>
-
 </Project>

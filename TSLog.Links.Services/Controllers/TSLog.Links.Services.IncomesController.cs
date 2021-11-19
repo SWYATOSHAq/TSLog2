@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,14 +15,15 @@ namespace TSLog.Links.Services.Controllers
     [ApiController]
     public class IncomesController : ControllerBase
     {
-        private readonly ILinksInboundsStorage _storage = null;
+        private readonly ILinksIncomesStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
         private readonly bool DebugMode = true;
 
-        public IncomesController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public IncomesController(IConfiguration configuration, ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
-            _storage = (ILinksInboundsStorage)storage;
+            _storage = (ILinksIncomesStorage)storage;
             _xmlConverter = xmlConverter;
+            DebugMode = configuration.GetValue<bool>("DebugMode");
         }
 
         [HttpPost]
@@ -60,7 +62,9 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ReceiptEndNotices/{incomeId}")]
         public string GetReceiptEndNotice(string incomeId)
         {
-            var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);
+            // TODO: get current partner
+            // TODO: pass current partner
+            var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);            
             var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
@@ -69,9 +73,11 @@ namespace TSLog.Links.Services.Controllers
 
         [HttpGet("ReceiptEndNotices")]
         public string GetReceiptEndNotices()
-        {
-            var partners = new List<LegalEntity>().ToArray();
-            var receiptEndNotices = _storage.GetReceiptEndNoticies(partners);
+        {            
+            var partners = new List<LegalEntity>();
+            // TODO: get current partner
+            // TODO: add current partner to list
+            var receiptEndNotices = _storage.GetReceiptEndNotices(partners.ToArray());
             var xml = _xmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);

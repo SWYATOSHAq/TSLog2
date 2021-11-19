@@ -2,11 +2,10 @@
 
 namespace TSLog.Links
 {
-    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksInboundsStorage, ILinksOutboundsStorage
+    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksIncomesStorage, ILinksOutgoesStorage
     {
     }
 
-    // Split ILinksStorage to several interfaces to cust ILinksStorage to
     public interface ILinksProductsStorage : ILinksBase
     {
         public Product GetProduct(string id);
@@ -31,7 +30,7 @@ namespace TSLog.Links
         public LegalEntity Tslog { get; }
     }
 
-    public interface ILinksInboundsStorage : ILinksBase
+    public interface ILinksIncomesStorage : ILinksBase
     {
         public Entity GetIncomeState(string stateCode);
 
@@ -39,10 +38,10 @@ namespace TSLog.Links
 
         public ReceiptEndNotice GetReceiptEndNotice(LegalEntity partner, string partnerInboundId);
 
-        public ReceiptEndNotice[] GetReceiptEndNoticies(LegalEntity[] partners = null);
+        public ReceiptEndNotice[] GetReceiptEndNotices(LegalEntity[] partners = null);
     }
 
-    public interface ILinksOutboundsStorage : ILinksBase
+    public interface ILinksOutgoesStorage : ILinksBase
     {
         public Entity GetOutgoState(string stateCode);
 
@@ -76,6 +75,6 @@ namespace TSLog.Links
     {
         public string GenerateTransactionId();
 
-        public string GenerateObjectId(string ObjectName, LegalEntity partner);
+        public string GenerateObjectId(string objectName, LegalEntity partner);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,14 +15,15 @@ namespace TSLog.Links.Services.Controllers
     [ApiController]
     public class OutgoesController : ControllerBase
     {
-        private readonly ILinksOutboundsStorage _storage = null;
+        private readonly ILinksOutgoesStorage _storage = null;
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
         private readonly bool DebugMode = true;
 
-        public OutgoesController(ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public OutgoesController(IConfiguration configuration, ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
-            _storage = (ILinksOutboundsStorage)storage;
+            _storage = (ILinksOutgoesStorage)storage;
             _xmlConverter = xmlConverter;
+            DebugMode = configuration.GetValue<bool>("DebugMode");
         }
 
         [HttpPost]
@@ -81,8 +83,9 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingBeginNotices")]
         public string GetPickingBeginNotices()
         {
-            var partners = new List<LegalEntity>().ToArray();
-            var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
+            var partners = new List<LegalEntity>();
+            // TODO: Add current partner
+            var pickingBeginNotices = _storage.GetPickingBeginNotices(partners.ToArray());
             var xml = _xmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
