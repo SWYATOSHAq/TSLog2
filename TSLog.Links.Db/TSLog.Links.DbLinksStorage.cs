@@ -676,7 +676,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice ren " + "\n"
-                    + "where ren.partner_income_number = :partner_income_id and inm.partner_id = :partner_id";
+                    + "where ren.partner_income_number = :partner_income_id and ren.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_income_id", partnerIncomeId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
@@ -836,7 +836,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pbn" + "\n"
-                    + "where pbn.partner_outgo_number = :partner_outgo_id and onm.partner_id = :partner_id";
+                    + "where pbn.partner_outgo_number = :partner_outgo_id and pbn.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
@@ -957,7 +957,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_picking_end_notice pen" + "\n"
-                    + "where pen.partner_outbound_number = :partner_outgo_id and pen.partner_id = :partner_id";
+                    + "where pen.partner_outgo_number = :partner_outgo_id and pen.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
@@ -1078,7 +1078,7 @@ namespace TSLog.Links.Db
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {LinksSchema}.v_shipping_notice sn" + "\n"
-                    + "where onm.partner_outgo_number = :partner_outgo_id and sn.partner_id = :partner_id";
+                    + "where sn.partner_outgo_number = :partner_outgo_id and sn.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 using (var reader = command.ExecuteReader())
