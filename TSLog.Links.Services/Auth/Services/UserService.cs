@@ -7,62 +7,64 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
-using Auth.Entities;
+//using Auth.Entities;
 using Auth.Helpers;
 using Auth.Models;
+using TSLog.Links;
+using TSLog.BO;
 
 namespace Auth.Services
 {
     public interface IUserService
     {
-        AuthenticateResponse Authenticate(AuthenticateRequest model);
-        User GetById(int id);
+        //AuthenticateResponse Authenticate(AuthenticateRequest model);
+        //User GetById(int id);
     }
 
     public class UserService : IUserService
     {
-        // users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        private List<User> _users = new List<User>
-        {
-            new User { Id = 1, PartnerId = "Test", PartnerName = "User", Name = "admin", Password = "1" }
+        //// users hardcoded for simplicity, store in a db with hashed passwords in production applications
+        //private List<User> _users = new List<User>
+        //{
+        //    new User { Id = 1, PartnerId = "Test", PartnerName = "User", Name = "admin", Password = "1" }
 
-            // TODO: load from db
-        };
+        //    // TODO: load from db
+        //};
 
         private readonly AppSettings _appSettings;
-        //private readonly AppSettings _appSettings;
+        ////private readonly AppSettings _appSettings;
 
-        public UserService(IOptions<AppSettings> appSettings)
-        {
-            _appSettings = appSettings.Value;
-        }
+        //public UserService(IOptions<AppSettings> appSettings)
+        //{
+        //    _appSettings = appSettings.Value;
+        //}
 
-        public AuthenticateResponse Authenticate(AuthenticateRequest model)
-        {
-            var user = _users.SingleOrDefault(x => x.Name == model.Username && x.Password == model.Password);
+        //public AuthenticateResponse Authenticate(AuthenticateRequest model)
+        //{
+        //    var user = _users.SingleOrDefault(x => x.Name == model.Username && x.Password == model.Password);
 
-            // TODO: realize
-            //DB.loadLegalEntityByHashedPass(model.Username, model.Password);
+        //    // TODO: realize
+        //    //DB.loadLegalEntityByHashedPass(model.Username, model.Password);
 
-            // return null if user not found
-            if (user == null) return null;
+        //    // return null if user not found
+        //    if (user == null) return null;
 
-            // authentication successful so generate jwt token
-            var token = generateJwtToken(user);
+        //    // authentication successful so generate jwt token
+        //    var token = generateJwtToken(user);
 
-            return new AuthenticateResponse(user, token);
-        }
+        //    return new AuthenticateResponse(user, token);
+        //}
 
 
-        public User GetById(int id)
-        {
-            return _users.FirstOrDefault(x => x.Id == id);
-            // TODO: realize
-        }
+        //public User GetById(int id)
+        //{
+        //    return _users.FirstOrDefault(x => x.Id == id);
+        //    // TODO: realize
+        //}
 
-        // helper methods
+        //// helper methods
 
-        private string generateJwtToken(User user)
+        private string generateJwtToken(LegalEntity user)
         {
             // generate token that is valid for 365 days
             var tokenHandler = new JwtSecurityTokenHandler();

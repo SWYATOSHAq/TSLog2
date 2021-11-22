@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Auth.Services;
+using TSLog.Links;
 
 namespace Auth.Helpers
 {
@@ -22,7 +23,7 @@ namespace Auth.Helpers
             _appSettings = appSettings.Value;
         }
 
-        public async Task Invoke(HttpContext context, IUserService userService)
+        public async Task Invoke(HttpContext context, ILinksUsers userService)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
@@ -32,7 +33,7 @@ namespace Auth.Helpers
             await _next(context);
         }
 
-        private void attachUserToContext(HttpContext context, IUserService userService, string token)
+        private void attachUserToContext(HttpContext context, ILinksUsers userService, string token)
         {
             try
             {
@@ -49,10 +50,10 @@ namespace Auth.Helpers
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+                var userId = jwtToken.Claims.First(x => x.Type == "id").Value;
 
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetById(userId);
+                context.Items["User"] = userService.GetLegalEntity(userId);
             }
             catch
             {

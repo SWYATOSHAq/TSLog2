@@ -17,6 +17,13 @@ namespace TSLog.Links
         public Product[] GetProducts(LegalEntity[] partners = null);
     }
 
+    public interface ILinksUsers : ILinksClientsStorage
+    {
+        public LegalEntity[] GetAllUsers();
+
+        public LegalEntity Authenticate(AuthenticateRequest model);
+    }
+
     public interface ILinksClientsStorage : ILinksBase
     {
         public LegalEntity GetPartner(string id);
@@ -77,13 +84,5 @@ namespace TSLog.Links
 
         public string GenerateObjectId(string objectName, LegalEntity partner);
     }
-
-    public interface ILinksUsers // TODO: change used entities
-    {
-        public User[] GetAllUsers();
-
-        public  Authenticate(AuthenticateRequest model);
-    }
-
 
 }

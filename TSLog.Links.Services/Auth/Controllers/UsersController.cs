@@ -5,6 +5,8 @@ using TSLog.Links;
 
 namespace Auth.Controllers
 {
+    // основная точка доступа для получения токена Berrier
+
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase

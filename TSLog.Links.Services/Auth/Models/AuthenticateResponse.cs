@@ -1,4 +1,5 @@
 
+using TSLog.BO;
 using TSLog.Links;
 
 namespace Auth.Models
@@ -7,15 +8,13 @@ namespace Auth.Models
     {
         public string PartnerId { get; set; }
         public string PartnerName { get; set; }
-        public string Name { get; set; }
         public string Token { get; set; }
 
 
-        public AuthenticateResponse(User user, string token)
+        public AuthenticateResponse(LegalEntity user, string token)
         {
-            PartnerId = user.PartnerId;
-            PartnerName = user.PartnerName;
-            Name = user.Name;
+            PartnerId = user.Code;
+            PartnerName = user.DisplayName;
             Token = token;
         }
     }

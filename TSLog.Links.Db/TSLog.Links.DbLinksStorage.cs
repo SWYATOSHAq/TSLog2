@@ -1134,8 +1134,50 @@ namespace TSLog.Links.Db
             return shippingNotices.ToArray();
         }
 
+
         #endregion ShippingNotice
 
         #endregion Outbound instruction and notification
+
+
+        #region login
+
+        public LegalEntity[] GetAllUsers()
+        {
+            // TODO: implement
+            throw new NotImplementedException();
+        }
+
+        public LegalEntity Authenticate(AuthenticateRequest model)
+        {
+            //throw new NotImplementedException();
+            var user = LegalEntity.Null;
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_service_user p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
+                command.Parameters.Add(new OracleParameter("pass", model.Password));
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
+
+                        // user = new LegalEntity(),
+                        //    Convert.ToString(reader["name"]),
+                        //    Convert.ToString(reader["note1"])
+                        //    )
+                        //{
+                        //    Address = Convert.ToString(reader["address"])
+                        //};
+
+                    }
+                    reader.Close();
+                }
+            }
+            return user ?? LegalEntity.Null;
+        }
+        #endregion
     }
 }
