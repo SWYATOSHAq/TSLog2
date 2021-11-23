@@ -29,20 +29,31 @@ namespace TSLog.Links.Services.Controllers
         [HttpPost]
         public async Task<string> PostProducts()
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
             var productsListRequest = _xmlConverter.ProductsListFromXml(reader);
-            var productsConverter = new EINWMSProductsConverter();
 
-            var transactionId = _storage.GenerateTransactionId();
-            var fileContent = productsConverter.Convert(transactionId, productsListRequest);
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+            if (user == productsListRequest.DataSource)
+            {
+                var productsConverter = new EINWMSProductsConverter();
 
-            if (!DebugMode)
-                return "<status code=\"0\">Справочник товаров отправлен на загрузку</status>";
+                var transactionId = _storage.GenerateTransactionId();
+                var fileContent = productsConverter.Convert(transactionId, productsListRequest);
+                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+
+                if (!DebugMode)
+                    return "<status code=\"0\">Справочник товаров отправлен на загрузку</status>";
+                else
+                    return "" + fileContent;
+            }
             else
-                return "" + fileContent;
+                return "<status code=\"1\">ошибка входных данных: неверный dataSource</status>";
+
+
+
         }
 
         [HttpGet("{productId}")]

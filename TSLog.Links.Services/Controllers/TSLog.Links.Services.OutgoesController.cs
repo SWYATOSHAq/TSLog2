@@ -30,20 +30,30 @@ namespace TSLog.Links.Services.Controllers
         [HttpPost]
         public async Task<string> PostOutgoRequest()
         {
+
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
             var outgoRequest = _xmlConverter.OutgoRequestFromXml(reader);
-            var outgoesConverter = new EINWMSOutboundsConverter();
 
-            var transactionId = _storage.GenerateTransactionId();
-            var fileContent = outgoesConverter.Convert(transactionId, outgoRequest);
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+            if (user == outgoRequest.ServiceBuyer)
+            {
+                var outgoesConverter = new EINWMSOutboundsConverter();
 
-            if (!DebugMode)
-                return "<status code=\"0\">Запрос на расход отправлен на загрузку</status>";
+                var transactionId = _storage.GenerateTransactionId();
+                var fileContent = outgoesConverter.Convert(transactionId, outgoRequest);
+                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+
+                if (!DebugMode)
+                    return "<status code=\"0\">Запрос на расход отправлен на загрузку</status>";
+                else
+                    return "" + fileContent;
+            }
             else
-                return "" + fileContent;
+                return "<status code=\"1\">ошибка входных данных: неверный logisticServicesBuyer</status>";
+
         }
 
         [HttpGet("OutgoResposes/{outgoId}")]
@@ -118,6 +128,7 @@ namespace TSLog.Links.Services.Controllers
         public string GetPickingEndNotices()
         {
             var partners = new List<LegalEntity>().ToArray();
+
             var pickingEndNotices = _storage.GetPickingEndNotices(partners);
             var xml = _xmlConverter.PickingEndNoticesToXml(pickingEndNotices);
             if (DebugMode)
@@ -150,6 +161,7 @@ namespace TSLog.Links.Services.Controllers
         public string GetShippingNotices()
         {
             var partners = new List<LegalEntity>().ToArray();
+
             var shippingNotices = _storage.GetShippingNotices(partners);
             var xml = _xmlConverter.ShippingNoticesToXml(shippingNotices);
             if (DebugMode)

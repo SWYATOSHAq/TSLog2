@@ -30,20 +30,28 @@ namespace TSLog.Links.Services.Controllers
         [HttpPost]
         public async Task<string> PostIncomeRequest()
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
 
             var reader = new XmlTextReader(content, XmlNodeType.Document, null);
             var incomeRequest = _xmlConverter.IncomeRequestFromXml(reader);
-            var incomesConverter = new EINWMSInboundsConverter();
 
-            var transactionId = _storage.GenerateTransactionId();
-            var fileContent = incomesConverter.Convert(transactionId, incomeRequest);
-            UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+            if (user == incomeRequest.ServiceBuyer)
+            {
+                var incomesConverter = new EINWMSInboundsConverter();
 
-            if (!DebugMode)
-                return "<status code=\"0\">Запрос на приход отправлен на загрузку</status>";
+                var transactionId = _storage.GenerateTransactionId();
+                var fileContent = incomesConverter.Convert(transactionId, incomeRequest);
+                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+
+                if (!DebugMode)
+                    return "<status code=\"0\">Запрос на приход отправлен на загрузку</status>";
+                else
+                    return "" + fileContent;
+            }
             else
-                return "" + fileContent;
+                return "<status code=\"1\">ошибка входных данных: неверный logisticServicesBuyer</status>";
         }
 
         [HttpGet("IncomeResponses/{incomeId}")]
