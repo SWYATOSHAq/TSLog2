@@ -57,6 +57,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("IncomeResponses/{incomeId}")]
         public string GetIncomeResponse(string incomeId)
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             // TODO: realize
             return string.Empty;
         }
@@ -64,6 +66,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("IncomeResponses")]
         public string GetIncomeResponses()
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             // TODO: realize
             return string.Empty;
         }
@@ -71,9 +75,9 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ReceiptEndNotices/{incomeId}")]
         public string GetReceiptEndNotice(string incomeId)
         {
-            // TODO: get current partner
-            // TODO: pass current partner
-            var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);
+            var user = (LegalEntity)HttpContext.Items["User"];
+
+            var receiptEndNotice = _storage.GetReceiptEndNotice(user, incomeId);
             var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
@@ -83,10 +87,10 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ReceiptEndNotices")]
         public string GetReceiptEndNotices()
         {
-            var partners = new List<LegalEntity>();
-            // TODO: get current partner
-            // TODO: add current partner to list
-            var receiptEndNotices = _storage.GetReceiptEndNotices(partners.ToArray());
+            var user = (LegalEntity)HttpContext.Items["User"];
+            var partners = new LegalEntity[] { user };
+
+            var receiptEndNotices = _storage.GetReceiptEndNotices(partners);
             var xml = _xmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);

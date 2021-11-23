@@ -65,6 +65,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("balances/{productId}")]
         public string GetBalance(string productId)
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             // TODO: realize
             return string.Empty;
         }
@@ -72,6 +74,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("balances")]
         public string GetBalances()
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             // TODO: realize
             return string.Empty;
         }

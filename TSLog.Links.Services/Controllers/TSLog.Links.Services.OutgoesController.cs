@@ -59,6 +59,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("OutgoResposes/{outgoId}")]
         public string GetOutgoResponse(string outgoId)
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             // TODO: realize
             return string.Empty;
         }
@@ -66,6 +68,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("OutgoResposes")]
         public string GetOutgoResponses()
         {
+            var user = (LegalEntity)HttpContext.Items["User"];
+
             // TODO: realize
             return string.Empty;
         }
@@ -94,9 +98,10 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingBeginNotices")]
         public string GetPickingBeginNotices()
         {
-            var partners = new List<LegalEntity>();
-            // TODO: Add current partner
-            var pickingBeginNotices = _storage.GetPickingBeginNotices(partners.ToArray());
+            var user = (LegalEntity)HttpContext.Items["User"];
+            var partners = new LegalEntity[] { user };
+
+            var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
             var xml = _xmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
@@ -116,8 +121,9 @@ namespace TSLog.Links.Services.Controllers
             * при переводе с PC на WRS - уведомление о том что заказ упакован
             * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
             */
+            var user = (LegalEntity)HttpContext.Items["User"];
 
-            var pickingEndNotice = _storage.GetPickingEndNotice(outgoId);
+            var pickingEndNotice = _storage.GetPickingEndNotice(user, outgoId);
             var xml = _xmlConverter.PickingEndNoticeToXml(pickingEndNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
@@ -127,7 +133,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingEndNotices")]
         public string GetPickingEndNotices()
         {
-            var partners = new List<LegalEntity>().ToArray();
+            var user = (LegalEntity)HttpContext.Items["User"];
+            var partners = new LegalEntity[] { user };
 
             var pickingEndNotices = _storage.GetPickingEndNotices(partners);
             var xml = _xmlConverter.PickingEndNoticesToXml(pickingEndNotices);
@@ -149,8 +156,9 @@ namespace TSLog.Links.Services.Controllers
              * при переводе с PC на WRS - уведомление о том что заказ упакован
              * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
              */
+            var user = (LegalEntity)HttpContext.Items["User"];
 
-            var shippingNotice = _storage.GetShippingNotice(outgoId);
+            var shippingNotice = _storage.GetShippingNotice(user, outgoId);
             var xml = _xmlConverter.ShippingNoticeToXml(shippingNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
@@ -160,7 +168,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ShippingNotices")]
         public string GetShippingNotices()
         {
-            var partners = new List<LegalEntity>().ToArray();
+            var user = (LegalEntity)HttpContext.Items["User"];
+            var partners = new LegalEntity[] { user };
 
             var shippingNotices = _storage.GetShippingNotices(partners);
             var xml = _xmlConverter.ShippingNoticesToXml(shippingNotices);
