@@ -12,6 +12,7 @@ namespace TSLog.Links.Services.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ClientsController : ControllerBase
     {
         private readonly ILinksClientsStorage _storage = null;

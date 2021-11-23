@@ -8,7 +8,7 @@ using System.Linq;
 // https://stackoverflow.com/questions/28435734/how-to-get-a-list-of-all-routes-in-asp-net-core
 // TODO debug, delete on release
 
-[Authorize]
+//[Authorize]
 [Route("/-/{controller}")]
 public class InfoController : Controller
 {

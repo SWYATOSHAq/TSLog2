@@ -13,6 +13,7 @@ namespace TSLog.Links.Services.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class IncomesController : ControllerBase
     {
         private readonly ILinksIncomesStorage _storage = null;
@@ -64,7 +65,7 @@ namespace TSLog.Links.Services.Controllers
         {
             // TODO: get current partner
             // TODO: pass current partner
-            var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);            
+            var receiptEndNotice = _storage.GetReceiptEndNotice(incomeId);
             var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
@@ -73,7 +74,7 @@ namespace TSLog.Links.Services.Controllers
 
         [HttpGet("ReceiptEndNotices")]
         public string GetReceiptEndNotices()
-        {            
+        {
             var partners = new List<LegalEntity>();
             // TODO: get current partner
             // TODO: add current partner to list

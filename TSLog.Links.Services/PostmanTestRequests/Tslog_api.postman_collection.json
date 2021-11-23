@@ -142,6 +142,16 @@
 								"disabledSystemHeaders": {}
 							},
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAwMDIiLCJuYmYiOjE2Mzc2NTg2NTYsImV4cCI6MTY2OTE5NDY1NiwiaWF0IjoxNjM3NjU4NjU2fQ.SPZVeiMYGYYPdS27tVztfg86LK9bODOCA3wXK3hH2wI",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [
 									{
@@ -494,6 +504,64 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "auth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"login\": \"TEST_KOTON_USER\",\r\n    \"password\": \"not password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:5001/Users/authenticate",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"Users",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dev get users",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ik5VTEwiLCJuYmYiOjE2Mzc2NTc0MDgsImV4cCI6MTY2OTE5MzQwOCwiaWF0IjoxNjM3NjU3NDA4fQ.-W6J-_MX0H10CIOvsSQDzDcIfKfYJk8nBscp_oqp-Sc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:5001/Users",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"Users"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

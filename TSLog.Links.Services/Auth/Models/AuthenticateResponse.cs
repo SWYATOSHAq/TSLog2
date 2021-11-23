@@ -14,7 +14,7 @@ namespace Auth.Models
         public AuthenticateResponse(LegalEntity user, string token)
         {
             PartnerId = user.Code;
-            PartnerName = user.DisplayName;
+            PartnerName = user.Name;
             Token = token;
         }
     }

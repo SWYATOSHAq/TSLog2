@@ -2,6 +2,14 @@
 using Auth.Models;
 using Auth.Services;
 using TSLog.Links;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Auth.Helpers;
+using Microsoft.Extensions.Options;
+using TSLog.BO;
+using Microsoft.IdentityModel.Tokens;
+using System;
 
 namespace Auth.Controllers
 {
@@ -11,17 +19,18 @@ namespace Auth.Controllers
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private ILinksUsers _databaseUsers;
+        private IUserService _userService;
 
-        public UsersController(ILinksUsers databaseUsers)
+        public UsersController(IUserService userService)
         {
-            _databaseUsers = databaseUsers;
+            _userService = userService;
         }
 
         [HttpPost("authenticate")]
         public IActionResult Authenticate(AuthenticateRequest model)
         {
-            var response = _databaseUsers.Authenticate(model);
+            var response =  _userService.Authenticate(model);
+
 
             if (response == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -35,8 +44,9 @@ namespace Auth.Controllers
         {
             // no snitch :)
 
-            var users = _databaseUsers.GetAllUsers();
+            var users = _userService.GetAll();
             return Ok(users);
         }
+
     }
 }

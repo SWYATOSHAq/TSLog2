@@ -23,7 +23,7 @@ namespace Auth.Helpers
             _appSettings = appSettings.Value;
         }
 
-        public async Task Invoke(HttpContext context, ILinksUsers userService)
+        public async Task Invoke(HttpContext context, IUserService userService)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
@@ -33,7 +33,7 @@ namespace Auth.Helpers
             await _next(context);
         }
 
-        private void attachUserToContext(HttpContext context, ILinksUsers userService, string token)
+        private void attachUserToContext(HttpContext context, IUserService userService, string token)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace Auth.Helpers
                 var userId = jwtToken.Claims.First(x => x.Type == "id").Value;
 
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetLegalEntity(userId);
+                context.Items["User"] = userService.GetById(userId);
             }
             catch
             {

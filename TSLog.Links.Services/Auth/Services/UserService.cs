@@ -12,57 +12,55 @@ using Auth.Helpers;
 using Auth.Models;
 using TSLog.Links;
 using TSLog.BO;
+using TSLog.Links.Db;
 
 namespace Auth.Services
 {
     public interface IUserService
     {
-        //AuthenticateResponse Authenticate(AuthenticateRequest model);
-        //User GetById(int id);
+        AuthenticateResponse Authenticate(AuthenticateRequest model);
+        LegalEntity GetById(string id);
+        LegalEntity[] GetAll();
     }
 
     public class UserService : IUserService
     {
-        //// users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        //private List<User> _users = new List<User>
-        //{
-        //    new User { Id = 1, PartnerId = "Test", PartnerName = "User", Name = "admin", Password = "1" }
-
-        //    // TODO: load from db
-        //};
 
         private readonly AppSettings _appSettings;
-        ////private readonly AppSettings _appSettings;
+        private ILinksUsers _databaseUsers;
+        //private readonly AppSettings _appSettings;
 
-        //public UserService(IOptions<AppSettings> appSettings)
-        //{
-        //    _appSettings = appSettings.Value;
-        //}
+        public UserService(IOptions<AppSettings> appSettings)
+        {
+            _appSettings = appSettings.Value;
+            _databaseUsers = DbLinksStorage.instance; // TODO: idk how to properly pass object to UserService
+        }
 
-        //public AuthenticateResponse Authenticate(AuthenticateRequest model)
-        //{
-        //    var user = _users.SingleOrDefault(x => x.Name == model.Username && x.Password == model.Password);
-
-        //    // TODO: realize
-        //    //DB.loadLegalEntityByHashedPass(model.Username, model.Password);
-
-        //    // return null if user not found
-        //    if (user == null) return null;
-
-        //    // authentication successful so generate jwt token
-        //    var token = generateJwtToken(user);
-
-        //    return new AuthenticateResponse(user, token);
-        //}
+        public AuthenticateResponse Authenticate(AuthenticateRequest model)
+        {
+            var user = _databaseUsers.Authenticate(model);
 
 
-        //public User GetById(int id)
-        //{
-        //    return _users.FirstOrDefault(x => x.Id == id);
-        //    // TODO: realize
-        //}
+            // return null if user not found
+            if (user == null || user == LegalEntity.Null) return null;
 
-        //// helper methods
+            // authentication successful so generate jwt token
+            var token = generateJwtToken(user);
+
+            return new AuthenticateResponse(user, token);
+        }
+
+        public LegalEntity[] GetAll()
+        {
+            return _databaseUsers.GetAllUsers(); // TODO just for debug
+        }
+
+        public LegalEntity GetById(string id)
+        {
+            return _databaseUsers.GetLegalEntity(id);
+        }
+
+        // helper methods
 
         private string generateJwtToken(LegalEntity user)
         {
@@ -72,7 +70,7 @@ namespace Auth.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
-                Expires = DateTime.UtcNow.AddDays(365), // token is given for 1 year
+                Expires = DateTime.UtcNow.AddDays(1), // token is given for 1 day
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

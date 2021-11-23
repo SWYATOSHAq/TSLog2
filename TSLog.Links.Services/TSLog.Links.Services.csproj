@@ -18,8 +18,4 @@
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Auth\Entities\" />
-  </ItemGroup>
-
 </Project>

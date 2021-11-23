@@ -38,7 +38,7 @@
         /// <summary>
         /// Примечание
         /// </summary>
-        public string Note { get; protected set; }
+        public string Note { get; set; }
 
         /// <summary>
         /// Признак архивной сущности

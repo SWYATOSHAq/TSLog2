@@ -20,7 +20,10 @@ namespace TSLog.Links.Db
             CommonSchema = "ecco";
             LinksSchema = "links";
             WmsSchema = "ecco2_s1_pdba";
+            instance = this;
         }
+        public static DbLinksStorage instance = null; // TODO: wrong decision
+
 
         /// <summary>
         /// Схема общими объектами БД (ecco)
@@ -1144,8 +1147,26 @@ namespace TSLog.Links.Db
 
         public LegalEntity[] GetAllUsers()
         {
-            // TODO: implement
-            throw new NotImplementedException();
+            var users = new List<LegalEntity>();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {LinksSchema}.v_service_user";
+                //command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
+                //command.Parameters.Add(new OracleParameter("pass", model.Password));
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
+                        user.Note = $"{user.Note} [debug](login: [{Convert.ToString(reader["name"])}] pass: [{Convert.ToString(reader["password"])}])";
+
+                        users.Add(user);
+                    }
+                    reader.Close();
+                }
+            }
+            return users.ToArray();
         }
 
         public LegalEntity Authenticate(AuthenticateRequest model)
@@ -1155,23 +1176,15 @@ namespace TSLog.Links.Db
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_service_user p where p.id = :id";
+                command.CommandText = $"select * from {LinksSchema}.v_service_user p where p.name = :login and p.password = :pass and p.active = 1";
                 command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
                 command.Parameters.Add(new OracleParameter("pass", model.Password));
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
+                        var a = reader["partner_id"];
                         user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
-
-                        // user = new LegalEntity(),
-                        //    Convert.ToString(reader["name"]),
-                        //    Convert.ToString(reader["note1"])
-                        //    )
-                        //{
-                        //    Address = Convert.ToString(reader["address"])
-                        //};
-
                     }
                     reader.Close();
                 }
