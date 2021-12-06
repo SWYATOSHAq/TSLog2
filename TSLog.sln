@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31727.386
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.BO", "TSLog.BO\TSLog.BO.csproj", "{9C56DF56-98F7-4916-8CEE-BCE79B8FFC77}"
 EndProject
@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSlog.Links.PSI.DataConvert
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.Test", "TSLog.Links.Test\TSLog.Links.Test.csproj", "{144CA9E8-A9E5-4515-B4AF-4A03ECBA4202}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.ExceptionHandler", "TSLog.ExceptionHandler\TSLog.ExceptionHandler.csproj", "{ACF6B3C7-A9EB-4CA9-80F0-B9B4AF20184D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.ExceptionHandler", "TSLog.ExceptionHandler\TSLog.ExceptionHandler.csproj", "{ACF6B3C7-A9EB-4CA9-80F0-B9B4AF20184D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.YardManagement", "TSLog.Links.YardManagement\TSLog.Links.YardManagement.csproj", "{336E55F8-3AF3-43E4-AE4A-10B28A195D8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{ACF6B3C7-A9EB-4CA9-80F0-B9B4AF20184D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACF6B3C7-A9EB-4CA9-80F0-B9B4AF20184D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACF6B3C7-A9EB-4CA9-80F0-B9B4AF20184D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{336E55F8-3AF3-43E4-AE4A-10B28A195D8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{336E55F8-3AF3-43E4-AE4A-10B28A195D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{336E55F8-3AF3-43E4-AE4A-10B28A195D8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{336E55F8-3AF3-43E4-AE4A-10B28A195D8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

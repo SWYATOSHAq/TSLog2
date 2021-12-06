@@ -1,0 +1,157 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!--  -->
+  <div class="row p-2 m-3">
+    <div class="col-4 p-4 m-3 shadow">
+      <div class="row p-2 m-3">
+        <!--  -->
+        <input
+        type="text"
+        id="dp1"
+        class="datepicker border border-secondary"
+        placeholder="Выберете дату"
+        ne="date"
+        readonly
+      /><span class="fa fa-calendar"></span>
+        <!--  -->
+      </div>
+      <div class="row p-2">
+        <button class="btn btn-outline-secondary col p-2 m-3 shadow"disabled="disabled">9:00</button>
+        <button class="btn btn-outline-primary col p-2 m-3 shadow active" data-bs-toggle="button" aria-pressed="false" autocomplete="off">9:30</button>
+      </div>
+      <div class="row p-2">
+        <button class="btn btn-info col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">10:00</button>
+        <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">10:30</button>
+      </div>
+      <div class="row p-2">
+        <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">11:00</button>
+        <button class="btn btn-outline-secondary col p-2 m-3 shadow"disabled="disabled">11:30</button>
+      </div>
+      <div class="row p-2">
+        <button class="btn btn-outline-secondary col p-2 m-3 shadow"disabled="disabled">12:00</button>
+        <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">12:30</button>
+      </div>
+      <div class="row p-2">
+        <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">13:00</button>
+        <button class="btn btn-outline-secondary col p-2 m-3 shadow" disabled="disabled">13:30</button>
+      </div>
+
+
+    </div>
+    <div class="col p-2 m-3 shadow">
+      <div class="row p-2 m-3 ">
+        <h1>Заявка</h1>
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Наименование организации</span>
+          <input type="text" aria-label="Last name" class="form-control" disabled value="Детский Мир">
+        </div>
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Действие</span>
+          <input type="text" aria-label="Last name" class="form-control" disabled value="Отгрузка">
+        </div>
+        
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">тип операции*</span>
+          <!-- <input type="text" aria-label="Last name" class="form-control" value="отгрузка коробочная (1:00)"> -->
+
+          <select class="form-select" aria-label="Default select example">
+            <option >выберите тип оперции</option>
+            <option selected value="1">отгрузка коробочная (1:00:00)</option>
+            <option value="2">отгрузка палетная (0:30:00)</option>
+          </select>
+        </div>
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Номер ворот*</span>
+          <select class="form-select" aria-label="Default select example">
+            <option >Выберите номер ворот</option>
+            <option selected value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="5">6</option>
+            <option value="5">7</option>
+            <option value="5">8</option>
+            <option value="5">9</option>
+            <option value="5">10</option>
+            <option value="5">11</option>
+            <option value="5">12</option>
+            <option value="5">13</option>
+            <option value="5">14</option>
+            <option value="5">15</option>
+          </select>
+
+        </div>
+      </div>
+        <!--  -->
+      <div class="row p-2 m-3 shadow">
+        <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Номер авто</span>
+          <input type="text" aria-label="Last name" class="form-control" value="ПО123И">
+        </div>
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Марка авто</span>
+          <input type="text" aria-label="Last name" class="form-control" value="Газель">
+        </div>
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Номер заказа</span>
+          <input type="text" aria-label="Last name" class="form-control" value="ТУ-ТСЛ-0012344">
+        </div>
+      </div>
+      <!--  -->
+      <div class="row p-2 m-3 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">ФИО водителя</span>
+          <input type="text" aria-label="Last name" class="form-control" value="Иванов Иван Иванович">
+        </div>
+      </div>
+      <!--  -->
+      </div>
+    <!--  -->
+      <div class="row p-2 m-3 d-flex justify-content-center">
+        <div class="d-grid gap-2 col-6">
+          <button class="btn btn-primary" type="button">подтвердить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!--  -->
+<script>
+  $(document).ready(function () {
+    $(".datepicker").datepicker({
+      format: "dd.mm.yyyy",
+      autoclose: true,
+      startDate: "0d",
+      language: "ru",
+      todayBtn: true,
+      todayHighlight: true,
+    })
+    .datepicker("setDate",'now');
+
+  });
+</script>
