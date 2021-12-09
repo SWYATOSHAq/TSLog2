@@ -2,16 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TSLog.BO\TSLog.BO.csproj" />
+    <ProjectReference Include="..\TSLog.BO\TSLog.Common.BO.csproj" />
     <ProjectReference Include="..\TSLog.Common\TSLog.Common.csproj" />
-    <ProjectReference Include="..\TSLog.Db\TSLog.Db.csproj" />
-    <ProjectReference Include="..\TSLog.Links.Db\TSLog.Links.Db.csproj" />
     <ProjectReference Include="..\TSLog.Links.Gs1EdiXmlConverter\TSLog.Links.Gs1EdiXml.csproj" />
-    <ProjectReference Include="..\TSlog.Links.PSI.DataConverter\TSlog.Links.PSI.DataConverter.csproj" />
+    <ProjectReference Include="..\TSlog.Links.PSI.DataConverter\TSLog.Links.PSI.DataConverter.csproj" />
     <ProjectReference Include="..\TSLog.Links.Services\TSLog.Links.Services.csproj" />
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
     <ProjectReference Include="..\TSLog.Log\TSLog.Log.csproj" />

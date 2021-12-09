@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using TSLog.BO;
+using TSLog.Common.BO;
+using TSLog.Incomes.BO;
+using TSLog.LegalEntities.BO;
+using TSLog.Outgoes.BO;
+using TSLog.Products.BO;
 
 namespace TSLog.Links.Gs1EdiXml
 {

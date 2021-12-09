@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using TSLog.BO;
+using TSLog.LegalEntities.BO;
 using TSLog.Links;
+using TSLog.Products.BO;
 
 namespace TSlog.Links.PSI.DataConverter
 {

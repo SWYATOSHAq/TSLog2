@@ -1,4 +1,6 @@
-﻿using TSLog.BO;
+﻿using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
+using TSLog.Products.BO;
 
 namespace TSLog.Links
 {

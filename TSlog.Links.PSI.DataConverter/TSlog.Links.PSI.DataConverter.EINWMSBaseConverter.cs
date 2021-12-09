@@ -1,5 +1,6 @@
 ﻿using System;
-using TSLog.BO;
+using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
 
 namespace TSlog.Links.PSI.DataConverter
 {

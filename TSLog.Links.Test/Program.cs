@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Security;
 using System.Xml;
-using TSLog.BO;
-using TSLog.Links.Db;
+using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
 using TSlog.Links.PSI.DataConverter;
+using TSLog.Products.BO;
+using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
 
 namespace TSLog.Links.Test
 {
@@ -15,7 +17,7 @@ namespace TSLog.Links.Test
             var dataSource =
                 "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
 
-            var storage = new DbLinksStorage(dataSource)
+            var storage = new LinksOracleStorage(dataSource)
             {
                 CommonSchema = "ecco",
                 LinksSchema = "links",

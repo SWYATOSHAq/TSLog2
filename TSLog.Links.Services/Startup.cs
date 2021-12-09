@@ -6,9 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Security;
-using TSLog.BO;
-using TSLog.Links.Db;
+using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
+using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
+using TSLog.Products.BO;
 
 namespace TSLog.Links.Services
 {
@@ -72,7 +74,7 @@ namespace TSLog.Links.Services
             // information on how data access is then split is in ILinksStorage interface
 
             var dataSource = Configuration.GetValue<string>("ConnectionSettings:DataSource");
-            var storage = new DbLinksStorage(dataSource);
+            var storage = new LinksOracleStorage(dataSource);
 
             storage.CommonSchema = Configuration.GetValue<string>("ConnectionSettings:CommonSchema");
             storage.WmsSchema = Configuration.GetValue<string>("ConnectionSettings:WmsSchema");

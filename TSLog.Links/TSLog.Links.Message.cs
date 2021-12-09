@@ -1,5 +1,5 @@
 ﻿using System;
-using TSLog.BO;
+using TSLog.LegalEntities.BO;
 
 namespace TSLog.Links
 {

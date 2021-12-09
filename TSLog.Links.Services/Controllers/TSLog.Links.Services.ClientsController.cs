@@ -4,8 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using TSlog.Links.PSI.DataConverter;
-using TSLog.BO;
 using TSLog.Common;
+using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
 
 namespace TSLog.Links.Services.Controllers

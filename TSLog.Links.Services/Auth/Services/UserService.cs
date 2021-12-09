@@ -1,18 +1,15 @@
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-
 //using Auth.Entities;
 using Auth.Helpers;
 using Auth.Models;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using TSLog.LegalEntities.BO;
 using TSLog.Links;
-using TSLog.BO;
-using TSLog.Links.Db;
+using TSLog.Links.Data;
 
 namespace Auth.Services
 {
@@ -33,7 +30,7 @@ namespace Auth.Services
         public UserService(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
-            _databaseUsers = DbLinksStorage.instance; // TODO: idk how to properly pass object to UserService
+            _databaseUsers = LinksOracleStorage.instance; // TODO: idk how to properly pass object to UserService
         }
 
         public AuthenticateResponse Authenticate(AuthenticateRequest model)

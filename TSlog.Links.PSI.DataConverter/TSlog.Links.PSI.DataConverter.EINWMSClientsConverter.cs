@@ -1,4 +1,4 @@
-﻿using TSLog.BO;
+﻿using TSLog.LegalEntities.BO;
 using TSLog.Links;
 
 namespace TSlog.Links.PSI.DataConverter

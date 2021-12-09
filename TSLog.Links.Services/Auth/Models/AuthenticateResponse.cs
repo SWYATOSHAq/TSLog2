@@ -1,5 +1,5 @@
 
-using TSLog.BO;
+using TSLog.LegalEntities.BO;
 using TSLog.Links;
 
 namespace Auth.Models

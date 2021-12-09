@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using TSLog.BO;
+using TSLog.LegalEntities.BO;
+using TSLog.Products.BO;
 
 namespace TSLog.Links
 {

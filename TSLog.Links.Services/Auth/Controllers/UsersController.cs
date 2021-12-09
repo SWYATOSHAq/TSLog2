@@ -1,15 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Auth.Models;
-using Auth.Services;
+﻿using Auth.Services;
+using Microsoft.AspNetCore.Mvc;
 using TSLog.Links;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using Auth.Helpers;
-using Microsoft.Extensions.Options;
-using TSLog.BO;
-using Microsoft.IdentityModel.Tokens;
-using System;
 
 namespace Auth.Controllers
 {
