@@ -3,6 +3,7 @@ using NpgsqlTypes;
 using System.Data.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
+using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 
@@ -10,6 +11,9 @@ namespace TSLog.Yard.Data
 {
     public class PgSqlYardStorage : PgSqlStorage, IYardCommonStorage
     {
+        /// <summary>
+        /// Схема в БД для хранение объектов модуля управления двором
+        /// </summary>
         public string YardSchema { private get; set; }
 
         public PgSqlYardStorage(string host, string database) : base(host, database)
@@ -20,6 +24,17 @@ namespace TSLog.Yard.Data
             _operationTypes = new Catalog<Entity>("OPERATION_TYPES", "Типы операций двора");
             _vihicleKinds = new Catalog<Entity>("VIHICLE_KINDS", "Виды автомашин");
         }
+
+        private NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
+        {
+            var parameter = new NpgsqlParameter(name, type)
+            {
+                Value = value
+            };
+            return parameter;
+        }
+
+
         public void AddAction(YardOperation operation, WarehouseAction action)
         {
             if (operation == null)
@@ -224,135 +239,200 @@ namespace TSLog.Yard.Data
 
             using (var command = _connection.CreateCommand())
             {
-                var sql = "select yard.add_operation(:p_type_code," +
-                    ":p_plan_start_date," +
-                    ":p_plan_finish_date," +
-                    ":p_vehicle_kind_code," +
-                    ":p_vehicle_brand," +
-                    ":p_vehicle_model," +
-                    ":p_vehicle_number," +
-                    ":p_driver_name," +
-                    ":p_logist_id," +
-                    ":p_manager_id," +
-                    ":p_note);";
+                var sql = $"select {YardSchema}.add_operation(p_type_code," +
+                    "p_plan_start_date," +
+                    "p_plan_finish_date," +
+                    "p_vehicle_kind_code," +
+                    "p_vehicle_brand," +
+                    "p_vehicle_model," +
+                    "p_vehicle_number," +
+                    "p_driver_name," +
+                    "p_logist_id," +
+                    "p_manager_id," +
+                    "p_note);";
                 command.CommandText = sql;
 
-                var parameter = new NpgsqlParameter("p_type_code", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.Type.Code
-                };
-                command.Parameters.Add(parameter);
+                command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
+                command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanStartDate));
+                command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinshDate));
+                command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
+                command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
+                command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+                command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
+                command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+                command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer, 
+                    operation.Logist != null ? operation.Logist.Id : DBNull.Value));
+                command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
+                command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
 
-                parameter = new NpgsqlParameter("p_plan_start_date", NpgsqlDbType.Timestamp)
-                {
-                    Value = operation.PlanStartDate
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_plan_finish_date", NpgsqlDbType.Timestamp)
-                {
-                    Value = operation.PlanFinshDate
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.VehicleKind.Code
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_vehicle_brand", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.VehicleBrand
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_vehicle_model", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.VehicleModel
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_vehicle_number", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.VehicleNumber
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_driver_name", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.DriverName
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_logist_id", NpgsqlDbType.Integer)
-                {
-                    Value = operation.Logist != null ? operation.Logist.Id : DBNull.Value
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_manager_id", NpgsqlDbType.Integer)
-                {
-                    Value = operation.Manager.Id
-                };
-                command.Parameters.Add(parameter);
-
-                parameter = new NpgsqlParameter("p_note", NpgsqlDbType.Varchar)
-                {
-                    Value = operation.Note
-                };
-                command.Parameters.Add(parameter);
                 operation.Id = command.ExecuteNonQuery();
             }
 
             var actions = operation.GetActions();
 
-
             return operation;
         }
         public Gate SetOperationGate(YardOperation operation, Gate gate = null)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = $"select {YardSchema}.set_operation_gate(p_id," +
+                    $"p_gate_code);";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+                command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate != null ? gate.Code : DBNull.Value));
+                var gateId = Convert.ToInt32(command.ExecuteScalar());
+                operation.Gate = GetGate(gateId);
+            }
+            return operation.Gate;
         }
         public void EditOperation(YardOperation operation)
         {
-            // TODO: edit operation
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = $"select yard.edit_operation(p_id," +
+                    $"p_type_code," +
+                    $"p_plan_start_date," +
+                    $"p_plan_finish_date," +
+                    $"p_vehicle_kind_code," +
+                    $"p_vehicle_brand," +
+                    $"p_vehicle_model," +
+                    $"p_vehicle_number," +
+                    $"p_driver_name," +
+                    $"p_logist_id," +
+                    $"p_manager_id," +
+                    $"p_note);";
+                command.CommandText = sql;
+
+                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+                command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
+                command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanStartDate));
+                command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinshDate));
+                command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
+                command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
+                command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+                command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
+                command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+                command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
+                    operation.Logist != null ? operation.Logist.Id : DBNull.Value));
+                command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
+                command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+
+                command.ExecuteScalar();
+            }
+
             // TODO: synchronize action
             throw new NotImplementedException();
         }
         public void StartOperation(YardOperation operation)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.start_operation(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
         public void MoveToGate(YardOperation operation)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.operation_to_gate(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
-        public void SetResponsibleOfficer(YardOperation operation) 
-        { }
+        public void SetResponsibleOfficer(YardOperation operation, Employee officer) 
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            if (officer == null)
+                throw new ArgumentNullException(nameof(officer));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.set_operation_responsible_officer(:p_id, " +
+                $":p_responsible_officer_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_responsible_officer_id", NpgsqlDbType.Integer, officer.Id));
+            command.ExecuteScalar();
+            operation.ResponsibleOfficer = officer;
+        }
         public void StartOperationWork(YardOperation operation)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.start_operation_work(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
         public void FinishOperationWork(YardOperation operation)
         {
-            throw new NotImplementedException();
-        }
-        public void FinishOperation(YardOperation operation)
-        {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.finish_operation_work(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
         public void LeaveGate(YardOperation operation)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.operation_leave_gate(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
+        }
+        public void FinishOperation(YardOperation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.finish_operation(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
         public void CancelOperation(YardOperation operation)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.cancel_operation(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
         public void DeleteOperation(YardOperation operation)
         {
-            throw new NotImplementedException();
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var command = _connection.CreateCommand();
+            var sql = $"select {YardSchema}.delete_operation(:p_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.ExecuteScalar();
         }
     }
 }

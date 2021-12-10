@@ -1,5 +1,6 @@
 ﻿using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
+using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 
 namespace TSLog.Yard.BO
@@ -29,7 +30,7 @@ namespace TSLog.Yard.BO
         public void EditOperation(YardOperation operation);        
         public void StartOperation(YardOperation operation);
         public void MoveToGate(YardOperation operation);
-        public void SetResponsibleOfficer(YardOperation operation);
+        public void SetResponsibleOfficer(YardOperation operation, Employee officer);
         public void StartOperationWork(YardOperation operation);
         public void FinishOperationWork(YardOperation operation);
         public void LeaveGate(YardOperation operation);
@@ -46,6 +47,8 @@ namespace TSLog.Yard.BO
     {
         public WarehouseAction GetAction(LegalEntity partner, ActionKind actionKind, string partnerActionId);
         public LegalEntity GetPartner(string id);
-        public void GetEmployee(int id);
+        public LegalEntity[] GetPartners();
+        public Employee GetEmployee(int id);
+        public Employee[] GetEmployees();
     }
 }

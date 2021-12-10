@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TSLog.LegalEntities.BO\TSLog.LegalEntities.BO.csproj" />
     <ProjectReference Include="..\TSLog.Products.BO\TSLog.Products.BO.csproj" />
   </ItemGroup>
 
