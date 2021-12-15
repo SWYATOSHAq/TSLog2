@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TSLog.Links.YardManagement.Data;
+using TSLog.Yard.WebUI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

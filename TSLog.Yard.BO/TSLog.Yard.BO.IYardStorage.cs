@@ -1,5 +1,5 @@
 ﻿using TSLog.Common.BO;
-using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 
@@ -8,9 +8,10 @@ namespace TSLog.Yard.BO
     public interface IYardStorage : IYardCommonStorage, IYardWmsStorage { }
     public interface IYardCommonStorage
     {
-        public Entity GetOperationType(int id);
-        public Entity GetOperationType(string code);
-        public Entity[] GetOperationTypes();
+        public OperationType GetOperationType(int id);
+        public OperationType GetOperationType(string code);        
+        public OperationType[] GetOperationTypes(Partner partner);
+        public OperationType[] GetOperationTypes();
         public Entity GetOperationState(int id);
         public Entity GetOperationState(string code);
         public Entity[] GetOperationStates();
@@ -26,6 +27,8 @@ namespace TSLog.Yard.BO
 
         public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind);
         public Operation AddOperation(Operation operation);
+        public Operation GetOperation(long id);
+        public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
         public Gate SetOperationGate(Operation operation, Gate gate = null);
         public void EditOperation(Operation operation);        
         public void StartOperation(Operation operation);
@@ -42,12 +45,11 @@ namespace TSLog.Yard.BO
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);
     }
-
     public interface IYardWmsStorage
     {
-        public WarehouseAction GetAction(LegalEntity partner, ActionKind actionKind, string partnerActionId);
-        public LegalEntity GetPartner(string id);
-        public LegalEntity[] GetPartners();
+        public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId);
+        public Partner GetPartner(string id);
+        public Partner[] GetPartners();
         public Employee GetEmployee(int id);
         public Employee[] GetEmployees();
     }

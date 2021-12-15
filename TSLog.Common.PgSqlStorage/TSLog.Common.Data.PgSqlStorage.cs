@@ -9,9 +9,9 @@ namespace TSLog.Common.Data
 {
     public class PgSqlStorage : IDisposable
     {
-        protected DbConnection _connection = null;
-        protected string _host = string.Empty;
-        protected string _database = string.Empty;
+        protected readonly DbConnection _connection = null;
+        protected readonly string _host = string.Empty;
+        protected readonly string _database = string.Empty;
         public PgSqlStorage(string host, string database)
         {
             _connection = new NpgsqlConnection();
@@ -31,7 +31,6 @@ namespace TSLog.Common.Data
             _connection.Open();
             stringBuilder.Clear();
         }
-
         public void Execute(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -41,7 +40,7 @@ namespace TSLog.Common.Data
             command.ExecuteNonQuery();
         }
 
-        public Entity CreateEntity(DbDataReader reader)
+        protected Entity CreateEntity(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -53,7 +52,6 @@ namespace TSLog.Common.Data
                 Convert.ToString(reader["display_name"]),
                 Convert.ToString(reader["note"]));
         }
-
         public Entity GetEntity(int id, string sql, Catalog<Entity> catalog = null) 
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -128,7 +126,6 @@ namespace TSLog.Common.Data
             if (_connection.State != ConnectionState.Closed && _connection.State != ConnectionState.Broken)
                 _connection.Close();
         }
-
         public void Dispose()
         {
             _connection.Close();

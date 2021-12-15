@@ -9,6 +9,7 @@ using TSLog.Common.Data;
 using TSLog.Incomes.BO;
 using TSLog.LegalEntities.BO;
 using TSLog.Outgoes.BO;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
 
 namespace TSLog.Links.Data
@@ -272,19 +273,19 @@ namespace TSLog.Links.Data
         /// <summary>
         /// Партнёры (покупатели наших складских и логистических услуг)
         /// </summary>
-        public Catalog<LegalEntity> Partners { private get; set; } = null;
+        public Catalog<Partner> Partners { private get; set; } = null;
 
-        private LegalEntity _tslog = null;
+        private Partner _tslog = null;
 
         /// <summary>
         /// ТехСкладЛогистик
         /// </summary>
-        public LegalEntity Tslog
+        public Partner Tslog
         {
             get
             {
                 if (_tslog == null)
-                    _tslog = new LegalEntity("TSLOG", "TSL", "ТехСкладЛогистик");
+                    _tslog = new Partner("TSLOG", "TSL", "ТехСкладЛогистик");
                 return _tslog;
             }
         }
@@ -330,7 +331,7 @@ namespace TSLog.Links.Data
 
         #region Clients
 
-        public LegalEntity GetPartner(string id)
+        public Partner GetPartner(string id)
         {
             id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
             var partner = Partners[id];
@@ -348,7 +349,7 @@ namespace TSLog.Links.Data
                 {
                     if (reader.Read())
                     {
-                        partner = new LegalEntity(Convert.ToString(reader["id"]),
+                        partner = new Partner(Convert.ToString(reader["id"]),
                             Convert.ToString(reader["name"]),
                             Convert.ToString(reader["note1"])
                             )
@@ -363,12 +364,12 @@ namespace TSLog.Links.Data
             }
             if (partner != null && partner != LegalEntity.Null)
                 Partners.Add(partner);
-            return partner ?? LegalEntity.Null;
+            return partner ?? Partner.Null;
         }
 
-        public LegalEntity[] GetPartners()
+        public Partner[] GetPartners()
         {
-            var partners = new List<LegalEntity>();
+            var partners = new List<Partner>();
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_partner p";
@@ -376,7 +377,7 @@ namespace TSLog.Links.Data
                 {
                     while (reader.Read())
                     {
-                        var partner = new LegalEntity(Convert.ToString(reader["id"]),
+                        var partner = new Partner(Convert.ToString(reader["id"]),
                             Convert.ToString(reader["name"]),
                             Convert.ToString(reader["note"]));
                         partners.Add(partner);
@@ -387,6 +388,20 @@ namespace TSLog.Links.Data
             return partners.ToArray();
         }
 
+        public Catalog<LegalEntity> LegalEntities { private get; set; } = null;
+        private LegalEntity CreateLegalEntity(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var legalEntity = new LegalEntity(Convert.ToString(reader["id"]),
+                        Convert.ToString(reader["name"]),
+                        Convert.ToString(reader["note1"])
+                        )
+            {
+                Address = Convert.ToString(reader["address1"])
+            };
+            return legalEntity;
+        }
         public LegalEntity GetLegalEntity(string id)
         {
             //var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
@@ -394,42 +409,32 @@ namespace TSLog.Links.Data
             //return ret;
 
             id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
-            var partner = Partners[id];
-
+            var legalEntity = LegalEntity.Null;
             if (id == Tslog.Code) // check if Tslog
-                partner = Tslog;
-
-            if (partner != null && partner != LegalEntity.Null)
-                return partner;
+                legalEntity = Tslog;
+            legalEntity = Partners[id];           
+            if (legalEntity != null && legalEntity != LegalEntity.Null)
+                return legalEntity;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_legal_entity p where p.id = :id";
+                var sql = $"select * from {CommonSchema}.v_legal_entity le where le.id = :id";
+                command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("id", id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        partner = new LegalEntity(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["note1"])
-                            )
-                        {
-                            Address = Convert.ToString(reader["address1"])
-                        };
-
-                        Partners.Add(partner);
-                    }
-                    reader.Close();
+                    legalEntity = CreateLegalEntity(reader);
+                    LegalEntities.Add(legalEntity);
                 }
+                reader.Close();
             }
-            if (partner != null && partner != LegalEntity.Null)
-                Partners.Add(partner);
-            return partner ?? LegalEntity.Null;
+            return legalEntity ?? LegalEntity.Null;
         }
 
-        public LegalEntity[] GetLegalEntities(LegalEntity[] partners = null)
+        public LegalEntity[] GetLegalEntities(Partner[] partners = null)
         {
-            return null;
+            var legalEntities = new List<LegalEntity>();
+            return legalEntities.ToArray();
         }
 
         #endregion
@@ -525,13 +530,13 @@ namespace TSLog.Links.Data
             return product ?? Product.Null;
         }
 
-        public Product GetProduct(LegalEntity partner, string partnerProductId)
+        public Product GetProduct(Partner partner, string partnerProductId)
         {
             // TODO: realize
             return null;
         }
 
-        public Product[] GetProducts(LegalEntity[] partners = null)
+        public Product[] GetProducts(Partner[] partners = null)
         {
             var products = new List<Product>();
             using (var command = _connection.CreateCommand())
@@ -675,7 +680,7 @@ namespace TSLog.Links.Data
             return receiptEndNotice;
         }
 
-        public ReceiptEndNotice GetReceiptEndNotice(LegalEntity partner, string partnerIncomeId)
+        public ReceiptEndNotice GetReceiptEndNotice(Partner partner, string partnerIncomeId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -700,7 +705,7 @@ namespace TSLog.Links.Data
             return receiptEndNotice;
         }
 
-        public ReceiptEndNotice[] GetReceiptEndNotices(LegalEntity[] partners = null)
+        public ReceiptEndNotice[] GetReceiptEndNotices(Partner[] partners = null)
         {
             var receiptEndNotices = new List<ReceiptEndNotice>();
             using (var command = _connection.CreateCommand())
@@ -835,7 +840,7 @@ namespace TSLog.Links.Data
             return pickingBeginNotice;
         }
 
-        public PickingBeginNotice GetPickingBeginNotice(LegalEntity partner, string partnerOutgoId)
+        public PickingBeginNotice GetPickingBeginNotice(Partner partner, string partnerOutgoId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -860,7 +865,7 @@ namespace TSLog.Links.Data
             return pickingBeginNotice;
         }
 
-        public PickingBeginNotice[] GetPickingBeginNotices(LegalEntity[] partners = null)
+        public PickingBeginNotice[] GetPickingBeginNotices(Partner[] partners = null)
         {
             var pickingBeginNotices = new List<PickingBeginNotice>();
             using (var command = _connection.CreateCommand())
@@ -956,7 +961,7 @@ namespace TSLog.Links.Data
             return pickingEndNotice;
         }
 
-        public PickingEndNotice GetPickingEndNotice(LegalEntity partner, string partnerOutgoId)
+        public PickingEndNotice GetPickingEndNotice(Partner partner, string partnerOutgoId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -981,7 +986,7 @@ namespace TSLog.Links.Data
             return pickingEndNotice;
         }
 
-        public PickingEndNotice[] GetPickingEndNotices(LegalEntity[] partners = null)
+        public PickingEndNotice[] GetPickingEndNotices(Partner[] partners = null)
         {
             var pickingEndNotices = new List<PickingEndNotice>();
             using (var command = _connection.CreateCommand())
@@ -1077,7 +1082,7 @@ namespace TSLog.Links.Data
             return shippingNotice;
         }
 
-        public ShippingNotice GetShippingNotice(LegalEntity partner, string partnerOutgoId)
+        public ShippingNotice GetShippingNotice(Partner partner, string partnerOutgoId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -1102,7 +1107,7 @@ namespace TSLog.Links.Data
             return shippingNotice;
         }
 
-        public ShippingNotice[] GetShippingNotices(LegalEntity[] partners = null)
+        public ShippingNotice[] GetShippingNotices(Partner[] partners = null)
         {
             var shippingNotices = new List<ShippingNotice>();
             using (var command = _connection.CreateCommand())

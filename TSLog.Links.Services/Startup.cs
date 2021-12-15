@@ -10,6 +10,7 @@ using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
 using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
 
 namespace TSLog.Links.Services
@@ -83,7 +84,7 @@ namespace TSLog.Links.Services
             storage.IncomeStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов");
             storage.OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов");
             storage.MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения");
-            storage.Partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры");
+            storage.Partners = new Catalog<Partner>("PARTNERS", "Партнёры");
             storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
 
             storage.Products = new ProductCatalog<Product>("PRODUCTS", "Товары");

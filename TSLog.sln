@@ -52,6 +52,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Test", "TSLog.Ya
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.BO", "TSLog.Staff.BO\TSLog.Staff.BO.csproj", "{4AE64FEC-F758-4A12-959C-9D2A3AF72956}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Partners.BO", "TSLog.Partners.BO\TSLog.Partners.BO.csproj", "{7FFD8150-D50C-4202-BC1F-0D19E8720F01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,10 @@ Global
 		{4AE64FEC-F758-4A12-959C-9D2A3AF72956}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AE64FEC-F758-4A12-959C-9D2A3AF72956}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AE64FEC-F758-4A12-959C-9D2A3AF72956}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FFD8150-D50C-4202-BC1F-0D19E8720F01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FFD8150-D50C-4202-BC1F-0D19E8720F01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FFD8150-D50C-4202-BC1F-0D19E8720F01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FFD8150-D50C-4202-BC1F-0D19E8720F01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

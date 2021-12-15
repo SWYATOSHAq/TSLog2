@@ -1,7 +1,8 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using TSLog.Common.Data;
-using TSLog.LegalEntities.BO;
+using TSLog.ExceptionHandler;
+using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
@@ -15,8 +16,7 @@ namespace TSLog.Yard.Data
         /// </summary>
         public string CommonSchema { private get; set; }
         public YardOracleStorage(string dataSource) : base(dataSource)
-        {
-        }
+        { }
 
         private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
@@ -29,7 +29,7 @@ namespace TSLog.Yard.Data
                 partner);
             return action;
         }
-        public WarehouseAction GetAction(LegalEntity partner, ActionKind actionKind, string partnerActionId)
+        public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId)
         {
             using (var command = _connection.CreateCommand())
             {
@@ -49,17 +49,17 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            throw new Exception("action not found");
+            throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
-        private LegalEntity CreatePartner(DbDataReader reader)
+        private Partner CreatePartner(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var partner = new LegalEntity(Convert.ToString(reader["id"]),
+            var partner = new Partner(Convert.ToString(reader["id"]),
                 Convert.ToString(reader["name"]));
             return partner;
         }
-        public LegalEntity GetPartner(string id)
+        public Partner GetPartner(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("id is empty");
@@ -75,11 +75,11 @@ namespace TSLog.Yard.Data
                     return partner;
                 }
             }
-            throw new Exception($"partner not found by id {id}");
+            throw new PartnerNotFoundException(id);
         }
-        public LegalEntity[] GetPartners()
+        public Partner[] GetPartners()
         {
-            var partners = new List<LegalEntity>();
+            var partners = new List<Partner>();
             using (var command = _connection.CreateCommand()) 
             {
                 var sql = $"select * from {CommonSchema}.v_partner p";
@@ -118,7 +118,7 @@ namespace TSLog.Yard.Data
                     return employee;
                 }
             }
-            throw new Exception("employee not found");
+            throw new EmployeeNotFoundException(id);
         }
         public Employee[] GetEmployees()
         {

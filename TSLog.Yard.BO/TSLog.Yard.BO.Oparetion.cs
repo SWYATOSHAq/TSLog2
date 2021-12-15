@@ -21,7 +21,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Тип
         /// </summary>
-        public Entity Type { get; set; }
+        public OperationType Type { get; set; }
         /// <summary>
         /// Планования дата и время начала
         /// </summary>

@@ -9,6 +9,7 @@
     <ProjectReference Include="..\TSLog.Incomes.BO\TSLog.Incomes.BO.csproj" />
     <ProjectReference Include="..\TSLog.LegalEntities.BO\TSLog.LegalEntities.BO.csproj" />
     <ProjectReference Include="..\TSLog.Outgoes.BO\TSLog.Outgoes.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Partners.BO\TSLog.Partners.BO.csproj" />
     <ProjectReference Include="..\TSLog.Products.BO\TSLog.Products.BO.csproj" />
   </ItemGroup>
 

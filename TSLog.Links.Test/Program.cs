@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Security;
 using System.Xml;
+using TSlog.Links.PSI.DataConverter;
+using TSLog.Common.BO;
 using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
-using TSlog.Links.PSI.DataConverter;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
-using TSLog.Common.BO;
-using TSLog.LegalEntities.BO;
 
 namespace TSLog.Links.Test
 {
@@ -26,7 +26,7 @@ namespace TSLog.Links.Test
                 IncomeStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов"),
                 OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов"),
                 MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения"),
-                Partners = new Catalog<LegalEntity>("PARTNERS", "Партнёры"),
+                Partners = new Catalog<Partner>("PARTNERS", "Партнёры"),
                 Currencies = new Catalog<Entity>("CURRENCIES", "валюты"),
 
                 Products = new ProductCatalog<Product>("PRODUCTS", "Товары")
@@ -96,7 +96,7 @@ namespace TSLog.Links.Test
             reader.Close();
 
             ////// test response
-            LegalEntity partner = storage.GetPartner("0014");
+            Partner partner = storage.GetPartner("0014");
             string xml;
 
             // GetInboundNotification

@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TSLog.BO\TSLog.Common.BO.csproj" />
     <ProjectReference Include="..\TSLog.Common.OracleStorage\TSLog.Common.OracleStorage.csproj" />
+    <ProjectReference Include="..\TSLog.ExceptionHandler\TSLog.ExceptionHandler.csproj" />
     <ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
   </ItemGroup>
 

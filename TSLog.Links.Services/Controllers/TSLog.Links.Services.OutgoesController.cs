@@ -7,6 +7,7 @@ using TSlog.Links.PSI.DataConverter;
 using TSLog.Common;
 using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
+using TSLog.Partners.BO;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -97,8 +98,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingBeginNotices")]
         public string GetPickingBeginNotices()
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
-            var partners = new LegalEntity[] { user };
+            var user = (Partner)HttpContext.Items["User"];
+            var partners = new Partner[] { user };
 
             var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
             var xml = _xmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
@@ -120,7 +121,7 @@ namespace TSLog.Links.Services.Controllers
             * при переводе с PC на WRS - уведомление о том что заказ упакован
             * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
             */
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var user = (Partner)HttpContext.Items["User"];
 
             var pickingEndNotice = _storage.GetPickingEndNotice(user, outgoId);
             var xml = _xmlConverter.PickingEndNoticeToXml(pickingEndNotice);
@@ -132,8 +133,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("PickingEndNotices")]
         public string GetPickingEndNotices()
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
-            var partners = new LegalEntity[] { user };
+            var user = (Partner)HttpContext.Items["User"];
+            var partners = new Partner[] { user };
 
             var pickingEndNotices = _storage.GetPickingEndNotices(partners);
             var xml = _xmlConverter.PickingEndNoticesToXml(pickingEndNotices);
@@ -155,7 +156,7 @@ namespace TSLog.Links.Services.Controllers
              * при переводе с PC на WRS - уведомление о том что заказ упакован
              * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
              */
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var user = (Partner)HttpContext.Items["User"];
 
             var shippingNotice = _storage.GetShippingNotice(user, outgoId);
             var xml = _xmlConverter.ShippingNoticeToXml(shippingNotice);
@@ -167,8 +168,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ShippingNotices")]
         public string GetShippingNotices()
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
-            var partners = new LegalEntity[] { user };
+            var user = (Partner)HttpContext.Items["User"];
+            var partners = new Partner[] { user };
 
             var shippingNotices = _storage.GetShippingNotices(partners);
             var xml = _xmlConverter.ShippingNoticesToXml(shippingNotices);

@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TSLog.BO\TSLog.Common.BO.csproj" />
-    <ProjectReference Include="..\TSLog.LegalEntities.BO\TSLog.LegalEntities.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Partners.BO\TSLog.Partners.BO.csproj" />
     <ProjectReference Include="..\TSLog.Staff.BO\TSLog.Staff.BO.csproj" />
     <ProjectReference Include="..\TSLog.WarehouseActions.BO\TSLog.WarehouseActions.BO.csproj" />
   </ItemGroup>

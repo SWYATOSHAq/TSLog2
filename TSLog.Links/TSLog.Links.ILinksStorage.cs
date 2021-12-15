@@ -1,5 +1,6 @@
 ﻿using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
 
 namespace TSLog.Links
@@ -14,9 +15,9 @@ namespace TSLog.Links
 
         public Product GetProductByGtin(string gtin);
 
-        public Product GetProduct(LegalEntity partner, string partnerProductId);
+        public Product GetProduct(Partner partner, string partnerProductId);
 
-        public Product[] GetProducts(LegalEntity[] partners = null);
+        public Product[] GetProducts(Partner[] partners = null);
     }
 
     public interface ILinksUsers : ILinksClientsStorage
@@ -28,15 +29,15 @@ namespace TSLog.Links
 
     public interface ILinksClientsStorage : ILinksBase
     {
-        public LegalEntity GetPartner(string id);
+        public Partner GetPartner(string id);
 
-        public LegalEntity[] GetPartners();
+        public Partner[] GetPartners();
 
         public LegalEntity GetLegalEntity(string id);
 
-        public LegalEntity[] GetLegalEntities(LegalEntity[] partners = null);
+        public LegalEntity[] GetLegalEntities(Partner[] partners = null);
 
-        public LegalEntity Tslog { get; }
+        public Partner Tslog { get; }
     }
 
     public interface ILinksIncomesStorage : ILinksBase
@@ -45,9 +46,9 @@ namespace TSLog.Links
 
         public ReceiptEndNotice GetReceiptEndNotice(string incomeId);
 
-        public ReceiptEndNotice GetReceiptEndNotice(LegalEntity partner, string partnerInboundId);
+        public ReceiptEndNotice GetReceiptEndNotice(Partner partner, string partnerInboundId);
 
-        public ReceiptEndNotice[] GetReceiptEndNotices(LegalEntity[] partners = null);
+        public ReceiptEndNotice[] GetReceiptEndNotices(Partner[] partners = null);
     }
 
     public interface ILinksOutgoesStorage : ILinksBase
@@ -56,21 +57,21 @@ namespace TSLog.Links
 
         public PickingBeginNotice GetPickingBeginNotice(string outgoId);
 
-        public PickingBeginNotice GetPickingBeginNotice(LegalEntity partner, string partnerOutgoId);
+        public PickingBeginNotice GetPickingBeginNotice(Partner partner, string partnerOutgoId);
 
-        public PickingBeginNotice[] GetPickingBeginNotices(LegalEntity[] partners = null);
+        public PickingBeginNotice[] GetPickingBeginNotices(Partner[] partners = null);
 
         public PickingEndNotice GetPickingEndNotice(string outgoId);
 
-        public PickingEndNotice GetPickingEndNotice(LegalEntity partner, string partnerOutgoId);
+        public PickingEndNotice GetPickingEndNotice(Partner partner, string partnerOutgoId);
 
-        public PickingEndNotice[] GetPickingEndNotices(LegalEntity[] partners = null);
+        public PickingEndNotice[] GetPickingEndNotices(Partner[] partners = null);
 
         public ShippingNotice GetShippingNotice(string outgoId);
 
-        public ShippingNotice GetShippingNotice(LegalEntity partner, string partnerOutgoId);
+        public ShippingNotice GetShippingNotice(Partner partner, string partnerOutgoId);
 
-        public ShippingNotice[] GetShippingNotices(LegalEntity[] partners = null);
+        public ShippingNotice[] GetShippingNotices(Partner[] partners = null);
     }
 
     public interface ILinksBase : ILinksGenIdentifier // pass ILinksGenIdentifier to every part of ILinksStorage

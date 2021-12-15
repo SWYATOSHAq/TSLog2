@@ -28,6 +28,14 @@ namespace TSLog.Common
             }
         }
 
+        public static SecureString StringToSecureString(string value)
+        {
+            var result = new SecureString();
+            foreach (var symbol in value)
+                result.AppendChar(symbol);
+            return result;
+        }
+
         private const string PathRegEx = @"^(([a-zA-Z]\:)|(\\))(\\{1}|((\\{1})[^\\]([^/:*?<>""|]*))+)$";
 
         public static string ToSql(string value)
