@@ -8,7 +8,7 @@ namespace TSLog.Yard.BO
     /// <summary>
     /// Операция двора (разгрузка или погрузка автомашины)
     /// </summary>
-    public class YardOperation : Entity
+    public class Operation : Entity
     {
         /// <summary>
         /// Идентификатор
@@ -21,7 +21,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Тип
         /// </summary>
-        public Entity Type { get; set; }
+        public OperationType Type { get; set; }
         /// <summary>
         /// Планования дата и время начала
         /// </summary>
@@ -98,7 +98,7 @@ namespace TSLog.Yard.BO
 
 
         private IDictionary<string, WarehouseAction> _actions = null;
-        public YardOperation(long id, string code) 
+        public Operation(long id, string code) 
             : base(id, code)
         {
             _actions = new Dictionary<string, WarehouseAction>();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace TSLog.Links.YardManagement.Data
+namespace TSLog.Yard.WebUI.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

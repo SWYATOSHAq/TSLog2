@@ -40,7 +40,7 @@ namespace TSLog.Common.Data
             command.ExecuteNonQuery();
         }
 
-        private Entity CreateEntity(DbDataReader reader)
+        protected Entity CreateEntity(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));

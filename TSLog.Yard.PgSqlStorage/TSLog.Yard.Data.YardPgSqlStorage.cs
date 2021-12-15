@@ -8,6 +8,7 @@ using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.Data
 {
@@ -23,7 +24,7 @@ namespace TSLog.Yard.Data
             _gates = new Catalog<Gate>("GATES", "Ворота");
             _logists = new Catalog<Entity>("LOGISTS", "Логисты");
             _operationStates = new Catalog<Entity>("OPERATION_STATES", "Состояния (статусы) операций двора");
-            _operationTypes = new Catalog<Entity>("OPERATION_TYPES", "Типы операций двора");
+            _operationTypes = new Catalog<OperationType>("OPERATION_TYPES", "Типы операций двора");
             _vihicleKinds = new Catalog<Entity>("VIHICLE_KINDS", "Виды автомашин");
         }
 
@@ -69,6 +70,7 @@ namespace TSLog.Yard.Data
                     _gates.Add(gate);
                     return gate;
                 }
+                reader.Close();
             }
             throw new EntityNotFoundException(nameof(Gate), id);
         }
@@ -92,6 +94,7 @@ namespace TSLog.Yard.Data
                     _gates.Add(gate);
                     return gate;
                 }
+                reader.Close();
             }
             throw new EntityNotFoundException(nameof(Gate), code);
         }
@@ -108,6 +111,7 @@ namespace TSLog.Yard.Data
                     var gate = CreateGate(reader);
                     gates.Add(gate);
                 }
+                reader.Close();
             }
             return gates.ToArray();
         }
@@ -153,21 +157,109 @@ namespace TSLog.Yard.Data
             return GetEntities(sql);
         }
 
-        private readonly Catalog<Entity> _operationTypes = null;
-        public Entity GetOperationType(int id)
+        private readonly Catalog<OperationType> _operationTypes = null;
+        private OperationType CreateOperationType(DbDataReader reader)
         {
-            var sql = $"select * from {YardSchema}.v_operation_type ot where ot.id = :id";
-            return GetEntity(id, sql, _operationTypes);
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var direction = Convert.ToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
+            var operationtype = new OperationType(Convert.ToInt32(reader["id"]),
+                direction,
+                Convert.ToString(reader["code"]),
+                Convert.ToString(reader["name"]),
+                Convert.ToString(reader["short_name"]),
+                Convert.ToString(reader["alt_name"]),
+                Convert.ToString(reader["display_name"]),
+                Convert.ToInt32(reader["time"]),
+                Convert.ToString(reader["note"])
+                );
+            return operationtype;
         }
-        public Entity GetOperationType(string code)
+        public OperationType GetOperationType(int id)
         {
-            var sql = $"select * from {YardSchema}.v_operation_type ot where ot.code = :code";
-            return GetEntity(code, sql, _operationTypes);
+            id = id > 0 ? id : -1;
+            var operationType = _operationTypes[id];
+            if (operationType != null)
+                return operationType;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, ot.time, ot.note "
+                    + $"from {YardSchema}.v_operation_type ot "
+                    + $"where ot.id = :id";
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    operationType = CreateOperationType(reader);
+                    _operationTypes.Add(operationType);
+                    return operationType;
+                }
+                reader.Close();
+            }
+            throw new EntityNotFoundException(nameof(operationType), id);
         }
-        public Entity[] GetOperationTypes()
+        public OperationType GetOperationType(string code)
         {
-            var sql = $"select * from {YardSchema}.v_operation_type ot";
-            return GetEntities(sql);
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var operationType = _operationTypes[code];
+            if (operationType != null)
+                return operationType;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, ot.time, ot.note "
+                    + $"from {YardSchema}.v_operation_type ot "
+                    + $"where ot.code = :code";
+                command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    operationType = CreateOperationType(reader);
+                    _operationTypes.Add(operationType);
+                    return operationType;
+                }
+                reader.Close();
+            }
+            throw new EntityNotFoundException(nameof(operationType), code);
+        }
+        public OperationType[] GetOperationTypes(Partner partner)
+        {
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            var operationtypes = new List<OperationType>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select pot.id, pot.direction, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name, pot.time, pot.note "
+                    + $"from {YardSchema}.v_partner_operation_type pot " 
+                    + $"where pot.partner_id = :partner_id";
+                command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operationtype = CreateOperationType(reader);
+                    operationtypes.Add(operationtype);
+                }
+                reader.Close();
+            }
+            return operationtypes.ToArray();
+        }
+        public OperationType[] GetOperationTypes()
+        {
+            var operationtypes = new List<OperationType>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select pot.id, pot.direction, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name, pot.time, pot.note "
+                    + $"from {YardSchema}.v_partner_operation_type pot";
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operationtype = CreateOperationType(reader);
+                    operationtypes.Add(operationtype);
+                }
+                reader.Close();
+            }
+            return operationtypes.ToArray();
         }
 
         private readonly Catalog<Entity> _vihicleKinds = null;
@@ -189,7 +281,7 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Operations
-        public YardOperation AddOperation(YardOperation operation)
+        public Operation AddOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -229,15 +321,15 @@ namespace TSLog.Yard.Data
 
             return operation;
         }
-        private YardOperation CreateOperation(DbDataReader reader)
+        private Operation CreateOperation(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
 
-            var operation = new YardOperation(Convert.ToInt64(reader["id"]), null);
+            var operation = new Operation(Convert.ToInt64(reader["id"]), null);
             return operation;
         }
-        public YardOperation GetOperation(long id)
+        public Operation GetOperation(long id)
         {
             using (var command = _connection.CreateCommand())
             {
@@ -254,9 +346,9 @@ namespace TSLog.Yard.Data
             }
             throw new OperationNotFoundException(id);
         }
-        public YardOperation[] GetOperations(DateTime from, DateTime to, Partner[] partners)
+        public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners)
         {
-            var operations = new List<YardOperation>();
+            var operations = new List<Operation>();
             if (partners != null && partners.Length > 0)
             {
                 var sql = 
@@ -363,7 +455,7 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
-        public Gate SetOperationGate(YardOperation operation, Gate gate = null)
+        public Gate SetOperationGate(Operation operation, Gate gate = null)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -380,7 +472,7 @@ namespace TSLog.Yard.Data
             }
             return operation.Gate;
         }
-        public void EditOperation(YardOperation operation)
+        public void EditOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -421,7 +513,7 @@ namespace TSLog.Yard.Data
             // TODO: synchronize action
             throw new NotImplementedException();
         }
-        public void StartOperation(YardOperation operation)
+        public void StartOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -432,7 +524,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void MoveToGate(YardOperation operation)
+        public void MoveToGate(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -443,7 +535,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void SetResponsibleOfficer(YardOperation operation, Employee officer) 
+        public void SetResponsibleOfficer(Operation operation, Employee officer) 
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -459,7 +551,7 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             operation.ResponsibleOfficer = officer;
         }
-        public void StartOperationWork(YardOperation operation)
+        public void StartOperationWork(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -470,7 +562,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void FinishOperationWork(YardOperation operation)
+        public void FinishOperationWork(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -481,7 +573,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void LeaveGate(YardOperation operation)
+        public void LeaveGate(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -492,7 +584,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void FinishOperation(YardOperation operation)
+        public void FinishOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -503,7 +595,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void CancelOperation(YardOperation operation)
+        public void CancelOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -514,7 +606,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void DeleteOperation(YardOperation operation)
+        public void DeleteOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -528,7 +620,7 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Actions
-        public void AddAction(YardOperation operation, WarehouseAction action)
+        public void AddAction(Operation operation, WarehouseAction action)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -547,7 +639,7 @@ namespace TSLog.Yard.Data
                 null);
             return action;
         }
-        public WarehouseAction[] GetActions(YardOperation operation)
+        public WarehouseAction[] GetActions(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -567,7 +659,7 @@ namespace TSLog.Yard.Data
             }
             return actions.ToArray();
         }
-        public void RemoveAction(YardOperation operation, WarehouseAction action)
+        public void RemoveAction(Operation operation, WarehouseAction action)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));

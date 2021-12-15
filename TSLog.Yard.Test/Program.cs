@@ -24,7 +24,7 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var operationType = storage.GetOperationType("BOX_OUTGO");
     var vehicleKind = storage.GetVehicleKind("20_TONS");
 
-    var operation = new YardOperation(-1, null);
+    var operation = new Operation(-1, null);
     operation.Type = operationType;
     operation.PlanStartDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Local);
     operation.PlanFinshDate = DateTime.SpecifyKind(DateTime.Now.AddHours(3), DateTimeKind.Local);

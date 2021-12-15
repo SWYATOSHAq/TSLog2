@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace TSLog.Links.YardManagement.Pages
+namespace TSLog.Yard.WebUI.Pages
 {
     public class PrivacyModel : PageModel
     {
