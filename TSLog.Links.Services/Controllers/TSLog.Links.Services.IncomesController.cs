@@ -7,6 +7,7 @@ using TSlog.Links.PSI.DataConverter;
 using TSLog.Common;
 using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
+using TSLog.Partners.BO;
 
 namespace TSLog.Links.Services.Controllers
 {
@@ -56,7 +57,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("IncomeResponses/{incomeId}")]
         public string GetIncomeResponse(string incomeId)
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var user = (Partner)HttpContext.Items["User"];
 
             // TODO: realize
             return string.Empty;
@@ -65,7 +66,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("IncomeResponses")]
         public string GetIncomeResponses()
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var user = (Partner)HttpContext.Items["User"];
 
             // TODO: realize
             return string.Empty;
@@ -74,7 +75,7 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ReceiptEndNotices/{incomeId}")]
         public string GetReceiptEndNotice(string incomeId)
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var user = (Partner)HttpContext.Items["User"];
 
             var receiptEndNotice = _storage.GetReceiptEndNotice(user, incomeId);
             var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
@@ -86,8 +87,8 @@ namespace TSLog.Links.Services.Controllers
         [HttpGet("ReceiptEndNotices")]
         public string GetReceiptEndNotices()
         {
-            var user = (LegalEntity)HttpContext.Items["User"];
-            var partners = new LegalEntity[] { user };
+            var user = (Partner)HttpContext.Items["User"];
+            var partners = new Partner[] { user };
 
             var receiptEndNotices = _storage.GetReceiptEndNotices(partners);
             var xml = _xmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);

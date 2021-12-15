@@ -1,5 +1,6 @@
 ﻿using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 
@@ -26,6 +27,8 @@ namespace TSLog.Yard.BO
 
         public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind);
         public YardOperation AddOperation(YardOperation operation);
+        public YardOperation GetOperation(long id);
+        public YardOperation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
         public Gate SetOperationGate(YardOperation operation, Gate gate = null);
         public void EditOperation(YardOperation operation);        
         public void StartOperation(YardOperation operation);
@@ -45,9 +48,9 @@ namespace TSLog.Yard.BO
 
     public interface IYardWmsStorage
     {
-        public WarehouseAction GetAction(LegalEntity partner, ActionKind actionKind, string partnerActionId);
-        public LegalEntity GetPartner(string id);
-        public LegalEntity[] GetPartners();
+        public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId);
+        public Partner GetPartner(string id);
+        public Partner[] GetPartners();
         public Employee GetEmployee(int id);
         public Employee[] GetEmployees();
     }
