@@ -1,0 +1,112 @@
+﻿@page
+@model DispatcherHomeModel
+@{
+    //using ;
+    // create dummy object
+    TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
+    selectedYardOperation.Type = new Common.BO.Entity(-1,"someType", "someType");
+
+    selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5);
+    selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(5).AddHours(3);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(5).AddHours(4);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(4);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(5);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(7);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(8);
+
+    selectedYardOperation.VehicleKind = new Common.BO.Entity(-1,"20_tonn", "20 tonn");
+    selectedYardOperation.VehicleBrand = "Voltsvagen";
+    selectedYardOperation.VehicleModel = "auto";
+    selectedYardOperation.VehicleNumber = "N1G53RS";
+    selectedYardOperation.DriverName = "Somebody that I used To Know";
+    selectedYardOperation.Logist = new Common.BO.Entity(-1,"DL_TRANS", "DL trans");
+    selectedYardOperation.Gate = new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota");
+    selectedYardOperation.State = new Common.BO.Entity(-1,"ACCEPTED", "prinjato");
+    selectedYardOperation.Manager = new Staff.BO.Employee(-1, "employee1", "Ivan", "I.", "Ivanovich", "Ivan Ivanov", "koton Employee");
+    selectedYardOperation.ResponsibleOfficer = new Staff.BO.Employee(-1, "employee1", "Valerian", "V.", "Valerian1", "Valerian Spacebaker", "sklad Employee");
+
+
+    ViewData["Title"] = "Панель администратора";
+    ViewData["SelectedVehicleNumber"] = selectedYardOperation.VehicleNumber;
+}
+
+ <!--  -->
+  <div class="row p-2 m-3">
+    <div class="col-4 p-4 m-3 shadow">
+      <div class="row p-2 m-3">
+        <!--  -->
+        <input
+        type="text"
+        id="dp1"
+        class="datepicker border border-secondary col-5 m-1"
+        placeholder="Выберете дату"
+        ne="date"
+        readonly
+      />
+      <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
+        <!--  -->
+      </div>
+      <div class="row p-2 m-1 ">
+        <div class="input-group">
+          <span class="input-group-text col-3">Номер ворот</span>
+          <select class="form-select" aria-label="Default select">
+            <option >Выберите номер ворот</option>
+            <option selected value="1">@ViewData["Title"]</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="5">6</option>
+            <option value="5">7</option>
+            <option value="5">8</option>
+            <option value="5">9</option>
+            <option value="5">10</option>
+            <option value="5">11</option>
+            <option value="5">12</option>
+            <option value="5">13</option>
+            <option value="5">14</option>
+            <option value="5">15</option>
+          </select>
+
+        </div>
+      </div>
+
+      <div class="card m-3 border-info">
+        <div class="card-header bg-info text-white">9:00 - 10:30</div>
+        <div class="card-body">
+          <h5 class="card-title">Детский Мир</h5>
+          <p class="card-text">Отгрузка коробочная</p>
+          <p class="card-text">Ворота: 1</p>
+        </div>
+      </div>
+      <!--  -->
+      <div class="card m-3">
+        <div class="card-header">10:30 - 11:00</div>
+        <div class="card-body">
+        </div>
+      </div>
+      <!--  -->
+      <div class="card m-3">
+        <div class="card-header">11:00 - 12:00</div>
+        <div class="card-body">
+          <h5 class="card-title">Детский Мир</h5>
+          <p class="card-text">Отгрузка палетная</p>
+          <p class="card-text">Ворота: 1</p>
+        </div>
+      </div>
+      <!--  -->
+      <div class="card m-3">
+        <div class="card-header">12:00 - 13:00</div>
+        <div class="card-body">
+          <h5 class="card-title">Детский Мир</h5>
+          <p class="card-text">Отгрузка палетная</p>
+          <p class="card-text">Ворота: 1</p>
+        </div>
+      </div>
+      <!--  -->
+
+
+    </div>
+    <partial name="toolkit/_RequestCardPartial" /> 
+  </div>

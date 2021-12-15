@@ -35,7 +35,7 @@ namespace TSLog.Yard.Data
         }
 
 
-        public void AddAction(YardOperation operation, WarehouseAction action)
+        public void AddAction(Operation operation, WarehouseAction action)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -50,7 +50,7 @@ namespace TSLog.Yard.Data
         {
             return null;
         }
-        public WarehouseAction[] GetActions(YardOperation operation)
+        public WarehouseAction[] GetActions(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -70,7 +70,7 @@ namespace TSLog.Yard.Data
             }
             return actions.ToArray();
         }
-        public void RemoveAction(YardOperation operation, WarehouseAction action)
+        public void RemoveAction(Operation operation, WarehouseAction action)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -232,24 +232,24 @@ namespace TSLog.Yard.Data
         }
 
 
-        public YardOperation AddOperation(YardOperation operation)
+        public Operation AddOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using (var command = _connection.CreateCommand())
             {
-                var sql = $"select {YardSchema}.add_operation(p_type_code," +
-                    "p_plan_start_date," +
-                    "p_plan_finish_date," +
-                    "p_vehicle_kind_code," +
-                    "p_vehicle_brand," +
-                    "p_vehicle_model," +
-                    "p_vehicle_number," +
-                    "p_driver_name," +
-                    "p_logist_id," +
-                    "p_manager_id," +
-                    "p_note);";
+                var sql = $"select {YardSchema}.add_operation(:p_type_code," +
+                    ":p_plan_start_date," +
+                    ":p_plan_finish_date," +
+                    ":p_vehicle_kind_code," +
+                    ":p_vehicle_brand," +
+                    ":p_vehicle_model," +
+                    ":p_vehicle_number," +
+                    ":p_driver_name," +
+                    ":p_logist_id," +
+                    ":p_manager_id," +
+                    ":p_note);";
                 command.CommandText = sql;
 
                 command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
@@ -272,7 +272,7 @@ namespace TSLog.Yard.Data
 
             return operation;
         }
-        public Gate SetOperationGate(YardOperation operation, Gate gate = null)
+        public Gate SetOperationGate(Operation operation, Gate gate = null)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -289,7 +289,7 @@ namespace TSLog.Yard.Data
             }
             return operation.Gate;
         }
-        public void EditOperation(YardOperation operation)
+        public void EditOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -330,7 +330,7 @@ namespace TSLog.Yard.Data
             // TODO: synchronize action
             throw new NotImplementedException();
         }
-        public void StartOperation(YardOperation operation)
+        public void StartOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -341,7 +341,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void MoveToGate(YardOperation operation)
+        public void MoveToGate(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -352,7 +352,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void SetResponsibleOfficer(YardOperation operation, Employee officer) 
+        public void SetResponsibleOfficer(Operation operation, Employee officer) 
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -368,7 +368,7 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             operation.ResponsibleOfficer = officer;
         }
-        public void StartOperationWork(YardOperation operation)
+        public void StartOperationWork(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -379,7 +379,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void FinishOperationWork(YardOperation operation)
+        public void FinishOperationWork(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -390,7 +390,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void LeaveGate(YardOperation operation)
+        public void LeaveGate(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -401,7 +401,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void FinishOperation(YardOperation operation)
+        public void FinishOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -412,7 +412,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void CancelOperation(YardOperation operation)
+        public void CancelOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -423,7 +423,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void DeleteOperation(YardOperation operation)
+        public void DeleteOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));

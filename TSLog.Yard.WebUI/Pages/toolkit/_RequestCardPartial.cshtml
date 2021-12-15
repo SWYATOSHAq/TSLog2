@@ -1,87 +1,4 @@
-﻿@page
-@model AdminHomeModel
-@{
-    ViewData["Title"] = "Панель администратора";
-}
-
- <!--  -->
-  <div class="row p-2 m-3">
-    <div class="col-4 p-4 m-3 shadow">
-      <div class="row p-2 m-3">
-        <!--  -->
-        <input
-        type="text"
-        id="dp1"
-        class="datepicker border border-secondary col-5 m-1"
-        placeholder="Выберете дату"
-        ne="date"
-        readonly
-      />
-      <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
-        <!--  -->
-      </div>
-      <div class="row p-2 m-1 ">
-        <div class="input-group">
-          <span class="input-group-text col-3">Номер ворот</span>
-          <select class="form-select" aria-label="Default select">
-            <option >Выберите номер ворот</option>
-            <option selected value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="5">6</option>
-            <option value="5">7</option>
-            <option value="5">8</option>
-            <option value="5">9</option>
-            <option value="5">10</option>
-            <option value="5">11</option>
-            <option value="5">12</option>
-            <option value="5">13</option>
-            <option value="5">14</option>
-            <option value="5">15</option>
-          </select>
-
-        </div>
-      </div>
-
-      <div class="card m-3 border-info">
-        <div class="card-header bg-info text-white">9:00 - 10:30</div>
-        <div class="card-body">
-          <h5 class="card-title">Детский Мир</h5>
-          <p class="card-text">Отгрузка коробочная</p>
-          <p class="card-text">Ворота: 1</p>
-        </div>
-      </div>
-      <!--  -->
-      <div class="card m-3">
-        <div class="card-header">10:30 - 11:00</div>
-        <div class="card-body">
-        </div>
-      </div>
-      <!--  -->
-      <div class="card m-3">
-        <div class="card-header">11:00 - 12:00</div>
-        <div class="card-body">
-          <h5 class="card-title">Детский Мир</h5>
-          <p class="card-text">Отгрузка палетная</p>
-          <p class="card-text">Ворота: 1</p>
-        </div>
-      </div>
-      <!--  -->
-      <div class="card m-3">
-        <div class="card-header">12:00 - 13:00</div>
-        <div class="card-body">
-          <h5 class="card-title">Детский Мир</h5>
-          <p class="card-text">Отгрузка палетная</p>
-          <p class="card-text">Ворота: 1</p>
-        </div>
-      </div>
-      <!--  -->
-
-
-    </div>
-    <div class="col p-2 m-3 shadow">
+﻿<div class="col p-2 m-3 shadow">
       <div class="row p-2 m-3 ">
         <h1 class="text-info">Просмотр</h1>
       </div>
@@ -100,6 +17,7 @@
         </div>
         
       </div>
+      
       <!--  -->
       <div class="row p-2 m-3 ">
         <div class="input-group">
@@ -144,7 +62,7 @@
       <div class="row p-2 m-3 ">
         <div class="input-group">
           <span class="input-group-text col-3">Номер авто</span>
-          <input type="text" aria-label="Last name" class="form-control" value="ПО123И" disabled>
+          <input type="text" aria-label="Last name" class="form-control" value="@ViewData["SelectedVehicleNumber"]" disabled>
         </div>
       </div>
       <!--  -->
@@ -177,21 +95,5 @@
         </div>
       </div>
     </div>
-  </div>
 
 
-<!--  -->
-<script>
-  $(document).ready(function () {
-    $(".datepicker").datepicker({
-      format: "dd.mm.yyyy",
-      autoclose: true,
-      startDate: "0d",
-      language: "ru",
-      todayBtn: true,
-      todayHighlight: true,
-    })
-    .datepicker("setDate",'now');
-
-  });
-</script>

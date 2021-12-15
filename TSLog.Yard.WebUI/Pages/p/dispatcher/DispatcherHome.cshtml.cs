@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace TSLog.Links.YardManagement.Pages
 {
-    public class DispetcherHomeModel : PageModel
+    public class DispatcherHomeModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
 
-        public DispetcherHomeModel(ILogger<IndexModel> logger)
+        public DispatcherHomeModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
         }

@@ -20,7 +20,7 @@ using (var pgSql = new PgSqlYardStorage(host, database))
     var operationType = pgSql.GetOperationType("BOX_OUTGO");
     var vehicleKind = pgSql.GetVehicleKind("20_TONS");
 
-    var operation = new YardOperation(-1, null);
+    var operation = new Operation(-1, null);
     operation.Type = operationType;
     operation.PlanStartDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Local);
     operation.PlanFinshDate = DateTime.SpecifyKind(DateTime.Now.AddHours(3), DateTimeKind.Local);

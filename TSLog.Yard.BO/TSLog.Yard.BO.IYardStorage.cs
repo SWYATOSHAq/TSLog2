@@ -25,22 +25,22 @@ namespace TSLog.Yard.BO
         public Entity[] GetLogists();
 
         public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind);
-        public YardOperation AddOperation(YardOperation operation);
-        public Gate SetOperationGate(YardOperation operation, Gate gate = null);
-        public void EditOperation(YardOperation operation);        
-        public void StartOperation(YardOperation operation);
-        public void MoveToGate(YardOperation operation);
-        public void SetResponsibleOfficer(YardOperation operation, Employee officer);
-        public void StartOperationWork(YardOperation operation);
-        public void FinishOperationWork(YardOperation operation);
-        public void LeaveGate(YardOperation operation);
-        public void FinishOperation(YardOperation operation);
-        public void CancelOperation(YardOperation operation);
-        public void DeleteOperation(YardOperation operation);
+        public Operation AddOperation(Operation operation);
+        public Gate SetOperationGate(Operation operation, Gate gate = null);
+        public void EditOperation(Operation operation);        
+        public void StartOperation(Operation operation);
+        public void MoveToGate(Operation operation);
+        public void SetResponsibleOfficer(Operation operation, Employee officer);
+        public void StartOperationWork(Operation operation);
+        public void FinishOperationWork(Operation operation);
+        public void LeaveGate(Operation operation);
+        public void FinishOperation(Operation operation);
+        public void CancelOperation(Operation operation);
+        public void DeleteOperation(Operation operation);
 
-        public void AddAction(YardOperation operation, WarehouseAction action);        
-        public WarehouseAction[] GetActions(YardOperation operation);
-        public void RemoveAction(YardOperation operation, WarehouseAction action);
+        public void AddAction(Operation operation, WarehouseAction action);        
+        public WarehouseAction[] GetActions(Operation operation);
+        public void RemoveAction(Operation operation, WarehouseAction action);
     }
 
     public interface IYardWmsStorage

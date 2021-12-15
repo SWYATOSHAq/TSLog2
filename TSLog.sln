@@ -42,12 +42,15 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.OracleStorage", "TSLog.Links.OracleStorage\TSLog.Links.OracleStorage.csproj", "{39CA59AB-934B-4C91-8680-547AE2F4C54F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.WebUI", "TSLog.Yard.WebUI\TSLog.Yard.WebUI.csproj", "{81B46879-B80F-4D7A-927A-8DE88C9D71A8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D99D421A-FF0A-48D3-9591-C039BFCD5420} = {D99D421A-FF0A-48D3-9591-C039BFCD5420}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.PgSqlStorage", "TSLog.Yard.PgSqlStorage\TSLog.Yard.PgSqlStorage.csproj", "{58BFA31A-BC0C-4B83-9829-914026897155}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Test", "TSLog.Yard.Test\TSLog.Yard.Test.csproj", "{230D01C2-11D0-4C94-8AD0-41F375B2872A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Staff.BO", "TSLog.Staff.BO\TSLog.Staff.BO.csproj", "{4AE64FEC-F758-4A12-959C-9D2A3AF72956}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.BO", "TSLog.Staff.BO\TSLog.Staff.BO.csproj", "{4AE64FEC-F758-4A12-959C-9D2A3AF72956}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
