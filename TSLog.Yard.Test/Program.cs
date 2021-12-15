@@ -36,7 +36,7 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     operation.Logist = null;
     operation.Manager = new TSLog.Staff.BO.Employee(1, "AAAA");
     operation.Note = "TEST";
-
+        
     storage.AddOperation(operation);
 
     storage.DisconnectOracle();

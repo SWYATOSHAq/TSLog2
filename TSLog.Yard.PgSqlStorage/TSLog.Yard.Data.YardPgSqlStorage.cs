@@ -36,53 +36,8 @@ namespace TSLog.Yard.Data
             return parameter;
         }
 
-        public void AddAction(YardOperation operation, WarehouseAction action)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
 
-            using var command = _connection.CreateCommand();
-            command.CommandText = "";
-            command.ExecuteScalar();
-        }
-        private WarehouseAction CreateWarehouseAction(DbDataReader reader)
-        {
-            return null;
-        }
-        public WarehouseAction[] GetActions(YardOperation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            var actions = new List<WarehouseAction>();
-            using (var command = _connection.CreateCommand()) 
-            {
-                var sql = $"select oa.operation_id, oa.action_kind, oa.action_id " +
-                    $"from {YardSchema}.v_operation_action oa where oa.operation_id = :operation_id";
-                command.CommandText = sql;
-                command.Parameters.Add(new NpgsqlParameter("oparetion_id", operation.Id));
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var action = CreateWarehouseAction(reader);
-                    actions.Add(action);
-                }
-            }
-            return actions.ToArray();
-        }
-        public void RemoveAction(YardOperation operation, WarehouseAction action)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
-
-            using var command = _connection.CreateCommand();
-            command.CommandText = "";
-            command.ExecuteScalar();
-        }        
-
+        #region Domains
         private readonly Catalog<Gate> _gates = null;    
         private Gate CreateGate(DbDataReader reader)
         {
@@ -115,7 +70,7 @@ namespace TSLog.Yard.Data
                     return gate;
                 }
             }
-            throw new Exception("Gate not found by id " + id);
+            throw new EntityNotFoundException(nameof(Gate), id);
         }
         public Gate GetGate(string code)
         {
@@ -138,7 +93,7 @@ namespace TSLog.Yard.Data
                     return gate;
                 }
             }
-            throw new Exception("Gate not found by code " + code);
+            throw new EntityNotFoundException(nameof(Gate), code);
         }
         public Gate[] GetGates()
         {
@@ -181,7 +136,7 @@ namespace TSLog.Yard.Data
             return GetEntities(sql);
         }
 
-        private Catalog<Entity> _operationStates = null;
+        private readonly Catalog<Entity> _operationStates = null;
         public Entity GetOperationState(int id)
         {
             var sql = $"select * from {YardSchema}.v_operation_state os where os.id = :id";
@@ -198,7 +153,7 @@ namespace TSLog.Yard.Data
             return GetEntities(sql);
         }
 
-        private Catalog<Entity> _operationTypes = null;
+        private readonly Catalog<Entity> _operationTypes = null;
         public Entity GetOperationType(int id)
         {
             var sql = $"select * from {YardSchema}.v_operation_type ot where ot.id = :id";
@@ -215,7 +170,7 @@ namespace TSLog.Yard.Data
             return GetEntities(sql);
         }
 
-        private Catalog<Entity> _vihicleKinds = null;
+        private readonly Catalog<Entity> _vihicleKinds = null;
         public Entity GetVehicleKind(int id)
         {
             var sql = $"select * from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
@@ -231,8 +186,9 @@ namespace TSLog.Yard.Data
             var sql = $"select * from {YardSchema}.v_vehicle_kind vk";
             return GetEntities(sql);
         }
+        #endregion
 
-
+        #region Operations
         public YardOperation AddOperation(YardOperation operation)
         {
             if (operation == null)
@@ -303,10 +259,43 @@ namespace TSLog.Yard.Data
             var operations = new List<YardOperation>();
             if (partners != null && partners.Length > 0)
             {
-                var sql = $"select * from {YardSchema}.v_partner_operation po " +
-                    $"where po.plan_start_date between :from_date and :to_date " +
-                    $"  and po.plan_finish_date between :from_date and :to_date " +
-                    $"  and po.partner_id = :partner_id";
+                var sql = 
+                    $"select distinct po.id, " +
+                    $"       po.type_id, " +
+                    $"       po.type_code, " +
+                    $"       po.type_name, " +
+                    $"       po.plan_start_date, " +
+                    $"       po.fact_start_date, " +
+                    $"       po.gate_arrival_date, " +
+                    $"       po.work_start_date, " +
+                    $"       po.work_end_date, " +
+                    $"       po.gate_departure_date, " +
+                    $"       po.plan_finish_date, " +
+                    $"       po.fact_finish_date, " +
+                    $"       po.vehicle_kind_id, " +
+                    $"       po.vehicle_kind_code, " +
+                    $"       po.vehicle_kind_name, " +
+                    $"       po.vehicle_brand, " +
+                    $"       po.vehicle_model, " +
+                    $"       po.vehicle_number, " +
+                    $"       po.driver_name, " +
+                    $"       po.logist_id, " +
+                    $"       po.logist_code, " +
+                    $"       po.logist_name, " +
+                    $"       po.gate_id, " +
+                    $"       po.gate_code, " +
+                    $"       po.gate_name, " +
+                    $"       po.state_id, " +
+                    $"       po.state_code, " +
+                    $"       po.state_name, " +
+                    $"       po.priority, " +
+                    $"       po.manager_id, " +
+                    $"       po.responsible_officer_id, " +
+                    $"       po.note " +
+                    $"  from {YardSchema}.v_partner_operation po " +
+                    $" where po.plan_start_date between :from_date and :to_date " +
+                    $"   and po.plan_finish_date between :from_date and :to_date " +
+                    $"   and po.partner_id = :partner_id";
                 foreach (var partner in partners)
                 {
                     using var command = _connection.CreateCommand();
@@ -325,7 +314,39 @@ namespace TSLog.Yard.Data
             }
             else
             {
-                var sql = $"select * from {YardSchema}.v_partner_operation po " +
+                var sql = $"select distinct po.id, " +
+                    $"       po.type_id, " +
+                    $"       po.type_code, " +
+                    $"       po.type_name, " +
+                    $"       po.plan_start_date, " +
+                    $"       po.fact_start_date, " +
+                    $"       po.gate_arrival_date, " +
+                    $"       po.work_start_date, " +
+                    $"       po.work_end_date, " +
+                    $"       po.gate_departure_date, " +
+                    $"       po.plan_finish_date, " +
+                    $"       po.fact_finish_date, " +
+                    $"       po.vehicle_kind_id, " +
+                    $"       po.vehicle_kind_code, " +
+                    $"       po.vehicle_kind_name, " +
+                    $"       po.vehicle_brand, " +
+                    $"       po.vehicle_model, " +
+                    $"       po.vehicle_number, " +
+                    $"       po.driver_name, " +
+                    $"       po.logist_id, " +
+                    $"       po.logist_code, " +
+                    $"       po.logist_name, " +
+                    $"       po.gate_id, " +
+                    $"       po.gate_code, " +
+                    $"       po.gate_name, " +
+                    $"       po.state_id, " +
+                    $"       po.state_code, " +
+                    $"       po.state_name, " +
+                    $"       po.priority, " +
+                    $"       po.manager_id, " +
+                    $"       po.responsible_officer_id, " +
+                    $"       po.note " +
+                    $" from {YardSchema}.v_partner_operation po " +
                     $"where po.plan_start_date between :from_date and :to_date " +
                     $"  and po.plan_finish_date between :from_date and :to_date";
                 using var command = _connection.CreateCommand();
@@ -504,5 +525,59 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
+        #endregion
+
+        #region Actions
+        public void AddAction(YardOperation operation, WarehouseAction action)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
+            using var command = _connection.CreateCommand();
+            command.CommandText = "";
+            command.ExecuteScalar();
+        }
+        private WarehouseAction CreateWarehouseAction(DbDataReader reader)
+        {
+            var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+            var action = new WarehouseAction(Convert.ToString(reader["id"]),
+                kind,
+                null);
+            return action;
+        }
+        public WarehouseAction[] GetActions(YardOperation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            var actions = new List<WarehouseAction>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = $"select oa.operation_id, oa.action_kind, oa.action_id " +
+                    $"from {YardSchema}.v_operation_action oa where oa.operation_id = :operation_id";
+                command.CommandText = sql;
+                command.Parameters.Add(new NpgsqlParameter("oparetion_id", operation.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var action = CreateWarehouseAction(reader);
+                    actions.Add(action);
+                }
+            }
+            return actions.ToArray();
+        }
+        public void RemoveAction(YardOperation operation, WarehouseAction action)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
+            using var command = _connection.CreateCommand();
+            command.CommandText = "";
+            command.ExecuteScalar();
+        }
+        #endregion
     }
 }

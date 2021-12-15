@@ -1,6 +1,7 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using TSLog.Common.Data;
+using TSLog.ExceptionHandler;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -48,7 +49,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            throw new Exception("action not found");
+            throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
         private Partner CreatePartner(DbDataReader reader)
         {
@@ -74,7 +75,7 @@ namespace TSLog.Yard.Data
                     return partner;
                 }
             }
-            throw new Exception($"partner not found by id {id}");
+            throw new PartnerNotFoundException(id);
         }
         public Partner[] GetPartners()
         {
@@ -117,7 +118,7 @@ namespace TSLog.Yard.Data
                     return employee;
                 }
             }
-            throw new Exception("employee not found");
+            throw new EmployeeNotFoundException(id);
         }
         public Employee[] GetEmployees()
         {

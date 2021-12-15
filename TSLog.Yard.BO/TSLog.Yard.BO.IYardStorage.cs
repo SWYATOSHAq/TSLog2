@@ -1,5 +1,4 @@
 ﻿using TSLog.Common.BO;
-using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -45,7 +44,6 @@ namespace TSLog.Yard.BO
         public WarehouseAction[] GetActions(YardOperation operation);
         public void RemoveAction(YardOperation operation, WarehouseAction action);
     }
-
     public interface IYardWmsStorage
     {
         public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId);

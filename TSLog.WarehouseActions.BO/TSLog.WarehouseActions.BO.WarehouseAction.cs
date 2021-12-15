@@ -24,11 +24,12 @@ namespace TSLog.WarehouseActions.BO
         /// Партнёр - покупатель наших складских и логистических услуг
         /// </summary>
         public LegalEntity Partner { get; set; }
+        public string PartnerId { get; set; }
         public WarehouseAction(string id, ActionKind kind, LegalEntity partner) 
             : base(-1, id, string.Empty)
         {
             Kind = kind;
-            Partner = partner ?? throw new ArgumentNullException(nameof(partner));
+            Partner = partner;
         } 
     }
 }

@@ -4,6 +4,11 @@ namespace TSLog.ExceptionHandler
 {
     public class LegalEntityNotFoundException : Exception
     {
-        public string LegalEntityCode { get; private set; }
+        public string Id { get; private set; }
+        public LegalEntityNotFoundException(string id)
+            : base($"Legal entity not found by id = {id}")
+        {
+            Id = id;
+        }
     }
 }
