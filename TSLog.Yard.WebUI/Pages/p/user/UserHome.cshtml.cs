@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace TSLog.Links.YardManagement.Pages
+namespace TSLog.Yard.WebUI.Pages
 {
     public class UserHomeModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<UserHomeModel> _logger;
 
-        public UserHomeModel(ILogger<IndexModel> logger)
+        public UserHomeModel(ILogger<UserHomeModel> logger)
         {
             _logger = logger;
         }

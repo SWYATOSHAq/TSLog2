@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
-namespace TSLog.Links.YardManagement.Data.Migrations
+namespace TSLog.Yard.WebUI.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

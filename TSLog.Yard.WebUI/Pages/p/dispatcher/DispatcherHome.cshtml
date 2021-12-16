@@ -4,7 +4,7 @@
     //using ;
     // create dummy object
     TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
-    selectedYardOperation.Type = new Common.BO.Entity(-1,"someType", "someType");
+    selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "some-code", "somename", "name", "s.n.", "somewhat name", 60, "some note"); //new Common.BO.Entity(-1,"someType", "someType");
 
     selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5);
     selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
@@ -28,7 +28,7 @@
 
 
     ViewData["Title"] = "Панель администратора";
-    ViewData["SelectedVehicleNumber"] = selectedYardOperation.VehicleNumber;
+    //ViewData["SelectedVehicleNumber"] = selectedYardOperation.VehicleNumber;
 }
 
  <!--  -->
@@ -108,5 +108,5 @@
 
 
     </div>
-    <partial name="toolkit/_RequestCardPartial" /> 
+    <partial name="toolkit/_RequestCardPartial" model="selectedYardOperation" /> 
   </div>

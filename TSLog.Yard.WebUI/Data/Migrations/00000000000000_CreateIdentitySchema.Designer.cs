@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using TSLog.Yard.WebUI.Data;
 
-namespace TSLog.Links.YardManagement.Data.Migrations
+namespace TSLog.Yard.WebUI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("00000000000000_CreateIdentitySchema")]

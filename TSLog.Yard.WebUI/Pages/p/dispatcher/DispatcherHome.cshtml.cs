@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace TSLog.Links.YardManagement.Pages
+namespace TSLog.Yard.WebUI.Pages
 {
     public class DispatcherHomeModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<DispatcherHomeModel> _logger;
 
-        public DispatcherHomeModel(ILogger<IndexModel> logger)
+        public DispatcherHomeModel(ILogger<DispatcherHomeModel> logger)
         {
             _logger = logger;
         }

@@ -1,4 +1,6 @@
-﻿<div class="col p-2 m-3 shadow">
+﻿@model TSLog.Yard.BO.Operation
+
+<div class="col p-2 m-3 shadow">
       <div class="row p-2 m-3 ">
         <h1 class="text-info">Просмотр</h1>
       </div>
@@ -62,7 +64,7 @@
       <div class="row p-2 m-3 ">
         <div class="input-group">
           <span class="input-group-text col-3">Номер авто</span>
-          <input type="text" aria-label="Last name" class="form-control" value="@ViewData["SelectedVehicleNumber"]" disabled>
+          <input type="text" aria-label="Last name" class="form-control" value="@Model.VehicleNumber" disabled>
         </div>
       </div>
       <!--  -->
