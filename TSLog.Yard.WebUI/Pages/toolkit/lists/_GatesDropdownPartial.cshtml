@@ -1,0 +1,20 @@
+﻿@model (TSLog.Yard.BO.Gate[], string, bool)
+@{
+    var cardGateList = Model.Item1;
+    var selectedGate = Model.Item2;
+    var isEnabled = Model.Item3;
+}
+
+<div class="input-group">
+    <span class="input-group-text col-3">Номер ворот</span>
+    <select class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <option>Выберите номер ворот</option>
+
+    @foreach (var curGate in cardGateList)
+    {
+       @: <option value="@curGate.Code" @((curGate.Code == selectedGate) ? "selected" : "")>@curGate.DisplayName</option>
+    }
+
+    </select>
+
+</div>

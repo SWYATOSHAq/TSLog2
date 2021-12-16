@@ -1,0 +1,15 @@
+﻿@model (Dictionary<string, (string, string)>, bool)
+@{
+    var cardFieldsList = Model.Item1;
+    var isEnabled = Model.Item2;
+}
+
+@foreach (var curFieldKey in cardFieldsList.Keys)
+{
+    <div class="row p-2 m-3 ">
+        <div class="input-group">
+            <span class="input-group-text col-3">@curFieldKey</span>
+            <input type="text" aria-label="@cardFieldsList[curFieldKey].Item1" class="form-control" @(isEnabled ? "disabled" : "") value="@cardFieldsList[curFieldKey].Item2">
+        </div>
+    </div>
+}

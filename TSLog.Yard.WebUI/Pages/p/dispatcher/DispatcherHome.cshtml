@@ -4,31 +4,44 @@
     //using ;
     // create dummy object
     TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
-    selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "some-code", "somename", "name", "s.n.", "somewhat name", 60, "some note"); //new Common.BO.Entity(-1,"someType", "someType");
+    selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, ""); //new Common.BO.Entity(-1,"someType", "someType");
 
-    selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5);
+    selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5); // partner
     selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
-    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(5).AddHours(3);
-    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(5).AddHours(4);
-    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(4);
+    selectedYardOperation.PlanFinshDate = DateTime.Now.AddDays(5).AddHours(3); // partner
+    //selectedYardOperation.FactFinishDate = DateTime.Now.AddDays(5).AddHours(4);
+    selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(6).AddHours(4);
     selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(5);
     selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(7);
     selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(8);
 
-    selectedYardOperation.VehicleKind = new Common.BO.Entity(-1,"20_tonn", "20 tonn");
+    // plan/fact
+    // start/fin
+
+    selectedYardOperation.VehicleKind = new Common.BO.Entity(-1, "20_tonn", "20 tonn");
     selectedYardOperation.VehicleBrand = "Voltsvagen";
-    selectedYardOperation.VehicleModel = "auto";
+    selectedYardOperation.VehicleModel = "self driving";
     selectedYardOperation.VehicleNumber = "N1G53RS";
     selectedYardOperation.DriverName = "Somebody that I used To Know";
-    selectedYardOperation.Logist = new Common.BO.Entity(-1,"DL_TRANS", "DL trans");
-    selectedYardOperation.Gate = new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota");
-    selectedYardOperation.State = new Common.BO.Entity(-1,"ACCEPTED", "prinjato");
+    selectedYardOperation.Logist = new Common.BO.Entity(-1, "DL_TRANS", "DL trans");
+    selectedYardOperation.Gate = new Yard.BO.Gate(-1, "EIN1", "vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota");
+    selectedYardOperation.State = new Common.BO.Entity(-1, "ACCEPTED", "prinjato", "prin", "P.", "принято в обработку", "");
     selectedYardOperation.Manager = new Staff.BO.Employee(-1, "employee1", "Ivan", "I.", "Ivanovich", "Ivan Ivanov", "koton Employee");
     selectedYardOperation.ResponsibleOfficer = new Staff.BO.Employee(-1, "employee1", "Valerian", "V.", "Valerian1", "Valerian Spacebaker", "sklad Employee");
 
 
     ViewData["Title"] = "Панель администратора";
     //ViewData["SelectedVehicleNumber"] = selectedYardOperation.VehicleNumber;
+
+    // ----------------------------------
+
+    var gateslist = (new TSLog.Yard.BO.Gate[] {
+        new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota"),
+        new Yard.BO.Gate(-1,"EIN2","vorota 2", "vor. 2", "2", "vorota nomer 2", "vtorije vorota")
+        }, "", false);
+
+
+
 }
 
  <!--  -->
@@ -48,28 +61,7 @@
         <!--  -->
       </div>
       <div class="row p-2 m-1 ">
-        <div class="input-group">
-          <span class="input-group-text col-3">Номер ворот</span>
-          <select class="form-select" aria-label="Default select">
-            <option >Выберите номер ворот</option>
-            <option selected value="1">@ViewData["Title"]</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="5">6</option>
-            <option value="5">7</option>
-            <option value="5">8</option>
-            <option value="5">9</option>
-            <option value="5">10</option>
-            <option value="5">11</option>
-            <option value="5">12</option>
-            <option value="5">13</option>
-            <option value="5">14</option>
-            <option value="5">15</option>
-          </select>
-
-        </div>
+        <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" /> 
       </div>
 
       <div class="card m-3 border-info">

@@ -20,5 +20,15 @@ namespace TSLog.Yard.BO
         }
 
         public int Time { get; set; }
+
+        public string GetFormattedTime()
+        {
+            return new TimeSpan(0,this.Time, 0).ToString(@"hh\:mm\:ss");
+        }
+
+        public override string ToString()
+        {
+            return $"{this.DisplayName} ({GetFormattedTime()})";
+        }
     }
 }
