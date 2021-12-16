@@ -41,7 +41,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Дата и время окончания непосредственно работ
         /// </summary>
-        public DateTime WorkEndDate { get; set; }
+        public DateTime WorkFinishDate { get; set; }
         /// <summary>
         /// Дата и время отбытия автомашины с ворот
         /// </summary>
@@ -53,7 +53,11 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Фактическая дата и время окончания
         /// </summary>
-        public DateTime FactFinishdate { get; set; }
+        public DateTime FactFinishDate { get; set; }
+        /// <summary>
+        /// Количество работников для выполнения операции
+        /// </summary>
+        public short WorkersCount { get; set; }
         /// <summary>
         /// Вид автомашины
         /// </summary>

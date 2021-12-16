@@ -21,6 +21,7 @@ namespace TSLog.Yard
         {
             _oracleStorage = new YardOracleStorage(oracleDataSource);
             _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase);
+            _pgsqlStorage.GetEmployeeById = _oracleStorage.GetEmployee;
         }
         public void ConnectOracle(string userName, string password)
         {
