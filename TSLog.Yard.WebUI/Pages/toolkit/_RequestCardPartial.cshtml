@@ -8,15 +8,16 @@
         new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota"),
         new Yard.BO.Gate(-1,"EIN2","vorota 2", "vor. 2", "2", "vorota nomer 2", "vtorije vorota")
         },
-        cardData.Gate.Code,
-        isEnabled
+        cardData.Gate?.Code,
+        isEnabled,
+        false
         );
 
     var operationList = (new TSLog.Yard.BO.OperationType[] {
         new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, ""),
         new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "BOX_INCOME", "приемка коробочная", "приемка коробочная", "кор. приемка.", "приемка коробочная", 100, "")
         },
-        cardData.Type.Code,
+        cardData.Type?.Code,
         isEnabled
         );
 
@@ -28,10 +29,10 @@
     textDataHeader.Add("Время работ", (cardData.GetWorkTime(), false));
     textDataHeader.Add("Уезд с территории", (cardData.GetFinishTime(), true));
 
-    textDataHeader.Add("Логист", (cardData.Logist.DisplayName, false));
-    textDataHeader.Add("Ответственный", (cardData.Manager.DisplayName, true));
-    textDataHeader.Add("Ответственный (склад)", (cardData.ResponsibleOfficer.DisplayName, false));
-    textDataHeader.Add("Состояние", (cardData.State.DisplayName, true));
+    textDataHeader.Add("Логист", (cardData.Logist?.DisplayName, false));
+    textDataHeader.Add("Ответственный", (cardData.Manager?.DisplayName, true));
+    textDataHeader.Add("Ответственный (склад)", (cardData.ResponsibleOfficer?.DisplayName, false));
+    textDataHeader.Add("Состояние", (cardData.State?.DisplayName, true));
 
 
 

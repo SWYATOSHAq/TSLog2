@@ -280,7 +280,7 @@ namespace TSLog.Yard.Data
         }
         #endregion
 
-        public YardOperation AddOperation(YardOperation operation)
+        public Operation AddOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -328,7 +328,7 @@ namespace TSLog.Yard.Data
             var operation = new Operation(Convert.ToInt64(reader["id"]), null);
             return operation;
         }
-        public Gate SetOperationGate(YardOperation operation, Gate gate = null)
+        public Gate SetOperationGate(Operation operation, Gate gate = null)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));

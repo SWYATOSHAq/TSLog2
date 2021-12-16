@@ -1,12 +1,13 @@
-﻿@model (TSLog.Yard.BO.Gate[], string, bool)
+﻿@model (TSLog.Yard.BO.Gate[], string, bool, bool)
 @{
     var cardGateList = Model.Item1;
     var selectedGate = Model.Item2;
     var isEnabled = Model.Item3;
+    var isSmall = Model.Item4;
 }
 
 <div class="input-group">
-    <span class="input-group-text col-3">Номер ворот</span>
+    <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Номер ворот</span>
     <select class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
     <option>Выберите номер ворот</option>
 

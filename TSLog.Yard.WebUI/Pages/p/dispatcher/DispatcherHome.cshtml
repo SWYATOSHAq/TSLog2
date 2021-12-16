@@ -9,7 +9,7 @@
     selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5); // partner
     selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
     selectedYardOperation.PlanFinshDate = DateTime.Now.AddDays(5).AddHours(3); // partner
-    //selectedYardOperation.FactFinishDate = DateTime.Now.AddDays(5).AddHours(4);
+                                                                               //selectedYardOperation.FactFinishDate = DateTime.Now.AddDays(5).AddHours(4);
     selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(6).AddHours(4);
     selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(5);
     selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(7);
@@ -38,9 +38,9 @@
     var gateslist = (new TSLog.Yard.BO.Gate[] {
         new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota"),
         new Yard.BO.Gate(-1,"EIN2","vorota 2", "vor. 2", "2", "vorota nomer 2", "vtorije vorota")
-        }, "", false);
+        }, "", false, true);
 
-
+    var operarationsList = ( new TSLog.Yard.BO.Operation[] { selectedYardOperation, selectedYardOperation, selectedYardOperation, selectedYardOperation }, true);
 
 }
 
@@ -64,40 +64,7 @@
         <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" /> 
       </div>
 
-      <div class="card m-3 border-info">
-        <div class="card-header bg-info text-white">9:00 - 10:30</div>
-        <div class="card-body">
-          <h5 class="card-title">Детский Мир</h5>
-          <p class="card-text">Отгрузка коробочная</p>
-          <p class="card-text">Ворота: 1</p>
-        </div>
-      </div>
-      <!--  -->
-      <div class="card m-3">
-        <div class="card-header">10:30 - 11:00</div>
-        <div class="card-body">
-        </div>
-      </div>
-      <!--  -->
-      <div class="card m-3">
-        <div class="card-header">11:00 - 12:00</div>
-        <div class="card-body">
-          <h5 class="card-title">Детский Мир</h5>
-          <p class="card-text">Отгрузка палетная</p>
-          <p class="card-text">Ворота: 1</p>
-        </div>
-      </div>
-      <!--  -->
-      <div class="card m-3">
-        <div class="card-header">12:00 - 13:00</div>
-        <div class="card-body">
-          <h5 class="card-title">Детский Мир</h5>
-          <p class="card-text">Отгрузка палетная</p>
-          <p class="card-text">Ворота: 1</p>
-        </div>
-      </div>
-      <!--  -->
-
+        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" /> 
 
     </div>
     <partial name="toolkit/_RequestCardPartial" model="selectedYardOperation" /> 

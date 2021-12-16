@@ -139,22 +139,29 @@ namespace TSLog.Yard.BO
 
         public string GetStartTime()
         {
-            return $"план. {PlanStartDate:dd.MM.yyyy HH.mm.ss}" + (FactStartDate == DateTime.MinValue ? "" : $" (факт.: {FactStartDate:dd.MM.yyyy HH.mm.ss})");
+            return (PlanStartDate == DateTime.MinValue ? "" : $"план. {PlanStartDate:dd.MM.yyyy HH:mm:ss}") + (FactStartDate == DateTime.MinValue ? "" : $" (факт.: {FactStartDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetFinishTime()
         {
-            return $"план. {PlanFinshDate:dd.MM.yyyy HH.mm.ss}" + (FactFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactFinishDate:dd.MM.yyyy HH.mm.ss})");
+            return (PlanFinshDate == DateTime.MinValue ? "" : $"план. {PlanFinshDate:dd.MM.yyyy HH:mm:ss}") + (FactFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactFinishDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetGateTime()
         {
-            var from = GateArrivalDate == DateTime.MinValue ? "//" : $"{GateArrivalDate:dd.MM.yyyy HH.mm.ss}";
-            var to = GateDepartureDate == DateTime.MinValue ? "//" : $"{GateDepartureDate:dd.MM.yyyy HH.mm.ss}";
+            var from = GateArrivalDate == DateTime.MinValue ? "//" : $"{GateArrivalDate:dd.MM.yyyy HH:mm:ss}";
+            var to = GateDepartureDate == DateTime.MinValue ? "//" : $"{GateDepartureDate:dd.MM.yyyy HH:mm:ss}";
             return $"{from} - {to}";
         }
         public string GetWorkTime()
         {
-            var from = WorkStartDate == DateTime.MinValue ? "//" : $"{WorkStartDate:dd.MM.yyyy HH.mm.ss}";
-            var to = (WorkEndDate == DateTime.MinValue) ? "//" : $"{WorkEndDate:dd.MM.yyyy HH.mm.ss}";
+            var from = WorkStartDate == DateTime.MinValue ? "//" : $"{WorkStartDate:dd.MM.yyyy HH:mm:ss}";
+            var to = (WorkEndDate == DateTime.MinValue) ? "//" : $"{WorkEndDate:dd.MM.yyyy HH:mm:ss}";
+            return $"{from} - {to}";
+        }
+
+        public string GetPlanTime()
+        {
+            var from = PlanStartDate == DateTime.MinValue ? "//" : $"{PlanStartDate:HH:mm:ss}";
+            var to = (PlanFinshDate == DateTime.MinValue) ? "//" : $"{PlanFinshDate:HH:mm:ss}";
             return $"{from} - {to}";
         }
     }
