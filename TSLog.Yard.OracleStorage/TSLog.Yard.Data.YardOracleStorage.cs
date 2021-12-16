@@ -18,18 +18,40 @@ namespace TSLog.Yard.Data
         public YardOracleStorage(string dataSource) : base(dataSource)
         { }
 
-        private WarehouseAction CreateWarehouseAction(DbDataReader reader)
+        private WarehouseAction CreateAction(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var partner = GetPartner(Convert.ToString(reader["partner_id"]));
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
-            var action = new WarehouseAction(Convert.ToString(reader["id"]),
-                kind,
-                partner);
+            var action = new WarehouseAction(kind,
+                Convert.ToString(reader["id"]),                
+                partner,
+                Convert.ToString(reader["partner_action_id"]));
             return action;
         }
-        public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId)
+        public WarehouseAction GetAction(ActionKind actionKind, string id)
+        {
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = 
+                    $"select a.id, a.action_kind, a.partner_id " +
+                    $"  from {CommonSchema}.v_warehouse_action a " +
+                    $" where a.id = :id " +                    
+                    $"   and a.action_kind = :action_kind";
+                command.Parameters.Add(new OracleParameter("id", id));                
+                command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    var action = CreateAction(reader);
+                    return action;
+                }
+                reader.Close();
+            }
+            throw new WarehouseActionNotFoundException(id);
+        }
+        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId)
         {
             using (var command = _connection.CreateCommand())
             {
@@ -44,7 +66,7 @@ namespace TSLog.Yard.Data
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
                 {
-                    var action = CreateWarehouseAction(reader);
+                    var action = CreateAction(reader);
                     return action;
                 }
                 reader.Close();

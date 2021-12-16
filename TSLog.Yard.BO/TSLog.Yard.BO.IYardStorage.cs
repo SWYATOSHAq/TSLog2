@@ -29,6 +29,7 @@ namespace TSLog.Yard.BO
         public Operation AddOperation(Operation operation);
         public Operation GetOperation(long id);
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
+        public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate gate = null);
         public void EditOperation(Operation operation);        
         public void StartOperation(Operation operation);
@@ -47,7 +48,8 @@ namespace TSLog.Yard.BO
     }
     public interface IYardWmsStorage
     {
-        public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId);
+        public WarehouseAction GetAction(ActionKind actionKind, string id);
+        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);        
         public Partner GetPartner(string id);
         public Partner[] GetPartners();
         public Employee GetEmployee(int id);

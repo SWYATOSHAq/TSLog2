@@ -1,5 +1,5 @@
 ﻿using TSLog.Common.BO;
-using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 
 namespace TSLog.WarehouseActions.BO
 {
@@ -23,13 +23,14 @@ namespace TSLog.WarehouseActions.BO
         /// <summary>
         /// Партнёр - покупатель наших складских и логистических услуг
         /// </summary>
-        public LegalEntity Partner { get; set; }
-        public string PartnerId { get; set; }
-        public WarehouseAction(string id, ActionKind kind, LegalEntity partner) 
+        public Partner Partner { get; set; }
+        public string PartnerActionId { get; set; }
+        public WarehouseAction(ActionKind kind, string id, Partner partner, string partnerActionId) 
             : base(-1, id, string.Empty)
         {
             Kind = kind;
             Partner = partner;
+            PartnerActionId = partnerActionId;
         } 
     }
 }

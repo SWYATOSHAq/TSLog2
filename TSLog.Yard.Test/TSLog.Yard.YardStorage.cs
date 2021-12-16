@@ -22,6 +22,7 @@ namespace TSLog.Yard
             _oracleStorage = new YardOracleStorage(oracleDataSource);
             _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase);
             _pgsqlStorage.GetEmployeeById = _oracleStorage.GetEmployee;
+            _pgsqlStorage.GetPartnerById = _oracleStorage.GetPartner;
         }
         public void ConnectOracle(string userName, string password)
         {
@@ -149,6 +150,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperations(from, to, partners);
         }
+        public Partner[] GetOperationsPartners(DateTime from, DateTime to)
+        {
+            return _pgsqlStorage.GetOperationsPartners(from, to);
+        }
         public void EditOperation(Operation operation)
         {
             _pgsqlStorage.EditOperation(operation);
@@ -200,9 +205,13 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.AddAction(operation, action);
         }
-        public WarehouseAction GetAction(Partner partner, ActionKind actionKind, string partnerActionId)
+        public WarehouseAction GetAction(ActionKind actionKind, string id)
         {
-            return _oracleStorage.GetAction(partner, actionKind, partnerActionId);
+            return _oracleStorage.GetAction(actionKind, id);
+        }
+        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId)
+        {
+            return _oracleStorage.GetAction(actionKind, partner, partnerActionId);
         }
         public WarehouseAction[] GetActions(Operation operation)
         {

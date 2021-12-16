@@ -1,5 +1,7 @@
 ﻿using TSLog.Common.BO;
+using TSLog.ExceptionHandler;
 using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 
@@ -109,12 +111,16 @@ namespace TSLog.Yard.BO
         }
         public WarehouseAction GetAction(ActionKind kind, string id)
         {
-            return null;
+            var k = kind == ActionKind.Outgo ? "O" : "I";
+            var key = $"{k}{id}";
+            if (_actions.ContainsKey(key))
+                return _actions[key];
+            throw new WarehouseActionNotFoundException(id);
         }
         public WarehouseAction GetAction(ActionKind kind, LegalEntity partner, string partnerActionNumber)
         {
-            return null;
-        }
+            throw new NotImplementedException();
+        }        
         public WarehouseAction[] GetActions()
         {
             var actions = new List<WarehouseAction>();
@@ -130,6 +136,11 @@ namespace TSLog.Yard.BO
             if (!_actions.ContainsKey(key))
                 _actions.Add(key, action);
         }
+        public void AddActions(WarehouseAction[] actions)
+        {
+            foreach (var action in actions)
+                AddAction(action);
+        }
         public void RemoveAction(WarehouseAction action)
         {
             if (_actions == null)
@@ -139,6 +150,17 @@ namespace TSLog.Yard.BO
             var key = $"{kind}{action.Id}";
             if (_actions.ContainsKey(key))
                 _actions.Remove(key);
+        }
+
+        public Partner[] GetPartners()
+        {
+            var partners = new HashSet<Partner>();
+            foreach (var action in _actions.Values)
+            {
+                if (partners.Contains(action.Partner))
+                    partners.Add(action.Partner);
+            }
+            return partners.ToArray();
         }
     }
 }

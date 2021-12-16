@@ -283,15 +283,22 @@ namespace TSLog.Yard.Data
             var sql = $"select * from {YardSchema}.v_vehicle_kind vk";
             return GetEntities(sql);
         }
-        #endregion
 
-        #region Operations
+        public delegate Partner GetPartnerByIdDelegate(string id);
         public delegate Employee GetEmployeeByIdDelegate(int id);
+        public GetPartnerByIdDelegate GetPartnerById { private get; set; }
         public GetEmployeeByIdDelegate GetEmployeeById { private get; set; }
+        public Partner GetPartner(string id)
+        {
+            return GetPartnerById(id);
+        }
         private Employee GetEmployee(int id)
         {
             return GetEmployeeById != null ? GetEmployeeById(id) : Employee.Null;
         }
+        #endregion
+
+        #region Operations        
         public Operation AddOperation(Operation operation)
         {
             if (operation == null)
@@ -366,6 +373,9 @@ namespace TSLog.Yard.Data
             operation.Manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
             operation.ResponsibleOfficer = GetEmployee(Convert.ToInt32(reader["responsible_officer_id"])); ;
             operation.Note = Convert.ToString(reader["note"]);
+
+            var actions = GetActions(operation);
+            operation.AddActions(actions);
 
             return operation;
         }
@@ -513,6 +523,29 @@ namespace TSLog.Yard.Data
                 reader.Close();
             }
             return operations.ToArray();
+        }
+        public Partner[] GetOperationsPartners(DateTime from, DateTime to)
+        {
+            var partners = new HashSet<Partner>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = 
+                    $"select distinct partner_id, op.plan_start_date, op.plan_finish_date " +
+                    $"  from {YardSchema}.v_operations_partners op " +
+                    $" where not (op.plan_start_date > :finish_date or op.plan_finish_date < :start_date)";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, from));
+                command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, to));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var partner = GetPartner(Convert.ToString(reader["partner_id"]));
+                    if (!partners.Contains(partner))
+                        partners.Add(partner);
+                }
+                reader.Close();
+            }
+            return partners.ToArray();
         }
         public Gate SetOperationGate(Operation operation, Gate gate = null)
         {
@@ -696,9 +729,11 @@ namespace TSLog.Yard.Data
         private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
-            var action = new WarehouseAction(Convert.ToString(reader["id"]),
-                kind,
-                null);
+            var partner = GetPartner(Convert.ToString(reader["partner_id"]));
+            var action = new WarehouseAction(kind,
+                Convert.ToString(reader["id"]),
+                partner,
+                Convert.ToString(reader["partner_action_id"]));
             return action;
         }
         public WarehouseAction[] GetActions(Operation operation)
@@ -708,7 +743,7 @@ namespace TSLog.Yard.Data
             var actions = new List<WarehouseAction>();
             using (var command = _connection.CreateCommand())
             {
-                var sql = $"select oa.operation_id, oa.action_kind, oa.action_id " +
+                var sql = $"select oa.operation_id, oa.action_kind, oa.action_id, oa.partner_id, oa.partner_action_id " +
                     $"from {YardSchema}.v_operation_action oa where oa.operation_id = :operation_id";
                 command.CommandText = sql;
                 command.Parameters.Add(new NpgsqlParameter("oparetion_id", operation.Id));
