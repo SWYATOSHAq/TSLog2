@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Yard.OracleStorage\TSLog.Yard.OracleStorage.csproj" />
+    <ProjectReference Include="..\TSLog.Yard.PgSqlStorage\TSLog.Yard.PgSqlStorage.csproj" />
+  </ItemGroup>
+
+</Project>
