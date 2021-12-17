@@ -177,5 +177,10 @@ namespace TSLog.Common
                 }
             return address;
         }
+
+        public static DateTime DbValueToDateTime(object value, DateTime? defaultValue = null)
+        { 
+            return value != DBNull.Value ? Convert.ToDateTime(value) : (defaultValue ?? DateTime.MinValue);
+        }
     }
 }

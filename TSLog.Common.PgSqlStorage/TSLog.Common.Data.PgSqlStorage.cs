@@ -18,6 +18,13 @@ namespace TSLog.Common.Data
             _host = host;
             _database = database;
         }
+        public DbConnection CloneConnection()
+        {
+            var connection = new NpgsqlConnection();
+            connection.ConnectionString = _connection.ConnectionString;
+            connection.Open();
+            return connection;
+        }
 
         public void Connect(string user, SecureString password)
         {
@@ -57,25 +64,32 @@ namespace TSLog.Common.Data
             if (string.IsNullOrWhiteSpace(sql))
                 throw new ArgumentException("sql is empty");
             id = id > 0 ? id : -1;
+            var entity = Entity.Null;
             if (catalog != null)
             {
-                var entity = catalog[id];
-                if (entity != null)
+                entity = catalog[id];
+                if (entity != null && entity != Entity.Null)
                     return entity;
             }
-            using (var command = _connection.CreateCommand())
+            using (var connection = CloneConnection())
             {
-                command.CommandText = sql;
-                command.Parameters.Add(new NpgsqlParameter("id", id));
-                using var reader = command.ExecuteReader();
-                if (reader.Read())
+                using (var command = connection.CreateCommand())
                 {
-                    var entity = CreateEntity(reader);
-                    if (catalog != null)
-                        catalog.Add(entity);
-                    return entity;
+                    command.CommandText = sql;
+                    command.Parameters.Add(new NpgsqlParameter("id", id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        entity = CreateEntity(reader);
+                        if (catalog != null)
+                            catalog.Add(entity);
+                    }
+                    reader.Close();
                 }
+                connection.Close();
             }
+            if (entity != null && entity != Entity.Null)
+                return entity;
             throw new EntityNotFoundException(id);
         }
         public Entity GetEntity(string code, string sql, Catalog<Entity> catalog = null)
@@ -85,25 +99,32 @@ namespace TSLog.Common.Data
             if (string.IsNullOrWhiteSpace(sql))
                 throw new ArgumentException("sql is empty");
             code = code.Trim().ToUpper();
+            var entity = Entity.Null;
             if (catalog != null)
             {
-                var entity = catalog[code];
-                if (entity != null)
+                entity = catalog[code];
+                if (entity != null && entity != Entity.Null)
                     return entity;
             }
-            using (var command = _connection.CreateCommand()) 
-            { 
-                command.CommandText = sql;
-                command.Parameters.Add(new NpgsqlParameter("code", code));
-                using var reader = command.ExecuteReader();
-                if (reader.Read()) 
+            using (var connection = CloneConnection())
+            {
+                using (var command = _connection.CreateCommand())
                 {
-                    var entity = CreateEntity(reader);
-                    if (catalog != null)
-                        catalog.Add(entity);
-                    return entity;
-                }                    
+                    command.CommandText = sql;
+                    command.Parameters.Add(new NpgsqlParameter("code", code));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        entity = CreateEntity(reader);
+                        if (catalog != null)
+                            catalog.Add(entity);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
             }
+            if (entity != null && entity != Entity.Null)
+                return entity;
             throw new EntityNotFoundException(code);
         }
         public Entity[] GetEntities(string sql)
@@ -111,12 +132,17 @@ namespace TSLog.Common.Data
             if (string.IsNullOrWhiteSpace(sql))
                 throw new ArgumentException("sql is empty");
             var entities = new List<Entity>();
-            using (var command = _connection.CreateCommand())
+            using (var connection = CloneConnection())
             {
-                command.CommandText = sql;
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                    entities.Add(CreateEntity(reader));
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                        entities.Add(CreateEntity(reader));
+                    reader.Close();
+                }
+                connection.Close();
             }
             return entities.ToArray();
         }

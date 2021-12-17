@@ -25,12 +25,27 @@ namespace TSLog.Yard.BO
         public short WorkersCount { get; set; }
         public string GetFormattedTime()
         {
-            return new TimeSpan(0,this.Time, 0).ToString(@"hh\:mm\:ss");
+            return new TimeSpan(0, Time, 0).ToString(@"hh\:mm\:ss");
         }
 
         public override string ToString()
         {
             return $"{this.DisplayName} ({GetFormattedTime()})";
+        }
+
+        private static OperationType _null = null;
+
+        /// <summary>
+        /// Null object
+        /// </summary>
+        public static new OperationType Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new OperationType(-1, TypeDirection.Out, "NULL", "NULL", "NULL", "NULL", "NULL", 60, 2, "NULL");
+                return _null;
+            }
         }
     }
 }
