@@ -75,15 +75,15 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetGates();
         }
-        public Entity GetLogist(int id)
+        public Logist GetLogist(int id)
         {
             return _pgsqlStorage.GetLogist(id);
         }
-        public Entity GetLogist(string code)
+        public Logist GetLogist(string code)
         {
             return _pgsqlStorage.GetLogist(code);
         }
-        public Entity[] GetLogists()
+        public Logist[] GetLogists()
         {
             return _pgsqlStorage.GetLogists();
         }

@@ -68,7 +68,7 @@
             get
             {
                 if (_null == null)
-                    _null = new Entity(-1, string.Empty);
+                    _null = new Entity(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
                 return _null;
             }
         }

@@ -21,9 +21,9 @@ namespace TSLog.Yard.BO
         public Gate GetGate(int id);
         public Gate GetGate(string code);
         public Gate[] GetGates();
-        public Entity GetLogist(int id);
-        public Entity GetLogist(string code);
-        public Entity[] GetLogists();
+        public Logist GetLogist(int id);
+        public Logist GetLogist(string code);
+        public Logist[] GetLogists();
 
         public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind);
         public Operation AddOperation(Operation operation);

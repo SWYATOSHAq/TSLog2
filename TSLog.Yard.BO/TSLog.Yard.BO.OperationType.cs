@@ -33,7 +33,7 @@ namespace TSLog.Yard.BO
             return $"{this.DisplayName} ({GetFormattedTime()})";
         }
 
-        private static OperationType _null = null;
+        private static OperationType? _null = null;
 
         /// <summary>
         /// Null object

@@ -103,12 +103,10 @@ namespace TSLog.Yard.BO
         public int Priority { get; set; }
 
 
-        private IDictionary<string, WarehouseAction> _actions = null;
+        private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string code) 
             : base(id, code)
-        {
-            _actions = new Dictionary<string, WarehouseAction>();
-        }
+        { }
         public WarehouseAction GetAction(ActionKind kind, string id)
         {
             var k = kind == ActionKind.Outgo ? "O" : "I";

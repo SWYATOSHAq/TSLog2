@@ -22,13 +22,7 @@ namespace TSLog.Yard.Data
         public string YardSchema { private get; set; } = DefaultYardSchema;
 
         public YardPgSqlStorage(string host, string database) : base(host, database)
-        {
-            _gates = new Catalog<Gate>("GATES", "Ворота");
-            _logists = new Catalog<Entity>("LOGISTS", "Логисты");
-            _operationStates = new Catalog<Entity>("OPERATION_STATES", "Состояния (статусы) операций двора");
-            _operationTypes = new Catalog<OperationType>("OPERATION_TYPES", "Типы операций двора");
-            _vihicleKinds = new Catalog<Entity>("VIHICLE_KINDS", "Виды автомашин");
-        }
+        { }
 
         private NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
         {
@@ -41,7 +35,7 @@ namespace TSLog.Yard.Data
 
 
         #region Domains
-        private readonly Catalog<Gate>? _gates = null;
+        private readonly Catalog<Gate> _gates = new("GATES", "Ворота");
         private Gate CreateGate(DbDataReader reader)
         {
             if (reader == null)
@@ -141,30 +135,97 @@ namespace TSLog.Yard.Data
             throw new NotImplementedException();
         }
 
-        private readonly Catalog<Entity>? _logists = null;
-        public Entity GetLogist(int id)
+        private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
+        private Logist CreateLogist(DbDataReader reader)
         {
-            var sql = 
-                $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
-                $"  from {YardSchema}.v_logist l where l.id = :id";
-            return GetEntity(id, sql, _logists);
+            return null;
         }
-        public Entity GetLogist(string code)
+        public Logist GetLogist(int id)
         {
-            var sql = 
-                $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
-                $"  from {YardSchema}.v_logist l where l.code = :code";
-            return GetEntity(code, sql, _logists);
+            id = id > 0 ? id : -1;
+            var logist = _logists[id];
+            if (logist != null && logist != Logist.Null)
+                return logist;
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
+                        $"  from {YardSchema}.v_logist l where l.id = :id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        logist = CreateLogist(reader);
+                        _logists.Add(logist);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (logist != null && logist != Logist.Null)
+                return logist;
+            throw new EntityNotFoundException(nameof(logist), id);
         }
-        public Entity[] GetLogists()
+        public Logist GetLogist(string code)
         {
-            var sql = 
-                $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
-                $"  from {YardSchema}.v_logist l";
-            return GetEntities(sql);
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var logist = _logists[code];
+            if (logist != null && logist != Logist.Null)
+                return logist;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
+                        $"  from {YardSchema}.v_logist l where l.code = :code";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        logist = CreateLogist(reader);
+                        _logists.Add(logist);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (logist != null && logist != Logist.Null)
+                return logist;
+            throw new EntityNotFoundException(nameof(logist), code);
+        }
+        public Logist[] GetLogists()
+        {
+            var logists = new List<Logist>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
+                        $"  from {YardSchema}.v_logist l";
+                    command.CommandText = sql;
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var logist = CreateLogist(reader);
+                        logists.Add(logist);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return logists.ToArray();
         }
 
-        private readonly Catalog<Entity>? _operationStates = null;
+        private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
         public Entity GetOperationState(int id)
         {
             var sql = $"select * from {YardSchema}.v_operation_state os where os.id = :id";
@@ -181,7 +242,7 @@ namespace TSLog.Yard.Data
             return GetEntities(sql);
         }
 
-        private readonly Catalog<OperationType>? _operationTypes = null;
+        private readonly Catalog<OperationType> _operationTypes = new("OPERATION_TYPES", "Типы операций двора");
         private OperationType CreateOperationType(DbDataReader reader)
         {
             if (reader == null)
@@ -300,10 +361,11 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText =
+                    var sql =
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
                         $"       ot.time, ot.workers_count, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot";
+                    command.CommandText = sql;                        
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -317,7 +379,7 @@ namespace TSLog.Yard.Data
             return operationtypes.ToArray();
         }
 
-        private readonly Catalog<Entity>? _vihicleKinds = null;
+        private readonly Catalog<Entity>? _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
         public Entity GetVehicleKind(int id)
         {
             var sql = $"select * from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
