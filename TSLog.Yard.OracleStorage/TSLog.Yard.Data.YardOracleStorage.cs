@@ -1,5 +1,6 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
+using TSLog.Common;
 using TSLog.Common.Data;
 using TSLog.ExceptionHandler;
 using TSLog.Partners.BO;
@@ -23,12 +24,12 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var partner = GetPartner(Convert.ToString(reader["partner_id"]));
+            var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
             var action = new WarehouseAction(kind,
-                Convert.ToString(reader["id"]),                
+                Utils.DbValueToString(reader["id"]),                
                 partner,
-                Convert.ToString(reader["partner_action_id"]));
+                Utils.DbValueToString(reader["partner_action_id"]));
             return action;
         }
         public WarehouseAction GetAction(ActionKind actionKind, string id)
@@ -78,8 +79,8 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var partner = new Partner(Convert.ToString(reader["id"]),
-                Convert.ToString(reader["name"]));
+            var partner = new Partner(Utils.DbValueToString(reader["id"]),
+                Utils.DbValueToString(reader["name"]));
             return partner;
         }
         public Partner GetPartner(string id)
@@ -122,8 +123,8 @@ namespace TSLog.Yard.Data
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var employee = new Employee(Convert.ToInt64(reader["id"]),
-                Convert.ToString(reader["code"]),
-                Convert.ToString(reader["name"]));
+                Utils.DbValueToString(reader["code"]),
+                Utils.DbValueToString(reader["name"]));
             return employee;
         }
         public Employee GetEmployee(int id) 

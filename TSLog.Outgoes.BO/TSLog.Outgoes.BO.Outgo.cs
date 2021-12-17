@@ -37,7 +37,7 @@ namespace TSLog.Outgoes.BO
             /// <summary>
             /// Код ОКЕИ
             /// </summary>
-            public string OKEI { get; set; }
+            public string OKEI { get; set; } = string.Empty;
 
             /// <summary>
             /// Плановое количество
@@ -62,17 +62,17 @@ namespace TSLog.Outgoes.BO
             /// <summary>
             /// Дополнительная информация (структурированная или нет)
             /// </summary>
-            public string Info { get; set; }
+            public string Info { get; set; } = string.Empty;
 
             /// <summary>
             /// Номер партии
             /// </summary>
-            public string BatchNumber { get; set; }
+            public string BatchNumber { get; set; } = string.Empty;
 
             /// <summary>
             /// Альтернативный номер партии
             /// </summary>
-            public string BatchNumber2 { get; set; }
+            public string BatchNumber2 { get; set; } = string.Empty;
 
             private readonly IDictionary<LogisticUnit, double> _logisticUnits = new Dictionary<LogisticUnit, double>();
 
@@ -200,20 +200,20 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Улица и дом доставки (строка 2)
         /// </summary>
-        public string DeliveryAddress1 { get; set; }
+        public string DeliveryAddress1 { get; set; } = string.Empty;
 
         /// <summary>
         /// Улица и дом доставки (строка 1)
         /// </summary>
-        public string DeliveryAddress2 { get; set; }
+        public string DeliveryAddress2 { get; set; } = string.Empty;
 
         /// <summary>
         /// Комментарий к доставке. Возможно, по согласованию, включать текст в виде {BOX=002564}{TYPE=RZN}{COMMENT = комментарий}
         /// </summary>
-        public string DeliveryComment { get; set; }
+        public string DeliveryComment { get; set; } = string.Empty;
 
-        private readonly IDictionary<Product, Line> _lines = null;
-        private readonly IDictionary<string, LogisticUnit> _logisticUnits = null;
+        private readonly IDictionary<Product, Line> _lines = new Dictionary<Product, Line>();
+        private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Outgo(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state, string note = "")
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
@@ -227,8 +227,6 @@ namespace TSLog.Outgoes.BO
                 throw new ArgumentException("partnerNumber is empty");
             PartnerNumer = partnerNumber;
             State = state ?? throw new ArgumentNullException(nameof(state));
-            _lines = new Dictionary<Product, Line>();
-            _logisticUnits = new Dictionary<string, LogisticUnit>();
         }
 
         /// <summary>

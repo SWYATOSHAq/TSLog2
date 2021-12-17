@@ -82,7 +82,7 @@ namespace TSLog.Incomes.BO
                 Price = price > 0.0 ? price : 0.0;
                 if (currency == null && price > 0.0)
                     throw new ArgumentNullException(nameof(currency));
-                Currency = price > 0.0 ? currency : Null;
+                Currency = price > 0.0 && currency != null ? currency : Null;
                 PlanQuantity = planQuantity;
                 Info = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             }
@@ -123,12 +123,12 @@ namespace TSLog.Incomes.BO
         /// <summary>
         /// (CustDocGUID) Код GUID номера документа
         /// </summary>
-        public string GUID { get; set; }
+        public string GUID { get; set; } = string.Empty;
 
         /// <summary>
         /// (WeaKlaNam) Класс поступающего заказа на товар
         /// </summary>
-        public string Kind { get; set; }
+        public string Kind { get; set; } = string.Empty;
 
         /// <summary>
         ///  Номер
@@ -148,7 +148,7 @@ namespace TSLog.Incomes.BO
         /// <summary>
         /// Тип
         /// </summary>
-        public Entity Type { get; set; }
+        public Entity Type { get; set; } = Null;
 
         /// <summary>
         /// (EcOperation) Тип документа
@@ -163,7 +163,7 @@ namespace TSLog.Incomes.BO
         /// <summary>
         /// (CustVendId) Код контрагента (поставщика/грузополучателя)
         /// </summary>
-        public LegalEntity Vendor { get; set; }
+        public LegalEntity Vendor { get; set; } = LegalEntity.Null;
 
         /// <summary>
         /// Отметка о дате и времени (дата формирования документа)

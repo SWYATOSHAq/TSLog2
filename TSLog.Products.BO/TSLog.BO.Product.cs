@@ -17,7 +17,7 @@ namespace TSLog.Products.BO
         /// <summary>
         /// (ArtGrpNam) Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.). Необходимо согласовать с технологами Оператора.
         /// </summary>
-        public string Group { get; set; }
+        public string Group { get; set; } = string.Empty;
 
         /// <summary>
         /// Идентификатор
@@ -78,22 +78,22 @@ namespace TSLog.Products.BO
         /// <summary>
         /// (ArtMgEh) Единица измерения по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
         /// </summary>
-        public string UnitType { get; set; }
+        public string UnitType { get; set; } = string.Empty;
 
         /// <summary>
         /// (ArtAmbEh) Единица измерения линейных размеров по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
         /// </summary>
-        public string UnitLinerial { get; set; }
+        public string UnitLinerial { get; set; } = string.Empty;
 
         /// <summary>
         /// (ArtVolEh) Единица измерения объема по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
         /// </summary>
-        public string UnitVolume { get; set; }
+        public string UnitVolume { get; set; } = string.Empty;
 
         /// <summary>
         /// (ArtWeiEh) Единица измерения веса по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
         /// </summary>
-        public string UnitWeight { get; set; }
+        public string UnitWeight { get; set; } = string.Empty;
 
         /// <summary>
         /// (ArtLttMax) Максимальное количество единиц артикула на одном паллете
@@ -133,32 +133,32 @@ namespace TSLog.Products.BO
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}
         /// </summary>
-        public string Info1 { get; set; }
+        public string Info1 { get; set; } = string.Empty;
 
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}
         /// </summary>
-        public string Info2 { get; set; }
+        public string Info2 { get; set; } = string.Empty;
 
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}
         /// </summary>
-        public string Info3 { get; set; }
+        public string Info3 { get; set; } = string.Empty;
 
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}
         /// </summary>
-        public string Info4 { get; set; }
+        public string Info4 { get; set; } = string.Empty;
 
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}
         /// </summary>
-        public string Info5 { get; set; }
+        public string Info5 { get; set; } = string.Empty;
 
         /// <summary>
         /// Дополнительная информация. Возможно, по согласованию, включать информацию в виде {SIZE=52}{COLOR=RED}{ COMMENT = комментарий}
         /// </summary>
-        public string Info6 { get; set; }
+        public string Info6 { get; set; } = string.Empty;
 
         public Product(string id, string code, string gtin, string name,
             string shortName = "", string altName = "", string displayName = "",
@@ -169,7 +169,7 @@ namespace TSLog.Products.BO
             Gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
         }
 
-        private static Product _null = null;
+        private static Product? _null = null;
 
         /// <summary>
         /// Null object

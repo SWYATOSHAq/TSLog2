@@ -1,6 +1,4 @@
-﻿using TSLog.Common.BO;
-using TSLog.Yard;
-using TSLog.Yard.BO;
+﻿using TSLog.Yard;
 
 // See https://aka.ms/new-console-template for more information
 
@@ -22,6 +20,9 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.SetPgsqlYardSchema(pgsqlYardSchema);
 
     var operations = storage.GetOperations(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), null);
+    var operation = storage.GetOperation(10000002);
+    var actions = operation.GetActions();
+    var partners = operation.GetPartners();
 
     var operationState = storage.GetOperationState("CREATED");
     var operationType = storage.GetOperationType("BOX_OUTGO");

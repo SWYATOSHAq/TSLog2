@@ -11,7 +11,20 @@ namespace TSLog.Partners.BO
             : base(id, name, note, info1, info2)
         { }
 
-        public new static Partner Null => null;
+        private static Partner? _null = null;
+
+        /// <summary>
+        /// Null object
+        /// </summary>
+        public static new Partner Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new Partner("NULL", "NULL", "NULL", "NULL");
+                return _null;
+            }
+        }
 
         public static string Serialize(Partner[] partnerList)
         {

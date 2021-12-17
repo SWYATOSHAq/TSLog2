@@ -106,7 +106,7 @@ namespace TSLog.Yard.BO
 
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
-        public Operation(long id, string code, OperationType type,
+        public Operation(long id, string? code, OperationType type, 
             DateTime planStartDate, DateTime planFinishDate,
             short workersCount,
             Entity vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
@@ -150,8 +150,7 @@ namespace TSLog.Yard.BO
         }
         public WarehouseAction[] GetActions()
         {
-            var actions = new List<WarehouseAction>();
-            return actions.ToArray();
+            return _actions.Values.ToArray();
         }
         public void AddAction(WarehouseAction action)
         {
@@ -211,7 +210,7 @@ namespace TSLog.Yard.BO
             var partners = new HashSet<Partner>();
             foreach (var action in _actions.Values)
             {
-                if (partners.Contains(action.Partner))
+                if (!partners.Contains(action.Partner))
                     partners.Add(action.Partner);
             }
             return partners.ToArray();
@@ -226,7 +225,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new Operation(-1, "NULL", OperationType.Null,
+                    _null = new Operation(-1, "NULL", OperationType.Null, 
                         DateTime.MinValue, DateTime.MinValue,
                         -1,
                         Entity.Null, "NULL", "NULL", "NULL", "NULL",

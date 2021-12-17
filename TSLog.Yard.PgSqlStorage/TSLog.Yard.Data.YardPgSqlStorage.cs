@@ -141,12 +141,12 @@ namespace TSLog.Yard.Data
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             return new Logist(Convert.ToInt32(reader["id"]),
-                Convert.ToString(reader["code"]),
-                Convert.ToString(reader["name"]),
-                Convert.ToString(reader["short_name"]),
-                Convert.ToString(reader["alt_name"]),
-                Convert.ToString(reader["display_name"]),
-                Convert.ToString(reader["note"]));
+                Utils.DbValueToString(reader["code"]),
+                Utils.DbValueToString(reader["name"]),
+                Utils.DbValueToString(reader["short_name"]),
+                Utils.DbValueToString(reader["alt_name"]),
+                Utils.DbValueToString(reader["display_name"]),
+                Utils.DbValueToString(reader["note"]));
         }
         public Logist GetLogist(int id)
         {
@@ -410,7 +410,7 @@ namespace TSLog.Yard.Data
         public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
         public Partner GetPartner(string id)
         {
-            return GetPartnerById(id);
+            return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
         }
         private Employee GetEmployee(int id)
         {
@@ -476,10 +476,10 @@ namespace TSLog.Yard.Data
             var planFinishDate = Utils.DbValueToDateTime(reader["fact_start_date"]);
             var workersCount = Convert.ToInt16(reader["workers_count"]);
             var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
-            var vehicleBrand = Convert.ToString(reader["vehicle_brand"]);
-            var vehicleModel = Convert.ToString(reader["vehicle_model"]);
-            var vehicleNumber = Convert.ToString(reader["vehicle_number"]);
-            var driverName = Convert.ToString(reader["driver_name"]);
+            var vehicleBrand = Utils.DbValueToString(reader["vehicle_brand"]);
+            var vehicleModel = Utils.DbValueToString(reader["vehicle_model"]);
+            var vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+            var driverName = Utils.DbValueToString(reader["driver_name"]);
             var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
             var priority = Convert.ToInt16(reader["priority"]);
             var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
@@ -556,7 +556,7 @@ namespace TSLog.Yard.Data
             }
             throw new OperationNotFoundException(id);
         }
-        public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners)
+        public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
         {
             var operations = new List<Operation>();
             using (var connection = CloneConnection())
@@ -689,7 +689,7 @@ namespace TSLog.Yard.Data
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var partner = GetPartner(Convert.ToString(reader["partner_id"]));
+                        var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
                         if (!partners.Contains(partner))
                             partners.Add(partner);
                     }
