@@ -1,0 +1,20 @@
+﻿@model (TSLog.Yard.BO.OperationType[], string, bool)
+@{
+    var cardOperationTypesList = Model.Item1;
+    var selectedOperation = Model.Item2;
+    var isEnabled = Model.Item3;
+}
+
+<div class="input-group">
+    <span class="input-group-text col-3">Тип операции</span>
+    <select class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <option>Выберите тип операции</option>
+
+    @foreach (var curOperation in cardOperationTypesList)
+    {
+       @: <option value="@curOperation.Code" @((curOperation.Code == selectedOperation) ? "selected" : "")>@curOperation</option>
+    }
+
+    </select>
+
+</div>

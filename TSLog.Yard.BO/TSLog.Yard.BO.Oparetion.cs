@@ -120,7 +120,7 @@ namespace TSLog.Yard.BO
         public WarehouseAction GetAction(ActionKind kind, LegalEntity partner, string partnerActionNumber)
         {
             throw new NotImplementedException();
-        }        
+        }
         public WarehouseAction[] GetActions()
         {
             var actions = new List<WarehouseAction>();
@@ -152,6 +152,33 @@ namespace TSLog.Yard.BO
                 _actions.Remove(key);
         }
 
+        public string GetStartTime()
+        {
+            return (PlanStartDate == DateTime.MinValue ? "" : $"план. {PlanStartDate:dd.MM.yyyy HH:mm:ss}") + (FactStartDate == DateTime.MinValue ? "" : $" (факт.: {FactStartDate:dd.MM.yyyy HH:mm:ss})");
+        }
+        public string GetFinishTime()
+        {
+            return (PlanFinshDate == DateTime.MinValue ? "" : $"план. {PlanFinshDate:dd.MM.yyyy HH:mm:ss}") + (FactFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactFinishDate:dd.MM.yyyy HH:mm:ss})");
+        }
+        public string GetGateTime()
+        {
+            var from = GateArrivalDate == DateTime.MinValue ? "//" : $"{GateArrivalDate:dd.MM.yyyy HH:mm:ss}";
+            var to = GateDepartureDate == DateTime.MinValue ? "//" : $"{GateDepartureDate:dd.MM.yyyy HH:mm:ss}";
+            return $"{from} - {to}";
+        }
+        public string GetWorkTime()
+        {
+            var from = WorkStartDate == DateTime.MinValue ? "//" : $"{WorkStartDate:dd.MM.yyyy HH:mm:ss}";
+            var to = (WorkEndDate == DateTime.MinValue) ? "//" : $"{WorkEndDate:dd.MM.yyyy HH:mm:ss}";
+            return $"{from} - {to}";
+        }
+
+        public string GetPlanTime()
+        {
+            var from = PlanStartDate == DateTime.MinValue ? "//" : $"{PlanStartDate:HH:mm:ss}";
+            var to = (PlanFinshDate == DateTime.MinValue) ? "//" : $"{PlanFinshDate:HH:mm:ss}";
+            return $"{from} - {to}";
+        }
         public Partner[] GetPartners()
         {
             var partners = new HashSet<Partner>();

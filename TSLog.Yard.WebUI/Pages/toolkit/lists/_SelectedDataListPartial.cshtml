@@ -1,0 +1,21 @@
+﻿@model (TSLog.Yard.BO.Operation[], bool)
+@{
+    var cardOperationsList = Model.Item1; 
+    var DisplayAdditionalInfo = Model.Item2; 
+} 
+@foreach (var curOperation in cardOperationsList) {
+    <div class="card m-3">
+        <div class="card-header">@curOperation.GetPlanTime()</div>
+        <div class="card-body">
+            @if(DisplayAdditionalInfo){
+                @: <h5 class="card-title">DEV</h5>
+            }
+            <p class="card-text">@curOperation.Type.DisplayName</p>
+            <p class="card-text">Ворота: @curOperation.Gate.DisplayName</p>
+            <p class="card-text">Состояние: @curOperation.State.DisplayName</p>
+        </div>
+        @if(DisplayAdditionalInfo){
+            @: <button class="btn btn-outline-info m-3">печать</button>
+        }
+    </div>
+}

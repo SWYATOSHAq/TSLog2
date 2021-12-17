@@ -9,7 +9,7 @@ namespace TSLog.Yard.BO
     {
         private const int DefaultTime = 60;
         private const short DefaultWorkersCount = 2;
-        public enum TypeDirection { In, Out };        
+        public enum TypeDirection { In, Out };
         public TypeDirection Direction { get; private set; }
         public OperationType(long id, TypeDirection direction, 
             string code, string name, string shortName, string altName, string displayName, int time, short workersCount, string note, 
@@ -23,5 +23,14 @@ namespace TSLog.Yard.BO
 
         public int Time { get; set; }
         public short WorkersCount { get; set; }
+        public string GetFormattedTime()
+        {
+            return new TimeSpan(0,this.Time, 0).ToString(@"hh\:mm\:ss");
+        }
+
+        public override string ToString()
+        {
+            return $"{this.DisplayName} ({GetFormattedTime()})";
+        }
     }
 }

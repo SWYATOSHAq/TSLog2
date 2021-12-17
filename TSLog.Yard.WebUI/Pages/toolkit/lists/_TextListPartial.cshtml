@@ -1,0 +1,18 @@
+﻿@model (Dictionary<string, (string, bool)>, bool)
+@{
+    var cardDataList = Model.Item1;
+    var isEnabled = Model.Item2;
+}
+
+@foreach (var curFieldKey in cardDataList.Keys)
+{
+    if (cardDataList[curFieldKey].Item2 && (@cardDataList[curFieldKey].Item1 != "") && (@cardDataList[curFieldKey].Item1 != null))
+    {
+        <div class="row p-1 m-1 ">
+            <div class="input-group col-12">
+                <span class="input-group-text">@curFieldKey: @cardDataList[curFieldKey].Item1</span>
+            </div>
+        </div>
+    }
+    
+}

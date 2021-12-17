@@ -1,0 +1,71 @@
+﻿@page
+@model DispatcherHomeModel
+@{
+    //using ;
+    // create dummy object
+    TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
+    selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, ""); //new Common.BO.Entity(-1,"someType", "someType");
+
+    selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5); // partner
+    selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
+    selectedYardOperation.PlanFinshDate = DateTime.Now.AddDays(5).AddHours(3); // partner
+                                                                               //selectedYardOperation.FactFinishDate = DateTime.Now.AddDays(5).AddHours(4);
+    selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(6).AddHours(4);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(5);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(7);
+    selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(8);
+
+    // plan/fact
+    // start/fin
+
+    selectedYardOperation.VehicleKind = new Common.BO.Entity(-1, "20_tonn", "20 tonn");
+    selectedYardOperation.VehicleBrand = "Voltsvagen";
+    selectedYardOperation.VehicleModel = "self driving";
+    selectedYardOperation.VehicleNumber = "N1G53RS";
+    selectedYardOperation.DriverName = "Somebody that I used To Know";
+    selectedYardOperation.Logist = new Common.BO.Entity(-1, "DL_TRANS", "DL trans");
+    selectedYardOperation.Gate = new Yard.BO.Gate(-1, "EIN1", "vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota");
+    selectedYardOperation.State = new Common.BO.Entity(-1, "ACCEPTED", "prinjato", "prin", "P.", "принято в обработку", "");
+    selectedYardOperation.Manager = new Staff.BO.Employee(-1, "employee1", "Ivan", "I.", "Ivanovich", "Ivan Ivanov", "koton Employee");
+    selectedYardOperation.ResponsibleOfficer = new Staff.BO.Employee(-1, "employee1", "Valerian", "V.", "Valerian1", "Valerian Spacebaker", "sklad Employee");
+
+
+    ViewData["Title"] = "Панель администратора";
+    //ViewData["SelectedVehicleNumber"] = selectedYardOperation.VehicleNumber;
+
+    // ----------------------------------
+
+    var gateslist = (new TSLog.Yard.BO.Gate[] {
+        new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota"),
+        new Yard.BO.Gate(-1,"EIN2","vorota 2", "vor. 2", "2", "vorota nomer 2", "vtorije vorota")
+        }, "", false, true);
+
+    var operarationsList = ( new TSLog.Yard.BO.Operation[] { selectedYardOperation, selectedYardOperation, selectedYardOperation, selectedYardOperation }, true);
+
+}
+
+ <!--  -->
+  <div class="row p-2 m-3">
+    <div class="col-4 p-4 m-3 shadow">
+      <div class="row p-2 m-3">
+        <!--  -->
+        <input
+        type="text"
+        id="dp1"
+        class="datepicker border border-secondary col-5 m-1"
+        placeholder="Выберете дату"
+        ne="date"
+        readonly
+      />
+      <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
+        <!--  -->
+      </div>
+      <div class="row p-2 m-1 ">
+        <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" /> 
+      </div>
+
+        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" /> 
+
+    </div>
+    <partial name="toolkit/_RequestCardPartial" model="selectedYardOperation" /> 
+  </div>
