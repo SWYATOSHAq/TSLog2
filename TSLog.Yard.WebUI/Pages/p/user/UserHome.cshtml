@@ -2,9 +2,9 @@
 @model UserHomeModel
 @{
     ViewData["Title"] = "Список заявок";
+    var storage = Model.yardStorage;
 }
 @{
-    //using ;
     // create dummy object
     TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
     selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, 2, ""); //new Common.BO.Entity(-1,"someType", "someType");
@@ -33,34 +33,31 @@
     selectedYardOperation.ResponsibleOfficer = new Staff.BO.Employee(-1, "employee1", "Valerian", "V.", "Valerian1", "Valerian Spacebaker", "sklad Employee");
 
 
+    ViewData["Title"] = "Панель администратора";
     //ViewData["SelectedVehicleNumber"] = selectedYardOperation.VehicleNumber;
 
     // ----------------------------------
 
-    var gateslist = (new TSLog.Yard.BO.Gate[] {
-        new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota"),
-        new Yard.BO.Gate(-1,"EIN2","vorota 2", "vor. 2", "2", "vorota nomer 2", "vtorije vorota")
-        }, "", false, true);
+    var gateslist = (storage.GetGates(), "", false, true);
 
-    var operarationsList = ( new TSLog.Yard.BO.Operation[] { selectedYardOperation, selectedYardOperation, selectedYardOperation, selectedYardOperation }, true);
+    var operarationsList = (storage.GetOperations(DateTime.Now.Date, DateTime.Now.AddDays(1).AddTicks(-1), null), true);
+    var operationToRender = (selectedYardOperation, storage);
 
 }
 
- <!--  -->
-  <div class="row p-2 m-3">
+<!--  -->
+<div class="row p-2 m-3">
     <div class="col-4 p-4 m-3 shadow">
-      <div class="row p-2 m-3">
-        <!--  -->
-        <input
-        type="text"
-        id="dp1"
-        class="datepicker border border-secondary col-11 m-1"
-        placeholder="Выберете дату"
-        ne="date"
-        readonly
-      />
-      </div>
-        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" /> 
+        <div class="row p-2 m-3">
+            <!--  -->
+            <input type="text"
+                   id="dp1"
+                   class="datepicker border border-secondary col-11 m-1"
+                   placeholder="Выберете дату"
+                   ne="date"
+                   readonly />
+        </div>
+        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
     </div>
-    <partial name="toolkit/_RequestCardPartial" model="selectedYardOperation" /> 
-  </div>
+    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+</div>
