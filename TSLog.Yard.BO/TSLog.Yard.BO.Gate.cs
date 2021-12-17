@@ -13,7 +13,7 @@ namespace TSLog.Yard.BO
         { }
 
 
-        private static Gate _null = null;
+        private static Gate? _null = null;
 
         /// <summary>
         /// Null object

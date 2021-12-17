@@ -182,5 +182,9 @@ namespace TSLog.Common
         { 
             return value != DBNull.Value ? Convert.ToDateTime(value) : (defaultValue ?? DateTime.MinValue);
         }
+        public static int DbValueToInt(object value, int? defaultValue = null)
+        {
+            return value != DBNull.Value ? Convert.ToInt32(value) : (defaultValue ?? int.MinValue);
+        }
     }
 }

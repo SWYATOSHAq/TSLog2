@@ -8,11 +8,18 @@ namespace TSLog.Staff.BO
             : base(id, code, name, shortName, altName, displayName, note, isActive)
         { }
 
+        private static Employee? _null = null;
+
+        /// <summary>
+        /// Null object
+        /// </summary>
         public static new Employee Null
         {
             get
             {
-                return null;
+                if (_null == null)
+                    _null = new Employee(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
+                return _null;
             }
         }
     }

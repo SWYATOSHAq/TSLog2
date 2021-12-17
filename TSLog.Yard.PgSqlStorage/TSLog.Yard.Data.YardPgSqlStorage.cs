@@ -138,7 +138,15 @@ namespace TSLog.Yard.Data
         private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
         private Logist CreateLogist(DbDataReader reader)
         {
-            return null;
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            return new Logist(Convert.ToInt32(reader["id"]),
+                Convert.ToString(reader["code"]),
+                Convert.ToString(reader["name"]),
+                Convert.ToString(reader["short_name"]),
+                Convert.ToString(reader["alt_name"]),
+                Convert.ToString(reader["display_name"]),
+                Convert.ToString(reader["note"]));
         }
         public Logist GetLogist(int id)
         {
@@ -474,19 +482,26 @@ namespace TSLog.Yard.Data
             operation.GateDepartureDate = Utils.DbValueToDateTime(reader["gate_departure_date"]);
             operation.PlanFinshDate = Utils.DbValueToDateTime(reader["plan_finish_date"]);
             operation.FactFinishDate = Utils.DbValueToDateTime(reader["fact_finish_date"]);
-
             operation.WorkersCount = Convert.ToInt16(reader["workers_count"]);
             operation.VehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
             operation.VehicleBrand = Convert.ToString(reader["vehicle_brand"]);
             operation.VehicleModel = Convert.ToString(reader["vehicle_model"]);
             operation.VehicleNumber = Convert.ToString(reader["vehicle_number"]);
             operation.DriverName = Convert.ToString(reader["driver_name"]);
-            operation.Logist = GetLogist(Convert.ToInt16(reader["logist_id"]));
-            operation.Gate = GetGate(Convert.ToInt16(reader["gate_id"]));
+
+            var logistId = Utils.DbValueToInt(reader["logist_id"]);
+            operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
+
+            var gateId = Utils.DbValueToInt(reader["gate_id"]);
+            operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
+         
             operation.State = GetOperationState(Convert.ToInt16(reader["state_id"]));
             operation.Priority = Convert.ToInt16(reader["priority"]);
             operation.Manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
-            operation.ResponsibleOfficer = GetEmployee(Convert.ToInt32(reader["responsible_officer_id"])); ;
+
+            var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
+            operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
+            
             operation.Note = Convert.ToString(reader["note"]);
 
             var actions = GetActions(operation);
