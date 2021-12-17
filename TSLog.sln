@@ -54,7 +54,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.BO", "TSLog.Sta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Partners.BO", "TSLog.Partners.BO\TSLog.Partners.BO.csproj", "{7FFD8150-D50C-4202-BC1F-0D19E8720F01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.Storage", "TSLog.Yard.Storage\TSLog.Yard.Storage.csproj", "{6696CCBA-C5C5-457D-8034-53860E054895}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Storage", "TSLog.Yard.Storage\TSLog.Yard.Storage.csproj", "{6696CCBA-C5C5-457D-8034-53860E054895}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,12 +9,11 @@ namespace TSLog.Common.Data
 {
     public class PgSqlStorage : IDisposable
     {
-        protected readonly DbConnection _connection = null;
+        protected readonly DbConnection _connection = new NpgsqlConnection();
         protected readonly string _host = string.Empty;
         protected readonly string _database = string.Empty;
         public PgSqlStorage(string host, string database)
         {
-            _connection = new NpgsqlConnection();
             _host = host;
             _database = database;
         }
@@ -59,7 +58,7 @@ namespace TSLog.Common.Data
                 Convert.ToString(reader["display_name"]),
                 Convert.ToString(reader["note"]));
         }
-        public Entity GetEntity(int id, string sql, Catalog<Entity> catalog = null) 
+        public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null) 
         {
             if (string.IsNullOrWhiteSpace(sql))
                 throw new ArgumentException("sql is empty");
@@ -92,7 +91,7 @@ namespace TSLog.Common.Data
                 return entity;
             throw new EntityNotFoundException(id);
         }
-        public Entity GetEntity(string code, string sql, Catalog<Entity> catalog = null)
+        public Entity GetEntity(string code, string sql, Catalog<Entity>? catalog = null)
         {
             if (string.IsNullOrWhiteSpace(code))
                 throw new ArgumentException("code is empty");

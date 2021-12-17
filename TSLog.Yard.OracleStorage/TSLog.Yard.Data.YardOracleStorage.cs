@@ -11,10 +11,11 @@ namespace TSLog.Yard.Data
 {
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
+        private const string DefaultCommonSchema = "ecco";
         /// <summary>
         /// Схема для "общих" объектов БД
         /// </summary>
-        public string CommonSchema { private get; set; }
+        public string CommonSchema { private get; set; } = DefaultCommonSchema;
         public YardOracleStorage(string dataSource) : base(dataSource)
         { }
 

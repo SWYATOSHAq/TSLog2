@@ -30,7 +30,7 @@ namespace TSLog.Yard.BO
         public Operation GetOperation(long id);
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
-        public Gate SetOperationGate(Operation operation, Gate gate = null);
+        public Gate SetOperationGate(Operation operation, Gate? gate = null);
         public void EditOperation(Operation operation);        
         public void StartOperation(Operation operation);
         public void MoveToGate(Operation operation);

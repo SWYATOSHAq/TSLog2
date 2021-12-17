@@ -1,4 +1,5 @@
 ﻿@page
+@using TSLog.Yard.BO
 @model UserHomeModel
 @{
     ViewData["Title"] = "Список заявок";
@@ -6,12 +7,25 @@
 }
 @{
     // create dummy object
-    TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
+    TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code",
+        new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, 2, ""), //new Common.BO.Entity(-1,"someType", "someType");
+        DateTime.Now.AddDays(5),
+        DateTime.Now.AddDays(5).AddHours(1),
+        2,
+        new Common.BO.Entity(-1, "20_tonn", "20 tonn"),
+        "Voltsvagen",
+        "self driving",
+        "N1G53RS",
+        "Somebody that I used To Know",
+         new Common.BO.Entity(-1, "ACCEPTED", "prinjato", "prin", "P.", "принято в обработку", ""),
+         1,
+        new Staff.BO.Employee(-1, "employee1", "Ivan", "I.", "Ivanovich", "Ivan Ivanov", "koton Employee")
+    );
     selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, 2, ""); //new Common.BO.Entity(-1,"someType", "someType");
 
     selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5); // partner
     selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
-    selectedYardOperation.PlanFinshDate = DateTime.Now.AddDays(5).AddHours(3); // partner
+    selectedYardOperation.PlanFinishDate = DateTime.Now.AddDays(5).AddHours(3); // partner
                                                                                //selectedYardOperation.FactFinishDate = DateTime.Now.AddDays(5).AddHours(4);
     selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(6).AddHours(4);
     selectedYardOperation.GateArrivalDate = DateTime.Now.AddDays(6).AddHours(5);
@@ -26,7 +40,7 @@
     selectedYardOperation.VehicleModel = "self driving";
     selectedYardOperation.VehicleNumber = "N1G53RS";
     selectedYardOperation.DriverName = "Somebody that I used To Know";
-    selectedYardOperation.Logist = new Common.BO.Entity(-1, "DL_TRANS", "DL trans");
+    selectedYardOperation.Logist = new Logist(-1, "DL_TRANS", "DL trans");
     selectedYardOperation.Gate = new Yard.BO.Gate(-1, "EIN1", "vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota");
     selectedYardOperation.State = new Common.BO.Entity(-1, "ACCEPTED", "prinjato", "prin", "P.", "принято в обработку", "");
     selectedYardOperation.Manager = new Staff.BO.Employee(-1, "employee1", "Ivan", "I.", "Ivanovich", "Ivan Ivanov", "koton Employee");

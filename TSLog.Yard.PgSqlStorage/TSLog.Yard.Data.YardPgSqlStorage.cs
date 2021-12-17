@@ -41,12 +41,12 @@ namespace TSLog.Yard.Data
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             return new Gate(Convert.ToInt32(reader["id"]),
-                Convert.ToString(reader["code"]),
-                Convert.ToString(reader["name"]),
-                Convert.ToString(reader["short_name"]),
-                Convert.ToString(reader["alt_name"]),
-                Convert.ToString(reader["display_name"]),
-                Convert.ToString(reader["note"]));
+                Utils.DbValueToString(reader["code"]),
+                Utils.DbValueToString(reader["name"]),
+                Utils.DbValueToString(reader["short_name"]),
+                Utils.DbValueToString(reader["alt_name"]),
+                Utils.DbValueToString(reader["display_name"]),
+                Utils.DbValueToString(reader["note"]));
         }
         public Gate GetGate(int id)
         {
@@ -258,14 +258,14 @@ namespace TSLog.Yard.Data
             var direction = Convert.ToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
             var operationtype = new OperationType(Convert.ToInt32(reader["id"]),
                 direction,
-                Convert.ToString(reader["code"]),
-                Convert.ToString(reader["name"]),
-                Convert.ToString(reader["short_name"]),
-                Convert.ToString(reader["alt_name"]),
-                Convert.ToString(reader["display_name"]),
+                Utils.DbValueToString(reader["code"]),
+                Utils.DbValueToString(reader["name"]),
+                Utils.DbValueToString(reader["short_name"]),
+                Utils.DbValueToString(reader["alt_name"]),
+                Utils.DbValueToString(reader["display_name"]),
                 Convert.ToInt32(reader["time"]),
                 Convert.ToInt16(reader["workers_count"]),
-                Convert.ToString(reader["note"])
+                Utils.DbValueToString(reader["note"])
                 );
             return operationtype;
         }
@@ -387,7 +387,7 @@ namespace TSLog.Yard.Data
             return operationtypes.ToArray();
         }
 
-        private readonly Catalog<Entity>? _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
+        private readonly Catalog<Entity> _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
         public Entity GetVehicleKind(int id)
         {
             var sql = $"select * from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
@@ -445,7 +445,7 @@ namespace TSLog.Yard.Data
 
                     command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
                     command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanStartDate));
-                    command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinshDate));
+                    command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinishDate));
                     command.Parameters.Add(CreateParameter("p_workers_count", NpgsqlDbType.Smallint, operation.WorkersCount));
                     command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
                     command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
@@ -471,33 +471,40 @@ namespace TSLog.Yard.Data
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
 
-            var operation = new Operation(Convert.ToInt64(reader["id"]), null);
+            var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
+            var planStartDate = Utils.DbValueToDateTime(reader["plan_start_date"]);
+            var planFinishDate = Utils.DbValueToDateTime(reader["fact_start_date"]);
+            var workersCount = Convert.ToInt16(reader["workers_count"]);
+            var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
+            var vehicleBrand = Convert.ToString(reader["vehicle_brand"]);
+            var vehicleModel = Convert.ToString(reader["vehicle_model"]);
+            var vehicleNumber = Convert.ToString(reader["vehicle_number"]);
+            var driverName = Convert.ToString(reader["driver_name"]);
+            var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
+            var priority = Convert.ToInt16(reader["priority"]);
+            var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
 
-            operation.Type = GetOperationType(Convert.ToInt16(reader["type_id"]));
-            operation.PlanStartDate = Utils.DbValueToDateTime(reader["plan_start_date"]);
-            operation.FactStartDate = Utils.DbValueToDateTime(reader["fact_start_date"]);            
+            var operation = new Operation(Convert.ToInt64(reader["id"]), null,
+                type,
+                planStartDate, planFinishDate,
+                workersCount,
+                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, driverName,
+                state,
+                priority,
+                manager);
+
             operation.GateArrivalDate = Utils.DbValueToDateTime(reader["gate_arrival_date"]);
             operation.WorkStartDate = Utils.DbValueToDateTime(reader["work_start_date"]);
             operation.WorkFinishDate = Utils.DbValueToDateTime(reader["work_finish_date"]);
             operation.GateDepartureDate = Utils.DbValueToDateTime(reader["gate_departure_date"]);
-            operation.PlanFinshDate = Utils.DbValueToDateTime(reader["plan_finish_date"]);
+            operation.PlanFinishDate = Utils.DbValueToDateTime(reader["plan_finish_date"]);
             operation.FactFinishDate = Utils.DbValueToDateTime(reader["fact_finish_date"]);
-            operation.WorkersCount = Convert.ToInt16(reader["workers_count"]);
-            operation.VehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
-            operation.VehicleBrand = Convert.ToString(reader["vehicle_brand"]);
-            operation.VehicleModel = Convert.ToString(reader["vehicle_model"]);
-            operation.VehicleNumber = Convert.ToString(reader["vehicle_number"]);
-            operation.DriverName = Convert.ToString(reader["driver_name"]);
 
             var logistId = Utils.DbValueToInt(reader["logist_id"]);
             operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
 
             var gateId = Utils.DbValueToInt(reader["gate_id"]);
             operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
-         
-            operation.State = GetOperationState(Convert.ToInt16(reader["state_id"]));
-            operation.Priority = Convert.ToInt16(reader["priority"]);
-            operation.Manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
 
             var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
             operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
@@ -692,7 +699,7 @@ namespace TSLog.Yard.Data
             }
             return partners.ToArray();
         }
-        public Gate SetOperationGate(Operation operation, Gate gate = null)
+        public Gate SetOperationGate(Operation operation, Gate? gate = null)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -740,7 +747,7 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
                 command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
                 command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanStartDate));
-                command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinshDate));
+                command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinishDate));
                 command.Parameters.Add(CreateParameter("p_workers_count", NpgsqlDbType.Smallint, operation.WorkersCount));
                 command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
                 command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
@@ -906,12 +913,12 @@ namespace TSLog.Yard.Data
         }
         private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
-            var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
-            var partner = GetPartner(Convert.ToString(reader["partner_id"]));
+            var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+            var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var action = new WarehouseAction(kind,
-                Convert.ToString(reader["id"]),
+                Utils.DbValueToString(reader["action_id"]),
                 partner,
-                Convert.ToString(reader["partner_action_id"]));
+                Utils.DbValueToString(reader["partner_action_id"]));
             return action;
         }
         public WarehouseAction[] GetActions(Operation operation)

@@ -9,7 +9,23 @@ namespace TSLog.Yard.BO
     {
         private const int DefaultTime = 60;
         private const short DefaultWorkersCount = 2;
-        public enum TypeDirection { In, Out };
+        /// <summary>
+        /// Приход, расход
+        /// </summary>
+        public enum TypeDirection 
+        { 
+            /// <summary>
+            /// Приход
+            /// </summary>
+            In, 
+            /// <summary>
+            /// Расход
+            /// </summary>
+            Out 
+        };
+        /// <summary>
+        /// Приход или расход
+        /// </summary>
         public TypeDirection Direction { get; private set; }
         public OperationType(long id, TypeDirection direction, 
             string code, string name, string shortName, string altName, string displayName, int time, short workersCount, string note, 
@@ -21,8 +37,8 @@ namespace TSLog.Yard.BO
             WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
         }
 
-        public int Time { get; set; }
-        public short WorkersCount { get; set; }
+        public int Time { get; private set; }
+        public short WorkersCount { get; private set; }
         public string GetFormattedTime()
         {
             return new TimeSpan(0, Time, 0).ToString(@"hh\:mm\:ss");

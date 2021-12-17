@@ -23,25 +23,9 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
 
     var operations = storage.GetOperations(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), null);
 
-
     var operationState = storage.GetOperationState("CREATED");
     var operationType = storage.GetOperationType("BOX_OUTGO");
     var vehicleKind = storage.GetVehicleKind("20_TONS");
-
-    var operation = new Operation(-1, string.Empty);
-    operation.Type = operationType;
-    operation.PlanStartDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Local);
-    operation.PlanFinshDate = DateTime.SpecifyKind(DateTime.Now.AddHours(3), DateTimeKind.Local);
-    operation.VehicleKind = vehicleKind;
-    operation.VehicleBrand = "Форд";
-    operation.VehicleModel = "XXXX";
-    operation.VehicleNumber = "12356789";
-    operation.DriverName = "Петров Пётр Петрович";
-    operation.Logist = Entity.Null;
-    operation.Manager = new TSLog.Staff.BO.Employee(1, "AAAA");
-    operation.Note = "TEST";
-        
-    storage.AddOperation(operation);
 
     storage.DisconnectOracle();
     storage.DisconnectPgsql();

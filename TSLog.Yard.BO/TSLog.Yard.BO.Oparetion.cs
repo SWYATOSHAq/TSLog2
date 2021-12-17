@@ -12,6 +12,8 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Operation : Entity
     {
+        private const short DefauktWorkersCount = 2;
+        private const short DefaultPriority = 1;
         /// <summary>
         /// Идентификатор
         /// </summary>
@@ -51,7 +53,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Плановая дата и время окончания
         /// </summary>
-        public DateTime PlanFinshDate { get; set; }
+        public DateTime PlanFinishDate { get; set; }
         /// <summary>
         /// Фактическая дата и время окончания
         /// </summary>
@@ -83,11 +85,11 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Логист (транспортно-логистическая компания)
         /// </summary>
-        public Entity Logist { get; set; }
+        public Logist Logist { get; set; } = Logist.Null;
         /// <summary>
         /// Ворота
         /// </summary>
-        public Gate Gate { get; set; }
+        public Gate Gate { get; set; } = Gate.Null;
         /// <summary>
         /// Состояние (статус)
         /// </summary>
@@ -96,7 +98,7 @@ namespace TSLog.Yard.BO
         /// Ответственный менеджер
         /// </summary>
         public Employee Manager { get; set; }
-        public Employee ResponsibleOfficer { get; set; }
+        public Employee ResponsibleOfficer { get; set; } = Employee.Null;
         /// <summary>
         /// Приоритет
         /// </summary>
@@ -104,9 +106,36 @@ namespace TSLog.Yard.BO
 
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
-        public Operation(long id, string code) 
+        public Operation(long id, string code, OperationType type, 
+            DateTime planStartDate, DateTime planFinishDate,
+            short workersCount, 
+            Entity vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
+            Entity state,
+            short priority,
+            Employee manager) 
             : base(id, code)
-        { }
+        {
+            Type = type ?? throw new ArgumentNullException(nameof(type));
+            PlanStartDate = planStartDate;
+            PlanFinishDate = planFinishDate;
+            WorkersCount = workersCount > 0 ? workersCount : DefauktWorkersCount;
+            VehicleKind = vehicleKind ?? throw new ArgumentNullException(nameof(vehicleKind));
+            if (string.IsNullOrWhiteSpace(vehicleBrand))
+                throw new ArgumentException("vehicle brand is empty");
+            VehicleBrand = vehicleBrand.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(vehicleModel))
+                throw new ArgumentException("vehicle model is empty");
+            VehicleModel = vehicleModel.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(vehicleNumber))
+                throw new ArgumentException("vehicle number is empty");
+            VehicleNumber = vehicleNumber.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(driverName))
+                throw new ArgumentException("driver name is empty");
+            DriverName = driverName.Trim().ToUpper();
+            State = state ?? throw new ArgumentNullException(nameof(state));
+            Priority = priority > 0 ? priority : DefaultPriority;
+            Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+        }
         public WarehouseAction GetAction(ActionKind kind, string id)
         {
             var k = kind == ActionKind.Outgo ? "O" : "I";
@@ -156,7 +185,7 @@ namespace TSLog.Yard.BO
         }
         public string GetFinishTime()
         {
-            return (PlanFinshDate == DateTime.MinValue ? "" : $"план. {PlanFinshDate:dd.MM.yyyy HH:mm:ss}") + (FactFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactFinishDate:dd.MM.yyyy HH:mm:ss})");
+            return (PlanFinishDate == DateTime.MinValue ? "" : $"план. {PlanFinishDate:dd.MM.yyyy HH:mm:ss}") + (FactFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactFinishDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetGateTime()
         {
@@ -174,7 +203,7 @@ namespace TSLog.Yard.BO
         public string GetPlanTime()
         {
             var from = PlanStartDate == DateTime.MinValue ? "//" : $"{PlanStartDate:HH:mm:ss}";
-            var to = (PlanFinshDate == DateTime.MinValue) ? "//" : $"{PlanFinshDate:HH:mm:ss}";
+            var to = (PlanFinishDate == DateTime.MinValue) ? "//" : $"{PlanFinishDate:HH:mm:ss}";
             return $"{from} - {to}";
         }
         public Partner[] GetPartners()

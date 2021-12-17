@@ -22,7 +22,7 @@ namespace TSLog.LegalEntities.BO
         /// <summary>
         /// Дополнительная информация (адрес)
         /// </summary>
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
         /// <summary>
         /// Дополнительная информация
@@ -41,7 +41,7 @@ namespace TSLog.LegalEntities.BO
             Info2 = info2;
         }
 
-        private static LegalEntity _null = null;
+        private static LegalEntity? _null = null;
 
         /// <summary>
         /// Null object
@@ -51,7 +51,7 @@ namespace TSLog.LegalEntities.BO
             get
             {
                 if (_null == null)
-                    _null = new LegalEntity("NULL", "Заглушка", "Заглушка");
+                    _null = new LegalEntity("NULL", "NULL", "NULL");
                 return _null;
             }
         }

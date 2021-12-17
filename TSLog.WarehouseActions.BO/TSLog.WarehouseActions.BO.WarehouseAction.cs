@@ -24,6 +24,9 @@ namespace TSLog.WarehouseActions.BO
         /// Партнёр - покупатель наших складских и логистических услуг
         /// </summary>
         public Partner Partner { get; set; }
+        /// <summary>
+        /// Идентификатор складского действа в системе партнёра
+        /// </summary>
         public string PartnerActionId { get; set; }
         public WarehouseAction(ActionKind kind, string id, Partner partner, string partnerActionId) 
             : base(-1, id, string.Empty)

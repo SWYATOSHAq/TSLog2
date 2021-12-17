@@ -74,7 +74,7 @@ namespace TSLog.Outgoes.BO
             /// </summary>
             public string BatchNumber2 { get; set; }
 
-            private readonly IDictionary<LogisticUnit, double> _logisticUnits = null;
+            private readonly IDictionary<LogisticUnit, double> _logisticUnits = new Dictionary<LogisticUnit, double>();
 
             public Line(int number, Product product, double price, Entity currency,
                 double planQuantity, double factQuantity, MeasureUnit measureUnit)
@@ -85,7 +85,6 @@ namespace TSLog.Outgoes.BO
                     throw new ArgumentNullException(nameof(currency));
                 Currency = price > 0.0 ? currency : Null;
                 PlanQuantity = planQuantity > 0.0 ? planQuantity : 0.0;
-                _logisticUnits = new Dictionary<LogisticUnit, double>();
             }
 
             /// <summary>
@@ -121,7 +120,7 @@ namespace TSLog.Outgoes.BO
             }
         }
 
-        public string GUID { get; set; }
+        public string GUID { get; set; } = string.Empty;
 
         /// <summary>
         /// Номер
@@ -141,7 +140,7 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Тип
         /// </summary>
-        public Entity Type { get; set; }
+        public Entity Type { get; set; } = Null;
 
         /// <summary>
         /// Партнёр (покупатель наших складских и логистических услуг)
@@ -151,7 +150,7 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Конечный получатель заказа
         /// </summary>
-        public LegalEntity Vendor { get; set; }
+        public LegalEntity Vendor { get; set; } = LegalEntity.Null;
 
         /// <summary>
         /// Тип документа
@@ -186,17 +185,17 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Наименование точки доставки
         /// </summary>
-        public string DeliveryName { get; set; }
+        public string DeliveryName { get; set; } = string.Empty;
 
         /// <summary>
         /// Индекс адреса доставки
         /// </summary>
-        public string DeliveryZip { get; set; }
+        public string DeliveryZip { get; set; } = string.Empty;
 
         /// <summary>
         /// Город доставки
         /// </summary>
-        public string DeliveryCity { get; set; }
+        public string DeliveryCity { get; set; } = string.Empty;
 
         /// <summary>
         /// Улица и дом доставки (строка 2)

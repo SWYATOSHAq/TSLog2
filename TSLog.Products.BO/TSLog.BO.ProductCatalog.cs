@@ -4,12 +4,10 @@ namespace TSLog.Products.BO
 {
     public class ProductCatalog<T> : Catalog<T> where T : Entity
     {
-        private Dictionary<string, T> _entitiesInternalCodes;
+        private readonly Dictionary<string, T> _entitiesInternalCodes = new Dictionary<string, T>();
 
         public ProductCatalog(string code, string name, string note = "") : base(code, name, note)
-        {
-            _entitiesInternalCodes = new Dictionary<string, T>();
-        }
+        { }
 
         public new void Add(T entity)
         {
@@ -20,7 +18,7 @@ namespace TSLog.Products.BO
             base.Add(entity);
         }
 
-        public T GetByInternalCode(string code)
+        public T? GetByInternalCode(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
                 return null;

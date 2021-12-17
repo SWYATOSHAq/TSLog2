@@ -179,7 +179,7 @@ namespace TSLog.Products.BO
             get
             {
                 if (_null == null)
-                    _null = new Product("NULL", "NULL", "NULL", "Заглушка");
+                    _null = new Product("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
                 return _null;
             }
         }

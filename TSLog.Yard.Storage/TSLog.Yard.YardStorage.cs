@@ -14,8 +14,8 @@ namespace TSLog.Yard
     /// </summary>
     public class YardStorage : IDisposable, IYardStorage
     {
-        private readonly YardOracleStorage _oracleStorage = null;
-        private readonly YardPgSqlStorage _pgsqlStorage = null;
+        private readonly YardOracleStorage _oracleStorage;
+        private readonly YardPgSqlStorage _pgsqlStorage;
 
         public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase)
         {
@@ -158,7 +158,7 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.EditOperation(operation);
         }
-        public Gate SetOperationGate(Operation operation, Gate gate = null)
+        public Gate SetOperationGate(Operation operation, Gate? gate = null)
         {
             return _pgsqlStorage.SetOperationGate(operation, gate);
         }

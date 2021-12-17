@@ -25,7 +25,7 @@ namespace TSLog.Incomes.BO
             /// <summary>
             /// Валюта (для цены)
             /// </summary>
-            public Entity Currency { get; set; }
+            public Entity Currency { get; set; } = Null;
 
             /// <summary>
             /// Сумма
@@ -55,7 +55,7 @@ namespace TSLog.Incomes.BO
             /// <summary>
             /// (OKAI) Код ОКЕИ
             /// </summary>
-            public string OKEI { get; set; }
+            public string OKEI { get; set; } = string.Empty;
 
             /// <summary>
             /// (Info) Дополнительная информация  Возможно, по согласованию,
@@ -66,14 +66,14 @@ namespace TSLog.Incomes.BO
             /// <summary>
             /// Номер партии
             /// </summary>
-            public string BatchNumber { get; set; }
+            public string BatchNumber { get; set; } = string.Empty;
 
             /// <summary>
             /// Альтернативный номер партии
             /// </summary>
-            public string BatchNumber2 { get; set; }
+            public string BatchNumber2 { get; set; } = string.Empty;
 
-            private readonly IDictionary<LogisticUnit, double> _logisticUnits = null;
+            private readonly IDictionary<LogisticUnit, double> _logisticUnits = new Dictionary<LogisticUnit, double>();
 
             public Line(int number, Product product, double price, Entity currency,
                 double planQuantity, double factQuantity, MeasureUnit measureUnit, string note = "")
@@ -84,7 +84,6 @@ namespace TSLog.Incomes.BO
                     throw new ArgumentNullException(nameof(currency));
                 Currency = price > 0.0 ? currency : Null;
                 PlanQuantity = planQuantity;
-                _logisticUnits = new Dictionary<LogisticUnit, double>();
                 Info = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             }
 
@@ -191,8 +190,8 @@ namespace TSLog.Incomes.BO
         /// </summary>
         public DateTime FactAcceptanceEnd { get; set; }
 
-        private readonly IDictionary<Product, Line> _lines = null;
-        private readonly IDictionary<string, LogisticUnit> _logisticUnits = null;
+        private readonly IDictionary<Product, Line> _lines = new Dictionary<Product, Line>();
+        private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Income(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state,
             string note = "")
@@ -205,8 +204,6 @@ namespace TSLog.Incomes.BO
                 throw new ArgumentException("partnerNumber is empty");
             PartnerNumber = partnerNumber.Trim();
             State = state ?? throw new ArgumentNullException(nameof(state));
-            _lines = new Dictionary<Product, Line>();
-            _logisticUnits = new Dictionary<string, LogisticUnit>();
         }
 
         /// <summary>
