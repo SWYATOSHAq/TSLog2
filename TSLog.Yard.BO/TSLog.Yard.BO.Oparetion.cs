@@ -169,7 +169,7 @@ namespace TSLog.Yard.BO
         public string GetWorkTime()
         {
             var from = WorkStartDate == DateTime.MinValue ? "//" : $"{WorkStartDate:dd.MM.yyyy HH:mm:ss}";
-            var to = (WorkEndDate == DateTime.MinValue) ? "//" : $"{WorkEndDate:dd.MM.yyyy HH:mm:ss}";
+            var to = (WorkFinishDate == DateTime.MinValue) ? "//" : $"{WorkFinishDate:dd.MM.yyyy HH:mm:ss}";
             return $"{from} - {to}";
         }
 

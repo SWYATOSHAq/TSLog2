@@ -4,7 +4,7 @@
     //using ;
     // create dummy object
     TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "test_code");
-    selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, ""); //new Common.BO.Entity(-1,"someType", "someType");
+    selectedYardOperation.Type = new BO.OperationType(-1, BO.OperationType.TypeDirection.In, "PALLET_INCOME", "приемка палетная", "приемка палетная", "пал. приемка.", "приемка палетная", 60, 2, ""); //new Common.BO.Entity(-1,"someType", "someType");
 
     selectedYardOperation.PlanStartDate = DateTime.Now.AddDays(5); // partner
     selectedYardOperation.FactStartDate = DateTime.Now.AddDays(5).AddHours(1);
