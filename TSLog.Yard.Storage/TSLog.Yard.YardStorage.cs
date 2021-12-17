@@ -146,7 +146,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperation(id);
         }
-        public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners)
+        public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
         {
             return _pgsqlStorage.GetOperations(from, to, partners);
         }
