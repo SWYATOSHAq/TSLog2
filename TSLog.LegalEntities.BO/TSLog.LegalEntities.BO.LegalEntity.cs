@@ -34,8 +34,9 @@ namespace TSLog.LegalEntities.BO
         /// </summary>
         public string Info2 { get; set; }
 
-        public LegalEntity(string id, string name = "", string note = "", string info1 = "", string info2 = "")
-            : base(-1, id, name, note)
+        public LegalEntity(string id, string name = "", 
+            string shortName = "", string altName = "", string displayName = "", string note = "", string info1 = "", string info2 = "")
+            : base(-1, id, name, shortName, altName, displayName, note)
         {
             Info1 = info1;
             Info2 = info2;

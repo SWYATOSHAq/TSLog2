@@ -98,6 +98,9 @@ namespace TSLog.Yard.BO
         /// Ответственный менеджер
         /// </summary>
         public Employee Manager { get; set; }
+        /// <summary>
+        /// Ответственный сотрудник склада
+        /// </summary>
         public Employee ResponsibleOfficer { get; set; } = Employee.Null;
         /// <summary>
         /// Приоритет
@@ -225,10 +228,10 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new Operation(-1, "NULL", OperationType.Null, 
+                    _null = new Operation(-1, string.Empty, OperationType.Null, 
                         DateTime.MinValue, DateTime.MinValue,
                         -1,
-                        Entity.Null, "NULL", "NULL", "NULL", "NULL",
+                        Entity.Null, string.Empty, string.Empty, string.Empty, string.Empty,
                         Entity.Null,
                         -1,
                         Employee.Null);

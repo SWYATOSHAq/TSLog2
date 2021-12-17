@@ -8,7 +8,7 @@ namespace TSLog.Partners.BO
     public class Partner : LegalEntity
     {
         public Partner(string id, string name = "", string note = "", string info1 = "", string info2 = "")
-            : base(id, name, note, info1, info2)
+            : base(id, name, name, name, name, note, info1, info2)
         { }
 
         private static Partner? _null = null;
@@ -28,9 +28,9 @@ namespace TSLog.Partners.BO
 
         public static string Serialize(Partner[] partnerList)
         {
-            var ret = "";
+            var ret = string.Empty;
 
-            var i = 0;
+            var i = 1;
             foreach (var partner in partnerList)
             {
                 ret += partner.DisplayName + ((i == partnerList.Length) ? "" : ", ");
