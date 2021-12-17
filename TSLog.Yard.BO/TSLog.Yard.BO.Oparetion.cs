@@ -17,10 +17,10 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Идентификатор
         /// </summary>
-        public new long Id 
+        public new long Id
         {
             get { return base.Id; }
-            set { base.Id = value; } 
+            set { base.Id = value; }
         }
         /// <summary>
         /// Тип
@@ -111,11 +111,11 @@ namespace TSLog.Yard.BO
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type, 
             DateTime planStartDate, DateTime planFinishDate,
-            short workersCount, 
+            short workersCount,
             Entity vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
             Entity state,
             short priority,
-            Employee manager) 
+            Employee manager)
             : base(id, code)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));

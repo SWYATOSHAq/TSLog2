@@ -33,7 +33,7 @@ namespace TSLog.Partners.BO
             var i = 1;
             foreach (var partner in partnerList)
             {
-                ret += partner.DisplayName + ((i == partnerList.Length) ? "" : ", ");
+                ret += partner.Name + ((i == partnerList.Length) ? "" : ", ");
                 i++;
             }
             return ret;
