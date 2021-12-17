@@ -531,7 +531,7 @@ namespace TSLog.Yard.Data
             {
                 var sql = 
                     $"select distinct partner_id, op.plan_start_date, op.plan_finish_date " +
-                    $"  from {YardSchema}.v_operations_partners op " +
+                    $"  from {YardSchema}.v_operation_partner op " +
                     $" where not (op.plan_start_date > :finish_date or op.plan_finish_date < :start_date)";
                 command.CommandText = sql;
                 command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, from));
