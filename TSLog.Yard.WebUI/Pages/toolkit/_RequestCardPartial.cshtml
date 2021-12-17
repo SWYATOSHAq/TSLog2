@@ -44,12 +44,13 @@
     textDataHeader.Add("Состояние", (cardData.State?.DisplayName, true));
 
 
+    var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
 
     var textFieldsBody = new Dictionary<string, (string, string)>();
     textFieldsBody.Add("Марка авто", ("vehicle_brand", cardData.VehicleBrand));
     textFieldsBody.Add("Модель авто", ("vehicle_model", cardData.VehicleModel));
     textFieldsBody.Add("Номер авто", ("vehicle_number", cardData.VehicleNumber));
-    textFieldsBody.Add("Номер заказа", ("order_id", "")); // TODO
+    textFieldsBody.Add("Номер заказа", ("order_id", lonelyAction));
     textFieldsBody.Add("ФИО водителя", ("driver_name", cardData.DriverName));
 
     var textDataList = (textDataHeader, isEnabled);

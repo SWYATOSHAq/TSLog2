@@ -15,10 +15,10 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Идентификатор
         /// </summary>
-        public new long Id 
+        public new long Id
         {
             get { return base.Id; }
-            set { base.Id = value; } 
+            set { base.Id = value; }
         }
         /// <summary>
         /// Тип
@@ -83,7 +83,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Логист (транспортно-логистическая компания)
         /// </summary>
-        public Entity Logist { get; set; }
+        public Logist Logist { get; set; }
         /// <summary>
         /// Ворота
         /// </summary>
@@ -102,9 +102,10 @@ namespace TSLog.Yard.BO
         /// </summary>
         public int Priority { get; set; }
 
+        public static readonly Operation Null = new Operation(-1, "NULL");
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
-        public Operation(long id, string code) 
+        public Operation(long id, string code)
             : base(id, code)
         { }
         public WarehouseAction GetAction(ActionKind kind, string id)

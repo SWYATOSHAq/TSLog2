@@ -1,11 +1,12 @@
 ﻿@page
+@using TSLog.Yard.BO
 @model NewRequestModel
 @{
     ViewData["Title"] = "Добавить новый  запрос";
     var storage = Model.yardStorage;
 
     // create new object
-    TSLog.Yard.BO.Operation selectedYardOperation = new TSLog.Yard.BO.Operation(-1, "new");
+    Operation selectedYardOperation = Operation.Null;
 
     var operationToRender = (selectedYardOperation, storage);
 
