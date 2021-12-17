@@ -1,5 +1,16 @@
 ﻿@page
 @model DispatcherHomeModel
+
+@{
+    ViewData["PanelLink1Name"] = "Список заявок";
+    ViewData["PanelLink1Path"] = "DispatcherHome";
+
+    ViewData["PanelLink2Name"] = "";
+    ViewData["PanelLink2Path"] = "";
+
+    var storage = Model.yardStorage;
+}
+
 @{
     //using ;
     // create dummy object
@@ -35,37 +46,33 @@
 
     // ----------------------------------
 
-    var gateslist = (new TSLog.Yard.BO.Gate[] {
-        new Yard.BO.Gate(-1,"EIN1","vorota 1", "vor. 1", "1", "vorota nomer 1", "pervije vorota"),
-        new Yard.BO.Gate(-1,"EIN2","vorota 2", "vor. 2", "2", "vorota nomer 2", "vtorije vorota")
-        }, "", false, true);
+    var gateslist = (storage.GetGates(), "", false, true);
 
-    var operarationsList = ( new TSLog.Yard.BO.Operation[] { selectedYardOperation, selectedYardOperation, selectedYardOperation, selectedYardOperation }, true);
+    var operarationsList = (storage.GetOperations(DateTime.Now.Date, DateTime.Now.AddDays(1).AddTicks(-1), null), true);
+    var operationToRender = (selectedYardOperation, storage);
 
 }
 
- <!--  -->
-  <div class="row p-2 m-3">
+<!--  -->
+<div class="row p-2 m-3">
     <div class="col-4 p-4 m-3 shadow">
-      <div class="row p-2 m-3">
-        <!--  -->
-        <input
-        type="text"
-        id="dp1"
-        class="datepicker border border-secondary col-5 m-1"
-        placeholder="Выберете дату"
-        ne="date"
-        readonly
-      />
-      <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
-        <!--  -->
-      </div>
-      <div class="row p-2 m-1 ">
-        <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" /> 
-      </div>
+        <div class="row p-2 m-3">
+            <!--  -->
+            <input type="text"
+                   id="dp1"
+                   class="datepicker border border-secondary col-5 m-1"
+                   placeholder="Выберете дату"
+                   ne="date"
+                   readonly />
+            <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
+            <!--  -->
+        </div>
+        <div class="row p-2 m-1 ">
+            <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
+        </div>
 
-        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" /> 
+        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
 
     </div>
-    <partial name="toolkit/_RequestCardPartial" model="selectedYardOperation" /> 
-  </div>
+    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+</div>

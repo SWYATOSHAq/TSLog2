@@ -253,9 +253,9 @@ namespace TSLog.Yard.Data
             var operationtypes = new List<OperationType>();
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select pot.id, pot.direction, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name, "
-                    + $"pot.time, pot.workers_count, pot.note "
-                    + $"from {YardSchema}.v_partner_operation_type pot";
+                command.CommandText = $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, "
+                    + $"ot.time, ot.workers_count, ot.note "
+                    + $"from {YardSchema}.v_operation_type ot";
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -330,7 +330,7 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
                 command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
                 command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
-                command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer, 
+                command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
                     operation.Logist != null ? operation.Logist.Id : DBNull.Value));
                 command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
                 command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
@@ -383,7 +383,7 @@ namespace TSLog.Yard.Data
         {
             using (var command = _connection.CreateCommand())
             {
-                var sql = 
+                var sql =
                     $"select o.id, " +
                     $"       o.type_id,  o.type_code, o.type_name, " +
                     $"       o.plan_start_date, o.fact_start_date, " +
@@ -420,7 +420,7 @@ namespace TSLog.Yard.Data
             var operations = new List<Operation>();
             if (partners != null && partners.Length > 0)
             {
-                var sql = 
+                var sql =
                     $"select distinct po.id, " +
                     $"       po.type_id, " +
                     $"       po.type_code, " +
@@ -429,7 +429,7 @@ namespace TSLog.Yard.Data
                     $"       po.fact_start_date, " +
                     $"       po.gate_arrival_date, " +
                     $"       po.work_start_date, " +
-                    $"       po.work_end_date, " +
+                    $"       po.work_finish_date, " +
                     $"       po.gate_departure_date, " +
                     $"       po.plan_finish_date, " +
                     $"       po.fact_finish_date, " +
@@ -483,7 +483,7 @@ namespace TSLog.Yard.Data
                     $"       po.fact_start_date, " +
                     $"       po.gate_arrival_date, " +
                     $"       po.work_start_date, " +
-                    $"       po.work_end_date, " +
+                    $"       po.work_finish_date, " +
                     $"       po.gate_departure_date, " +
                     $"       po.plan_finish_date, " +
                     $"       po.fact_finish_date, " +
@@ -513,7 +513,7 @@ namespace TSLog.Yard.Data
                 using var command = _connection.CreateCommand();
                 command.CommandText = sql;
                 command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
-                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));                
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -529,7 +529,7 @@ namespace TSLog.Yard.Data
             var partners = new HashSet<Partner>();
             using (var command = _connection.CreateCommand())
             {
-                var sql = 
+                var sql =
                     $"select distinct partner_id, op.plan_start_date, op.plan_finish_date " +
                     $"  from {YardSchema}.v_operation_partner op " +
                     $" where not (op.plan_start_date > :finish_date or op.plan_finish_date < :start_date)";
@@ -630,7 +630,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
         }
-        public void SetResponsibleOfficer(Operation operation, Employee officer) 
+        public void SetResponsibleOfficer(Operation operation, Employee officer)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));

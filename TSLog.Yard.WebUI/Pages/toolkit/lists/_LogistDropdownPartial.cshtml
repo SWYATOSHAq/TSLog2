@@ -1,0 +1,21 @@
+﻿@model (TSLog.Yard.BO.Logist[], string, bool, bool)
+@{
+    var cardLogistList = Model.Item1;
+    var selectedLogist = Model.Item2;
+    var isEnabled = Model.Item3;
+    var isSmall = Model.Item4;
+}
+
+<div class="input-group">
+    <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Логист</span>
+    <select class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <option>Выберите логиста</option>
+
+    @foreach (var curGate in cardLogistList)
+    {
+       @: <option value="@curGate.Code" @((curGate.Code == selectedLogist) ? "selected" : "")>@curGate.DisplayName</option>
+    }
+
+    </select>
+
+</div>
