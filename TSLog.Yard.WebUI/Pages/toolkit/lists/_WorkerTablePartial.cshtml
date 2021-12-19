@@ -1,0 +1,19 @@
+﻿@model (short, bool)
+@{
+    var rowCounter = Model.Item1;
+    var isEnabled = Model.Item2;
+}
+
+@if (isEnabled)
+{
+    <table class="table table-light m-3 show-on-print">
+        <tbody>
+            @for (var i = 0; i < rowCounter; i++)
+            {
+                <tr>
+                    <td></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -9,3 +9,7 @@
     })
         .datepicker("setDate", 'now');
 });
+
+function PrintCard() {
+    Printpage();
+}

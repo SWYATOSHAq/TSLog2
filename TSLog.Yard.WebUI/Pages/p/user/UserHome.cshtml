@@ -9,7 +9,19 @@
     var gateslist = (storage.GetGates(), "", false, true);
 
     var operarationsList = (storage.GetOperations(DateTime.Now.Date, DateTime.Now.AddDays(1).AddTicks(-1), null), true);
-    Operation selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Null;
+
+    string operationID = Request.Query["id"];
+    Operation selectedYardOperation = Operation.Null;
+    long tmpID = 0;
+    if (long.TryParse(operationID, out tmpID))
+    {
+        selectedYardOperation = storage.GetOperation(tmpID);
+    }
+    else
+    {
+        selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Null;
+    }
+
 
     var operationToRender = (selectedYardOperation, storage);
 
