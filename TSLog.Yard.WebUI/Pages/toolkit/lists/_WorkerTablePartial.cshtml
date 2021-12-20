@@ -6,12 +6,20 @@
 
 @if (isEnabled)
 {
-    <table class="table table-light m-3 w-100 show-on-print">
+    // show-on-print w-100
+    <table class="table table-light p-3 show-table-on-print">
+        <thead>
+            <tr>
+                <th>номер</th>
+                <th>ФИО ответственного</th>
+            </tr>
+        </thead>
         <tbody>
-            @for (var i = 0; i < rowCounter; i++)
+            @for (var i = 1; i <= rowCounter; i++)
             {
                 <tr>
-                    <td></td>
+                    <td>@i</td>
+                    <td> </td>
                 </tr>
             }
         </tbody>

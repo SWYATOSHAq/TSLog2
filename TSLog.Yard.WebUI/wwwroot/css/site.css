@@ -21,12 +21,26 @@ body {
     display: none;
 }
 
+.show-table-on-print {
+    display: none;
+}
+
 @media print {
     .show-on-print {
         display: block;
     }
 
+    .show-table-on-print {
+        display: table;
+    }
+
     .hide-on-print {
         display: none;
+    }
+
+    .rem-outline-on-print {
+        border: 0 solid black !important;
+        margin: 0px !important;
+        padding: 0px !important;
     }
 }
