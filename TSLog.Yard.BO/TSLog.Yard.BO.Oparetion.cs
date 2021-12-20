@@ -109,7 +109,7 @@ namespace TSLog.Yard.BO
 
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
-        public Operation(long id, string? code, OperationType type, 
+        public Operation(long id, string? code, OperationType type,
             DateTime planStartDate, DateTime planFinishDate,
             short workersCount,
             Entity vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
@@ -236,6 +236,28 @@ namespace TSLog.Yard.BO
                         -1,
                         Employee.Null);
                 return _null;
+            }
+        }
+
+
+        private static Operation? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new Operation Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new Operation(-1, "", OperationType.Null,
+                        DateTime.MinValue, DateTime.MinValue,
+                        -1,
+                        Entity.Null, "", "", "", "",
+                        Entity.Null,
+                        -1,
+                        Employee.Null);
+                return _empty;
             }
         }
     }

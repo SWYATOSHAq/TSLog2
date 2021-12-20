@@ -11,5 +11,17 @@
 });
 
 function PrintCard() {
-    Printpage();
+    window.print();
+}
+
+function Create() {
+    $.post("/api/v1/YardOperationData", function () {
+
+
+
+        alert("success");
+    })
+        .fail(function () {
+            alert("error");
+        })
 }
