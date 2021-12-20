@@ -231,7 +231,7 @@ namespace TSLog.Yard.BO
                     _null = new Operation(-1, string.Empty, OperationType.Null, 
                         DateTime.MinValue, DateTime.MinValue,
                         -1,
-                        Entity.Null, string.Empty, string.Empty, string.Empty, string.Empty,
+                        Entity.Null, "NULL", "NULL", "NULL", "NULL",
                         Entity.Null,
                         -1,
                         Employee.Null);
