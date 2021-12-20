@@ -58,7 +58,7 @@ namespace TSLog.Common.Data
                 Convert.ToString(reader["display_name"]),
                 Convert.ToString(reader["note"]));
         }
-        public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null) 
+        public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
                 throw new ArgumentException("sql is empty");

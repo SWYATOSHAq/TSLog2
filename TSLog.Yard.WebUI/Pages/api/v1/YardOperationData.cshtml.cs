@@ -33,7 +33,7 @@ namespace TSLog.Yard.WebUI.Pages
 
         }
 
-        public void onPost()
+        public void OnPost()
         {
             string operationID = Request.Query["operation_id"];
 
