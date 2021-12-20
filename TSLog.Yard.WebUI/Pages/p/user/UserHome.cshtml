@@ -11,7 +11,7 @@
     var operarationsList = (storage.GetOperations(DateTime.Now.Date, DateTime.Now.AddDays(1).AddTicks(-1), null), true);
 
     string operationID = Request.Query["id"];
-    Operation selectedYardOperation = Operation.Null;
+    Operation selectedYardOperation = Operation.Empty;
     long tmpID = 0;
     if (long.TryParse(operationID, out tmpID))
     {
@@ -19,7 +19,7 @@
     }
     else
     {
-        selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Null;
+        selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
     }
 
 
