@@ -42,6 +42,7 @@
     textDataHeader.Add("Ответственный", (cardData.Manager?.DisplayName, true));
     textDataHeader.Add("Ответственный (склад)", (cardData.ResponsibleOfficer?.DisplayName, false));
     textDataHeader.Add("Состояние", (cardData.State?.DisplayName, true));
+    textDataHeader.Add("Количество работников", ($"{cardData.WorkersCount}", true));
 
 
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
@@ -55,6 +56,8 @@
 
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
+
+    var workerTable = (cardData.WorkersCount, true);
 
 }
 
@@ -94,11 +97,13 @@
         <partial name="toolkit/lists/_FieldListPartial" model="textFieldsList" />
     </div>
     <!--  -->
-    <div class="row p-2 m-3 d-flex justify-content-center">
+    <div class="row p-2 m-3 d-flex justify-content-center hide-on-print">
         <div class="d-grid gap-2 col-4">
-            <button class="btn btn-danger" type="button">отменить</button>
+            <button class="btn btn-info" type="button" onclick="PrintCard()">печать</button>
         </div>
     </div>
+
+    <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
 </div>
 
 
