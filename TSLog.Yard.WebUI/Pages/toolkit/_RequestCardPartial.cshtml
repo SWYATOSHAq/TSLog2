@@ -98,13 +98,17 @@
     </div>
     <!--  -->
     <div class="row p-2 m-2 d-flex justify-content-center">
-        <div class="d-grid gap-2 col-4">
-            <button class="btn btn-info hide-on-print" type="button" onclick="PrintCard()">печать</button>
-        </div>
+
         @if (cardData == Operation.Null)
         {
             <div class="d-grid gap-2 col-4">
                 <button class="btn btn-success hide-on-print" type="button" onclick="Create()">создать</button>
+            </div>
+        }
+        else
+        {
+            <div class="d-grid gap-2 col-4">
+                <button class="btn btn-info hide-on-print" type="button" onclick="PrintCard()">печать</button>
             </div>
         }
         <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />

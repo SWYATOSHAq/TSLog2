@@ -1,3 +1,14 @@
 ﻿@page
 @model YardOperationDataModel
 @Model.Text
+
+<form method="post" action="~/api/v1/YardOperationData">
+    <p><b>Как по вашему мнению расшифровывается аббревиатура &quot;ОС&quot;?</b></p>
+    <p>
+        <input type="radio" name="operation_id" value="a1">Офицерский состав<Br>
+        <input type="radio" name="operation_id" value="a2">Операционная система<Br>
+        <input type="radio" name="operation_id" value="a3">Большой полосатый мух
+    </p>
+    <input type="submit" />
+</form>
+

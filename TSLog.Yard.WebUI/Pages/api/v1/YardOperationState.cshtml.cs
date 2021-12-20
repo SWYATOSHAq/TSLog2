@@ -17,11 +17,21 @@ namespace TSLog.Yard.WebUI.Pages
             yardStorage = storage;
         }
 
+        public void OnGet()
+        {
+            // default
+            Text = "this is an API, to see more check out [http://example.com]";
+            //
+        }
+
+
         public void OnPost()
         {
             // default
             Text = "this is an API, to see more check out [http://example.com]";
             //
+            return;
+
             string operationID = Request.Query["operation_id"];
             string actionWithOperation = Request.Query["operation"];
 

@@ -15,6 +15,30 @@
 
 }
 
+<input type='button' value='Submit form' onClick='submitDetailsForm()' />
+
+<script language="javascript" type="text/javascript">
+    $("#theform").on("submit", function (e) {
+        e.preventDefault();
+    }
+
+    function submitDetailsForm() {
+       //$.post('~/api/v1/YardOperationData', $('#theform').serialize());
+       $("#theform").submit();
+       return false;
+    }
+</script>
+
+<form method="post" action="~/api/v1/YardOperationData" id="theform">
+    <p><b>Как по вашему мнению расшифровывается аббревиатура &quot;ОС&quot;?</b></p>
+    <p>
+        <input type="radio" name="operation_id" value="a1" checked>Офицерский состав<Br>
+        <input type="radio" name="operation_id" value="a2">Операционная система<Br>
+        <input type="radio" name="operation_id" value="a3">Большой полосатый мух
+    </p>
+</form>
+
+
 @{
     var gateslist = (storage.GetGates(), "", false, true);
 

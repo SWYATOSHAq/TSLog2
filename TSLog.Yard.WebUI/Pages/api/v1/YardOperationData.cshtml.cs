@@ -35,8 +35,9 @@ namespace TSLog.Yard.WebUI.Pages
 
         public void OnPost()
         {
-            string operationID = Request.Query["operation_id"];
+            string operationID = Request.Form["operation_id"];
 
+            Text = "fuuuuuuuuuuuuuuuuuck";
 
             if (operationID != null || operationID != "")
             {
@@ -70,5 +71,6 @@ namespace TSLog.Yard.WebUI.Pages
                 yardStorage.AddOperation(newOperation);
             }
         }
+
     }
 }
