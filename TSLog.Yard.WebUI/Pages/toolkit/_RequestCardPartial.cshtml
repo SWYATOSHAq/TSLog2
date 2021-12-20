@@ -101,6 +101,12 @@
         <div class="d-grid gap-2 col-4">
             <button class="btn btn-info" type="button" onclick="PrintCard()">печать</button>
         </div>
+        @if (cardData == Operation.Null)
+        {
+            <div class="d-grid gap-2 col-4">
+                <button class="btn btn-success" type="button" onclick="Create()">создать</button>
+            </div>
+        }
     </div>
 
     <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
