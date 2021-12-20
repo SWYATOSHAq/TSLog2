@@ -26,7 +26,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Приход или расход
         /// </summary>
-        public TypeDirection Direction { get; private set; }
+        public TypeDirection Direction { get; private set; } 
         public OperationType(long id, TypeDirection direction, 
             string code, string name, string shortName, string altName, string displayName, int time, short workersCount, string note, 
             bool isActive = true) 
@@ -35,6 +35,12 @@ namespace TSLog.Yard.BO
             Direction = direction;
             Time = time > 0 ? time : DefaultTime;
             WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
+        }
+        private OperationType() : base()
+        { 
+            Direction = TypeDirection.Out;
+            Time = 0;
+            WorkersCount = 0;
         }
 
         public int Time { get; private set; }
@@ -61,6 +67,20 @@ namespace TSLog.Yard.BO
                 if (_null == null)
                     _null = new OperationType(-1, TypeDirection.Out, "NULL", "NULL", "NULL", "NULL", "NULL", 60, 2, "NULL");
                 return _null;
+            }
+        }
+        private static OperationType? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new OperationType Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new OperationType();
+                return _empty;
             }
         }
     }

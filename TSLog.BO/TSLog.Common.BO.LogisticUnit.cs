@@ -2,13 +2,15 @@
 
 namespace TSLog.Common.BO
 {
+    /// <summary>
+    /// Логистическая единица (паллет, ...)
+    /// </summary>
     public class LogisticUnit
     {
         /// <summary>
         /// Тип
         /// </summary>
         public string Type { get; private set; }
-
         /// <summary>
         /// Serial shipment container code
         /// </summary>

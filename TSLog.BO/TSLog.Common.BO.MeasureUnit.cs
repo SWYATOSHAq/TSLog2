@@ -31,8 +31,6 @@
         /// </summary>
         public MeasureUnit BaseUnit { get; set; }
 
-        private static MeasureUnit _null = null;
-
         public MeasureUnit(long id, string code, string name, string shortName, string note,
             string category, bool isBasic, double coefficient, bool isDefault = false)
             : base(id, code, name, shortName, string.Empty, string.Empty, note)
@@ -42,7 +40,15 @@
             Coefficient = coefficient > 0.0 ? coefficient : 1.0;
             IsDefault = isDefault;
         }
+        private MeasureUnit() : base()
+        {
+            Category = string.Empty;
+            IsBasic = false;
+            Coefficient = 1.0;
+            IsDefault = false;
+        }
 
+        private static MeasureUnit _null = null;
         /// <summary>
         /// Null object
         /// </summary>
@@ -51,8 +57,22 @@
             get
             {
                 if (_null == null)
-                    _null = new MeasureUnit(0, "NULL", "Заглушка", "Заглушка", string.Empty, "COMMON", true, 1.0);
+                    _null = new MeasureUnit(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, 1.0);
                 return _null;
+            }
+        }
+        private static MeasureUnit _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new MeasureUnit Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new MeasureUnit();
+                return _empty;
             }
         }
     }

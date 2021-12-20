@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TSLog.Common.BO;
 
 namespace TSLog.Common.BO
 {
@@ -10,8 +9,8 @@ namespace TSLog.Common.BO
     /// <typeparam name="T">Тип справочнико объекта</typeparam>
     public class Catalog<T> where T : Entity
     {
-        private readonly IDictionary<long, T> _entitiesIds = null;
-        private readonly IDictionary<string, T> _entitiesCodes = null;
+        private readonly IDictionary<long, T> _entitiesIds = new Dictionary<long, T>();
+        private readonly IDictionary<string, T> _entitiesCodes = new Dictionary<string, T>();
 
         /// <summary>
         /// Код
@@ -33,8 +32,6 @@ namespace TSLog.Common.BO
             Code = !string.IsNullOrWhiteSpace(code) ? code.Trim().ToUpper() : string.Empty;
             Name = !string.IsNullOrWhiteSpace(name) ? name.Trim() : string.Empty;
             Note = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
-            _entitiesIds = new Dictionary<long, T>();
-            _entitiesCodes = new Dictionary<string, T>();
         }
 
         /// <summary>

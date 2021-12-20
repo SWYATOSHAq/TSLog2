@@ -34,6 +34,39 @@ namespace TSLog.WarehouseActions.BO
             Kind = kind;
             Partner = partner;
             PartnerActionId = partnerActionId;
-        } 
+        }
+        private WarehouseAction() : base()
+        {
+            Partner = Partner.Empty;
+            PartnerActionId = string.Empty;
+        }
+        private static WarehouseAction? _null = null;
+
+        /// <summary>
+        /// Null object
+        /// </summary>
+        public static new WarehouseAction Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new WarehouseAction(ActionKind.Income, "NULL", Partner.Null, "NULL");
+                return _null;
+            }
+        }
+        private static WarehouseAction? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new WarehouseAction Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new WarehouseAction();
+                return _empty;
+            }
+        }
     }
 }

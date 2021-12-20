@@ -10,7 +10,8 @@ namespace TSLog.Partners.BO
         public Partner(string id, string name = "", string note = "", string info1 = "", string info2 = "")
             : base(id, name, name, name, name, note, info1, info2)
         { }
-
+        private Partner() : base()
+        { }
         private static Partner? _null = null;
 
         /// <summary>
@@ -25,18 +26,27 @@ namespace TSLog.Partners.BO
                 return _null;
             }
         }
+        private static Partner? _empty = null;
 
-        public static string Serialize(Partner[] partnerList)
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new Partner Empty
         {
-            var ret = string.Empty;
-
-            var i = 1;
-            foreach (var partner in partnerList)
+            get
             {
-                ret += partner.Name + ((i == partnerList.Length) ? "" : ", ");
-                i++;
+                if (_empty == null)
+                    _empty = new Partner();
+                return _empty;
             }
-            return ret;
+        }
+
+        public static string Serialize(Partner[] partners)
+        {
+            var result = string.Empty;
+            foreach (var partner in partners)
+                result += ((result.Length > 0) ? ", " : "") + partner.Name;
+            return result;
         }
     }
 }

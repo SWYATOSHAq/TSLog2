@@ -11,7 +11,8 @@ namespace TSLog.Yard.BO
             string name = "", string shortName = "", string altName = "", string displayName = "", string note = "", 
             bool isActive = true) : base(id, code, name, shortName, altName, displayName, note, isActive)
         { }
-
+        private Gate() : base()
+        { }
 
         private static Gate? _null = null;
 
@@ -25,6 +26,20 @@ namespace TSLog.Yard.BO
                 if (_null == null)
                     _null = new Gate(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
                 return _null;
+            }
+        }
+        private static Gate? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new Gate Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new Gate();
+                return _empty;
             }
         }
     }

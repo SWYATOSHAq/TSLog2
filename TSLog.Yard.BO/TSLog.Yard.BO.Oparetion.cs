@@ -14,13 +14,20 @@ namespace TSLog.Yard.BO
     {
         private const short DefauktWorkersCount = 2;
         private const short DefaultPriority = 1;
+        private const short DefaultDuration = 60;
         /// <summary>
         /// Идентификатор
         /// </summary>
         public new long Id
         {
-            get { return base.Id; }
-            set { base.Id = value; }
+            get 
+            { 
+                return base.Id; 
+            }
+            set 
+            { 
+                base.Id = value; 
+            }
         }
         /// <summary>
         /// Тип
@@ -107,7 +114,6 @@ namespace TSLog.Yard.BO
         /// </summary>
         public int Priority { get; set; }
 
-
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planStartDate, DateTime planFinishDate,
@@ -138,6 +144,21 @@ namespace TSLog.Yard.BO
             State = state ?? throw new ArgumentNullException(nameof(state));
             Priority = priority > 0 ? priority : DefaultPriority;
             Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+        }
+        private Operation() : base()
+        {
+            Type = OperationType.Empty;
+            PlanStartDate = DateTime.Today.AddMinutes(9 * 60);
+            PlanFinishDate = DateTime.Today.AddMinutes(9 * 60 + DefaultDuration);
+            WorkersCount = DefauktWorkersCount;
+            VehicleKind = Entity.Empty;
+            VehicleBrand = string.Empty;
+            VehicleModel = string.Empty;
+            VehicleNumber = string.Empty;
+            DriverName = string.Empty;
+            State = Entity.Empty;
+            Priority = DefaultPriority;
+            Manager = Employee.Empty;
         }
         public WarehouseAction GetAction(ActionKind kind, string id)
         {
@@ -183,7 +204,8 @@ namespace TSLog.Yard.BO
 
         public string GetStartTime()
         {
-            return (PlanStartDate == DateTime.MinValue ? "" : $"план. {PlanStartDate:dd.MM.yyyy HH:mm:ss}") + (FactStartDate == DateTime.MinValue ? "" : $" (факт.: {FactStartDate:dd.MM.yyyy HH:mm:ss})");
+            return (PlanStartDate == DateTime.MinValue ? "" : $"план. {PlanStartDate:dd.MM.yyyy HH:mm:ss}") + 
+                (FactStartDate == DateTime.MinValue ? "" : $" (факт.: {FactStartDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetFinishTime()
         {
@@ -219,7 +241,6 @@ namespace TSLog.Yard.BO
             return partners.ToArray();
         }
         private static Operation? _null = null;
-
         /// <summary>
         /// Null object
         /// </summary>
@@ -238,10 +259,7 @@ namespace TSLog.Yard.BO
                 return _null;
             }
         }
-
-
         private static Operation? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>
@@ -250,13 +268,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_empty == null)
-                    _empty = new Operation(-1, "", OperationType.Null,
-                        DateTime.MinValue, DateTime.MinValue,
-                        -1,
-                        Entity.Null, "", "", "", "",
-                        Entity.Null,
-                        -1,
-                        Employee.Null);
+                    _empty = new Operation();
                 return _empty;
             }
         }

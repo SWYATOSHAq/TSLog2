@@ -8,6 +8,9 @@ namespace TSLog.Common.BO
     [Flags]
     public enum OperationType
     {
+        /// <summary>
+        /// Неопределено
+        /// </summary>
         Undefined = 0,
 
         /// <summary>
@@ -38,13 +41,12 @@ namespace TSLog.Common.BO
 
     public static class OperationConverter
     {
-        public static OperationType Convert(string str)
+        public static OperationType Convert(string value)
         {
-            OperationType ret;
-            if (!Enum.TryParse(str, out ret))
-                ret = OperationType.Undefined;
-
-            return ret;
+            OperationType result;
+            if (!Enum.TryParse(value, out result))
+                result = OperationType.Undefined;
+            return result;
         }
     }
 }

@@ -57,6 +57,16 @@
             Note = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             IsActive = isActive;
         }
+        protected Entity()
+        {
+            Id = -1;
+            Code = string.Empty;
+            Name = string.Empty;
+            ShortName = string.Empty;
+            AltName = string.Empty;
+            DisplayName = string.Empty;
+            Note = string.Empty;
+        }
 
         private static Entity _null = null;
 
@@ -70,6 +80,20 @@
                 if (_null == null)
                     _null = new Entity(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
                 return _null;
+            }
+        }
+        private static Entity _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static Entity Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new Entity();
+                return _empty;
             }
         }
     }

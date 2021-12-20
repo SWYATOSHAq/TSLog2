@@ -47,33 +47,33 @@ namespace TSLog.Products.BO
         /// <summary>
         /// (ArtNetWeight) Вес единицы артикула нетто (кг до г)
         /// </summary>
-        public double Netto { get; set; }
+        public double Netto { get; set; } = 0.0;
 
         /// <summary>
         /// (ArtGrossWeight) Вес единицы артикула брутто (кг до г)
         /// </summary>
-        public double Brutto { get; set; }
+        public double Brutto { get; set; } = 0.0;
 
         //
         /// <summary>
         /// (ArtLng) Длина (км до мм)
         /// </summary>
-        public int Length { get; set; }
+        public int Length { get; set; } = 0;
 
         /// <summary>
         /// (ArtBre) Ширина (км до мм)
         /// </summary>
-        public int Width { get; set; }
+        public int Width { get; set; } = 0;
 
         /// <summary>
         /// (ArtHoe) Высота (км до мм)
         /// </summary>
-        public int Height { get; set; }
+        public int Height { get; set; } = 0;
 
         /// <summary>
         /// (ArtVol) Объем  (м3 до мм3)
         /// </summary>
-        public int Volume { get; set; }
+        public int Volume { get; set; } = 0;
 
         /// <summary>
         /// (ArtMgEh) Единица измерения по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
@@ -168,6 +168,11 @@ namespace TSLog.Products.BO
             Id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
             Gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
         }
+        private Product() : base()
+        {
+            Id = string.Empty;
+            Gtin = string.Empty;
+        }
 
         private static Product? _null = null;
 
@@ -181,6 +186,20 @@ namespace TSLog.Products.BO
                 if (_null == null)
                     _null = new Product("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
                 return _null;
+            }
+        }
+        private static Product? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new Product Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new Product();
+                return _empty;
             }
         }
     }

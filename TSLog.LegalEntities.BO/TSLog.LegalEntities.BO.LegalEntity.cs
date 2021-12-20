@@ -41,7 +41,12 @@ namespace TSLog.LegalEntities.BO
             Info1 = info1;
             Info2 = info2;
         }
-
+        protected LegalEntity() : base()
+        {
+            Address = string.Empty;
+            Info1 = string.Empty; 
+            Info2 = string.Empty;
+        }
         private static LegalEntity? _null = null;
 
         /// <summary>
@@ -56,5 +61,20 @@ namespace TSLog.LegalEntities.BO
                 return _null;
             }
         }
+        private static LegalEntity? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new LegalEntity Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new LegalEntity();
+                return _empty;
+            }
+        }
+
     }
 }
