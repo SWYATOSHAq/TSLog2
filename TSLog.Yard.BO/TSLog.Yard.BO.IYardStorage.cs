@@ -32,12 +32,10 @@ namespace TSLog.Yard.BO
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
         public void EditOperation(Operation operation);        
-        public void StartOperation(Operation operation);
-        public void MoveToGate(Operation operation);
+        public void StartOperation(Operation operation);        
         public void SetResponsibleOfficer(Operation operation, Employee officer);
         public void StartOperationWork(Operation operation);
-        public void FinishOperationWork(Operation operation);
-        public void LeaveGate(Operation operation);
+        public void FinishOperationWork(Operation operation);        
         public void FinishOperation(Operation operation);
         public void CancelOperation(Operation operation);
         public void DeleteOperation(Operation operation);
@@ -54,5 +52,8 @@ namespace TSLog.Yard.BO
         public Partner[] GetPartners();
         public Employee GetEmployee(int id);
         public Employee[] GetEmployees();
+        public Position GetPosition(int id);
+        public Position GetPosition(string code);
+        public Position[] GetPositions();
     }
 }

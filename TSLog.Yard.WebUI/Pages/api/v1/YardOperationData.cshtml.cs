@@ -49,10 +49,8 @@ namespace TSLog.Yard.WebUI.Pages
                 // create
                 var type = yardStorage.GetOperationType(Request.Query["type"]);
 
-                var startDate = DateTime.Parse(Request.Query["start_date"]);
-                var finishDate = DateTime.Parse(Request.Query["finish_date"]);
-
-                var workersCount = short.Parse(Request.Query["workers_count"]);
+                var workStartDate = DateTime.Parse(Request.Query["work_start_date"]);
+                var workFinishDate = DateTime.Parse(Request.Query["work_finish_date"]);
 
                 var vehicleKind = yardStorage.GetVehicleKind(Request.Query["vehicle_kind"]);
 
@@ -66,7 +64,7 @@ namespace TSLog.Yard.WebUI.Pages
                 short priority = 1;
 
 
-                var newOperation = new Operation(-1, null, type, startDate, finishDate, workersCount, vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, vehicleDriverName, state, priority, null);
+                var newOperation = new Operation(-1, null, type, workStartDate, workFinishDate, vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, vehicleDriverName, state, priority, null);
 
                 yardStorage.AddOperation(newOperation);
             }

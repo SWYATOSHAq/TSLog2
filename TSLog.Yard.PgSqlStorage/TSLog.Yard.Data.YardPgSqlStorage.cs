@@ -264,7 +264,6 @@ namespace TSLog.Yard.Data
                 Utils.DbValueToString(reader["alt_name"]),
                 Utils.DbValueToString(reader["display_name"]),
                 Convert.ToInt32(reader["time"]),
-                Convert.ToInt16(reader["workers_count"]),
                 Utils.DbValueToString(reader["note"])
                 );
             return operationtype;
@@ -429,9 +428,8 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql = $"select {YardSchema}.add_operation(:p_type_code," +
-                        ":p_plan_start_date," +
-                        ":p_plan_finish_date," +
-                        ":p_workers_count," +
+                        ":p_plan_work_start_date," +
+                        ":p_plan_work_finish_date," +
                         ":p_vehicle_kind_code," +
                         ":p_vehicle_brand," +
                         ":p_vehicle_model," +
@@ -444,9 +442,8 @@ namespace TSLog.Yard.Data
                     command.CommandText = sql;
 
                     command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
-                    command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanStartDate));
-                    command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinishDate));
-                    command.Parameters.Add(CreateParameter("p_workers_count", NpgsqlDbType.Smallint, operation.WorkersCount));
+                    command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
+                    command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
                     command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
                     command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
                     command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
@@ -472,9 +469,8 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(reader));
 
             var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
-            var planStartDate = Utils.DbValueToDateTime(reader["plan_start_date"]);
-            var planFinishDate = Utils.DbValueToDateTime(reader["fact_start_date"]);
-            var workersCount = Convert.ToInt16(reader["workers_count"]);
+            var planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+            var planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
             var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
             var vehicleBrand = Utils.DbValueToString(reader["vehicle_brand"]);
             var vehicleModel = Utils.DbValueToString(reader["vehicle_model"]);
@@ -486,19 +482,16 @@ namespace TSLog.Yard.Data
 
             var operation = new Operation(Convert.ToInt64(reader["id"]), null,
                 type,
-                planStartDate, planFinishDate,
-                workersCount,
+                planWorkStartDate, planWorkFinishDate,
                 vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, driverName,
                 state,
                 priority,
                 manager);
 
-            operation.GateArrivalDate = Utils.DbValueToDateTime(reader["gate_arrival_date"]);
-            operation.WorkStartDate = Utils.DbValueToDateTime(reader["work_start_date"]);
-            operation.WorkFinishDate = Utils.DbValueToDateTime(reader["work_finish_date"]);
-            operation.GateDepartureDate = Utils.DbValueToDateTime(reader["gate_departure_date"]);
-            operation.PlanFinishDate = Utils.DbValueToDateTime(reader["plan_finish_date"]);
-            operation.FactFinishDate = Utils.DbValueToDateTime(reader["fact_finish_date"]);
+            operation.FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
+            operation.FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
+            operation.StartDate = Utils.DbValueToDateTime(reader["start_date"]);
+            operation.FinishDate = Utils.DbValueToDateTime(reader["finish_date"]);
 
             var logistId = Utils.DbValueToInt(reader["logist_id"]);
             operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
@@ -525,12 +518,10 @@ namespace TSLog.Yard.Data
                     var sql =
                         $"select o.id, " +
                         $"       o.type_id,  o.type_code, o.type_name, " +
-                        $"       o.plan_start_date, o.fact_start_date, " +
-                        $"       o.gate_arrival_date, " +
-                        $"       o.work_start_date, o.work_finish_date, " +
-                        $"       o.gate_departure_date, " +
-                        $"       o.plan_finish_date, o.fact_finish_date, " +
-                        $"       o.workers_count, " +
+                        $"       o.start_date, " +
+                        $"       o.plan_work_start_date, o.plan_work_finish_date, " +
+                        $"       o.fact_work_start_date, o.fact_work_finish_date, " +
+                        $"       o.finish_date, " +                        
                         $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
                         $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, " +
                         $"       o.driver_name, " +
@@ -568,14 +559,12 @@ namespace TSLog.Yard.Data
                         $"       po.type_id, " +
                         $"       po.type_code, " +
                         $"       po.type_name, " +
-                        $"       po.plan_start_date, " +
-                        $"       po.fact_start_date, " +
-                        $"       po.gate_arrival_date, " +
-                        $"       po.work_start_date, " +
-                        $"       po.work_finish_date, " +
-                        $"       po.gate_departure_date, " +
-                        $"       po.plan_finish_date, " +
-                        $"       po.fact_finish_date, " +
+                        $"       po.start_date, " +
+                        $"       po.plan_work_start_date, " +
+                        $"       po.fact_work_start_date, " +
+                        $"       po.plan_work_finish_date, " +
+                        $"       po.fact_work_finish_date, " +
+                        $"       po.finish_date, " +
                         $"       po.workers_count, " +
                         $"       po.vehicle_kind_id, " +
                         $"       po.vehicle_kind_code, " +
@@ -680,9 +669,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select distinct partner_id, op.plan_start_date, op.plan_finish_date " +
+                        $"select distinct partner_id, op.plan_work_start_date, op.plan_work_finish_date " +
                         $"  from {YardSchema}.v_operation_partner op " +
-                        $" where not (op.plan_start_date > :finish_date or op.plan_finish_date < :start_date)";
+                        $" where not (op.plan_work_start_date > :finish_date or op.plan_work_finish_date < :start_date)";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, to));
@@ -730,9 +719,8 @@ namespace TSLog.Yard.Data
             {
                 var sql = $"select {YardSchema}.edit_operation(:p_id," +
                     $":p_type_code," +
-                    $":p_plan_start_date," +
-                    $":p_plan_finish_date," +
-                    $":p_workers_count," +
+                    $":p_plan_work_start_date," +
+                    $":p_plan_work_finish_date," +
                     $":p_vehicle_kind_code," +
                     $":p_vehicle_brand," +
                     $":p_vehicle_model," +
@@ -746,9 +734,8 @@ namespace TSLog.Yard.Data
 
                 command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
                 command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
-                command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanStartDate));
-                command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanFinishDate));
-                command.Parameters.Add(CreateParameter("p_workers_count", NpgsqlDbType.Smallint, operation.WorkersCount));
+                command.Parameters.Add(CreateParameter("p_plan_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
+                command.Parameters.Add(CreateParameter("p_plan_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
                 command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
                 command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
                 command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
@@ -778,20 +765,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
             connection.Close();
-        }
-        public void MoveToGate(Operation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.operation_to_gate(:p_id);";
-            command.CommandText = sql;
-            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-            command.ExecuteScalar();
-            connection.Close();
-        }
+        }        
         public void SetResponsibleOfficer(Operation operation, Employee officer) 
         {
             if (operation == null)
@@ -831,19 +805,6 @@ namespace TSLog.Yard.Data
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
             var sql = $"select {YardSchema}.finish_operation_work(:p_id);";
-            command.CommandText = sql;
-            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-            command.ExecuteScalar();
-            connection.Close();
-        }
-        public void LeaveGate(Operation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.operation_leave_gate(:p_id);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();

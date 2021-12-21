@@ -12,7 +12,6 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Operation : Entity
     {
-        private const short DefauktWorkersCount = 2;
         private const short DefaultPriority = 1;
         private const short DefaultDuration = 60;
         /// <summary>
@@ -34,41 +33,23 @@ namespace TSLog.Yard.BO
         /// </summary>
         public OperationType Type { get; set; }
         /// <summary>
-        /// Планования дата и время начала
-        /// </summary>
-        public DateTime PlanStartDate { get; set; }
-        /// <summary>
         /// Фактическая дата и время начала
         /// </summary>
-        public DateTime FactStartDate { get; set; }
+        public DateTime StartDate { get; set; }
         /// <summary>
-        /// Дата и время постановки на ворота
+        /// Плановая дата и время начала непосредственно работ
         /// </summary>
-        public DateTime GateArrivalDate { get; set; }
+        public DateTime PlanWorkStartDate { get; private set; }
+        public DateTime FactWorkStartDate { get; set; }
         /// <summary>
-        /// Дата и время начала непосредственно работ
+        /// Плановая дата и время окончания непосредственно работ
         /// </summary>
-        public DateTime WorkStartDate { get; set; }
-        /// <summary>
-        /// Дата и время окончания непосредственно работ
-        /// </summary>
-        public DateTime WorkFinishDate { get; set; }
-        /// <summary>
-        /// Дата и время отбытия автомашины с ворот
-        /// </summary>
-        public DateTime GateDepartureDate { get; set; }
-        /// <summary>
-        /// Плановая дата и время окончания
-        /// </summary>
-        public DateTime PlanFinishDate { get; set; }
+        public DateTime PlanWorkFinishDate { get; private set; }
+        public DateTime FactWorkFinishDate { get; set; }
         /// <summary>
         /// Фактическая дата и время окончания
         /// </summary>
-        public DateTime FactFinishDate { get; set; }
-        /// <summary>
-        /// Количество работников для выполнения операции
-        /// </summary>
-        public short WorkersCount { get; set; }
+        public DateTime FinishDate { get; set; }
         /// <summary>
         /// Вид автомашины
         /// </summary>
@@ -116,8 +97,7 @@ namespace TSLog.Yard.BO
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
-            DateTime planStartDate, DateTime planFinishDate,
-            short workersCount,
+            DateTime planWorkStartDate, DateTime planWorkFinishDate,
             Entity vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
             Entity state,
             short priority,
@@ -125,9 +105,8 @@ namespace TSLog.Yard.BO
             : base(id, code)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
-            PlanStartDate = planStartDate;
-            PlanFinishDate = planFinishDate;
-            WorkersCount = workersCount > 0 ? workersCount : DefauktWorkersCount;
+            PlanWorkStartDate = planWorkStartDate;
+            PlanWorkFinishDate = planWorkFinishDate;
             VehicleKind = vehicleKind ?? throw new ArgumentNullException(nameof(vehicleKind));
             if (string.IsNullOrWhiteSpace(vehicleBrand))
                 throw new ArgumentException("vehicle brand is empty");
@@ -148,9 +127,8 @@ namespace TSLog.Yard.BO
         private Operation() : base()
         {
             Type = OperationType.Empty;
-            PlanStartDate = DateTime.Today.AddMinutes(9 * 60);
-            PlanFinishDate = DateTime.Today.AddMinutes(9 * 60 + DefaultDuration);
-            WorkersCount = DefauktWorkersCount;
+            PlanWorkStartDate = DateTime.Today.AddMinutes(9 * 60);
+            PlanWorkFinishDate = DateTime.Today.AddMinutes(9 * 60 + DefaultDuration);
             VehicleKind = Entity.Empty;
             VehicleBrand = string.Empty;
             VehicleModel = string.Empty;
@@ -204,30 +182,29 @@ namespace TSLog.Yard.BO
 
         public string GetStartTime()
         {
-            return (PlanStartDate == DateTime.MinValue ? "" : $"план. {PlanStartDate:dd.MM.yyyy HH:mm:ss}") + 
-                (FactStartDate == DateTime.MinValue ? "" : $" (факт.: {FactStartDate:dd.MM.yyyy HH:mm:ss})");
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm:ss}") + 
+                (FactWorkStartDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkStartDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetFinishTime()
         {
-            return (PlanFinishDate == DateTime.MinValue ? "" : $"план. {PlanFinishDate:dd.MM.yyyy HH:mm:ss}") + (FactFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactFinishDate:dd.MM.yyyy HH:mm:ss})");
+            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"план. {PlanWorkFinishDate:dd.MM.yyyy HH:mm:ss}") + 
+                (FactWorkFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkFinishDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetGateTime()
         {
-            var from = GateArrivalDate == DateTime.MinValue ? "//" : $"{GateArrivalDate:dd.MM.yyyy HH:mm:ss}";
-            var to = GateDepartureDate == DateTime.MinValue ? "//" : $"{GateDepartureDate:dd.MM.yyyy HH:mm:ss}";
-            return $"{from} - {to}";
+            throw new NotImplementedException();
         }
         public string GetWorkTime()
         {
-            var from = WorkStartDate == DateTime.MinValue ? "//" : $"{WorkStartDate:dd.MM.yyyy HH:mm:ss}";
-            var to = (WorkFinishDate == DateTime.MinValue) ? "//" : $"{WorkFinishDate:dd.MM.yyyy HH:mm:ss}";
+            var from = FactWorkStartDate == DateTime.MinValue ? "//" : $"{FactWorkStartDate:dd.MM.yyyy HH:mm:ss}";
+            var to = (FactWorkFinishDate == DateTime.MinValue) ? "//" : $"{FactWorkFinishDate:dd.MM.yyyy HH:mm:ss}";
             return $"{from} - {to}";
         }
 
         public string GetPlanTime()
         {
-            var from = PlanStartDate == DateTime.MinValue ? "//" : $"{PlanStartDate:HH:mm:ss}";
-            var to = (PlanFinishDate == DateTime.MinValue) ? "//" : $"{PlanFinishDate:HH:mm:ss}";
+            var from = PlanWorkStartDate == DateTime.MinValue ? "//" : $"{PlanWorkStartDate:HH:mm:ss}";
+            var to = (PlanWorkFinishDate == DateTime.MinValue) ? "//" : $"{PlanWorkFinishDate:HH:mm:ss}";
             return $"{from} - {to}";
         }
         public Partner[] GetPartners()
@@ -251,7 +228,6 @@ namespace TSLog.Yard.BO
                 if (_null == null)
                     _null = new Operation(-1, string.Empty, OperationType.Null, 
                         DateTime.MinValue, DateTime.MinValue,
-                        -1,
                         Entity.Null, "NULL", "NULL", "NULL", "NULL",
                         Entity.Null,
                         -1,
