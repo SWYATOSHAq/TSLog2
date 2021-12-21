@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TSLog.BO\TSLog.Common.BO.csproj" />
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
   </ItemGroup>
 
