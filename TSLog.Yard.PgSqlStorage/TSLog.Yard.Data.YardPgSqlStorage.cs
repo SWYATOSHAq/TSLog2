@@ -58,10 +58,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var SelectGateByIdSql = 
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
                         $"  from {YardSchema}.v_gate g where g.id = :id";
-                    command.CommandText = sql;
+                    command.CommandText = SelectGateByIdSql;
                     command.Parameters.Add(new NpgsqlParameter("id", id));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
@@ -89,10 +89,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var SelectGateByCodeSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
                         $"  from {YardSchema}.v_gate g where g.code = :code";
-                    command.CommandText = sql;
+                    command.CommandText = SelectGateByCodeSql;
                     command.Parameters.Add(new NpgsqlParameter("code", code));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
@@ -115,9 +115,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText =
+                    var SelectGatesSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
                         $"  from {YardSchema}.v_gate g";
+                    command.CommandText = SelectGatesSql;                        
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -159,10 +160,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var SelectLogistByIdSql =
                         $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
                         $"  from {YardSchema}.v_logist l where l.id = :id";
-                    command.CommandText = sql;
+                    command.CommandText = SelectLogistByIdSql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
@@ -190,10 +191,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var SelectLogistByCodeSql =
                         $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
                         $"  from {YardSchema}.v_logist l where l.code = :code";
-                    command.CommandText = sql;
+                    command.CommandText = SelectLogistByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
@@ -216,10 +217,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var SelectLogistsSql =
                         $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
                         $"  from {YardSchema}.v_logist l";
-                    command.CommandText = sql;
+                    command.CommandText = SelectLogistsSql;
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -236,18 +237,24 @@ namespace TSLog.Yard.Data
         private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
         public Entity GetOperationState(int id)
         {
-            var sql = $"select * from {YardSchema}.v_operation_state os where os.id = :id";
-            return GetEntity(id, sql, _operationStates);
+            var SelectOperationStateByIdSql = 
+                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
+                $"  from {YardSchema}.v_operation_state os where os.id = :id";
+            return GetEntity(id, SelectOperationStateByIdSql, _operationStates);
         }
         public Entity GetOperationState(string code)
         {
-            var sql = $"select * from {YardSchema}.v_operation_state os where os.code = :code";
-            return GetEntity(code, sql, _operationStates);
+            var SelectOperationStateByCodeSql =
+                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
+                $"from {YardSchema}.v_operation_state os where os.code = :code";
+            return GetEntity(code, SelectOperationStateByCodeSql, _operationStates);
         }
         public Entity[] GetOperationStates()
         {
-            var sql = $"select * from {YardSchema}.v_operation_state os";
-            return GetEntities(sql);
+            var SelectOperationStatesSql =
+                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
+                $"from {YardSchema}.v_operation_state os";
+            return GetEntities(SelectOperationStatesSql);
         }
 
         private readonly Catalog<OperationType> _operationTypes = new("OPERATION_TYPES", "Типы операций двора");
@@ -279,12 +286,12 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var SelectOperationTypeByIdSql = 
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
-                        $"       ot.time, ot.workers_count, ot.note " +
+                        $"       ot.time, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot " +
                         $" where ot.id = :id";
-                    command.CommandText = sql;
+                    command.CommandText = SelectOperationTypeByIdSql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
@@ -312,12 +319,12 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var SelectOperationTypeByCodeSql = 
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " + 
-                        $"       ot.time, ot.workers_count, ot.note " + 
+                        $"       ot.time, ot.note " + 
                         $"  from {YardSchema}.v_operation_type ot " + 
                         $" where ot.code = :code";
-                    command.CommandText = sql;
+                    command.CommandText = SelectOperationTypeByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
@@ -342,12 +349,12 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var SelectOperationTypesByPartnerSql =
                         $"select pot.id, pot.direction, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name, " +
-                        $"       pot.time, pot.workers_count, pot.note " +
+                        $"       pot.time, pot.note " +
                         $"  from {YardSchema}.v_partner_operation_type pot " +
                         $" where pot.partner_id = :partner_id";
-                    command.CommandText = sql;
+                    command.CommandText = SelectOperationTypesByPartnerSql;
                     command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -368,11 +375,11 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var SelectOperationTypesSql =
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
-                        $"       ot.time, ot.workers_count, ot.note " +
+                        $"       ot.time, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot";
-                    command.CommandText = sql;                        
+                    command.CommandText = SelectOperationTypesSql;                        
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -389,18 +396,24 @@ namespace TSLog.Yard.Data
         private readonly Catalog<Entity> _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
         public Entity GetVehicleKind(int id)
         {
-            var sql = $"select * from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
-            return GetEntity(id, sql, _vihicleKinds);
+            var SelectVehicleKindByIdSql = 
+                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
+            return GetEntity(id, SelectVehicleKindByIdSql, _vihicleKinds);
         }
         public Entity GetVehicleKind(string code)
         {
-            var sql = $"select * from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
-            return GetEntity(code, sql, _vihicleKinds);
+            var SelectVehicleKindByCodeSql =
+                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
+            return GetEntity(code, SelectVehicleKindByCodeSql, _vihicleKinds);
         }
         public Entity[] GetVehicleKinds()
         {
-            var sql = $"select * from {YardSchema}.v_vehicle_kind vk";
-            return GetEntities(sql);
+            var SelectVehicleKindsSql =
+                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                $"from {YardSchema}.v_vehicle_kind vk";
+            return GetEntities(SelectVehicleKindsSql);
         }
 
         public delegate Partner GetPartnerByIdDelegate(string id);

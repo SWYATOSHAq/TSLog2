@@ -34,45 +34,53 @@ namespace TSLog.Yard.Data
         }
         public WarehouseAction GetAction(ActionKind actionKind, string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("action id is empty");
+            id = id.Trim();
+            var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
-                var sql = 
+                var SelectWarehouseActionByIdSql = 
                     $"select a.id, a.action_kind, a.partner_id " +
                     $"  from {CommonSchema}.v_warehouse_action a " +
                     $" where a.id = :id " +                    
                     $"   and a.action_kind = :action_kind";
+                command.CommandText = SelectWarehouseActionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));                
                 command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
-                {
-                    var action = CreateAction(reader);
-                    return action;
-                }
+                    action = CreateAction(reader);
                 reader.Close();
             }
+            if (action != null && action != WarehouseAction.Null)
+                return action;
             throw new WarehouseActionNotFoundException(id);
         }
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId)
         {
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            partnerActionId = partnerActionId.Trim();
+            var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
-                var sql = $"select a.id, a.partner_id " +
+                var SelectWarehouseActionByPartnerActionIdSql = $"select a.id, a.partner_id " +
                     $"from {CommonSchema}.v_warehouse_action a " +
                     $"where a.partner_number = :partner_number " +
                     $"and a.partner_id = :partner_id" +
                     $"and a.action_kind = :action_kind";
+                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("partner_number", partnerActionId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
-                {
-                    var action = CreateAction(reader);
-                    return action;
-                }
+                    action = CreateAction(reader);
                 reader.Close();
             }
+            if (action != null && action != WarehouseAction.Null)
+                return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
         private Partner CreatePartner(DbDataReader reader)
