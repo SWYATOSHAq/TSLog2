@@ -8,6 +8,9 @@ using System.Text.RegularExpressions;
 
 namespace TSLog.Common
 {
+    /// <summary>
+    /// Общий функционал
+    /// </summary>
     public static class Utils
     {
         public static string PrepXML(string a)
@@ -85,7 +88,17 @@ namespace TSLog.Common
             return !string.IsNullOrWhiteSpace(result) ? result : number;
         }
 
-        // Шифрование
+        /// <summary>
+        /// Шифрование
+        /// </summary>
+        /// <param name="plainText"></param>
+        /// <param name="password"></param>
+        /// <param name="salt"></param>
+        /// <param name="hashAlgorithm"></param>
+        /// <param name="passwordIterations"></param>
+        /// <param name="initialVector"></param>
+        /// <param name="keySize"></param>
+        /// <returns></returns>
         public static string Encrypt(string plainText, string password, string salt = "Kosher", string hashAlgorithm = "SHA1",
             int passwordIterations = 2, string initialVector = "OFRna73m*aze01xY", int keySize = 256)
         {
@@ -104,21 +117,29 @@ namespace TSLog.Common
             byte[] cipherTextBytes = null;
             using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, initialVectorBytes))
             {
-                using (var memStream = new MemoryStream())
-                {
-                    using var cryptoStream = new CryptoStream(memStream, encryptor, CryptoStreamMode.Write);
-                    cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-                    cryptoStream.FlushFinalBlock();
-                    cipherTextBytes = memStream.ToArray();
-                    memStream.Close();
-                    cryptoStream.Close();
-                }
+                using var memStream = new MemoryStream();
+                using var cryptoStream = new CryptoStream(memStream, encryptor, CryptoStreamMode.Write);
+                cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
+                cryptoStream.FlushFinalBlock();
+                cipherTextBytes = memStream.ToArray();
+                memStream.Close();
+                cryptoStream.Close();
             }
             symmetricKey.Clear();
             return Convert.ToBase64String(cipherTextBytes);
         }
 
-        // Дешифрование
+        /// <summary>
+        /// Дешифрование
+        /// </summary>
+        /// <param name="cipherText"></param>
+        /// <param name="password"></param>
+        /// <param name="salt"></param>
+        /// <param name="hashAlgorithm"></param>
+        /// <param name="passwordIterations"></param>
+        /// <param name="initialVector"></param>
+        /// <param name="keySize"></param>
+        /// <returns></returns>
         public static string Decrypt(string cipherText, string password, string salt = "Kosher", string hashAlgorithm = "SHA1",
             int passwordIterations = 2, string initialVector = "OFRna73m*aze01xY", int keySize = 256)
         {
@@ -153,7 +174,11 @@ namespace TSLog.Common
             return Encoding.UTF8.GetString(plainTextBytes, 0, byteCount);
         }
 
-        // Вычисление хэша md5
+        /// <summary>
+        /// Вычисление хэша md5
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string CalculateMd5Hash(string input)
         {
             var md5 = MD5.Create();
@@ -164,7 +189,11 @@ namespace TSLog.Common
             return stringBuilder.ToString();
         }
 
-        // Формирует адрес из элементов
+        /// <summary>
+        /// Формирует адрес из элементов
+        /// </summary>
+        /// <param name="elements"></param>
+        /// <returns></returns>
         public static string FormAddress(string[] elements)
         {
             var address = string.Empty;

@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TSLog.BO\TSLog.Common.BO.csproj" />
     <ProjectReference Include="..\TSLog.Links.Gs1EdiXmlConverter\TSLog.Links.Gs1EdiXml.csproj" />
     <ProjectReference Include="..\TSLog.Links.OracleStorage\TSLog.Links.OracleStorage.csproj" />
     <ProjectReference Include="..\TSlog.Links.PSI.DataConverter\TSLog.Links.PSI.DataConverter.csproj" />
