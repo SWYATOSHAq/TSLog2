@@ -8,7 +8,6 @@ namespace TSLog.Yard.BO
     public class OperationType : Entity
     {
         private const int DefaultTime = 60;
-        private const short DefaultWorkersCount = 2;
         /// <summary>
         /// Приход, расход
         /// </summary>
@@ -28,23 +27,20 @@ namespace TSLog.Yard.BO
         /// </summary>
         public TypeDirection Direction { get; private set; } 
         public OperationType(long id, TypeDirection direction, 
-            string code, string name, string shortName, string altName, string displayName, int time, short workersCount, string note, 
+            string code, string name, string shortName, string altName, string displayName, int time, string note, 
             bool isActive = true) 
             : base(id, code, name, shortName, altName, displayName, note, isActive)
         {
             Direction = direction;
             Time = time > 0 ? time : DefaultTime;
-            WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
         }
         private OperationType() : base()
         { 
             Direction = TypeDirection.Out;
             Time = 0;
-            WorkersCount = 0;
         }
 
         public int Time { get; private set; }
-        public short WorkersCount { get; private set; }
         public string GetFormattedTime()
         {
             return new TimeSpan(0, Time, 0).ToString(@"hh\:mm\:ss");
@@ -65,7 +61,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new OperationType(-1, TypeDirection.Out, "NULL", "NULL", "NULL", "NULL", "NULL", 60, 2, "NULL");
+                    _null = new OperationType(-1, TypeDirection.Out, "NULL", "NULL", "NULL", "NULL", "NULL", DefaultTime, "NULL");
                 return _null;
             }
         }

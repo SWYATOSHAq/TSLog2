@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TSLog.BO\TSLog.Common.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Common.BO\TSLog.Common.BO.csproj" />
     <ProjectReference Include="..\TSLog.Common\TSLog.Common.csproj" />
     <ProjectReference Include="..\TSLog.ExceptionHandler\TSLog.ExceptionHandler.csproj" />
   </ItemGroup>

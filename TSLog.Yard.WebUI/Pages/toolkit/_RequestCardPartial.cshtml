@@ -42,7 +42,6 @@
     textDataHeader.Add("Ответственный", (cardData.Manager?.DisplayName, true));
     textDataHeader.Add("Ответственный (склад)", (cardData.ResponsibleOfficer?.DisplayName, false));
     textDataHeader.Add("Состояние", (cardData.State?.DisplayName, true));
-    textDataHeader.Add("Количество работников", ($"{cardData.WorkersCount}", true));
 
 
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
@@ -57,8 +56,7 @@
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
 
-    var workerTable = (cardData.WorkersCount, true);
-
+    var workerTable = (0, true);
 }
 
 <div class="col p-2 m-3 shadow">

@@ -20,9 +20,11 @@ namespace TSLog.Yard
         public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase)
         {
             _oracleStorage = new YardOracleStorage(oracleDataSource);
-            _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase);
-            _pgsqlStorage.GetEmployeeById = _oracleStorage.GetEmployee;
-            _pgsqlStorage.GetPartnerById = _oracleStorage.GetPartner;
+            _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase)
+            {
+                GetEmployeeById = _oracleStorage.GetEmployee,
+                GetPartnerById = _oracleStorage.GetPartner
+            };
         }
         public void ConnectOracle(string userName, string password)
         {
@@ -62,6 +64,18 @@ namespace TSLog.Yard
         public Employee[] GetEmployees()
         {
             return _oracleStorage.GetEmployees();
+        }
+        public Position GetPosition(int id)
+        {
+            return _oracleStorage.GetPosition(id);
+        }
+        public Position GetPosition(string code)
+        {
+            return _oracleStorage.GetPosition(code);
+        }
+        public Position[] GetPositions()
+        {
+            return _oracleStorage.GetPositions();
         }
         public Gate GetGate(int id)
         {
@@ -169,11 +183,7 @@ namespace TSLog.Yard
         public void StartOperation(Operation operation)
         {
             _pgsqlStorage.StartOperation(operation);
-        }
-        public void MoveToGate(Operation operation)
-        {
-            _pgsqlStorage.MoveToGate(operation);
-        }
+        }        
         public void StartOperationWork(Operation operation)
         {
             _pgsqlStorage.StartOperationWork(operation);
@@ -181,10 +191,6 @@ namespace TSLog.Yard
         public void FinishOperationWork(Operation operation)
         {
             _pgsqlStorage.FinishOperationWork(operation);
-        }
-        public void LeaveGate(Operation operation)
-        {
-            _pgsqlStorage.LeaveGate(operation);
         }
         public void FinishOperation(Operation operation)
         {
