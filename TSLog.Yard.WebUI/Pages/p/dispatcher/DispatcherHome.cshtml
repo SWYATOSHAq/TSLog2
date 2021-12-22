@@ -3,84 +3,11 @@
 @model DispatcherHomeModel
 
 @{
-    ViewData["PanelLink1Name"] = "Список заявок";
-    ViewData["PanelLink1Path"] = "DispatcherHome";
-
-    ViewData["PanelLink2Name"] = "";
-    ViewData["PanelLink2Path"] = "";
-
     ViewData["Title"] = "Панель администратора";
 
     var storage = Model.yardStorage;
 
+    var home = (storage, true, Request);
 }
 
-<input type='button' value='Submit form' onClick='submitDetailsForm()' />
-
-<script language="javascript" type="text/javascript">
-    //$("#theform").on("submit", function (e) {
-    //    e.preventDefault();
-    //}
-
-    function submitDetailsForm() {
-       //$.post('~/api/v1/YardOperationData', $('#theform').serialize());
-       $("#theform").submit();
-       return false;
-    }
-</script>
-
-<form method="post" action="~/api/v1/YardOperationData" id="theform">
-    <p><b>Как по вашему мнению расшифровывается аббревиатура &quot;ОС&quot;?</b></p>
-    <p>
-        <input type="radio" name="operation_id" value="a1" checked>Офицерский состав<Br>
-        <input type="radio" name="operation_id" value="a2">Операционная система<Br>
-        <input type="radio" name="operation_id" value="a3">Большой полосатый мух
-    </p>
-</form>
-
-
-@{
-    var gateslist = (storage.GetGates(), "", false, true);
-
-    var operarationsList = (storage.GetOperations(DateTime.Now.Date, DateTime.Now.AddDays(1).AddTicks(-1), null), true);
-
-    string operationID = Request.Query["id"];
-    Operation selectedYardOperation = Operation.Empty;
-    long tmpID = 0;
-    if (long.TryParse(operationID, out tmpID))
-    {
-        selectedYardOperation = storage.GetOperation(tmpID);
-    }
-    else
-    {
-        selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
-    }
-
-
-    var operationToRender = (selectedYardOperation, storage);
-
-}
-
-<!--  -->
-<div class="row p-2 m-3">
-    <div class="col-4 p-4 m-3 shadow hide-on-print">
-        <div class="row p-2 m-3">
-            <!--  -->
-            <input type="text"
-                   id="dp1"
-                   class="datepicker border border-secondary col-5 m-1"
-                   placeholder="Выберете дату"
-                   ne="date"
-                   readonly />
-            <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
-            <!--  -->
-        </div>
-        <div class="row p-2 m-1 ">
-            <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
-        </div>
-
-        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
-
-    </div>
-    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
-</div>
+<partial name="toolkit/_HomePartial" model="home" />

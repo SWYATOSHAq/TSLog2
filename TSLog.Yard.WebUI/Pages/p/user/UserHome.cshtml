@@ -4,42 +4,8 @@
 @{
     ViewData["Title"] = "Список заявок";
     var storage = Model.yardStorage;
-}
-@{
-    var gateslist = (storage.GetGates(), "", false, true);
 
-    var operarationsList = (storage.GetOperations(DateTime.Now.Date, DateTime.Now.AddDays(1).AddTicks(-1), null), true);
-
-    string operationID = Request.Query["id"];
-    Operation selectedYardOperation = Operation.Empty;
-    long tmpID = 0;
-    if (long.TryParse(operationID, out tmpID))
-    {
-        selectedYardOperation = storage.GetOperation(tmpID);
-    }
-    else
-    {
-        selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
-    }
-
-
-    var operationToRender = (selectedYardOperation, storage);
-
+    var home = (storage, false, Request);
 }
 
-<!--  -->
-<div class="row p-2 m-3">
-    <div class="col-4 p-4 m-3 shadow">
-        <div class="row p-2 m-3">
-            <!--  -->
-            <input type="text"
-                   id="dp1"
-                   class="datepicker border border-secondary col-11 m-1"
-                   placeholder="Выберете дату"
-                   ne="date"
-                   readonly />
-        </div>
-        <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
-    </div>
-    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
-</div>
+<partial name="toolkit/_HomePartial" model="home" />

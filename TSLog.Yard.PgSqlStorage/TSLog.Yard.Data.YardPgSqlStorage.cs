@@ -58,7 +58,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var SelectGateByIdSql = 
+                    var SelectGateByIdSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
                         $"  from {YardSchema}.v_gate g where g.id = :id";
                     command.CommandText = SelectGateByIdSql;
@@ -118,7 +118,7 @@ namespace TSLog.Yard.Data
                     var SelectGatesSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
                         $"  from {YardSchema}.v_gate g";
-                    command.CommandText = SelectGatesSql;                        
+                    command.CommandText = SelectGatesSql;
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -237,7 +237,7 @@ namespace TSLog.Yard.Data
         private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
         public Entity GetOperationState(int id)
         {
-            var SelectOperationStateByIdSql = 
+            var SelectOperationStateByIdSql =
                 $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
                 $"  from {YardSchema}.v_operation_state os where os.id = :id";
             return GetEntity(id, SelectOperationStateByIdSql, _operationStates);
@@ -286,7 +286,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var SelectOperationTypeByIdSql = 
+                    var SelectOperationTypeByIdSql =
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
                         $"       ot.time, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot " +
@@ -319,10 +319,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var SelectOperationTypeByCodeSql = 
-                        $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " + 
-                        $"       ot.time, ot.note " + 
-                        $"  from {YardSchema}.v_operation_type ot " + 
+                    var SelectOperationTypeByCodeSql =
+                        $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
+                        $"       ot.time, ot.note " +
+                        $"  from {YardSchema}.v_operation_type ot " +
                         $" where ot.code = :code";
                     command.CommandText = SelectOperationTypeByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
@@ -379,7 +379,7 @@ namespace TSLog.Yard.Data
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
                         $"       ot.time, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot";
-                    command.CommandText = SelectOperationTypesSql;                        
+                    command.CommandText = SelectOperationTypesSql;
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -396,7 +396,7 @@ namespace TSLog.Yard.Data
         private readonly Catalog<Entity> _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
         public Entity GetVehicleKind(int id)
         {
-            var SelectVehicleKindByIdSql = 
+            var SelectVehicleKindByIdSql =
                 $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
                 $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
             return GetEntity(id, SelectVehicleKindByIdSql, _vihicleKinds);
@@ -473,7 +473,8 @@ namespace TSLog.Yard.Data
 
                 var actions = operation.GetActions();
                 // TODO: syncronize actions
-                connection.Close();            }
+                connection.Close();
+            }
             return operation;
         }
         private Operation CreateOperation(DbDataReader reader)
@@ -514,7 +515,7 @@ namespace TSLog.Yard.Data
 
             var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
             operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
-            
+
             operation.Note = Convert.ToString(reader["note"]);
 
             var actions = GetActions(operation);
@@ -534,7 +535,8 @@ namespace TSLog.Yard.Data
                         $"       o.start_date, " +
                         $"       o.plan_work_start_date, o.plan_work_finish_date, " +
                         $"       o.fact_work_start_date, o.fact_work_finish_date, " +
-                        $"       o.finish_date, " +                        
+                        $"       o.start_date, o.finish_date, " +
+                        $"       o.finish_date, " +
                         $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
                         $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, " +
                         $"       o.driver_name, " +
@@ -600,8 +602,8 @@ namespace TSLog.Yard.Data
                         $"       po.responsible_officer_id, " +
                         $"       po.note " +
                         $"  from {YardSchema}.v_partner_operation po " +
-                        $" where po.plan_start_date between :from_date and :to_date " +
-                        $"   and po.plan_finish_date between :from_date and :to_date " +
+                        $" where po.plan_work_start_date between :from_date and :to_date " +
+                        $"   and po.plan_work_finish_date between :from_date and :to_date " +
                         $"   and po.partner_id = :partner_id";
                     foreach (var partner in partners)
                     {
@@ -621,20 +623,17 @@ namespace TSLog.Yard.Data
                 }
                 else
                 {
-                    var sql = 
+                    var sql =
                         $"select distinct o.id, " +
                         $"       o.type_id, " +
                         $"       o.type_code, " +
                         $"       o.type_name, " +
-                        $"       o.plan_start_date, " +
-                        $"       o.fact_start_date, " +
-                        $"       o.gate_arrival_date, " +
-                        $"       o.work_start_date, " +
-                        $"       o.work_finish_date, " +
-                        $"       o.gate_departure_date, " +
-                        $"       o.plan_finish_date, " +
-                        $"       o.fact_finish_date, " +
-                        $"       o.workers_count, " +
+                        $"       o.plan_work_start_date, " +
+                        $"       o.fact_work_start_date, " +
+                        $"       o.plan_work_finish_date, " +
+                        $"       o.fact_work_finish_date, " +
+                        $"       o.start_date, " +
+                        $"       o.finish_date, " +
                         $"       o.vehicle_kind_id, " +
                         $"       o.vehicle_kind_code, " +
                         $"       o.vehicle_kind_name, " +
@@ -656,8 +655,8 @@ namespace TSLog.Yard.Data
                         $"       o.responsible_officer_id, " +
                         $"       o.note " +
                         $"  from {YardSchema}.v_operation o " +
-                        $" where o.plan_start_date between :from_date and :to_date " +
-                        $"   and o.plan_finish_date between :from_date and :to_date";
+                        $" where o.plan_work_start_date between :from_date and :to_date " +
+                        $"   and o.plan_work_finish_date between :from_date and :to_date";
                     using var command = connection.CreateCommand();
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
@@ -778,8 +777,8 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.ExecuteScalar();
             connection.Close();
-        }        
-        public void SetResponsibleOfficer(Operation operation, Employee officer) 
+        }
+        public void SetResponsibleOfficer(Operation operation, Employee officer)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -904,7 +903,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var sql =
                         $"select oa.operation_id, oa.action_kind, oa.action_id, oa.partner_id, oa.partner_action_id " +
                         $"  from {YardSchema}.v_operation_action oa " +
                         $" where oa.operation_id = :operation_id";

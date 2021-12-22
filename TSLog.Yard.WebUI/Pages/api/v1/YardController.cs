@@ -50,7 +50,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string operationDate = Request.Query["date"];
             string partnerID = Request.Query["partner_id"];
 
-            var partner = yardStorage.GetPartner(partnerID);
+            Partner partner = null;
+            if (partnerID != null)
+            {
+                partner = yardStorage.GetPartner(partnerID);
+            }
 
             var searchPartners = (partner == null || partner == Partner.Null) ? null : new Partner[] { partner };
 
@@ -72,7 +76,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             string operationID = Request.Form["operation_id"];
 
-            var Text = "fuuuuuuuuuuuuuuuuuck";
+            var Text = "";
 
             if (operationID != null || operationID != "")
             {
@@ -101,7 +105,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 short priority = 1;
 
 
-                var newOperation = new Operation(-1, null, type, startDate, finishDate, workersCount, vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, vehicleDriverName, state, priority, null);
+                var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, vehicleDriverName, state, priority, null);
 
                 yardStorage.AddOperation(newOperation);
                 yardStorage.SetOperationGate(newOperation); // TODO catch an erorr

@@ -1,10 +1,12 @@
 ﻿@using TSLog.Yard.BO
-@model (TSLog.Yard.BO.Operation, IYardStorage)
+@model (TSLog.Yard.BO.Operation, IYardStorage, bool)
 @{
     var cardData = Model.Item1;
     var storage = Model.Item2;
-    var isEnabled = false;
+    var isEnabled = Model.Item3;
     //-----------
+
+
 
     var gatesList = (storage.GetGates(),
         cardData.Gate?.Code,
@@ -34,7 +36,6 @@
     textDataHeader.Add("Наименование организации", ("Детский мир", true));
 
     textDataHeader.Add("Начало", (cardData.GetStartTime(), true));
-    textDataHeader.Add("Время на воротах", (cardData.GetGateTime(), false));
     textDataHeader.Add("Время работ", (cardData.GetWorkTime(), false));
     textDataHeader.Add("Уезд с территории", (cardData.GetFinishTime(), true));
 
@@ -56,24 +57,22 @@
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
 
-    var workerTable = (0, true);
+    var workerTable = (5, true);
 }
 
 <div class="col p-2 m-3 shadow">
     <div class="row p-2 m-3 ">
-        <h1 class="text-info">Просмотр</h1>
+        @if (cardData == Operation.Empty)
+        {
+        <h1 class="text-info hide-on-print">Создание</h1>
+        }
+        else
+        {
+        <h1 class="text-info hide-on-print">Просмотр</h1>
+        }
     </div>
     <!--  -->
     <partial name="toolkit/lists/_TextListPartial" model="textDataList" />
-    <!--  -->
-    <div class="row p-2 m-3 rem-outline-on-print">
-        <div class="input-group">
-            <span class="input-group-text col-3">Действие</span>
-            <input type="text" aria-label="Last name" class="form-control" @(isEnabled ? "disabled" : "") value="Отгрузка">
-        </div>
-
-    </div>
-
     <!--  -->
     <div class="row p-2 m-2 rem-outline-on-print">
         <partial name="toolkit/lists/_OperationDropdownPartial" model="operationList" />
@@ -82,11 +81,11 @@
     <div class="row p-2 m-2 rem-outline-on-print">
         <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
     </div>
-    <!--  -->
+    <!--
     <div class="row p-2 m-2 rem-outline-on-print">
         <partial name="toolkit/lists/_LogistDropdownPartial" model="logstList" />
     </div>
-    <!--  -->
+      -->
     <div class="row p-2 m-2 rem-outline-on-print">
         <partial name="toolkit/lists/_VehicleKindDropdownPartial" model="vehicleKindList" />
     </div>
@@ -97,7 +96,7 @@
     <!--  -->
     <div class="row p-2 m-2 d-flex justify-content-center">
 
-        @if (cardData == Operation.Null)
+        @if (cardData == Operation.Empty)
         {
             <div class="d-grid gap-2 col-4">
                 <button class="btn btn-success hide-on-print" type="button" onclick="Create()">создать</button>

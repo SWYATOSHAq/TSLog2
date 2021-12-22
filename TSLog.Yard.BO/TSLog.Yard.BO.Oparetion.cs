@@ -19,13 +19,13 @@ namespace TSLog.Yard.BO
         /// </summary>
         public new long Id
         {
-            get 
-            { 
-                return base.Id; 
+            get
+            {
+                return base.Id;
             }
-            set 
-            { 
-                base.Id = value; 
+            set
+            {
+                base.Id = value;
             }
         }
         /// <summary>
@@ -127,8 +127,8 @@ namespace TSLog.Yard.BO
         private Operation() : base()
         {
             Type = OperationType.Empty;
-            PlanWorkStartDate = DateTime.Today.AddMinutes(9 * 60);
-            PlanWorkFinishDate = DateTime.Today.AddMinutes(9 * 60 + DefaultDuration);
+            PlanWorkStartDate = DateTime.MinValue;
+            PlanWorkFinishDate = DateTime.MinValue;
             VehicleKind = Entity.Empty;
             VehicleBrand = string.Empty;
             VehicleModel = string.Empty;
@@ -182,12 +182,12 @@ namespace TSLog.Yard.BO
 
         public string GetStartTime()
         {
-            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm:ss}") + 
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm:ss}") +
                 (FactWorkStartDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkStartDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetFinishTime()
         {
-            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"план. {PlanWorkFinishDate:dd.MM.yyyy HH:mm:ss}") + 
+            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"план. {PlanWorkFinishDate:dd.MM.yyyy HH:mm:ss}") +
                 (FactWorkFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkFinishDate:dd.MM.yyyy HH:mm:ss})");
         }
         public string GetGateTime()
@@ -226,7 +226,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new Operation(-1, string.Empty, OperationType.Null, 
+                    _null = new Operation(-1, string.Empty, OperationType.Null,
                         DateTime.MinValue, DateTime.MinValue,
                         Entity.Null, "NULL", "NULL", "NULL", "NULL",
                         Entity.Null,

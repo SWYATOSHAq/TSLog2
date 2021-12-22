@@ -8,46 +8,26 @@
     // create new object
     Operation selectedYardOperation = Operation.Empty;
 
-    var operationToRender = (selectedYardOperation, storage);
+    var operationToRender = (selectedYardOperation, storage, false);
 
 
 }
 
 <!--  -->
 <div class="row p-2 m-3">
-    <div class="col-4 p-4 m-3 shadow">
+    <div class="col-4 p-4 m-3 shadow time-table  hide-on-print" id="time_table">
         <div class="row p-2 m-3">
             <!--  -->
-            <input type="text"
-                   id="dp1"
-                   class="datepicker border border-secondary"
-                   placeholder="Выберете дату"
-                   ne="date"
-                   readonly /><span class="fa fa-calendar"></span>
+            <input type="text" id="dp1" class="datepicker border border-secondary" placeholder="Выберете дату" ne="date" readonly=""><span class="fa fa-calendar"></span>
             <!--  -->
         </div>
-        <div class="row p-2">
-            <button class="btn btn-outline-secondary col p-2 m-3 shadow" disabled="disabled">9:00</button>
-            <button class="btn btn-outline-primary col p-2 m-3 shadow active" data-bs-toggle="button" aria-pressed="false" autocomplete="off">9:30</button>
+        <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="eror-text">
+            <strong>ошибка!</strong>
+            <p>Врямя уже занято, выберите другой промежуток времени</p>
         </div>
-        <div class="row p-2">
-            <button class="btn btn-info col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">10:00</button>
-            <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">10:30</button>
-        </div>
-        <div class="row p-2">
-            <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">11:00</button>
-            <button class="btn btn-outline-secondary col p-2 m-3 shadow" disabled="disabled">11:30</button>
-        </div>
-        <div class="row p-2">
-            <button class="btn btn-outline-secondary col p-2 m-3 shadow" disabled="disabled">12:00</button>
-            <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">12:30</button>
-        </div>
-        <div class="row p-2">
-            <button class="btn btn-outline-primary col p-2 m-3 shadow" data-bs-toggle="button" aria-pressed="false" autocomplete="off">13:00</button>
-            <button class="btn btn-outline-secondary col p-2 m-3 shadow" disabled="disabled">13:30</button>
-        </div>
-
 
     </div>
+
+
     <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
 </div>

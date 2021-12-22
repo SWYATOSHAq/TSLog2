@@ -1,0 +1,58 @@
+﻿@using TSLog.Yard.BO
+@model (IYardStorage, bool, HttpRequest)
+@{
+    var storage = Model.Item1;
+    var isAdmin = Model.Item2;
+    var request = Model.Item3;
+}
+@{
+    var gateslist = (storage.GetGates(), "", false, true);
+
+    string reqdate = request.Query["date"];
+    var selDate = reqdate != null ? DateTime.Parse(reqdate) : DateTime.Today;
+
+    var operarationsList = (storage.GetOperations(selDate.Date, selDate.AddDays(1).AddTicks(-1), null), true);
+
+    string operationID = request.Query["id"];
+    Operation selectedYardOperation = Operation.Empty;
+    long tmpID = 0;
+    if (long.TryParse(operationID, out tmpID))
+    {
+        selectedYardOperation = storage.GetOperation(tmpID);
+    }
+    else
+    {
+        selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
+    }
+
+
+    var operationToRender = (selectedYardOperation, storage, !isAdmin);
+
+}
+
+<!--  -->
+<div class="row p-2 m-3">
+    <div class="col-4 p-4 m-3 shadow hide-on-print">
+        <div class="row p-2 m-3">
+            <!--  -->
+            <input type="text"
+                   id="dp1"
+                   class="datepicker border border-secondary col-5 m-1"
+                   placeholder="Выберете дату"
+                   ne="date"
+                   readonly />
+            <button type="button" class="btn btn-primary col-6 m-1">информация по всем воротам</button>
+            <!--  -->
+        </div>
+        <div class="row p-2 m-1 ">
+            <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
+        </div>
+
+        <div class="cards-list">
+            <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
+        </div>
+
+    </div>
+    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+</div>
+
