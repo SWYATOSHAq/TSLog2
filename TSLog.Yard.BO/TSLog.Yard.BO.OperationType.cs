@@ -7,7 +7,7 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class OperationType : Entity
     {
-        private const int DefaultTime = 60;
+        public const short DefaultTime = 60;
         /// <summary>
         /// Приход, расход
         /// </summary>

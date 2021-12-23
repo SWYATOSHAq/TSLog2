@@ -22,6 +22,8 @@
         {
             if (gate == null)
                 gate = Gate.Null;
+            if (from >= to)
+                throw new ArgumentException("from more than to");
             From = from;
             To = to;
             Gate = gate;

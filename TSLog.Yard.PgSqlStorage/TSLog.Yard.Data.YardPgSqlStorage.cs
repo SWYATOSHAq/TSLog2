@@ -131,11 +131,6 @@ namespace TSLog.Yard.Data
             }
             return gates.ToArray();
         }
-        public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind)
-        {
-            throw new NotImplementedException();
-        }
-
         private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
         private Logist CreateLogist(DbDataReader reader)
         {
@@ -436,7 +431,129 @@ namespace TSLog.Yard.Data
         }
         #endregion
 
-        #region Operations        
+        #region Operations     
+        public short GetTime(OperationType operationType, Entity vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var time = OperationType.DefaultTime;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = 
+                        $"select vkot.time " +
+                        $"  from {YardSchema}.v_vehicle_kind_operation_type vkot " +
+                        $" where vkot.operation_type_id = :operation_type_id " +
+                        $"   and vkot.vehicle_kind_id = :vehicle_kind_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        time = Utils.DbValueToShort(reader["time"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            // TODO: get default time for current operation type
+            return time;
+        }
+        private Interval CreateInterval(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var from = Utils.DbValueToDateTime(reader["start_date"]);
+            var to = Utils.DbValueToDateTime(reader["finish_date"]);
+            var gate = GetGate(Utils.DbValueToShort(reader["gate_id"]));
+            var interval = new Interval(from, to, gate);
+            return interval;
+        }
+        public Interval[] GetAllIntervals(DateTime from, DateTime to)
+        {
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = $"select yard.get_all_windows(:p_start_date, :p_finish_date);";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var interval = CreateInterval(reader);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
+        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = 
+                        $"select yard.get_avalible_windows(:p_start_date," +
+                        $"                                 :p_finish_date," +
+                        $"                                 :p_operation_type_code," +
+                        $"                                 :p_vehicle_kind_code);";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                    command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
+                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var interval = CreateInterval(reader);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
+        public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to)
+        {
+            if (gate == null)
+                throw new ArgumentNullException(nameof(gate));
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = $"select yard.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date);";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var interval = CreateInterval(reader);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
         public Operation AddOperation(Operation operation)
         {
             if (operation == null)
@@ -527,7 +644,9 @@ namespace TSLog.Yard.Data
             var actions = GetActions(operation);
             operation.AddActions(actions);
 
-            // TODO: get workers
+            var workers = GetWorkers(operation);
+            foreach (var pair in workers)
+                operation.AddWorkers(pair.Key, pair.Value);
 
             return operation;
         }

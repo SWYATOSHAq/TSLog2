@@ -156,6 +156,26 @@ namespace TSLog.Yard.Data
                 return employee;
             throw new EmployeeNotFoundException(id);
         }
+        public Employee GetManager(Partner partner)
+        {
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+
+            var manager = Employee.Null;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeeById = $"select p.manager_id from {CommonSchema}.v_partner p";
+                command.CommandText = SelectEmployeeById;
+                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    manager = CreateEmployee(reader);
+                reader.Close();
+            }
+            if (manager != null && manager != Employee.Null)
+                return manager;
+            throw new PartnerNotFoundException(partner.Id);
+        }
         public Employee[] GetEmployees()
         {
             var employees = new List<Employee>();
