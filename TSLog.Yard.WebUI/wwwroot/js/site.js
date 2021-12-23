@@ -25,8 +25,8 @@ $(document).ready(function() {
         })
         .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now')
         .on("changeDate", function(e) {
-            console.log(e);
             LoadCardsList(e.date.toLocaleDateString());
+
         });
 });
 
@@ -34,30 +34,22 @@ function PrintCard() {
     window.print();
 }
 
-function Create() {
-    $.post("/api/v1/YardOperationData", function() {
-
-
-
-            alert("success");
-        })
-        .fail(function() {
-            alert("error");
-        })
-}
-
-
-
 const state = {
     time: 0
 };
 //
 const time_split = 4;
 //
-const time_start = 9;
-const time_finish = 13;
+const time_start = 2;
+const time_finish = 24;
 //
-const trail_length = 2;
+const trail_length = 3;
+
+function GetTrailLength() {
+    // todo : CALCULATE
+
+    // trail_length
+}
 
 function SelectTime(time, cellId) {
     return function() {
@@ -106,13 +98,11 @@ function SelectTime(time, cellId) {
             } else {
                 $("#eror-text p").text("Врямя уже занято, выберите другой промежуток времени");
             }
-            console.log(erorOccuredCount);
             erorOccuredCount = 0;
             state.time = 0;
         } else {
             $("#eror-text").addClass("d-none");
             state.time = time;
-            console.log(state);
 
         }
     };
@@ -133,7 +123,7 @@ $(document).ready(function() {
     for (var i = time_start; i <= time_finish; i++) {
         timeSplits[i] = [];
         for (var j = 0; j < time_split; j++) {
-            timeSplits[i][j] = "" + i + ":" + ("" + (j * time_part)).padStart(2, '0');
+            timeSplits[i][j] = "" + i % 24 + ":" + ("" + (j * time_part)).padStart(2, '0');
         }
     }
     //
@@ -144,12 +134,9 @@ $(document).ready(function() {
         'start': "12:00",
         'finish': "13:00"
     }];
-    //console.log(timeSplits);
-    //console.log(periods);
 
     var timeTable = $("#time_table");
     //table.css("display", "none");
-    //console.log(timeTable);
 
     // render to page
     var i = 0;
@@ -160,7 +147,6 @@ $(document).ready(function() {
         //
         if (row != undefined)
             for (let bu_text of row) {
-                //console.log(bu_text);
                 var newButton = document.createElement("button");
                 $(newButton).addClass("btn col p-2 m-1 shadow").text(bu_text);
                 //
@@ -230,7 +216,6 @@ function ConvertTime(strTime) {
 }
 
 function RenderCard(base, card, date) {
-    console.log(card);
 
     var baseCard = document.createElement("div");
     $(baseCard).addClass("card m-3 action-card");
@@ -252,7 +237,7 @@ function RenderCard(base, card, date) {
 
     var cardBodyGate = document.createElement("p");
     $(cardBodyGate).addClass("card-text");
-    $(cardBodyGate).text("Ворота: " + card.Gate.DisplayName);
+    $(cardBodyGate).text("Ворота: " + (card.Gate.DisplayName == "NULL" ? "не проставлены" : card.Gate.DisplayName));
 
     var cardBodyState = document.createElement("p");
     $(cardBodyState).addClass("card-text");
@@ -277,4 +262,28 @@ function RenderCard(base, card, date) {
     baseCard.append(cardBodyButton);
     // 
     base.append(baseCard);
+}
+
+function Create() {
+    var postData = {
+        operation_type: $("#operations").val(),
+        gate: $("#gates").val(),
+        vehicle_kind: $("#vehicle_kind").val(),
+        vehicle_brand: $("#vehicle_brand").val(),
+        vehicle_model: $("#vehicle_model").val(),
+        vehicle_number: $("#vehicle_number").val(),
+        order_id: $("#order_id").val(),
+        driver_name: $("#driver_name").val(),
+
+        start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
+
+        partner_id: "0130",
+    };
+    console.log(postData);
+
+    $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
+        console.log(data);
+    });
+
+
 }

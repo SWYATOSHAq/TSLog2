@@ -8,8 +8,8 @@
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Номер ворот</span>
-    <select class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
-    <option>Выберите номер ворот</option>
+    <select id="gates" class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <option value="">Выберите номер ворот</option>
 
     @foreach (var curGate in cardGateList)
     {

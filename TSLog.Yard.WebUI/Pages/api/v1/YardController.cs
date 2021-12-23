@@ -23,6 +23,24 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
          * change state
          */
 
+
+        [HttpGet("BusyPeriods")]
+        public string GetBusyPeriods()
+        {
+            // TODO test
+            // default
+            var Text = "";
+            //
+            string strDate = Request.Query["date"];
+
+            var date = DateTime.Parse(strDate);
+            //
+            var busyPeriods = ""; // yardStorage.win(tmpID);
+            //
+            Text = JsonSerializer.Serialize(busyPeriods);
+            return Text;
+        }
+
         [HttpGet("operationData")]
         public string GetOperationData()
         {
@@ -71,43 +89,50 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return Text;
         }
 
-        [HttpGet("createUpdateOperation")]
+        [HttpPost("createUpdateOperation")]
         public string GetInsertUpdateData()
         {
-            string operationID = Request.Form["operation_id"];
+            var operation_type = Request.Form["operation_type"];
+            //var gate = Request.Form["gate"];
+            var vehicle_kind = Request.Form["vehicle_kind"];
+            var vehicle_brand = Request.Form["vehicle_brand"];
+            var vehicle_model = Request.Form["vehicle_model"];
+            var vehicle_number = Request.Form["vehicle_number"];
+            var order_id = Request.Form["order_id"];
+            var driver_name = Request.Form["driver_name"];
+            //
+            string operation_id = Request.Form["operation_id"];
+            //
+            var start_date = Request.Form["start_date"];
+            var finish_date = Request.Form["finish_date"];
 
             var Text = "";
 
-            if (operationID != null || operationID != "")
+            if (operation_id != null)
             {
                 // update 
                 // TODO
+                Text = "upd";
             }
             else
             {
                 // create
-                var type = yardStorage.GetOperationType(Request.Query["type"]);
+                var type = yardStorage.GetOperationType(operation_type);
 
-                var startDate = DateTime.Parse(Request.Query["start_date"]);
-                var finishDate = DateTime.Parse(Request.Query["finish_date"]);
+                var startDate = DateTime.Parse(start_date);
+                var finishDate = startDate;
+                finishDate = finishDate.Add(new TimeSpan(0, type.Time, 0));
 
-                var workersCount = short.Parse(Request.Query["workers_count"]);
-
-                var vehicleKind = yardStorage.GetVehicleKind(Request.Query["vehicle_kind"]);
-
-                var vehicleBrand = Request.Query["vehicle_kind"];
-                var vehicleModel = Request.Query["vehicle_model"];
-                var vehicleNumber = Request.Query["vehicle_number"];
-                var vehicleDriverName = Request.Query["vehicle_driver_name"];
-
-                var state = yardStorage.GetOperationState(Request.Query["state"]);
-
+                var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
                 short priority = 1;
 
+                var defState = yardStorage.GetOperationState("CREATED");
+                var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
 
-                var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, vehicleDriverName, state, priority, null);
+                var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, defState, priority, defManager);
 
                 yardStorage.AddOperation(newOperation);
+                yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.SetOperationGate(newOperation); // TODO catch an erorr
             }
 
@@ -115,7 +140,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
 
 
-        [HttpGet("changeOperationState")]
+        [HttpPost("changeOperationState")]
         public string PostChangeOperationState()
         {
             var Text = "";

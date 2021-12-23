@@ -9,7 +9,7 @@
     <div class="row p-2 m-2 rem-outline-on-print">
         <div class="input-group">
             <span class="input-group-text col-3">@curFieldKey</span>
-            <input type="text" aria-label="@cardFieldsList[curFieldKey].Item1" class="form-control" @(isEnabled ? "disabled" : "") value="@cardFieldsList[curFieldKey].Item2">
+            <input type="text" id="@cardFieldsList[curFieldKey].Item1" aria-label="@cardFieldsList[curFieldKey].Item1" class="form-control" @(isEnabled ? "disabled" : "") value="@cardFieldsList[curFieldKey].Item2">
         </div>
     </div>
 }
