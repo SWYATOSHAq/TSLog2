@@ -10,7 +10,7 @@
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Тип машины</span>
     <select id="vehicle_kind" class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
-    <option>Выберите тип машины</option>
+    <option value="">Выберите тип машины</option>
 
     @foreach (var curGate in cardVehicleKindList)
     {

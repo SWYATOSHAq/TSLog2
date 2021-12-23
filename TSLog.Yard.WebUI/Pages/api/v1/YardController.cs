@@ -32,10 +32,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var Text = "";
             //
             string strDate = Request.Query["date"];
-
             var date = DateTime.Parse(strDate);
+
+
+            string strOperation = Request.Query["operation"];
+            var operation = yardStorage.GetOperationType(strOperation);
+
+            string strVehicleKind = Request.Query["vehicle_kind"];
+            var vehicleKind = yardStorage.GetVehicleKind(strVehicleKind);
+
             //
-            var busyPeriods = ""; // yardStorage.win(tmpID);
+
+            var busyPeriods = yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind);
             //
             Text = JsonSerializer.Serialize(busyPeriods);
             return Text;

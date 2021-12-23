@@ -60,25 +60,6 @@ function GetTrailLength() {
     trail_length = Math.floor((time_split * koef) - 1);
 }
 
-$(document).ready(function() {
-    $("#time_table").addClass("d-none");
-
-    $("#operations").change(function() {
-        // hide time panel if operation type is not selected
-        var val = $('#operations :selected').val();
-
-        if (val.length == 0) {
-            $("#time_table").addClass("d-none");
-        } else {
-            $("#time_table").removeClass("d-none");
-            try {
-                GetTrailLength();
-            } catch (e) {
-                console.log(e);
-            }
-        }
-    });
-});
 
 function SelectTime(time, cellId) {
     return function() {
@@ -310,6 +291,7 @@ function Create() {
 
     $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
         console.log(data);
+        window.location.href = "";
     });
 
 
@@ -318,11 +300,15 @@ function Create() {
 // 
 
 $(document).ready(function() {
-    function updateIgnoredPeriods() {
-        $.get("/api/v1/yard/operationsList", {
-                "date": "",
+    function updateBusyPeriods() {
+        $.get("/api/v1/yard/BusyPeriods", {
+                date: $(".datepicker").datepicker('getDate').toLocaleDateString(),
+                operation: $('#operations :selected').val(),
+                gate: $('#gates :selected').val(),
+                vehicle_kind: $('#vehicle_kind :selected').val(),
             },
             function(data) {
+                console.log(data);
 
                 periods = [{
                     'start': "9:00",
@@ -341,13 +327,39 @@ $(document).ready(function() {
 
     }
 
+    $("#time_table").addClass("d-none");
+
+    function manageTimeTable() {
+        var val1 = $('#operations :selected').val();
+        var val2 = $('#vehicle_kind :selected').val();
+
+        if (val1.length == 0 || val2.length == 0) {
+            $("#time_table").addClass("d-none");
+        } else {
+            $("#time_table").removeClass("d-none");
+            try {
+                GetTrailLength();
+                updateBusyPeriods();
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
     $("#operations").change(function() {
-        updateIgnoredPeriods();
+        manageTimeTable();
     });
-    $("#gates").change(function() {
-        updateIgnoredPeriods();
-    });
+
     $("#vehicle_kind").change(function() {
-        updateIgnoredPeriods();
+        manageTimeTable();
+    });
+});
+
+
+$(document).ready(function() {
+
+    $("#operations").change(function() {
+        // hide time panel if operation type is not selected
+
     });
 });
