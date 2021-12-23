@@ -1,7 +1,12 @@
-﻿@model (int, bool)
+﻿@using TSLog.Staff.BO
+@model (IDictionary<Position, short>, bool)
 @{
-    var rowCounter = Model.Item1;
+    var positions = Model.Item1;
     var isEnabled = Model.Item2;
+
+    var i = 1;
+
+    var defaultRows = 5;
 }
 
 @if (isEnabled)
@@ -16,14 +21,38 @@
             </tr>
         </thead>
         <tbody>
-            @for (var i = 1; i <= rowCounter; i++)
+            @if (positions.Keys.Count > 0)
             {
-                <tr>
-                    <td>@i</td>
-                    <td> </td>
-                    <td> </td>
-                </tr>
+                @foreach (var key in positions.Keys)
+                {
+                    @for (var j = 0; j < positions[key]; j++)
+                    {
+                        <tr>
+                            <td>@i</td>
+                            <td>@key.DisplayName ( @positions[key] )</td>
+                            <td> </td>
+                        </tr>
+                        
+                        i++;
+                        
+                    }
+                }
             }
+            else
+            {
+               @for (var j = 0; j < defaultRows; j++)
+                {
+                    <tr>
+                        <td>@i</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    i++;
+                } 
+            }
+
+            
+            
         </tbody>
     </table>
 }

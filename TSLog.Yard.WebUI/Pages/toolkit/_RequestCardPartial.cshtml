@@ -57,18 +57,18 @@
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
 
-    var workerTable = (5, true);
+    var workerTable = (storage.GetWorkers(cardData), true);
 }
 
 <div class="col p-2 m-3 shadow">
     <div class="row p-2 m-3 ">
         @if (cardData == Operation.Empty)
         {
-        <h1 class="text-info hide-on-print">Создание</h1>
+            <h1 class="text-info hide-on-print">Создание</h1>
         }
         else
         {
-        <h1 class="text-info hide-on-print">Просмотр</h1>
+            <h1 class="text-info hide-on-print">Просмотр</h1>
         }
     </div>
     <!--  -->
