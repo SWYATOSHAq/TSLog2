@@ -216,33 +216,47 @@ function RemoveCards() {
     $(".action-card").remove();
 }
 
+function GetCompaniesNames(card) {
+    var result = "";
+    for (let partner of card.Partners) {
+        result += ((result.Length > 0) ? ", " : "") + partner.Name;
+    }
+    return result;
+
+}
+
+function ConvertTime(strTime) {
+    return new Date(strTime).toLocaleTimeString();
+}
 
 function RenderCard(base, card, date) {
+    console.log(card);
+
     var baseCard = document.createElement("div");
     $(baseCard).addClass("card m-3 action-card");
     //
     var cardHeader = document.createElement("div");
     $(cardHeader).addClass("card-header");
-    $(cardHeader).text("09:00:00 - 21:00:00");
+    $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate));
     //
     var cardBody = document.createElement("div");
     $(cardBody).addClass("card-body");
     ///
     var cardBodyMndnr = document.createElement("h5");
     $(cardBodyMndnr).addClass("card-title");
-    $(cardBodyMndnr).text("KOTON");
+    $(cardBodyMndnr).text(GetCompaniesNames(card));
 
-    var cardBodyInputType = document.createElement("h5");
+    var cardBodyInputType = document.createElement("p");
     $(cardBodyInputType).addClass("card-text");
-    $(cardBodyInputType).text("Паллетная приёмка");
+    $(cardBodyInputType).text(card.Type.DisplayName);
 
-    var cardBodyGate = document.createElement("h5");
+    var cardBodyGate = document.createElement("p");
     $(cardBodyGate).addClass("card-text");
-    $(cardBodyGate).text("Ворота:Ворота 2");
+    $(cardBodyGate).text("Ворота: " + card.Gate.DisplayName);
 
-    var cardBodyState = document.createElement("h5");
+    var cardBodyState = document.createElement("p");
     $(cardBodyState).addClass("card-text");
-    $(cardBodyState).text("Состояние: Завершена");
+    $(cardBodyState).text("Состояние: " + card.State.DisplayName);
     ///
     cardBody.append(cardBodyMndnr);
     cardBody.append(cardBodyInputType);

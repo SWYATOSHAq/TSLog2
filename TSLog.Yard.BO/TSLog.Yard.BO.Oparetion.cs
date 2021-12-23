@@ -94,6 +94,16 @@ namespace TSLog.Yard.BO
         /// Приоритет
         /// </summary>
         public int Priority { get; set; }
+        /// <summary>
+        /// Список партнеров
+        /// </summary>
+        public Partner[] Partners
+        {
+            get { return GetPartners(); }
+        }
+
+        public int Actions { get; set; }
+
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
