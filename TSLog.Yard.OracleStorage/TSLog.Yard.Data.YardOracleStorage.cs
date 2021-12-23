@@ -158,6 +158,9 @@ namespace TSLog.Yard.Data
         }
         public Employee GetManager(Partner partner)
         {
+            // FOR DEBUG!!!
+            return GetEmployee(10405);
+
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
 

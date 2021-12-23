@@ -124,9 +124,6 @@ namespace TSLog.Yard.BO
             get { return GetPartners(); }
         }
 
-        public int Actions { get; set; }
-
-
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
@@ -180,7 +177,13 @@ namespace TSLog.Yard.BO
         }
         public WarehouseAction GetAction(ActionKind kind, LegalEntity partner, string partnerActionNumber)
         {
-            throw new NotImplementedException();
+            var actions = _actions.Values.ToList();
+            actions.Select(a => a.Kind == kind 
+                && a.Partner.Id == partner.Id 
+                && a.PartnerActionId == partnerActionNumber).ToArray();
+            if (actions.Count > 0)
+                return actions[0];
+            throw new WarehouseActionNotFoundException(partner.Id, partnerActionNumber);
         }
         public WarehouseAction[] GetActions()
         {

@@ -20,6 +20,14 @@ namespace TSLog.WarehouseActions.BO
         /// Вид (приход, расход, ...)
         /// </summary>
         public ActionKind Kind { get; private set; }
+        public string Key
+        {
+            get
+            {
+                var kind = Kind == ActionKind.Outgo ? "O" : "I";
+                return $"{kind}{Id}";
+            }
+        }
         /// <summary>
         /// Партнёр - покупатель наших складских и логистических услуг
         /// </summary>

@@ -929,8 +929,43 @@ namespace TSLog.Yard.Data
 
                 command.ExecuteScalar();
             }
-            var actions = GetActions(operation);
-            // TODO: synchronize action
+
+            // Синхронизация складских действ (добавляем новые, удаляем удалённые)
+            var actions = new Dictionary<string, WarehouseAction>();
+            var indicators = new Dictionary<string, short>();
+            var temp = GetActions(operation);            
+            foreach (var action in temp)
+            {
+                var key = action.Key;
+                if (!actions.ContainsKey(key))
+                {
+                    actions.Add(key, action);
+                    indicators.Add(key, -1);
+                }
+                else
+                    indicators[key]--;
+            }
+            temp = operation.GetActions();
+            foreach (var action in temp)
+            {
+                var key = action.Key;
+                if (!actions.ContainsKey(key))
+                {
+                    actions.Add(key, action);
+                    indicators.Add(key, 1);
+                }
+                else
+                    indicators[key]++;
+            }
+            foreach (var action in actions)
+            {
+                var key = action.Key;
+                if (indicators[key] < 0)
+                    RemoveAction(operation, actions[key]);
+                else if (indicators[key] > 0)
+                    AddAction(operation, actions[key]);
+            }
+
             connection.Close();
         }
         public void StartOperation(Operation operation)
