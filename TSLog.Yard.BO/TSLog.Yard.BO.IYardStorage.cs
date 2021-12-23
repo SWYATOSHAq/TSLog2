@@ -28,6 +28,8 @@ namespace TSLog.Yard.BO
         public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind);
         public Operation AddOperation(Operation operation);
         public Operation GetOperation(long id);
+        public IDictionary<Position, short> GetWorkers(OperationType operationType, Entity vehicleKind);
+        public IDictionary<Position, short> GetWorkers(Operation operation);
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);

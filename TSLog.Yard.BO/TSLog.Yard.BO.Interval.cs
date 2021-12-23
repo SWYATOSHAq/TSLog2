@@ -16,10 +16,12 @@
         /// <summary>
         /// Ворота
         /// </summary>
-        public Gate Gate { get; private set; }
+        public Gate Gate { get; private set; } = Gate.Null;
 
-        public Interval(DateTime from, DateTime to, Gate gate) 
+        public Interval(DateTime from, DateTime to, Gate? gate = null) 
         {
+            if (gate == null)
+                gate = Gate.Null;
             From = from;
             To = to;
             Gate = gate;

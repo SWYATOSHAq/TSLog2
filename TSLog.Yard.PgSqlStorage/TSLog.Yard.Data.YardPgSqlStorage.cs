@@ -418,8 +418,10 @@ namespace TSLog.Yard.Data
 
         public delegate Partner GetPartnerByIdDelegate(string id);
         public delegate Employee GetEmployeeByIdDelegate(int id);
+        public delegate Position GetPositionByIdDelegate(int id);
         public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
         public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
+        public GetPositionByIdDelegate? GetPositionById { private get; set; }
         public Partner GetPartner(string id)
         {
             return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
@@ -427,6 +429,10 @@ namespace TSLog.Yard.Data
         private Employee GetEmployee(int id)
         {
             return GetEmployeeById != null ? GetEmployeeById(id) : Employee.Null;
+        }
+        private Position GetPosition(int id)
+        {
+            return GetPositionById != null ? GetPositionById(id) : Position.Null;
         }
         #endregion
 
@@ -521,6 +527,8 @@ namespace TSLog.Yard.Data
             var actions = GetActions(operation);
             operation.AddActions(actions);
 
+            // TODO: get workers
+
             return operation;
         }
         public Operation GetOperation(long id)
@@ -561,6 +569,47 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             throw new OperationNotFoundException(id);
+        }
+        public IDictionary<Position, short> GetWorkers(OperationType operationType, Entity vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+            if (GetPositionById == null)
+                throw new ArgumentNullException(nameof(GetPositionById));
+            var workers = new Dictionary<Position, short>();
+            using (var connection = CloneConnection())
+            {                
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = 
+                        $"select position_id, workers_count from {YardSchema}.v_vk_ot_worker vkotw " +
+                        $" where vkotw.operation_type_id = :operation_type_id " +
+                        $"   and vkotw.vehicle_kind_id = :vehicle_kind_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var position = GetPositionById(Utils.DbValueToInt(reader["position_id"]));
+                        if (!workers.ContainsKey(position))
+                            workers.Add(position, Utils.DbValueToShort(reader["workers_count"]));
+                        else
+                            workers[position] += Utils.DbValueToShort(reader["workers_count"]);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return workers;
+        }
+        public IDictionary<Position, short> GetWorkers(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            return GetWorkers(operation.Type, operation.VehicleKind);
         }
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
         {
