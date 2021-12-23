@@ -1,9 +1,10 @@
 ﻿@using TSLog.Yard.BO
-@model (TSLog.Yard.BO.Operation, IYardStorage, bool)
+@model (TSLog.Yard.BO.Operation, IYardStorage, bool, bool)
 @{
     var cardData = Model.Item1;
     var storage = Model.Item2;
     var isEnabled = Model.Item3;
+    var isAdmin = Model.Item4;
     //-----------
 
 
@@ -78,9 +79,14 @@
         <partial name="toolkit/lists/_OperationDropdownPartial" model="operationList" />
     </div>
     <!--  -->
-    <div class="row p-2 m-2 rem-outline-on-print">
-        <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
-    </div>
+
+    @if (!isAdmin && isEnabled)
+    {
+        <div class="row p-2 m-2 rem-outline-on-print">
+            <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
+        </div>
+    }
+
     <!--
     <div class="row p-2 m-2 rem-outline-on-print">
         <partial name="toolkit/lists/_LogistDropdownPartial" model="logstList" />
