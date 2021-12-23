@@ -43,13 +43,42 @@ const time_split = 4;
 const time_start = 2;
 const time_finish = 24;
 //
-const trail_length = 3;
+var trail_length = 5;
 
 function GetTrailLength() {
-    // todo : CALCULATE
+    var operation_type_time = $("#operations").children(':selected').text().split("(")[1].split(")")[0];
 
-    // trail_length
+    var date1 = new Date().setHours(0, 0, 0, 0);
+    var date2 = ConvertToTime(operation_type_time);
+
+    var diffInSeconds = Math.abs(date1 - date2) / 1000;
+    var hours = Math.floor(diffInSeconds / 60 / 60 % 24);
+    var minutes = Math.floor(diffInSeconds / 60 % 60);
+
+    var koef = hours + minutes / 60;
+
+    trail_length = Math.floor((time_split * koef) - 1);
 }
+
+$(document).ready(function() {
+    $("#time_table").addClass("d-none");
+
+    $("#operations").change(function() {
+        // hide time panel if operation type is not selected
+        var val = $('#operations :selected').val();
+
+        if (val.length == 0) {
+            $("#time_table").addClass("d-none");
+        } else {
+            $("#time_table").removeClass("d-none");
+            try {
+                GetTrailLength();
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    });
+});
 
 function SelectTime(time, cellId) {
     return function() {
@@ -116,8 +145,17 @@ function ConvertToTime(strTime) {
 }
 
 $(document).ready(function() {
+    // default
+    periods = [];
 
-    //
+    RenderTable(periods);
+
+});
+
+function RenderTable(periods) {
+    $(".table-1hr-row").remove();
+    // 
+
     time_part = 60 / time_split; // 1 hr per row
     var timeSplits = [];
     for (var i = time_start; i <= time_finish; i++) {
@@ -126,24 +164,15 @@ $(document).ready(function() {
             timeSplits[i][j] = "" + i % 24 + ":" + ("" + (j * time_part)).padStart(2, '0');
         }
     }
-    //
-    periods = [{
-        'start': "9:00",
-        'finish': "10:00"
-    }, {
-        'start': "12:00",
-        'finish': "13:00"
-    }];
 
     var timeTable = $("#time_table");
     //table.css("display", "none");
-
     // render to page
     var i = 0;
     var j = 0;
     for (let row of timeSplits) {
         var newRow = document.createElement("div");
-        $(newRow).addClass("row").addClass("p-2");
+        $(newRow).addClass("row").addClass("p-2").addClass("table-1hr-row");
         //
         if (row != undefined)
             for (let bu_text of row) {
@@ -177,9 +206,7 @@ $(document).ready(function() {
             }
         i++;
     }
-
-});
-
+}
 
 //
 function LoadCardsList(dateParam) {
@@ -287,3 +314,40 @@ function Create() {
 
 
 }
+
+// 
+
+$(document).ready(function() {
+    function updateIgnoredPeriods() {
+        $.get("/api/v1/yard/operationsList", {
+                "date": "",
+            },
+            function(data) {
+
+                periods = [{
+                    'start': "9:00",
+                    'finish': "10:00"
+                }, {
+                    'start': "12:00",
+                    'finish': "13:00"
+                }];
+
+                periods = [];
+                RenderTable(periods);
+
+            });
+
+
+
+    }
+
+    $("#operations").change(function() {
+        updateIgnoredPeriods();
+    });
+    $("#gates").change(function() {
+        updateIgnoredPeriods();
+    });
+    $("#vehicle_kind").change(function() {
+        updateIgnoredPeriods();
+    });
+});
