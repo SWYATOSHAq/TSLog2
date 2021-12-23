@@ -19,6 +19,14 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.ConnectPgSql(pgsqlUserName, pgsqlPassword);    
     storage.SetPgsqlYardSchema(pgsqlYardSchema);
 
+    var ot = storage.GetOperationType(1001);
+    var vk = storage.GetVehicleKind(1001);
+    var g = storage.GetGate(1001);
+
+    var intervals = storage.GetAvalibleIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), ot, vk);
+    intervals = storage.GetAllIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
+    intervals = storage.GetGateIntervals(g, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
+
     var operations = storage.GetOperations(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), null);
     var operation = storage.GetOperation(10000002);
     var actions = operation.GetActions();
