@@ -25,7 +25,10 @@ namespace TSLog.Yard.BO
         public Logist GetLogist(string code);
         public Logist[] GetLogists();
 
-        public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind);
+        public short GetTime(OperationType operationType, Entity vehicleKind);
+        public Interval[] GetAllIntervals(DateTime from, DateTime to);
+        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
+        public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);
         public Operation AddOperation(Operation operation);
         public Operation GetOperation(long id);
         public IDictionary<Position, short> GetWorkers(OperationType operationType, Entity vehicleKind);
@@ -50,9 +53,10 @@ namespace TSLog.Yard.BO
     {
         public WarehouseAction GetAction(ActionKind actionKind, string id);
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);        
-        public Partner GetPartner(string id);
+        public Partner GetPartner(string id);        
         public Partner[] GetPartners();
         public Employee GetEmployee(int id);
+        public Employee GetManager(Partner partner);
         public Employee[] GetEmployees();
         public Position GetPosition(int id);
         public Position GetPosition(string code);

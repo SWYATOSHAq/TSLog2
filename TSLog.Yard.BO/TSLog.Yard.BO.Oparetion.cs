@@ -13,7 +13,6 @@ namespace TSLog.Yard.BO
     public class Operation : Entity
     {
         private const short DefaultPriority = 1;
-        private const short DefaultDuration = 60;
         /// <summary>
         /// Идентификатор
         /// </summary>
@@ -50,6 +49,29 @@ namespace TSLog.Yard.BO
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
+        private IDictionary<Position, short> _workers = new Dictionary<Position, short>();
+        public Position[] Positions
+        {
+            get
+            {
+                return _workers.Keys.ToArray();
+            }
+        }
+        public short GetWorkers(Position position)
+        {
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            return _workers.ContainsKey(position) ? _workers[position] : (short)0;
+        }
+        public void AddWorkers(Position position, short count)
+        {
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            if (!_workers.ContainsKey(position))
+                _workers.Add(position, count);
+            else
+                _workers[position] += count;
+        }
         /// <summary>
         /// Вид автомашины
         /// </summary>

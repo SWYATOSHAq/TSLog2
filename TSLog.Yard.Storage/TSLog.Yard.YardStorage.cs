@@ -52,20 +52,19 @@ namespace TSLog.Yard
             _pgsqlStorage.Disconnect();
         }
 
-        public Interval[] GetIntervals(DateTime from, DateTime to, Entity vehicleKind, Entity operationKind)
-        {
-            return _pgsqlStorage.GetIntervals(from, to, vehicleKind, operationKind);
-        }
-
         #region Domains
         public Employee GetEmployee(int id)
         {
             return _oracleStorage.GetEmployee(id);
         }
+        public Employee GetManager(Partner partner)
+        {
+            return _oracleStorage.GetManager(partner);
+        }
         public Employee[] GetEmployees()
         {
             return _oracleStorage.GetEmployees();
-        }
+        }        
         public Position GetPosition(int id)
         {
             return _oracleStorage.GetPosition(id);
@@ -153,6 +152,22 @@ namespace TSLog.Yard
         #endregion
 
         #region Operations
+        public short GetTime(OperationType operationType, Entity vehicleKind)
+        {
+            return _pgsqlStorage.GetTime(operationType, vehicleKind);
+        }
+        public Interval[] GetAllIntervals(DateTime from, DateTime to)
+        {
+            return _pgsqlStorage.GetAllIntervals(from, to);
+        }
+        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind)
+        {
+            return _pgsqlStorage.GetAvalibleIntervals(from, to, operationType, vehicleKind);
+        }
+        public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to)
+        {
+            return _pgsqlStorage.GetGateIntervals(gate, from, to);
+        }
         public Operation AddOperation(Operation operation)
         {
             return _pgsqlStorage.AddOperation(operation);
