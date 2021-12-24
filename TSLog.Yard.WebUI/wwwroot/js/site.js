@@ -14,21 +14,6 @@
     return false;
 }
 
-$(document).ready(function() {
-    $(".datepicker").datepicker({
-            format: "dd.mm.yyyy",
-            autoclose: true,
-            startDate: "0d",
-            language: "ru",
-            todayBtn: true,
-            todayHighlight: true,
-        })
-        .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now')
-        .on("changeDate", function(e) {
-            LoadCardsList(e.date.toLocaleDateString());
-
-        });
-});
 
 function PrintCard() {
     window.print();
@@ -125,9 +110,10 @@ function SelectTime(time, cellId) {
 }
 
 function ConvertToTime(strTime) {
-    var ret = new Date();
-    var arr = strTime.split(":");
-    ret.setHours(arr[0], arr[1], 0, 0);
+    var ret = $(".datepicker").datepicker('getDate');
+    var arrTime = strTime.split(":");
+
+    ret.setHours(arrTime[0], arrTime[1], 0, 0);
     return ret;
 }
 
@@ -136,7 +122,6 @@ $(document).ready(function() {
     periods = [];
 
     RenderTable(periods);
-
 });
 
 function RenderTable(periods) {
@@ -199,21 +184,7 @@ function RenderTable(periods) {
 }
 
 //
-function LoadCardsList(dateParam) {
-    $.get("/api/v1/yard/operationsList", {
-            "date": dateParam
-        },
-        function(data) {
-            //$(".result").html(data);
-            var cards = JSON.parse(data);
 
-            RemoveCards();
-            for (let card of cards) {
-                RenderCard($(".cards-list"), card, dateParam);
-            }
-
-        });
-}
 
 function RemoveCards() {
     $(".action-card").remove();
@@ -271,7 +242,7 @@ function RenderCard(base, card, date) {
     $(cardBodyButton).addClass("btn btn-outline-info m-3");
     $(cardBodyButton).text("открыть");
     $(cardBodyButton).click(function() {
-        location.href = '?id=10000005&date=' + date;
+        location.href = '?id=' + card.Id + '&date=' + date;
     });
     //
     baseCard.append(cardHeader);
@@ -307,11 +278,46 @@ function Create() {
 // 
 
 $(document).ready(function() {
+
+    function LoadCardsList(dateParam) {
+
+        if ($("#time_table").length) {
+            manageTimeTable(dateParam);
+        }
+        $.get("/api/v1/yard/operationsList", {
+                "date": dateParam
+            },
+            function(data) {
+                //$(".result").html(data);
+                var cards = JSON.parse(data);
+
+                RemoveCards();
+                for (let card of cards) {
+                    RenderCard($(".cards-list"), card, dateParam);
+                }
+
+            });
+    }
+
+    $(".datepicker").datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            startDate: "0d",
+            language: "ru",
+            todayBtn: true,
+            todayHighlight: true,
+        })
+        .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now')
+        .on("changeDate", function(e) {
+            LoadCardsList(e.date.toLocaleDateString());
+        });
+
     if ($("#time_table").length) {
         $("#text_operation_time").text("Время операции: --:--:--");
     }
 
-    function GetOperationTimeSpan() {
+    function GetOperationTimeSpan(inpDate) {
+
         $.get("/api/v1/yard/OperationLength", {
                 operation: $('#operations :selected').val(),
                 vehicle_kind: $('#vehicle_kind :selected').val(),
@@ -322,9 +328,8 @@ $(document).ready(function() {
                 $("#text_operation_time").text("Время операции: " + time.toLocaleTimeString());
             });
 
-
         $.get("/api/v1/yard/BusyPeriods", {
-                date: $(".datepicker").datepicker('getDate').toLocaleDateString(),
+                date: inpDate,
                 operation: $('#operations :selected').val(),
                 vehicle_kind: $('#vehicle_kind :selected').val(),
             },
@@ -341,7 +346,7 @@ $(document).ready(function() {
 
     $("#time_table").addClass("d-none");
 
-    function manageTimeTable() {
+    function manageTimeTable(inpDate) {
         var val1 = $('#operations :selected').val();
         var val2 = $('#vehicle_kind :selected').val();
 
@@ -350,7 +355,7 @@ $(document).ready(function() {
         } else {
             $("#time_table").removeClass("d-none");
             try {
-                GetOperationTimeSpan();
+                GetOperationTimeSpan(inpDate);
             } catch (e) {
                 console.log(e);
             }
@@ -358,10 +363,10 @@ $(document).ready(function() {
     }
 
     $("#operations").change(function() {
-        manageTimeTable();
+        manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
     });
 
     $("#vehicle_kind").change(function() {
-        manageTimeTable();
+        manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
     });
 });

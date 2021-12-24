@@ -44,3 +44,7 @@ body {
         padding: 0px !important;
     }
 }
+
+#time_table, #card_table {
+    height: 100vh;
+}

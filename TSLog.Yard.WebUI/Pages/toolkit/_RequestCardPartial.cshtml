@@ -55,7 +55,7 @@
         humanHoursSum += workersdata[position];
     }
 
-    textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum.ToString() , true));
+    textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum>0 ? humanHoursSum.ToString() : "" , true));
 
 
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
