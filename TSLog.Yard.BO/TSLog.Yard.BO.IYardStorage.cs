@@ -36,6 +36,7 @@ namespace TSLog.Yard.BO
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
+        public void CancelOperationGate(Operation operation);
         public void EditOperation(Operation operation);        
         public void StartOperation(Operation operation);        
         public void SetResponsibleOfficer(Operation operation, Employee officer);

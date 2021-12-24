@@ -200,6 +200,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.SetOperationGate(operation, gate);
         }
+        public void CancelOperationGate(Operation operation)
+        {
+            _pgsqlStorage.CancelOperationGate(operation);
+        }
         public void SetResponsibleOfficer(Operation operation, Employee officer)
         {
             _pgsqlStorage.SetResponsibleOfficer(operation, officer);

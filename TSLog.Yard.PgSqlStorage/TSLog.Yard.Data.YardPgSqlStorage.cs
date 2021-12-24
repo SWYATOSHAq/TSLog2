@@ -33,7 +33,6 @@ namespace TSLog.Yard.Data
             return parameter;
         }
 
-
         #region Domains
         private readonly Catalog<Gate> _gates = new("GATES", "Ворота");
         private Gate CreateGate(DbDataReader reader)
@@ -593,9 +592,9 @@ namespace TSLog.Yard.Data
 
                     operation.Id = Convert.ToInt64(command.ExecuteScalar());
                 }
-
                 var actions = operation.GetActions();
-                // TODO: syncronize actions
+                foreach (var action in actions)
+                    AddAction(operation, action);
                 connection.Close();
             }
             return operation;
@@ -872,7 +871,6 @@ namespace TSLog.Yard.Data
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -888,6 +886,21 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             return operation.Gate;
+        }
+        public void CancelOperationGate(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            using var connection = CloneConnection();
+            using (var command = connection.CreateCommand())
+            {
+                var CancelOperationGateSql = $"select {YardSchema}.cancel_operation_gate(:p_id,);";
+                command.CommandText = CancelOperationGateSql;
+                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+                command.ExecuteNonQuery();
+                operation.Gate = Gate.Null;
+            }
+            connection.Close();
         }
         public void EditOperation(Operation operation)
         {
