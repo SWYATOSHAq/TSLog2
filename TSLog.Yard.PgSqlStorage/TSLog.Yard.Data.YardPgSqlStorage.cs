@@ -444,7 +444,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var sql =
                         $"select vkot.time " +
                         $"  from {YardSchema}.v_vehicle_kind_operation_type vkot " +
                         $" where vkot.operation_type_id = :operation_type_id " +
@@ -479,7 +479,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = $"select yard.get_all_windows(:p_start_date, :p_finish_date);";
+                    var sql = $"select (yard.get_all_windows(:p_start_date, :p_finish_date)).*;";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
@@ -507,10 +507,10 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql = 
-                        $"select yard.get_avalible_windows(:p_start_date," +
+                        $"select (yard.get_avalible_windows(:p_start_date," +
                         $"                                 :p_finish_date," +
                         $"                                 :p_operation_type_code," +
-                        $"                                 :p_vehicle_kind_code);";
+                        $"                                 :p_vehicle_kind_code)).*;";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
@@ -537,7 +537,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = $"select yard.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date);";
+                    var sql = $"select (yard.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
                     command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
