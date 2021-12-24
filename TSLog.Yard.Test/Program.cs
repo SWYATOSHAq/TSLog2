@@ -1,4 +1,5 @@
 ﻿using TSLog.Yard;
+using TSLog.Yard.BO;
 
 // See https://aka.ms/new-console-template for more information
 
@@ -23,9 +24,11 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var vk = storage.GetVehicleKind(1001);
     var g = storage.GetGate(1001);
 
-    var intervals = storage.GetAvalibleIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), ot, vk);
-    intervals = storage.GetAllIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
+    var intervals = storage.GetAvalibleIntervals(DateTime.Now.AddDays(-20), DateTime.Now.AddDays(+20), ot, vk);    
     intervals = storage.GetGateIntervals(g, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
+    intervals = storage.GetAllIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
+
+    var union = Interval.Union(intervals);
 
     var operations = storage.GetOperations(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), null);
     var operation = storage.GetOperation(10000002);

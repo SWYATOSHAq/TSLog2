@@ -1078,12 +1078,18 @@ namespace TSLog.Yard.Data
             using var command = connection.CreateCommand();
             var sql = $"select {YardSchema}.add_action(:p_operation_id, " +
                 $":p_action_kind, " +
-                $":p_action_id);";
+                $":p_action_id, " +
+                $":p_partner_id, " +
+                $":p_partner_action_id);";
+            command.CommandText = sql;
             var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
             command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
-            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_partner_id", NpgsqlDbType.Varchar, 
+                action.Partner != null ? action.Partner.Id : DBNull.Value));
+            command.Parameters.Add(CreateParameter("p_partner_action_id", NpgsqlDbType.Varchar, 
+                string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : DBNull.Value));
             command.ExecuteScalar();
             connection.Close();
         }
