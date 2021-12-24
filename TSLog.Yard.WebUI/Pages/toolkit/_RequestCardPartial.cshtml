@@ -33,17 +33,20 @@
         isEnabled
         );
 
-    var textDataHeader = new Dictionary<string, (string, bool)>();
-    textDataHeader.Add("Наименование организации", ("Детский мир", true));
+    //cardData.Type.UpdateTime();
 
-    textDataHeader.Add("Начало", (cardData.GetStartTime(), true));
-    textDataHeader.Add("Время работ", (cardData.GetWorkTime(), false));
-    textDataHeader.Add("Уезд с территории", (cardData.GetFinishTime(), true));
+    var textDataHeader = new Dictionary<string, (string, string, bool)>();
+    textDataHeader.Add("Наименование организации", ("text_org_name", "Детский мир", true));
 
-    textDataHeader.Add("Логист", (cardData.Logist?.DisplayName, false));
-    textDataHeader.Add("Ответственный", (cardData.Manager?.DisplayName, true));
-    textDataHeader.Add("Ответственный (склад)", (cardData.ResponsibleOfficer?.DisplayName, false));
-    textDataHeader.Add("Состояние", (cardData.State?.DisplayName, true));
+    textDataHeader.Add("Начало", ("text_stert_time", cardData.GetStartTime(), true));
+    textDataHeader.Add("Время работ", ("text_work_time", cardData.GetWorkTime(), false));
+    textDataHeader.Add("Уезд с территории", ("text_leave_time", cardData.GetFinishTime(), true));
+
+    textDataHeader.Add("Логист", ("text_logist", cardData.Logist?.DisplayName, false));
+    textDataHeader.Add("Ответственный", ("text_responsible", cardData.Manager?.DisplayName, true));
+    textDataHeader.Add("Ответственный (склад)", ("text_responsible_warehouse", cardData.ResponsibleOfficer?.DisplayName, false));
+    textDataHeader.Add("Состояние", ("text_state", cardData.State?.DisplayName, true));
+    textDataHeader.Add("Время операции", ("text_operation_time", new TimeSpan(0, storage.GetTime(cardData.Type, cardData.VehicleKind), 0).ToString(@"hh\:mm\:ss"), true));
 
 
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
@@ -79,12 +82,12 @@
         <partial name="toolkit/lists/_OperationDropdownPartial" model="operationList" />
     </div>
     <!--  -->
-
     @if (!isAdmin && isEnabled)
     {
         <div class="row p-2 m-2 rem-outline-on-print">
             <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
         </div>
+
     }
 
     <!--

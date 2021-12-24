@@ -66,7 +66,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             //
             var timeSpan = yardStorage.GetTime(operation, vehicleKind);
 
-            //var busyPeriods = yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind);
             ////
             Text = JsonSerializer.Serialize(timeSpan);
             return Text;
