@@ -46,9 +46,9 @@ const time_finish = 24;
 var trail_length = 0;
 
 function GetTrailLength() {
-    var operation_type_time = $("#operations").children(':selected').text().split("(")[1].split(")")[0];
+    var operation_type_time = $("#text_operation_time").text().split(" ")[2];
 
-    var date1 = new Date().setHours(0, 0, 0, 0);
+    var date1 = new Date(new Date().setHours(0, 0, 0, 0));
     var date2 = ConvertToTime(operation_type_time);
 
     var diffInSeconds = Math.abs(date1 - date2) / 1000;
@@ -58,17 +58,23 @@ function GetTrailLength() {
     var koef = hours + minutes / 60;
 
     trail_length = Math.floor((time_split * koef) - 1);
+
+    ResetVisibility();
 }
 
+function ResetVisibility() {
+    $(".btn-info").addClass("btn-outline-primary");
+    $(".btn-info").removeClass("btn-info");
+
+    $(".btn-outline-info").addClass("btn-outline-primary");
+    $(".btn-outline-info").removeClass("btn-outline-info");
+    state.time = 0;
+}
 
 function SelectTime(time, cellId) {
     return function() {
-        // your code that does something with param
-        $(".btn-info").addClass("btn-outline-primary");
-        $(".btn-info").removeClass("btn-info");
-
-        $(".btn-outline-info").addClass("btn-outline-primary");
-        $(".btn-outline-info").removeClass("btn-outline-info");
+        // ResetVisibility();
+        GetTrailLength();
 
         //
         $("." + cellId).removeClass("btn-outline-primary");
@@ -161,10 +167,13 @@ function RenderTable(periods) {
                 $(newButton).addClass("btn col p-2 m-1 shadow").text(bu_text);
                 //
                 // check if time is awailable or not
-                var isSuitable = true;
+                var isSuitable = false;
                 for (let period of periods) {
-                    if (ConvertToTime(period.start) <= ConvertToTime(bu_text) && ConvertToTime(bu_text) < ConvertToTime(period.finish)) {
-                        isSuitable = false;
+                    var curPeriodFrom = new Date(period.From);
+                    var curPeriodTo = new Date(period.To);
+
+                    if (curPeriodFrom <= ConvertToTime(bu_text) && ConvertToTime(bu_text) < curPeriodTo) {
+                        isSuitable = true;
                     }
                 }
 
@@ -287,10 +296,8 @@ function Create() {
 
         partner_id: "0130",
     };
-    console.log(postData);
 
     $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
-        console.log(data);
         window.location.href = "";
     });
 
@@ -300,6 +307,10 @@ function Create() {
 // 
 
 $(document).ready(function() {
+    if ($("#time_table").length) {
+        $("#text_operation_time").text("Время операции: --:--:--");
+    }
+
     function GetOperationTimeSpan() {
         $.get("/api/v1/yard/OperationLength", {
                 operation: $('#operations :selected').val(),
@@ -307,8 +318,8 @@ $(document).ready(function() {
             },
             function(data) {
                 timeSpan = JSON.parse(data);
-                console.log(timeSpan);
-
+                var time = new Date(new Date().setHours(0, timeSpan, 0, 0));
+                $("#text_operation_time").text("Время операции: " + time.toLocaleTimeString());
             });
 
 
@@ -319,17 +330,7 @@ $(document).ready(function() {
             },
             function(data) {
                 periods = JSON.parse(data);
-                console.log(periods);
 
-                periods = [{
-                    'start': "9:00",
-                    'finish': "10:00"
-                }, {
-                    'start': "12:00",
-                    'finish': "13:00"
-                }];
-
-                periods = [];
                 RenderTable(periods);
 
             });
@@ -350,8 +351,6 @@ $(document).ready(function() {
             $("#time_table").removeClass("d-none");
             try {
                 GetOperationTimeSpan();
-                GetTrailLength();
-                updateBusyPeriods();
             } catch (e) {
                 console.log(e);
             }
