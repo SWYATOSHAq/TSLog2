@@ -47,6 +47,9 @@
         <div class="row p-2 m-1 d-none">
             <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
         </div>
+        <div class="d-grid gap-2">
+            <button class="btn btn-success hide-on-print" type="button" onclick="location.href = '/p/user/NewRequest?date=' + $('.datepicker').datepicker('getDate').toLocaleDateString()">+</button>
+        </div>
 
         <div class="cards-list">
             <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />

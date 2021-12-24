@@ -242,7 +242,7 @@ function RenderCard(base, card, date) {
     $(cardBodyButton).addClass("btn btn-outline-info m-3");
     $(cardBodyButton).text("открыть");
     $(cardBodyButton).click(function() {
-        location.href = '?id=10000005&date=' + date;
+        location.href = '?id=' + card.Id + '&date=' + date;
     });
     //
     baseCard.append(cardHeader);
