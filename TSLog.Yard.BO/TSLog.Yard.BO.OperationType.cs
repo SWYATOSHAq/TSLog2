@@ -11,31 +11,31 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Приход, расход
         /// </summary>
-        public enum TypeDirection 
-        { 
+        public enum TypeDirection
+        {
             /// <summary>
             /// Приход
             /// </summary>
-            In, 
+            In,
             /// <summary>
             /// Расход
             /// </summary>
-            Out 
+            Out
         };
         /// <summary>
         /// Приход или расход
         /// </summary>
-        public TypeDirection Direction { get; private set; } 
-        public OperationType(long id, TypeDirection direction, 
-            string code, string name, string shortName, string altName, string displayName, int time, string note, 
-            bool isActive = true) 
+        public TypeDirection Direction { get; private set; }
+        public OperationType(long id, TypeDirection direction,
+            string code, string name, string shortName, string altName, string displayName, int time, string note,
+            bool isActive = true)
             : base(id, code, name, shortName, altName, displayName, note, isActive)
         {
             Direction = direction;
             Time = time > 0 ? time : DefaultTime;
         }
         private OperationType() : base()
-        { 
+        {
             Direction = TypeDirection.Out;
             Time = 0;
         }
@@ -48,7 +48,7 @@ namespace TSLog.Yard.BO
 
         public override string ToString()
         {
-            return $"{this.DisplayName} ({GetFormattedTime()})";
+            return $"{this.DisplayName}";
         }
 
         private static OperationType? _null = null;

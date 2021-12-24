@@ -43,9 +43,32 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             //
 
+            var busyPeriods = yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind);
+            //
+            Text = JsonSerializer.Serialize(busyPeriods);
+            return Text;
+        }
+
+        [HttpGet("OperationLength")]
+        public string GetOperationLength()
+        {
+            // TODO test
+            // default
+            var Text = "";
+            //
+
+            string strOperation = Request.Query["operation"];
+            var operation = yardStorage.GetOperationType(strOperation);
+
+            string strVehicleKind = Request.Query["vehicle_kind"];
+            var vehicleKind = yardStorage.GetVehicleKind(strVehicleKind);
+
+            //
+            var timeSpan = yardStorage.GetTime(operation, vehicleKind);
+
             //var busyPeriods = yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind);
             ////
-            //Text = JsonSerializer.Serialize(busyPeriods);
+            Text = JsonSerializer.Serialize(timeSpan);
             return Text;
         }
 

@@ -43,7 +43,7 @@ const time_split = 4;
 const time_start = 2;
 const time_finish = 24;
 //
-var trail_length = 5;
+var trail_length = 0;
 
 function GetTrailLength() {
     var operation_type_time = $("#operations").children(':selected').text().split("(")[1].split(")")[0];
@@ -300,15 +300,26 @@ function Create() {
 // 
 
 $(document).ready(function() {
-    function updateBusyPeriods() {
-        $.get("/api/v1/yard/BusyPeriods", {
-                date: $(".datepicker").datepicker('getDate').toLocaleDateString(),
+    function GetOperationTimeSpan() {
+        $.get("/api/v1/yard/OperationLength", {
                 operation: $('#operations :selected').val(),
-                gate: $('#gates :selected').val(),
                 vehicle_kind: $('#vehicle_kind :selected').val(),
             },
             function(data) {
-                console.log(data);
+                timeSpan = JSON.parse(data);
+                console.log(timeSpan);
+
+            });
+
+
+        $.get("/api/v1/yard/BusyPeriods", {
+                date: $(".datepicker").datepicker('getDate').toLocaleDateString(),
+                operation: $('#operations :selected').val(),
+                vehicle_kind: $('#vehicle_kind :selected').val(),
+            },
+            function(data) {
+                periods = JSON.parse(data);
+                console.log(periods);
 
                 periods = [{
                     'start': "9:00",
@@ -338,6 +349,7 @@ $(document).ready(function() {
         } else {
             $("#time_table").removeClass("d-none");
             try {
+                GetOperationTimeSpan();
                 GetTrailLength();
                 updateBusyPeriods();
             } catch (e) {
@@ -352,14 +364,5 @@ $(document).ready(function() {
 
     $("#vehicle_kind").change(function() {
         manageTimeTable();
-    });
-});
-
-
-$(document).ready(function() {
-
-    $("#operations").change(function() {
-        // hide time panel if operation type is not selected
-
     });
 });
