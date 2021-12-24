@@ -307,7 +307,9 @@ function Create() {
 // 
 
 $(document).ready(function() {
-    $("#text_operation_time").text("Время операции: --:--:--");
+    if ($("#time_table").length) {
+        $("#text_operation_time").text("Время операции: --:--:--");
+    }
 
     function GetOperationTimeSpan() {
         $.get("/api/v1/yard/OperationLength", {
