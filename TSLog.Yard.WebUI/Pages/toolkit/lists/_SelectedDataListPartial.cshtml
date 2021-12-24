@@ -7,7 +7,7 @@
 @foreach (var curOperation in cardOperationsList)
 {
     <div class="card m-3 action-card">
-        <div class="card-header">@curOperation.GetPlanTime()</div>
+        <div class="card-header">@curOperation.GetPlanTime() (@curOperation.Getdate())</div>
         <div class="card-body">
             @if (DisplayAdditionalInfo)
             {

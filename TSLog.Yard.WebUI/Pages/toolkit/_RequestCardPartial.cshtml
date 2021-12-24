@@ -50,12 +50,12 @@
 
     var workersdata = storage.GetWorkers(cardData);
     int humanHoursSum = 0;
-    foreach (var position in workersdata.Keys )
+    foreach (var position in workersdata.Keys)
     {
         humanHoursSum += workersdata[position];
     }
 
-    textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum>0 ? humanHoursSum.ToString() : "" , true));
+    textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum > 0 ? humanHoursSum.ToString() : "", true));
 
 
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
@@ -117,14 +117,60 @@
         @if (cardData == Operation.Empty)
         {
             <div class="d-grid gap-2 col-4">
-                <button class="btn btn-success hide-on-print" type="button" onclick="Create()">создать</button>
+                <button class="btn btn-outline-success hide-on-print" type="button" onclick="Create()">создать</button>
             </div>
         }
         else
         {
-            <div class="d-grid gap-2 col-4">
-                <button class="btn btn-info hide-on-print" type="button" onclick="PrintCard()">печать</button>
-            </div>
+            if (isAdmin)
+            {
+
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">печать</button>
+                </div>
+                //
+
+                switch (cardData.State.Code)
+                {
+                    case "CONFIRMED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">принять машину</button>
+                        </div>
+                        break;
+                    case "STARTED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">поставить на ворота</button>
+                        </div>
+                        break;
+                    case "WORK_STARTED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">завершить работу</button>
+                        </div>
+                        break;
+                    case "WORK_FINISHED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">отпустить машину</button>
+                        </div>
+                        break;
+                    default:
+                        break;
+                }
+                <div class="mt-5"></div>
+
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">удалить</button>
+                </div>
+            }
+            else
+            {
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">править</button>
+                </div>
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">отменить</button>
+                </div>
+            }
+
         }
         <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
 
