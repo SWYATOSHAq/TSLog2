@@ -506,7 +506,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var sql = 
                         $"select (yard.get_avalible_windows(:p_start_date," +
                         $"                                 :p_finish_date," +
                         $"                                 :p_operation_type_code," +
@@ -699,10 +699,10 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(GetPositionById));
             var workers = new Dictionary<Position, short>();
             using (var connection = CloneConnection())
-            {
+            {                
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
+                    var sql = 
                         $"select position_id, workers_count from {YardSchema}.v_vk_ot_worker vkotw " +
                         $" where vkotw.operation_type_id = :operation_type_id " +
                         $"   and vkotw.vehicle_kind_id = :vehicle_kind_id";
@@ -933,7 +933,7 @@ namespace TSLog.Yard.Data
             // Синхронизация складских действ (добавляем новые, удаляем удалённые)
             var actions = new Dictionary<string, WarehouseAction>();
             var indicators = new Dictionary<string, short>();
-            var temp = GetActions(operation);
+            var temp = GetActions(operation);            
             foreach (var action in temp)
             {
                 var key = action.Key;
@@ -1086,9 +1086,9 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
             command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
-            command.Parameters.Add(CreateParameter("p_partner_id", NpgsqlDbType.Varchar,
+            command.Parameters.Add(CreateParameter("p_partner_id", NpgsqlDbType.Varchar, 
                 action.Partner != null ? action.Partner.Id : DBNull.Value));
-            command.Parameters.Add(CreateParameter("p_partner_action_id", NpgsqlDbType.Varchar,
+            command.Parameters.Add(CreateParameter("p_partner_action_id", NpgsqlDbType.Varchar, 
                 string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : DBNull.Value));
             command.ExecuteScalar();
             connection.Close();

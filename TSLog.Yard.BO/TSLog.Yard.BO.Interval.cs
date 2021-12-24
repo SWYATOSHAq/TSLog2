@@ -17,7 +17,6 @@
         /// Ворота
         /// </summary>
         public Gate Gate { get; private set; } = Gate.Null;
-
         public Interval(DateTime from, DateTime to, Gate? gate = null) 
         {
             if (gate == null)
@@ -27,6 +26,42 @@
             From = from;
             To = to;
             Gate = gate;
+        }
+        public static Interval[] Union(Interval[] intervals)
+        {
+            var result = new List<Interval>();
+            var moments = new Dictionary<DateTime, short>();
+            foreach (var interval in intervals)
+            {
+                if (!moments.ContainsKey(interval.From))
+                    moments.Add(interval.From, 1);
+                else
+                    moments[interval.From] += 1;
+                if (!moments.ContainsKey(interval.To))
+                    moments.Add(interval.To, -1);
+                else
+                    moments[interval.To] -= 1;
+            }
+            var dates = moments.Keys.ToList();
+            dates.Sort();
+            DateTime from = DateTime.MinValue;
+            DateTime to = DateTime.MinValue;
+            short state = 0;
+            foreach (var date in dates)
+            {
+                state += moments[date];
+                if (state > 0 && from == DateTime.MinValue)
+                    from = date;
+                else if (state <= 0 && from != DateTime.MinValue)
+                {
+                    to = date;
+                    var interval = new Interval(from, to);
+                    result.Add(interval);
+                    from = DateTime.MinValue;
+                    to = DateTime.MinValue;
+                }
+            }
+            return result.ToArray();
         }
     }
 }
