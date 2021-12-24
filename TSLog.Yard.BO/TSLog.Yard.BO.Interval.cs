@@ -27,6 +27,11 @@
             To = to;
             Gate = gate;
         }
+        /// <summary>
+        /// Объединение интервалов
+        /// </summary>
+        /// <param name="intervals"></param>
+        /// <returns></returns>
         public static Interval[] Union(Interval[] intervals)
         {
             var result = new List<Interval>();
