@@ -282,7 +282,7 @@ $(document).ready(function() {
     function LoadCardsList(dateParam) {
 
         if ($("#time_table").length) {
-            // manageTimeTable();
+            manageTimeTable(dateParam);
         }
         $.get("/api/v1/yard/operationsList", {
                 "date": dateParam
@@ -310,14 +310,14 @@ $(document).ready(function() {
         .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now')
         .on("changeDate", function(e) {
             LoadCardsList(e.date.toLocaleDateString());
-            // manageTimeTable();
         });
 
     if ($("#time_table").length) {
         $("#text_operation_time").text("Время операции: --:--:--");
     }
 
-    function GetOperationTimeSpan() {
+    function GetOperationTimeSpan(inpDate) {
+
         $.get("/api/v1/yard/OperationLength", {
                 operation: $('#operations :selected').val(),
                 vehicle_kind: $('#vehicle_kind :selected').val(),
@@ -328,9 +328,8 @@ $(document).ready(function() {
                 $("#text_operation_time").text("Время операции: " + time.toLocaleTimeString());
             });
 
-
         $.get("/api/v1/yard/BusyPeriods", {
-                date: $(".datepicker").datepicker('getDate').toLocaleDateString(),
+                date: inpDate,
                 operation: $('#operations :selected').val(),
                 vehicle_kind: $('#vehicle_kind :selected').val(),
             },
@@ -347,7 +346,7 @@ $(document).ready(function() {
 
     $("#time_table").addClass("d-none");
 
-    function manageTimeTable() {
+    function manageTimeTable(inpDate) {
         var val1 = $('#operations :selected').val();
         var val2 = $('#vehicle_kind :selected').val();
 
@@ -356,7 +355,7 @@ $(document).ready(function() {
         } else {
             $("#time_table").removeClass("d-none");
             try {
-                GetOperationTimeSpan();
+                GetOperationTimeSpan(inpDate);
             } catch (e) {
                 console.log(e);
             }
@@ -364,10 +363,10 @@ $(document).ready(function() {
     }
 
     $("#operations").change(function() {
-        manageTimeTable();
+        manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
     });
 
     $("#vehicle_kind").change(function() {
-        manageTimeTable();
+        manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
     });
 });
