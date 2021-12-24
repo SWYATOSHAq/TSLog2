@@ -107,7 +107,7 @@ namespace TSLog.Common.Data
             }
             using (var connection = CloneConnection())
             {
-                using (var command = _connection.CreateCommand())
+                using (var command = connection.CreateCommand())
                 {
                     command.CommandText = sql;
                     command.Parameters.Add(new NpgsqlParameter("code", code));
