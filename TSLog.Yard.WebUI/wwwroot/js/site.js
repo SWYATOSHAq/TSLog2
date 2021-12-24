@@ -167,10 +167,13 @@ function RenderTable(periods) {
                 $(newButton).addClass("btn col p-2 m-1 shadow").text(bu_text);
                 //
                 // check if time is awailable or not
-                var isSuitable = true;
+                var isSuitable = false;
                 for (let period of periods) {
-                    if (ConvertToTime(period.start) <= ConvertToTime(bu_text) && ConvertToTime(bu_text) < ConvertToTime(period.finish)) {
-                        isSuitable = false;
+                    var curPeriodFrom = new Date(period.From);
+                    var curPeriodTo = new Date(period.To);
+
+                    if (curPeriodFrom <= ConvertToTime(bu_text) && ConvertToTime(bu_text) < curPeriodTo) {
+                        isSuitable = true;
                     }
                 }
 
@@ -293,10 +296,8 @@ function Create() {
 
         partner_id: "0130",
     };
-    console.log(postData);
 
     $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
-        console.log(data);
         window.location.href = "";
     });
 
@@ -306,6 +307,8 @@ function Create() {
 // 
 
 $(document).ready(function() {
+    $("#text_operation_time").text("Время операции: --:--:--");
+
     function GetOperationTimeSpan() {
         $.get("/api/v1/yard/OperationLength", {
                 operation: $('#operations :selected').val(),
@@ -325,17 +328,7 @@ $(document).ready(function() {
             },
             function(data) {
                 periods = JSON.parse(data);
-                console.log(periods);
 
-                periods = [{
-                    'start': "9:00",
-                    'finish': "10:00"
-                }, {
-                    'start': "12:00",
-                    'finish': "13:00"
-                }];
-
-                periods = [];
                 RenderTable(periods);
 
             });
