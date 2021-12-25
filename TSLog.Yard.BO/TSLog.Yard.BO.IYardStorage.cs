@@ -54,10 +54,10 @@ namespace TSLog.Yard.BO
     {
         public WarehouseAction GetAction(ActionKind actionKind, string id);
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);        
-        public Partner GetPartner(string id);        
+        public Partner GetPartner(string id);
+        public Employee[] GetPartnerManagers(Partner partner);
         public Partner[] GetPartners();
         public Employee GetEmployee(int id);
-        public Employee GetManager(Partner partner);
         public Employee[] GetEmployees();
         public Position GetPosition(int id);
         public Position GetPosition(string code);

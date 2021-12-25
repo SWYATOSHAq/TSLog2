@@ -57,10 +57,6 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployee(id);
         }
-        public Employee GetManager(Partner partner)
-        {
-            return _oracleStorage.GetManager(partner);
-        }
         public Employee[] GetEmployees()
         {
             return _oracleStorage.GetEmployees();
@@ -132,6 +128,10 @@ namespace TSLog.Yard
         public Partner GetPartner(string id)
         {
             return _oracleStorage.GetPartner(id);
+        }
+        public Employee[] GetPartnerManagers(Partner partner)
+        {
+            return _oracleStorage.GetPartnerManagers(partner);
         }
         public Partner[] GetPartners()
         {
