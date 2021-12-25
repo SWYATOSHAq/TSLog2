@@ -111,6 +111,31 @@ namespace TSLog.Yard.Data
                 return partner;
             throw new PartnerNotFoundException(id);
         }
+        public Employee[] GetPartnerManagers(Partner partner)
+        {
+            if (partner == null)
+                throw new ArgumentNullException(nameof (partner));
+
+            var managers = new List<Employee>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerManagersSql = 
+                    $"select pm.manager_id " +
+                    $"  from {CommonSchema}.v_partner_manager pm " +
+                    $" where pm.partner_id = :partner_id";
+                command.CommandText = SelectPartnerManagersSql;
+                command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var managerId = Utils.DbValueToShort(reader["manager_id"]);
+                    var manager = GetEmployee(managerId);
+                    managers.Add(manager);
+                }
+                reader.Close();
+            }
+            return managers.ToArray();
+        }
         public Partner[] GetPartners()
         {
             var partners = new List<Partner>();
@@ -128,7 +153,6 @@ namespace TSLog.Yard.Data
             }
             return partners.ToArray();
         }
-
         private Employee CreateEmployee(DbDataReader reader)
         {
             if (reader == null)

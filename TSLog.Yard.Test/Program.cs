@@ -20,6 +20,9 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.ConnectPgSql(pgsqlUserName, pgsqlPassword);    
     storage.SetPgsqlYardSchema(pgsqlYardSchema);
 
+    var partner = storage.GetPartner("0003");
+    var managers = storage.GetPartnerManagers(partner);
+
     var ot = storage.GetOperationType(1001);
     var vk = storage.GetVehicleKind(1001);
     var g = storage.GetGate(1001);

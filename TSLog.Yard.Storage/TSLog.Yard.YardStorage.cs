@@ -133,6 +133,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPartner(id);
         }
+        public Employee[] GetPartnerManagers(Partner partner)
+        {
+            return _oracleStorage.GetPartnerManagers(partner);
+        }
         public Partner[] GetPartners()
         {
             return _oracleStorage.GetPartners();
