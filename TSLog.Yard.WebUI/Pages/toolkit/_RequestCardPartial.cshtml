@@ -111,6 +111,8 @@
     <div class="row p-2 m-2 shadow">
         <partial name="toolkit/lists/_FieldListPartial" model="textFieldsList" />
     </div>
+
+    <div class="d-none" id="identeficator">@cardData.Id</div>
     <!--  -->
     <div class="row p-2 m-2 d-flex justify-content-center">
 
@@ -134,22 +136,22 @@
                 {
                     case "CONFIRMED":
                         <div class="d-grid m-2 row">
-                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">принять машину</button>
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('StartOperation')">принять машину</button>
                         </div>
                         break;
                     case "STARTED":
                         <div class="d-grid m-2 row">
-                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">поставить на ворота</button>
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('StartOperationWork')">поставить на ворота</button>
                         </div>
                         break;
                     case "WORK_STARTED":
                         <div class="d-grid m-2 row">
-                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">завершить работу</button>
+                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('FinishOperationWork')">завершить работу</button>
                         </div>
                         break;
                     case "WORK_FINISHED":
                         <div class="d-grid m-2 row">
-                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="PrintCard()">отпустить машину</button>
+                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('FinishOperation')">отпустить машину</button>
                         </div>
                         break;
                     default:
@@ -158,16 +160,16 @@
                 <div class="mt-5"></div>
 
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">удалить</button>
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeState('DeleteOperation')">удалить</button>
                 </div>
             }
             else
             {
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">править</button>
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeOperation()">править</button>
                 </div>
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">отменить</button>
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeState('CancelOperation')">отменить</button>
                 </div>
             }
 

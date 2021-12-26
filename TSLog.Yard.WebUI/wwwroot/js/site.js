@@ -275,6 +275,19 @@ function Create() {
 
 }
 
+function ChangeState(stateChangeType) {
+    var postData = {
+        operation_id: $("#identeficator").text(),
+        action: stateChangeType,
+    };
+
+    $.post("/api/v1/yard/changeOperationState", postData, function(data) {
+        console.log(data);
+    });
+
+
+}
+
 // 
 
 $(document).ready(function() {

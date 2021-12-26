@@ -215,6 +215,10 @@ namespace TSLog.Yard.BO
                 _actions.Remove(key);
         }
         //Getdate TODO
+        public string GetDate()
+        {
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"( {PlanWorkStartDate:dd.MM.yyyy})");
+        }
         public string GetStartTime()
         {
             return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm:ss}") +
