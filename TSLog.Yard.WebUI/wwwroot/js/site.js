@@ -282,7 +282,8 @@ function ChangeState(stateChangeType) {
     };
 
     $.post("/api/v1/yard/changeOperationState", postData, function(data) {
-        console.log(data);
+        //alert(data);
+        window.location.href = window.location.search;
     });
 
 

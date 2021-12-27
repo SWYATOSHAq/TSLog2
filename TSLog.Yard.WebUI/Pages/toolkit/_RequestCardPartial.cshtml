@@ -46,7 +46,7 @@
     textDataHeader.Add("Ответственный", ("text_responsible", cardData.Manager?.DisplayName, true));
     textDataHeader.Add("Ответственный (склад)", ("text_responsible_warehouse", cardData.ResponsibleOfficer?.DisplayName, false));
     textDataHeader.Add("Состояние", ("text_state", cardData.State?.DisplayName, true));
-    textDataHeader.Add("Время операции", ("text_operation_time", new TimeSpan(0, storage.GetTime(cardData.Type, cardData.VehicleKind), 0).ToString(@"hh\:mm\:ss"), true));
+    textDataHeader.Add("План. время операции", ("text_operation_time", new TimeSpan(0, storage.GetTime(cardData.Type, cardData.VehicleKind), 0).ToString(@"hh\:mm\:ss"), true));
 
     var workersdata = storage.GetWorkers(cardData);
     int humanHoursSum = 0;
