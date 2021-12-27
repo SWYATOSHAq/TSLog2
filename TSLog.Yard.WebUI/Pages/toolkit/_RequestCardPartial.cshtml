@@ -50,12 +50,12 @@
 
     var workersdata = storage.GetWorkers(cardData);
     int humanHoursSum = 0;
-    foreach (var position in workersdata.Keys )
+    foreach (var position in workersdata.Keys)
     {
         humanHoursSum += workersdata[position];
     }
 
-    textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum>0 ? humanHoursSum.ToString() : "" , true));
+    textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum > 0 ? humanHoursSum.ToString() : "", true));
 
 
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
@@ -111,20 +111,68 @@
     <div class="row p-2 m-2 shadow">
         <partial name="toolkit/lists/_FieldListPartial" model="textFieldsList" />
     </div>
+
+    <div class="d-none" id="identeficator">@cardData.Id</div>
     <!--  -->
     <div class="row p-2 m-2 d-flex justify-content-center">
 
         @if (cardData == Operation.Empty)
         {
             <div class="d-grid gap-2 col-4">
-                <button class="btn btn-success hide-on-print" type="button" onclick="Create()">создать</button>
+                <button class="btn btn-outline-success hide-on-print" type="button" onclick="Create()">создать</button>
             </div>
         }
         else
         {
-            <div class="d-grid gap-2 col-4">
-                <button class="btn btn-info hide-on-print" type="button" onclick="PrintCard()">печать</button>
-            </div>
+            if (isAdmin)
+            {
+
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">печать</button>
+                </div>
+                //
+
+                switch (cardData.State.Code)
+                {
+                    case "CONFIRMED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('StartOperation')">принять машину</button>
+                        </div>
+                        break;
+                    case "STARTED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('StartOperationWork')">поставить на ворота</button>
+                        </div>
+                        break;
+                    case "WORK_STARTED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('FinishOperationWork')">завершить работу</button>
+                        </div>
+                        break;
+                    case "WORK_FINISHED":
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-warning hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('FinishOperation')">отпустить машину</button>
+                        </div>
+                        break;
+                    default:
+                        break;
+                }
+                <div class="mt-5"></div>
+
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeState('DeleteOperation')">удалить</button>
+                </div>
+            }
+            else
+            {
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeOperation()">править</button>
+                </div>
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeState('CancelOperation')">отменить</button>
+                </div>
+            }
+
         }
         <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
 

@@ -178,8 +178,8 @@ namespace TSLog.Yard.BO
         public WarehouseAction GetAction(ActionKind kind, LegalEntity partner, string partnerActionNumber)
         {
             var actions = _actions.Values.ToList();
-            actions.Select(a => a.Kind == kind 
-                && a.Partner.Id == partner.Id 
+            actions.Select(a => a.Kind == kind
+                && a.Partner.Id == partner.Id
                 && a.PartnerActionId == partnerActionNumber).ToArray();
             if (actions.Count > 0)
                 return actions[0];
@@ -214,7 +214,11 @@ namespace TSLog.Yard.BO
             if (_actions.ContainsKey(key))
                 _actions.Remove(key);
         }
-
+        //Getdate TODO
+        public string GetDate()
+        {
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"( {PlanWorkStartDate:dd.MM.yyyy})");
+        }
         public string GetStartTime()
         {
             return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm:ss}") +

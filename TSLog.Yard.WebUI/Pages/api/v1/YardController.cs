@@ -174,8 +174,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             var Text = "";
 
-            string operationID = Request.Query["operation_id"];
-            string actionWithOperation = Request.Query["operation"];
+            string operationID = Request.Form["operation_id"];
+            string actionWithOperation = Request.Form["action"];
 
             long tmpID = 0;
             if (long.TryParse(operationID, out tmpID))
@@ -192,6 +192,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         break;
                     case "StartOperationWork":
                         yardStorage.StartOperationWork(loadedOperation);
+                        break;
+                    case "FinishOperation":
+                        yardStorage.FinishOperation(loadedOperation);
+                        break;
+                    case "FinishOperationWork":
+                        yardStorage.FinishOperationWork(loadedOperation);
                         break;
                     case "CancelOperation":
                         yardStorage.CancelOperation(loadedOperation);
