@@ -147,12 +147,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 // create
                 var type = yardStorage.GetOperationType(operation_type);
+                var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
 
                 var startDate = DateTime.Parse(start_date);
                 var finishDate = startDate;
-                finishDate = finishDate.Add(new TimeSpan(0, type.Time, 0));
 
-                var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
+
+                finishDate = finishDate.Add(new TimeSpan(0, yardStorage.GetTime(type, vehicleKind), 0));
+
                 short priority = 1;
 
                 var defState = yardStorage.GetOperationState("CREATED");
@@ -160,8 +162,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, defState, priority, defManager);
 
-                yardStorage.AddOperation(newOperation);
-                yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+
+                if (order_id != "")
+                {
+                    newOperation.AddAction(new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+                    yardStorage.AddOperation(newOperation);
+                }
+                // TODO somehow dont work properly
+                //yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.SetOperationGate(newOperation); // TODO catch an erorr
 
                 Text = JsonSerializer.Serialize(newOperation);
