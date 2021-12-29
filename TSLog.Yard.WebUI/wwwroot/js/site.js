@@ -203,6 +203,10 @@ function ConvertTime(strTime) {
     return new Date(strTime).toLocaleTimeString();
 }
 
+function ConvertDate(strTime) {
+    return new Date(strTime).toLocaleDateString();
+}
+
 function RenderCard(base, card, date) {
 
     var baseCard = document.createElement("div");
@@ -210,7 +214,7 @@ function RenderCard(base, card, date) {
     //
     var cardHeader = document.createElement("div");
     $(cardHeader).addClass("card-header");
-    $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate));
+    $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate) + " (" + ConvertDate(card.PlanWorkFinishDate) + ")");
     //
     var cardBody = document.createElement("div");
     $(cardBody).addClass("card-body");
@@ -269,7 +273,12 @@ function Create() {
     };
 
     $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
-        window.location.href = "";
+        console.log(data);
+        var card = JSON.parse(data);
+        // TODO пока пусть редиректит на лк TSL
+        // но тут должна быть вилка в зависимости от типа пользователя
+        // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+        location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
     });
 
 
@@ -282,8 +291,10 @@ function ChangeState(stateChangeType) {
     };
 
     $.post("/api/v1/yard/changeOperationState", postData, function(data) {
+        var card = JSON.parse(data);
+        console.log(card);
         //alert(data);
-        window.location.href = window.location.search;
+        // window.location.href = window.location.search;
     });
 
 
