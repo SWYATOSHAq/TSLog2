@@ -1102,7 +1102,7 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_partner_id", NpgsqlDbType.Varchar, 
                 action.Partner != null ? action.Partner.Id : DBNull.Value));
             command.Parameters.Add(CreateParameter("p_partner_action_id", NpgsqlDbType.Varchar, 
-                string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : DBNull.Value));
+                !string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : DBNull.Value));
             command.ExecuteScalar();
             connection.Close();
         }

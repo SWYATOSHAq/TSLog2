@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TSLog.Partners.BO;
+using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
@@ -163,11 +164,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, defState, priority, defManager);
 
 
-                if (order_id != "")
-                {
-                    newOperation.AddAction(new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
-                    yardStorage.AddOperation(newOperation);
-                }
+                newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set", 
+                    yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+                yardStorage.AddOperation(newOperation);
+
                 // TODO somehow dont work properly
                 //yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.SetOperationGate(newOperation); // TODO catch an erorr
