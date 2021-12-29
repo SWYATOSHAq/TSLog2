@@ -294,7 +294,7 @@ function ChangeState(stateChangeType) {
         var card = JSON.parse(data);
         console.log(card);
         //alert(data);
-        // window.location.href = window.location.search;
+        window.location.href = window.location.search;
     });
 
 
