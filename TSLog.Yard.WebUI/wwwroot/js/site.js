@@ -269,7 +269,7 @@ function Create() {
 
         start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
 
-        partner_id: "0130",
+        partner_id: $("#partner").val(),
     };
 
     $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {

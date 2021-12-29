@@ -44,11 +44,15 @@
             <button type="button" class="btn btn-primary col-6 m-1 d-none">информация по всем воротам</button>
             <!--  -->
         </div>
-        <div class="row p-2 m-1 d-none">
-            <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
-        </div>
         <div class="d-grid gap-2">
             <button title="создать заявку" class="btn btn-outline-success hide-on-print" type="button" onclick="location.href = '/p/user/NewRequest?date=' + $('.datepicker').datepicker('getDate').toLocaleDateString()"><h5>+</h5></button>
+        </div>
+        <div class="row p-2">
+        Фильтр:
+        </div>
+
+        <div class="row p-2 m-1" id="gatesFilter">
+            <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
         </div>
 
         <div class="cards-list">

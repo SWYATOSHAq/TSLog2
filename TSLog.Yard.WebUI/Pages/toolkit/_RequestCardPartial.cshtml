@@ -1,4 +1,5 @@
-﻿@using TSLog.Yard.BO
+﻿@using TSLog.Partners.BO
+@using TSLog.Yard.BO
 @model (TSLog.Yard.BO.Operation, IYardStorage, bool, bool)
 @{
     var cardData = Model.Item1;
@@ -7,10 +8,15 @@
     var isAdmin = Model.Item4;
     //-----------
 
-
+    
 
     var gatesList = (storage.GetGates(),
         cardData.Gate?.Code,
+        isEnabled,
+        false
+        );
+
+    var partnerList = (storage.GetPartners(),
         isEnabled,
         false
         );
@@ -36,7 +42,7 @@
     //cardData.Type.UpdateTime();
 
     var textDataHeader = new Dictionary<string, (string, string, bool)>();
-    textDataHeader.Add("Наименование организации", ("text_org_name", "Детский мир", true));
+    textDataHeader.Add("Наименование организации", ("text_org_name", Partner.Serialize(cardData.GetPartners()), true));
 
     textDataHeader.Add("Начало", ("text_stert_time", cardData.GetStartTime(), true));
     textDataHeader.Add("Время работ", ("text_work_time", cardData.GetWorkTime(), false));
@@ -98,6 +104,10 @@
         </div>
 
     }
+
+    <div class="row p-2 m-2 rem-outline-on-print">
+        <partial name="toolkit/lists/_PartnerDropdownPartial" model="partnerList" />
+    </div>
 
     <!--
     <div class="row p-2 m-2 rem-outline-on-print">
