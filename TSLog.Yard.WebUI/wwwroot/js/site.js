@@ -203,6 +203,10 @@ function ConvertTime(strTime) {
     return new Date(strTime).toLocaleTimeString();
 }
 
+function ConvertDate(strTime) {
+    return new Date(strTime).toLocaleDateString();
+}
+
 function RenderCard(base, card, date) {
 
     var baseCard = document.createElement("div");
@@ -210,7 +214,7 @@ function RenderCard(base, card, date) {
     //
     var cardHeader = document.createElement("div");
     $(cardHeader).addClass("card-header");
-    $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate));
+    $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate) + " (" + ConvertDate(card.PlanWorkFinishDate) + ")");
     //
     var cardBody = document.createElement("div");
     $(cardBody).addClass("card-body");
