@@ -163,6 +163,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 yardStorage.AddOperation(newOperation);
                 yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.SetOperationGate(newOperation); // TODO catch an erorr
+
+                Text = JsonSerializer.Serialize(newOperation);
             }
 
             return Text;
