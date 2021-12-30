@@ -27,9 +27,10 @@ namespace TSLog.Yard.BO
         /// </summary>
         public TypeDirection Direction { get; private set; }
         public OperationType(long id, TypeDirection direction,
-            string code, string name, string shortName, string altName, string displayName, int time, string note,
-            bool isActive = true)
-            : base(id, code, name, shortName, altName, displayName, note, isActive)
+            string code, string name, string shortName, string altName, string displayName, int time,
+            bool isActive = true, short displayOrder = -1,
+            string note = "")
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
             Direction = direction;
             Time = time > 0 ? time : DefaultTime;
@@ -61,7 +62,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new OperationType(-1, TypeDirection.Out, "NULL", "NULL", "NULL", "NULL", "NULL", DefaultTime, "NULL");
+                    _null = new OperationType(-1, TypeDirection.Out, "NULL", "NULL", "NULL", "NULL", "NULL", DefaultTime, true, -1, "NULL");
                 return _null;
             }
         }

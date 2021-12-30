@@ -29,8 +29,10 @@ namespace TSLog.Yard.BO
         public double BodyWidth { get; private set; }
 
         public VehicleKind(short id, string code, string name, string shortName, string altName, string displayName,
-            int capacity, short palletsCount, double bodyLength, double bodyWidth, string note)
-            : base(id, code, name, shortName, altName, displayName, note) 
+            int capacity, short palletsCount, double bodyLength, double bodyWidth, 
+            bool isActive = true, short displayOrder = -1,
+            string note = "")
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note) 
         {
             Capacity = capacity > 0 ? capacity : DefaultCapacity;
             PalletsCount = palletsCount > 0 ? palletsCount : DefaultPallectsCount;
@@ -56,7 +58,7 @@ namespace TSLog.Yard.BO
             {
                 if (_null == null)
                     _null = new VehicleKind(-1, "NULL", "NULL", "NULL", "NULL", "NULL", 
-                        DefaultCapacity, DefaultPallectsCount, DefaultBodyLength, DefaultBodyWidth, "NULL");
+                        DefaultCapacity, DefaultPallectsCount, DefaultBodyLength, DefaultBodyWidth, true, -1, "NULL");
                 return _null;
             }
         }

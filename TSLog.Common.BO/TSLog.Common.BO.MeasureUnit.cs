@@ -31,9 +31,11 @@
         /// </summary>
         public MeasureUnit BaseUnit { get; set; }
 
-        public MeasureUnit(long id, string code, string name, string shortName, string note,
-            string category, bool isBasic, double coefficient, bool isDefault = false)
-            : base(id, code, name, shortName, string.Empty, string.Empty, note)
+        public MeasureUnit(long id, string code, string name, string shortName, string altName, string displayName,
+            bool isActive, short displayOrder,
+            string category, bool isBasic, double coefficient, bool isDefault = false,
+            string note = "")
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
             Category = !string.IsNullOrWhiteSpace(category) ? category.Trim() : string.Empty;
             IsBasic = isBasic;
@@ -57,7 +59,7 @@
             get
             {
                 if (_null == null)
-                    _null = new MeasureUnit(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, 1.0);
+                    _null = new MeasureUnit(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL", true, 1.0);
                 return _null;
             }
         }

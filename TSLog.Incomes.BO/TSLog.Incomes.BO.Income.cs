@@ -195,7 +195,7 @@ namespace TSLog.Incomes.BO
 
         public Income(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state,
             string note = "")
-            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
+            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, true, -1, note)
         {
             Number = number.Trim();
             Date = date;

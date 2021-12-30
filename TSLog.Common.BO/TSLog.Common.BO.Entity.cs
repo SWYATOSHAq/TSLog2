@@ -45,8 +45,13 @@
         /// </summary>
         public bool IsActive { get; protected set; }
 
+        /// <summary>
+        /// Порядок отображения
+        /// </summary>
+        public long DisplayOrder { get; private set; }
+
         public Entity(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "",
-            string note = "", bool isActive = true)
+            bool isActive = true, long displayOrder = -1, string note = "")
         {
             Id = id >= 0 ? id : -1;
             Code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
@@ -56,6 +61,7 @@
             DisplayName = !string.IsNullOrWhiteSpace(displayName) ? displayName.Trim() : string.Empty;
             Note = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             IsActive = isActive;
+            DisplayOrder = displayOrder > 0 ? displayOrder : -1;
         }
         protected Entity()
         {
@@ -66,6 +72,8 @@
             AltName = string.Empty;
             DisplayName = string.Empty;
             Note = string.Empty;
+            IsActive = true;
+            DisplayOrder = -1;
         }
 
         private static Entity _null = null;
@@ -78,7 +86,7 @@
             get
             {
                 if (_null == null)
-                    _null = new Entity(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
+                    _null = new Entity(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
                 return _null;
             }
         }

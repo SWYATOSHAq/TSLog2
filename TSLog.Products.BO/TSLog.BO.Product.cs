@@ -162,8 +162,9 @@ namespace TSLog.Products.BO
 
         public Product(string id, string code, string gtin, string name,
             string shortName = "", string altName = "", string displayName = "",
+            bool isActive = true, short displayOrder = -1,
             string note = "")
-            : base(-1, code, name, shortName, altName, displayName, note)
+            : base(-1, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
             Id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
             Gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
@@ -184,7 +185,7 @@ namespace TSLog.Products.BO
             get
             {
                 if (_null == null)
-                    _null = new Product("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
+                    _null = new Product("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
                 return _null;
             }
         }

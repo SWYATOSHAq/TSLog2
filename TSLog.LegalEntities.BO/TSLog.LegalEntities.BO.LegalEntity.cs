@@ -34,12 +34,12 @@ namespace TSLog.LegalEntities.BO
         /// </summary>
         public string Info2 { get; set; }
 
-        public LegalEntity(string id, string name = "", 
-            string shortName = "", string altName = "", string displayName = "", string note = "", string info1 = "", string info2 = "")
-            : base(-1, id, name, shortName, altName, displayName, note)
+        public LegalEntity(string id, string name = "", string shortName = "", string altName = "", string displayName = "", 
+            string note = "", string info1 = "", string info2 = "", bool isActive = true, long displayOrder = -1)
+            : base(-1, id, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
-            Info1 = info1;
-            Info2 = info2;
+            Info1 = !string.IsNullOrWhiteSpace(info1) ? info1 : string.Empty;
+            Info2 = !string.IsNullOrWhiteSpace(info2) ? info2 : string.Empty;
         }
         protected LegalEntity() : base()
         {

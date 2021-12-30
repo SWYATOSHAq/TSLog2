@@ -12,8 +12,10 @@ namespace TSLog.Yard.BO
         /// Время проведения элементарной работы
         /// </summary>
         public int Time { get; private set; }
-        public Work(short id, string code, string name, string shortName, string altName, string displayName, short time, string note) 
-            : base(id, code, name, shortName, altName, displayName, note)
+        public Work(short id, string code, string name, string shortName, string altName, string displayName, short time,
+            bool isActive = true, short displayOrder = -1,
+            string note = "") 
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
             Time = time > 0 ? Time : DefaultTime;
         }

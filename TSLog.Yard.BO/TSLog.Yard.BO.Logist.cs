@@ -7,13 +7,13 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Logist : Entity
     {
-        public Logist(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "", string note = "", bool isActive = true)
-            : base(id, code, name, shortName, altName, displayName, note, isActive)
+        public Logist(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "",
+            bool isActive = true, short displayOrder = -1,
+            string note = "")
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         { }
         private Logist() : base()
-        {
-            
-        }
+        { }
         private static Logist? _null = null;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new Logist(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
+                    _null = new Logist(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
                 return _null;
             }
         }

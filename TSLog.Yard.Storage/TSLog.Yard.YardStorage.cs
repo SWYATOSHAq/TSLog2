@@ -133,9 +133,9 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPartnerManagers(partner);
         }
-        public Partner[] GetPartners()
+        public Partner[] GetPartners(bool getOnlyActive = false)
         {
-            return _oracleStorage.GetPartners();
+            return _oracleStorage.GetPartners(getOnlyActive);
         }
         public VehicleKind GetVehicleKind(int id)
         {
