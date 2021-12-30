@@ -8,7 +8,7 @@
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Логист</span>
-    <select id="logists" class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <select id="logists" class="form-select" aria-label="Default select" @(isEnabled ? "" : "disabled")>
     <option value="">Выберите логиста</option>
 
     @foreach (var curGate in cardLogistList)

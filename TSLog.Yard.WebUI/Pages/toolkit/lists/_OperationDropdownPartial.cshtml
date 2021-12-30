@@ -7,7 +7,7 @@
 
 <div class="input-group">
     <span class="input-group-text col-3">Тип операции</span>
-    <select id="operations" class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <select id="operations" class="form-select" aria-label="Default select" @(isEnabled ? "" : "disabled")>
     <option value="">Выберите тип операции</option>
 
     @foreach (var curOperation in cardOperationTypesList)

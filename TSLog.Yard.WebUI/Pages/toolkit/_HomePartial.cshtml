@@ -6,7 +6,7 @@
     var request = Model.Item3;
 }
 @{
-    var gateslist = (storage.GetGates(), "", false, true);
+    var gateslist = (storage.GetGates(), "", true, true);
 
     string reqdate = request.Query["date"];
     var selDate = reqdate != null ? DateTime.Parse(reqdate) : DateTime.Today;
@@ -26,7 +26,7 @@
     }
 
 
-    var operationToRender = (selectedYardOperation, storage, !isAdmin, isAdmin);
+    var operationToRender = (selectedYardOperation, storage, isAdmin, isAdmin);
 
 }
 
@@ -51,7 +51,7 @@
         Фильтр:
         </div>
 
-        <div class="row p-2 m-1" id="gatesFilter">
+        <div class="row p-2 m-1" id="gates-filter">
             <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
         </div>
 

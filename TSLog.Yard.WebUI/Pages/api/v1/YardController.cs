@@ -97,6 +97,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             //
             string operationDate = Request.Query["date"];
             string partnerID = Request.Query["partner_id"];
+            string gate = Request.Query["gate"];
 
             Partner partner = null;
             if (partnerID != null)
@@ -105,13 +106,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var searchPartners = (partner == null || partner == Partner.Null) ? null : new Partner[] { partner };
+            var searchGate = gate != "" ? yardStorage.GetGate(gate) : Gate.Null;
 
             DateTime tmp;
             if (DateTime.TryParse(operationDate, out tmp))
             {
                 // search for period of 1 day or 2 days?
                 var daysSpan = 2;
-
+                // TODO get intervals by partner and gates
+                //var loadedOperations = yardStorage.getope(searchGate, tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1));
                 var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), searchPartners);
                 Text = JsonSerializer.Serialize(loadedOperations);
             }
@@ -164,7 +167,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, defState, priority, defManager);
 
 
-                newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set", 
+                newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
                     yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.AddOperation(newOperation);
 

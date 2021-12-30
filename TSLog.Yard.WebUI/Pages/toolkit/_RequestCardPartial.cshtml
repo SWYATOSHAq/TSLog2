@@ -8,7 +8,7 @@
     var isAdmin = Model.Item4;
     //-----------
 
-    
+
 
     var gatesList = (storage.GetGates(),
         cardData.Gate?.Code,
@@ -79,7 +79,7 @@
     var workerTable = (workersdata, true);
 }
 
-<div class="col p-2 m-3 shadow">
+<div class="col p-2 m-3 shadow" id="card-operation">
     <div class="row p-2 m-3 ">
         @if (cardData == Operation.Empty)
         {
@@ -97,7 +97,7 @@
         <partial name="toolkit/lists/_OperationDropdownPartial" model="operationList" />
     </div>
     <!--  -->
-    @if (!isAdmin && isEnabled)
+    @if (cardData != Operation.Empty)
     {
         <div class="row p-2 m-2 rem-outline-on-print">
             <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />

@@ -259,7 +259,7 @@ function RenderCard(base, card, date) {
 function Create() {
     var postData = {
         operation_type: $("#operations").val(),
-        gate: $("#gates").val(),
+        gate: $("#card-operation .gates").val(),
         vehicle_kind: $("#vehicle_kind").val(),
         vehicle_brand: $("#vehicle_brand").val(),
         vehicle_model: $("#vehicle_model").val(),
@@ -294,7 +294,10 @@ function ChangeState(stateChangeType) {
         var card = JSON.parse(data);
         console.log(card);
         //alert(data);
-        window.location.href = window.location.search;
+        if (stateChangeType == "DeleteOperation")
+            window.location.href = "";
+        else
+            window.location.href = window.location.search;
     });
 
 
@@ -309,8 +312,10 @@ $(document).ready(function() {
         if ($("#time_table").length) {
             manageTimeTable(dateParam);
         }
+        // TODO pass partner_id to get specific information just for this partner
         $.get("/api/v1/yard/operationsList", {
-                "date": dateParam
+                "date": dateParam,
+                "gate": $("#gates-filter .gates").val()
             },
             function(data) {
                 //$(".result").html(data);

@@ -48,3 +48,11 @@ body {
 #time_table, #card_table {
     height: 100vh;
 }
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: right;
+}
