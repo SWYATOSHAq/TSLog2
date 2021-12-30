@@ -58,11 +58,13 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.AddOperation(newOperation);
 
     storage.SetOperationGate(newOperation);
+
     storage.StartOperation(newOperation);
-    storage.SetOperationGate(newOperation);
     storage.StartOperationWork(newOperation);
+
     storage.FinishOperation(newOperation);
     storage.FinishOperationWork(newOperation);
+
     storage.CancelOperation(newOperation);
     storage.DeleteOperation(newOperation);
 
