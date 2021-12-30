@@ -7,8 +7,11 @@ namespace TSLog.Staff.BO
     /// </summary>
     public class Position : Entity
     {
-        public Position(short id, string code, string name = "", string shortName = "", string altName = "", string displayName = "",
-            string note = "") : base(id, code, name, shortName, altName, displayName, note)
+        public Position(short id, string code,
+            string name = "", string shortName = "", string altName = "", string displayName = "",
+            bool isActive = true, short displayOrder = -1,
+            string note = "") 
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         { }
         private Position() : base()
         { }
@@ -22,7 +25,7 @@ namespace TSLog.Staff.BO
             get
             {
                 if (_null == null)
-                    _null = new Position(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
+                    _null = new Position(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
                 return _null;
             }
         }

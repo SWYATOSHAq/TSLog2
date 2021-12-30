@@ -219,6 +219,14 @@ namespace TSLog.Common
         {
             return value != DBNull.Value ? Convert.ToInt32(value) : (defaultValue ?? int.MinValue);
         }
+        public static long DbValueToLong(object value, long? defaultValue = null)
+        {
+            return value != DBNull.Value ? Convert.ToInt64(value) : (defaultValue ?? long.MinValue);
+        }
+        public static double DbValueToDouble(object value, double? defaultValue = null)
+        {
+            return value != DBNull.Value ? Convert.ToDouble(value) : (defaultValue ?? double.MinValue);
+        }
         public static string DbValueToString(object value, string defaultValue = null)
         {
             return value != DBNull.Value ? Convert.ToString(value) : (defaultValue ?? string.Empty);

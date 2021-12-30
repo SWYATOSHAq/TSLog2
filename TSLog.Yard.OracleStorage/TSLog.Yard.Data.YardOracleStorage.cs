@@ -10,6 +10,9 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Yard.Data
 {
+    /// <summary>
+    /// Класс для работ с даннми в БД Oracle
+    /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
         private const string DefaultCommonSchema = "ecco";
@@ -23,13 +26,15 @@ namespace TSLog.Yard.Data
         private WarehouseAction CreateAction(DbDataReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
+                throw new ArgumentNullException(nameof(reader));            
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+            var id = Utils.DbValueToString(reader["id"]);
+            var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
+            var partnerActionId = Utils.DbValueToString(reader["partner_action_id"]);
             var action = new WarehouseAction(kind,
-                Utils.DbValueToString(reader["id"]),                
+                id,                
                 partner,
-                Utils.DbValueToString(reader["partner_action_id"]));
+                partnerActionId);
             return action;
         }
         public WarehouseAction GetAction(ActionKind actionKind, string id)
@@ -87,8 +92,17 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var partner = new Partner(Utils.DbValueToString(reader["id"]),
-                Utils.DbValueToString(reader["name"]));
+            var id = Utils.DbValueToString(reader["id"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var isActive = Utils.DbValueToLong(reader["display_order"]) < 9999;
+            var displayOrder = Utils.DbValueToLong(reader["display_order"]);
+            var partner = new Partner(id,
+                name,
+                name, // note
+                string.Empty,
+                string.Empty,
+                isActive,
+                displayOrder);
             return partner;
         }
         public Partner GetPartner(string id)
@@ -99,7 +113,10 @@ namespace TSLog.Yard.Data
             var partner = Partner.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectPartnerByIdSql = $"select * from {CommonSchema}.v_partner p where upper(trim(p.id)) = :id";
+                var SelectPartnerByIdSql = 
+                    $"select p.id, p.name, p.display_order " +
+                    $"  from {CommonSchema}.v_partner p " +
+                    $" where upper(trim(p.id)) = :id";
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
@@ -136,18 +153,21 @@ namespace TSLog.Yard.Data
             }
             return managers.ToArray();
         }
-        public Partner[] GetPartners()
+        public Partner[] GetPartners(bool getOnlyActive = false)
         {
             var partners = new List<Partner>();
             using (var command = _connection.CreateCommand()) 
             {
-                var SelectPartnersSql = $"select * from {CommonSchema}.v_partner p";
+                var SelectPartnersSql = 
+                    $"select p.id, p.name, p.display_order " +
+                    $"  from {CommonSchema}.v_partner p";
                 command.CommandText = SelectPartnersSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     var partner = CreatePartner(reader);
-                    partners.Add(partner);
+                    if (!getOnlyActive || partner.IsActive)
+                        partners.Add(partner);
                 }
                 reader.Close();
             }
@@ -157,9 +177,12 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var employee = new Employee(Convert.ToInt64(reader["id"]),
-                Utils.DbValueToString(reader["code"]),
-                Utils.DbValueToString(reader["name"]));
+            var id = Convert.ToInt64(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var employee = new Employee(id,
+                code,
+                name);
             return employee;
         }
         public Employee GetEmployee(int id) 
@@ -168,7 +191,10 @@ namespace TSLog.Yard.Data
             var employee = Employee.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectEmployeeById = $"select * from {CommonSchema}.v_employee e where e.id = :id";
+                var SelectEmployeeById = 
+                    $"select e.id, e.code, e.name " +
+                    $"  from {CommonSchema}.v_employee e " +
+                    $" where e.id = :id";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
@@ -185,7 +211,9 @@ namespace TSLog.Yard.Data
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
-                var SelectEmployeesSql = $"select * from {CommonSchema}.v_employee e";
+                var SelectEmployeesSql = 
+                    $"select e.id, e.code, e.name " +
+                    $"  from {CommonSchema}.v_employee e";
                 command.CommandText = SelectEmployeesSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -201,13 +229,24 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var position = new Position(Convert.ToInt16(reader["id"]),
-                Utils.DbValueToString(reader["code"]),
-                Utils.DbValueToString(reader["name"]),
-                Utils.DbValueToString(reader["short_name"]),
-                Utils.DbValueToString(reader["alt_name"]),
-                Utils.DbValueToString(reader["display_name"]),
-                Utils.DbValueToString(reader["note"]));
+            var id = Convert.ToInt16(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var position = new Position(id,
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                note);
             return position;
         }
         public Position GetPosition(int id)
@@ -216,7 +255,10 @@ namespace TSLog.Yard.Data
             var position = Position.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectPositionByIdSql = $"select * from {CommonSchema}.v_position p where p.id = :id";
+                var SelectPositionByIdSql = 
+                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
+                    $"  from {CommonSchema}.v_position p " +
+                    $" where p.id = :id";
                 command.CommandText = SelectPositionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
@@ -236,7 +278,10 @@ namespace TSLog.Yard.Data
             var position = Position.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectPositionByCodeSql = $"select * from {CommonSchema}.v_position p where p.code = :code";
+                var SelectPositionByCodeSql =
+                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
+                    $"  from {CommonSchema}.v_position p " +
+                    $"where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
                 using var reader = command.ExecuteReader();
@@ -253,7 +298,9 @@ namespace TSLog.Yard.Data
             var positions = new List<Position>();
             using (var command = _connection.CreateCommand())
             {
-                var SelectPositionsSql = $"select * from {CommonSchema}.v_position p";
+                var SelectPositionsSql =
+                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
+                    $"  from {CommonSchema}.v_position p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())

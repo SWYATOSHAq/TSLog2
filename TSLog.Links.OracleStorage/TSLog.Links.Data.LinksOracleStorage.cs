@@ -96,6 +96,7 @@ namespace TSLog.Links.Data
 
         public Entity[] GetIncomeStates()
         {
+
             var incomeStates = new List<Entity>();
             using (var command = _connection.CreateCommand())
             {
@@ -164,55 +165,55 @@ namespace TSLog.Links.Data
             return GetIncomeStates();
         }
 
-        public Entity GetCurrency(string currencyCode)
+        public Entity GetCurrency(string code)
         {
-            currencyCode = !string.IsNullOrWhiteSpace(currencyCode) ? currencyCode.Trim() : string.Empty;
-            var currency = Currencies[currencyCode];
-            if (currency != null && currency != Entity.Null)
-                return currency;
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = $"select * from {CommonSchema}.v_currency c where c.code = :code";
-                command.Parameters.Add(new OracleParameter("code", currencyCode));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                        currency = new Entity(Convert.ToInt32(reader["is"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]),
-                            string.Empty,
-                            string.Empty,
-                            string.Empty,
-                            Convert.ToString(reader["note"]));
-                    reader.Close();
-                }
-            }
-            return currency ?? Entity.Null;
+            var SelectCurrencyByCodeSql =
+                $"select c.id, c.code, c.name, c.short_name, c.alt_name, c.display_name, c.is_active, c.display_order, c.note " +
+                $"  from {CommonSchema}.v_currency c " +
+                $" where c.code = :code";
+            var currency = GetEntity(code, SelectCurrencyByCodeSql);
+            return currency;
         }
-
         public Entity[] GetCurrncies()
         {
-            var currencies = new List<Entity>();
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = $"select * from {CommonSchema}.v_currency";
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var currency = new Entity(Convert.ToInt32(reader["id"]),
-                        Convert.ToString(reader["code"]),
-                        Convert.ToString(reader["name"]),
-                        string.Empty,
-                        string.Empty,
-                        string.Empty,
-                        Convert.ToString(reader["note"]));
-                    currencies.Add(currency);
-                }
-                reader.Close();
-            }
-            return currencies.ToArray();
+            var SelectCurrenciesSql =
+                $"select c.id, c.code, c.name, c.short_name, c.alt_name, c.display_name, c.is_active, c.display_order, c.note " +
+                    $"from {CommonSchema}.v_currency";
+            return GetEntities(SelectCurrenciesSql);
         }
+        private MeasureUnit CreateMeasureUnit(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
 
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var category = Utils.DbValueToString(reader["categoty"]);
+            var isBasic = Utils.DbValueToShort(reader["is_basic"]) == 1;
+            var coefficient = Utils.DbValueToDouble(reader["coefficient"]);
+            var isDefault = Utils.DbValueToShort(reader["is_default"]) == 1;
+            var note = Utils.DbValueToString(reader["note"]);
+            var measureUnit = new MeasureUnit(id,
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                category,
+                isBasic,
+                coefficient,
+                isDefault,
+                note);
+            return measureUnit;
+        }
         public MeasureUnit GetMeasureUnit(string measureUnitCode)
         {
             measureUnitCode = !string.IsNullOrWhiteSpace(measureUnitCode) ? measureUnitCode.Trim() : string.Empty;
@@ -223,47 +224,26 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {CommonSchema}.v_measure_unit m where m.code = :code";
                 command.Parameters.Add(new OracleParameter("code", measureUnitCode));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                        measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["short_name"]),
-                            Convert.ToString(reader["note"]),
-                            Convert.ToString(reader["category"]),
-                            Convert.ToInt32(reader["is_basic"]) == 1,
-                            Convert.ToDouble(reader["coefficient"]),
-                            Convert.ToInt32(reader["is_default"]) == 1);
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    measureUnit = CreateMeasureUnit(reader);
+                reader.Close();
             }
             return measureUnit ?? MeasureUnit.Null;
         }
-
         public MeasureUnit[] GetMeasureUnits()
         {
             var measureUnits = new List<MeasureUnit>();
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_measure_unit";
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var measureUnit = new MeasureUnit(Convert.ToInt64(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["short_name"]),
-                            Convert.ToString(reader["note"]),
-                            Convert.ToString(reader["category"]),
-                            Convert.ToInt32(reader["is_basic"]) == 1,
-                            Convert.ToDouble(reader["coefficient"]),
-                            Convert.ToInt32(reader["is_default"]) == 1);
-                        measureUnits.Add(measureUnit);
-                    }
-                    reader.Close();
+                    var measureUnit = CreateMeasureUnit(reader);
+                    measureUnits.Add(measureUnit);
                 }
+                reader.Close();
             }
             return measureUnits.ToArray();
         }
@@ -301,12 +281,10 @@ namespace TSLog.Links.Data
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select {LinksSchema}.common.gen_transaction_id id from dual";
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                        transactionId = Convert.ToString(reader["id"]);
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    transactionId = Convert.ToString(reader["id"]);
+                reader.Close();
             }
             return transactionId;
         }
@@ -319,12 +297,10 @@ namespace TSLog.Links.Data
                 command.CommandText = $"select {LinksSchema}.common.gen_object_id(:obj, :partner_id) id from dual";
                 command.Parameters.Add(new OracleParameter("obj", objectName));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                        objectId = Convert.ToString(reader["id"]);
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    objectId = Convert.ToString(reader["id"]);
+                reader.Close();
             }
             return objectId;
         }

@@ -7,6 +7,9 @@ using TSLog.ExceptionHandler;
 
 namespace TSLog.Common.Data
 {
+    /// <summary>
+    /// Класс для работы с данными из БД PostgreeSQL
+    /// </summary>
     public class PgSqlStorage : IDisposable
     {
         protected readonly DbConnection _connection = new NpgsqlConnection();
@@ -50,13 +53,25 @@ namespace TSLog.Common.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            return new Entity(Convert.ToInt32(reader["id"]),
-                Convert.ToString(reader["code"]),
-                Convert.ToString(reader["name"]),
-                Convert.ToString(reader["short_name"]),
-                Convert.ToString(reader["alt_name"]),
-                Convert.ToString(reader["display_name"]),
-                Convert.ToString(reader["note"]));
+            var id = Utils.DbValueToLong(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var entity = new Entity(id,
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                note);
+            return entity;
         }
         public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null)
         {

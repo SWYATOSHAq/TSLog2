@@ -7,9 +7,11 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Gate : Entity
     {
-        public Gate(long id, string code, 
-            string name = "", string shortName = "", string altName = "", string displayName = "", string note = "", 
-            bool isActive = true) : base(id, code, name, shortName, altName, displayName, note, isActive)
+        public Gate(long id, string code,
+            string name = "", string shortName = "", string altName = "", string displayName = "",
+            bool isActive = true, short displayOrder = -1,
+            string note = "") 
+            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         { }
         private Gate() : base()
         { }
@@ -24,7 +26,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new Gate(-1, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL");
+                    _null = new Gate(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
                 return _null;
             }
         }

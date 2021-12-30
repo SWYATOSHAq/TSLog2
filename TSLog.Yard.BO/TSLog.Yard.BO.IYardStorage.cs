@@ -5,6 +5,9 @@ using TSLog.WarehouseActions.BO;
 
 namespace TSLog.Yard.BO
 {
+    /// <summary>
+    /// Интерфейс хранилища данных для модуля упраления двором
+    /// </summary>
     public interface IYardStorage : IYardCommonStorage, IYardWmsStorage { }
     public interface IYardCommonStorage
     {
@@ -15,9 +18,9 @@ namespace TSLog.Yard.BO
         public Entity GetOperationState(int id);
         public Entity GetOperationState(string code);
         public Entity[] GetOperationStates();
-        public Entity GetVehicleKind(int id);
-        public Entity GetVehicleKind(string code);
-        public Entity[] GetVehicleKinds();
+        public VehicleKind GetVehicleKind(int id);
+        public VehicleKind GetVehicleKind(string code);
+        public VehicleKind[] GetVehicleKinds();
         public Gate GetGate(int id);
         public Gate GetGate(string code);
         public Gate[] GetGates();
@@ -56,7 +59,7 @@ namespace TSLog.Yard.BO
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);        
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
-        public Partner[] GetPartners();
+        public Partner[] GetPartners(bool getOnlyActive = false);
         public Employee GetEmployee(int id);
         public Employee[] GetEmployees();
         public Position GetPosition(int id);

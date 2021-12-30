@@ -216,7 +216,7 @@ namespace TSLog.Outgoes.BO
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Outgo(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state, string note = "")
-            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, note)
+            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, true, -1, note)
         {
             if (string.IsNullOrWhiteSpace(number))
                 throw new ArgumentException("number is empty");

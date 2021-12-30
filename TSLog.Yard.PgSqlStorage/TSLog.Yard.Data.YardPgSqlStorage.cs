@@ -13,6 +13,9 @@ using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.Data
 {
+    /// <summary>
+    /// Класс для работы с данными в БД PostgreeSQL
+    /// </summary>
     public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage
     {
         private const string DefaultYardSchema = "Yard";
@@ -39,13 +42,24 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            return new Gate(Convert.ToInt32(reader["id"]),
-                Utils.DbValueToString(reader["code"]),
-                Utils.DbValueToString(reader["name"]),
-                Utils.DbValueToString(reader["short_name"]),
-                Utils.DbValueToString(reader["alt_name"]),
-                Utils.DbValueToString(reader["display_name"]),
-                Utils.DbValueToString(reader["note"]));
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            return new Gate(id,
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                note);
         }
         public Gate GetGate(int id)
         {
@@ -58,7 +72,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectGateByIdSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
+                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note " +
                         $"  from {YardSchema}.v_gate g where g.id = :id";
                     command.CommandText = SelectGateByIdSql;
                     command.Parameters.Add(new NpgsqlParameter("id", id));
@@ -89,7 +103,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectGateByCodeSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
+                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note " +
                         $"  from {YardSchema}.v_gate g where g.code = :code";
                     command.CommandText = SelectGateByCodeSql;
                     command.Parameters.Add(new NpgsqlParameter("code", code));
@@ -115,7 +129,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectGatesSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.note " +
+                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note " +
                         $"  from {YardSchema}.v_gate g";
                     command.CommandText = SelectGatesSql;
                     using var reader = command.ExecuteReader();
@@ -135,13 +149,24 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            return new Logist(Convert.ToInt32(reader["id"]),
-                Utils.DbValueToString(reader["code"]),
-                Utils.DbValueToString(reader["name"]),
-                Utils.DbValueToString(reader["short_name"]),
-                Utils.DbValueToString(reader["alt_name"]),
-                Utils.DbValueToString(reader["display_name"]),
-                Utils.DbValueToString(reader["note"]));
+            var id = Convert.ToInt32(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            return new Logist(id,
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                note);
         }
         public Logist GetLogist(int id)
         {
@@ -155,8 +180,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectLogistByIdSql =
-                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
-                        $"  from {YardSchema}.v_logist l where l.id = :id";
+                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note " +
+                        $"  from {YardSchema}.v_logist l " +
+                        $" where l.id = :id";
                     command.CommandText = SelectLogistByIdSql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
                     using var reader = command.ExecuteReader();
@@ -186,8 +212,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectLogistByCodeSql =
-                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
-                        $"  from {YardSchema}.v_logist l where l.code = :code";
+                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note " +
+                        $"  from {YardSchema}.v_logist l " +
+                        $" where l.code = :code";
                     command.CommandText = SelectLogistByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
                     using var reader = command.ExecuteReader();
@@ -212,7 +239,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectLogistsSql =
-                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.note " +
+                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note " +
                         $"  from {YardSchema}.v_logist l";
                     command.CommandText = SelectLogistsSql;
                     using var reader = command.ExecuteReader();
@@ -232,21 +259,21 @@ namespace TSLog.Yard.Data
         public Entity GetOperationState(int id)
         {
             var SelectOperationStateByIdSql =
-                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
+                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note " +
                 $"  from {YardSchema}.v_operation_state os where os.id = :id";
             return GetEntity(id, SelectOperationStateByIdSql, _operationStates);
         }
         public Entity GetOperationState(string code)
         {
             var SelectOperationStateByCodeSql =
-                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
+                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note " +
                 $"from {YardSchema}.v_operation_state os where os.code = :code";
             return GetEntity(code, SelectOperationStateByCodeSql, _operationStates);
         }
         public Entity[] GetOperationStates()
         {
             var SelectOperationStatesSql =
-                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.note " +
+                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note " +
                 $"from {YardSchema}.v_operation_state os";
             return GetEntities(SelectOperationStatesSql);
         }
@@ -256,17 +283,29 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var direction = Convert.ToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
-            var operationtype = new OperationType(Convert.ToInt32(reader["id"]),
+
+            var id = Utils.DbValueToShort(reader["id"]);
+            var direction = Utils.DbValueToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var time = Utils.DbValueToInt(reader["time"]);
+            var isActive = Utils.DbValueToInt(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var operationtype = new OperationType(id,
                 direction,
-                Utils.DbValueToString(reader["code"]),
-                Utils.DbValueToString(reader["name"]),
-                Utils.DbValueToString(reader["short_name"]),
-                Utils.DbValueToString(reader["alt_name"]),
-                Utils.DbValueToString(reader["display_name"]),
-                Convert.ToInt32(reader["time"]),
-                Utils.DbValueToString(reader["note"])
-                );
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                time,
+                isActive,
+                displayOrder,
+                note);
             return operationtype;
         }
         public OperationType GetOperationType(int id)
@@ -364,7 +403,7 @@ namespace TSLog.Yard.Data
         }
         public OperationType[] GetOperationTypes()
         {
-            var operationtypes = new List<OperationType>();
+            var operationTypes = new List<OperationType>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -377,37 +416,123 @@ namespace TSLog.Yard.Data
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var operationtype = CreateOperationType(reader);
-                        operationtypes.Add(operationtype);
+                        var operationType = CreateOperationType(reader);
+                        operationTypes.Add(operationType);
                     }
                     reader.Close();
                 }
                 connection.Close();
             }
-            return operationtypes.ToArray();
+            return operationTypes.ToArray();
         }
 
-        private readonly Catalog<Entity> _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
-        public Entity GetVehicleKind(int id)
+        private readonly Catalog<VehicleKind> _vehicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
+        private VehicleKind CreateVehicleKind(DbDataReader reader)
         {
-            var SelectVehicleKindByIdSql =
-                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
-            return GetEntity(id, SelectVehicleKindByIdSql, _vihicleKinds);
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var capacity = Utils.DbValueToInt(reader["capacity"]);
+            var palletsCount = Utils.DbValueToShort(reader["pallets_count"]);
+            var bodyLength = Utils.DbValueToDouble(reader["body_length"]);
+            var bodyWidth = Utils.DbValueToDouble(reader["body_width"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var vehicleKind = new VehicleKind(id, code, name, shortName, altName, displayName, 
+                capacity, palletsCount, bodyLength, bodyWidth, 
+                isActive, displayOrder,
+                note);
+            return vehicleKind;
         }
-        public Entity GetVehicleKind(string code)
+        public VehicleKind GetVehicleKind(int id)
         {
-            var SelectVehicleKindByCodeSql =
-                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
-            return GetEntity(code, SelectVehicleKindByCodeSql, _vihicleKinds);
+            id = id > 0 ? id : -1;
+            var vehicleKind = _vehicleKinds[id];
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectVehicleKindByIdSql =
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
+                    command.CommandText = SelectVehicleKindByIdSql;
+                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        vehicleKind = CreateVehicleKind(reader);
+                        _vehicleKinds.Add(vehicleKind);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+            throw new EntityNotFoundException(nameof(vehicleKind), id);
         }
-        public Entity[] GetVehicleKinds()
+        public VehicleKind GetVehicleKind(string code)
         {
-            var SelectVehicleKindsSql =
-                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                $"from {YardSchema}.v_vehicle_kind vk";
-            return GetEntities(SelectVehicleKindsSql);
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var vehicleKind = _vehicleKinds[code];
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectVehicleKindByCodeSql =
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
+                    command.CommandText = SelectVehicleKindByCodeSql;
+                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        vehicleKind = CreateVehicleKind(reader);
+                        _vehicleKinds.Add(vehicleKind);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+            throw new EntityNotFoundException(nameof(vehicleKind), code);
+        }
+        public VehicleKind[] GetVehicleKinds()
+        {
+            var vehicleKinds = new List<VehicleKind>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectVehicleKindsSql =
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"from {YardSchema}.v_vehicle_kind vk";
+                    command.CommandText = SelectVehicleKindsSql;
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var vehicleKind = CreateVehicleKind(reader);
+                        vehicleKinds.Add(vehicleKind);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return vehicleKinds.ToArray();
         }
 
         public delegate Partner GetPartnerByIdDelegate(string id);
