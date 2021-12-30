@@ -10,9 +10,15 @@
 
     //var operationToRender = (selectedYardOperation, storage, true, false);
 
-
+    var WorkersTypes = new String[] { "Количество машин", "Кладовщик", "Грузчик", "Оператор" };
+    int startTime = 9;
+    int endTime = 21;
 }
 
+@foreach (var workerType in WorkersTypes)
+{
+    <p>@workerType</p>
+}
 <!--  -->
 
 <div class="row p-2 m-3">
@@ -25,145 +31,36 @@
         <thead class="thead-light">
             <tr>
                 <th>31.12.2021</th>
-                <th colspan="2">Количество машин</th>
-                <th colspan="2">Кладовщик</th>
-                <th colspan="2">Грузчик</th>
-                <th colspan="2">Оператор</th>
+                @foreach (var workerType in WorkersTypes)
+                {
+                    <th colspan="2">@workerType</th>
+                }
             </tr>
             <tr>
                 <th>Интервал</th>
-                <th>Приемка</th>
-                <th>Отгрузка</th>
-                <th>Приемка</th>
-                <th>Отгрузка</th>
-                <th>Приемка</th>
-                <th>Отгрузка</th>
-                <th>Приемка</th>
-                <th>Щтгрузка</th>
+                @foreach (var workerType in WorkersTypes)
+                {
+                    <th>Приемка</th>
+                    <th>Отгрузка</th>
+                }
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <th>09-10</th>
-                <td>1</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>10-11</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>11-12</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>12-13</th>
-                <td>5</td>
-                <td></td>
-                <td>5</td>
-                <td></td>
-                <td>10</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>13-14</th>
-                <td>5</td>
-                <td></td>
-                <td>5</td>
-                <td></td>
-                <td>10</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>14-15</th>
-                <td>6</td>
-                <td></td>
-                <td>6</td>
-                <td></td>
-                <td>10</td>
-                <td></td>
-                <td>2</td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>15-16</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>16-17</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>17-18</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>18-20</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th>20-21</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+
+            @for (var i = startTime; i < endTime; i++)
+            {
+                <tr>
+                    <th>@i-@(i+1)</th>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            }
         </tbody>
     </table>
 
