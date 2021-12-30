@@ -227,6 +227,5 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             return Text;
         }
-
     }
 }

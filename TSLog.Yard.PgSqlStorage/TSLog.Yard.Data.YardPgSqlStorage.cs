@@ -364,7 +364,7 @@ namespace TSLog.Yard.Data
         }
         public OperationType[] GetOperationTypes()
         {
-            var operationtypes = new List<OperationType>();
+            var operationTypes = new List<OperationType>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -377,37 +377,118 @@ namespace TSLog.Yard.Data
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var operationtype = CreateOperationType(reader);
-                        operationtypes.Add(operationtype);
+                        var operationType = CreateOperationType(reader);
+                        operationTypes.Add(operationType);
                     }
                     reader.Close();
                 }
                 connection.Close();
             }
-            return operationtypes.ToArray();
+            return operationTypes.ToArray();
         }
 
-        private readonly Catalog<Entity> _vihicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
-        public Entity GetVehicleKind(int id)
+        private readonly Catalog<VehicleKind> _vehicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
+        private VehicleKind CreateVehicleKind(DbDataReader reader)
         {
-            var SelectVehicleKindByIdSql =
-                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
-            return GetEntity(id, SelectVehicleKindByIdSql, _vihicleKinds);
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var capacity = Utils.DbValueToInt(reader["capacity"]);
+            var palletsCount = Utils.DbValueToShort(reader["pallets_count"]);
+            var bodyLength = Utils.DbValueToDouble(reader["body_length"]);
+            var bodyWidth = Utils.DbValueToDouble(reader["body_idth"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var vehicleKind = new VehicleKind(id, code, name, shortName, altName, displayName, capacity, palletsCount, bodyLength, bodyWidth, note);
+            return vehicleKind;
         }
-        public Entity GetVehicleKind(string code)
+        public VehicleKind GetVehicleKind(int id)
         {
-            var SelectVehicleKindByCodeSql =
-                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
-            return GetEntity(code, SelectVehicleKindByCodeSql, _vihicleKinds);
+            id = id > 0 ? id : -1;
+            var vehicleKind = _vehicleKinds[id];
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectVehicleKindByIdSql =
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
+                    command.CommandText = SelectVehicleKindByIdSql;
+                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        vehicleKind = CreateVehicleKind(reader);
+                        _vehicleKinds.Add(vehicleKind);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+            throw new EntityNotFoundException(nameof(vehicleKind), id);
         }
-        public Entity[] GetVehicleKinds()
+        public VehicleKind GetVehicleKind(string code)
         {
-            var SelectVehicleKindsSql =
-                $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                $"from {YardSchema}.v_vehicle_kind vk";
-            return GetEntities(SelectVehicleKindsSql);
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var vehicleKind = _vehicleKinds[code];
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectVehicleKindByCodeSql =
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
+                    command.CommandText = SelectVehicleKindByCodeSql;
+                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        vehicleKind = CreateVehicleKind(reader);
+                        _vehicleKinds.Add(vehicleKind);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                return vehicleKind;
+            throw new EntityNotFoundException(nameof(vehicleKind), code);
+        }
+        public VehicleKind[] GetVehicleKinds()
+        {
+            var vehicleKinds = new List<VehicleKind>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectVehicleKindsSql =
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"from {YardSchema}.v_vehicle_kind vk";
+                    command.CommandText = SelectVehicleKindsSql;
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var vehicleKind = CreateVehicleKind(reader);
+                        vehicleKinds.Add(vehicleKind);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return vehicleKinds.ToArray();
         }
 
         public delegate Partner GetPartnerByIdDelegate(string id);
