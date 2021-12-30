@@ -137,15 +137,15 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPartners();
         }
-        public Entity GetVehicleKind(int id)
+        public VehicleKind GetVehicleKind(int id)
         {
             return _pgsqlStorage.GetVehicleKind(id);
         }
-        public Entity GetVehicleKind(string code)
+        public VehicleKind GetVehicleKind(string code)
         {
             return _pgsqlStorage.GetVehicleKind(code);
         }
-        public Entity[] GetVehicleKinds()
+        public VehicleKind[] GetVehicleKinds()
         {
             return _pgsqlStorage.GetVehicleKinds();
         }

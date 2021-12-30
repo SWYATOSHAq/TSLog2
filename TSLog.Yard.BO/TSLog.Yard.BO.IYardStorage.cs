@@ -15,9 +15,9 @@ namespace TSLog.Yard.BO
         public Entity GetOperationState(int id);
         public Entity GetOperationState(string code);
         public Entity[] GetOperationStates();
-        public Entity GetVehicleKind(int id);
-        public Entity GetVehicleKind(string code);
-        public Entity[] GetVehicleKinds();
+        public VehicleKind GetVehicleKind(int id);
+        public VehicleKind GetVehicleKind(string code);
+        public VehicleKind[] GetVehicleKinds();
         public Gate GetGate(int id);
         public Gate GetGate(string code);
         public Gate[] GetGates();
