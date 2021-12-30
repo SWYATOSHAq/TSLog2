@@ -14,36 +14,56 @@ string pgsqlPassword = "12";
 string pgsqlDatabase = "tslog";
 string pgsqlYardSchema = "yard";
 
+Console.WriteLine("запуск теста...");
+
 using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
 {
+    Console.WriteLine("подключение к БД...");
+
     storage.ConnectOracle(oracleUserName, oraclePassword);
     storage.SetOracleCommonSchema(oracleCommonSchema);
     storage.ConnectPgSql(pgsqlUserName, pgsqlPassword);
     storage.SetPgsqlYardSchema(pgsqlYardSchema);
 
+    Console.WriteLine("готово");
+    Console.WriteLine("загрузка партнера по mndnr и информации по партнеру...");
     var partner = storage.GetPartner("0003");
     var managers = storage.GetPartnerManagers(partner);
 
+    Console.WriteLine("готово");
+    Console.WriteLine("загрузка типа операций, тип машины, ворота по id...");
     var ot = storage.GetOperationType(1001);
     var vk = storage.GetVehicleKind(1001);
     var g = storage.GetGate(1001);
 
+    Console.WriteLine("готово");
+    Console.WriteLine("проверка выгрузки свободных интервалов...");
     var intervals = storage.GetAvalibleIntervals(DateTime.Now.AddDays(-20), DateTime.Now.AddDays(+20), ot, vk);
     intervals = storage.GetGateIntervals(g, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
     intervals = storage.GetAllIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
 
     var union = Interval.Union(intervals);
 
+    Console.WriteLine("готово");
+    Console.WriteLine("проверка выгрузки операций...");
     var operations = storage.GetOperations(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), null);
     var operation = storage.GetOperation(10000002);
+
+    Console.WriteLine("готово");
+    Console.WriteLine("проверка выгрузки справочников...");
     var actions = operation.GetActions();
     var partners = operation.GetPartners();
+
+    Console.WriteLine("готово");
+    Console.WriteLine("проверка выгрузки объектов по коду...");
 
     var operationState = storage.GetOperationState("CREATED");
     var operationType = storage.GetOperationType("BOX_OUTGO");
     var vehicleKind = storage.GetVehicleKind("20_TONS");
 
     // test full cycle
+    Console.WriteLine("готово");
+    Console.WriteLine("сборка тестовой операции...");
     var type = storage.GetOperationType("BOX_OUTGO");
     var testVehicleKind = storage.GetVehicleKind("20_TONS");
     var startDate = DateTime.Now.AddDays(3);
@@ -57,6 +77,8 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
                     storage.GetPartner("0130"), "69420-80085"));
     storage.AddOperation(newOperation);
 
+    Console.WriteLine("готово");
+    Console.WriteLine("проведение операции по состояниям...");
     storage.SetOperationGate(newOperation);
 
     storage.StartOperation(newOperation);
@@ -65,6 +87,9 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.FinishOperation(newOperation);
     storage.FinishOperationWork(newOperation);
 
+    Console.WriteLine("готово");
+    Console.WriteLine("отмена и удаление операции...");
+
     storage.CancelOperation(newOperation);
     storage.DeleteOperation(newOperation);
 
@@ -72,5 +97,9 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
 
     storage.DisconnectOracle();
     storage.DisconnectPgsql();
+    Console.WriteLine("загрузка партнера по mndnr и информации по партнеру...");
+
 }
+Console.ReadLine();
+
 

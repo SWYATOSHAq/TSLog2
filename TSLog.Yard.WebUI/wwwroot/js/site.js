@@ -257,29 +257,44 @@ function RenderCard(base, card, date) {
 }
 
 function Create() {
-    var postData = {
-        operation_type: $("#operations").val(),
-        gate: $("#card-operation .gates").val(),
-        vehicle_kind: $("#vehicle_kind").val(),
-        vehicle_brand: $("#vehicle_brand").val(),
-        vehicle_model: $("#vehicle_model").val(),
-        vehicle_number: $("#vehicle_number").val(),
-        order_id: $("#order_id").val(),
-        driver_name: $("#driver_name").val(),
+    // check for required fields
+    // time, operation_type, vehicle_kind, vehicle_brand, vehicle_model, vehicle_number
+    if (
+        state.time != 0 &&
+        $("#operations").val() != "" &&
+        $("#vehicle_kind").val() != "" &&
+        $("#vehicle_brand").val() != "" &&
+        $("#vehicle_model").val() != "" &&
+        $("#vehicle_number").val() != ""
+    ) {
 
-        start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
 
-        partner_id: $("#partner").val(),
-    };
+        var postData = {
+            operation_type: $("#operations").val(),
+            gate: $("#card-operation .gates").val(),
+            vehicle_kind: $("#vehicle_kind").val(),
+            vehicle_brand: $("#vehicle_brand").val(),
+            vehicle_model: $("#vehicle_model").val(),
+            vehicle_number: $("#vehicle_number").val(),
+            order_id: $("#order_id").val(),
+            driver_name: $("#driver_name").val(),
 
-    $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
-        console.log(data);
-        var card = JSON.parse(data);
-        // TODO пока пусть редиректит на лк TSL
-        // но тут должна быть вилка в зависимости от типа пользователя
-        // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-        location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-    });
+            start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
+
+            partner_id: $("#partner").val(),
+        };
+
+        $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
+            console.log(data);
+            var card = JSON.parse(data);
+            // TODO пока пусть редиректит на лк TSL
+            // но тут должна быть вилка в зависимости от типа пользователя
+            // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+        });
+    } else {
+        alert('не все обязательные поля введены');
+    }
 
 
 }
