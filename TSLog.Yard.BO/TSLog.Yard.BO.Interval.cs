@@ -108,8 +108,10 @@ namespace TSLog.Yard.BO
                 var state = (short)0;
                 foreach (var moment in moments)
                 {
+                    if (moment > To)
+                        break;
                     state += temp[moment];
-                    if (state > result)
+                    if (state > result && moment >= From)
                         result = state;
                 }
                 return result;
@@ -146,16 +148,17 @@ namespace TSLog.Yard.BO
                 var state = (short)0;
                 foreach (var moment in temp)
                 {
-                    if (begins.ContainsKey(moment))
-                        foreach (var operation in begins[moment])
-                            state += operation.WorkersCount;
+                    if (moment > To)
+                        break;
                     if (ends.ContainsKey(moment))
                         foreach (var operation in ends[moment])
                             state -= operation.WorkersCount;
-                    if (moment >= From && moment < To && result < state)
+                    if (begins.ContainsKey(moment))
+                        foreach (var operation in begins[moment])
+                            state += operation.WorkersCount;                    
+                    if (moment >= From && result < state)
                         state = result;
                 }
-
                 return result;
             }
         }
@@ -185,8 +188,49 @@ namespace TSLog.Yard.BO
                         moments.Add(operation.PlanWorkFinishDate);
                 }
 
-                var positionWorkers = new Dictionary<Position, short>();
-                return positionWorkers;
+                var temp = moments.ToArray();
+                Array.Sort(temp);
+                var result = new Dictionary<Position, short>();
+                var state = new Dictionary<Position, short>();
+                foreach (var moment in temp)
+                {
+                    if (moment > To)
+                        break;
+                    if (ends.ContainsKey(moment))
+                    {
+                        var operatons = ends[moment];
+                        foreach (var operation in operatons)
+                        {
+                            var positions = operation.Positions;
+                            foreach (var position in positions)
+                                state[position] -= operation.GetWorkers(position);
+                        }
+                    }
+                    if (begins.ContainsKey(moment))
+                    {
+                        var operatons = begins[moment];
+                        foreach (var operation in operatons)
+                        {
+                            var positions = operation.Positions;
+                            foreach (var position in positions)
+                            {
+                                var count = operation.GetWorkers(position);
+                                if (!state.ContainsKey(position))
+                                    state.Add(position, count);
+                                else
+                                    state[position] += count;
+                                if (moment >= From)
+                                {
+                                    if (!result.ContainsKey(position))
+                                        result.Add(position, count);
+                                    else if (state[position] > result[position])
+                                        result[position] = state[position];
+                                }
+                            }
+                        }
+                    }                    
+                }
+                return result;
             }
         }
         /// <summary>
@@ -194,11 +238,26 @@ namespace TSLog.Yard.BO
         /// </summary>
         /// <param name="size">Протяжёнсть интервала в секундах</param>
         /// <returns>Массив более мелких интервалов</returns>
-        public static Interval[] Split(int size = DefaultIntervalSize)
+        public Interval[] Split(int size = DefaultIntervalSize)
         {
             if (size <= 0)
                 size = DefaultIntervalSize;
             var intervals = new List<Interval>();
+            DateTime from;
+            var to = From;
+            do 
+            {
+                from = to;
+                to = to.AddSeconds(size);
+                to = to > To ? To : to;
+                var interval = new Interval(from, to);
+                var operations = Operations;
+                foreach (var operation in operations)
+                    if (interval.ContainsOperation(operation))
+                        interval.AddOperation(operation);
+                intervals.Add(interval);
+            }
+            while (to < To);
             return intervals.ToArray();
         }
 
@@ -242,6 +301,29 @@ namespace TSLog.Yard.BO
                 }
             }
             return result.ToArray();
+        }
+        /// <summary>
+        ///  Проверка пересечения текущего интервала с другим
+        /// </summary>
+        /// <param name="other">Другой интервал</param>
+        /// <returns>Признак пересечения</returns>
+        public bool HasIntersection(Interval other)
+        {
+            if (other == null)
+                throw new ArgumentNullException(nameof(other));
+            return !(From > other.To || To < other.From);
+        }
+        /// <summary>
+        /// Возвращает признак "попадания" опеарции двора (ПРР) в текущий интервал
+        /// </summary> 
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <returns>ПРизнак попадания</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool ContainsOperation(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            return !(From > operation.PlanWorkFinishDate || To < operation.PlanWorkStartDate);
         }
     }
 }
