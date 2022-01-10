@@ -152,7 +152,7 @@ namespace TSLog.Yard
         #endregion
 
         #region Operations
-        public short GetTime(OperationType operationType, Entity vehicleKind)
+        public short GetTime(OperationType operationType, VehicleKind vehicleKind)
         {
             return _pgsqlStorage.GetTime(operationType, vehicleKind);
         }
@@ -176,7 +176,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperation(id);
         }
-        public IDictionary<Position, short> GetWorkers(OperationType operationType, Entity vehicleKind)
+        public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind)
         {
             return _pgsqlStorage.GetWorkers(operationType, vehicleKind);
         }
