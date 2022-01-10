@@ -562,7 +562,7 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Operations     
-        public short GetTime(OperationType operationType, Entity vehicleKind)
+        public short GetTime(OperationType operationType, VehicleKind vehicleKind)
         {
             if (operationType == null)
                 throw new ArgumentNullException(nameof(operationType));
@@ -820,7 +820,7 @@ namespace TSLog.Yard.Data
             }
             throw new OperationNotFoundException(id);
         }
-        public IDictionary<Position, short> GetWorkers(OperationType operationType, Entity vehicleKind)
+        public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind)
         {
             if (operationType == null)
                 throw new ArgumentNullException(nameof(operationType));

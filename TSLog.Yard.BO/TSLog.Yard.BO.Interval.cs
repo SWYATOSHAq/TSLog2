@@ -8,7 +8,7 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Interval
     {
-        private const int DefaultIntervalSize = 60;
+        private const int DefaultIntervalSize = 3600;
         /// <summary>
         /// Дата и время начала
         /// </summary>
@@ -44,6 +44,17 @@ namespace TSLog.Yard.BO
             // TODO: check begin and end time
             if (!_operations.ContainsKey(operation.Id))                
                 _operations.Add(operation.Id, operation);
+        }
+        /// <summary>
+        /// Добавление нескольких операций в интервал
+        /// </summary>
+        /// <param name="operations">Массив операций</param>
+        public void AddOperations(Operation[] operations)
+        {
+            if (operations == null)
+                throw new ArgumentNullException(nameof(operations));
+            foreach (var operation in operations)
+                AddOperation(operation);
         }
         /// <summary>
         /// Возвращает операцию двора (ПРР) по идентификатору
@@ -284,7 +295,7 @@ namespace TSLog.Yard.BO
             var dates = moments.Keys.ToList();
             dates.Sort();
             var from = DateTime.MinValue;
-            var to = DateTime.MinValue;
+            DateTime to;
             short state = 0;
             foreach (var date in dates)
             {

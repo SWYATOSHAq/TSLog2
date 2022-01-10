@@ -88,7 +88,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Вид автомашины
         /// </summary>
-        public Entity VehicleKind { get; set; }
+        public VehicleKind VehicleKind { get; set; }
         /// <summary>
         /// Марка автомашины
         /// </summary>
@@ -140,7 +140,7 @@ namespace TSLog.Yard.BO
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
-            Entity vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
+            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
             Entity state,
             short priority,
             Employee manager)
@@ -171,7 +171,7 @@ namespace TSLog.Yard.BO
             Type = OperationType.Empty;
             PlanWorkStartDate = DateTime.MinValue;
             PlanWorkFinishDate = DateTime.MinValue;
-            VehicleKind = Entity.Empty;
+            VehicleKind = VehicleKind.Empty;
             VehicleBrand = string.Empty;
             VehicleModel = string.Empty;
             VehicleNumber = string.Empty;
@@ -280,7 +280,7 @@ namespace TSLog.Yard.BO
                 if (_null == null)
                     _null = new Operation(-1, string.Empty, OperationType.Null,
                         DateTime.MinValue, DateTime.MinValue,
-                        Entity.Null, "NULL", "NULL", "NULL", "NULL",
+                        VehicleKind.Null, "NULL", "NULL", "NULL", "NULL",
                         Entity.Null,
                         -1,
                         Employee.Null);

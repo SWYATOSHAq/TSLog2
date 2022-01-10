@@ -28,13 +28,13 @@ namespace TSLog.Yard.BO
         public Logist GetLogist(string code);
         public Logist[] GetLogists();
 
-        public short GetTime(OperationType operationType, Entity vehicleKind);
+        public short GetTime(OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
         public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
         public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);
         public Operation AddOperation(Operation operation);
         public Operation GetOperation(long id);
-        public IDictionary<Position, short> GetWorkers(OperationType operationType, Entity vehicleKind);
+        public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind);
         public IDictionary<Position, short> GetWorkers(Operation operation);
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
