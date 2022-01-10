@@ -27,7 +27,7 @@ namespace TSLog.Yard.Data
         public YardPgSqlStorage(string host, string database) : base(host, database)
         { }
 
-        private NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
+        private static NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
         {
             var parameter = new NpgsqlParameter(name, type)
             {
@@ -38,7 +38,7 @@ namespace TSLog.Yard.Data
 
         #region Domains
         private readonly Catalog<Gate> _gates = new("GATES", "Ворота");
-        private Gate CreateGate(DbDataReader reader)
+        private static Gate CreateGate(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -145,7 +145,7 @@ namespace TSLog.Yard.Data
             return gates.ToArray();
         }
         private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
-        private Logist CreateLogist(DbDataReader reader)
+        private static Logist CreateLogist(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -279,7 +279,7 @@ namespace TSLog.Yard.Data
         }
 
         private readonly Catalog<OperationType> _operationTypes = new("OPERATION_TYPES", "Типы операций двора");
-        private OperationType CreateOperationType(DbDataReader reader)
+        private static OperationType CreateOperationType(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -321,7 +321,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectOperationTypeByIdSql =
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
-                        $"       ot.time, ot.note " +
+                        $"       ot.time, ot.is_active, ot.display_order, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot " +
                         $" where ot.id = :id";
                     command.CommandText = SelectOperationTypeByIdSql;
@@ -354,7 +354,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectOperationTypeByCodeSql =
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
-                        $"       ot.time, ot.note " +
+                        $"       ot.time, ot.is_active, ot.display_order, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot " +
                         $" where ot.code = :code";
                     command.CommandText = SelectOperationTypeByCodeSql;
@@ -384,7 +384,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectOperationTypesByPartnerSql =
                         $"select pot.id, pot.direction, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name, " +
-                        $"       pot.time, pot.note " +
+                        $"       pot.time, pot.is_active, pot.display_order, pot.note " +
                         $"  from {YardSchema}.v_partner_operation_type pot " +
                         $" where pot.partner_id = :partner_id";
                     command.CommandText = SelectOperationTypesByPartnerSql;
@@ -410,7 +410,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectOperationTypesSql =
                         $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name, " +
-                        $"       ot.time, ot.note " +
+                        $"       ot.time, ot.is_active, ot.display_order, ot.note " +
                         $"  from {YardSchema}.v_operation_type ot";
                     command.CommandText = SelectOperationTypesSql;
                     using var reader = command.ExecuteReader();
@@ -427,7 +427,7 @@ namespace TSLog.Yard.Data
         }
 
         private readonly Catalog<VehicleKind> _vehicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
-        private VehicleKind CreateVehicleKind(DbDataReader reader)
+        private static VehicleKind CreateVehicleKind(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -462,7 +462,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectVehicleKindByIdSql =
-                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, " +
+                        $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width, " +
+                        $"       vk.is_active, vk.display_order, vk.note " +
                         $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
                     command.CommandText = SelectVehicleKindByIdSql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
@@ -493,7 +495,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectVehicleKindByCodeSql =
-                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, " +
+                        $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width, " +
+                        $"       vk.is_active, vk.display_order, vk.note " +
                         $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
                     command.CommandText = SelectVehicleKindByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
@@ -519,8 +523,10 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectVehicleKindsSql =
-                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, vk.note " +
-                        $"from {YardSchema}.v_vehicle_kind vk";
+                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name, " +
+                        $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width, " +
+                        $"       vk.is_active, vk.display_order, vk.note " +
+                        $"  from {YardSchema}.v_vehicle_kind vk";
                     command.CommandText = SelectVehicleKindsSql;
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -569,16 +575,16 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select vkot.time " +
-                        $"  from {YardSchema}.v_vehicle_kind_operation_type vkot " +
-                        $" where vkot.operation_type_id = :operation_type_id " +
-                        $"   and vkot.vehicle_kind_id = :vehicle_kind_id";
+                        $"select otvkt.operation_time " +
+                        $"  from {YardSchema}.v_ot_vk_time otvkt " +
+                        $" where otvkt.operation_type_id = :operation_type_id " +
+                        $"   and otvkt.vehicle_kind_id = :vehicle_kind_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
                     command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
-                        time = Utils.DbValueToShort(reader["time"]);
+                        time = Utils.DbValueToShort(reader["operation_time"]);
                     reader.Close();
                 }
                 connection.Close();
@@ -747,12 +753,13 @@ namespace TSLog.Yard.Data
                 vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, driverName,
                 state,
                 priority,
-                manager);
-
-            operation.FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
-            operation.FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
-            operation.StartDate = Utils.DbValueToDateTime(reader["start_date"]);
-            operation.FinishDate = Utils.DbValueToDateTime(reader["finish_date"]);
+                manager)
+            {
+                FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
+                FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
+                StartDate = Utils.DbValueToDateTime(reader["start_date"]),
+                FinishDate = Utils.DbValueToDateTime(reader["finish_date"])
+            };
 
             var logistId = Utils.DbValueToInt(reader["logist_id"]);
             operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
@@ -820,16 +827,17 @@ namespace TSLog.Yard.Data
             if (vehicleKind == null)
                 throw new ArgumentNullException(nameof(vehicleKind));
             if (GetPositionById == null)
-                throw new ArgumentNullException(nameof(GetPositionById));
+                throw new ArgumentException($"{nameof(GetPositionById)} is null");
             var workers = new Dictionary<Position, short>();
             using (var connection = CloneConnection())
             {                
                 using (var command = connection.CreateCommand())
                 {
                     var sql = 
-                        $"select position_id, workers_count from {YardSchema}.v_vk_ot_worker vkotw " +
-                        $" where vkotw.operation_type_id = :operation_type_id " +
-                        $"   and vkotw.vehicle_kind_id = :vehicle_kind_id";
+                        $"select otvkw.position_id, otvkw.workers_count " +
+                        $"  from {YardSchema}.v_ot_vk_worker otvkw " +
+                        $" where otvkw.operation_type_id = :operation_type_id " +
+                        $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
                     command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
@@ -894,8 +902,8 @@ namespace TSLog.Yard.Data
                         $"       po.responsible_officer_id, " +
                         $"       po.note " +
                         $"  from {YardSchema}.v_partner_operation po " +
-                        $" where po.plan_work_start_date between :from_date and :to_date " +
-                        $"   and po.plan_work_finish_date between :from_date and :to_date " +
+                        $" where not (po.plan_work_start_date > :to_date " +
+                        $"    or po.plan_work_finish_date < :from_date) " +
                         $"   and po.partner_id = :partner_id";
                     foreach (var partner in partners)
                     {
@@ -947,8 +955,8 @@ namespace TSLog.Yard.Data
                         $"       o.responsible_officer_id, " +
                         $"       o.note " +
                         $"  from {YardSchema}.v_operation o " +
-                        $" where o.plan_work_start_date between :from_date and :to_date " +
-                        $"   and o.plan_work_finish_date between :from_date and :to_date";
+                        $" where not (o.plan_work_start_date > :to_date " +
+                        $"    or o.plan_work_finish_date < :from_date)";
                     using var command = connection.CreateCommand();
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));

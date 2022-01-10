@@ -110,7 +110,7 @@ namespace TSLog.Links.Gs1EdiXml
                 }
                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == closeTag)
                 {
-                    var legalEntity = LegalEntity.Null;
+                    LegalEntity legalEntity;
                     if (!createNew)
                     {
                         legalEntity = _storage.GetPartner(id);
@@ -136,7 +136,7 @@ namespace TSLog.Links.Gs1EdiXml
             return LegalEntity.Null;
         }
 
-        private LogisticUnit LogisticUnitFromXml(XmlReader reader)
+        private static LogisticUnit LogisticUnitFromXml(XmlReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -246,7 +246,7 @@ namespace TSLog.Links.Gs1EdiXml
 
         #region Товары
 
-        private Product ProductFromXml(XmlReader reader, string prodctCode)
+        private static Product ProductFromXml(XmlReader reader, string prodctCode)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -385,7 +385,7 @@ namespace TSLog.Links.Gs1EdiXml
 
         #region Приход товара на склад
 
-        private string IncomeRequestLineLogisticUnitFromXml(XmlReader reader, out double quantity)
+        private static string IncomeRequestLineLogisticUnitFromXml(XmlReader reader, out double quantity)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -726,7 +726,7 @@ namespace TSLog.Links.Gs1EdiXml
             return incomeRequest;
         }
 
-        public string ReceiptEndNoticeToXml(ReceiptEndNotice receiptEndNotice)
+        public static string ReceiptEndNoticeToXml(ReceiptEndNotice receiptEndNotice)
         {
             if (receiptEndNotice == null)
                 throw new ArgumentNullException(nameof(receiptEndNotice));
@@ -804,7 +804,7 @@ namespace TSLog.Links.Gs1EdiXml
             return xmlDocument.OuterXml;
         }
 
-        public string ReceiptEndNoticesToXml(ReceiptEndNotice[] receiptEndNotices)
+        public static string ReceiptEndNoticesToXml(ReceiptEndNotice[] receiptEndNotices)
         {
             return string.Empty;
         }
@@ -1056,7 +1056,7 @@ namespace TSLog.Links.Gs1EdiXml
             return outgoRequest;
         }
 
-        public string PickingBeginNoticeToXml(PickingBeginNotice pickingBeginNotice)
+        public static string PickingBeginNoticeToXml(PickingBeginNotice pickingBeginNotice)
         {
             if (pickingBeginNotice == null)
                 throw new ArgumentNullException(nameof(pickingBeginNotice));
@@ -1111,12 +1111,12 @@ namespace TSLog.Links.Gs1EdiXml
             return xmlDocument.OuterXml;
         }
 
-        public string PickingBeginNoticesToXml(PickingBeginNotice[] pickingBeginNotices)
+        public static string PickingBeginNoticesToXml(PickingBeginNotice[] pickingBeginNotices)
         {
             return string.Empty;
         }
 
-        public string PickingEndNoticeToXml(PickingEndNotice pickingEndNotice)
+        public static string PickingEndNoticeToXml(PickingEndNotice pickingEndNotice)
         {
             if (pickingEndNotice == null)
                 throw new ArgumentNullException(nameof(pickingEndNotice));
@@ -1171,12 +1171,14 @@ namespace TSLog.Links.Gs1EdiXml
             return xmlDocument.OuterXml;
         }
 
-        public string PickingEndNoticesToXml(PickingEndNotice[] pickingEndNotices)
+        public static string PickingEndNoticesToXml(PickingEndNotice[] pickingEndNotices)
         {
+            if (pickingEndNotices == null)
+                throw new ArgumentNullException(nameof(pickingEndNotices));
             return string.Empty;
         }
 
-        public string ShippingNoticeToXml(ShippingNotice shippingNotice)
+        public static string ShippingNoticeToXml(ShippingNotice shippingNotice)
         {
             if (shippingNotice == null)
                 throw new ArgumentNullException(nameof(shippingNotice));
@@ -1231,7 +1233,7 @@ namespace TSLog.Links.Gs1EdiXml
             return xmlDocument.OuterXml;
         }
 
-        public string ShippingNoticesToXml(ShippingNotice[] shippingNotices)
+        public static string ShippingNoticesToXml(ShippingNotice[] shippingNotices)
         {
             return string.Empty;
         }

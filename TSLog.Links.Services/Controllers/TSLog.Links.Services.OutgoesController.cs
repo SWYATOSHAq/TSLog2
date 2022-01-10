@@ -89,7 +89,7 @@ namespace TSLog.Links.Services.Controllers
             */
 
             var pickingBeginNotice = _storage.GetPickingBeginNotice(outgoId);
-            var xml = _xmlConverter.PickingBeginNoticeToXml(pickingBeginNotice);
+            var xml = Gs1EdiXmlConverter.PickingBeginNoticeToXml(pickingBeginNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;
@@ -102,7 +102,7 @@ namespace TSLog.Links.Services.Controllers
             var partners = new Partner[] { user };
 
             var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
-            var xml = _xmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
+            var xml = Gs1EdiXmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;
@@ -124,7 +124,7 @@ namespace TSLog.Links.Services.Controllers
             var user = (Partner)HttpContext.Items["User"];
 
             var pickingEndNotice = _storage.GetPickingEndNotice(user, outgoId);
-            var xml = _xmlConverter.PickingEndNoticeToXml(pickingEndNotice);
+            var xml = Gs1EdiXmlConverter.PickingEndNoticeToXml(pickingEndNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;
@@ -137,7 +137,7 @@ namespace TSLog.Links.Services.Controllers
             var partners = new Partner[] { user };
 
             var pickingEndNotices = _storage.GetPickingEndNotices(partners);
-            var xml = _xmlConverter.PickingEndNoticesToXml(pickingEndNotices);
+            var xml = Gs1EdiXmlConverter.PickingEndNoticesToXml(pickingEndNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;
@@ -159,7 +159,7 @@ namespace TSLog.Links.Services.Controllers
             var user = (Partner)HttpContext.Items["User"];
 
             var shippingNotice = _storage.GetShippingNotice(user, outgoId);
-            var xml = _xmlConverter.ShippingNoticeToXml(shippingNotice);
+            var xml = Gs1EdiXmlConverter.ShippingNoticeToXml(shippingNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;
@@ -172,7 +172,7 @@ namespace TSLog.Links.Services.Controllers
             var partners = new Partner[] { user };
 
             var shippingNotices = _storage.GetShippingNotices(partners);
-            var xml = _xmlConverter.ShippingNoticesToXml(shippingNotices);
+            var xml = Gs1EdiXmlConverter.ShippingNoticesToXml(shippingNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;

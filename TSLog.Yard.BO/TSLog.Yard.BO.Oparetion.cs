@@ -63,6 +63,19 @@ namespace TSLog.Yard.BO
                 throw new ArgumentNullException(nameof(position));
             return _workers.ContainsKey(position) ? _workers[position] : (short)0;
         }
+        /// <summary>
+        /// Общее количество сотрудников для операции двора (ПРР) по всем должностям
+        /// </summary>
+        public short WorkersCount
+        {
+            get
+            {
+                var result = (short)0;
+                foreach (var count in _workers.Values)
+                    result += count;
+                return result;
+            }
+        }
         public void AddWorkers(Position position, short count)
         {
             if (position == null)

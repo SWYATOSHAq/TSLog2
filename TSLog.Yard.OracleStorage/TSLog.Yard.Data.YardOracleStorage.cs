@@ -88,7 +88,7 @@ namespace TSLog.Yard.Data
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
-        private Partner CreatePartner(DbDataReader reader)
+        private static Partner CreatePartner(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -173,7 +173,7 @@ namespace TSLog.Yard.Data
             }
             return partners.ToArray();
         }
-        private Employee CreateEmployee(DbDataReader reader)
+        private static Employee CreateEmployee(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -225,7 +225,7 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
-        private Position CreatePosition(DbDataReader reader)
+        private static Position CreatePosition(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
