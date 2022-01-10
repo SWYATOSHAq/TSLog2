@@ -892,8 +892,8 @@ namespace TSLog.Yard.Data
                         $"       po.responsible_officer_id, " +
                         $"       po.note " +
                         $"  from {YardSchema}.v_partner_operation po " +
-                        $" where po.plan_work_start_date between :from_date and :to_date " +
-                        $"   and po.plan_work_finish_date between :from_date and :to_date " +
+                        $" where not (po.plan_work_start_date > :to_date " +
+                        $"    or po.plan_work_finish_date < :from_date) " +
                         $"   and po.partner_id = :partner_id";
                     foreach (var partner in partners)
                     {
