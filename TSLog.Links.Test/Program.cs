@@ -103,7 +103,7 @@ namespace TSLog.Links.Test
             Console.WriteLine(">GetInboundNotification<");
 
             var notifocationInbound = storage.GetReceiptEndNotice(partner, "П-ВЖНФ-000400");
-            xml = xmlConverter.ReceiptEndNoticeToXml(notifocationInbound);
+            xml = Gs1EdiXmlConverter.ReceiptEndNoticeToXml(notifocationInbound);
             Console.WriteLine(xml);
 
 
@@ -111,17 +111,17 @@ namespace TSLog.Links.Test
             // GetOutboundNotification
             Console.WriteLine(">GetOutboundNotification<");
             var notifocationOutbound = storage.GetPickingBeginNotice(partner, "З-ВЖНФ-006613");
-            xml = xmlConverter.PickingBeginNoticeToXml(notifocationOutbound);
+            xml = Gs1EdiXmlConverter.PickingBeginNoticeToXml(notifocationOutbound);
             Console.WriteLine(xml);
 
             Console.WriteLine(">GetOutboundNotification<");
             var notifocationOutbound1 = storage.GetPickingEndNotice(partner, "З-ВЖНФ-008501");
-            xml = xmlConverter.PickingEndNoticeToXml(notifocationOutbound1);
+            xml = Gs1EdiXmlConverter.PickingEndNoticeToXml(notifocationOutbound1);
             Console.WriteLine(xml);
 
             Console.WriteLine(">GetOutboundNotification<");
             var notifocationOutbound2 = storage.GetShippingNotice(partner, "З-ВЖНФ-006624");
-            xml = xmlConverter.ShippingNoticeToXml(notifocationOutbound2);
+            xml = Gs1EdiXmlConverter.ShippingNoticeToXml(notifocationOutbound2);
             Console.WriteLine(xml);
 
 

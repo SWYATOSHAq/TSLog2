@@ -22,19 +22,23 @@ namespace TSLog.Common.Data
         }
         public DbConnection CloneConnection()
         {
-            var connection = new NpgsqlConnection();
-            connection.ConnectionString = _connection.ConnectionString;
+            var connection = new NpgsqlConnection
+            {
+                ConnectionString = _connection.ConnectionString
+            };
             connection.Open();
             return connection;
         }
 
         public void Connect(string user, SecureString password)
         {
-            var stringBuilder = new NpgsqlConnectionStringBuilder();
-            stringBuilder.Host = _host;
-            stringBuilder.Database = _database;
-            stringBuilder.Username = user;
-            stringBuilder.Password = Utils.SecureStringToString(password);
+            var stringBuilder = new NpgsqlConnectionStringBuilder
+            {
+                Host = _host,
+                Database = _database,
+                Username = user,
+                Password = Utils.SecureStringToString(password)
+            };
 
             _connection.ConnectionString = stringBuilder.ConnectionString;
             _connection.Open();
@@ -49,7 +53,7 @@ namespace TSLog.Common.Data
             command.ExecuteNonQuery();
         }
 
-        protected Entity CreateEntity(DbDataReader reader)
+        protected static Entity CreateEntity(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -170,6 +174,7 @@ namespace TSLog.Common.Data
         {
             _connection.Close();
             _connection.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

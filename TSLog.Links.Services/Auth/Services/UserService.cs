@@ -24,13 +24,13 @@ namespace Auth.Services
     {
 
         private readonly AppSettings _appSettings;
-        private ILinksUsers _databaseUsers;
+        private readonly ILinksUsers _databaseUsers;
         //private readonly AppSettings _appSettings;
 
         public UserService(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
-            _databaseUsers = LinksOracleStorage.instance; // TODO: idk how to properly pass object to UserService
+            _databaseUsers = LinksOracleStorage.Instance; // TODO: idk how to properly pass object to UserService
         }
 
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
@@ -42,7 +42,7 @@ namespace Auth.Services
             if (user == null || user == LegalEntity.Null) return null;
 
             // authentication successful so generate jwt token
-            var token = generateJwtToken(user);
+            var token = GenerateJwtToken(user);
 
             return new AuthenticateResponse(user, token);
         }
@@ -59,7 +59,7 @@ namespace Auth.Services
 
         // helper methods
 
-        private string generateJwtToken(LegalEntity user)
+        private string GenerateJwtToken(LegalEntity user)
         {
             // generate token that is valid for 365 days
             var tokenHandler = new JwtSecurityTokenHandler();
