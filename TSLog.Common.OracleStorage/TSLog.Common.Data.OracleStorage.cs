@@ -25,10 +25,12 @@ namespace TSLog.Common.Data
 
         public void Connect(string user, SecureString password)
         {
-            var stringBuilder = new OracleConnectionStringBuilder();
-            stringBuilder.DataSource = _dataSource;
-            stringBuilder.UserID = user;
-            stringBuilder.Password = Utils.SecureStringToString(password);
+            var stringBuilder = new OracleConnectionStringBuilder
+            {
+                DataSource = _dataSource,
+                UserID = user,
+                Password = Utils.SecureStringToString(password)
+            };
 
             _connection.ConnectionString = stringBuilder.ConnectionString;
             _connection.Open();
@@ -43,7 +45,7 @@ namespace TSLog.Common.Data
             command.ExecuteNonQuery();
         }
 
-        protected Entity CreateEntity(DbDataReader reader)
+        protected static Entity CreateEntity(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -67,7 +69,7 @@ namespace TSLog.Common.Data
                 note);
             return entity;
         }
-        public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null)
+        public Entity GetEntity(int id, string sql, Catalog<Entity> catalog = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
                 throw new ArgumentException("sql is empty");
@@ -152,6 +154,7 @@ namespace TSLog.Common.Data
         {
             _connection.Close();
             _connection.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

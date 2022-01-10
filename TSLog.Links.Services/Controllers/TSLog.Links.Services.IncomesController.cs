@@ -78,7 +78,7 @@ namespace TSLog.Links.Services.Controllers
             var user = (Partner)HttpContext.Items["User"];
 
             var receiptEndNotice = _storage.GetReceiptEndNotice(user, incomeId);
-            var xml = _xmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
+            var xml = Gs1EdiXmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;
@@ -91,7 +91,7 @@ namespace TSLog.Links.Services.Controllers
             var partners = new Partner[] { user };
 
             var receiptEndNotices = _storage.GetReceiptEndNotices(partners);
-            var xml = _xmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
+            var xml = Gs1EdiXmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
             if (DebugMode)
                 xml = Utils.PrepXML(xml);
             return xml;

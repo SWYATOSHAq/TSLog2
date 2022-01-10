@@ -96,7 +96,23 @@ namespace TSLog.Yard.BO
         {
             get
             {
-                return 0;
+                var temp = new Dictionary<DateTime, short>();
+                foreach (var operation in _operations.Values)
+                {
+                    temp[operation.PlanWorkStartDate]++;
+                    temp[operation.PlanWorkFinishDate]--;
+                }
+                var moments = temp.Keys.ToArray();
+                Array.Sort(moments);
+                var result = (short)0;
+                var state = (short)0;
+                foreach (var moment in moments)
+                {
+                    state += temp[moment];
+                    if (state > result)
+                        result = state;
+                }
+                return result;
             }
         }
         /// <summary>
@@ -106,7 +122,41 @@ namespace TSLog.Yard.BO
         {
             get
             {
-                return 0;
+                var begins = new Dictionary<DateTime, List<Operation>>();
+                var ends = new Dictionary<DateTime, List<Operation>>();
+                var moments = new HashSet<DateTime>();
+                foreach (var operation in _operations.Values)
+                {
+                    if (!begins.ContainsKey(operation.PlanWorkStartDate))
+                        begins.Add(operation.PlanWorkStartDate, new List<Operation>());
+                    begins[operation.PlanWorkStartDate].Add(operation);
+
+                    if (!ends.ContainsKey(operation.PlanWorkFinishDate))
+                        ends.Add(operation.PlanWorkFinishDate, new List<Operation>());
+                    ends[operation.PlanWorkFinishDate].Add(operation);
+
+                    if (!moments.Contains(operation.PlanWorkStartDate))
+                        moments.Add(operation.PlanWorkStartDate);
+                    if (!moments.Contains(operation.PlanWorkFinishDate))
+                        moments.Add(operation.PlanWorkFinishDate);
+                }
+                var temp = moments.ToArray();
+                Array.Sort(temp);
+                var result = (short)0;
+                var state = (short)0;
+                foreach (var moment in temp)
+                {
+                    if (begins.ContainsKey(moment))
+                        foreach (var operation in begins[moment])
+                            state += operation.WorkersCount;
+                    if (ends.ContainsKey(moment))
+                        foreach (var operation in ends[moment])
+                            state -= operation.WorkersCount;
+                    if (moment >= From && moment < To && result < state)
+                        state = result;
+                }
+
+                return result;
             }
         }
         /// <summary>
@@ -116,6 +166,25 @@ namespace TSLog.Yard.BO
         {
             get
             {
+                var begins = new Dictionary<DateTime, List<Operation>>();
+                var ends = new Dictionary<DateTime, List<Operation>>();
+                var moments = new HashSet<DateTime>();
+                foreach (var operation in _operations.Values)
+                {
+                    if (!begins.ContainsKey(operation.PlanWorkStartDate))
+                        begins.Add(operation.PlanWorkStartDate, new List<Operation>());
+                    begins[operation.PlanWorkStartDate].Add(operation);
+
+                    if (!ends.ContainsKey(operation.PlanWorkFinishDate))
+                        ends.Add(operation.PlanWorkFinishDate, new List<Operation>());
+                    ends[operation.PlanWorkFinishDate].Add(operation);
+
+                    if (!moments.Contains(operation.PlanWorkStartDate))
+                        moments.Add(operation.PlanWorkStartDate);
+                    if (!moments.Contains(operation.PlanWorkFinishDate))
+                        moments.Add(operation.PlanWorkFinishDate);
+                }
+
                 var positionWorkers = new Dictionary<Position, short>();
                 return positionWorkers;
             }
@@ -125,8 +194,10 @@ namespace TSLog.Yard.BO
         /// </summary>
         /// <param name="size">Протяжёнсть интервала в секундах</param>
         /// <returns>Массив более мелких интервалов</returns>
-        public Interval[] Split(int size = DefaultIntervalSize)
+        public static Interval[] Split(int size = DefaultIntervalSize)
         {
+            if (size <= 0)
+                size = DefaultIntervalSize;
             var intervals = new List<Interval>();
             return intervals.ToArray();
         }
@@ -153,8 +224,8 @@ namespace TSLog.Yard.BO
             }
             var dates = moments.Keys.ToList();
             dates.Sort();
-            DateTime from = DateTime.MinValue;
-            DateTime to = DateTime.MinValue;
+            var from = DateTime.MinValue;
+            var to = DateTime.MinValue;
             short state = 0;
             foreach (var date in dates)
             {

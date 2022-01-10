@@ -25,9 +25,9 @@ namespace TSLog.Links.Data
             CommonSchema = "ecco";
             LinksSchema = "links";
             WmsSchema = "ecco2_s1_pdba";
-            instance = this;
+            Instance = this;
         }
-        public static LinksOracleStorage instance = null; // TODO: wrong decision
+        public static LinksOracleStorage Instance = null; // TODO: wrong decision
 
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace TSLog.Links.Data
                     $"from {CommonSchema}.v_currency";
             return GetEntities(SelectCurrenciesSql);
         }
-        private MeasureUnit CreateMeasureUnit(DbDataReader reader)
+        private static MeasureUnit CreateMeasureUnit(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -321,22 +321,20 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {CommonSchema}.v_partner p where p.id = :id";
                 command.Parameters.Add(new OracleParameter("id", id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
+                    partner = new Partner(Convert.ToString(reader["id"]),
+                        Convert.ToString(reader["name"]),
+                        Convert.ToString(reader["note1"])
+                        )
                     {
-                        partner = new Partner(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["note1"])
-                            )
-                        {
-                            Address = Convert.ToString(reader["address"])
-                        };
+                        Address = Convert.ToString(reader["address"])
+                    };
 
-                        Partners.Add(partner);
-                    }
-                    reader.Close();
+                    Partners.Add(partner);
                 }
+                reader.Close();
             }
             if (partner != null && partner != LegalEntity.Null)
                 Partners.Add(partner);
@@ -349,23 +347,21 @@ namespace TSLog.Links.Data
             using (var command = _connection.CreateCommand())
             {
                 command.CommandText = $"select * from {CommonSchema}.v_partner p";
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var partner = new Partner(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["name"]),
-                            Convert.ToString(reader["note"]));
-                        partners.Add(partner);
-                    }
-                    reader.Close();
+                    var partner = new Partner(Convert.ToString(reader["id"]),
+                        Convert.ToString(reader["name"]),
+                        Convert.ToString(reader["note"]));
+                    partners.Add(partner);
                 }
+                reader.Close();
             }
             return partners.ToArray();
         }
 
         public Catalog<LegalEntity> LegalEntities { private get; set; } = null;
-        private LegalEntity CreateLegalEntity(DbDataReader reader)
+        private static LegalEntity CreateLegalEntity(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -380,15 +376,12 @@ namespace TSLog.Links.Data
         }
         public LegalEntity GetLegalEntity(string id)
         {
-            //var ret = new LegalEntity("VEND_ASKANIA(TODO)", "just a legal entity", "just a legal entity for debug");
-            //ret.Address = "Odinsovo, ulitza TEST, 69";
-            //return ret;
-
             id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
-            var legalEntity = LegalEntity.Null;
+            LegalEntity legalEntity;
             if (id == Tslog.Code) // check if Tslog
                 legalEntity = Tslog;
-            legalEntity = Partners[id];           
+            else
+                legalEntity = Partners[id];           
             if (legalEntity != null && legalEntity != LegalEntity.Null)
                 return legalEntity;
             using (var command = _connection.CreateCommand())
@@ -426,35 +419,33 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {CommonSchema}.v_product p where p.id = :id";
                 command.Parameters.Add(new OracleParameter("id", id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        product = new Product(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["gtin"]),
-                            Convert.ToString(reader["name"]),
-                            note: Convert.ToString(reader["note1"]));
+                    product = new Product(Convert.ToString(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["gtin"]),
+                        Convert.ToString(reader["name"]),
+                        note: Convert.ToString(reader["note1"]));
 
-                        product.Length = Convert.ToInt32(reader[nameof(product.Length)]);
-                        product.Width = Convert.ToInt32(reader[nameof(product.Width)]);
-                        product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
-                        product.UnitLinerial = Convert.ToString(reader["length_measure"]);
+                    product.Length = Convert.ToInt32(reader[nameof(product.Length)]);
+                    product.Width = Convert.ToInt32(reader[nameof(product.Width)]);
+                    product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
+                    product.UnitLinerial = Convert.ToString(reader["length_measure"]);
 
-                        product.Netto = Convert.ToInt32(reader["net_weight"]);
-                        product.Netto = Convert.ToInt32(reader["gross_weight"]);
-                        product.UnitWeight = Convert.ToString(reader["weight_measure"]);
+                    product.Netto = Convert.ToInt32(reader["net_weight"]);
+                    product.Netto = Convert.ToInt32(reader["gross_weight"]);
+                    product.UnitWeight = Convert.ToString(reader["weight_measure"]);
 
-                        product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
-                        product.UnitVolume = Convert.ToString(reader["volume_measure"]);
+                    product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
+                    product.UnitVolume = Convert.ToString(reader["volume_measure"]);
 
-                        if (!Convert.IsDBNull(reader[nameof(product.Price)]))
-                            product.Price = Convert.ToDouble(reader[nameof(product.Price)]);
+                    if (!Convert.IsDBNull(reader[nameof(product.Price)]))
+                        product.Price = Convert.ToDouble(reader[nameof(product.Price)]);
 
-                        Products.Add(product);
-                    }
-                    reader.Close();
+                    Products.Add(product);
                 }
+                reader.Close();
             }
             if (product != null && product != Product.Null)
                 Products.Add(product);
@@ -471,35 +462,33 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {CommonSchema}.v_product p where p.gtin = :gtin";
                 command.Parameters.Add(new OracleParameter("gtin", gtin));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        product = new Product(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["gtin"]),
-                            Convert.ToString(reader["name"]),
-                            note: Convert.ToString(reader["note1"]));
+                    product = new Product(Convert.ToString(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["gtin"]),
+                        Convert.ToString(reader["name"]),
+                        note: Convert.ToString(reader["note1"]));
 
-                        product.Length = Convert.ToInt32(reader[nameof(product.Length)]);
-                        product.Width = Convert.ToInt32(reader[nameof(product.Width)]);
-                        product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
-                        product.UnitLinerial = Convert.ToString(reader["length_measure"]);
+                    product.Length = Convert.ToInt32(reader[nameof(product.Length)]);
+                    product.Width = Convert.ToInt32(reader[nameof(product.Width)]);
+                    product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
+                    product.UnitLinerial = Convert.ToString(reader["length_measure"]);
 
-                        product.Netto = Convert.ToInt32(reader["net_weight"]);
-                        product.Netto = Convert.ToInt32(reader["gross_weight"]);
-                        product.UnitWeight = Convert.ToString(reader["weight_measure"]);
+                    product.Netto = Convert.ToInt32(reader["net_weight"]);
+                    product.Netto = Convert.ToInt32(reader["gross_weight"]);
+                    product.UnitWeight = Convert.ToString(reader["weight_measure"]);
 
-                        product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
-                        product.UnitVolume = Convert.ToString(reader["volume_measure"]);
+                    product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
+                    product.UnitVolume = Convert.ToString(reader["volume_measure"]);
 
-                        if (!Convert.IsDBNull(reader[nameof(product.Price)]))
-                            product.Price = Convert.ToDouble(reader[nameof(product.Price)]);
+                    if (!Convert.IsDBNull(reader[nameof(product.Price)]))
+                        product.Price = Convert.ToDouble(reader[nameof(product.Price)]);
 
-                        Products.Add(product);
-                    }
-                    reader.Close();
+                    Products.Add(product);
                 }
+                reader.Close();
             }
             if (product != null && product != Product.Null)
                 Products.Add(product);
@@ -532,18 +521,16 @@ namespace TSLog.Links.Data
                     sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        var product = new Product(Convert.ToString(reader["id"]),
-                            Convert.ToString(reader["code"]),
-                            Convert.ToString(reader["gtin"]),
-                            Convert.ToString(reader["name"]));
-                        Products.Add(product);
-                    }
-                    reader.Close();
+                    var product = new Product(Convert.ToString(reader["id"]),
+                        Convert.ToString(reader["code"]),
+                        Convert.ToString(reader["gtin"]),
+                        Convert.ToString(reader["name"]));
+                    Products.Add(product);
                 }
+                reader.Close();
             }
             return products.ToArray();
         }
@@ -578,15 +565,13 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {CommonSchema}.v_income_line il where il.income_id = :income_id";
                 command.Parameters.Add(new OracleParameter("income_id", income.Code));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var line = CreateIncomeLine(reader);
-                        lines.Add(line);
-                    }
-                    reader.Close();
+                    var line = CreateIncomeLine(reader);
+                    lines.Add(line);
                 }
+                reader.Close();
             }
             return lines.ToArray();
         }
@@ -642,16 +627,14 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {LinksSchema}.v_receipt_end_notice ren  where ren.income_id = :income_id";
                 command.Parameters.Add(new OracleParameter("income_id", incomeId));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        receiptEndNotice = CreateReceiptEndNotice(reader);
-                        var lines = GetIncomeLines(receiptEndNotice.Income);
-                        receiptEndNotice.Income.AddLines(lines);
-                    }
-                    reader.Close();
+                    receiptEndNotice = CreateReceiptEndNotice(reader);
+                    var lines = GetIncomeLines(receiptEndNotice.Income);
+                    receiptEndNotice.Income.AddLines(lines);
                 }
+                reader.Close();
             }
             return receiptEndNotice;
         }
@@ -667,16 +650,14 @@ namespace TSLog.Links.Data
                     + "where ren.partner_income_number = :partner_income_id and ren.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_income_id", partnerIncomeId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        receiptEndNotice = CreateReceiptEndNotice(reader);
-                        var lines = GetIncomeLines(receiptEndNotice.Income);
-                        receiptEndNotice.Income.AddLines(lines);
-                    }
-                    reader.Close();
+                    receiptEndNotice = CreateReceiptEndNotice(reader);
+                    var lines = GetIncomeLines(receiptEndNotice.Income);
+                    receiptEndNotice.Income.AddLines(lines);
                 }
+                reader.Close();
             }
             return receiptEndNotice;
         }
@@ -701,16 +682,14 @@ namespace TSLog.Links.Data
                     sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var receiptEndNotice = CreateReceiptEndNotice(reader);
-                        receiptEndNotice.Income.AddLines(GetIncomeLines(receiptEndNotice.Income));
-                        receiptEndNotices.Add(receiptEndNotice);
-                    }
-                    reader.Close();
+                    var receiptEndNotice = CreateReceiptEndNotice(reader);
+                    receiptEndNotice.Income.AddLines(GetIncomeLines(receiptEndNotice.Income));
+                    receiptEndNotices.Add(receiptEndNotice);
                 }
+                reader.Close();
             }
             return receiptEndNotices.ToArray();
         }
@@ -748,15 +727,13 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {CommonSchema}.v_outgo_line ol where ol.outgo_id = :outgo_id";
                 command.Parameters.Add(new OracleParameter("outgo_id", outgo.Code));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var line = CreateOutgoLine(reader);
-                        lines.Add(line);
-                    }
-                    reader.Close();
+                    var line = CreateOutgoLine(reader);
+                    lines.Add(line);
                 }
+                reader.Close();
             }
             return lines.ToArray();
         }
@@ -802,16 +779,14 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pbn where pbn.outgo_id = :outgo_id";
                 command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        pickingBeginNotice = CreatePickingBeginNotice(reader);
-                        var lines = GetOutgoLines(pickingBeginNotice.Outgo);
-                        pickingBeginNotice.Outgo.AddLines(lines);
-                    }
-                    reader.Close();
+                    pickingBeginNotice = CreatePickingBeginNotice(reader);
+                    var lines = GetOutgoLines(pickingBeginNotice.Outgo);
+                    pickingBeginNotice.Outgo.AddLines(lines);
                 }
+                reader.Close();
             }
             return pickingBeginNotice;
         }
@@ -827,16 +802,14 @@ namespace TSLog.Links.Data
                     + "where pbn.partner_outgo_number = :partner_outgo_id and pbn.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        pickingBeginNotice = CreatePickingBeginNotice(reader);
-                        var lines = GetOutgoLines(pickingBeginNotice.Outgo);
-                        pickingBeginNotice.Outgo.AddLines(lines);
-                    }
-                    reader.Close();
+                    pickingBeginNotice = CreatePickingBeginNotice(reader);
+                    var lines = GetOutgoLines(pickingBeginNotice.Outgo);
+                    pickingBeginNotice.Outgo.AddLines(lines);
                 }
+                reader.Close();
             }
             return pickingBeginNotice;
         }
@@ -868,14 +841,12 @@ namespace TSLog.Links.Data
                     sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
-                using (var reader = command.ExecuteReader())
-                {
-                    var pickingBeginNotice = CreatePickingBeginNotice(reader);
-                    pickingBeginNotices.Add(pickingBeginNotice);
-                    var lines = GetOutgoLines(pickingBeginNotice.Outgo);
-                    pickingBeginNotice.Outgo.AddLines(lines);
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                var pickingBeginNotice = CreatePickingBeginNotice(reader);
+                pickingBeginNotices.Add(pickingBeginNotice);
+                var lines = GetOutgoLines(pickingBeginNotice.Outgo);
+                pickingBeginNotice.Outgo.AddLines(lines);
+                reader.Close();
             }
             return pickingBeginNotices.ToArray();
         }
@@ -923,16 +894,14 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {LinksSchema}.v_picking_begin_notice pen where pen.outgo_id = :outgo_id";
                 command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        pickingEndNotice = CreatePickingEndNotice(reader);
-                        var lines = GetOutgoLines(pickingEndNotice.Outgo);
-                        pickingEndNotice.Outgo.AddLines(lines);
-                    }
-                    reader.Close();
+                    pickingEndNotice = CreatePickingEndNotice(reader);
+                    var lines = GetOutgoLines(pickingEndNotice.Outgo);
+                    pickingEndNotice.Outgo.AddLines(lines);
                 }
+                reader.Close();
             }
             return pickingEndNotice;
         }
@@ -948,16 +917,14 @@ namespace TSLog.Links.Data
                     + "where pen.partner_outgo_number = :partner_outgo_id and pen.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        pickingEndNotice = CreatePickingEndNotice(reader);
-                        var lines = GetOutgoLines(pickingEndNotice.Outgo);
-                        pickingEndNotice.Outgo.AddLines(lines);
-                    }
-                    reader.Close();
+                    pickingEndNotice = CreatePickingEndNotice(reader);
+                    var lines = GetOutgoLines(pickingEndNotice.Outgo);
+                    pickingEndNotice.Outgo.AddLines(lines);
                 }
+                reader.Close();
             }
             return pickingEndNotice;
         }
@@ -989,14 +956,12 @@ namespace TSLog.Links.Data
                     sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
-                using (var reader = command.ExecuteReader())
-                {
-                    var pickingEndNotice = CreatePickingEndNotice(reader);
-                    pickingEndNotices.Add(pickingEndNotice);
-                    var lines = GetOutgoLines(pickingEndNotice.Outgo);
-                    pickingEndNotice.Outgo.AddLines(lines);
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                var pickingEndNotice = CreatePickingEndNotice(reader);
+                pickingEndNotices.Add(pickingEndNotice);
+                var lines = GetOutgoLines(pickingEndNotice.Outgo);
+                pickingEndNotice.Outgo.AddLines(lines);
+                reader.Close();
             }
             return pickingEndNotices.ToArray();
         }
@@ -1044,16 +1009,14 @@ namespace TSLog.Links.Data
             {
                 command.CommandText = $"select * from {LinksSchema}.v_shipping_notice sn where sn.outgo_id = :outgo_id";
                 command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        shippingNotice = CreateShippingNotice(reader);
-                        var lines = GetOutgoLines(shippingNotice.Outgo);
-                        shippingNotice.Outgo.AddLines(lines);
-                    }
-                    reader.Close();
+                    shippingNotice = CreateShippingNotice(reader);
+                    var lines = GetOutgoLines(shippingNotice.Outgo);
+                    shippingNotice.Outgo.AddLines(lines);
                 }
+                reader.Close();
             }
             return shippingNotice;
         }
@@ -1069,16 +1032,14 @@ namespace TSLog.Links.Data
                     + "where sn.partner_outgo_number = :partner_outgo_id and sn.partner_id = :partner_id";
                 command.Parameters.Add(new OracleParameter("partner_outgo_id", partnerOutgoId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        shippingNotice = CreateShippingNotice(reader);
-                        var lines = GetOutgoLines(shippingNotice.Outgo);
-                        shippingNotice.Outgo.AddLines(lines);
-                    }
-                    reader.Close();
+                    shippingNotice = CreateShippingNotice(reader);
+                    var lines = GetOutgoLines(shippingNotice.Outgo);
+                    shippingNotice.Outgo.AddLines(lines);
                 }
+                reader.Close();
             }
             return shippingNotice;
         }
@@ -1110,14 +1071,12 @@ namespace TSLog.Links.Data
                     sql.Append(where);
                 }
                 command.CommandText = sql.ToString();
-                using (var reader = command.ExecuteReader())
-                {
-                    var shippingNotice = CreateShippingNotice(reader);
-                    shippingNotices.Add(shippingNotice);
-                    var lines = GetOutgoLines(shippingNotice.Outgo);
-                    shippingNotice.Outgo.AddLines(lines);
-                    reader.Close();
-                }
+                using var reader = command.ExecuteReader();
+                var shippingNotice = CreateShippingNotice(reader);
+                shippingNotices.Add(shippingNotice);
+                var lines = GetOutgoLines(shippingNotice.Outgo);
+                shippingNotice.Outgo.AddLines(lines);
+                reader.Close();
             }
             return shippingNotices.ToArray();
         }
@@ -1139,17 +1098,15 @@ namespace TSLog.Links.Data
                 command.CommandText = $"select * from {LinksSchema}.v_service_user";
                 //command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
                 //command.Parameters.Add(new OracleParameter("pass", model.Password));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
-                        user.Note = $"{user.Note} [debug](login: [{Convert.ToString(reader["name"])}] pass: [{Convert.ToString(reader["password"])}])";
+                    var user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
+                    user.Note = $"{user.Note} [debug](login: [{Convert.ToString(reader["name"])}] pass: [{Convert.ToString(reader["password"])}])";
 
-                        users.Add(user);
-                    }
-                    reader.Close();
+                    users.Add(user);
                 }
+                reader.Close();
             }
             return users.ToArray();
         }
@@ -1164,15 +1121,13 @@ namespace TSLog.Links.Data
                 command.CommandText = $"select * from {LinksSchema}.v_service_user p where p.name = :login and p.password = :pass and p.active = 1";
                 command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
                 command.Parameters.Add(new OracleParameter("pass", model.Password));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        var a = reader["partner_id"];
-                        user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
-                    }
-                    reader.Close();
+                    var a = reader["partner_id"];
+                    user = GetLegalEntity(Convert.ToString(reader["partner_id"]));
                 }
+                reader.Close();
             }
             return user ?? LegalEntity.Null;
         }
