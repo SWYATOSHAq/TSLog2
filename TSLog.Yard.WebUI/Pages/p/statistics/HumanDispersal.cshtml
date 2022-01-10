@@ -13,11 +13,17 @@
     var WorkersTypes = new String[] { "Количество машин", "Кладовщик", "Грузчик", "Оператор" };
     int startTime = 9;
     int endTime = 21;
+
+    // test
+    var dayStart = DateTime.Today;
+    var dayEnd = DateTime.Today.AddDays(1).AddSeconds(-1);
+    var dayInterval = new Interval(dayStart, dayEnd);
+    var operations = storage.GetOperations(dayStart, dayEnd, null);
 }
 
-@foreach (var workerType in WorkersTypes)
+@foreach (var item in operations)
 {
-    <p>@workerType</p>
+    <p>@item.GetPlanTime()</p>
 }
 <!--  -->
 
