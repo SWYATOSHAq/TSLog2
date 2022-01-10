@@ -43,7 +43,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var vehicleKind = yardStorage.GetVehicleKind(strVehicleKind);
 
             //
-            var busyPeriods = Interval.Union(yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind));
+            var periods = yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind);
+            var busyPeriods = Interval.Union(periods);
             //
             Text = JsonSerializer.Serialize(busyPeriods);
             return Text;
@@ -106,7 +107,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var searchPartners = (partner == null || partner == Partner.Null) ? null : new Partner[] { partner };
-            var searchGate = gate != "" ? yardStorage.GetGate(gate) : Gate.Null;
+            var searchGate = gate != "" && gate != null ? yardStorage.GetGate(gate) : Gate.Null;
 
             DateTime tmp;
             if (DateTime.TryParse(operationDate, out tmp))
@@ -157,7 +158,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var finishDate = startDate;
 
 
-                finishDate = finishDate.Add(new TimeSpan(0, yardStorage.GetTime(type, vehicleKind), 0));
+                finishDate = finishDate.Add(new TimeSpan(0, 0, yardStorage.GetTime(type, vehicleKind)));
 
                 short priority = 1;
 

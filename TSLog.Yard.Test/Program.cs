@@ -47,24 +47,19 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     Console.WriteLine("готово");
     Console.WriteLine("проверка выгрузки операций...");
     var operations = storage.GetOperations(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5), null);
-    var operation = storage.GetOperation(10000002);
 
-    Console.WriteLine("готово");
-    Console.WriteLine("проверка выгрузки справочников...");
-    var actions = operation.GetActions();
-    var partners = operation.GetPartners();
 
     Console.WriteLine("готово");
     Console.WriteLine("проверка выгрузки объектов по коду...");
 
     var operationState = storage.GetOperationState("CREATED");
-    var operationType = storage.GetOperationType("BOX_OUTGO");
+    var operationType = storage.GetOperationType("O_BOX_MONO");
     var vehicleKind = storage.GetVehicleKind("20_TONS");
 
     // test full cycle
     Console.WriteLine("готово");
     Console.WriteLine("сборка тестовой операции...");
-    var type = storage.GetOperationType("BOX_OUTGO");
+    var type = storage.GetOperationType("O_BOX_MIX");
     var testVehicleKind = storage.GetVehicleKind("20_TONS");
     var startDate = DateTime.Now.AddDays(3);
     var finishDate = startDate;
@@ -76,6 +71,11 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
                     storage.GetPartner("0130"), "69420-80085"));
     storage.AddOperation(newOperation);
+
+    Console.WriteLine("готово");
+    Console.WriteLine("проверка выгрузки справочников...");
+    var actions = newOperation.GetActions();
+    var partners = newOperation.GetPartners();
 
     Console.WriteLine("готово");
     Console.WriteLine("проведение операции по состояниям...");
@@ -94,10 +94,10 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.DeleteOperation(newOperation);
 
     //
-
+    Console.WriteLine("закрытие соединения с БД...");
     storage.DisconnectOracle();
     storage.DisconnectPgsql();
-    Console.WriteLine("загрузка партнера по mndnr и информации по партнеру...");
+    Console.WriteLine("[тест был пройден успешно]");
 
 }
 Console.ReadLine();

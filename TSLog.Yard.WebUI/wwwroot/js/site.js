@@ -369,7 +369,7 @@ $(document).ready(function() {
             },
             function(data) {
                 timeSpan = JSON.parse(data);
-                var time = new Date(new Date().setHours(0, timeSpan, 0, 0));
+                var time = new Date(new Date().setHours(0, 0, timeSpan, 0));
                 $("#text_operation_time").text("Время операции: " + time.toLocaleTimeString());
             });
 
