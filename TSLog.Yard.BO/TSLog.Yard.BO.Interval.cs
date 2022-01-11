@@ -110,8 +110,14 @@ namespace TSLog.Yard.BO
                 var temp = new Dictionary<DateTime, short>();
                 foreach (var operation in _operations.Values)
                 {
-                    temp[operation.PlanWorkStartDate]++;
-                    temp[operation.PlanWorkFinishDate]--;
+                    if (!temp.ContainsKey(operation.PlanWorkStartDate))
+                        temp.Add(operation.PlanWorkStartDate, 1);
+                    else
+                        temp[operation.PlanWorkStartDate]++;
+                    if (!temp.ContainsKey(operation.PlanWorkFinishDate))
+                        temp.Add(operation.PlanWorkFinishDate, -1);
+                    else
+                        temp[operation.PlanWorkFinishDate]--;
                 }
                 var moments = temp.Keys.ToArray();
                 Array.Sort(moments);
