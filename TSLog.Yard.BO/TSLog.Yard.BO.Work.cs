@@ -19,5 +19,38 @@ namespace TSLog.Yard.BO
         {
             Time = time > 0 ? Time : DefaultTime;
         }
+        private Work() : base()
+        {
+            Time = DefaultTime;
+        }
+
+        private static Work? _null = null;
+
+        /// <summary>
+        /// Null object
+        /// </summary>
+        public static new Work Null
+        {
+            get
+            {
+                if (_null == null)
+                    _null = new Work(-1, "NULL", "NULL", "NULL", "NULL", "NULL", DefaultTime);
+                return _null;
+            }
+        }
+        private static Work? _empty = null;
+
+        /// <summary>
+        /// Empty object
+        /// </summary>
+        public static new Work Empty
+        {
+            get
+            {
+                if (_empty == null)
+                    _empty = new Work();
+                return _empty;
+            }
+        }
     }
 }

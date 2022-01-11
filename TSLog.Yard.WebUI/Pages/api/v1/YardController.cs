@@ -100,7 +100,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string partnerID = Request.Query["partner_id"];
             string gate = Request.Query["gate"];
 
-            Partner partner = null;
+            Partner? partner = null;
             if (partnerID != null)
             {
                 partner = yardStorage.GetPartner(partnerID);
