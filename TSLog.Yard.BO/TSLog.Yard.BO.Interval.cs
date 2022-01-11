@@ -42,7 +42,7 @@ namespace TSLog.Yard.BO
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
             // TODO: check begin and end time
-            if (!_operations.ContainsKey(operation.Id))                
+            if (!_operations.ContainsKey(operation.Id))
                 _operations.Add(operation.Id, operation);
         }
         /// <summary>
@@ -86,7 +86,7 @@ namespace TSLog.Yard.BO
         public Operation[] Operations
         {
             get
-            {                
+            {
                 return _operations.Values.ToArray();
             }
         }
@@ -95,9 +95,9 @@ namespace TSLog.Yard.BO
         /// </summary>
         public int OperationsCount
         {
-            get 
-            { 
-                return _operations.Values.Count; 
+            get
+            {
+                return _operations.Values.Count;
             }
         }
         /// <summary>
@@ -110,8 +110,14 @@ namespace TSLog.Yard.BO
                 var temp = new Dictionary<DateTime, short>();
                 foreach (var operation in _operations.Values)
                 {
-                    temp[operation.PlanWorkStartDate]++;
-                    temp[operation.PlanWorkFinishDate]--;
+                    if (!temp.ContainsKey(operation.PlanWorkStartDate))
+                        temp.Add(operation.PlanWorkStartDate, 1);
+                    else
+                        temp[operation.PlanWorkStartDate]++;
+                    if (!temp.ContainsKey(operation.PlanWorkFinishDate))
+                        temp.Add(operation.PlanWorkFinishDate, -1);
+                    else
+                        temp[operation.PlanWorkFinishDate]--;
                 }
                 var moments = temp.Keys.ToArray();
                 Array.Sort(moments);
@@ -166,7 +172,7 @@ namespace TSLog.Yard.BO
                             state -= operation.WorkersCount;
                     if (begins.ContainsKey(moment))
                         foreach (var operation in begins[moment])
-                            state += operation.WorkersCount;                    
+                            state += operation.WorkersCount;
                     if (moment >= From && result < state)
                         state = result;
                 }
@@ -239,7 +245,7 @@ namespace TSLog.Yard.BO
                                 }
                             }
                         }
-                    }                    
+                    }
                 }
                 return result;
             }
@@ -256,7 +262,7 @@ namespace TSLog.Yard.BO
             var intervals = new List<Interval>();
             DateTime from;
             var to = From;
-            do 
+            do
             {
                 from = to;
                 to = to.AddSeconds(size);
@@ -335,6 +341,11 @@ namespace TSLog.Yard.BO
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
             return !(From > operation.PlanWorkFinishDate || To < operation.PlanWorkStartDate);
+        }
+        public string GetFormattedTimeString(bool simplified = true)
+        {
+            string ret = simplified ? $"{From:HH} - {To:HH}" : $"{From:HH\\:mm\\ss} - {To:HH\\:mm\\ss}";
+            return ret;
         }
     }
 }

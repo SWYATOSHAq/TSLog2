@@ -15,15 +15,37 @@
     int endTime = 21;
 
     // test
-    var dayStart = DateTime.Today;
-    var dayEnd = DateTime.Today.AddDays(1).AddSeconds(-1);
+
+    var dayStart = DateTime.Today.AddHours(startTime);
+    var dayEnd = dayStart.AddHours(endTime-startTime);
+    // 9-21 period
     var dayInterval = new Interval(dayStart, dayEnd);
     var operations = storage.GetOperations(dayStart, dayEnd, null);
+
+    dayInterval.AddOperations(operations);
+    var intervals = dayInterval.Split();
+    var separator = " | ";
 }
 
-@foreach (var item in operations)
+@foreach (var item in intervals)
 {
-    <p>@item.GetPlanTime()</p>
+    <p>
+        @item.GetFormattedTimeString() []
+        @item.MaxParallelOperations [
+        @{
+            var workers = item.MaxParallelPositionWorkers;
+        }
+        @foreach (var item2 in workers.Keys)
+        {
+            @item2.DisplayName
+            @separator
+            @workers[@item2]
+            @separator
+            ;
+        }
+
+        ] [@item.MaxParallelWorkers]
+    </p>
 }
 <!--  -->
 
