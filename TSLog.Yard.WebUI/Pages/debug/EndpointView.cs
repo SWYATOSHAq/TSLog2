@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace TSLog.Yard.WebUI
 {
-
     //[Authorize]
     [Route("/-/{controller}")]
     public class InfoController : Controller

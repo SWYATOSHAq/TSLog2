@@ -15,7 +15,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         public YardController(IYardStorage storage)
         {
             yardStorage = storage;
-
         }
         /*
          * get info about operation by id
@@ -23,7 +22,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
          * create / update operation
          * change state
          */
-
 
         [HttpGet("BusyPeriods")]
         public string GetBusyPeriods()
@@ -115,7 +113,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), searchPartners);
                 Text = JsonSerializer.Serialize(loadedOperations);
             }
-
             return Text;
         }
 

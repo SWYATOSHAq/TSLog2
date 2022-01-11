@@ -17,17 +17,11 @@
     Operation selectedYardOperation = Operation.Empty;
     long tmpID = 0;
     if (long.TryParse(operationID, out tmpID))
-    {
         selectedYardOperation = storage.GetOperation(tmpID);
-    }
     else
-    {
         selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
-    }
-
 
     var operationToRender = (selectedYardOperation, storage, isAdmin, isAdmin);
-
 }
 
 <!--  -->

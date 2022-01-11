@@ -7,7 +7,6 @@ namespace TSLog.Yard.WebUI.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
-        {
-        }
+        { }
     }
 }

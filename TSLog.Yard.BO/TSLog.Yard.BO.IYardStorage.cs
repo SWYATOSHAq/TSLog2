@@ -36,7 +36,7 @@ namespace TSLog.Yard.BO
         public Operation GetOperation(long id);
         public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind);
         public IDictionary<Position, short> GetWorkers(Operation operation);
-        public Operation[] GetOperations(DateTime from, DateTime to, Partner[] partners);
+        public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners);
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
         public void CancelOperationGate(Operation operation);

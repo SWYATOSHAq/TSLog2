@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using TSLog.Yard.BO;
 
 namespace TSLog.Yard.WebUI.Pages
@@ -16,8 +15,6 @@ namespace TSLog.Yard.WebUI.Pages
         }
 
         public void OnGet()
-        {
-
-        }
+        { }
     }
 }

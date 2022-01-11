@@ -30,6 +30,11 @@ namespace TSLog.Common.Data
             return connection;
         }
 
+        /// <summary>
+        /// Установить соединение с БД
+        /// </summary>
+        /// <param name="user">Имя пользователя БД</param>
+        /// <param name="password">Пароль</param>
         public void Connect(string user, SecureString password)
         {
             var stringBuilder = new NpgsqlConnectionStringBuilder
@@ -44,6 +49,11 @@ namespace TSLog.Common.Data
             _connection.Open();
             stringBuilder.Clear();
         }
+        /// <summary>
+        /// Выполнить SQL запрос
+        /// </summary>
+        /// <param name="sql">Текст SQL запроса</param>
+        /// <exception cref="ArgumentException"></exception>
         public void Execute(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -165,6 +175,9 @@ namespace TSLog.Common.Data
             return entities.ToArray();
         }
 
+        /// <summary>
+        /// Отсоединиться от БД
+        /// </summary>
         public void Disconnect()
         {
             if (_connection.State != ConnectionState.Closed && _connection.State != ConnectionState.Broken)

@@ -22,6 +22,10 @@ namespace TSLog.Log
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Пишет сообщение в журнал
+        /// </summary>
+        /// <param name="message">Текст сообщения</param>
         public void WriteLog(string message)
         {
             _stream.WriteLine(message);

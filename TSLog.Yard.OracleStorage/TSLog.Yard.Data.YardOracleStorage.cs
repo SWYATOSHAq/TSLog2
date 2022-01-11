@@ -281,7 +281,7 @@ namespace TSLog.Yard.Data
                 var SelectPositionByCodeSql =
                     $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
                     $"  from {CommonSchema}.v_position p " +
-                    $"where p.code = :code";
+                    $" where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
                 using var reader = command.ExecuteReader();

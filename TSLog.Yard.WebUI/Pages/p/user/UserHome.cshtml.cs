@@ -12,12 +12,9 @@ namespace TSLog.Yard.WebUI.Pages
         {
             _logger = logger;
             yardStorage = storage;
-
         }
 
         public void OnGet()
-        {
-
-        }
+        { }
     }
 }

@@ -8,8 +8,6 @@
     var isAdmin = Model.Item4;
     //-----------
 
-
-
     var gatesList = (storage.GetGates(),
         cardData.Gate?.Code,
         isEnabled,
@@ -20,7 +18,6 @@
         isEnabled,
         false
         );
-
 
     var logstList = (storage.GetLogists(),
         cardData.Logist?.Code,
@@ -57,9 +54,7 @@
     var workersdata = storage.GetWorkers(cardData);
     int humanHoursSum = 0;
     foreach (var position in workersdata.Keys)
-    {
         humanHoursSum += workersdata[position];
-    }
 
     textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum > 0 ? humanHoursSum.ToString() : "", true));
 
@@ -102,7 +97,6 @@
         <div class="row p-2 m-2 rem-outline-on-print">
             <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
         </div>
-
     }
 
     <div class="row p-2 m-2 rem-outline-on-print">
@@ -187,7 +181,6 @@
         <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
 
     </div>
-
 </div>
 
 

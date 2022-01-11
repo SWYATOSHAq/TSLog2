@@ -19,16 +19,19 @@ namespace TSLog.Links.Data
     /// </summary>
     public class LinksOracleStorage : OracleStorage, ILinksStorage
     {
+        private const string DefaultCommonSchema = "ecco";
+        private const string DefaultLinksSchema = "links";
+        private const string DefaultWmsSchema = "ecco2_s1_pdba";
+
         public LinksOracleStorage(string dataSource)
             : base(dataSource)
         {
-            CommonSchema = "ecco";
-            LinksSchema = "links";
-            WmsSchema = "ecco2_s1_pdba";
+            CommonSchema = DefaultCommonSchema;
+            LinksSchema = DefaultLinksSchema;
+            WmsSchema = DefaultWmsSchema;
             Instance = this;
         }
         public static LinksOracleStorage Instance = null; // TODO: wrong decision
-
 
         /// <summary>
         /// Схема общими объектами БД (ecco)

@@ -18,7 +18,7 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage
     {
-        private const string DefaultYardSchema = "Yard";
+        private const string DefaultYardSchema = "yard";
         /// <summary>
         /// Схема в БД для хранение объектов модуля управления двором
         /// </summary>

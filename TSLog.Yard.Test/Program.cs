@@ -98,7 +98,6 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     storage.DisconnectOracle();
     storage.DisconnectPgsql();
     Console.WriteLine("[тест был пройден успешно]");
-
 }
 Console.ReadLine();
 
