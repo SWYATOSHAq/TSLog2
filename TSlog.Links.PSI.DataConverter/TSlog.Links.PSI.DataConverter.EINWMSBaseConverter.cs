@@ -30,7 +30,7 @@ namespace TSlog.Links.PSI.DataConverter
 
         public static string PrepStrPar(MeasureUnit param, string defaultValue = "")
         {
-            var ret = "";
+            string ret;
             if (param == MeasureUnit.Null)
                 ret = defaultValue;
             else
@@ -57,19 +57,20 @@ namespace TSlog.Links.PSI.DataConverter
 
             var ret = retVal.ToString();
             if (retVal == 0)
-                ret = "";
+                ret = string.Empty;
 
             return ret;
         }
 
         public static string TruncateLongString(string str, int maxLength, int start = 0)
         {
-            string ret = "";
-            if (string.IsNullOrEmpty(str)) ret = "";
+            string ret;
+            if (string.IsNullOrEmpty(str)) 
+                ret = "";
             else
             {
                 if (start > str.Length)
-                    ret = "";
+                    ret = string.Empty;
                 else
                     ret = str.Substring(start, Math.Min(str.Length, maxLength));
             }
@@ -80,153 +81,51 @@ namespace TSlog.Links.PSI.DataConverter
         public static string TranslateMeasurmentUnit(string unit)
         {
             // TODO read this data from file
-            string ret = "";
-            switch (unit)
+            string ret = unit switch
             {
-                case "мм":
-                    ret = "MM";
-                    break;
-
-                case "см":
-                    ret = "CM";
-                    break;
-
-                case "cm":
-                    ret = "CM";
-                    break;
-
-                case "CM":
-                    ret = "CM";
-                    break;
-
-                case "M":
-                    ret = "M";
-                    break;
-
-                case "пог. м":
-                    ret = "M";
-                    break;
-
-                case "м":
-                    ret = "M";
-                    break;
-
-                case "мм3":
-                    ret = "MM3";
-                    break;
-
-                case "СМ3":
-                    ret = "CM3";
-                    break;
-
-                case "CM3":
-                    ret = "CM3";
-                    break;
-
-                case "см3":
-                    ret = "CM3";
-                    break;
-
-                case "дм3":
-                    ret = "DM3";
-                    break;
-
-                case "м3":
-                    ret = "M3";
-                    break;
-
-                case "г":
-                    ret = "G";
-                    break;
-
-                case "G":
-                    ret = "G";
-                    break;
-
-                case "KG":
-                    ret = "KG";
-                    break;
-
-                case "кг":
-                    ret = "KG";
-                    break;
-
-                case "компл":
-                    ret = "SET";
-                    break;
-
-                case "упак":
-                    ret = "SET";
-                    break;
-
-                case "шт.":
-                    ret = "ST";
-                    break;
-
-                case "шт":
-                    ret = "ST";
-                    break;
-
-                case "кор.":
-                    ret = "ST";
-                    break;
-
-                case "кор":
-                    ret = "ST";
-                    break;
-
-                case "пара":
-                    ret = "ST";
-                    break;
-
-                case "бут":
-                    ret = "ST";
-                    break;
-
-                case "уп.":
-                    ret = "ST";
-                    break;
-
-                case "ST":
-                    ret = "ST";
-                    break;
-
-                case "st":
-                    ret = "ST";
-                    break;
-
-                case "":
-                    ret = "ST";
-                    break;
-
-                default:
-                    ret = unit; // huh
-                    break;
-            }
-
+                "мм" => "MM",
+                "см" => "CM",
+                "cm" => "CM",
+                "CM" => "CM",
+                "M" => "M",
+                "пог. м" => "M",
+                "м" => "M",
+                "мм3" => "MM3",
+                "СМ3" => "CM3",
+                "CM3" => "CM3",
+                "см3" => "CM3",
+                "дм3" => "DM3",
+                "м3" => "M3",
+                "г" => "G",
+                "G" => "G",
+                "KG" => "KG",
+                "кг" => "KG",
+                "компл" => "SET",
+                "упак" => "SET",
+                "шт." => "ST",
+                "шт" => "ST",
+                "кор." => "ST",
+                "кор" => "ST",
+                "пара" => "ST",
+                "бут" => "ST",
+                "уп." => "ST",
+                "ST" => "ST",
+                "st" => "ST",
+                "" => "ST",
+                _ => unit,// huh
+            };
             return ret;
         }
 
         public static string GetDefaultMeasurmentUnit(LegalEntity client)
         {
             // TODO read this data from file
-            string ret = "";
-
-            switch (client.Code)
+            string ret = client.Code switch
             {
-                case "0002":
-                    ret = "шт";
-                    break;
-
-                case "0007":
-                    ret = "г";
-                    break;
-
-                default:
-                    ret = "шт";
-                    break;
-            }
-
+                "0002" => "шт",
+                "0007" => "г",
+                _ => "шт",
+            };
             return ret;
         }
     }

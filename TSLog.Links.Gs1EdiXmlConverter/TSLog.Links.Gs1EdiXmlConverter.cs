@@ -6,6 +6,7 @@ using TSLog.Common.BO;
 using TSLog.Incomes.BO;
 using TSLog.LegalEntities.BO;
 using TSLog.Outgoes.BO;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
 
 namespace TSLog.Links.Gs1EdiXml
@@ -493,7 +494,7 @@ namespace TSLog.Links.Gs1EdiXml
                             break;
 
                         case "logisticUnit":
-                            var logisticUnitQuantity = 0.0;
+                            double logisticUnitQuantity;
                             var sscc = IncomeRequestLineLogisticUnitFromXml(reader, out logisticUnitQuantity);
                             if (!logisticUnits.ContainsKey(sscc))
                                 throw new Exception($"Место по коду {sscc} не найдено");
@@ -551,14 +552,14 @@ namespace TSLog.Links.Gs1EdiXml
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var incomeId = string.Empty;
-            var incomeNumber = string.Empty;
+            string incomeNumber;
             var incomeDate = DateTime.MinValue;
             var incomePartner = LegalEntity.Null;
             var incomePartnerNumber = string.Empty;
             var incomeStateCode = string.Empty;
-            var incomeState = Entity.Null;
-            var planAcceptanceBegin = DateTime.MinValue;
-            var planAcceptanceEnd = DateTime.MinValue;
+            Entity incomeState;
+            DateTime planAcceptanceBegin;
+            DateTime planAcceptanceEnd;
             var incomeType = Entity.Null;
             var incomeNote = string.Empty;
             var incomeLogisticUnits = new Dictionary<string, LogisticUnit>();
@@ -806,6 +807,8 @@ namespace TSLog.Links.Gs1EdiXml
 
         public static string ReceiptEndNoticesToXml(ReceiptEndNotice[] receiptEndNotices)
         {
+            if (receiptEndNotices == null)
+                throw new ArgumentNullException(nameof(receiptEndNotices));
             return string.Empty;
         }
 
@@ -916,14 +919,14 @@ namespace TSLog.Links.Gs1EdiXml
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var outgoId = string.Empty;
-            var outgoNumber = string.Empty;
+            string outgoNumber;
             var outgoDate = DateTime.MinValue;
-            var outgoPartner = LegalEntity.Null;
+            LegalEntity outgoPartner;
             var outgoPartnerNumber = string.Empty;
-            var outgoPlanShippingBegin = DateTime.MinValue;
-            var outgoPlanShippingEnd = DateTime.MinValue;
+            DateTime outgoPlanShippingBegin;
+            DateTime outgoPlanShippingEnd;
             var outgoStateCode = string.Empty;
-            var outgoState = Entity.Null;
+            Entity outgoState;
             var outgoNote = string.Empty;
 
             var id = -1;
@@ -936,7 +939,7 @@ namespace TSLog.Links.Gs1EdiXml
             var serviceSeller = LegalEntity.Null;
             var shipper = LegalEntity.Null;
             var receiver = LegalEntity.Null;
-            var note = string.Empty;
+            string note;
 
             var beginDate = string.Empty;
             var beginTime = string.Empty;
@@ -1113,6 +1116,8 @@ namespace TSLog.Links.Gs1EdiXml
 
         public static string PickingBeginNoticesToXml(PickingBeginNotice[] pickingBeginNotices)
         {
+            if (pickingBeginNotices == null)
+                throw new ArgumentNullException(nameof(pickingBeginNotices));
             return string.Empty;
         }
 
@@ -1235,6 +1240,8 @@ namespace TSLog.Links.Gs1EdiXml
 
         public static string ShippingNoticesToXml(ShippingNotice[] shippingNotices)
         {
+            if (shippingNotices == null)
+                throw new ArgumentNullException(nameof(shippingNotices));
             return string.Empty;
         }
 

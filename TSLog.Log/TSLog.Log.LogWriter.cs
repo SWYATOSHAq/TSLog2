@@ -19,6 +19,7 @@ namespace TSLog.Log
         {
             _stream.Close();
             _stream.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public void WriteLog(string message)

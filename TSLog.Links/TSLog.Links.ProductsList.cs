@@ -50,7 +50,7 @@ namespace TSLog.Links
         public void AddProducts(Product[] products)
         {
             if (products == null)
-                throw new ArgumentNullException("products");
+                throw new ArgumentNullException(nameof(products));
             foreach (var product in products)
                 AddProduct(product);
         }

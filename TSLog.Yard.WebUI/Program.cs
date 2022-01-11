@@ -57,15 +57,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // map api
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
 //
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapRazorPages();
 

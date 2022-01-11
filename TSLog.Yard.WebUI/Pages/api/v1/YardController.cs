@@ -30,7 +30,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             // TODO test
             // default
-            var Text = "";
+            string Text;
             //
             string strDate = Request.Query["date"];
             var date = DateTime.Parse(strDate);
@@ -55,7 +55,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             // TODO test
             // default
-            var Text = "";
+            string Text;
             //
 
             string strOperation = Request.Query["operation"];
@@ -81,8 +81,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             //
             string operationID = Request.Query["operation_id"];
 
-            long tmpID = 0;
-            if (long.TryParse(operationID, out tmpID))
+            if (long.TryParse(operationID, out long tmpID))
             {
                 var loadedOperation = yardStorage.GetOperation(tmpID);
                 Text = JsonSerializer.Serialize(loadedOperation);
@@ -102,15 +101,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             Partner? partner = null;
             if (partnerID != null)
-            {
                 partner = yardStorage.GetPartner(partnerID);
-            }
 
-            var searchPartners = (partner == null || partner == Partner.Null) ? null : new Partner[] { partner };
+            var searchPartners = (partner == null || partner == Partner.Null) ? Array.Empty<Partner>() : new Partner[] { partner };
             var searchGate = gate != "" && gate != null ? yardStorage.GetGate(gate) : Gate.Null;
 
-            DateTime tmp;
-            if (DateTime.TryParse(operationDate, out tmp))
+            if (DateTime.TryParse(operationDate, out DateTime tmp))
             {
                 // search for period of 1 day or 2 days?
                 var daysSpan = 2;
@@ -140,7 +136,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var start_date = Request.Form["start_date"];
             var finish_date = Request.Form["finish_date"];
 
-            var Text = "";
+            string Text;
 
             if (operation_id != null)
             {
@@ -191,8 +187,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string operationID = Request.Form["operation_id"];
             string actionWithOperation = Request.Form["action"];
 
-            long tmpID = 0;
-            if (long.TryParse(operationID, out tmpID))
+            if (long.TryParse(operationID, out long tmpID))
             {
                 var loadedOperation = yardStorage.GetOperation(tmpID);
 

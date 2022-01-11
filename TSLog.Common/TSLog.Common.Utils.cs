@@ -68,7 +68,7 @@ namespace TSLog.Common
 
         public static string ToSqlXmlText(string text)
         {
-            return text == null ? null : text.Trim().Replace("\"", "&quot;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("'", " ");
+            return text?.Trim().Replace("\"", "&quot;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("'", " ");
         }
 
         public static bool ValidFilePath(string path)
@@ -162,13 +162,11 @@ namespace TSLog.Common
             int byteCount = 0;
             using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, initialVectorBytes))
             {
-                using (var memStream = new MemoryStream(cipherTextBytes))
-                {
-                    using var cryptoStream = new CryptoStream(memStream, decryptor, CryptoStreamMode.Read);
-                    byteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                    memStream.Close();
-                    cryptoStream.Close();
-                }
+                using var memStream = new MemoryStream(cipherTextBytes);
+                using var cryptoStream = new CryptoStream(memStream, decryptor, CryptoStreamMode.Read);
+                byteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+                memStream.Close();
+                cryptoStream.Close();
             }
             symmetricKey.Clear();
             return Encoding.UTF8.GetString(plainTextBytes, 0, byteCount);

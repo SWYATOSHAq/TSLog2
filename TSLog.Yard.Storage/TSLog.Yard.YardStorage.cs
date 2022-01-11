@@ -260,6 +260,7 @@ namespace TSLog.Yard
         {
             _oracleStorage.Dispose();
             _pgsqlStorage.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

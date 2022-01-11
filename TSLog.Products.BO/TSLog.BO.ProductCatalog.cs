@@ -2,20 +2,24 @@
 
 namespace TSLog.Products.BO
 {
-    public class ProductCatalog<T> : Catalog<T> where T : Entity
+    /// <summary>
+    /// Каталог товаров
+    /// </summary>
+    /// <typeparam name="T">Товар</typeparam>
+    public class ProductCatalog<T> : Catalog<T> where T : Product
     {
-        private readonly Dictionary<string, T> _entitiesInternalCodes = new Dictionary<string, T>();
+        private readonly Dictionary<string, T> _entitiesInternalCodes = new();
 
         public ProductCatalog(string code, string name, string note = "") : base(code, name, note)
         { }
 
-        public new void Add(T entity)
+        public new void Add(T product)
         {
-            if (!string.IsNullOrWhiteSpace(entity.Code) && !_entitiesInternalCodes.ContainsKey(entity.Code))
-                _entitiesInternalCodes.Add(entity.Code, entity);
+            if (!string.IsNullOrWhiteSpace(product.Code) && !_entitiesInternalCodes.ContainsKey(product.Code))
+                _entitiesInternalCodes.Add(product.Code, product);
 
             //
-            base.Add(entity);
+            base.Add(product);
         }
 
         public T? GetByInternalCode(string code)

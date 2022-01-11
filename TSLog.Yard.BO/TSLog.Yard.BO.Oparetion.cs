@@ -49,7 +49,7 @@ namespace TSLog.Yard.BO
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
-        private IDictionary<Position, short> _workers = new Dictionary<Position, short>();
+        private readonly IDictionary<Position, short> _workers = new Dictionary<Position, short>();
         public Position[] Positions
         {
             get
@@ -191,11 +191,11 @@ namespace TSLog.Yard.BO
         public WarehouseAction GetAction(ActionKind kind, LegalEntity partner, string partnerActionNumber)
         {
             var actions = _actions.Values.ToList();
-            actions.Select(a => a.Kind == kind
+            var action = actions.Find(a => a.Kind == kind
                 && a.Partner.Id == partner.Id
-                && a.PartnerActionId == partnerActionNumber).ToArray();
-            if (actions.Count > 0)
-                return actions[0];
+                && a.PartnerActionId == partnerActionNumber);
+            if (action != null)
+                return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionNumber);
         }
         public WarehouseAction[] GetActions()

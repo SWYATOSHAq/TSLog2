@@ -22,9 +22,9 @@ namespace TSlog.Links.PSI.DataConverter
         |MsgNam=WMS.ARTLTT|VersionsNr=1.9.3|TrxId=Tr100067168|Werk=0000|MndNr=0014|ArtNr=AR00000119|LttNam=STDCRT|ArtLttKnzDeflt=1|ArtLttMgMax=6|
          */
 
-        private string SpecialAssignedTransportUnittypes()
+        private static string SpecialAssignedTransportUnittypes()
         {
-            return "";
+            return string.Empty;
         }
 
         public string Convert(string transactionId, ProductsList list)
@@ -49,9 +49,11 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|MndNr={PrepStrPar(partner.Code)}";
 
             var ret = "";
-            var dictMaxAmountPerPalletType = new Dictionary<string, int>();
-            dictMaxAmountPerPalletType.Add("EURO", 999999999);
-            dictMaxAmountPerPalletType.Add("STDCRT", 6);
+            var dictMaxAmountPerPalletType = new Dictionary<string, int>
+            {
+                { "EURO", 999999999 },
+                { "STDCRT", 6 }
+            };
 
             string defMeasurment = PrepStrPar(TranslateMeasurmentUnit(PrepStrPar(product.UnitType, defaultValue: GetDefaultMeasurmentUnit(partner))), true);
 

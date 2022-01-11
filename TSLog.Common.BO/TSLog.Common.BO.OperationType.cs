@@ -43,8 +43,7 @@ namespace TSLog.Common.BO
     {
         public static OperationType Convert(string value)
         {
-            OperationType result;
-            if (!Enum.TryParse(value, out result))
+            if (!Enum.TryParse(value, out OperationType result))
                 result = OperationType.Undefined;
             return result;
         }
