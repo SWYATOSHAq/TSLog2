@@ -12,6 +12,23 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Operation : Entity
     {
+        public class OperationWork
+        {
+            private const short DefaultTime = 600;
+            private const short DefaultWorkersCount = 1;
+            public Work Work { get; set; }
+            public Position Position { get; set; }
+            public short Time { get; set; }
+            public short WorkersCount { get; set; }            
+            public OperationWork(Work work, Position position, short Time, short workerCount)
+            {
+                Work = work;
+                Position = position;
+                Time = Time > 0 ? Time : DefaultTime;
+                WorkersCount = workerCount > 0 ? WorkersCount : DefaultWorkersCount;
+            }
+        }
+
         private const short DefaultPriority = 1;
         /// <summary>
         /// Идентификатор
@@ -39,29 +56,54 @@ namespace TSLog.Yard.BO
         /// Плановая дата и время начала непосредственно работ
         /// </summary>
         public DateTime PlanWorkStartDate { get; private set; }
+        /// <summary>
+        /// Фактическая дата и время начала непосредственно работ
+        /// </summary>
         public DateTime FactWorkStartDate { get; set; }
         /// <summary>
         /// Плановая дата и время окончания непосредственно работ
         /// </summary>
         public DateTime PlanWorkFinishDate { get; private set; }
+        /// <summary>
+        /// Фактическая дата и время окончания непосредственно работ
+        /// </summary>
         public DateTime FactWorkFinishDate { get; set; }
         /// <summary>
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
-        private readonly IDictionary<Position, short> _workers = new Dictionary<Position, short>();
-        public Position[] Positions
-        {
-            get
-            {
-                return _workers.Keys.ToArray();
-            }
-        }
-        public short GetWorkers(Position position)
+        private readonly IList<OperationWork> _operationWorks = new List<OperationWork>();
+        /// <summary>
+        /// Количество работников по определённой должности
+        /// </summary>
+        /// <param name="position">Должность</param>
+        /// <returns>Уоличество работников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public short GetWorkersCount(Position position)
         {
             if (position == null)
                 throw new ArgumentNullException(nameof(position));
-            return _workers.ContainsKey(position) ? _workers[position] : (short)0;
+            var result = (short)0;
+            foreach (var operationWork in _operationWorks)
+                if (operationWork.Position == position && result < operationWork.WorkersCount)
+                    result = operationWork.WorkersCount;
+            return result;
+        }
+        /// <summary>
+        /// Количество работников, выполняющих определённой элементарную работу
+        /// </summary>
+        /// <param name="work">Элементарная работа</param>
+        /// <returns>Количество работников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public short GetWorkersCount(Work work)
+        {
+            if (work == null)
+                throw new ArgumentNullException(nameof(work));
+            var result = (short)0;
+            foreach (var operationWork in _operationWorks)
+                if (operationWork.Work == work && result < operationWork.WorkersCount)
+                    result = operationWork.WorkersCount;
+            return result;
         }
         /// <summary>
         /// Общее количество сотрудников для операции двора (ПРР) по всем должностям
@@ -71,19 +113,53 @@ namespace TSLog.Yard.BO
             get
             {
                 var result = (short)0;
-                foreach (var count in _workers.Values)
+                var counts = new Dictionary<Position, short>();
+                foreach (var operastionWork in _operationWorks)
+                {
+                    var position = operastionWork.Position;
+                    var count = operastionWork.WorkersCount;
+                    if (!counts.ContainsKey(position))
+                        counts.Add(position, count);
+                    else
+                        counts[position] += count;                    
+                }
+                foreach (var count in counts.Values)
                     result += count;
                 return result;
             }
         }
-        public void AddWorkers(Position position, short count)
+        /// <summary>
+        /// Добавление работы в операцию двора (ПРР)
+        /// </summary>
+        /// <param name="work">Работа</param>        
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddOperationWork(OperationWork operationWork)
         {
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            if (!_workers.ContainsKey(position))
-                _workers.Add(position, count);
-            else
-                _workers[position] += count;
+            if (operationWork == null)
+                throw new ArgumentNullException(nameof(operationWork));
+            _operationWorks.Add(operationWork);
+        }
+        /// <summary>
+        /// Добавление нескольких работ в операцию двора ПРР
+        /// </summary>
+        /// <param name="operationWorks"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddOperationWorks(OperationWork[] operationWorks)
+        {
+            if (operationWorks == null)
+                throw new ArgumentNullException(nameof(operationWorks));
+            foreach (OperationWork operationWork in operationWorks)
+                AddOperationWork(operationWork);
+        }
+        /// <summary>
+        /// Работы операции двора (ПРР)
+        /// </summary>
+        public OperationWork[] OperationWorks
+        {
+            get
+            {
+                return _operationWorks.ToArray();
+            }
         }
         /// <summary>
         /// Вид автомашины

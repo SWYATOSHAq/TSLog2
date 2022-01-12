@@ -1,4 +1,5 @@
 ﻿using TSLog.Common.BO;
+using TSLog.Staff.BO;
 
 namespace TSLog.Yard.BO
 {

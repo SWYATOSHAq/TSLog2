@@ -61,7 +61,7 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployees();
         }        
-        public Position GetPosition(int id)
+        public Position GetPosition(short id)
         {
             return _oracleStorage.GetPosition(id);
         }
@@ -73,7 +73,7 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPositions();
         }
-        public Gate GetGate(int id)
+        public Gate GetGate(short id)
         {
             return _pgsqlStorage.GetGate(id);
         }
@@ -97,7 +97,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetLogists();
         }
-        public Entity GetOperationState(int id)
+        public Entity GetOperationState(short id)
         {
             return _pgsqlStorage.GetOperationState(id);
         }
@@ -109,7 +109,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperationStates();
         }
-        public OperationType GetOperationType(int id)
+        public OperationType GetOperationType(short id)
         {
             return _pgsqlStorage.GetOperationType(id);
         }
@@ -137,7 +137,7 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPartners(getOnlyActive);
         }
-        public VehicleKind GetVehicleKind(int id)
+        public VehicleKind GetVehicleKind(short id)
         {
             return _pgsqlStorage.GetVehicleKind(id);
         }
@@ -148,6 +148,18 @@ namespace TSLog.Yard
         public VehicleKind[] GetVehicleKinds()
         {
             return _pgsqlStorage.GetVehicleKinds();
+        }
+        public Work GetWorkById(short id)
+        {
+            return _pgsqlStorage.GetWorkById(id);
+        }
+        public Work GetWorkByCode(string code)
+        {
+            return _pgsqlStorage.GetWorkByCode(code);
+        }
+        public Work[] GetWorks()
+        {
+            return _pgsqlStorage.GetWorks();
         }
         #endregion
 
@@ -176,13 +188,13 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperation(id);
         }
-        public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind)
+        public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind)
         {
-            return _pgsqlStorage.GetWorkers(operationType, vehicleKind);
+            return _pgsqlStorage.GetOperationWorks(operationType, vehicleKind);
         }
-        public IDictionary<Position, short> GetWorkers(Operation operation)
+        public Operation.OperationWork[] GetOperationWorks(Operation operation)
         {
-            return _pgsqlStorage.GetWorkers(operation);
+            return _pgsqlStorage.GetOperationWorks(operation);
         }
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
         {

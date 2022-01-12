@@ -61,9 +61,9 @@ namespace TSLog.Yard.Data
                 displayOrder,
                 note);
         }
-        public Gate GetGate(int id)
+        public Gate GetGate(short id)
         {
-            id = id > 0 ? id : -1;
+            id = id > 0 ? id : (short)-1;
             var gate = _gates[id];
             if (gate != null && gate != Gate.Null)
                 return gate;
@@ -256,7 +256,7 @@ namespace TSLog.Yard.Data
         }
 
         private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
-        public Entity GetOperationState(int id)
+        public Entity GetOperationState(short id)
         {
             var SelectOperationStateByIdSql =
                 $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note " +
@@ -308,9 +308,9 @@ namespace TSLog.Yard.Data
                 note);
             return operationtype;
         }
-        public OperationType GetOperationType(int id)
+        public OperationType GetOperationType(short id)
         {
-            id = id > 0 ? id : -1;
+            id = id > 0 ? id : (short)-1;
             var operationType = _operationTypes[id];
             if (operationType != null && operationType != OperationType.Null)
                 return operationType;
@@ -426,7 +426,7 @@ namespace TSLog.Yard.Data
             return operationTypes.ToArray();
         }
 
-        private readonly Catalog<VehicleKind> _vehicleKinds = new("VIHICLE_KINDS", "Виды автомашин");
+        private readonly Catalog<VehicleKind> _vehicleKinds = new("VEHICLE_KINDS", "Виды автомашин");
         private static VehicleKind CreateVehicleKind(DbDataReader reader)
         {
             if (reader == null)
@@ -450,9 +450,9 @@ namespace TSLog.Yard.Data
                 note);
             return vehicleKind;
         }
-        public VehicleKind GetVehicleKind(int id)
+        public VehicleKind GetVehicleKind(short id)
         {
-            id = id > 0 ? id : -1;
+            id = id > 0 ? id : (short)-1;
             var vehicleKind = _vehicleKinds[id];
             if (vehicleKind != null && vehicleKind != VehicleKind.Null)
                 return vehicleKind;
@@ -541,9 +541,120 @@ namespace TSLog.Yard.Data
             return vehicleKinds.ToArray();
         }
 
+        private readonly Catalog<Work> _works = new("WORKS", "Элементарные работы");
+        private static Work CreateWork(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var time = Utils.DbValueToShort(reader["time"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var work = new Work(id, code, name, shortName, altName, displayName, time,
+                isActive, displayOrder,
+                note);
+            return work;
+        }
+        public Work GetWorkById(short id)
+        {
+            id = id > 0 ? id : (short)-1;
+            var work = _works[id];
+            if (work != null && work != Work.Null)
+                return work;
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectWorkByIdSql =
+                        $"select w.id, w.code, w.name, w.short_name, w.alt_name, w.display_name, " +
+                        $"       w.time, " +
+                        $"       w.is_active, w.display_order, w.note " +
+                        $"  from {YardSchema}.v_work w where w.id = :id";
+                    command.CommandText = SelectWorkByIdSql;
+                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        work = CreateWork(reader);
+                        _works.Add(work);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (work != null && work != Work.Null)
+                return work;
+            throw new EntityNotFoundException(nameof(work), id);
+        }
+        public Work GetWorkByCode(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var work = _works[code];
+            if (work != null && work != Work.Null)
+                return work;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectWorkByCodeSql =
+                        $"select w.id, w.code, w.name, w.short_name, w.alt_name, w.display_name, " +
+                        $"       w.time, " +
+                        $"       w.is_active, w.display_order, w.note " +
+                        $"  from {YardSchema}.v_work w where w.code = :code";
+                    command.CommandText = SelectWorkByCodeSql;
+                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        work = CreateWork(reader);
+                        _works.Add(work);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (work != null && work != Work.Null)
+                return work;
+            throw new EntityNotFoundException(nameof(work), code);
+        }
+        public Work[] GetWorks()
+        {
+            var works = new List<Work>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectWorksSql =
+                        $"select w.id, w.code, w.name, w.short_name, w.alt_name, w.display_name, " +
+                        $"       w.time, " +
+                        $"       w.is_active, w.display_order, w.note " +
+                        $"  from {YardSchema}.v_work w";
+                    command.CommandText = SelectWorksSql;
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var work = CreateWork(reader);
+                        works.Add(work);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return works.ToArray();
+        }
+
         public delegate Partner GetPartnerByIdDelegate(string id);
         public delegate Employee GetEmployeeByIdDelegate(int id);
-        public delegate Position GetPositionByIdDelegate(int id);
+        public delegate Position GetPositionByIdDelegate(short id);
         public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
         public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
         public GetPositionByIdDelegate? GetPositionById { private get; set; }
@@ -555,7 +666,7 @@ namespace TSLog.Yard.Data
         {
             return GetEmployeeById != null ? GetEmployeeById(id) : Employee.Null;
         }
-        private Position GetPosition(int id)
+        private Position GetPosition(short id)
         {
             return GetPositionById != null ? GetPositionById(id) : Position.Null;
         }
@@ -764,7 +875,7 @@ namespace TSLog.Yard.Data
             var logistId = Utils.DbValueToInt(reader["logist_id"]);
             operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
 
-            var gateId = Utils.DbValueToInt(reader["gate_id"]);
+            var gateId = Utils.DbValueToShort(reader["gate_id"]);
             operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
 
             var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
@@ -775,9 +886,8 @@ namespace TSLog.Yard.Data
             var actions = GetActions(operation);
             operation.AddActions(actions);
 
-            var workers = GetWorkers(operation);
-            foreach (var pair in workers)
-                operation.AddWorkers(pair.Key, pair.Value);
+            var operationWorls = GetOperationWorks(operation);
+                operation.AddOperationWorks(operationWorls);
 
             return operation;
         }
@@ -820,7 +930,7 @@ namespace TSLog.Yard.Data
             }
             throw new OperationNotFoundException(id);
         }
-        public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind)
+        public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind)
         {
             if (operationType == null)
                 throw new ArgumentNullException(nameof(operationType));
@@ -828,14 +938,14 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(vehicleKind));
             if (GetPositionById == null)
                 throw new ArgumentException($"{nameof(GetPositionById)} is null");
-            var workers = new Dictionary<Position, short>();
+            var operationWorks = new List<Operation.OperationWork>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
                     var sql = 
-                        $"select otvkw.position_id, otvkw.workers_count " +
-                        $"  from {YardSchema}.v_ot_vk_worker otvkw " +
+                        $"select otvkw.work_id, otvkw.position_id, otvkw.time, otvkw.workers_count " +
+                        $"  from {YardSchema}.v_ot_vk_work otvkw " +
                         $" where otvkw.operation_type_id = :operation_type_id " +
                         $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
                     command.CommandText = sql;
@@ -844,23 +954,25 @@ namespace TSLog.Yard.Data
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var position = GetPositionById(Utils.DbValueToInt(reader["position_id"]));
-                        if (!workers.ContainsKey(position))
-                            workers.Add(position, Utils.DbValueToShort(reader["workers_count"]));
-                        else
-                            workers[position] += Utils.DbValueToShort(reader["workers_count"]);
+                        var position = GetPositionById(Utils.DbValueToShort(reader["position_id"]));
+                        var work = GetWorkById(Utils.DbValueToShort(reader["work_id"]));
+                        var time = Utils.DbValueToShort(reader["time"]);
+                        var workersCount = Utils.DbValueToShort(reader["workers_count"]);
+
+                        var operationWork = new Operation.OperationWork(work, position, time, workersCount);
+                        operationWorks.Add(operationWork);
                     }
                     reader.Close();
                 }
                 connection.Close();
             }
-            return workers;
+            return operationWorks.ToArray();
         }
-        public IDictionary<Position, short> GetWorkers(Operation operation)
+        public Operation.OperationWork[] GetOperationWorks(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-            return GetWorkers(operation.Type, operation.VehicleKind);
+            return GetOperationWorks(operation.Type, operation.VehicleKind);
         }
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
         {
@@ -1013,7 +1125,7 @@ namespace TSLog.Yard.Data
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
                     command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate != null ? gate.Code : DBNull.Value));
-                    var gateId = Convert.ToInt32(command.ExecuteScalar());
+                    var gateId = Convert.ToInt16(command.ExecuteScalar());
                     operation.Gate = GetGate(gateId);
                 }
                 connection.Close();

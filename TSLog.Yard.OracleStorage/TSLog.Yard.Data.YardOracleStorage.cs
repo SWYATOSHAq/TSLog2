@@ -249,9 +249,9 @@ namespace TSLog.Yard.Data
                 note);
             return position;
         }
-        public Position GetPosition(int id)
+        public Position GetPosition(short id)
         {
-            id = id > 0 ? id : 0;
+            id = id > 0 ? id : (short)0;
             var position = Position.Null;
             using (var command = _connection.CreateCommand())
             {
