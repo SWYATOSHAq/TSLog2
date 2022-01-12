@@ -54,6 +54,8 @@
     <!--  -->
     <input type="text" id="dp1" class="datepicker border border-secondary" placeholder="Выберете дату" ne="date" readonly=""><span class="fa fa-calendar"></span>
     <!--  -->
+    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3" type="button" onclick="OpenStatisticsByDate()">применить</button>
+    <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3" type="button" onclick="PrintCard()">печать</button>
 </div>
 <div class="my-5 shadow">
     <table class="table table-light table-bordered table-striped">
@@ -75,11 +77,13 @@
             </tr>
         </thead>
         <tbody>
-
+            @{
+            var i = 0;
+            }
             @foreach (var item in intervals)
             {
                 <tr>
-                    <th>@item.GetFormattedTimeString()</th>
+                    <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
                     <td>@item.MaxParallelOperations(TypeDirection.In)</td>
                     <td>@item.MaxParallelOperations(TypeDirection.Out)</td>
 
@@ -104,6 +108,8 @@
                         </td>
                     }
                 </tr>
+                
+                i++;
             }
         </tbody>
     </table>
@@ -128,4 +134,43 @@
             }
         </tbody>
     </table>
+</div>
+
+
+<div class="d-none">
+            @{
+            i = 0;
+            }
+            @foreach (var item in intervals)
+            {
+                <div>
+                    <div>@item.GetFormattedTimeString()</div>
+                    <div>@item.MaxParallelOperations(TypeDirection.In)</div>
+                    <div>@item.MaxParallelOperations(TypeDirection.Out)</div>
+
+                    @{
+                        var tmpWorkersIn = item.MaxParallelPositionWorkers(TypeDirection.In);
+                        var tmpWorkersOut = item.MaxParallelPositionWorkers(TypeDirection.Out);
+                    }
+
+                    @foreach (var curWorker in workers)
+                    {
+                        <div>
+                            @if (tmpWorkersIn.ContainsKey(curWorker))
+                            {
+                                @tmpWorkersIn[curWorker]
+                            }
+                        </div>
+                        <div>
+                            @if (tmpWorkersOut.ContainsKey(curWorker))
+                            {
+                                @tmpWorkersOut[curWorker]
+                            }
+                        </div>
+                    }
+                </div>
+                
+                i++;
+            }
+
 </div>

@@ -19,6 +19,12 @@ function PrintCard() {
     window.print();
 }
 
+function PrintBlock(cellId) {
+    // $(".btn-info").addClass("btn-outline-primary");
+    // $(".btn-info").removeClass("btn-info");
+    window.print();
+}
+
 const state = {
     time: 0
 };
@@ -415,3 +421,7 @@ $(document).ready(function() {
         manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
     });
 });
+
+function OpenStatisticsByDate() {
+    location.href = '/p/statistics/HumanDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+}
