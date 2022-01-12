@@ -11,7 +11,7 @@
 
     //var operationToRender = (selectedYardOperation, storage, true, false);
 
-    var WorkersTypes = new List<string>();
+    var displayCollumns = new List<string>();
     int startTime = 9;
     int endTime = 21;
     // 9-21 period
@@ -40,11 +40,11 @@
     var workersData = dayInterval.MaxParallelPositionWorkers(); // data to display as overall summ of workers
     var workers = workersData.Keys; // additional collumns of table
 
-    WorkersTypes.Add("Количество машин"); // add first collumn with amount of cars per period
+    displayCollumns.Add("Количество машин"); // add first collumn with amount of cars per period
 
     foreach (var worker in workers)
     {
-        WorkersTypes.Add(worker.DisplayName);
+        displayCollumns.Add(worker.DisplayName);
     }
 
 }
@@ -62,14 +62,14 @@
         <thead class="thead-light">
             <tr>
                 <th>31.12.2021</th>
-                @foreach (var workerType in WorkersTypes)
+                @foreach (var workerType in displayCollumns)
                 {
                     <th colspan="2">@workerType</th>
                 }
             </tr>
             <tr>
                 <th>Интервал</th>
-                @foreach (var workerType in WorkersTypes)
+                @foreach (var workerType in displayCollumns)
                 {
                     <th>Приемка</th>
                     <th>Отгрузка</th>
