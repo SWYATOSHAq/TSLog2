@@ -43,7 +43,11 @@ body {
         margin: 0px !important;
         padding: 0px !important;
     }
-}
+
+    .page-break-after {
+        page-break-after: always;
+    }
+    }
 
 #time_table, #card_table {
     height: 100vh;

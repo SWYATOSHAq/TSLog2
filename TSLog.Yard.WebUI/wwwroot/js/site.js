@@ -19,10 +19,23 @@ function PrintCard() {
     window.print();
 }
 
-function PrintBlock(cellId) {
-    // $(".btn-info").addClass("btn-outline-primary");
-    // $(".btn-info").removeClass("btn-info");
+function PrintStatisticsTables() {
+    $(".interval-print").addClass("d-none");
     window.print();
+    $(".interval-print").removeClass("d-none");
+}
+
+function PrintBlock(cellId) {
+    // hide tables
+    $(".statistics-table").addClass("d-none");
+    // hide all intervals but selected
+    $(".interval-print").addClass("d-none");
+    $(".interval-print-" + cellId).removeClass("d-none");
+    //
+    window.print();
+    // unhide all
+    $(".statistics-table").removeClass("d-none");
+    $(".interval-print").removeClass("d-none");
 }
 
 const state = {
