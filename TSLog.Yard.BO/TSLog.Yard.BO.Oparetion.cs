@@ -19,13 +19,13 @@ namespace TSLog.Yard.BO
             public Work Work { get; set; }
             public Position Position { get; set; }
             public short Time { get; set; }
-            public short WorkersCount { get; set; }            
-            public OperationWork(Work work, Position position, short Time, short workerCount)
+            public short WorkersCount { get; set; }
+            public OperationWork(Work work, Position position, short time, short workersCount)
             {
                 Work = work;
                 Position = position;
-                Time = Time > 0 ? Time : DefaultTime;
-                WorkersCount = workerCount > 0 ? WorkersCount : DefaultWorkersCount;
+                Time = time > 0 ? time : DefaultTime;
+                WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
             }
         }
 
@@ -89,6 +89,20 @@ namespace TSLog.Yard.BO
                     result = operationWork.WorkersCount;
             return result;
         }
+        public IDictionary<Position, short> GetPositionsWorkersCount()
+        {
+            var result = new Dictionary<Position, short>();
+            foreach (var operationWork in _operationWorks)
+            {
+                var position = operationWork.Position;
+                var count = operationWork.WorkersCount;
+                if (!result.ContainsKey(position))
+                    result.Add(position, count);
+                else if (result[position] > count)
+                    result[position] = count;
+            }
+            return result;
+        }
         /// <summary>
         /// Количество работников, выполняющих определённой элементарную работу
         /// </summary>
@@ -121,7 +135,7 @@ namespace TSLog.Yard.BO
                     if (!counts.ContainsKey(position))
                         counts.Add(position, count);
                     else
-                        counts[position] += count;                    
+                        counts[position] += count;
                 }
                 foreach (var count in counts.Values)
                     result += count;
@@ -150,6 +164,28 @@ namespace TSLog.Yard.BO
                 throw new ArgumentNullException(nameof(operationWorks));
             foreach (OperationWork operationWork in operationWorks)
                 AddOperationWork(operationWork);
+        }
+        public Position[] Positions
+        {
+            get
+            {
+                var positions = new HashSet<Position>();
+                foreach (var operationWork in _operationWorks)
+                    if (!positions.Contains(operationWork.Position))
+                        positions.Add(operationWork.Position);
+                return positions.ToArray();
+            }
+        }
+        public Work[] Works
+        {
+            get
+            {
+                var works = new HashSet<Work>();
+                foreach (var operationWork in _operationWorks)
+                    if (!works.Contains(operationWork.Work))
+                        works.Add(operationWork.Work);
+                return works.ToArray();
+            }
         }
         /// <summary>
         /// Работы операции двора (ПРР)

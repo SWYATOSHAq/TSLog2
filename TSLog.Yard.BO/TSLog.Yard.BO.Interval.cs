@@ -223,7 +223,7 @@ namespace TSLog.Yard.BO
                     {
                         var positions = operation.Positions;
                         foreach (var position in positions)
-                            state[position] -= operation.GetWorkers(position);
+                            state[position] -= operation.GetWorkersCount(position);
                     }
                 }
                 if (begins.ContainsKey(moment))
@@ -234,7 +234,7 @@ namespace TSLog.Yard.BO
                         var positions = operation.Positions;
                         foreach (var position in positions)
                         {
-                            var count = operation.GetWorkers(position);
+                            var count = operation.GetWorkersCount(position);
                             if (!state.ContainsKey(position))
                                 state.Add(position, count);
                             else

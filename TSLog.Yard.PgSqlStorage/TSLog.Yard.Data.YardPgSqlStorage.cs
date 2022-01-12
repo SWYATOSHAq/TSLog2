@@ -886,8 +886,8 @@ namespace TSLog.Yard.Data
             var actions = GetActions(operation);
             operation.AddActions(actions);
 
-            var operationWorls = GetOperationWorks(operation);
-                operation.AddOperationWorks(operationWorls);
+            var operationWorks = GetOperationWorks(operation);
+            operation.AddOperationWorks(operationWorks);
 
             return operation;
         }

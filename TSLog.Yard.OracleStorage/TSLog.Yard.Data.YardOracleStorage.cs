@@ -1,6 +1,7 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using TSLog.Common;
+using TSLog.Common.BO;
 using TSLog.Common.Data;
 using TSLog.ExceptionHandler;
 using TSLog.Partners.BO;
@@ -225,6 +226,7 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
         private static Position CreatePosition(DbDataReader reader)
         {
             if (reader == null)
@@ -248,11 +250,14 @@ namespace TSLog.Yard.Data
                 displayOrder,
                 note);
             return position;
-        }
+        }        
         public Position GetPosition(short id)
         {
-            id = id > 0 ? id : (short)0;
-            var position = Position.Null;
+            id = id > 0 ? id : (short)-1;
+            var position = _positions[id];
+            if (position != null && position != Position.Null)
+                return position;
+
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByIdSql = 
@@ -263,7 +268,10 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
+                {
                     position = CreatePosition(reader);
+                    _positions.Add(position);
+                }
                 reader.Close();
             }
             if (position != null && position != Position.Null)
@@ -272,10 +280,13 @@ namespace TSLog.Yard.Data
         }
         public Position GetPosition(string code)
         {
-            if (string.IsNullOrWhiteSpace(code))
+            if(string.IsNullOrWhiteSpace(code))
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
-            var position = Position.Null;
+            var position = _positions[code];
+            if (position != null && position != Position.Null)
+                return position;
+
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByCodeSql =
@@ -286,7 +297,10 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("code", code));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
+                {
                     position = CreatePosition(reader);
+                    _positions.Add(position);
+                }
                 reader.Close();
             }
             if (position != null && position != Position.Null)
