@@ -198,6 +198,8 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Максимальное количество параллельно работающих сотрудников по должностям
         /// </summary>
+        /// <param name="type">Направление</param>
+        /// <returns>Количества сотрудников по должностям</returns>
         public IDictionary<Position, short> MaxParallelPositionWorkers(TypeDirection? type = null)
         {
             var begins = new Dictionary<DateTime, List<Operation>>();
@@ -274,6 +276,182 @@ namespace TSLog.Yard.BO
                 }
             }
             return result;
+        }
+        /// <summary>
+        /// Максимальное количество параллельно работающих сотрудников по должностям
+        /// </summary>
+        /// <param name="type">Направление</param>
+        /// <returns>Количества сотрудников по элементарным работам</returns>
+        public IDictionary<Work, short> MaxParallelWorkWorkers(TypeDirection? type = null)
+        {
+            var begins = new Dictionary<DateTime, List<Operation>>();
+            var ends = new Dictionary<DateTime, List<Operation>>();
+            var moments = new HashSet<DateTime>();
+            foreach (var operation in _operations.Values)
+            {
+                if (type == null || operation.Type.Direction == type)
+                {
+                    if (!begins.ContainsKey(operation.PlanWorkStartDate))
+                        begins.Add(operation.PlanWorkStartDate, new List<Operation>());
+                    begins[operation.PlanWorkStartDate].Add(operation);
+
+                    if (!ends.ContainsKey(operation.PlanWorkFinishDate))
+                        ends.Add(operation.PlanWorkFinishDate, new List<Operation>());
+                    ends[operation.PlanWorkFinishDate].Add(operation);
+
+                    if (!moments.Contains(operation.PlanWorkStartDate))
+                        moments.Add(operation.PlanWorkStartDate);
+                    if (!moments.Contains(operation.PlanWorkFinishDate))
+                        moments.Add(operation.PlanWorkFinishDate);
+                }
+            }
+
+            if (!moments.Contains(From))
+                moments.Add(From);
+            if (!moments.Contains(To))
+                moments.Add(To);
+            var temp = moments.ToArray();
+            Array.Sort(temp);
+            var result = new Dictionary<Work, short>();
+            var state = new Dictionary<Work, short>();
+            foreach (var moment in temp)
+            {
+                if (moment > To)
+                    break;
+                if (ends.ContainsKey(moment))
+                {
+                    var operatons = ends[moment];
+                    foreach (var operation in operatons)
+                    {
+                        var works = operation.Works;
+                        foreach (var work in works)
+                            state[work] -= operation.GetWorkersCount(work);
+                    }
+                }
+                if (begins.ContainsKey(moment))
+                {
+                    var operatons = begins[moment];
+                    foreach (var operation in operatons)
+                    {
+                        var works = operation.Works;
+                        foreach (var work in works)
+                        {
+                            var count = operation.GetWorkersCount(work);
+                            if (!state.ContainsKey(work))
+                                state.Add(work, count);
+                            else
+                                state[work] += count;
+                        }
+                    }
+                }
+                if (moment >= From)
+                {
+                    var works = state.Keys.ToArray();
+                    foreach (var work in works)
+                    {
+                        var count = state[work];
+                        if (!result.ContainsKey(work))
+                            result.Add(work, count);
+                        else if (state[work] > result[work])
+                            result[work] = state[work];
+                    }
+                }
+            }
+            return result;
+        }
+        #endregion
+
+        #region Labor costs
+        /// <summary>
+        /// Возвращает трудозатраты (в человекосекундах) для конкретной должности
+        /// </summary>
+        /// <param name="position">Должности</param>
+        /// <returns>Трудозатраты (в человекосекундах)</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetLaborCost(Position position)
+        {
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            var result = 0;
+            foreach (var operation in _operations.Values)
+                result += Convert.ToInt32(operation.GetLaborCost(position) * OperationShare(operation));
+            return result;
+        }
+        /// <summary>
+        /// Возвращает трудозатраты (в человекосекундах) для конертной элементарной работы
+        /// </summary>
+        /// <param name="work">Трудозатраты</param>
+        /// <returns>Трудозатраты (в человекосекундах)</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetLaborCost(Work work)
+        {
+            if (work == null)
+                throw new ArgumentNullException(nameof(work));
+            var result = 0;
+            foreach (var operation in _operations.Values)
+                result += Convert.ToInt32(operation.GetLaborCost(work) * OperationShare(operation));
+            return result;
+        }
+        /// <summary>
+        /// Трудозатраты по должностям (с человекосекундах)
+        /// </summary>
+        public IDictionary<Position, int> PositionsLaborCosts
+        {
+            get
+            {
+                var result = new Dictionary<Position, int>();
+                foreach (var operation in _operations.Values)
+                {
+                    var costs = operation.PositionsLaborCosts;
+                    var share = OperationShare(operation);
+                    foreach (var pair in costs)
+                    {
+                        var cost = Convert.ToInt32(pair.Value * share);
+                        if (result.ContainsKey(pair.Key))
+                            result[pair.Key] += cost;
+                        else
+                            result.Add(pair.Key, cost);
+                    }
+                }
+                return result;
+            }
+        }
+        /// <summary>
+        /// Трудозатраты по элементарным работам (с человекосекундах)
+        /// </summary>
+        public IDictionary<Work, int> WorksLaborCosts
+        {
+            get
+            {
+                var result = new Dictionary<Work, int>();
+                foreach (var operation in _operations.Values)
+                {
+                    var costs = operation.WorksLaborCosts;
+                    var share = OperationShare(operation);
+                    foreach (var pair in costs)
+                    {
+                        var cost = Convert.ToInt32(pair.Value * share);
+                        if (result.ContainsKey(pair.Key))
+                            result[pair.Key] += cost;
+                        else
+                            result.Add(pair.Key, cost);
+                    }
+                }
+                return result;
+            }
+        }
+        /// <summary>
+        /// Общие трудозатраты в человекосекундах
+        /// </summary>
+        public int TotalLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operation in _operations.Values) 
+                    result += Convert.ToInt32(operation.TotalLaborCost * OperationShare(operation));
+                return result;
+            }
         }
         #endregion
 
