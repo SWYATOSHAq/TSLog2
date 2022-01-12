@@ -11,17 +11,20 @@ namespace TSLog.Yard.BO
     public interface IYardStorage : IYardCommonStorage, IYardWmsStorage { }
     public interface IYardCommonStorage
     {
-        public OperationType GetOperationType(int id);
+        public OperationType GetOperationType(short id);
         public OperationType GetOperationType(string code);        
         public OperationType[] GetOperationTypes(Partner partner);
         public OperationType[] GetOperationTypes();
-        public Entity GetOperationState(int id);
+        public Entity GetOperationState(short id);
         public Entity GetOperationState(string code);
         public Entity[] GetOperationStates();
-        public VehicleKind GetVehicleKind(int id);
+        public VehicleKind GetVehicleKind(short id);
         public VehicleKind GetVehicleKind(string code);
         public VehicleKind[] GetVehicleKinds();
-        public Gate GetGate(int id);
+        public Work GetWorkById(short id);
+        public Work GetWorkByCode(string code);
+        public Work[] GetWorks();
+        public Gate GetGate(short id);
         public Gate GetGate(string code);
         public Gate[] GetGates();
         public Logist GetLogist(int id);
@@ -34,8 +37,8 @@ namespace TSLog.Yard.BO
         public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);
         public Operation AddOperation(Operation operation);
         public Operation GetOperation(long id);
-        public IDictionary<Position, short> GetWorkers(OperationType operationType, VehicleKind vehicleKind);
-        public IDictionary<Position, short> GetWorkers(Operation operation);
+        public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind);
+        public Operation.OperationWork[] GetOperationWorks(Operation operation);
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners);
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
@@ -62,7 +65,7 @@ namespace TSLog.Yard.BO
         public Partner[] GetPartners(bool getOnlyActive = false);
         public Employee GetEmployee(int id);
         public Employee[] GetEmployees();
-        public Position GetPosition(int id);
+        public Position GetPosition(short id);
         public Position GetPosition(string code);
         public Position[] GetPositions();
     }

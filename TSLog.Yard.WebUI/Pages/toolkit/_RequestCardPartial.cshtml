@@ -51,10 +51,10 @@
     textDataHeader.Add("Состояние", ("text_state", cardData.State?.DisplayName, true));
     textDataHeader.Add("План. время операции", ("text_operation_time", new TimeSpan(0, storage.GetTime(cardData.Type, cardData.VehicleKind), 0).ToString(@"hh\:mm\:ss"), true));
 
-    var workersdata = storage.GetWorkers(cardData);
+    var operationWorks = storage.GetOperationWorks(cardData);
     int humanHoursSum = 0;
-    foreach (var position in workersdata.Keys)
-        humanHoursSum += workersdata[position];
+    foreach (var operationWork in operationWorks)
+        humanHoursSum += operationWork.WorkersCount * operationWork.Time;        
 
     textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum > 0 ? humanHoursSum.ToString() : "", true));
 
@@ -71,7 +71,7 @@
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
 
-    var workerTable = (workersdata, true);
+    var workerTable = (operationWorks, true);
 }
 
 <div class="col p-2 m-3 shadow" id="card-operation">

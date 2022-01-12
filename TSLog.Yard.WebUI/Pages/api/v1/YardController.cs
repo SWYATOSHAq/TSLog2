@@ -102,7 +102,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 partner = yardStorage.GetPartner(partnerID);
 
             var searchPartners = (partner == null || partner == Partner.Null) ? Array.Empty<Partner>() : new Partner[] { partner };
-            var searchGate = gate != "" && gate != null ? yardStorage.GetGate(gate) : Gate.Null;
+            var searchGate = !string.IsNullOrWhiteSpace(gate) ? yardStorage.GetGate(gate) : Gate.Null;
 
             if (DateTime.TryParse(operationDate, out DateTime tmp))
             {

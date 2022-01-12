@@ -186,6 +186,8 @@ namespace TSLog.Yard.BO
         {
             get
             {
+                return null;
+                /*
                 var begins = new Dictionary<DateTime, List<Operation>>();
                 var ends = new Dictionary<DateTime, List<Operation>>();
                 var moments = new HashSet<DateTime>();
@@ -218,9 +220,9 @@ namespace TSLog.Yard.BO
                         var operatons = ends[moment];
                         foreach (var operation in operatons)
                         {
-                            var positions = operation.Positions;
+                            var positions = operation.Works;
                             foreach (var position in positions)
-                                state[position] -= operation.GetWorkers(position);
+                                state[position] -= operation.GetWorkersCount(position);
                         }
                     }
                     if (begins.ContainsKey(moment))
@@ -228,10 +230,10 @@ namespace TSLog.Yard.BO
                         var operatons = begins[moment];
                         foreach (var operation in operatons)
                         {
-                            var positions = operation.Positions;
+                            var positions = operation.Works;
                             foreach (var position in positions)
                             {
-                                var count = operation.GetWorkers(position);
+                                var count = operation.GetWorkersCount(position);
                                 if (!state.ContainsKey(position))
                                     state.Add(position, count);
                                 else
@@ -248,6 +250,7 @@ namespace TSLog.Yard.BO
                     }
                 }
                 return result;
+                */
             }
         }
         /// <summary>
@@ -281,8 +284,8 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Объединение интервалов
         /// </summary>
-        /// <param name="intervals"></param>
-        /// <returns></returns>
+        /// <param name="intervals">Массив интервалов</param>
+        /// <returns>Массив объединённых интервалов (без пересечений)</returns>
         public static Interval[] Union(Interval[] intervals)
         {
             var result = new List<Interval>();
@@ -334,7 +337,7 @@ namespace TSLog.Yard.BO
         /// Возвращает признак "попадания" опеарции двора (ПРР) в текущий интервал
         /// </summary> 
         /// <param name="operation">Операция двора (ПРР)</param>
-        /// <returns>ПРизнак попадания</returns>
+        /// <returns>Признак попадания</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public bool ContainsOperation(Operation operation)
         {
@@ -344,8 +347,8 @@ namespace TSLog.Yard.BO
         }
         public string GetFormattedTimeString(bool simplified = true)
         {
-            string ret = simplified ? $"{From:HH} - {To:HH}" : $"{From:HH\\:mm\\ss} - {To:HH\\:mm\\ss}";
-            return ret;
+            var result = simplified ? $"{From:HH} - {To:HH}" : $"{From:HH\\:mm\\ss} - {To:HH\\:mm\\ss}";
+            return result;
         }
     }
 }
