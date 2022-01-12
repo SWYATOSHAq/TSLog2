@@ -122,7 +122,11 @@ namespace TSLog.Yard.BO
                         temp[operation.PlanWorkFinishDate]--;
                 }
             }
-            var moments = temp.Keys.ToArray();
+            if (!temp.ContainsKey(From))
+                temp.Add(From, 0);
+            if (!temp.ContainsKey(To))
+                temp.Add(To, 0);
+            var moments = temp.Keys.ToArray();            
             Array.Sort(moments);
             var result = (short)0;
             var state = (short)0;
@@ -161,6 +165,10 @@ namespace TSLog.Yard.BO
                     if (!moments.Contains(operation.PlanWorkFinishDate))
                         moments.Add(operation.PlanWorkFinishDate);
                 }
+                if (!moments.Contains(From))
+                    moments.Add(From);
+                if (!moments.Contains(To))
+                    moments.Add(To);
                 var temp = moments.ToArray();
                 Array.Sort(temp);
                 var result = (short)0;
@@ -208,6 +216,10 @@ namespace TSLog.Yard.BO
                 }
             }
 
+            if (!moments.Contains(From))
+                moments.Add(From);
+            if (!moments.Contains(To))
+                moments.Add(To);
             var temp = moments.ToArray();
             Array.Sort(temp);
             var result = new Dictionary<Position, short>();
@@ -238,15 +250,20 @@ namespace TSLog.Yard.BO
                             if (!state.ContainsKey(position))
                                 state.Add(position, count);
                             else
-                                state[position] += count;
-                            if (moment >= From)
-                            {
-                                if (!result.ContainsKey(position))
-                                    result.Add(position, count);
-                                else if (state[position] > result[position])
-                                    result[position] = state[position];
-                            }
+                                state[position] += count;                            
                         }
+                    }
+                }
+                if (moment >= From)
+                {
+                    var positions = state.Keys.ToArray();
+                    foreach (var position in positions)
+                    {
+                        var count = state[position];
+                        if (!result.ContainsKey(position))
+                            result.Add(position, count);
+                        else if (state[position] > result[position])
+                            result[position] = state[position];
                     }
                 }
             }

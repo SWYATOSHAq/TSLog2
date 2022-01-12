@@ -54,7 +54,8 @@
     var operationWorks = storage.GetOperationWorks(cardData);    
     int humanHoursSum = 0;
     foreach (var operationWork in operationWorks)
-        humanHoursSum += operationWork.WorkersCount * operationWork.Time;        
+        humanHoursSum += operationWork.WorkersCount * operationWork.Time;
+    humanHoursSum = humanHoursSum / 3600;
 
     textDataHeader.Add("Челов. час", ("text_human_hours", humanHoursSum > 0 ? humanHoursSum.ToString() : "", true));
 

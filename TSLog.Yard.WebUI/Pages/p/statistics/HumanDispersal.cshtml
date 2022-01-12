@@ -20,13 +20,9 @@
     DateTime date;
 
     if (strDate == null)
-    {
         date = DateTime.Today;
-    }
     else
-    {
         date = DateTime.Parse(strDate);
-    }
 
     var dayStart = date.AddHours(startTime);
     var dayEnd = dayStart.AddHours(endTime - startTime);
@@ -43,9 +39,7 @@
     displayCollumns.Add("Количество машин"); // add first collumn with amount of cars per period
 
     foreach (var worker in workers)
-    {
         displayCollumns.Add(worker.DisplayName);
-    }
 
 }
 
