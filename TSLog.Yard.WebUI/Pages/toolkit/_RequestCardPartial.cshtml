@@ -49,9 +49,9 @@
     textDataHeader.Add("Ответственный", ("text_responsible", cardData.Manager?.DisplayName, true));
     textDataHeader.Add("Ответственный (склад)", ("text_responsible_warehouse", cardData.ResponsibleOfficer?.DisplayName, false));
     textDataHeader.Add("Состояние", ("text_state", cardData.State?.DisplayName, true));
-    textDataHeader.Add("План. время операции", ("text_operation_time", new TimeSpan(0, storage.GetTime(cardData.Type, cardData.VehicleKind), 0).ToString(@"hh\:mm\:ss"), true));
+    textDataHeader.Add("План. время операции", ("text_operation_time", new TimeSpan(0, storage.GetTime(cardData.Type, cardData.VehicleKind), 0).ToString(@"hh\:mm"), true));
 
-    var operationWorks = storage.GetOperationWorks(cardData);    
+    var operationWorks = storage.GetOperationWorks(cardData);
     int humanHoursSum = 0;
     foreach (var operationWork in operationWorks)
         humanHoursSum += operationWork.WorkersCount * operationWork.Time;
@@ -84,7 +84,7 @@
         }
         else
         {
-            <h1 class="text-info hide-on-print">Просмотр</h1>
+            <h1 class="text-info hide-on-print"><small><small><small><small>Просмотр</small></small></small></small> @Partner.Serialize(cardData.GetPartners()) (@cardData.State?.DisplayName) <small>@cardData.Type?.DisplayName</small></h1>
         }
     </div>
     <!--  -->
@@ -100,10 +100,12 @@
             <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
         </div>
     }
-
-    <div class="row p-2 m-2 rem-outline-on-print">
-        <partial name="toolkit/lists/_PartnerDropdownPartial" model="partnerList" />
-    </div>
+    @if (cardData == Operation.Empty)
+    {
+        <div class="row p-2 m-2 rem-outline-on-print">
+            <partial name="toolkit/lists/_PartnerDropdownPartial" model="partnerList" />
+        </div>
+    }
 
     <!--
     <div class="row p-2 m-2 rem-outline-on-print">
