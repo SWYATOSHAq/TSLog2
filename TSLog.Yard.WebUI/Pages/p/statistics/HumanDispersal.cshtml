@@ -1,5 +1,6 @@
 ﻿@page
 @using TSLog.Yard.BO
+@using static TSLog.Yard.BO.OperationType
 @model NewRequestModel
 @{
     ViewData["Title"] = "распределение людей";
@@ -10,44 +11,44 @@
 
     //var operationToRender = (selectedYardOperation, storage, true, false);
 
-    var WorkersTypes = new String[] { "Количество машин", "Кладовщик", "Грузчик", "Оператор" };
+    var WorkersTypes = new List<string>();
     int startTime = 9;
     int endTime = 21;
-
-    // test
-
-    var dayStart = DateTime.Today.AddHours(startTime);
-    var dayEnd = dayStart.AddHours(endTime-startTime);
     // 9-21 period
+
+    string strDate = Request.Query["date"];
+    DateTime date;
+
+    if (strDate == null)
+    {
+        date = DateTime.Today;
+    }
+    else
+    {
+        date = DateTime.Parse(strDate);
+    }
+
+    var dayStart = date.AddHours(startTime);
+    var dayEnd = dayStart.AddHours(endTime - startTime);
     var dayInterval = new Interval(dayStart, dayEnd);
     var operations = storage.GetOperations(dayStart, dayEnd, null);
 
     dayInterval.AddOperations(operations);
     var intervals = dayInterval.Split();
-    var separator = " | ";
+    //
+    // count statsitics about amount of personal
+    var workersData = dayInterval.MaxParallelPositionWorkers(); // data to display as overall summ of workers
+    var workers = workersData.Keys; // additional collumns of table
+
+    WorkersTypes.Add("Количество машин"); // add first collumn with amount of cars per period
+
+    foreach (var worker in workers)
+    {
+        WorkersTypes.Add(worker.DisplayName);
+    }
+
 }
 
-@foreach (var item in intervals)
-{
-    <p>
-        @item.GetFormattedTimeString() []
-        @item.MaxParallelOperations [
-        @{
-            var workers = item.MaxParallelPositionWorkers;
-        }
-        @foreach (var item2 in workers.Keys)
-        {
-            @item2.DisplayName
-            @separator
-            @workers[@item2]
-            @separator
-            ;
-        }
-
-        ] [@item.MaxParallelWorkers]
-    </p>
-}
-<!--  -->
 
 <div class="row p-2 m-3">
     <!--  -->
@@ -75,18 +76,33 @@
         </thead>
         <tbody>
 
-            @for (var i = startTime; i < endTime; i++)
+            @foreach (var item in intervals)
             {
                 <tr>
-                    <th>@i-@(i+1)</th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <th>@item.GetFormattedTimeString()</th>
+                    <td>@item.MaxParallelOperations(TypeDirection.In)</td>
+                    <td>@item.MaxParallelOperations(TypeDirection.Out)</td>
+
+                    @{
+                        var tmpWorkersIn = item.MaxParallelPositionWorkers(TypeDirection.In);
+                        var tmpWorkersOut = item.MaxParallelPositionWorkers(TypeDirection.Out);
+                    }
+
+                    @foreach (var curWorker in workers)
+                    {
+                        <td>
+                            @if (tmpWorkersIn.ContainsKey(curWorker))
+                            {
+                                @tmpWorkersIn[curWorker]
+                            }
+                        </td>
+                        <td>
+                            @if (tmpWorkersOut.ContainsKey(curWorker))
+                            {
+                                @tmpWorkersOut[curWorker]
+                            }
+                        </td>
+                    }
                 </tr>
             }
         </tbody>
@@ -103,18 +119,13 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <th>грузчик</th>
-                <td>30</td>
-            </tr>
-            <tr>
-                <th>кладовщик</th>
-                <td>16</td>
-            </tr>
-            <tr>
-                <th>оператор</th>
-                <td>2</td>
-            </tr>
+            @foreach (var worker in workersData.Keys)
+            {
+                <tr>
+                    <th>@worker.DisplayName</th>
+                    <td>@workersData[worker]</td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>

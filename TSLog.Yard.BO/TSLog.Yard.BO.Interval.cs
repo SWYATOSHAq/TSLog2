@@ -1,5 +1,6 @@
 ﻿using TSLog.ExceptionHandler;
 using TSLog.Staff.BO;
+using static TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.BO
 {
@@ -103,12 +104,13 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Максимальное количество одновременных операций за период
         /// </summary>
-        public short MaxParallelOperations
+        public short MaxParallelOperations(TypeDirection type)
         {
-            get
+
+            var temp = new Dictionary<DateTime, short>();
+            foreach (var operation in _operations.Values)
             {
-                var temp = new Dictionary<DateTime, short>();
-                foreach (var operation in _operations.Values)
+                if (operation.Type.Direction == type)
                 {
                     if (!temp.ContainsKey(operation.PlanWorkStartDate))
                         temp.Add(operation.PlanWorkStartDate, 1);
@@ -119,20 +121,20 @@ namespace TSLog.Yard.BO
                     else
                         temp[operation.PlanWorkFinishDate]--;
                 }
-                var moments = temp.Keys.ToArray();
-                Array.Sort(moments);
-                var result = (short)0;
-                var state = (short)0;
-                foreach (var moment in moments)
-                {
-                    if (moment > To)
-                        break;
-                    state += temp[moment];
-                    if (state > result && moment >= From)
-                        result = state;
-                }
-                return result;
             }
+            var moments = temp.Keys.ToArray();
+            Array.Sort(moments);
+            var result = (short)0;
+            var state = (short)0;
+            foreach (var moment in moments)
+            {
+                if (moment > To)
+                    break;
+                state += temp[moment];
+                if (state > result && moment >= From)
+                    result = state;
+            }
+            return result;
         }
         /// <summary>
         /// Максимальное количество параллельно работающих сотрудников
@@ -182,14 +184,14 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Максимальное количество параллельно работающих сотрудников по должностям
         /// </summary>
-        public IDictionary<Position, short> MaxParallelPositionWorkers
+        public IDictionary<Position, short> MaxParallelPositionWorkers(TypeDirection? type = null)
         {
-            get
+            var begins = new Dictionary<DateTime, List<Operation>>();
+            var ends = new Dictionary<DateTime, List<Operation>>();
+            var moments = new HashSet<DateTime>();
+            foreach (var operation in _operations.Values)
             {
-                var begins = new Dictionary<DateTime, List<Operation>>();
-                var ends = new Dictionary<DateTime, List<Operation>>();
-                var moments = new HashSet<DateTime>();
-                foreach (var operation in _operations.Values)
+                if (type == null || operation.Type.Direction == type)
                 {
                     if (!begins.ContainsKey(operation.PlanWorkStartDate))
                         begins.Add(operation.PlanWorkStartDate, new List<Operation>());
@@ -204,51 +206,51 @@ namespace TSLog.Yard.BO
                     if (!moments.Contains(operation.PlanWorkFinishDate))
                         moments.Add(operation.PlanWorkFinishDate);
                 }
+            }
 
-                var temp = moments.ToArray();
-                Array.Sort(temp);
-                var result = new Dictionary<Position, short>();
-                var state = new Dictionary<Position, short>();
-                foreach (var moment in temp)
+            var temp = moments.ToArray();
+            Array.Sort(temp);
+            var result = new Dictionary<Position, short>();
+            var state = new Dictionary<Position, short>();
+            foreach (var moment in temp)
+            {
+                if (moment > To)
+                    break;
+                if (ends.ContainsKey(moment))
                 {
-                    if (moment > To)
-                        break;
-                    if (ends.ContainsKey(moment))
+                    var operatons = ends[moment];
+                    foreach (var operation in operatons)
                     {
-                        var operatons = ends[moment];
-                        foreach (var operation in operatons)
-                        {
-                            var positions = operation.Positions;
-                            foreach (var position in positions)
-                                state[position] -= operation.GetWorkers(position);
-                        }
+                        var positions = operation.Positions;
+                        foreach (var position in positions)
+                            state[position] -= operation.GetWorkers(position);
                     }
-                    if (begins.ContainsKey(moment))
+                }
+                if (begins.ContainsKey(moment))
+                {
+                    var operatons = begins[moment];
+                    foreach (var operation in operatons)
                     {
-                        var operatons = begins[moment];
-                        foreach (var operation in operatons)
+                        var positions = operation.Positions;
+                        foreach (var position in positions)
                         {
-                            var positions = operation.Positions;
-                            foreach (var position in positions)
+                            var count = operation.GetWorkers(position);
+                            if (!state.ContainsKey(position))
+                                state.Add(position, count);
+                            else
+                                state[position] += count;
+                            if (moment >= From)
                             {
-                                var count = operation.GetWorkers(position);
-                                if (!state.ContainsKey(position))
-                                    state.Add(position, count);
-                                else
-                                    state[position] += count;
-                                if (moment >= From)
-                                {
-                                    if (!result.ContainsKey(position))
-                                        result.Add(position, count);
-                                    else if (state[position] > result[position])
-                                        result[position] = state[position];
-                                }
+                                if (!result.ContainsKey(position))
+                                    result.Add(position, count);
+                                else if (state[position] > result[position])
+                                    result[position] = state[position];
                             }
                         }
                     }
                 }
-                return result;
             }
+            return result;
         }
         /// <summary>
         /// Разбивка интервала на более мелкие интервалы с указанной протяжённостью
