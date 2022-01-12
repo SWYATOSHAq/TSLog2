@@ -12,23 +12,6 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Operation : Entity
     {
-        public class OperationWork
-        {
-            private const short DefaultTime = 600;
-            private const short DefaultWorkersCount = 1;
-            public Work Work { get; set; }
-            public Position Position { get; set; }
-            public short Time { get; set; }
-            public short WorkersCount { get; set; }
-            public OperationWork(Work work, Position position, short time, short workersCount)
-            {
-                Work = work;
-                Position = position;
-                Time = time > 0 ? time : DefaultTime;
-                WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
-            }
-        }
-
         private const short DefaultPriority = 1;
         /// <summary>
         /// Идентификатор
@@ -72,76 +55,29 @@ namespace TSLog.Yard.BO
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
+
+
+        #region Operation works
+        /// <summary>
+        /// Элементарная работа операции двора (ПРР)
+        /// </summary>
+        public class OperationWork
+        {
+            private const short DefaultTime = 600;
+            private const short DefaultWorkersCount = 1;
+            public Work Work { get; set; }
+            public Position Position { get; set; }
+            public short Time { get; set; }
+            public short WorkersCount { get; set; }
+            public OperationWork(Work work, Position position, short time, short workersCount)
+            {
+                Work = work;
+                Position = position;
+                Time = time > 0 ? time : DefaultTime;
+                WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
+            }
+        }
         private readonly IList<OperationWork> _operationWorks = new List<OperationWork>();
-        /// <summary>
-        /// Количество работников по определённой должности
-        /// </summary>
-        /// <param name="position">Должность</param>
-        /// <returns>Уоличество работников</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public short GetWorkersCount(Position position)
-        {
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            var result = (short)0;
-            foreach (var operationWork in _operationWorks)
-                if (operationWork.Position == position && result < operationWork.WorkersCount)
-                    result = operationWork.WorkersCount;
-            return result;
-        }
-        public IDictionary<Position, short> GetPositionsWorkersCount()
-        {
-            var result = new Dictionary<Position, short>();
-            foreach (var operationWork in _operationWorks)
-            {
-                var position = operationWork.Position;
-                var count = operationWork.WorkersCount;
-                if (!result.ContainsKey(position))
-                    result.Add(position, count);
-                else if (result[position] > count)
-                    result[position] = count;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Количество работников, выполняющих определённой элементарную работу
-        /// </summary>
-        /// <param name="work">Элементарная работа</param>
-        /// <returns>Количество работников</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public short GetWorkersCount(Work work)
-        {
-            if (work == null)
-                throw new ArgumentNullException(nameof(work));
-            var result = (short)0;
-            foreach (var operationWork in _operationWorks)
-                if (operationWork.Work == work && result < operationWork.WorkersCount)
-                    result = operationWork.WorkersCount;
-            return result;
-        }
-        /// <summary>
-        /// Общее количество сотрудников для операции двора (ПРР) по всем должностям
-        /// </summary>
-        public short WorkersCount
-        {
-            get
-            {
-                var result = (short)0;
-                var counts = new Dictionary<Position, short>();
-                foreach (var operastionWork in _operationWorks)
-                {
-                    var position = operastionWork.Position;
-                    var count = operastionWork.WorkersCount;
-                    if (!counts.ContainsKey(position))
-                        counts.Add(position, count);
-                    else
-                        counts[position] += count;
-                }
-                foreach (var count in counts.Values)
-                    result += count;
-                return result;
-            }
-        }
         /// <summary>
         /// Добавление работы в операцию двора (ПРР)
         /// </summary>
@@ -165,6 +101,9 @@ namespace TSLog.Yard.BO
             foreach (OperationWork operationWork in operationWorks)
                 AddOperationWork(operationWork);
         }
+        /// <summary>
+        /// Должности, задействованные на данной операции двора
+        /// </summary>
         public Position[] Positions
         {
             get
@@ -176,6 +115,9 @@ namespace TSLog.Yard.BO
                 return positions.ToArray();
             }
         }
+        /// <summary>
+        /// Элементарные работы по данной операции двора (ПРР)
+        /// </summary>
         public Work[] Works
         {
             get
@@ -197,6 +139,196 @@ namespace TSLog.Yard.BO
                 return _operationWorks.ToArray();
             }
         }
+        #endregion
+
+        #region Workers count
+        /// <summary>
+        /// Количество работников по определённой должности
+        /// </summary>
+        /// <param name="position">Должность</param>
+        /// <returns>Уоличество работников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public short GetWorkersCount(Position position)
+        {
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            var result = (short)0;
+            foreach (var operationWork in _operationWorks)
+                if (operationWork.Position == position && result < operationWork.WorkersCount)
+                    result = operationWork.WorkersCount;
+            return result;
+        }
+        /// <summary>
+        /// Количество работников, выполняющих определённой элементарную работу
+        /// </summary>
+        /// <param name="work">Элементарная работа</param>
+        /// <returns>Количество работников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public short GetWorkersCount(Work work)
+        {
+            if (work == null)
+                throw new ArgumentNullException(nameof(work));
+            var result = (short)0;
+            foreach (var operationWork in _operationWorks)
+                if (operationWork.Work == work && result < operationWork.WorkersCount)
+                    result = operationWork.WorkersCount;
+            return result;
+        }
+        /// <summary>
+        /// Количество задействованных работников по должностям
+        /// </summary>
+        /// <returns></returns>
+        public IDictionary<Position, short> PositionsWorkersCount
+        {
+            get
+            {
+                var result = new Dictionary<Position, short>();
+                foreach (var operationWork in _operationWorks)
+                {
+                    var position = operationWork.Position;
+                    var count = operationWork.WorkersCount;
+                    if (!result.ContainsKey(position))
+                        result.Add(position, count);
+                    else if (result[position] > count)
+                        result[position] = count;
+                }
+                return result;
+            }
+        }
+        /// <summary>
+        /// Количество задействованых работников по элементарным радотам
+        /// </summary>
+        public IDictionary<Work, short> WorksWorkersCount
+        {
+            get
+            {
+                var result = new Dictionary<Work, short>();
+                foreach (var operationWork in _operationWorks)
+                {
+                    var work = operationWork.Work;
+                    var count = operationWork.WorkersCount;
+                    if (!result.ContainsKey(work))
+                        result.Add(work, count);
+                    else if (result[work] > count)
+                        result[work] = count;
+                }
+                return result;
+            }            
+        }
+        /// <summary>
+        /// Общее количество сотрудников для операции двора (ПРР) по всем должностям
+        /// </summary>
+        public short TotalWorkersCount
+        {
+            get
+            {
+                var result = (short)0;
+                var counts = new Dictionary<Position, short>();
+                foreach (var operastionWork in _operationWorks)
+                {
+                    var position = operastionWork.Position;
+                    var count = operastionWork.WorkersCount;
+                    if (!counts.ContainsKey(position))
+                        counts.Add(position, count);
+                    else
+                        counts[position] += count;
+                }
+                foreach (var count in counts.Values)
+                    result += count;
+                return result;
+            }
+        }
+        #endregion
+
+        #region Labor cost
+        /// <summary>
+        /// Возвращает трудозатраты (в человекосекундах) для конкретной должности
+        /// </summary>
+        /// <param name="position">Должности</param>
+        /// <returns>Трудозатраты (в человекосекундах)</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetLaborCost(Position position)
+        {
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            var result = 0;
+            foreach (var operationWork in _operationWorks)
+                if (operationWork.Position == position)
+                    result += operationWork.WorkersCount * operationWork.Time;
+            return result;
+        }
+        /// <summary>
+        /// Возвращает трудозатраты (в человекосекундах) для конертной элементарной работы
+        /// </summary>
+        /// <param name="work">Трудозатраты</param>
+        /// <returns>Трудозатраты (в человекосекундах)</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetLaborCost(Work work)
+        {
+            if (work == null)
+                throw new ArgumentNullException(nameof(work));
+            var result = 0;
+            foreach (var operationWork in _operationWorks)
+                if (operationWork.Work == work)
+                    result += operationWork.WorkersCount * operationWork.Time;
+            return result;
+        }
+        /// <summary>
+        /// Трудозатраты по должностям (с человекосекундах)
+        /// </summary>
+        public IDictionary<Position, int> PositionsLaborCosts
+        {
+            get
+            {
+                var result = new Dictionary<Position, int>();
+                foreach (var operstionWork in _operationWorks)
+                {
+                    var position = operstionWork.Position;
+                    var labor = operstionWork.WorkersCount * operstionWork.Time;
+                    if (!result.ContainsKey(position))
+                        result.Add(position, labor);
+                    else
+                        result[position] += labor;
+                }
+                return result;
+            }
+        }
+        /// <summary>
+        /// Трудозатраты по элементарным работам (с человекосекундах)
+        /// </summary>
+        public IDictionary<Work, int> WorksLaborCosts
+        {
+            get
+            {
+                var result = new Dictionary<Work, int>();
+                foreach (var operstionWork in _operationWorks)
+                {
+                    var work = operstionWork.Work;
+                    var labor = operstionWork.WorkersCount * operstionWork.Time;
+                    if (!result.ContainsKey(work))
+                        result.Add(work, labor);
+                    else
+                        result[work] += labor;
+                }
+                return result;
+            }
+        }
+        /// <summary>
+        /// Общие трудозатраты в человекосекундах
+        /// </summary>
+        public int TotalLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operationWork in _operationWorks)
+                    result += operationWork.Time * operationWork.WorkersCount;
+                return result;
+            }
+        }
+        #endregion
+
+
         /// <summary>
         /// Вид автомашины
         /// </summary>

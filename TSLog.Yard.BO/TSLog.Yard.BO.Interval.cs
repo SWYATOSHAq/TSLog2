@@ -32,6 +32,9 @@ namespace TSLog.Yard.BO
             To = to;
             Gate = gate;
         }
+
+
+        #region Operations
         private readonly IDictionary<long, Operation> _operations = new Dictionary<long, Operation>();
         /// <summary>
         /// Добавдение операции двора в интервал
@@ -140,6 +143,9 @@ namespace TSLog.Yard.BO
             }
             return result;
         }
+        #endregion
+
+        #region Workers counts
         /// <summary>
         /// Максимальное количество параллельно работающих сотрудников
         /// </summary>
@@ -179,10 +185,10 @@ namespace TSLog.Yard.BO
                         break;
                     if (ends.ContainsKey(moment))
                         foreach (var operation in ends[moment])
-                            state -= operation.WorkersCount;
+                            state -= operation.TotalWorkersCount;
                     if (begins.ContainsKey(moment))
                         foreach (var operation in begins[moment])
-                            state += operation.WorkersCount;
+                            state += operation.TotalWorkersCount;
                     if (moment >= From && result < state)
                         state = result;
                 }
@@ -269,6 +275,9 @@ namespace TSLog.Yard.BO
             }
             return result;
         }
+        #endregion
+
+
         /// <summary>
         /// Разбивка интервала на более мелкие интервалы с указанной протяжённостью
         /// </summary>
@@ -296,7 +305,6 @@ namespace TSLog.Yard.BO
             while (to < To);
             return intervals.ToArray();
         }
-
         /// <summary>
         /// Объединение интервалов
         /// </summary>
@@ -353,13 +361,29 @@ namespace TSLog.Yard.BO
         /// Возвращает признак "попадания" опеарции двора (ПРР) в текущий интервал
         /// </summary> 
         /// <param name="operation">Операция двора (ПРР)</param>
-        /// <returns>ПРизнак попадания</returns>
+        /// <returns>Признак попадания</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public bool ContainsOperation(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
             return !(From > operation.PlanWorkFinishDate || To < operation.PlanWorkStartDate);
+        }
+
+        /// <summary>
+        /// Возвращает долю операции, которая приходтся на данный интервал
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <returns>Доля</returns>
+        public double OperationShare(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            var from = From >= operation.PlanWorkStartDate ? From : operation.PlanWorkStartDate;
+            var to = To <= operation.PlanWorkFinishDate ? To : operation.PlanWorkFinishDate;
+            var duration = from < to ? to - from : TimeSpan.Zero;
+            var operationDuration = operation.PlanWorkFinishDate - operation.PlanWorkStartDate;
+            return duration / operationDuration;
         }
         public string GetFormattedTimeString(bool simplified = true)
         {
