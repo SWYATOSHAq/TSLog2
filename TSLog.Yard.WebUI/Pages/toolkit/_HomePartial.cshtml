@@ -4,6 +4,8 @@
     var storage = Model.Item1;
     var isAdmin = Model.Item2;
     var request = Model.Item3;
+
+    var isEnabled = isAdmin;
 }
 @{
     var gateslist = (storage.GetGates(), "", true, true);
@@ -21,7 +23,12 @@
     else
         selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
 
-    var operationToRender = (selectedYardOperation, storage, isAdmin, isAdmin);
+    if (selectedYardOperation.State.Code != "CREATED" && selectedYardOperation.State.Code != "CONFIRMED")
+    {
+        isEnabled = false;
+    }
+
+    var operationToRender = (selectedYardOperation, storage, isEnabled, isAdmin);
 }
 
 <!--  -->
