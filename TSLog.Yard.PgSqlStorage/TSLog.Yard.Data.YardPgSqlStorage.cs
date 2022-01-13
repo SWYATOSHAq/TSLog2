@@ -73,7 +73,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectGateByIdSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note " +
-                        $"  from {YardSchema}.v_gate g where g.id = :id";
+                        $"  from {YardSchema}.v_gate g where g.id = :id order by g.display_order";
                     command.CommandText = SelectGateByIdSql;
                     command.Parameters.Add(new NpgsqlParameter("id", id));
                     using var reader = command.ExecuteReader();
@@ -104,7 +104,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectGateByCodeSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note " +
-                        $"  from {YardSchema}.v_gate g where g.code = :code";
+                        $"  from {YardSchema}.v_gate g where g.code = :code order by g.display_order";
                     command.CommandText = SelectGateByCodeSql;
                     command.Parameters.Add(new NpgsqlParameter("code", code));
                     using var reader = command.ExecuteReader();
@@ -130,7 +130,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectGatesSql =
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note " +
-                        $"  from {YardSchema}.v_gate g";
+                        $"  from {YardSchema}.v_gate g order by g.display_order";
                     command.CommandText = SelectGatesSql;
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -182,7 +182,7 @@ namespace TSLog.Yard.Data
                     var SelectLogistByIdSql =
                         $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note " +
                         $"  from {YardSchema}.v_logist l " +
-                        $" where l.id = :id";
+                        $" where l.id = :id order by l.display_order";
                     command.CommandText = SelectLogistByIdSql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
                     using var reader = command.ExecuteReader();
@@ -214,7 +214,7 @@ namespace TSLog.Yard.Data
                     var SelectLogistByCodeSql =
                         $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note " +
                         $"  from {YardSchema}.v_logist l " +
-                        $" where l.code = :code";
+                        $" where l.code = :code order by l.display_order";
                     command.CommandText = SelectLogistByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
                     using var reader = command.ExecuteReader();
@@ -240,7 +240,7 @@ namespace TSLog.Yard.Data
                 {
                     var SelectLogistsSql =
                         $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note " +
-                        $"  from {YardSchema}.v_logist l";
+                        $"  from {YardSchema}.v_logist l order by l.display_order";
                     command.CommandText = SelectLogistsSql;
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -943,7 +943,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var sql =
                         $"select otvkw.work_id, otvkw.position_id, otvkw.time, otvkw.workers_count " +
                         $"  from {YardSchema}.v_ot_vk_work otvkw " +
                         $" where otvkw.operation_type_id = :operation_type_id " +
