@@ -284,7 +284,8 @@ function Create() {
         $("#vehicle_kind").val() != "" &&
         $("#vehicle_brand").val() != "" &&
         $("#vehicle_model").val() != "" &&
-        $("#vehicle_number").val() != ""
+        $("#vehicle_number").val() != "" &&
+        $("#partner").val() != ""
     ) {
 
 
