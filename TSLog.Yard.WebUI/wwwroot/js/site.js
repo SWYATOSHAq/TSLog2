@@ -341,6 +341,14 @@ function ChangeState(stateChangeType) {
 
 $(document).ready(function() {
 
+
+    // show modal
+    if (getUrlParameter('id')) {
+        $('#RequestCardModal').modal('toggle');
+    }
+    // 
+
+
     function LoadCardsList(dateParam) {
 
         if ($("#time_table").length) {

@@ -129,7 +129,7 @@ namespace TSLog.Yard.BO
                 temp.Add(From, 0);
             if (!temp.ContainsKey(To))
                 temp.Add(To, 0);
-            var moments = temp.Keys.ToArray();            
+            var moments = temp.Keys.ToArray();
             Array.Sort(moments);
             var result = (short)0;
             var state = (short)0;
@@ -258,7 +258,7 @@ namespace TSLog.Yard.BO
                             if (!state.ContainsKey(position))
                                 state.Add(position, count);
                             else
-                                state[position] += count;                            
+                                state[position] += count;
                         }
                     }
                 }
@@ -402,7 +402,7 @@ namespace TSLog.Yard.BO
                 var result = new Dictionary<Position, int>();
                 foreach (var operation in _operations.Values)
                 {
-                    var costs = operation.PositionsLaborCosts;
+                    var costs = operation.PositionsLaborCosts();
                     var share = OperationShare(operation);
                     foreach (var pair in costs)
                     {
@@ -426,7 +426,7 @@ namespace TSLog.Yard.BO
                 var result = new Dictionary<Work, int>();
                 foreach (var operation in _operations.Values)
                 {
-                    var costs = operation.WorksLaborCosts;
+                    var costs = operation.WorksLaborCosts();
                     var share = OperationShare(operation);
                     foreach (var pair in costs)
                     {
@@ -448,7 +448,7 @@ namespace TSLog.Yard.BO
             get
             {
                 var result = 0;
-                foreach (var operation in _operations.Values) 
+                foreach (var operation in _operations.Values)
                     result += Convert.ToInt32(operation.TotalLaborCost * OperationShare(operation));
                 return result;
             }

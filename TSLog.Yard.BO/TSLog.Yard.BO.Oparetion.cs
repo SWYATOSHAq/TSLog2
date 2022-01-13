@@ -178,42 +178,36 @@ namespace TSLog.Yard.BO
         /// Количество задействованных работников по должностям
         /// </summary>
         /// <returns></returns>
-        public IDictionary<Position, short> PositionsWorkersCount
+        public IDictionary<Position, short> PositionsWorkersCount()
         {
-            get
+            var result = new Dictionary<Position, short>();
+            foreach (var operationWork in _operationWorks)
             {
-                var result = new Dictionary<Position, short>();
-                foreach (var operationWork in _operationWorks)
-                {
-                    var position = operationWork.Position;
-                    var count = operationWork.WorkersCount;
-                    if (!result.ContainsKey(position))
-                        result.Add(position, count);
-                    else if (result[position] > count)
-                        result[position] = count;
-                }
-                return result;
+                var position = operationWork.Position;
+                var count = operationWork.WorkersCount;
+                if (!result.ContainsKey(position))
+                    result.Add(position, count);
+                else if (result[position] > count)
+                    result[position] = count;
             }
+            return result;
         }
         /// <summary>
         /// Количество задействованых работников по элементарным радотам
         /// </summary>
-        public IDictionary<Work, short> WorksWorkersCount
+        public IDictionary<Work, short> WorksWorkersCount()
         {
-            get
+            var result = new Dictionary<Work, short>();
+            foreach (var operationWork in _operationWorks)
             {
-                var result = new Dictionary<Work, short>();
-                foreach (var operationWork in _operationWorks)
-                {
-                    var work = operationWork.Work;
-                    var count = operationWork.WorkersCount;
-                    if (!result.ContainsKey(work))
-                        result.Add(work, count);
-                    else if (result[work] > count)
-                        result[work] = count;
-                }
-                return result;
-            }            
+                var work = operationWork.Work;
+                var count = operationWork.WorkersCount;
+                if (!result.ContainsKey(work))
+                    result.Add(work, count);
+                else if (result[work] > count)
+                    result[work] = count;
+            }
+            return result;
         }
         /// <summary>
         /// Общее количество сотрудников для операции двора (ПРР) по всем должностям
@@ -276,42 +270,36 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Трудозатраты по должностям (с человекосекундах)
         /// </summary>
-        public IDictionary<Position, int> PositionsLaborCosts
+        public IDictionary<Position, int> PositionsLaborCosts()
         {
-            get
+            var result = new Dictionary<Position, int>();
+            foreach (var operstionWork in _operationWorks)
             {
-                var result = new Dictionary<Position, int>();
-                foreach (var operstionWork in _operationWorks)
-                {
-                    var position = operstionWork.Position;
-                    var labor = operstionWork.WorkersCount * operstionWork.Time;
-                    if (!result.ContainsKey(position))
-                        result.Add(position, labor);
-                    else
-                        result[position] += labor;
-                }
-                return result;
+                var position = operstionWork.Position;
+                var labor = operstionWork.WorkersCount * operstionWork.Time;
+                if (!result.ContainsKey(position))
+                    result.Add(position, labor);
+                else
+                    result[position] += labor;
             }
+            return result;
         }
         /// <summary>
         /// Трудозатраты по элементарным работам (с человекосекундах)
         /// </summary>
-        public IDictionary<Work, int> WorksLaborCosts
+        public IDictionary<Work, int> WorksLaborCosts()
         {
-            get
+            var result = new Dictionary<Work, int>();
+            foreach (var operstionWork in _operationWorks)
             {
-                var result = new Dictionary<Work, int>();
-                foreach (var operstionWork in _operationWorks)
-                {
-                    var work = operstionWork.Work;
-                    var labor = operstionWork.WorkersCount * operstionWork.Time;
-                    if (!result.ContainsKey(work))
-                        result.Add(work, labor);
-                    else
-                        result[work] += labor;
-                }
-                return result;
+                var work = operstionWork.Work;
+                var labor = operstionWork.WorkersCount * operstionWork.Time;
+                if (!result.ContainsKey(work))
+                    result.Add(work, labor);
+                else
+                    result[work] += labor;
             }
+            return result;
         }
         /// <summary>
         /// Общие трудозатраты в человекосекундах

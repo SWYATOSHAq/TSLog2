@@ -26,13 +26,13 @@
 
 <!--  -->
 <div class="row p-2 m-3">
-    <div class="col-4 p-4 m-3 shadow hide-on-print overflow-auto" id="card_table">
+    <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto" id="card_table">
         <div class="row">
-        Выберете дату: 
+            Выберете дату:
         </div>
 
         <div class="row p-2 m-3">
-            <!--  --> 
+            <!--  -->
             <input type="text"
                    id="dp1"
                    class="datepicker border border-secondary col-5 m-1"
@@ -46,7 +46,7 @@
             <button title="создать заявку" class="btn btn-outline-success hide-on-print" type="button" onclick="location.href = '/p/user/NewRequest?date=' + $('.datepicker').datepicker('getDate').toLocaleDateString()"><h5>+</h5></button>
         </div>
         <div class="row p-2">
-        Фильтр:
+            Фильтр:
         </div>
 
         <div class="row p-2 m-1" id="gates-filter">
@@ -58,6 +58,27 @@
         </div>
 
     </div>
+    <!--
     <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+    -->
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#RequestCardModal">
+        Launch demo modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade rem-outline-on-print" id="RequestCardModal" tabindex="-1" role="dialog" aria-labelledby="reqCard" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+                </div>
+                <div class="modal-footer hide-on-print">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
