@@ -357,7 +357,6 @@ $(document).ready(function() {
 
 
     function LoadCardsList(dateParam) {
-
         if ($("#time_table").length) {
             manageTimeTable(dateParam);
         }
@@ -372,7 +371,9 @@ $(document).ready(function() {
 
                 RemoveCards();
                 for (let card of cards) {
-                    RenderCard($(".cards-list"), card, dateParam);
+                    console.log(card);
+
+                    RenderCard($(".data-operation-list"), card, dateParam);
                 }
 
             });
