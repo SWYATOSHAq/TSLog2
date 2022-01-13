@@ -45,7 +45,7 @@ const state = {
 const time_split = 4;
 //
 const time_start = 2;
-const time_finish = 24;
+const time_finish = 23;
 //
 var trail_length = 0;
 
@@ -123,6 +123,7 @@ function SelectTime(time, cellId) {
         } else {
             $("#eror-text").addClass("d-none");
             state.time = time;
+            $("#text_operation_time").text($("#text_operation_time").text().split(" (")[0] + " ( выбранное время: " + time + ")");
 
         }
     };
@@ -172,11 +173,14 @@ function RenderTable(periods) {
                 //
                 // check if time is awailable or not
                 var isSuitable = false;
+
+                var today = new Date();
+
                 for (let period of periods) {
                     var curPeriodFrom = new Date(period.From);
                     var curPeriodTo = new Date(period.To);
 
-                    if (curPeriodFrom <= ConvertToTime(bu_text) && ConvertToTime(bu_text) < curPeriodTo) {
+                    if (curPeriodFrom <= ConvertToTime(bu_text) && ConvertToTime(bu_text) < curPeriodTo && ConvertToTime(bu_text) >= today) {
                         isSuitable = true;
                     }
                 }
@@ -393,7 +397,7 @@ $(document).ready(function() {
         });
 
     if ($("#time_table").length) {
-        $("#text_operation_time").text("Время операции: --:--:--");
+        $("#text_operation_time").text("Время операции: --:--:-- (--:--)");
     }
 
     function GetOperationTimeSpan(inpDate) {

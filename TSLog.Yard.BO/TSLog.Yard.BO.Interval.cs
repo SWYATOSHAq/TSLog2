@@ -107,13 +107,13 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Максимальное количество одновременных операций за период
         /// </summary>
-        public short MaxParallelOperations(TypeDirection type)
+        public short MaxParallelOperations(TypeDirection? type = null)
         {
 
             var temp = new Dictionary<DateTime, short>();
             foreach (var operation in _operations.Values)
             {
-                if (operation.Type.Direction == type)
+                if (type == null || operation.Type.Direction == type)
                 {
                     if (!temp.ContainsKey(operation.PlanWorkStartDate))
                         temp.Add(operation.PlanWorkStartDate, 1);

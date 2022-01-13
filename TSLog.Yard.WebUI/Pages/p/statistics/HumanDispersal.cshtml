@@ -44,7 +44,7 @@
 }
 
 <div class="row p-2 hide-on-print">
-        Выберете дату: 
+    Выберете дату:
 </div>
 <div class="row p-2 m-3">
     <!--  -->
@@ -58,6 +58,7 @@
         <thead class="thead-light">
             <tr>
                 <th>@date.ToString("dd.MM.yyyy")</th>
+                <th>Сумма машин</th>
                 @foreach (var workerType in displayCollumns)
                 {
                     <th colspan="2">@workerType</th>
@@ -65,6 +66,7 @@
             </tr>
             <tr>
                 <th>Интервал</th>
+                <th></th>
                 @foreach (var workerType in displayCollumns)
                 {
                     <th>Приемка</th>
@@ -80,6 +82,7 @@
             {
                 <tr>
                     <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
+                    <td class="h5">@item.MaxParallelOperations()</td>
                     <td>@item.MaxParallelOperations(TypeDirection.In)</td>
                     <td>@item.MaxParallelOperations(TypeDirection.Out)</td>
 
