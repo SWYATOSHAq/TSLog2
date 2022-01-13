@@ -335,7 +335,7 @@ function ChangeState(stateChangeType) {
         var card = JSON.parse(data);
         console.log(card);
         //alert(data);
-        if (stateChangeType == "DeleteOperation")
+        if (stateChangeType == "DeleteOperation" || stateChangeType == "CancelOperation")
             window.location.href = "";
         else
             window.location.href = window.location.search;
