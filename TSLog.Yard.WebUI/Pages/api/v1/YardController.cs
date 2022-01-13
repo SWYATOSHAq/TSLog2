@@ -167,7 +167,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 // TODO somehow dont work properly
                 //yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
-                yardStorage.SetOperationGate(newOperation); // TODO catch an erorr
+                try
+                {
+                    yardStorage.SetOperationGate(newOperation);
+                }
+                catch (Exception e)
+                {
+                    Text = "eror||ошибка, ворота не были проставлены, измените время или тип машины";
+                }
 
                 Text = JsonSerializer.Serialize(newOperation);
             }

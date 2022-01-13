@@ -306,7 +306,13 @@ function Create() {
 
         $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
             console.log(data);
-            var card = JSON.parse(data);
+
+            if (data.startsWith("eror")) {
+                alert(data.split("||")[1]);
+            } else {
+                var card = JSON.parse(data);
+            }
+
             // TODO пока пусть редиректит на лк TSL
             // но тут должна быть вилка в зависимости от типа пользователя
             // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
