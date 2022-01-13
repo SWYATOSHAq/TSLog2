@@ -316,6 +316,64 @@ namespace TSLog.Yard.BO
         }
         #endregion
 
+        #region Operation workers
+        public class OperationWorker
+        {
+            public Employee Worker { get; private set; }
+            public Position Position { get; private set; }
+            public OperationWorker(Employee worker, Position position)
+            {
+                if (worker == null)
+                    throw new ArgumentNullException(nameof(worker));
+                if (position == null)
+                    throw new ArgumentNullException(nameof(position));
+                Worker = worker;
+                Position = position;
+            }
+        }
+        private readonly IList<OperationWorker> _operationWorkers = new List<OperationWorker>();
+        public void AddOperationWorker(Employee worker, Position position)
+        {
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            var operationWorker = new OperationWorker(worker, position);
+            AddOperationWorker(operationWorker);
+        }
+        public void AddOperationWorker(OperationWorker operationWorker)
+        { 
+            if (operationWorker == null)
+                throw new ArgumentNullException(nameof(operationWorker));
+
+            // TODO: check existance
+            _operationWorkers.Add(operationWorker);
+        }
+        public void AddOperationWorkers(OperationWorker[] operationWorkers)
+        {
+            if (operationWorkers == null)
+                throw new ArgumentNullException(nameof(operationWorkers));
+            foreach (var operationWorker in operationWorkers)
+                AddOperationWorker(operationWorker);
+        }
+        public void RemoveOperationWorker(Employee worker, Position position)
+        {
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            foreach (var operationWorker in _operationWorkers)
+                if (operationWorker.Worker == worker && operationWorker.Position == position)
+                    _operationWorkers.Remove(operationWorker);
+        }
+        public OperationWorker[] OperationWorkers
+        {
+            get
+            {
+                return _operationWorkers.ToArray();
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Вид автомашины

@@ -889,6 +889,9 @@ namespace TSLog.Yard.Data
             var operationWorks = GetOperationWorks(operation);
             operation.AddOperationWorks(operationWorks);
 
+            var operationWorkers = GetOperationWorkers(operation);
+            operation.AddOperationWorkers(operationWorkers);
+
             return operation;
         }
         public Operation GetOperation(long id)
@@ -1189,6 +1192,7 @@ namespace TSLog.Yard.Data
             }
 
             // Синхронизация складских действ (добавляем новые, удаляем удалённые)
+            // TODO: ПЕРЕПИСАТЬ! ГОВНОКОД!
             var actions = new Dictionary<string, WarehouseAction>();
             var indicators = new Dictionary<string, short>();
             var temp = GetActions(operation);
@@ -1256,6 +1260,33 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             operation.ResponsibleOfficer = officer;
             connection.Close();
+        }
+        public void SaveOperationWorkers(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            var oldWorkers = GetOperationWorkers(operation);
+            var oldKeys = new HashSet<string>();
+            foreach (var operationWorker in oldWorkers)
+                oldKeys.Add($"{operationWorker.Worker.Id}_{operationWorker.Position.Id}");
+
+            var newWorkers = operation.OperationWorkers;
+            var newKeys = new HashSet<string>();
+            foreach (var operationWorker in newWorkers)
+            {
+                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
+                newKeys.Add(key);
+                if (!oldKeys.Contains(key))
+                    AddWorker(operation, operationWorker.Worker, operationWorker.Position);
+            }
+
+            foreach (var operationWorker in oldWorkers)
+            {
+                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
+                if (!newKeys.Contains(key))
+                    RemoveWorker(operation, operationWorker.Worker, operationWorker.Position);
+            }
         }
         public void StartOperationWork(Operation operation)
         {
@@ -1405,6 +1436,80 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
             command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
+            command.ExecuteScalar();
+            connection.Close();
+        }
+        #endregion
+
+        #region Workers
+        public void AddWorker(Operation operation, Employee worker, Position position)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            using var connection = CloneConnection();
+            using var command = connection.CreateCommand();
+            var sql = $"select {YardSchema}.add_operation_worker(:p_operation_id, " +                
+                $":p_worker_id, " +
+                $":p_position_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, worker.Id));
+            command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
+            command.ExecuteScalar();
+            connection.Close();
+        }
+        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            var operationWorkers = new List<Operation.OperationWorker>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select ow.worker_id, ow.position_id " +
+                        $"  from {YardSchema}.v_operation_worker ow " +
+                        $" where ow.operation_id = :operation_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                        var positionId = Utils.DbValueToShort(reader["position_id"]);
+                        var worker = GetEmployee(workerId);
+                        var position = GetPosition(positionId);
+                        var operationWorker = new Operation.OperationWorker(worker, position);
+                        operationWorkers.Add(operationWorker);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return operationWorkers.ToArray();
+        }
+        public void RemoveWorker(Operation operation, Employee worker, Position position)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+            if (position == null)
+                throw new ArgumentNullException(nameof(position));
+            using var connection = CloneConnection();
+            using var command = connection.CreateCommand();
+            var sql = $"select {YardSchema}.remove_operation_worker(:p_operation_id, " +
+                $":p_worker_id, " +
+                $":p_position_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, worker.Id));
+            command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
             command.ExecuteScalar();
             connection.Close();
         }

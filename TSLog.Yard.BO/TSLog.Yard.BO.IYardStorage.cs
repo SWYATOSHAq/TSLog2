@@ -55,6 +55,10 @@ namespace TSLog.Yard.BO
         public void AddAction(Operation operation, WarehouseAction action);        
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);
+
+        public void AddWorker(Operation operation, Employee worker, Position position);
+        public Operation.OperationWorker[] GetOperationWorkers(Operation operation);
+        public void RemoveWorker(Operation operation, Employee worker, Position position);
     }
     public interface IYardWmsStorage
     {

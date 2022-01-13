@@ -268,11 +268,29 @@ namespace TSLog.Yard
             _pgsqlStorage.RemoveAction(operation, action);
         }
         #endregion
+
+        #region Workers
+        public void AddWorker(Operation operation, Employee worker, Position position)
+        {
+            _pgsqlStorage.AddWorker(operation, worker, position);
+        }
+        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
+        {
+            return _pgsqlStorage.GetOperationWorkers(operation);
+        }
+        public void RemoveWorker(Operation operation, Employee worker, Position position)
+        {
+            _pgsqlStorage.RemoveWorker(operation, worker, position);
+        }
+        #endregion
+
         public void Dispose()
         {
             _oracleStorage.Dispose();
             _pgsqlStorage.Dispose();
             GC.SuppressFinalize(this);
         }
+
+        
     }
 }
