@@ -6,6 +6,7 @@
 }
 @foreach (var curOperation in cardOperationsList)
 {
+    <div class="col">
     <div class="card m-3 action-card">
         <div class="card-header">@curOperation.GetPlanTime() @curOperation.GetDate()</div>
         <div class="card-body">
@@ -31,5 +32,6 @@
         {
             @: <button class="btn btn-outline-info m-3" onclick="location.href='?id=@curOperation.Id' + '&date=@DateTime.Now.ToString("d.M.yyyy")'">открыть</button>
         }
+    </div>
     </div>
 }
