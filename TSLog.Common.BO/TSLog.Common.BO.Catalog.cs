@@ -43,10 +43,39 @@ namespace TSLog.Common.BO
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
-            if (entity.Id >= 0 && !_entitiesIds.ContainsKey(entity.Id))
+            if (entity.Id > 0 && !_entitiesIds.ContainsKey(entity.Id))
                 _entitiesIds.Add(entity.Id, entity);
             if (!string.IsNullOrWhiteSpace(entity.Code) && !_entitiesCodes.ContainsKey(entity.Code))
                 _entitiesCodes.Add(entity.Code, entity);
+        }
+        /// <summary>
+        /// Добавлеие или правка сущности
+        /// </summary>
+        /// <param name="entity">Сущность</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddOrUpdate(T entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            var updated = false;
+            if (entity.Id > 0)
+            {
+                if (!_entitiesIds.ContainsKey(entity.Id))
+                    _entitiesIds.Add(entity.Id, entity);
+                else
+                {
+                    _entitiesIds[entity.Id].Update(entity);
+                    updated = true;
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(entity.Code))
+            {
+                var code = entity.Code.Trim();
+                if (!_entitiesCodes.ContainsKey(code))
+                    _entitiesCodes.Add(code, entity);
+                else if (!updated)
+                    _entitiesCodes[code].Update(entity);
+            }
         }
 
         /// <summary>
@@ -59,6 +88,19 @@ namespace TSLog.Common.BO
                 throw new ArgumentNullException(nameof(entities));
             foreach (var entity in entities)
                 Add(entity);
+        }
+        /// <summary>
+        /// Проверка наличия сущности в контейнере
+        /// </summary>
+        /// <param name="entity">сущность</param>
+        /// <returns>Признак наличия</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool Contains(Entity entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            return entity.Id > 0 && _entitiesIds.ContainsKey(entity.Id) 
+                || !string.IsNullOrWhiteSpace(entity.Code) && _entitiesCodes.ContainsKey(entity.Code);
         }
 
         /// <summary>
