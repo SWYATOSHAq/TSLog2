@@ -42,9 +42,8 @@
     var textDataHeader = new Dictionary<string, (string, string, bool)>();
     textDataHeader.Add("Наименование организации", ("text_org_name", Partner.Serialize(cardData.GetPartners()), true));
 
-    textDataHeader.Add("Начало", ("text_stert_time", cardData.GetStartTime(), true));
-    textDataHeader.Add("Время работ", ("text_work_time", cardData.GetWorkTime(), false));
-    textDataHeader.Add("Уезд с территории", ("text_leave_time", cardData.GetFinishTime(), true));
+    textDataHeader.Add("Начало работ", ("text_stert_time", cardData.GetStartTime(), true));
+    textDataHeader.Add("Окончание работ", ("text_leave_time", cardData.GetFinishTime(), true));
 
     textDataHeader.Add("Логист", ("text_logist", cardData.Logist?.DisplayName, false));
     textDataHeader.Add("Ответственный", ("text_responsible", cardData.Manager?.DisplayName, true));
