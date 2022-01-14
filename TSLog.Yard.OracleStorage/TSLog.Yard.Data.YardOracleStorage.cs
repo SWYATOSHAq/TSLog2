@@ -27,13 +27,13 @@ namespace TSLog.Yard.Data
         private WarehouseAction CreateAction(DbDataReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException(nameof(reader));            
+                throw new ArgumentNullException(nameof(reader));
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
             var id = Utils.DbValueToString(reader["id"]);
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var partnerActionId = Utils.DbValueToString(reader["partner_action_id"]);
             var action = new WarehouseAction(kind,
-                id,                
+                id,
                 partner,
                 partnerActionId);
             return action;
@@ -46,13 +46,13 @@ namespace TSLog.Yard.Data
             var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectWarehouseActionByIdSql = 
+                var SelectWarehouseActionByIdSql =
                     $"select a.id, a.action_kind, a.partner_id " +
                     $"  from {CommonSchema}.v_warehouse_action a " +
-                    $" where a.id = :id " +                    
+                    $" where a.id = :id " +
                     $"   and a.action_kind = :action_kind";
                 command.CommandText = SelectWarehouseActionByIdSql;
-                command.Parameters.Add(new OracleParameter("id", id));                
+                command.Parameters.Add(new OracleParameter("id", id));
                 command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
@@ -114,7 +114,7 @@ namespace TSLog.Yard.Data
             var partner = Partner.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectPartnerByIdSql = 
+                var SelectPartnerByIdSql =
                     $"select p.id, p.name, p.display_order " +
                     $"  from {CommonSchema}.v_partner p " +
                     $" where upper(trim(p.id)) = :id";
@@ -132,12 +132,12 @@ namespace TSLog.Yard.Data
         public Employee[] GetPartnerManagers(Partner partner)
         {
             if (partner == null)
-                throw new ArgumentNullException(nameof (partner));
+                throw new ArgumentNullException(nameof(partner));
 
             var managers = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
-                var SelectPartnerManagersSql = 
+                var SelectPartnerManagersSql =
                     $"select pm.manager_id " +
                     $"  from {CommonSchema}.v_partner_manager pm " +
                     $" where pm.partner_id = :partner_id";
@@ -154,12 +154,12 @@ namespace TSLog.Yard.Data
             }
             return managers.ToArray();
         }
-        public Partner[] GetPartners(bool getOnlyActive = false)
+        public Partner[] GetPartners(bool getOnlyActive = true)
         {
             var partners = new List<Partner>();
-            using (var command = _connection.CreateCommand()) 
+            using (var command = _connection.CreateCommand())
             {
-                var SelectPartnersSql = 
+                var SelectPartnersSql =
                     $"select p.id, p.name, p.display_order " +
                     $"  from {CommonSchema}.v_partner p";
                 command.CommandText = SelectPartnersSql;
@@ -186,13 +186,13 @@ namespace TSLog.Yard.Data
                 name);
             return employee;
         }
-        public Employee GetEmployee(int id) 
+        public Employee GetEmployee(int id)
         {
-            id  = id > 0 ? id : 0;
+            id = id > 0 ? id : 0;
             var employee = Employee.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectEmployeeById = 
+                var SelectEmployeeById =
                     $"select e.id, e.code, e.name " +
                     $"  from {CommonSchema}.v_employee e " +
                     $" where e.id = :id";
@@ -212,7 +212,7 @@ namespace TSLog.Yard.Data
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
-                var SelectEmployeesSql = 
+                var SelectEmployeesSql =
                     $"select e.id, e.code, e.name " +
                     $"  from {CommonSchema}.v_employee e";
                 command.CommandText = SelectEmployeesSql;
@@ -250,7 +250,7 @@ namespace TSLog.Yard.Data
                 displayOrder,
                 note);
             return position;
-        }        
+        }
         public Position GetPosition(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -260,7 +260,7 @@ namespace TSLog.Yard.Data
 
             using (var command = _connection.CreateCommand())
             {
-                var SelectPositionByIdSql = 
+                var SelectPositionByIdSql =
                     $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
                     $"  from {CommonSchema}.v_position p " +
                     $" where p.id = :id";
@@ -280,7 +280,7 @@ namespace TSLog.Yard.Data
         }
         public Position GetPosition(string code)
         {
-            if(string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(code))
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
             var position = _positions[code];

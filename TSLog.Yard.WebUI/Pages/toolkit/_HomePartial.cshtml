@@ -8,7 +8,15 @@
     var isEnabled = isAdmin;
 }
 @{
-    var gateslist = (storage.GetGates(), "", true, true);
+    //
+    var gatesList = (storage.GetGates(), "", true, true);
+
+    var operationList = (storage.GetOperationTypes(), "", true, true);
+    var partnerList = (storage.GetPartners(), false, true);
+    var vehicleKindList = (storage.GetVehicleKinds(), "", true, true);
+    var statesList = (storage.GetOperationStates(), "", true, true);
+
+    //
 
     string reqdate = request.Query["date"];
     var selDate = reqdate != null ? DateTime.Parse(reqdate) : DateTime.Today;
@@ -54,15 +62,29 @@
         </div>
         <div class="row p-2">
             Фильтр:
+        
+
+            <div class="col-md-3 col-6 p-2 m-1" id="gates-filter">
+                <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
+            </div>
+
+            <div class="col-md-3 col-6 p-2 m-1" id="op-types-filter">
+                <partial name="toolkit/lists/_OperationDropdownPartial" model="operationList" />
+            </div>
+            <div class="col-md-3 col-6 p-2 m-1" id="partner-filter">
+                <partial name="toolkit/lists/_PartnerDropdownPartial" model="partnerList" />
+            </div>
+            <div class="col-md-3 col-6 p-2 m-1" id="vehicle-kind-filter">
+                <partial name="toolkit/lists/_VehicleKindDropdownPartial" model="vehicleKindList" />
+            </div>
+            <div class="col-md-3 col-6 p-2 m-1" id="states-filter">
+                <partial name="toolkit/lists/_OperationStatePartial" model="statesList" />
+            </div>
         </div>
 
-        <div class="row p-2 m-1" id="gates-filter">
-            <partial name="toolkit/lists/_GatesDropdownPartial" model="gateslist" />
-        </div>
-
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list">
-            <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
-        </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list">
+                <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
+            </div>
 
     </div>
 

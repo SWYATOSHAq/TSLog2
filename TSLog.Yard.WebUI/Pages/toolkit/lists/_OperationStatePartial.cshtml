@@ -1,0 +1,20 @@
+﻿@using TSLog.Common.BO
+@model (Entity[], string, bool, bool)
+@{
+    var statesList = Model.Item1;
+    var selected = Model.Item2;
+    var isEnabled = Model.Item3;
+    var isSmall = Model.Item4;
+}
+
+<div class="input-group">
+    <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Состояния</span>
+    <select id="state" class="form-select" aria-label="Default select" @(isEnabled ? "" : "disabled")>
+    <option value="">Выберите состояние</option>
+
+    @foreach (var curState in statesList)
+    {
+       @: <option value="@curState.Code" @((curState.Code == selected) ? "selected" : "")>@curState.DisplayName</option>
+    }
+    </select>
+</div>
