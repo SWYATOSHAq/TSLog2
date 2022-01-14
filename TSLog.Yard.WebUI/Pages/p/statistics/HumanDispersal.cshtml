@@ -120,14 +120,14 @@
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
             <tr>
-                <th colspan="2">потребность в персонале</th>
+                <td colspan="2">Потребность в персонале</td>
             </tr>
         </thead>
         <tbody>
             @foreach (var worker in workersData.Keys)
             {
                 <tr>
-                    <th>@worker.DisplayName</th>
+                    <td class="text-right">@worker.DisplayName</td>
                     <td>@workersData[worker]</td>
                 </tr>
             }

@@ -1041,7 +1041,7 @@ namespace TSLog.Yard.Data
                         $"  from {YardSchema}.v_partner_operation po " +
                         $" where not (po.plan_work_start_date > :to_date " +
                         $"    or po.plan_work_finish_date < :from_date) " +
-                        $"   and po.partner_id = :partner_id";
+                        $"   and po.partner_id = :partner_id order by po.plan_work_start_date";
                     foreach (var partner in partners)
                     {
                         using var command = connection.CreateCommand();
@@ -1486,7 +1486,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(position));
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.add_operation_worker(:p_operation_id, " +                
+            var sql = $"select {YardSchema}.add_operation_worker(:p_operation_id, " +
                 $":p_worker_id, " +
                 $":p_position_id);";
             command.CommandText = sql;

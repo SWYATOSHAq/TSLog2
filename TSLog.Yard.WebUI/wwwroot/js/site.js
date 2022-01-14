@@ -269,6 +269,7 @@ function RenderCard(base, card, date) {
     cardBody.append(cardBodyInputType);
     cardBody.append(cardBodyGate);
     cardBody.append(cardBodyState);
+    cardBody.append(cardBodyVehicleKind);
 
     ///
 
