@@ -31,7 +31,7 @@ namespace TSLog.Yard.Data
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
             var id = Utils.DbValueToString(reader["id"]);
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
-            var partnerActionId = Utils.DbValueToString(reader["partner_action_id"]);
+            var partnerActionId = Utils.DbValueToString(reader["partner_number"]);
             var action = new WarehouseAction(kind,
                 id,
                 partner,
@@ -47,7 +47,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByIdSql =
-                    $"select a.id, a.action_kind, a.partner_id " +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number " +
                     $"  from {CommonSchema}.v_warehouse_action a " +
                     $" where a.id = :id " +
                     $"   and a.action_kind = :action_kind";
@@ -71,15 +71,16 @@ namespace TSLog.Yard.Data
             var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectWarehouseActionByPartnerActionIdSql = $"select a.id, a.partner_id " +
-                    $"from {CommonSchema}.v_warehouse_action a " +
-                    $"where a.partner_number = :partner_number " +
-                    $"and a.partner_id = :partner_id" +
-                    $"and a.action_kind = :action_kind";
+                var SelectWarehouseActionByPartnerActionIdSql = 
+                    $"select a.kind, a.id, a.partner_id, a.partner_number " +
+                    $"  from {CommonSchema}.v_warehouse_action a " +
+                    $" where a.partner_number = :partner_number " +
+                    $"   and a.partner_id = :partner_id" +
+                    $"   and a.kind = :kind";
                 command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("partner_number", partnerActionId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
-                command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
                     action = CreateAction(reader);

@@ -23,7 +23,10 @@ string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
 string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
 string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
 
-var pgsqlConnectionSettings = builder.Configuration.GetSection("PostgreeSqlConnectionSettings");
+var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
+var pgsqlConnectionSettings = isDebug 
+    ? builder.Configuration.GetSection("PostgreeSqlConnectionDebugSettings")
+    : builder.Configuration.GetSection("PostgreeSqlConnectionSettings");
 string pgsqlHost = pgsqlConnectionSettings.GetValue<string>("Host");
 string pgsqlUserName = pgsqlConnectionSettings.GetValue<string>("UserName");
 string pgsqlPassword = pgsqlConnectionSettings.GetValue<string>("Password");
