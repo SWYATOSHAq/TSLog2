@@ -1,9 +1,11 @@
-﻿namespace TSLog.Common.BO
+﻿using System;
+
+namespace TSLog.Common.BO
 {
     /// <summary>
     /// Базовый класс для всех бизнес-оъектов
     /// </summary>
-    public class Entity
+    public class Entity : IComparable<Entity>
     {
         /// <summary>
         /// Идентификатор
@@ -103,6 +105,11 @@
                     _empty = new Entity();
                 return _empty;
             }
+        }
+
+        public int CompareTo(Entity other)
+        {
+            return DisplayOrder.CompareTo(other.DisplayOrder);
         }
     }
 }

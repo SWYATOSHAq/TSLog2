@@ -142,6 +142,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
+            gates.Sort();
             return gates.ToArray();
         }
         private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
@@ -252,6 +253,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
+            logists.Sort();
             return logists.ToArray();
         }
 
@@ -399,6 +401,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
+            operationTypes.Sort();
             return operationTypes.ToArray();
         }
         public OperationType[] GetOperationTypes()
@@ -423,6 +426,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
+            operationTypes.Sort();
             return operationTypes.ToArray();
         }
 
@@ -538,6 +542,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
+            vehicleKinds.Sort();
             return vehicleKinds.ToArray();
         }
 
