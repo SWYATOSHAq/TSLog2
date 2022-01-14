@@ -60,3 +60,10 @@ th {
 td {
     text-align: right;
 }
+.font-1-3 {
+    font-size: 1.3em;
+}
+
+.block-size-2 {
+    height: 2em;
+}

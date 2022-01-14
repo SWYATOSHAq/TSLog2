@@ -232,8 +232,11 @@ function ConvertDate(strTime) {
 
 function RenderCard(base, card, date) {
 
+    var baseCol = document.createElement("div");
+    $(baseCol).addClass("col  action-card");
+
     var baseCard = document.createElement("div");
-    $(baseCard).addClass("card m-3 action-card");
+    $(baseCard).addClass("card m-1");
     //
     var cardHeader = document.createElement("div");
     $(cardHeader).addClass("card-header");
@@ -247,16 +250,20 @@ function RenderCard(base, card, date) {
     $(cardBodyMndnr).text(GetCompaniesNames(card));
 
     var cardBodyInputType = document.createElement("p");
-    $(cardBodyInputType).addClass("card-text");
+    $(cardBodyInputType).addClass("card-text block-size-2");
     $(cardBodyInputType).text(card.Type.DisplayName);
 
     var cardBodyGate = document.createElement("p");
-    $(cardBodyGate).addClass("card-text");
-    $(cardBodyGate).text("Ворота: " + (card.Gate.DisplayName == "NULL" ? "не проставлены" : card.Gate.DisplayName));
+    $(cardBodyGate).addClass("card-text  text-primary font-1-3");
+    $(cardBodyGate).text((card.Gate.DisplayName == "NULL" ? "не проставлены" : card.Gate.DisplayName));
 
     var cardBodyState = document.createElement("p");
     $(cardBodyState).addClass("card-text");
-    $(cardBodyState).text("Состояние: " + card.State.DisplayName);
+    $(cardBodyState).text(card.State.DisplayName);
+
+    var cardBodyVehicleKind = document.createElement("p");
+    $(cardBodyVehicleKind).addClass("card-text block-size-2");
+    $(cardBodyVehicleKind).text(card.VehicleKind.DisplayName);
     ///
     cardBody.append(cardBodyMndnr);
     cardBody.append(cardBodyInputType);
@@ -275,8 +282,9 @@ function RenderCard(base, card, date) {
     baseCard.append(cardHeader);
     baseCard.append(cardBody);
     baseCard.append(cardBodyButton);
-    // 
-    base.append(baseCard);
+    //
+    baseCol.append(baseCard);
+    base.append(baseCol);
 }
 
 function Create() {
@@ -338,9 +346,8 @@ function ChangeState(stateChangeType) {
     $.post("/api/v1/yard/changeOperationState", postData, function(data) {
         var card = JSON.parse(data);
         console.log(card);
-        //alert(data);
         if (stateChangeType == "DeleteOperation" || stateChangeType == "CancelOperation")
-            window.location.href = "";
+            window.location.href = window.location.href.split("?", 1);
         else
             window.location.href = window.location.search;
     });
