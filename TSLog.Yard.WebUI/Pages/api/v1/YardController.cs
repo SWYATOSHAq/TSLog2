@@ -127,24 +127,23 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("createUpdateOperation")]
         public string GetInsertUpdateData()
         {
-            var operation_type = Request.Form["operation_type"];
+            var operationType = Request.Form["operation_type"];
             //var gate = Request.Form["gate"];
-            var vehicle_kind = Request.Form["vehicle_kind"];
-            var vehicle_brand = Request.Form["vehicle_brand"];
-            var vehicle_model = Request.Form["vehicle_model"];
-            var vehicle_number = Request.Form["vehicle_number"];
-            var order_id = Request.Form["order_id"];
-            var driver_name = Request.Form["driver_name"];
-            var driver_phone_number = string.Empty;
-            //
-            string operation_id = Request.Form["operation_id"];
-            //
-            var start_date = Request.Form["start_date"];
-            var finish_date = Request.Form["finish_date"];
+            var vehicleKindCode = Request.Form["vehicle_kind"];
+            var vehicleBrand = Request.Form["vehicle_brand"];
+            var vehicleModel = Request.Form["vehicle_model"];
+            var vehicleNumber = Request.Form["vehicle_number"];
+            var trailerNumber = string.Empty;
+            var orderId = Request.Form["order_id"];
+            var driverName = Request.Form["driver_name"];
+            var driverPhoneNumber = string.Empty;
+            string operationId = Request.Form["operation_id"];
+            var requestStartDate = Request.Form["start_date"];
+            var requestFinishDate = Request.Form["finish_date"];
 
             string Text;
 
-            if (operation_id != null)
+            if (!string.IsNullOrWhiteSpace(operationId))
             {
                 // update 
                 // TODO
@@ -153,35 +152,35 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             else
             {
                 // create
-                var type = yardStorage.GetOperationType(operation_type);
-                var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
+                var type = yardStorage.GetOperationType(operationType);
+                var vehicleKind = yardStorage.GetVehicleKind(vehicleKindCode);
 
-                var startDate = DateTime.Parse(start_date);
+                var startDate = DateTime.Parse(requestStartDate);
                 var finishDate = startDate;
 
                 finishDate = finishDate.Add(new TimeSpan(0, 0, yardStorage.GetTime(type, vehicleKind)));
 
-                short priority = 1;
+                var priority = (short)1;
                 var partnerManagerName = string.Empty;
                 var partnerManagerPhoneNumber = string.Empty;
                 var partnerManagerEmail = string.Empty;
 
                 var defState = yardStorage.GetOperationState("CREATED");
-                var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
+
+                var partner = yardStorage.GetPartner(Request.Form["partner_id"]);
+                var defManager = yardStorage.GetPartnerManagers(partner)[0];
 
                 var newOperation = new Operation(-1, null, type, startDate, finishDate,
-                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, driver_phone_number,
+                    vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
                     defState,
                     priority,
                     partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
                     defManager);
 
-                newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
-                    yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+                var action = yardStorage.GetAction(ActionKind.Income, partner, orderId);
+                newOperation.AddAction(action);
                 yardStorage.AddOperation(newOperation);
 
-                // TODO somehow dont work properly
-                //yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 try
                 {
                     yardStorage.SetOperationGate(newOperation);
@@ -193,10 +192,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 Text = JsonSerializer.Serialize(newOperation);
             }
-
             return Text;
         }
-
 
         [HttpPost("changeOperationState")]
         public string PostChangeOperationState()

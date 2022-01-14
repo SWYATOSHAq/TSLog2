@@ -1,4 +1,5 @@
-﻿using TSLog.Common.BO;
+﻿using System.Text;
+using TSLog.Common.BO;
 using TSLog.ExceptionHandler;
 using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
@@ -388,6 +389,10 @@ namespace TSLog.Yard.BO
         /// </summary>
         public string VehicleNumber { get; set; }
         /// <summary>
+        /// Номер прицепа
+        /// </summary>
+        public string TrailerNumber { get; set; }
+        /// <summary>
         /// Ф. И. О. шофёра
         /// </summary>
         public string DriverName { get; set; }
@@ -433,7 +438,8 @@ namespace TSLog.Yard.BO
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
-            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName, string driverPhoneNumber,
+            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string trailerNumber, 
+            string driverName, string driverPhoneNumber,
             Entity state,
             short priority,
             string partnerManagerName, string partnerManagerPhoneNumber, string partnerManagerEmail,
@@ -453,6 +459,7 @@ namespace TSLog.Yard.BO
             if (string.IsNullOrWhiteSpace(vehicleNumber))
                 throw new ArgumentException("vehicle number is empty");
             VehicleNumber = vehicleNumber.Trim().ToUpper();
+            TrailerNumber = string.IsNullOrWhiteSpace(trailerNumber) ? string.Empty : trailerNumber.Trim();
             if (string.IsNullOrWhiteSpace(driverName))
                 throw new ArgumentException("driver name is empty");
             DriverName = driverName.Trim().ToUpper();
@@ -473,6 +480,7 @@ namespace TSLog.Yard.BO
             VehicleBrand = string.Empty;
             VehicleModel = string.Empty;
             VehicleNumber = string.Empty;
+            TrailerNumber = string.Empty;
             DriverName = string.Empty;
             DriverPhoneNumber = string.Empty;
             State = Entity.Empty;
@@ -529,6 +537,24 @@ namespace TSLog.Yard.BO
             if (_actions.ContainsKey(key))
                 _actions.Remove(key);
         }
+        /// <summary>
+        /// Названия всех партнёров операции через запятую
+        /// </summary>
+        public string PartnerNames
+        {
+            get
+            {
+                var names = new StringBuilder();
+                var partners = GetPartners();
+                foreach (var partner in partners)
+                {
+                    if (names.Length > 0)
+                        names.Append(", ");
+                    names.Append(partner.Name);
+                }
+                return names.ToString();
+            }
+        }
         //Getdate TODO
         public string GetDate()
         {
@@ -582,7 +608,7 @@ namespace TSLog.Yard.BO
                 if (_null == null)
                     _null = new Operation(-1, string.Empty, OperationType.Null,
                         DateTime.MinValue, DateTime.MinValue,
-                        VehicleKind.Null, "NULL", "NULL", "NULL", "NULL", "NULL",
+                        VehicleKind.Null, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL",
                         Entity.Null,
                         -1,
                         "NULL", "NULL", "NULL",

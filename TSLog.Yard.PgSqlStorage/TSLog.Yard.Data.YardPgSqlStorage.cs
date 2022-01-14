@@ -866,6 +866,7 @@ namespace TSLog.Yard.Data
             var vehicleBrand = Utils.DbValueToString(reader["vehicle_brand"]);
             var vehicleModel = Utils.DbValueToString(reader["vehicle_model"]);
             var vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+            var trailerNumber = Utils.DbValueToString(reader["trailer_number"]);
             var driverName = Utils.DbValueToString(reader["driver_name"]);
             var driverPhoneNumber = Utils.DbValueToString(reader["driver_phone_number"]);
             var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
@@ -878,7 +879,7 @@ namespace TSLog.Yard.Data
             var operation = new Operation(Convert.ToInt64(reader["id"]), null,
                 type,
                 planWorkStartDate, planWorkFinishDate,
-                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, driverName, driverPhoneNumber,
+                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
                 state,
                 priority,
                 partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
@@ -927,7 +928,7 @@ namespace TSLog.Yard.Data
                         $"       o.start_date, o.finish_date, " +
                         $"       o.finish_date, " +
                         $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
-                        $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, " +
+                        $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, o.trailer_number, " +
                         $"       o.driver_name, o.driver_phone_number, " +
                         $"       o.logist_id, o.logist_code, o.logist_name, " +
                         $"       o.gate_id, o.gate_code, o.gate_name, " +
@@ -1020,6 +1021,7 @@ namespace TSLog.Yard.Data
                         $"       po.vehicle_brand, " +
                         $"       po.vehicle_model, " +
                         $"       po.vehicle_number, " +
+                        $"       po.trailer_number, " +
                         $"       po.driver_name, " +
                         $"       po.driver_phone_number, " +
                         $"       po.logist_id, " +
@@ -1077,6 +1079,7 @@ namespace TSLog.Yard.Data
                         $"       o.vehicle_brand, " +
                         $"       o.vehicle_model, " +
                         $"       o.vehicle_number, " +
+                        $"       o.trailer_number, " +
                         $"       o.driver_name, " +
                         $"       o.driver_phone_number, " +
                         $"       o.logist_id, " +
