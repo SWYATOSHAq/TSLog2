@@ -17,16 +17,18 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 //;
 builder.Services.AddRazorPages();
 
-// TODO: Get from settings file
-string oracleTns = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.254.29)(PORT = 1521))) (CONNECT_DATA = (SERVICE_NAME = eccobdb)))";
-string oracleUserName = "ecco";
-string oraclePassword = "e";
-string oracleCommonSchema = "ecco";
-string pgsqlHost = "10.50.254.14";
-string pgsqlUserName = "yardadmin";
-string pgsqlPassword = "12";
-string pgsqlDatabase = "tslog";
-string pgsqlYardSchema = "yard";
+var oracleConnectionSettings = builder.Configuration.GetSection("OracleConnectionSettings");
+string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
+string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
+string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
+string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
+
+var pgsqlConnectionSettings = builder.Configuration.GetSection("PostgreeSqlConnectionSettings");
+string pgsqlHost = pgsqlConnectionSettings.GetValue<string>("Host");
+string pgsqlUserName = pgsqlConnectionSettings.GetValue<string>("UserName");
+string pgsqlPassword = pgsqlConnectionSettings.GetValue<string>("Password");
+string pgsqlDatabase = pgsqlConnectionSettings.GetValue<string>("Database");
+string pgsqlYardSchema = pgsqlConnectionSettings.GetValue<string>("YardSchema");
 
 var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);
 

@@ -8,6 +8,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="temp\**" />
+	  <Content Remove="temp\**" />
+	  <EmbeddedResource Remove="temp\**" />
+	  <None Remove="temp\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
@@ -18,10 +25,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
 		<ProjectReference Include="..\TSLog.Yard.Storage\TSLog.Yard.Storage.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="temp\" />
 	</ItemGroup>
 
 </Project>
