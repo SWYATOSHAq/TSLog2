@@ -172,6 +172,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
+            partners.Sort();
             return partners.ToArray();
         }
         private static Employee CreateEmployee(DbDataReader reader)
@@ -324,6 +325,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
+            positions.Sort();
             return positions.ToArray();
         }
     }
