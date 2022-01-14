@@ -60,7 +60,7 @@ namespace TSLog.Yard
         public Employee[] GetEmployees()
         {
             return _oracleStorage.GetEmployees();
-        }        
+        }
         public Position GetPosition(short id)
         {
             return _oracleStorage.GetPosition(id);
@@ -133,7 +133,7 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPartnerManagers(partner);
         }
-        public Partner[] GetPartners(bool getOnlyActive = false)
+        public Partner[] GetPartners(bool getOnlyActive = true)
         {
             return _oracleStorage.GetPartners(getOnlyActive);
         }
@@ -223,7 +223,7 @@ namespace TSLog.Yard
         public void StartOperation(Operation operation)
         {
             _pgsqlStorage.StartOperation(operation);
-        }        
+        }
         public void StartOperationWork(Operation operation)
         {
             _pgsqlStorage.StartOperationWork(operation);
@@ -291,6 +291,6 @@ namespace TSLog.Yard
             GC.SuppressFinalize(this);
         }
 
-        
+
     }
 }

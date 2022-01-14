@@ -1,13 +1,13 @@
 ﻿@model (Partners.BO.Partner[], bool, bool)
 @{
     var cardPartnerList = Model.Item1;
-    var isEnabled = Model.Item3;
+    var isDisabled = Model.Item2;
     var isSmall = Model.Item3;
 }
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Партнер</span>
-    <select id="partner" class="form-select" aria-label="Default select" @(isEnabled ? "disabled" : "")>
+    <select id="partner" class="form-select" aria-label="Default select" @(isDisabled ? "disabled" : "")>
         <option value="">Выберите партнера</option>
 
         @foreach (var curGate in cardPartnerList)
