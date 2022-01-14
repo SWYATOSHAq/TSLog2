@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
 {
@@ -94,23 +96,29 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var Text = "";
             //
             string operationDate = Request.Query["date"];
-            string partnerID = Request.Query["partner_id"];
+
             string gate = Request.Query["gate"];
+            string partnerID = Request.Query["partner_id"];
+            string operationType = Request.Query["operation_type"];
+            string vehicleKind = Request.Query["vehicle_kind"];
+            string state = Request.Query["state"];
 
-            Partner? partner = null;
-            if (partnerID != null)
-                partner = yardStorage.GetPartner(partnerID);
+            var partner = !string.IsNullOrWhiteSpace(partnerID) ? yardStorage.GetPartner(partnerID) : Partner.Null;
+            var searchPartners = partner == Partner.Null ? Array.Empty<Partner>() : new Partner[] { partner };
 
-            var searchPartners = (partner == null || partner == Partner.Null) ? Array.Empty<Partner>() : new Partner[] { partner };
             var searchGate = !string.IsNullOrWhiteSpace(gate) ? yardStorage.GetGate(gate) : Gate.Null;
+            var searchOperationType = !string.IsNullOrWhiteSpace(operationType) ? yardStorage.GetOperationType(operationType) : OperationType.Null;
+            var searchVehicleKind = !string.IsNullOrWhiteSpace(vehicleKind) ? yardStorage.GetVehicleKind(vehicleKind) : VehicleKind.Null;
+            var searchState = !string.IsNullOrWhiteSpace(state) ? yardStorage.GetOperationState(state) : Entity.Null;
 
             if (DateTime.TryParse(operationDate, out DateTime tmp))
             {
                 // search for period of 1 day or 2 days?
                 var daysSpan = 2;
-                // TODO get intervals by partner and gates
-                //var loadedOperations = yardStorage.getope(searchGate, tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1));
                 var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), searchPartners);
+                // additional filters
+                loadedOperations = Operation.Filter(loadedOperations, partner, searchOperationType, searchVehicleKind, searchGate, searchState);
+                //
                 Text = JsonSerializer.Serialize(loadedOperations);
             }
             return Text;
@@ -161,9 +169,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var defState = yardStorage.GetOperationState("CREATED");
                 var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
 
-                var newOperation = new Operation(-1, null, type, startDate, finishDate, 
-                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, driver_phone_number, 
-                    defState,                                        
+                var newOperation = new Operation(-1, null, type, startDate, finishDate,
+                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, driver_phone_number,
+                    defState,
                     priority,
                     partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
                     defManager);

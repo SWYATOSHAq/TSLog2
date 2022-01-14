@@ -357,17 +357,38 @@ $(document).ready(function() {
     if (getUrlParameter('id')) {
         $('#RequestCardModal').modal('toggle');
     }
-    // 
-
-
+    // event on change
+    $('#gates-filter select').on('change', function() {
+        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
+    });
+    $('#partner-filter select').on('change', function() {
+        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
+    });
+    $('#op-types-filter select').on('change', function() {
+        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
+    });
+    $('#vehicle-kind-filter select').on('change', function() {
+        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
+    });
+    $('#states-filter select').on('change', function() {
+        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
+    });
+    //
     function LoadCardsList(dateParam) {
         if ($("#time_table").length) {
             manageTimeTable(dateParam);
         }
-        // TODO pass partner_id to get specific information just for this partner
+        // 
+
+
         $.get("/api/v1/yard/operationsList", {
                 "date": dateParam,
-                "gate": $("#gates-filter .gates").val()
+
+                "gate": $("#gates-filter select").val(),
+                "partner_id": $("#partner-filter select").val(),
+                "operation_type": $("#op-types-filter select").val(),
+                "vehicle_kind": $("#vehicle-kind-filter select").val(),
+                "state": $("#states-filter select").val()
             },
             function(data) {
                 //$(".result").html(data);
