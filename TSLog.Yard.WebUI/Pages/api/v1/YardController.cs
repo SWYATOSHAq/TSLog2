@@ -127,6 +127,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var vehicle_number = Request.Form["vehicle_number"];
             var order_id = Request.Form["order_id"];
             var driver_name = Request.Form["driver_name"];
+            var driver_phone_number = string.Empty;
             //
             string operation_id = Request.Form["operation_id"];
             //
@@ -150,16 +151,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var startDate = DateTime.Parse(start_date);
                 var finishDate = startDate;
 
-
                 finishDate = finishDate.Add(new TimeSpan(0, 0, yardStorage.GetTime(type, vehicleKind)));
 
                 short priority = 1;
+                var partnerManagerName = string.Empty;
+                var partnerManagerPhoneNumber = string.Empty;
+                var partnerManagerEmail = string.Empty;
 
                 var defState = yardStorage.GetOperationState("CREATED");
                 var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
 
-                var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, defState, priority, defManager);
-
+                var newOperation = new Operation(-1, null, type, startDate, finishDate, 
+                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, driver_phone_number, 
+                    defState,                                        
+                    priority,
+                    partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+                    defManager);
 
                 newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
                     yardStorage.GetPartner(Request.Form["partner_id"]), order_id));

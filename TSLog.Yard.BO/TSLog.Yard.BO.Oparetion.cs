@@ -323,12 +323,8 @@ namespace TSLog.Yard.BO
             public Position Position { get; private set; }
             public OperationWorker(Employee worker, Position position)
             {
-                if (worker == null)
-                    throw new ArgumentNullException(nameof(worker));
-                if (position == null)
-                    throw new ArgumentNullException(nameof(position));
-                Worker = worker;
-                Position = position;
+                Worker = worker ?? throw new ArgumentNullException(nameof(worker));
+                Position = position ?? throw new ArgumentNullException(nameof(position));
             }
         }
         private readonly IList<OperationWorker> _operationWorkers = new List<OperationWorker>();
@@ -396,6 +392,10 @@ namespace TSLog.Yard.BO
         /// </summary>
         public string DriverName { get; set; }
         /// <summary>
+        /// Номер телефона шофёра
+        /// </summary>
+        public string DriverPhoneNumber { get; set; }
+        /// <summary>
         /// Логист (транспортно-логистическая компания)
         /// </summary>
         public Logist Logist { get; set; } = Logist.Null;
@@ -419,9 +419,12 @@ namespace TSLog.Yard.BO
         /// Приоритет
         /// </summary>
         public int Priority { get; set; }
+        public string PartnerManagerName { get; set; }
+        public string PartnerManagerPhoneNumber { get; set; }
+        public string PartnerManagerEmail { get; set; }
         /// <summary>
         /// Список партнеров
-        /// </summary>
+        /// </summary>        
         public Partner[] Partners
         {
             get { return GetPartners(); }
@@ -430,9 +433,10 @@ namespace TSLog.Yard.BO
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
-            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName,
+            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string driverName, string driverPhoneNumber,
             Entity state,
             short priority,
+            string partnerManagerName, string partnerManagerPhoneNumber, string partnerManagerEmail,
             Employee manager)
             : base(id, code)
         {
@@ -452,8 +456,12 @@ namespace TSLog.Yard.BO
             if (string.IsNullOrWhiteSpace(driverName))
                 throw new ArgumentException("driver name is empty");
             DriverName = driverName.Trim().ToUpper();
+            DriverPhoneNumber = string.IsNullOrWhiteSpace(driverPhoneNumber) ? string.Empty : driverPhoneNumber.Trim();
             State = state ?? throw new ArgumentNullException(nameof(state));
             Priority = priority > 0 ? priority : DefaultPriority;
+            PartnerManagerName = string.IsNullOrWhiteSpace(partnerManagerName) ? string.Empty : partnerManagerName.Trim();
+            PartnerManagerPhoneNumber = string.IsNullOrWhiteSpace(partnerManagerPhoneNumber) ? string.Empty : partnerManagerPhoneNumber.Trim();
+            PartnerManagerEmail = string.IsNullOrWhiteSpace(partnerManagerEmail) ? string.Empty : partnerManagerEmail.Trim();
             Manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
         private Operation() : base()
@@ -466,9 +474,13 @@ namespace TSLog.Yard.BO
             VehicleModel = string.Empty;
             VehicleNumber = string.Empty;
             DriverName = string.Empty;
+            DriverPhoneNumber = string.Empty;
             State = Entity.Empty;
             Priority = DefaultPriority;
             Manager = Employee.Empty;
+            PartnerManagerName = string.Empty;
+            PartnerManagerPhoneNumber = string.Empty;
+            PartnerManagerEmail = string.Empty;
         }
         public WarehouseAction GetAction(ActionKind kind, string id)
         {
@@ -570,9 +582,10 @@ namespace TSLog.Yard.BO
                 if (_null == null)
                     _null = new Operation(-1, string.Empty, OperationType.Null,
                         DateTime.MinValue, DateTime.MinValue,
-                        VehicleKind.Null, "NULL", "NULL", "NULL", "NULL",
+                        VehicleKind.Null, "NULL", "NULL", "NULL", "NULL", "NULL",
                         Entity.Null,
                         -1,
+                        "NULL", "NULL", "NULL",
                         Employee.Null);
                 return _null;
             }

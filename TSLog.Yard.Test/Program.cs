@@ -67,7 +67,9 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var defState = storage.GetOperationState("CREATED");
     var defManager = storage.GetEmployee(10405);
 
-    var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, "some brand", "some model", "50me-nu|\\/|beR", "Ivan Ivanov", defState, 1, defManager);
+    var newOperation = new Operation(-1, null, type, startDate, finishDate, vehicleKind, "some brand", "some model", "50me-nu|\\/|beR", "Ivan Ivanov", "123-456-789", defState, 1, 
+        "Ivanov", "Ivanov", "Ivanov",
+        defManager);
     newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
                     storage.GetPartner("0130"), "69420-80085"));
     storage.AddOperation(newOperation);

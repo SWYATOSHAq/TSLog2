@@ -30,7 +30,6 @@ namespace TSLog.Yard.BO
         public Logist GetLogist(int id);
         public Logist GetLogist(string code);
         public Logist[] GetLogists();
-
         public short GetTime(OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
         public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
@@ -51,11 +50,9 @@ namespace TSLog.Yard.BO
         public void FinishOperation(Operation operation);
         public void CancelOperation(Operation operation);
         public void DeleteOperation(Operation operation);
-
         public void AddAction(Operation operation, WarehouseAction action);        
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);
-
         public void AddWorker(Operation operation, Employee worker, Position position);
         public Operation.OperationWorker[] GetOperationWorkers(Operation operation);
         public void RemoveWorker(Operation operation, Employee worker, Position position);

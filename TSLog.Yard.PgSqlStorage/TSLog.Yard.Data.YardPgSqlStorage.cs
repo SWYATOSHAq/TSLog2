@@ -812,8 +812,12 @@ namespace TSLog.Yard.Data
                         ":p_vehicle_model," +
                         ":p_vehicle_number," +
                         ":p_driver_name," +
+                        ":p_driver_phone_number," +
                         ":p_logist_id," +
                         ":p_priority," +
+                        ":p_partner_manager_name," +
+                        ":p_partner_manager_phone_number," +
+                        ":p_partner_manager_email," +
                         ":p_manager_id," +
                         ":p_note);";
                     command.CommandText = sql;
@@ -826,9 +830,13 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
                     command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
                     command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+                    command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
                     command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
                         operation.Logist != null ? operation.Logist.Id : DBNull.Value));
                     command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+                    command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
+                    command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
+                    command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
                     command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
                     command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
 
@@ -854,16 +862,21 @@ namespace TSLog.Yard.Data
             var vehicleModel = Utils.DbValueToString(reader["vehicle_model"]);
             var vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
             var driverName = Utils.DbValueToString(reader["driver_name"]);
+            var driverPhoneNumber = Utils.DbValueToString(reader["driver_phone_number"]);
             var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
             var priority = Convert.ToInt16(reader["priority"]);
+            var partnerManagerName = Utils.DbValueToString(reader["partner_manager_name"]);
+            var partnerManagerPhoneNumber = Utils.DbValueToString(reader["partner_manager_phone_number"]);
+            var partnerManagerEmail = Utils.DbValueToString(reader["partner_manager_email"]);
             var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
 
             var operation = new Operation(Convert.ToInt64(reader["id"]), null,
                 type,
                 planWorkStartDate, planWorkFinishDate,
-                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, driverName,
+                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, driverName, driverPhoneNumber,
                 state,
                 priority,
+                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
                 manager)
             {
                 FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
@@ -910,11 +923,12 @@ namespace TSLog.Yard.Data
                         $"       o.finish_date, " +
                         $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
                         $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, " +
-                        $"       o.driver_name, " +
+                        $"       o.driver_name, o.driver_phone_number, " +
                         $"       o.logist_id, o.logist_code, o.logist_name, " +
                         $"       o.gate_id, o.gate_code, o.gate_name, " +
                         $"       o.state_id, o.state_code, o.state_name, " +
                         $"       o.priority, " +
+                        $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email, " +
                         $"       o.manager_id, " +
                         $"       o.responsible_officer_id, o.note " +
                         $"  from {YardSchema}.v_operation o " +
@@ -1003,6 +1017,7 @@ namespace TSLog.Yard.Data
                         $"       po.vehicle_model, " +
                         $"       po.vehicle_number, " +
                         $"       po.driver_name, " +
+                        $"       po.driver_phone_number, " +
                         $"       po.logist_id, " +
                         $"       po.logist_code, " +
                         $"       po.logist_name, " +
@@ -1013,6 +1028,9 @@ namespace TSLog.Yard.Data
                         $"       po.state_code, " +
                         $"       po.state_name, " +
                         $"       po.priority, " +
+                        $"       po.partner_manager_name, " +
+                        $"       po.partner_manager_phone_number, " +
+                        $"       po.partner_manager_email, " +
                         $"       po.manager_id, " +
                         $"       po.responsible_officer_id, " +
                         $"       po.note " +
@@ -1056,6 +1074,7 @@ namespace TSLog.Yard.Data
                         $"       o.vehicle_model, " +
                         $"       o.vehicle_number, " +
                         $"       o.driver_name, " +
+                        $"       o.driver_phone_number, " +
                         $"       o.logist_id, " +
                         $"       o.logist_code, " +
                         $"       o.logist_name, " +
@@ -1066,6 +1085,9 @@ namespace TSLog.Yard.Data
                         $"       o.state_code, " +
                         $"       o.state_name, " +
                         $"       o.priority, " +
+                        $"       o.partner_manager_name, " +
+                        $"       o.partner_manager_phone_number, " +
+                        $"       o.partner_manager_email, " +
                         $"       o.manager_id, " +
                         $"       o.responsible_officer_id, " +
                         $"       o.note " +
@@ -1167,8 +1189,12 @@ namespace TSLog.Yard.Data
                     $":p_vehicle_model," +
                     $":p_vehicle_number," +
                     $":p_driver_name," +
+                    $":p_driver_phone_number," +
                     $":p_logist_id," +
                     $":p_priority," +
+                    $":p_partner_manager_name," +
+                    $":p_partner_manager_phone_number," +
+                    $":p_partner_manager_email," +
                     $":p_manager_id," +
                     $":p_note);";
                 command.CommandText = sql;
@@ -1182,9 +1208,13 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
                 command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
                 command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+                command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
                 command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
                     operation.Logist != null ? operation.Logist.Id : DBNull.Value));
                 command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+                command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
+                command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
+                command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
                 command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
                 command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
 
