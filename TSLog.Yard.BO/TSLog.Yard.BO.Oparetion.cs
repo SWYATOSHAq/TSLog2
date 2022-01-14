@@ -58,25 +58,6 @@ namespace TSLog.Yard.BO
 
 
         #region Operation works
-        /// <summary>
-        /// Элементарная работа операции двора (ПРР)
-        /// </summary>
-        public class OperationWork
-        {
-            private const short DefaultTime = 600;
-            private const short DefaultWorkersCount = 1;
-            public Work Work { get; set; }
-            public Position Position { get; set; }
-            public short Time { get; set; }
-            public short WorkersCount { get; set; }
-            public OperationWork(Work work, Position position, short time, short workersCount)
-            {
-                Work = work;
-                Position = position;
-                Time = time > 0 ? time : DefaultTime;
-                WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
-            }
-        }
         private readonly IList<OperationWork> _operationWorks = new List<OperationWork>();
         /// <summary>
         /// Добавление работы в операцию двора (ПРР)
@@ -317,20 +298,6 @@ namespace TSLog.Yard.BO
         #endregion
 
         #region Operation workers
-        public class OperationWorker
-        {
-            public Employee Worker { get; private set; }
-            public Position Position { get; private set; }
-            public OperationWorker(Employee worker, Position position)
-            {
-                if (worker == null)
-                    throw new ArgumentNullException(nameof(worker));
-                if (position == null)
-                    throw new ArgumentNullException(nameof(position));
-                Worker = worker;
-                Position = position;
-            }
-        }
         private readonly IList<OperationWorker> _operationWorkers = new List<OperationWorker>();
         public void AddOperationWorker(Employee worker, Position position)
         {
@@ -342,7 +309,7 @@ namespace TSLog.Yard.BO
             AddOperationWorker(operationWorker);
         }
         public void AddOperationWorker(OperationWorker operationWorker)
-        { 
+        {
             if (operationWorker == null)
                 throw new ArgumentNullException(nameof(operationWorker));
 
@@ -590,5 +557,43 @@ namespace TSLog.Yard.BO
                 return _empty;
             }
         }
+
+        /// classes
+
+        /// <summary>
+        /// Элементарная работа операции двора (ПРР)
+        /// </summary>
+        public class OperationWork
+        {
+            private const short DefaultTime = 600;
+            private const short DefaultWorkersCount = 1;
+            public Work Work { get; set; }
+            public Position Position { get; set; }
+            public short Time { get; set; }
+            public short WorkersCount { get; set; }
+            public OperationWork(Work work, Position position, short time, short workersCount)
+            {
+                Work = work;
+                Position = position;
+                Time = time > 0 ? time : DefaultTime;
+                WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
+            }
+        }
+
+        public class OperationWorker
+        {
+            public Employee Worker { get; private set; }
+            public Position Position { get; private set; }
+            public OperationWorker(Employee worker, Position position)
+            {
+                if (worker == null)
+                    throw new ArgumentNullException(nameof(worker));
+                if (position == null)
+                    throw new ArgumentNullException(nameof(position));
+                Worker = worker;
+                Position = position;
+            }
+        }
+
     }
 }
