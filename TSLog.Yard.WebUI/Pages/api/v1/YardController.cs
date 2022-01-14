@@ -104,7 +104,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string state = Request.Query["state"];
 
             var partner = !string.IsNullOrWhiteSpace(partnerID) ? yardStorage.GetPartner(partnerID) : Partner.Null;
-            var searchPartners = partner == Partner.Null ? Array.Empty<Partner>() : new Partner[] { partner };
+            //var searchPartners = partner == Partner.Null ? Array.Empty<Partner>() : new Partner[] { partner };
 
             var searchGate = !string.IsNullOrWhiteSpace(gate) ? yardStorage.GetGate(gate) : Gate.Null;
             var searchOperationType = !string.IsNullOrWhiteSpace(operationType) ? yardStorage.GetOperationType(operationType) : OperationType.Null;
@@ -115,7 +115,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 // search for period of 1 day or 2 days?
                 var daysSpan = 2;
-                var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), searchPartners);
+                var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), Array.Empty<Partner>());
                 // additional filters
                 loadedOperations = Operation.Filter(loadedOperations, partner, searchOperationType, searchVehicleKind, searchGate, searchState);
                 //

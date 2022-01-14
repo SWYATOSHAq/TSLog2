@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TSLog.Common.BO
 {
@@ -88,6 +89,21 @@ namespace TSLog.Common.BO
                     return null;
                 code = code.Trim();
                 return _entitiesCodes.ContainsKey(code) ? _entitiesCodes[code] : null;
+            }
+        }
+        /// <summary>
+        /// Массив всех объектов каталога
+        /// </summary>
+        public T[] Entities
+        {
+            get
+            {
+                var entitiesIds = _entitiesIds.Values.ToList();
+                var entitiesCodes = _entitiesCodes.Values.ToList();
+                foreach (var entity in entitiesIds)
+                    if (!entitiesCodes.Contains(entity))
+                        entitiesCodes.Add(entity);
+                return entitiesCodes.ToArray();
             }
         }
     }

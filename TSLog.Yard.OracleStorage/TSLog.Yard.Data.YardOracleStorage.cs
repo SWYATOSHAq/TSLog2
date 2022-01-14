@@ -89,6 +89,7 @@ namespace TSLog.Yard.Data
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
+        private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");
         private static Partner CreatePartner(DbDataReader reader)
         {
             if (reader == null)
@@ -111,7 +112,9 @@ namespace TSLog.Yard.Data
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("id is empty");
             id = id.Trim().ToUpper();
-            var partner = Partner.Null;
+            var partner = _partners[id];
+            if (partner != null && partner != Partner.Null)
+                return partner;
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerByIdSql =
@@ -122,7 +125,10 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
+                {
                     partner = CreatePartner(reader);
+                    _partners.Add(partner);
+                }
                 reader.Close();
             }
             if (partner != null && partner != Partner.Null)
@@ -175,6 +181,7 @@ namespace TSLog.Yard.Data
             partners.Sort();
             return partners.ToArray();
         }
+        private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");   
         private static Employee CreateEmployee(DbDataReader reader)
         {
             if (reader == null)
@@ -190,7 +197,9 @@ namespace TSLog.Yard.Data
         public Employee GetEmployee(int id)
         {
             id = id > 0 ? id : 0;
-            var employee = Employee.Null;
+            var employee = _employees[id];
+            if (employee != null && employee != Employee.Null)
+                return employee;
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeeById =
@@ -201,7 +210,10 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
+                {
                     employee = CreateEmployee(reader);
+                    _employees.Add(employee);
+                }
                 reader.Close();
             }
             if (employee != null && employee != Employee.Null)

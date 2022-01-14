@@ -1014,7 +1014,6 @@ namespace TSLog.Yard.Data
                         $"       po.plan_work_finish_date, " +
                         $"       po.fact_work_finish_date, " +
                         $"       po.finish_date, " +
-                        $"       po.workers_count, " +
                         $"       po.vehicle_kind_id, " +
                         $"       po.vehicle_kind_code, " +
                         $"       po.vehicle_kind_name, " +
