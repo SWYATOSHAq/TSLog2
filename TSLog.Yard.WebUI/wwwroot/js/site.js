@@ -312,6 +312,13 @@ function Create() {
             order_id: $("#order_id").val(),
             driver_name: $("#driver_name").val(),
 
+            driver_phone: $("#driver_phone").val(),
+            manager_name: $("#manager_name").val(),
+            manager_phone: $("#manager_phone").val(),
+            manager_email: $("#manager_email").val(),
+            note: $("#note").val(),
+
+
             start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
 
             partner_id: $("#partner").val(),

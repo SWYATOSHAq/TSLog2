@@ -136,6 +136,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var order_id = Request.Form["order_id"];
             var driver_name = Request.Form["driver_name"];
             var driver_phone_number = string.Empty;
+
+            string driver_phone = Request.Form["driver_phone"];
+            string manager_name = Request.Form["manager_name"];
+            string manager_phone = Request.Form["manager_phone"];
+            string manager_email = Request.Form["manager_email"];
+            string note = Request.Form["note"];
+
             //
             string operation_id = Request.Form["operation_id"];
             //
@@ -175,6 +182,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     priority,
                     partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
                     defManager);
+
+                if (driver_phone != null)
+                    newOperation.DriverPhoneNumber = driver_phone;
+                if (manager_name != null)
+                    newOperation.PartnerManagerName = manager_name;
+                if (manager_phone != null)
+                    newOperation.PartnerManagerPhoneNumber = manager_phone;
+                if (manager_email != null)
+                    newOperation.PartnerManagerEmail = manager_email;
+                if (note != null)
+                    newOperation.Note = note;
+
 
                 newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
                     yardStorage.GetPartner(Request.Form["partner_id"]), order_id));

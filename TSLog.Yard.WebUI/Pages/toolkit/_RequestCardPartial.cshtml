@@ -69,6 +69,12 @@
     textFieldsBody.Add("Номер заказа", ("order_id", lonelyAction));
     textFieldsBody.Add("ФИО водителя", ("driver_name", cardData.DriverName));
 
+    textFieldsBody.Add("телефон водителя", ("driver_phone", cardData.DriverPhoneNumber));
+    textFieldsBody.Add("ФИО менеджера", ("manager_name", cardData.PartnerManagerName));
+    textFieldsBody.Add("телефон менеджера", ("manager_phone", cardData.PartnerManagerPhoneNumber));
+    textFieldsBody.Add("почта менеджера", ("manager_email", cardData.PartnerManagerEmail));
+    textFieldsBody.Add("Примечание", ("note", cardData.Note));
+
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
 
