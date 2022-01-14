@@ -172,6 +172,7 @@ namespace TSLog.Common.Data
                 }
                 connection.Close();
             }
+            entities.Sort();
             return entities.ToArray();
         }
 
