@@ -603,5 +603,23 @@ namespace TSLog.Yard.BO
                 return _empty;
             }
         }
+        public static Operation[] Filter(Operation[] operations, 
+            Partner partner, OperationType operationType, VehicleKind vehicleKind, Gate gate, Entity operationState)
+        {
+            if (operations == null)
+                throw new ArgumentNullException(nameof(operations));
+            var temp = operations.ToList();
+            if (partner != null && partner != Partner.Null)
+                temp = temp.FindAll(o => o.Partners.Contains(partner));
+            if (operationType != null && operationType != OperationType.Null)
+                temp = temp.FindAll(o => o.Type == operationType);
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+                temp = temp.FindAll(o => o.VehicleKind == vehicleKind);
+            if (gate != null && gate != Gate.Null)
+                temp = temp.FindAll(o => o.Gate == gate);
+            if (operationState != null && operationState != Entity.Null)
+                temp = temp.FindAll(o => o.State == operationState);
+            return temp.ToArray();
+        }
     }
 }
