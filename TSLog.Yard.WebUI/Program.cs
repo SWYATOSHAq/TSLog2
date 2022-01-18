@@ -17,13 +17,16 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 //;
 builder.Services.AddRazorPages();
 
-var oracleConnectionSettings = builder.Configuration.GetSection("OracleConnectionSettings");
+var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
+
+var oracleConnectionSettings = isDebug
+    ? builder.Configuration.GetSection("OracleConnectionDebugSettings")
+    : builder.Configuration.GetSection("OracleConnectionSettings");
 string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
 string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
 string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
 string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
 
-var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
 var pgsqlConnectionSettings = isDebug 
     ? builder.Configuration.GetSection("PostgreeSqlConnectionDebugSettings")
     : builder.Configuration.GetSection("PostgreeSqlConnectionSettings");
