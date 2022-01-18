@@ -133,6 +133,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var vehicle_brand = Request.Form["vehicle_brand"];
             var vehicle_model = Request.Form["vehicle_model"];
             var vehicle_number = Request.Form["vehicle_number"];
+            var trailerNumber = string.Empty;
             var order_id = Request.Form["order_id"];
             var driver_name = Request.Form["driver_name"];
             var driver_phone_number = string.Empty;
@@ -177,7 +178,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
 
                 var newOperation = new Operation(-1, null, type, startDate, finishDate,
-                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, driver_name, driver_phone_number,
+                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, trailerNumber, driver_name, driver_phone_number,
                     defState,
                     priority,
                     partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,

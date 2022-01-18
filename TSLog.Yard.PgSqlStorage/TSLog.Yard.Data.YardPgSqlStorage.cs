@@ -1117,6 +1117,88 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
+        public Operation[] GetOperations(DateTime? from, DateTime? to,
+            OperationType? type,
+            VehicleKind? vehicleKind,
+            Entity? state,
+            Gate? gate,
+            Partner? partner,
+            string? vehicleBrand,
+            string? vehicleNumber,
+            string? driverName)
+        {
+            var operations = new List<Operation>();
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                       $"select distinct po.id, " +
+                       $"       po.type_id, po.type_code, po.type_name, " +
+                       $"       po.plan_work_start_date, po.fact_work_start_date, " +
+                       $"       po.plan_work_finish_date, po.fact_work_finish_date, " +
+                       $"       po.start_date, po.finish_date, " +
+                       $"       po.vehicle_kind_id, po.vehicle_kind_code, po.vehicle_kind_name, " +
+                       $"       po.vehicle_brand, " +
+                       $"       po.vehicle_model, " +
+                       $"       po.vehicle_number, " +
+                       $"       po.trailer_number, " +
+                       $"       po.driver_name, po.driver_phone_number, " +
+                       $"       po.logist_id, po.logist_code, po.logist_name, " +
+                       $"       po.gate_id, po.gate_code, po.gate_name, " +
+                       $"       po.state_id, po.state_code, po.state_name, " +
+                       $"       po.priority, " +
+                       $"       po.partner_manager_name, " +
+                       $"       po.partner_manager_phone_number, " +
+                       $"       po.partner_manager_email, " +
+                       $"       po.manager_id, " +
+                       $"       po.responsible_officer_id, " +
+                       $"       po.note " +
+                       $"  from {YardSchema}.v_partner_operation po " +
+                       $" where not (:to_date is not null and po.plan_work_start_date > :to_date " +
+                       $"         or :from_date is not null and po.plan_work_finish_date < :from_date) " +
+                       $"   and (:type_id is null or :type_id = po.type_id) " +
+                       $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id) " +
+                       $"   and (:state_id is null or :state_id = po.state_id) " +
+                       $"   and (:gate_id is null or :gate_id = po.gate_id) " +
+                       $"   and (:partner_id is null or :partner_id = po.partner_id) " +
+                       $"   and (trim(coalesce(:vehicle_brand, '')) = '' or upper(po.vehicle_brand) like '%' || upper(:vehicle_brand) || '%') " +
+                       $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%') " +
+                       $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%') ";
+                    command.CommandText = sql;
+
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
+                    command.Parameters.Add(CreateParameter("type_id", NpgsqlDbType.Smallint,
+                        type == null || type == OperationType.Null ? DBNull.Value : type.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint,
+                        vehicleKind == null || vehicleKind == VehicleKind.Null ? DBNull.Value : vehicleKind.Id));
+                    command.Parameters.Add(CreateParameter("state_id", NpgsqlDbType.Smallint,
+                        state == null || state == Entity.Null ? DBNull.Value : state.Id));
+                    command.Parameters.Add(CreateParameter("gate_id", NpgsqlDbType.Smallint,
+                        gate == null || gate == Entity.Null ? DBNull.Value : gate.Id));
+                    command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar,
+                        partner == null || partner == Partner.Null ? DBNull.Value : partner.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_brand", NpgsqlDbType.Varchar,
+                        string.IsNullOrWhiteSpace(vehicleBrand) ? DBNull.Value : vehicleBrand.ToUpper()));
+                    command.Parameters.Add(CreateParameter("vehicle_number", NpgsqlDbType.Varchar,
+                        string.IsNullOrWhiteSpace(vehicleNumber) ? DBNull.Value : vehicleNumber.ToUpper()));
+                    command.Parameters.Add(CreateParameter("driver_name", NpgsqlDbType.Varchar,
+                        string.IsNullOrWhiteSpace(driverName) ? DBNull.Value : driverName.ToUpper()));
+
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return operations.ToArray();
+        }
         public Partner[] GetOperationsPartners(DateTime from, DateTime to)
         {
             var partners = new HashSet<Partner>();
