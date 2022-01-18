@@ -253,6 +253,7 @@ namespace TSLog.Yard.Data
             var displayName = Utils.DbValueToString(reader["display_name"]);
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var isLinear = Utils.DbValueToShort(reader["is_linear"]) == 1;
             var note = Utils.DbValueToString(reader["note"]);
             var position = new Position(id,
                 code,
@@ -262,6 +263,7 @@ namespace TSLog.Yard.Data
                 displayName,
                 isActive,
                 displayOrder,
+                isLinear,
                 note);
             return position;
         }
@@ -275,7 +277,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByIdSql =
-                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
+                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
                     $"  from {CommonSchema}.v_position p " +
                     $" where p.id = :id";
                 command.CommandText = SelectPositionByIdSql;
@@ -304,7 +306,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByCodeSql =
-                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
+                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
                     $"  from {CommonSchema}.v_position p " +
                     $" where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
@@ -327,7 +329,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionsSql =
-                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.note " +
+                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
                     $"  from {CommonSchema}.v_position p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
