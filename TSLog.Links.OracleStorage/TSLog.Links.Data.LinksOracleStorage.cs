@@ -70,11 +70,6 @@ namespace TSLog.Links.Data
         /// </summary>
         public Catalog<Entity> Currencies { get; set; } = null;
 
-        /// <summary>
-        /// Единицы измерения
-        /// </summary>
-        public Catalog<MeasureUnit> MeasureUnits { get; set; } = null;
-
         public Entity GetIncomeState(string stateCode)
         {
             stateCode = !string.IsNullOrWhiteSpace(stateCode) ? stateCode.Trim() : string.Empty;
@@ -183,72 +178,6 @@ namespace TSLog.Links.Data
                 $"select c.id, c.code, c.name, c.short_name, c.alt_name, c.display_name, c.is_active, c.display_order, c.note " +
                     $"from {CommonSchema}.v_currency";
             return GetEntities(SelectCurrenciesSql);
-        }
-        private static MeasureUnit CreateMeasureUnit(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            var id = Utils.DbValueToShort(reader["id"]);
-            var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var category = Utils.DbValueToString(reader["categoty"]);
-            var isBasic = Utils.DbValueToShort(reader["is_basic"]) == 1;
-            var coefficient = Utils.DbValueToDouble(reader["coefficient"]);
-            var isDefault = Utils.DbValueToShort(reader["is_default"]) == 1;
-            var note = Utils.DbValueToString(reader["note"]);
-            var measureUnit = new MeasureUnit(id,
-                code,
-                name,
-                shortName,
-                altName,
-                displayName,
-                isActive,
-                displayOrder,
-                category,
-                isBasic,
-                coefficient,
-                isDefault,
-                note);
-            return measureUnit;
-        }
-        public MeasureUnit GetMeasureUnit(string measureUnitCode)
-        {
-            measureUnitCode = !string.IsNullOrWhiteSpace(measureUnitCode) ? measureUnitCode.Trim() : string.Empty;
-            var measureUnit = MeasureUnits[measureUnitCode];
-            if (measureUnit != null && measureUnit != MeasureUnit.Null)
-                return measureUnit;
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = $"select * from {CommonSchema}.v_measure_unit m where m.code = :code";
-                command.Parameters.Add(new OracleParameter("code", measureUnitCode));
-                using var reader = command.ExecuteReader();
-                if (reader.Read())
-                    measureUnit = CreateMeasureUnit(reader);
-                reader.Close();
-            }
-            return measureUnit ?? MeasureUnit.Null;
-        }
-        public MeasureUnit[] GetMeasureUnits()
-        {
-            var measureUnits = new List<MeasureUnit>();
-            using (var command = _connection.CreateCommand())
-            {
-                command.CommandText = $"select * from {CommonSchema}.v_measure_unit";
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var measureUnit = CreateMeasureUnit(reader);
-                    measureUnits.Add(measureUnit);
-                }
-                reader.Close();
-            }
-            return measureUnits.ToArray();
         }
 
         #endregion "Constant" domains

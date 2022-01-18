@@ -17,6 +17,12 @@ namespace TSLog.Common.Data
         protected OracleConnection _connection = null;
         protected string _dataSource = string.Empty;
 
+        private const string DefaultCommonSchema = "ecco";
+        /// <summary>
+        /// Схема для "общих" объектов
+        /// </summary>
+        public string CommonSchema { private get; set; } = DefaultCommonSchema;
+
         public OracleStorage(string dataSource)
         {
             _connection = new OracleConnection();
@@ -143,6 +149,70 @@ namespace TSLog.Common.Data
                 reader.Close();
             }
             return entities.ToArray();
+        }
+
+        private readonly Catalog<MeasureUnit> _measureUnits = new("MEASURE_UNITS", "Единицы измерения");
+        private static MeasureUnit CreateMeasureUnit(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]); 
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var category = Utils.DbValueToString(reader["category"]);
+            var isBasic = Utils.DbValueToShort(reader["is_basic"]) == 1;
+            var coefficient = Utils.DbValueToDouble(reader["coefficient"]);
+            var isDefault = Utils.DbValueToShort(reader["is_default"]) == 1;
+            var note = Utils.DbValueToString(reader["note"]);
+
+            var measureUnit = new MeasureUnit(id, code, name, shortName, altName, displayName, isActive, displayOrder, 
+                category, isBasic, coefficient, isDefault, note);
+            return measureUnit;
+        }
+        public MeasureUnit GetMeasureUnit(short id)
+        {
+            throw new NotImplementedException();
+        }
+        public MeasureUnit GetMeasureUnit(string code)
+        {
+            code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
+            var measureUnit = _measureUnits[code];
+            if (measureUnit != null && measureUnit != MeasureUnit.Null)
+                return measureUnit;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectMeasureUnitByCodeSql = $"select * from {CommonSchema}.v_measure_unit m where m.code = :code";
+                command.CommandText = SelectMeasureUnitByCodeSql;
+                command.Parameters.Add(new OracleParameter("code", code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    measureUnit = CreateMeasureUnit(reader);
+                reader.Close();
+            }
+            return measureUnit ?? MeasureUnit.Null;
+        }
+        public MeasureUnit[] GetMeasureUnits()
+        {
+            var measureUnits = new List<MeasureUnit>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectMeasureUnitsSql = $"select * from {CommonSchema}.v_measure_unit";
+                command.CommandText = SelectMeasureUnitsSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var measureUnit = CreateMeasureUnit(reader);
+                    measureUnits.Add(measureUnit);
+                }
+                reader.Close();
+            }
+            return measureUnits.ToArray();
         }
 
         public void Disconnect()

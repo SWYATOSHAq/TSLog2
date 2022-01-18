@@ -83,7 +83,6 @@ namespace TSLog.Links.Services
 
             storage.IncomeStates = new Catalog<Entity>("INBOUND_STATES", "—осто€и€ приходов");
             storage.OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "—осто€и€ расходов");
-            storage.MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "≈диницы измерени€");
             storage.Partners = new Catalog<Partner>("PARTNERS", "ѕартнЄры");
             storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
 
@@ -101,7 +100,6 @@ namespace TSLog.Links.Services
             // preload units and states
             storage.IncomeStates.Add(storage.GetIncomeStates());
             storage.OutgoStates.Add(storage.GetOutgoStates());
-            storage.MeasureUnits.Add(storage.GetMeasureUnits());
             storage.Currencies.Add(storage.GetCurrncies());
 
             //init convertor

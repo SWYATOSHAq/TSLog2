@@ -17,10 +17,15 @@ namespace TSLog.Yard.Data
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
         private const string DefaultCommonSchema = "ecco";
+        private const string DefaultStaffSchema = "staff";
         /// <summary>
         /// Схема для "общих" объектов БД
         /// </summary>
         public string CommonSchema { private get; set; } = DefaultCommonSchema;
+        /// <summary>
+        /// Схема для объектов учёта персонала
+        /// </summary>
+        public string StaffSchema { private get; set; } = DefaultStaffSchema; 
         public YardOracleStorage(string dataSource) : base(dataSource)
         { }
 
@@ -220,6 +225,27 @@ namespace TSLog.Yard.Data
             if (employee != null && employee != Employee.Null)
                 return employee;
             throw new EmployeeNotFoundException(id);
+        }
+        public Employee[] FindEmployees(string pattern)
+        {
+            pattern = string.IsNullOrWhiteSpace(pattern) ? string.Empty : pattern.ToUpper();
+
+            var employees = new List<Employee>();
+            using (var command = _connection.CreateCommand())
+            {
+                var FindEmployeesSql =
+                    $"select e.id, e.code, e.name " +
+                    $"  from {StaffSchema}.v_employee e";
+                command.CommandText = FindEmployeesSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employee = CreateEmployee(reader);
+                    employees.Add(employee);
+                }
+                reader.Close();
+            }
+            return employees.ToArray();
         }
         public Employee[] GetEmployees()
         {

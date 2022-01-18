@@ -25,7 +25,6 @@ namespace TSLog.Links.Test
 
                 IncomeStates = new Catalog<Entity>("INBOUND_STATES", "Состояия приходов"),
                 OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "Состояия расходов"),
-                MeasureUnits = new Catalog<MeasureUnit>("MEASURE_UNITS", "Единицы измерения"),
                 Partners = new Catalog<Partner>("PARTNERS", "Партнёры"),
                 Currencies = new Catalog<Entity>("CURRENCIES", "валюты"),
 
@@ -40,7 +39,6 @@ namespace TSLog.Links.Test
             // preload units and states
             storage.IncomeStates.Add(storage.GetIncomeStates());
             storage.OutgoStates.Add(storage.GetOutgoStates());
-            storage.MeasureUnits.Add(storage.GetMeasureUnits());
             storage.Currencies.Add(storage.GetCurrncies());
 
             var xmlConverter = new Gs1EdiXmlConverter

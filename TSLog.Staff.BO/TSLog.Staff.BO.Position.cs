@@ -11,6 +11,14 @@ namespace TSLog.Staff.BO
         /// Признак "линейного" персонала
         /// </summary>
         public bool IsLinear { get; private set; } = true;
+        /// <summary>
+        /// Стоимость человекочаса работы по данной должности (стандартная стоимость)
+        /// </summary>
+        public double LaborHourCost { get; set; } = 0.0;
+        /// <summary>
+        /// Валюта стоимости человекочаса работы по данной должности (стандартная стоимость)
+        /// </summary>
+        public MeasureUnit LaborHourCostCurrency { get; set; } = MeasureUnit.Null;
         public Position(short id, string code,
             string name = "", string shortName = "", string altName = "", string displayName = "",
             bool isActive = true, short displayOrder = -1,
