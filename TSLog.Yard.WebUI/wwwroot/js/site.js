@@ -345,6 +345,62 @@ function Create() {
 
 }
 
+function Update() {
+    // check for required fields
+    // time, operation_type, vehicle_kind, vehicle_brand, vehicle_model, vehicle_number
+    if (
+        $("#card-operation #operations").val() != "" &&
+        $("#card-operation #vehicle_kind").val() != "" &&
+        $("#card-operation #vehicle_brand").val() != "" &&
+        $("#card-operation #vehicle_model").val() != "" &&
+        $("#card-operation #vehicle_number").val() != ""
+    ) {
+
+
+        var postData = {
+            operation_id: $("#card-operation #operation_id").val(),
+
+            operation_type: $("#card-operation #operations").val(),
+            gate: $("#card-operation .gates").val(),
+            vehicle_kind: $("#card-operation #vehicle_kind").val(),
+            vehicle_brand: $("#card-operation #vehicle_brand").val(),
+            vehicle_model: $("#card-operation #vehicle_model").val(),
+            vehicle_number: $("#card-operation #vehicle_number").val(),
+            order_id: $("#card-operation #order_id").val(),
+            driver_name: $("#card-operation #driver_name").val(),
+
+            driver_phone: $("#card-operation #driver_phone").val(),
+            manager_name: $("#card-operation #manager_name").val(),
+            manager_phone: $("#card-operation #manager_phone").val(),
+            manager_email: $("#card-operation #manager_email").val(),
+            note: $("#card-operation #note").val(),
+
+
+
+            // partner_id: $("#partner").val(),
+        };
+
+        $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
+            console.log(data);
+
+            if (data.startsWith("eror")) {
+                alert(data.split("||")[1]);
+            } else {
+                var card = JSON.parse(data);
+            }
+
+            // TODO пока пусть редиректит на лк TSL
+            // но тут должна быть вилка в зависимости от типа пользователя
+            // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+        });
+    } else {
+        alert('не все обязательные поля введены');
+    }
+
+
+}
+
 function ChangeState(stateChangeType) {
     var postData = {
         operation_id: $("#identeficator").text(),
