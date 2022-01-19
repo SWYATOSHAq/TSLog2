@@ -298,6 +298,8 @@ function Create() {
         $("#vehicle_brand").val() != "" &&
         $("#vehicle_model").val() != "" &&
         $("#vehicle_number").val() != "" &&
+        $("#driver_name").val() != "" &&
+        $("#order_id").val() != "" &&
         $("#partner").val() != ""
     ) {
 
