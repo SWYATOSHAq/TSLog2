@@ -151,7 +151,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var start_date = Request.Form["start_date"];
             var finish_date = Request.Form["finish_date"];
 
-            string Text = "eror||[внутренная ошибка:  создания/обновления записи, обратитесь к ответственному лицу]";
+            string Text = "eror||[внутренная ошибка: ошибка создания/обновления записи, обратитесь к ответственному лицу]";
 
             if (operation_id != null)
             {
@@ -213,8 +213,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                                 default:
                                     break;
                             }
-
-                            operationToUpdate.AddAction(new WarehouseAction(actionKind, "not-set", tmpPartner, order_id));
+                            operationToUpdate.AddAction(yardStorage.GetAction(actionKind, tmpPartner, order_id));
                         }
                         if (driver_name != null)
                             operationToUpdate.DriverName = driver_name;
@@ -296,8 +295,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     default:
                         break;
                 }
-                newOperation.AddAction(new WarehouseAction(actionKind, "not-set",
-                    yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+                newOperation.AddAction(yardStorage.GetAction(actionKind, yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.AddOperation(newOperation);
 
                 // TODO somehow dont work properly
