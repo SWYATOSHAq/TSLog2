@@ -67,3 +67,11 @@ td {
 .block-size-2 {
     height: 2em;
 }
+
+.table-vis > table {
+    display: table;
+    margin: 0;
+    padding: 0;
+    margin-top: 2rem;
+
+}

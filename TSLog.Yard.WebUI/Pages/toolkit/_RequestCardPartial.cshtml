@@ -199,7 +199,16 @@
             }
 
         }
-        <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
+        @{
+            var tableVisClass = "";
+            if (cardData.State.Code == "STARTED")
+            {
+                tableVisClass = "table-vis";
+            }
+        }
+        <div class="@tableVisClass">
+            <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
+        </div>
 
     </div>
 </div>
