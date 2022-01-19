@@ -63,9 +63,9 @@
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
 
     var textFieldsBody = new Dictionary<string, (string, string)>();
-    textFieldsBody.Add("Марка авто", ("vehicle_brand", cardData.VehicleBrand));
-    textFieldsBody.Add("Модель авто", ("vehicle_model", cardData.VehicleModel));
-    textFieldsBody.Add("Номер авто", ("vehicle_number", cardData.VehicleNumber));
+    textFieldsBody.Add("Марка авто'", ("vehicle_brand", cardData.VehicleBrand));
+    textFieldsBody.Add("Модель авто'", ("vehicle_model", cardData.VehicleModel));
+    textFieldsBody.Add("Номер авто'", ("vehicle_number", cardData.VehicleNumber));
     textFieldsBody.Add("Номер заказа", ("order_id", lonelyAction));
     textFieldsBody.Add("ФИО водителя", ("driver_name", cardData.DriverName));
 
@@ -123,6 +123,7 @@
     </div>
     <!--  -->
     <div class="row p-2 m-2 shadow">
+        <input type="hidden" id="operation_id" name="operation_id" value="@cardData.Id">
         <partial name="toolkit/lists/_FieldListPartial" model="textFieldsList" />
     </div>
 
@@ -146,11 +147,19 @@
                 </div>
                 //
 
+                if (cardData.State.Code == "CREATED" || cardData.State.Code == "CONFIRMED")
+                {
+
+                    <div class="d-grid m-2 row">
+                        <button class="btn btn-outline-secondary hide-on-print col-4  mx-auto" type="button" onclick="Update()">сохранить изменения</button>
+                    </div>
+                }
+
                 switch (cardData.State.Code)
                 {
                     case "CREATED":
                         <div class="d-grid m-2 row">
-                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('ResetOperationGate')">привязыть ворота (автом.)</button>
+                            <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="ChangeState('ResetOperationGate')">привязыть ворота (автом.)</button>
                         </div>
                         break;
                     case "CONFIRMED":
@@ -185,15 +194,21 @@
             else
             {
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeOperation()">править</button>
-                </div>
-                <div class="d-grid m-2 row">
                     <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="ChangeState('CancelOperation')">отменить</button>
                 </div>
             }
 
         }
-        <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
+        @{
+            var tableVisClass = "";
+            if (cardData.State.Code == "STARTED")
+            {
+                tableVisClass = "table-vis";
+            }
+        }
+        <div class="@tableVisClass">
+            <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
+        </div>
 
     </div>
 </div>

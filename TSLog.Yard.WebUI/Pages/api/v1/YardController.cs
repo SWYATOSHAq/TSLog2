@@ -4,6 +4,7 @@ using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using static TSLog.Yard.BO.OperationType;
 using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
@@ -72,7 +73,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return Text;
         }
 
-        [HttpGet("operationData")]
+        [HttpGet("OperationData")]
         public string GetOperationData()
         {
             // TODO test
@@ -90,7 +91,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return Text;
         }
 
-        [HttpGet("operationsList")]
+        [HttpGet("OperationsList")]
         public string GetOperationsList()
         {
             var Text = "";
@@ -124,19 +125,17 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return Text;
         }
 
-        [HttpPost("createUpdateOperation")]
+        [HttpPost("CreateUpdateOperation")]
         public string GetInsertUpdateData()
         {
             var operation_type = Request.Form["operation_type"];
             //var gate = Request.Form["gate"];
             var vehicle_kind = Request.Form["vehicle_kind"];
-            var vehicle_brand = Request.Form["vehicle_brand"];
-            var vehicle_model = Request.Form["vehicle_model"];
-            var vehicle_number = Request.Form["vehicle_number"];
-            var trailerNumber = string.Empty;
-            var order_id = Request.Form["order_id"];
-            var driver_name = Request.Form["driver_name"];
-            var driver_phone_number = string.Empty;
+            string vehicle_brand = Request.Form["vehicle_brand"];
+            string vehicle_model = Request.Form["vehicle_model"];
+            string vehicle_number = Request.Form["vehicle_number"];
+            string order_id = Request.Form["order_id"];
+            string driver_name = Request.Form["driver_name"];
 
             string driver_phone = Request.Form["driver_phone"];
             string manager_name = Request.Form["manager_name"];
@@ -144,19 +143,104 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string manager_email = Request.Form["manager_email"];
             string note = Request.Form["note"];
 
+            string gate_id = Request.Form["gate"];
+
             //
             string operation_id = Request.Form["operation_id"];
             //
             var start_date = Request.Form["start_date"];
             var finish_date = Request.Form["finish_date"];
 
-            string Text;
+            string Text = "eror||[внутренная ошибка: ошибка создания/обновления записи, обратитесь к ответственному лицу]";
 
             if (operation_id != null)
             {
-                // update 
-                // TODO
-                Text = "upd";
+                long operationId;
+
+                if (long.TryParse(operation_id, out operationId))
+                {
+
+                    // update 
+                    var operationToUpdate = yardStorage.GetOperation(operationId);
+                    if (operationToUpdate.State.Code != "CREATED" && operationToUpdate.State.Code != "CONFIRMED")
+                    {
+                        Text = "eror||ошибка, невозможно изменить значение заявки, которая уже в работе";
+                    }
+                    else
+                    {
+                        //set values
+                        var type = yardStorage.GetOperationType(operation_type);
+                        var gate = yardStorage.GetGate(gate_id);
+                        var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
+
+                        if (type != OperationType.Null)
+                            operationToUpdate.Type = type;
+
+                        if (gate != Gate.Null)
+                            operationToUpdate.Gate = gate;
+
+                        if (vehicleKind != VehicleKind.Null)
+                            operationToUpdate.VehicleKind = vehicleKind;
+
+
+                        if (vehicle_brand != null)
+                            operationToUpdate.VehicleBrand = vehicle_brand;
+                        if (vehicle_model != null)
+                            operationToUpdate.VehicleModel = vehicle_model;
+                        if (vehicle_number != null)
+                            operationToUpdate.VehicleNumber = vehicle_number;
+                        if (order_id != null)
+                        {
+                            var tmpPartner = Partner.Null;
+                            var curActions = operationToUpdate.GetActions();
+                            // remove previous
+                            foreach (var curAction in curActions)
+                            {
+                                tmpPartner = curAction.Partner;
+                                operationToUpdate.RemoveAction(curAction);
+                            }
+                            // add new
+                            ActionKind actionKind = ActionKind.Income;
+
+                            switch (type.Direction)
+                            {
+                                case TypeDirection.In:
+                                    actionKind = ActionKind.Income;
+                                    break;
+                                case TypeDirection.Out:
+                                    actionKind = ActionKind.Outgo;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            operationToUpdate.AddAction(yardStorage.GetAction(actionKind, tmpPartner, order_id));
+                        }
+                        if (driver_name != null)
+                            operationToUpdate.DriverName = driver_name;
+
+                        if (driver_phone != null)
+                            operationToUpdate.DriverPhoneNumber = driver_phone;
+                        if (manager_name != null)
+                            operationToUpdate.PartnerManagerName = manager_name;
+                        if (manager_phone != null)
+                            operationToUpdate.PartnerManagerPhoneNumber = manager_phone;
+                        if (manager_email != null)
+                            operationToUpdate.PartnerManagerEmail = manager_email;
+                        if (note != null)
+                            operationToUpdate.Note = note;
+                        //
+                        yardStorage.EditOperation(operationToUpdate);
+
+
+
+                        Text = JsonSerializer.Serialize(operationToUpdate);
+                    }
+
+                }
+                else
+                {
+                    Text = "eror||ошибка, информация не обновлена";
+                }
             }
             else
             {
@@ -174,11 +258,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var partnerManagerPhoneNumber = string.Empty;
                 var partnerManagerEmail = string.Empty;
 
+                var trailerNumber = string.Empty;
+
                 var defState = yardStorage.GetOperationState("CREATED");
                 var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
 
                 var newOperation = new Operation(-1, null, type, startDate, finishDate,
-                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, trailerNumber, driver_name, driver_phone_number,
+                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, trailerNumber, driver_name, string.Empty,
                     defState,
                     priority,
                     partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
@@ -195,9 +281,21 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (note != null)
                     newOperation.Note = note;
 
+                //type.Direction
+                ActionKind actionKind = ActionKind.Income;
 
-                newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set",
-                    yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+                switch (type.Direction)
+                {
+                    case TypeDirection.In:
+                        actionKind = ActionKind.Income;
+                        break;
+                    case TypeDirection.Out:
+                        actionKind = ActionKind.Outgo;
+                        break;
+                    default:
+                        break;
+                }
+                newOperation.AddAction(yardStorage.GetAction(actionKind, yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 yardStorage.AddOperation(newOperation);
 
                 // TODO somehow dont work properly
@@ -218,7 +316,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
 
 
-        [HttpPost("changeOperationState")]
+        [HttpPost("ChangeOperationState")]
         public string PostChangeOperationState()
         {
             var Text = "";
