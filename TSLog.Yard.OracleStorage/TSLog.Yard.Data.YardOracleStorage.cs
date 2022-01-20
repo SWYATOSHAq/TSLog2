@@ -352,7 +352,7 @@ namespace TSLog.Yard.Data
                     $"       e.display_order," +
                     $"       e.note" +
                     $"  from {StaffSchema}.stf_employee_ext#v e " +
-                    $" where :pattern = upper(trim(e.surname))" +                    
+                    $" where :pattern = upper(trim(e.surname))" +
                     $"    or :pattern = upper(trim(e.first_name))" +
                     $"    or :pattern = upper(trim(e.patronymic))" +
                     $"    or :pattern = upper(trim(e.short_name))" +
@@ -387,19 +387,19 @@ namespace TSLog.Yard.Data
                     $"select ep.employee_id" +
                     $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
                     $" where ep.position_id = :position_id" +
-                    $"  and (:pattern = upper(trim(e.surname))" +
-                    $"    or :pattern = upper(trim(e.first_name))" +
-                    $"    or :pattern = upper(trim(e.patronymic))" +
-                    $"    or :pattern = upper(trim(e.short_name))" +
-                    $"    or :pattern = upper(trim(e.short_name2))" +
-                    $"    or :pattern = upper(trim(e.short_name3))" +
-                    $"    or :pattern = upper(trim(e.short_name4))" +
-                    $"    or :pattern = upper(trim(e.alt_name))" +
-                    $"    or :pattern = upper(trim(e.alt_name2))" +
-                    $"    or :pattern = upper(trim(e.alt_name3))" +
-                    $"    or :pattern = upper(trim(e.alt_name4))" +
-                    $"    or :pattern = upper(trim(e.full_name))" +
-                    $"    or :pattern = upper(trim(e.full_name2)))";
+                    $"  and (:pattern = upper(trim(e.employee_surname))" +
+                    $"    or :pattern = upper(trim(e.employee_first_name))" +
+                    $"    or :pattern = upper(trim(e.employee_patronymic))" +
+                    $"    or :pattern = upper(trim(e.employee_short_name))" +
+                    $"    or :pattern = upper(trim(e.employee_short_name2))" +
+                    $"    or :pattern = upper(trim(e.employee_short_name3))" +
+                    $"    or :pattern = upper(trim(e.employee_short_name4))" +
+                    $"    or :pattern = upper(trim(e.employee_alt_name))" +
+                    $"    or :pattern = upper(trim(e.employee_alt_name2))" +
+                    $"    or :pattern = upper(trim(e.employee_alt_name3))" +
+                    $"    or :pattern = upper(trim(e.employee_alt_name4))" +
+                    $"    or :pattern = upper(trim(e.employee_full_name))" +
+                    $"    or :pattern = upper(trim(e.employee_full_name2)))";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("position_id", position.Id));
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
@@ -461,10 +461,10 @@ namespace TSLog.Yard.Data
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
             var note = Utils.DbValueToString(reader["note"]);
-            var position = new Department(id, code, 
+            var position = new Department(id, code,
                 name, shortName, altName, displayName,
                 isActive, displayOrder,
-                LegalEntity.Null, Employee.Null, 
+                LegalEntity.Null, Employee.Null,
                 note);
             return position;
         }

@@ -561,10 +561,28 @@ $(document).ready(function() {
     // also on change if nearest selected-item-id is not empty delete data from it and post to api
     // also change list of items in #card-operation.dropdown-menu
 
-    $('.dropdown-toggle').bind("keypress", function(e) {
+    $('.dropdown-toggle').bind("keyup", function(e) {
         var inputField = $(this);
-        console.log(inputField.val());
+        var inputGroup = inputField.parent();
+
+        console.log();
+
+        $.get("/api/v1/yard/SearchWorkersByName", {
+                search: inputField.val(),
+                position_code: inputGroup.children(".position-code").val(),
+            },
+            function(data) {
+                console.log(data);
+                // periods = JSON.parse(data);
+
+                // RenderUserList(,)
+            });
+
     });
+
+    function RenderUserList(parent, userList) {
+
+    }
 
     // get event on click of every li element in #card-operation.dropdown-menu 
     // and chenge value of nearest #card-operation.dropdown-toggle by its content and post to api
