@@ -1,5 +1,6 @@
 ﻿using TSLog.Common;
 using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -65,6 +66,22 @@ namespace TSLog.Yard
         {
             return _oracleStorage.FindEmployees(pattern);
         }
+        public Employee[] FindEmployees(Position position, string pattern)
+        {
+            return _oracleStorage.FindEmployees(position, pattern);
+        }
+        public Department GetDepartment(short id)
+        {
+            return _oracleStorage.GetDepartment(id);
+        }
+        public Department GetDepartment(string code)
+        {
+            return _oracleStorage.GetDepartment(code);
+        }
+        public Department[] GetDepartments()
+        {
+            return _oracleStorage.GetDepartments();
+        }
         public Position GetPosition(short id)
         {
             return _oracleStorage.GetPosition(id);
@@ -128,6 +145,10 @@ namespace TSLog.Yard
         public OperationType[] GetOperationTypes()
         {
             return _pgsqlStorage.GetOperationTypes();
+        }
+        public LegalEntity GetLegalEntity(string id)
+        {
+            return _oracleStorage.GetLegalEntity(id);
         }
         public Partner GetPartner(string id)
         {

@@ -9,10 +9,28 @@ namespace TSLog.Staff.BO
     public class Employee : Entity
     {
         private const double DefaultCost = 100.00;
-        public string Surname { get; set; }
-        public string FirstName { get; set; }
+        public string Surname { get; private set; }
+        public string FirstName
+        {
+            get
+            {
+                return Name;
+            }
+            set
+            {
+                Name = value;
+            }
+        }
         public string Patronymic { get; set; } = string.Empty;
-        public DateTime BirthDate { get; set; }
+        public string FullName
+        {
+            get 
+            {
+                return $"{Surname} {FirstName} {Patronymic}";
+            }
+        }
+        public string Sex { get; set; } = "M";
+        public DateTime BirthDate { get; private set; }
         public string Nationality { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -23,21 +41,31 @@ namespace TSLog.Staff.BO
         public string DocumentIssueOrganization { get; set; } = string.Empty;
         public DateTime EmploymentDate { get; set; } = DateTime.MinValue;
         public DateTime DismissalDate { get; set; } = DateTime.MinValue;
-        public LegalEntity Company { get; set; }
+        public LegalEntity Company { get; private set; }
         public Department? Department { get; set; } = null;
         public double Cost { get; set; } = DefaultCost;
         public MeasureUnit CostMeasureUnit { get; set; } = MeasureUnit.Null;
 
         public Employee(long id, string code, 
-            string name = "", string shortName = "", string altName = "", string displayName = "",
-            bool isActive = true, short displayOrder = -1, 
+            string surname, string firstName,            
+            DateTime birthDate,
+            LegalEntity company,
+            bool isActive,
             string note = "") 
-            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
-        { }
+            : base(id, code, firstName, string.Empty, string.Empty, string.Empty, isActive, -1, note)
+        {
+            if (string.IsNullOrWhiteSpace(surname))
+                throw new ArgumentException("surname is empty");
+            if (string.IsNullOrWhiteSpace(firstName))
+                throw new ArgumentException("firstName is empty");
+            Surname = surname.Trim();
+            Name = firstName.Trim();            
+            BirthDate = birthDate;
+            Company = company ?? throw new ArgumentNullException(nameof(company));
+        }
         private Employee() : base()
         {
             Surname = string.Empty;
-            FirstName = string.Empty;
             BirthDate = DateTime.MinValue;
             Company = LegalEntity.Empty;
         }
@@ -51,7 +79,7 @@ namespace TSLog.Staff.BO
             get
             {
                 if (_null == null)
-                    _null = new Employee(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
+                    _null = new Employee(-1, "NULL", "NULL", "NULL", DateTime.MinValue, LegalEntity.Null, true, "NULL");
                 return _null;
             }
         }
