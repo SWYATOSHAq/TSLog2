@@ -17,9 +17,9 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
-        private const string DefaultStaffSchema = "staff";
-        private const string DefaultLegalEntitiesSchema = "legal_entities";
-        private const string DefaultPartnersSchema = "partners";
+        private const string DefaultStaffSchema = "ecco";
+        private const string DefaultLegalEntitiesSchema = "ecco";
+        private const string DefaultPartnersSchema = "ecco";
         /// <summary>
         /// Схема для объектов учёта персонала
         /// </summary>
@@ -70,7 +70,7 @@ namespace TSLog.Yard.Data
                     action = CreateAction(reader);
                 reader.Close();
             }
-            if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
+            if (action != null && action != WarehouseAction.Null)
                 return action;
             throw new WarehouseActionNotFoundException(id);
         }
@@ -97,7 +97,7 @@ namespace TSLog.Yard.Data
                     action = CreateAction(reader);
                 reader.Close();
             }
-            if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
+            if (action != null && action != WarehouseAction.Null)
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
@@ -178,7 +178,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("id is empty");
             id = id.Trim().ToUpper();
             var partner = _partners[id];
-            if (partner != null && partner != Partner.Null && partner != Partner.Empty)
+            if (partner != null && partner != Partner.Null)
                 return partner;
             using (var command = _connection.CreateCommand())
             {
@@ -196,7 +196,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            if (partner != null && partner != Partner.Null && partner != Partner.Empty)
+            if (partner != null && partner != Partner.Null)
                 return partner;
             throw new PartnerNotFoundException(id);
         }
@@ -295,7 +295,7 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : 0;
             var employee = _employees[id];
-            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+            if (employee != null && employee != Employee.Null)
                 return employee;
             using (var command = _connection.CreateCommand())
             {
@@ -326,7 +326,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+            if (employee != null && employee != Employee.Null)
                 return employee;
             throw new EmployeeNotFoundException(id);
         }
@@ -352,19 +352,19 @@ namespace TSLog.Yard.Data
                     $"       e.display_order," +
                     $"       e.note" +
                     $"  from {StaffSchema}.stf_employee_ext#v e " +
-                    $" where :pattern like upper(trim(e.surname))" +                    
-                    $"    or :pattern like upper(trim(e.first_name))" +
-                    $"    or :pattern like upper(trim(e.patronymic))" +
-                    $"    or :pattern like upper(trim(e.short_name))" +
-                    $"    or :pattern like upper(trim(e.short_name2))" +
-                    $"    or :pattern like upper(trim(e.short_name3))" +
-                    $"    or :pattern like upper(trim(e.short_name4))" +
-                    $"    or :pattern like upper(trim(e.alt_name))" +
-                    $"    or :pattern like upper(trim(e.alt_name2))" +
-                    $"    or :pattern like upper(trim(e.alt_name3))" +
-                    $"    or :pattern like upper(trim(e.alt_name4))" +
-                    $"    or :pattern like upper(trim(e.full_name))" +
-                    $"    or :pattern like upper(trim(e.full_name2))";
+                    $" where :pattern = upper(trim(e.surname))" +
+                    $"    or :pattern = upper(trim(e.first_name))" +
+                    $"    or :pattern = upper(trim(e.patronymic))" +
+                    $"    or :pattern = upper(trim(e.short_name))" +
+                    $"    or :pattern = upper(trim(e.short_name2))" +
+                    $"    or :pattern = upper(trim(e.short_name3))" +
+                    $"    or :pattern = upper(trim(e.short_name4))" +
+                    $"    or :pattern = upper(trim(e.alt_name))" +
+                    $"    or :pattern = upper(trim(e.alt_name2))" +
+                    $"    or :pattern = upper(trim(e.alt_name3))" +
+                    $"    or :pattern = upper(trim(e.alt_name4))" +
+                    $"    or :pattern = upper(trim(e.full_name))" +
+                    $"    or :pattern = upper(trim(e.full_name2))";
                 command.CommandText = FindEmployeesSql;
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
                 using var reader = command.ExecuteReader();
@@ -386,7 +386,7 @@ namespace TSLog.Yard.Data
                 var SelectEmployeeById =
                     $"select ep.employee_id" +
                     $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
-                    $" where ep.position_id = :position_id" +
+                    $" where ep.position_id like :position_id" +
                     $"  and (:pattern like upper(trim(ep.employee_surname))" +
                     $"    or :pattern like upper(trim(ep.employee_first_name))" +
                     $"    or :pattern like upper(trim(ep.employee_patronymic))" +
@@ -461,10 +461,10 @@ namespace TSLog.Yard.Data
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
             var note = Utils.DbValueToString(reader["note"]);
-            var position = new Department(id, code, 
+            var position = new Department(id, code,
                 name, shortName, altName, displayName,
                 isActive, displayOrder,
-                LegalEntity.Null, Employee.Null, 
+                LegalEntity.Null, Employee.Null,
                 note);
             return position;
         }

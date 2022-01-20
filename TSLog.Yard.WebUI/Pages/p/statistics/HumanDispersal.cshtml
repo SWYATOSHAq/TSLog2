@@ -36,7 +36,7 @@
     var workersData = dayInterval.MaxParallelPositionWorkers(); // data to display as overall summ of workers
     var workers = workersData.Keys; // additional collumns of table
 
-    displayCollumns.Add("Количество машин"); // add first collumn with amount of cars per period
+    displayCollumns.Add("Пропускн. машин"); // add first collumn with amount of cars per period
 
     foreach (var worker in workers)
         if (worker.IsLinear)
@@ -59,7 +59,7 @@
         <thead class="thead-light">
             <tr>
                 <th>@date.ToString("dd.MM.yyyy")</th>
-                <th>Сумма машин</th>
+                <th>Количество сум. машин</th>
                 @foreach (var workerType in displayCollumns)
                 {
                     <th colspan="2">@workerType</th>
@@ -83,7 +83,7 @@
             {
                 <tr>
                     <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
-                    <td class="h5">@item.MaxParallelOperations()</td>
+                    <td class="h5">@item.OperationsCount</td>
                     <td>@item.MaxParallelOperations(TypeDirection.In)</td>
                     <td>@item.MaxParallelOperations(TypeDirection.Out)</td>
 
@@ -94,6 +94,9 @@
 
                     @foreach (var curWorker in workers)
                     {
+                        if (curWorker.IsLinear)
+                        {
+                            
                         <td>
                             @if (tmpWorkersIn.ContainsKey(curWorker))
                             {
@@ -106,6 +109,7 @@
                                 @tmpWorkersOut[curWorker]
                             }
                         </td>
+                        }
                     }
                 </tr>
 
