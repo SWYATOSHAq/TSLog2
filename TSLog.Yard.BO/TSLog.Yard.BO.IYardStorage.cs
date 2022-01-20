@@ -78,7 +78,7 @@ namespace TSLog.Yard.BO
         public Employee GetEmployee(int id);
         public Employee[] FindEmployees(string pattern);
         public Employee[] GetEmployees();
-        public Department GetDepartment(int id);
+        public Department GetDepartment(short id);
         public Department GetDepartment(string code);
         public Department[] GetDepartments();
         public Position GetPosition(short id);

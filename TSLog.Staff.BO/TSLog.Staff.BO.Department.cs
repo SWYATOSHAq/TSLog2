@@ -64,7 +64,7 @@ namespace TSLog.Staff.BO
         }
         public Department(short id, string code, 
             string name, string shortName, string altName, string displayName,
-            bool isActive, long displayOrder, 
+            bool isActive, short displayOrder, 
             LegalEntity company, Employee head,
             string note = "")
             : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)

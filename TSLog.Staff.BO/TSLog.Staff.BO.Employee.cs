@@ -22,6 +22,13 @@ namespace TSLog.Staff.BO
             }
         }
         public string Patronymic { get; set; } = string.Empty;
+        public string FullName
+        {
+            get 
+            {
+                return $"{Surname} {FirstName} {Patronymic}";
+            }
+        }
         public string Sex { get; set; } = "M";
         public DateTime BirthDate { get; private set; }
         public string Nationality { get; set; } = string.Empty;

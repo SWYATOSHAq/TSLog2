@@ -268,7 +268,7 @@ namespace TSLog.Yard.Data
                 isActive,
                 note);
             employee.Patronymic = Utils.DbValueToString(reader["patronymic"]);
-            employee.Sex = Utils.DbValueToString(reader["patronymic"]);
+            employee.Sex = Utils.DbValueToString(reader["sex"]);
             employee.Nationality = Utils.DbValueToString(reader["nationality"]);
             employee.PhoneNumber = Utils.DbValueToString(reader["phone_number"]);
             employee.Email = Utils.DbValueToString(reader["email"]);
@@ -377,6 +377,44 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        public Employee[] FindEmployees(Position position, string pattern)
+        {
+            pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
+            var employees = new HashSet<Employee>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeeById =
+                    $"select ep.employee_id" +
+                    $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
+                    $" where ep.position_id = :position_id" +
+                    $"  and (:pattern = upper(trim(e.surname))" +
+                    $"    or :pattern = upper(trim(e.first_name))" +
+                    $"    or :pattern = upper(trim(e.patronymic))" +
+                    $"    or :pattern = upper(trim(e.short_name))" +
+                    $"    or :pattern = upper(trim(e.short_name2))" +
+                    $"    or :pattern = upper(trim(e.short_name3))" +
+                    $"    or :pattern = upper(trim(e.short_name4))" +
+                    $"    or :pattern = upper(trim(e.alt_name))" +
+                    $"    or :pattern = upper(trim(e.alt_name2))" +
+                    $"    or :pattern = upper(trim(e.alt_name3))" +
+                    $"    or :pattern = upper(trim(e.alt_name4))" +
+                    $"    or :pattern = upper(trim(e.full_name))" +
+                    $"    or :pattern = upper(trim(e.full_name2)))";
+                command.CommandText = SelectEmployeeById;
+                command.Parameters.Add(new OracleParameter("position_id", position.Id));
+                command.Parameters.Add(new OracleParameter("pattern", pattern));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employeeId = Utils.DbValueToInt(reader["employee_id"]);
+                    var employee = GetEmployee(employeeId);
+                    if (!employees.Contains(employee))
+                        employees.Add(employee);
+                }
+                reader.Close();
+            }
+            return employees.ToArray();
+        }
         public Employee[] GetEmployees()
         {
             var employees = new List<Employee>();
@@ -384,7 +422,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectEmployeesSql =
                     $"select e.id, e.code," +
-                    $"       e.surname, e.first_name, e.patronymic" +
+                    $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
                     $"       e.phone_number, e.email," +
@@ -410,21 +448,113 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
-        private Department CreateDepartment(DbDataReader reader)
+        private static Department CreateDepartment(DbDataReader reader)
         {
-            return null;
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Convert.ToInt16(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var position = new Department(id, code, 
+                name, shortName, altName, displayName,
+                isActive, displayOrder,
+                LegalEntity.Null, Employee.Null, 
+                note);
+            return position;
         }
-        public Department GetDepartment(int id)
+        public Department GetDepartment(short id)
         {
-            return null;
+            id = id > 0 ? id : (short)-1;
+            var department = _departments[id];
+            if (department != null && department != Department.Null && department != Department.Empty)
+                return department;
+
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectDepartmentByIdSql =
+                    $"select d.id, d.code, " +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
+                    $"       d.is_active, d.display_order," +
+                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.note " +
+                    $"  from {StaffSchema}.stf_department#v d " +
+                    $" where d.id = :id";
+                command.CommandText = SelectDepartmentByIdSql;
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    department = CreateDepartment(reader);
+                    _departments.Add(department);
+                }
+                reader.Close();
+            }
+            if (department != null && department != Department.Null && department != Department.Empty)
+                return department;
+            throw new DepartmentNotFoundException(id);
         }
         public Department GetDepartment(string code)
         {
-            return null;
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var department = _departments[code];
+            if (department != null && department != Department.Null && department != Department.Empty)
+                return department;
+
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectDepartmentByCodeSql =
+                    $"select d.id, d.code, " +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
+                    $"       d.is_active, d.display_order," +
+                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.note " +
+                    $"  from {StaffSchema}.stf_department#v d " +
+                    $" where d.code = :code";
+                command.CommandText = SelectDepartmentByCodeSql;
+                command.Parameters.Add(new OracleParameter("code", code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    department = CreateDepartment(reader);
+                    _departments.Add(department);
+                }
+                reader.Close();
+            }
+            if (department != null && department != Department.Null && department != Department.Empty)
+                return department;
+            throw new DepartmentNotFoundException(code);
         }
         public Department[] GetDepartments()
         {
-            return null;
+            var departments = new List<Department>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectDepartmentsSql =
+                   $"select d.id, d.code, " +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
+                    $"       d.is_active, d.display_order," +
+                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.note " +
+                    $"  from {StaffSchema}.stf_department#v d";
+                command.CommandText = SelectDepartmentsSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var department = CreateDepartment(reader);
+                    departments.Add(department);
+                }
+                reader.Close();
+            }
+            departments.Sort();
+            return departments.ToArray();
         }
         private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
         private static Position CreatePosition(DbDataReader reader)
@@ -457,13 +587,17 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : (short)-1;
             var position = _positions[id];
-            if (position != null && position != Position.Null)
+            if (position != null && position != Position.Null && position != Position.Empty)
                 return position;
 
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByIdSql =
-                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
+                    $"select p.id, p.code, " +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
+                    $"       p.is_active, p.display_order, " +
+                    $"       p.is_linear, " +
+                    $"       p.note " +
                     $"  from {StaffSchema}.stf_position#v p " +
                     $" where p.id = :id";
                 command.CommandText = SelectPositionByIdSql;
@@ -476,7 +610,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            if (position != null && position != Position.Null)
+            if (position != null && position != Position.Null && position != Position.Empty)
                 return position;
             throw new PositionNotFoundException(id);
         }
@@ -486,13 +620,17 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
             var position = _positions[code];
-            if (position != null && position != Position.Null)
+            if (position != null && position != Position.Null && position != Position.Empty)
                 return position;
 
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByCodeSql =
-                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
+                    $"select p.id, p.code, " +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
+                    $"       p.is_active, p.display_order, " +
+                    $"       p.is_linear, " +
+                    $"       p.note " +
                     $"  from {StaffSchema}.stf_position#v p " +
                     $" where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
@@ -505,7 +643,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            if (position != null && position != Position.Null)
+            if (position != null && position != Position.Null && position != Position.Empty)
                 return position;
             throw new PositionNotFoundException(code);
         }
@@ -515,7 +653,11 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionsSql =
-                    $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
+                    $"select p.id, p.code, " +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
+                    $"       p.is_active, p.display_order, " +
+                    $"       p.is_linear, " +
+                    $"       p.note " +
                     $"  from {StaffSchema}.stf_position#v p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
