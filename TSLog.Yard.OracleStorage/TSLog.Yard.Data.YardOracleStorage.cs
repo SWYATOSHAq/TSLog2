@@ -386,20 +386,20 @@ namespace TSLog.Yard.Data
                 var SelectEmployeeById =
                     $"select ep.employee_id" +
                     $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
-                    $" where ep.position_id = :position_id" +
-                    $"  and (:pattern = upper(trim(e.employee_surname))" +
-                    $"    or :pattern = upper(trim(e.employee_first_name))" +
-                    $"    or :pattern = upper(trim(e.employee_patronymic))" +
-                    $"    or :pattern = upper(trim(e.employee_short_name))" +
-                    $"    or :pattern = upper(trim(e.employee_short_name2))" +
-                    $"    or :pattern = upper(trim(e.employee_short_name3))" +
-                    $"    or :pattern = upper(trim(e.employee_short_name4))" +
-                    $"    or :pattern = upper(trim(e.employee_alt_name))" +
-                    $"    or :pattern = upper(trim(e.employee_alt_name2))" +
-                    $"    or :pattern = upper(trim(e.employee_alt_name3))" +
-                    $"    or :pattern = upper(trim(e.employee_alt_name4))" +
-                    $"    or :pattern = upper(trim(e.employee_full_name))" +
-                    $"    or :pattern = upper(trim(e.employee_full_name2)))";
+                    $" where ep.position_id like :position_id" +
+                    $"  and (:pattern like upper(trim(ep.employee_surname))" +
+                    $"    or :pattern like upper(trim(ep.employee_first_name))" +
+                    $"    or :pattern like upper(trim(ep.employee_patronymic))" +
+                    $"    or :pattern like upper(trim(ep.employee_short_name))" +
+                    $"    or :pattern like upper(trim(ep.employee_short_name2))" +
+                    $"    or :pattern like upper(trim(ep.employee_short_name3))" +
+                    $"    or :pattern like upper(trim(ep.employee_short_name4))" +
+                    $"    or :pattern like upper(trim(ep.employee_alt_name))" +
+                    $"    or :pattern like upper(trim(ep.employee_alt_name2))" +
+                    $"    or :pattern like upper(trim(ep.employee_alt_name3))" +
+                    $"    or :pattern like upper(trim(ep.employee_alt_name4))" +
+                    $"    or :pattern like upper(trim(ep.employee_full_name))" +
+                    $"    or :pattern like upper(trim(ep.employee_full_name2)))";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("position_id", position.Id));
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
