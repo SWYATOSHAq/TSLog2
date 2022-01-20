@@ -262,7 +262,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var trailerNumber = string.Empty;
 
                 var defState = yardStorage.GetOperationState("CREATED");
-                var defManager = yardStorage.GetEmployee(10405); // TODO load dinamicly
+                var defManager = yardStorage.GetEmployee(100004); // TODO load dinamicly
 
                 var newOperation = new Operation(-1, null, type, startDate, finishDate,
                     vehicleKind, vehicle_brand, vehicle_model, vehicle_number, trailerNumber, driver_name, string.Empty,
@@ -315,7 +315,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 //catch (WarehouseActionNotFoundException e) // bruh dont working
                 catch (WarehouseActionNotFoundException)
                 {
-                    Text = "eror||ошибка, номер заказа партнера не действителен или отсутствует в БД";
+                    Text = "eror||ошибка, номер заказа партнера не соответствует типу заказа / не действителен или отсутствует в БД";
                 }
 
 
@@ -374,5 +374,65 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             return Text;
         }
+
+        [HttpGet("SearchWorkersByName")]
+        public string GetSearchWorkersByName()
+        {
+            // default
+            string Text = string.Empty;
+            //
+
+            string searchQuerry = Request.Query["search"];
+
+            // temp
+            var workers = yardStorage.GetEmployees();
+            //var workers = yardStorage.getWorkers(searchQuerry);
+
+            //////
+            Text = JsonSerializer.Serialize(workers);
+            return Text;
+        }
+
+        [HttpPost("UpdateOperationWorkers")]
+        public string PostUpdateOperationWorkers()
+        {
+            var Text = "";
+
+            string operation_id = Request.Form["operation_id"];
+            string action_type = Request.Form["action"];
+
+            string worker_id = Request.Form["worker_id"];
+            string position_code = Request.Form["position_code"];
+
+            if (long.TryParse(operation_id, out long operationID))
+                if (int.TryParse(worker_id, out int workerID))
+                {
+                    var loadedOperation = yardStorage.GetOperation(operationID);
+                    var loadedWorker = yardStorage.GetEmployee(workerID);
+                    var loadedPosition = yardStorage.GetPosition(position_code);
+
+                    switch (action_type)
+                    {
+                        case "add":
+                            yardStorage.AddWorker(loadedOperation, loadedWorker, loadedPosition);
+                            break;
+                        case "del":
+                            yardStorage.RemoveWorker(loadedOperation, loadedWorker, loadedPosition);
+                            break;
+
+                        default:
+                            Text = "action type is not specified";
+                            break;
+                    }
+
+                    //
+                    Text = JsonSerializer.Serialize(loadedOperation);
+                }
+
+            return Text;
+        }
+
+
+
     }
 }
