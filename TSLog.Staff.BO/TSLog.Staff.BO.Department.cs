@@ -42,9 +42,7 @@ namespace TSLog.Staff.BO
             {
                 if (this == Null || this == Empty)
                     return;
-                if (value == null || value == LegalEntity.Null || value == LegalEntity.Empty)
-                    throw new ArgumentException("Company is null or empty");
-                _company = value;
+                _company = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
         private Employee _head;
@@ -61,9 +59,7 @@ namespace TSLog.Staff.BO
             {
                 if (this == Null || this == Empty)
                     return;
-                if (value == null || value == Employee.Null || value == Employee.Empty)
-                    throw new ArgumentException("Head is null or empty");
-                _head = value;
+                _head = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
         public Department(short id, string code, 
@@ -73,12 +69,8 @@ namespace TSLog.Staff.BO
             string note = "")
             : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
-            if (company == null || company == LegalEntity.Null || company == LegalEntity.Empty)
-                throw new ArgumentException("Company is null or empty");
-            _company = company;
-            if (head == null || head == Employee.Null || head == Employee.Empty)
-                throw new ArgumentException("Head is null or empty");
-            _head = head;
+            _company = company ?? throw new ArgumentNullException(nameof(company));
+            _head = head ?? throw new ArgumentNullException(nameof(head));
         }
         private Department(): base()
         {

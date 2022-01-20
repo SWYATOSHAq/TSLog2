@@ -1,4 +1,5 @@
 ﻿using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -69,13 +70,17 @@ namespace TSLog.Yard.BO
     public interface IYardWmsStorage
     {
         public WarehouseAction GetAction(ActionKind actionKind, string id);
-        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);        
+        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
+        public LegalEntity GetLegalEntity(string id);        
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
         public Partner[] GetPartners(bool getOnlyActive = false);
         public Employee GetEmployee(int id);
         public Employee[] FindEmployees(string pattern);
         public Employee[] GetEmployees();
+        public Department GetDepartment(int id);
+        public Department GetDepartment(string code);
+        public Department[] GetDepartments();
         public Position GetPosition(short id);
         public Position GetPosition(string code);
         public Position[] GetPositions();

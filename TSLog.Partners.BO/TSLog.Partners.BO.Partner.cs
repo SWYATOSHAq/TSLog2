@@ -9,7 +9,7 @@ namespace TSLog.Partners.BO
     {
         public Partner(string id, string name = "", string note = "", string info1 = "", string info2 = "",
             bool isActive = true, long displayOrder = -1)
-            : base(id, name, name, name, name, note, info1, info2, isActive, displayOrder)
+            : base(id, name, name, name, name, info1, info2, isActive, displayOrder, note)
         { }
         private Partner() : base()
         { }

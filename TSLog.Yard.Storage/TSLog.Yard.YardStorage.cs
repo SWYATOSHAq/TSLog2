@@ -1,5 +1,6 @@
 ﻿using TSLog.Common;
 using TSLog.Common.BO;
+using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -65,6 +66,18 @@ namespace TSLog.Yard
         {
             return _oracleStorage.FindEmployees(pattern);
         }
+        public Department GetDepartment(int id)
+        {
+            return _oracleStorage.GetDepartment(id);
+        }
+        public Department GetDepartment(string code)
+        {
+            return _oracleStorage.GetDepartment(code);
+        }
+        public Department[] GetDepartments()
+        {
+            return _oracleStorage.GetDepartments();
+        }
         public Position GetPosition(short id)
         {
             return _oracleStorage.GetPosition(id);
@@ -128,6 +141,10 @@ namespace TSLog.Yard
         public OperationType[] GetOperationTypes()
         {
             return _pgsqlStorage.GetOperationTypes();
+        }
+        public LegalEntity GetLegalEntity(string id)
+        {
+            return _oracleStorage.GetLegalEntity(id);
         }
         public Partner GetPartner(string id)
         {
@@ -305,11 +322,6 @@ namespace TSLog.Yard
             _oracleStorage.Dispose();
             _pgsqlStorage.Dispose();
             GC.SuppressFinalize(this);
-        }
-
-        public Employee[] FindEmployees(string pattern)
-        {
-            throw new NotImplementedException(); // bruh
         }
     }
 }

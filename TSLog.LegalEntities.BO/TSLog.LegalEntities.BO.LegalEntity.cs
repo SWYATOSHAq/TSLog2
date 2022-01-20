@@ -34,8 +34,10 @@ namespace TSLog.LegalEntities.BO
         /// </summary>
         public string Info2 { get; set; }
 
-        public LegalEntity(string id, string name = "", string shortName = "", string altName = "", string displayName = "", 
-            string note = "", string info1 = "", string info2 = "", bool isActive = true, long displayOrder = -1)
+        public LegalEntity(string id, 
+            string name = "", string shortName = "", string altName = "", string displayName = "", 
+            string info1 = "", string info2 = "", bool isActive = true, long displayOrder = -1, 
+            string note = "")
             : base(-1, id, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
             Info1 = !string.IsNullOrWhiteSpace(info1) ? info1 : string.Empty;
@@ -57,7 +59,7 @@ namespace TSLog.LegalEntities.BO
             get
             {
                 if (_null == null)
-                    _null = new LegalEntity("NULL", "NULL", "NULL");
+                    _null = new LegalEntity("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
                 return _null;
             }
         }

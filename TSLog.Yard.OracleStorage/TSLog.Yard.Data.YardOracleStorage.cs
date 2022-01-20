@@ -4,6 +4,7 @@ using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
 using TSLog.ExceptionHandler;
+using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -17,11 +18,16 @@ namespace TSLog.Yard.Data
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
         private const string DefaultStaffSchema = "ecco";
+        private const string DefaultLegalEntitiesSchema = "ecco";
         private const string DefaultPartnersSchema = "ecco";
         /// <summary>
         /// Схема для объектов учёта персонала
         /// </summary>
         public string StaffSchema { protected get; set; } = DefaultStaffSchema;
+        /// <summary>
+        /// Схема для организаций (юр. лиц)
+        /// </summary>
+        public string LegalEntitieSchema { protected get; set; } = DefaultLegalEntitiesSchema;
         /// <summary>
         /// Схема для партнёров (покупателей наших складских и логистических услуг)
         /// </summary>
@@ -76,7 +82,7 @@ namespace TSLog.Yard.Data
             var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectWarehouseActionByPartnerActionIdSql = 
+                var SelectWarehouseActionByPartnerActionIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number " +
                     $"  from {CommonSchema}.v_warehouse_action a " +
                     $" where a.partner_number = :partner_number " +
@@ -94,6 +100,59 @@ namespace TSLog.Yard.Data
             if (action != null && action != WarehouseAction.Null)
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
+        }
+        private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
+        private static LegalEntity CreateLegalEntity(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Utils.DbValueToString(reader["id"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var diplayName = Utils.DbValueToString(reader["display_name"]);
+            var info1 = string.Empty;
+            var info2 = string.Empty;
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToLong(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var legalEntity = new LegalEntity(id,
+                name, shortName, altName, diplayName, info1, info2,
+                isActive,
+                displayOrder,
+                note);
+            return legalEntity;
+        }
+        public LegalEntity GetLegalEntity(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("id is empty");
+            id = id.Trim().ToUpper();
+            var legalEntity = _legalEntities[id];
+            if (legalEntity != null && legalEntity != Partner.Null && legalEntity != LegalEntity.Empty)
+                return legalEntity;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select le.id," +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name," +
+                    $"       le.is_active, le.display_order," +
+                    $"       le.note" +
+                    $"  from {LegalEntitieSchema}.le_legal_entity#v le " +
+                    $" where upper(trim(le.id)) = :id";
+                command.CommandText = SelectPartnerByIdSql;
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    legalEntity = CreateLegalEntity(reader);
+                    _legalEntities.Add(legalEntity);
+                }
+                reader.Close();
+            }
+            if (legalEntity != null && legalEntity != LegalEntity.Null && legalEntity != LegalEntity.Empty)
+                return legalEntity;
+            throw new LegalEntityNotFoundException(id);
         }
         private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");
         private static Partner CreatePartner(DbDataReader reader)
@@ -187,17 +246,49 @@ namespace TSLog.Yard.Data
             partners.Sort();
             return partners.ToArray();
         }
-        private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");   
-        private static Employee CreateEmployee(DbDataReader reader)
+        private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");
+        private Employee CreateEmployee(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var id = Convert.ToInt64(reader["id"]);
             var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var employee = new Employee(id,
-                code,
-                name);
+            var surname = Utils.DbValueToString(reader["surname"]);
+            var firstName = Utils.DbValueToString(reader["first_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var birthDate = Utils.DbValueToDateTime(reader["birth_date"]);
+            var companyId = Utils.DbValueToString(reader["company_id"]);
+            var company = GetLegalEntity(companyId);
+            var note = Utils.DbValueToString(reader["note"]);
+
+            var employee = new Employee(id, code,
+                surname, firstName,
+                birthDate,
+                company,
+                isActive,
+                note);
+            employee.Patronymic = Utils.DbValueToString(reader["patronymic"]);
+            employee.Sex = Utils.DbValueToString(reader["patronymic"]);
+            employee.Nationality = Utils.DbValueToString(reader["nationality"]);
+            employee.PhoneNumber = Utils.DbValueToString(reader["phone_number"]);
+            employee.Email = Utils.DbValueToString(reader["email"]);
+
+            employee.DocumentName = Utils.DbValueToString(reader["document_name"]);
+            employee.DocumentSeries = Utils.DbValueToString(reader["document_series"]);
+            employee.DocumentNumber = Utils.DbValueToString(reader["document_number"]);
+            employee.DocumentIssueDate = Utils.DbValueToDateTime(reader["document_issue_date"]);
+            employee.DocumentIssueOrganization = Utils.DbValueToString(reader["document_issue_organization"]);
+
+            employee.EmploymentDate = Utils.DbValueToDateTime(reader["employment_date"]);
+            employee.DismissalDate = Utils.DbValueToDateTime(reader["dismissal_date"]);
+
+            var departmentId = Utils.DbValueToInt(reader["department_id"]);
+            //employee.Department = GetDepartment(departmentId);
+
+            employee.Cost = Utils.DbValueToDouble(reader["cost"]);
+            var costCurrencyCode = Utils.DbValueToString(reader["cost_currency_code"]);
+            employee.CostMeasureUnit = GetMeasureUnit(costCurrencyCode);
+
             return employee;
         }
         public Employee GetEmployee(int id)
@@ -209,7 +300,20 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeeById =
-                    $"select e.id, e.code, e.name " +
+                    $"select e.id, e.code," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
                     $"  from {StaffSchema}.stf_employee#v e " +
                     $" where e.id = :id";
                 command.CommandText = SelectEmployeeById;
@@ -228,15 +332,41 @@ namespace TSLog.Yard.Data
         }
         public Employee[] FindEmployees(string pattern)
         {
-            pattern = string.IsNullOrWhiteSpace(pattern) ? string.Empty : pattern.ToUpper();
-
+            pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
                 var FindEmployeesSql =
-                    $"select e.id, e.code, e.name " +
-                    $"  from {StaffSchema}.stf_employee#v e";
+                    $"select e.id, e.code," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
+                    $"  from {StaffSchema}.stf_employee_ext#v e " +
+                    $" where :pattern = upper(trim(e.surname))" +                    
+                    $"    or :pattern = upper(trim(e.first_name))" +
+                    $"    or :pattern = upper(trim(e.patronymic))" +
+                    $"    or :pattern = upper(trim(e.short_name))" +
+                    $"    or :pattern = upper(trim(e.short_name2))" +
+                    $"    or :pattern = upper(trim(e.short_name3))" +
+                    $"    or :pattern = upper(trim(e.short_name4))" +
+                    $"    or :pattern = upper(trim(e.alt_name))" +
+                    $"    or :pattern = upper(trim(e.alt_name2))" +
+                    $"    or :pattern = upper(trim(e.alt_name3))" +
+                    $"    or :pattern = upper(trim(e.alt_name4))" +
+                    $"    or :pattern = upper(trim(e.full_name))" +
+                    $"    or :pattern = upper(trim(e.full_name2))";
                 command.CommandText = FindEmployeesSql;
+                command.Parameters.Add(new OracleParameter("pattern", pattern));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -253,7 +383,20 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code, e.name " +
+                    $"select e.id, e.code," +
+                    $"       e.surname, e.first_name, e.patronymic" +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
                     $"  from {StaffSchema}.stf_employee#v e";
                 command.CommandText = SelectEmployeesSql;
                 using var reader = command.ExecuteReader();
@@ -265,6 +408,23 @@ namespace TSLog.Yard.Data
                 reader.Close();
             }
             return employees.ToArray();
+        }
+        private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
+        private Department CreateDepartment(DbDataReader reader)
+        {
+            return null;
+        }
+        public Department GetDepartment(int id)
+        {
+            return null;
+        }
+        public Department GetDepartment(string code)
+        {
+            return null;
+        }
+        public Department[] GetDepartments()
+        {
+            return null;
         }
         private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
         private static Position CreatePosition(DbDataReader reader)
