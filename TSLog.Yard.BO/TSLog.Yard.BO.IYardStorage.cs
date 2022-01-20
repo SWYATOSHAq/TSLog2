@@ -12,7 +12,7 @@ namespace TSLog.Yard.BO
     public interface IYardCommonStorage
     {
         public OperationType GetOperationType(short id);
-        public OperationType GetOperationType(string code);        
+        public OperationType GetOperationType(string code);
         public OperationType[] GetOperationTypes(Partner partner);
         public OperationType[] GetOperationTypes();
         public Entity GetOperationState(short id);
@@ -51,15 +51,15 @@ namespace TSLog.Yard.BO
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
         public void CancelOperationGate(Operation operation);
-        public void EditOperation(Operation operation);        
-        public void StartOperation(Operation operation);        
+        public void EditOperation(Operation operation);
+        public void StartOperation(Operation operation);
         public void SetResponsibleOfficer(Operation operation, Employee officer);
         public void StartOperationWork(Operation operation);
-        public void FinishOperationWork(Operation operation);        
+        public void FinishOperationWork(Operation operation);
         public void FinishOperation(Operation operation);
         public void CancelOperation(Operation operation);
         public void DeleteOperation(Operation operation);
-        public void AddAction(Operation operation, WarehouseAction action);        
+        public void AddAction(Operation operation, WarehouseAction action);
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);
         public void AddWorker(Operation operation, Employee worker, Position position);
@@ -69,7 +69,7 @@ namespace TSLog.Yard.BO
     public interface IYardWmsStorage
     {
         public WarehouseAction GetAction(ActionKind actionKind, string id);
-        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);        
+        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
         public Partner[] GetPartners(bool getOnlyActive = false);
