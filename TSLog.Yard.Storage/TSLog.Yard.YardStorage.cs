@@ -36,6 +36,18 @@ namespace TSLog.Yard
         {
             _oracleStorage.CommonSchema = commonSchema;
         }
+        public void SetOracleStaffSchema(string staffShcema)
+        {
+            _oracleStorage.StaffSchema = staffShcema;
+        }
+        public void SetOracleLegalEntitiesSchema(string legalEntitiesSchema)
+        {
+            _oracleStorage.LegalEntitieSchema = legalEntitiesSchema;
+        }
+        public void SetOraclePartnersSchema(string partnersSchema)
+        {
+            _oracleStorage.PartnersSchema = partnersSchema;
+        }
         public void DisconnectOracle()
         {
             _oracleStorage.Disconnect();

@@ -70,7 +70,7 @@ namespace TSLog.Yard.Data
                     action = CreateAction(reader);
                 reader.Close();
             }
-            if (action != null && action != WarehouseAction.Null)
+            if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
                 return action;
             throw new WarehouseActionNotFoundException(id);
         }
@@ -97,7 +97,7 @@ namespace TSLog.Yard.Data
                     action = CreateAction(reader);
                 reader.Close();
             }
-            if (action != null && action != WarehouseAction.Null)
+            if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
@@ -178,7 +178,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("id is empty");
             id = id.Trim().ToUpper();
             var partner = _partners[id];
-            if (partner != null && partner != Partner.Null)
+            if (partner != null && partner != Partner.Null && partner != Partner.Empty)
                 return partner;
             using (var command = _connection.CreateCommand())
             {
@@ -196,7 +196,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            if (partner != null && partner != Partner.Null)
+            if (partner != null && partner != Partner.Null && partner != Partner.Empty)
                 return partner;
             throw new PartnerNotFoundException(id);
         }
@@ -295,7 +295,7 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : 0;
             var employee = _employees[id];
-            if (employee != null && employee != Employee.Null)
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
                 return employee;
             using (var command = _connection.CreateCommand())
             {
@@ -326,7 +326,7 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
-            if (employee != null && employee != Employee.Null)
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
                 return employee;
             throw new EmployeeNotFoundException(id);
         }
