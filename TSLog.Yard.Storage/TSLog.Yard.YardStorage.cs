@@ -307,6 +307,9 @@ namespace TSLog.Yard
             GC.SuppressFinalize(this);
         }
 
-
+        public Employee[] FindEmployees(string pattern)
+        {
+            throw new NotImplementedException(); // bruh
+        }
     }
 }

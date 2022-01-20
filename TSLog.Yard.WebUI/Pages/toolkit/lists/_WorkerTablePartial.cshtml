@@ -30,16 +30,33 @@
                         <tr>
                             <td>@i</td>
                             <td>@key.DisplayName ( @positions[key] )</td>
-                            <td> </td>
+                            <td>
+                                <div class="dropdown">
+                                    <div class="input-group">
+                                        <input class="form-control dropdown-toggle" type="text" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style="max-height: 10em; overflow: auto;">
+                                            <li><a class="dropdown-item" href="#">Иванов</a></li>
+                                            <li><a class="dropdown-item" href="#">Петров</a></li>
+                                            <li><a class="dropdown-item" href="#">Сидоров</a></li>
+                                            <li><a class="dropdown-item" href="#">Сидоров</a></li>
+                                            <li><a class="dropdown-item" href="#">Сидоров</a></li>
+                                            <li><a class="dropdown-item" href="#">Сидоров</a></li>
+                                            <li><a class="dropdown-item" href="#">Сидоров</a></li>
+                                            <li><a class="dropdown-item" href="#">Сидоров</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </td>
                         </tr>
-                        
+
                         i++;
                     }
                 }
             }
             else
             {
-               @for (var j = 0; j < defaultRows; j++)
+                @for (var j = 0; j < defaultRows; j++)
                 {
                     <tr>
                         <td>@i</td>
@@ -47,7 +64,7 @@
                         <td></td>
                     </tr>
                     i++;
-                } 
+                }
             }
         </tbody>
     </table>

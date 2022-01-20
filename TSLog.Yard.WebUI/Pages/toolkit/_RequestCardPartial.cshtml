@@ -66,13 +66,13 @@
     textFieldsBody.Add("Марка авто'", ("vehicle_brand", cardData.VehicleBrand));
     textFieldsBody.Add("Модель авто'", ("vehicle_model", cardData.VehicleModel));
     textFieldsBody.Add("Номер авто'", ("vehicle_number", cardData.VehicleNumber));
-    textFieldsBody.Add("Номер заказа", ("order_id", lonelyAction));
-    textFieldsBody.Add("ФИО водителя", ("driver_name", cardData.DriverName));
+    textFieldsBody.Add("Номер заказа'", ("order_id", lonelyAction));
+    textFieldsBody.Add("ФИО водителя'", ("driver_name", cardData.DriverName));
 
-    textFieldsBody.Add("телефон водителя", ("driver_phone", cardData.DriverPhoneNumber));
+    textFieldsBody.Add("Телефон водителя", ("driver_phone", cardData.DriverPhoneNumber));
     textFieldsBody.Add("ФИО менеджера", ("manager_name", cardData.PartnerManagerName));
-    textFieldsBody.Add("телефон менеджера", ("manager_phone", cardData.PartnerManagerPhoneNumber));
-    textFieldsBody.Add("почта менеджера", ("manager_email", cardData.PartnerManagerEmail));
+    textFieldsBody.Add("Телефон менеджера", ("manager_phone", cardData.PartnerManagerPhoneNumber));
+    textFieldsBody.Add("Почта менеджера", ("manager_email", cardData.PartnerManagerEmail));
     textFieldsBody.Add("Примечание", ("note", cardData.Note));
 
     var textDataList = (textDataHeader, isEnabled);
@@ -147,7 +147,7 @@
                 </div>
                 //
 
-                if (cardData.State.Code == "CREATED" || cardData.State.Code == "CONFIRMED")
+                if (cardData.State.Code == "CREATED" || cardData.State.Code == "CONFIRMED" || cardData.State.Code == "STARTED")
                 {
 
                     <div class="d-grid m-2 row">

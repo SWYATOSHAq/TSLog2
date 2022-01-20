@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TSLog.Common.BO;
+using TSLog.ExceptionHandler;
 using TSLog.Partners.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
@@ -295,21 +296,31 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     default:
                         break;
                 }
-                newOperation.AddAction(yardStorage.GetAction(actionKind, yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
-                yardStorage.AddOperation(newOperation);
 
-                // TODO somehow dont work properly
-                //yardStorage.AddAction(newOperation, new WarehouseActions.BO.WarehouseAction(WarehouseActions.BO.ActionKind.Income, "not-set", yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
                 try
                 {
-                    yardStorage.SetOperationGate(newOperation);
+                    newOperation.AddAction(yardStorage.GetAction(actionKind, yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
+                    yardStorage.AddOperation(newOperation);
+                    try
+                    {
+                        yardStorage.SetOperationGate(newOperation);
+                    }
+                    catch (Exception e)
+                    {
+                        Text = "eror||ошибка, ворота не были проставлены, измените время или тип машины";
+                    }
+
+                    Text = JsonSerializer.Serialize(newOperation);
                 }
-                catch (Exception e)
+                //catch (WarehouseActionNotFoundException e) // bruh dont working
+                catch (WarehouseActionNotFoundException)
                 {
-                    Text = "eror||ошибка, ворота не были проставлены, измените время или тип машины";
+                    Text = "eror||ошибка, номер заказа партнера не действителен или отсутствует в БД";
                 }
 
-                Text = JsonSerializer.Serialize(newOperation);
+
+
+
             }
 
             return Text;
