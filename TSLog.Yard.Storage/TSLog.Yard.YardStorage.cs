@@ -306,10 +306,5 @@ namespace TSLog.Yard
             _pgsqlStorage.Dispose();
             GC.SuppressFinalize(this);
         }
-
-        public Employee[] FindEmployees(string pattern)
-        {
-            throw new NotImplementedException(); // bruh
-        }
     }
 }

@@ -39,7 +39,8 @@
     displayCollumns.Add("Количество машин"); // add first collumn with amount of cars per period
 
     foreach (var worker in workers)
-        displayCollumns.Add(worker.DisplayName);
+        if (worker.IsLinear)
+            displayCollumns.Add(worker.DisplayName);
 
 }
 
