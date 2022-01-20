@@ -26,6 +26,9 @@ string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
 string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
 string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
 string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
+string oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema");
+string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema");
+string oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema");
 
 var pgsqlConnectionSettings = isDebug 
     ? builder.Configuration.GetSection("PostgreeSqlConnectionDebugSettings")
@@ -40,6 +43,9 @@ var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);
 
 storage.ConnectOracle(oracleUserName, oraclePassword);
 storage.SetOracleCommonSchema(oracleCommonSchema);
+storage.SetOracleStaffSchema(oracleStaffSchema);
+storage.SetOracleLegalEntitiesSchema(oracleLegalEntitiesSchema);
+storage.SetOraclePartnersSchema(oraclePartnersSchema);
 storage.ConnectPgSql(pgsqlUserName, pgsqlPassword);
 storage.SetPgsqlYardSchema(pgsqlYardSchema);
 

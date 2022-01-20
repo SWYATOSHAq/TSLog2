@@ -96,7 +96,7 @@ namespace TSLog.Common.Data
             if (catalog != null)
             {
                 entity = catalog[id];
-                if (entity != null && entity != Entity.Null)
+                if (entity != null && entity != Entity.Null && entity != Entity.Empty)
                     return entity;
             }
             using (var connection = CloneConnection())
@@ -116,7 +116,7 @@ namespace TSLog.Common.Data
                 }
                 connection.Close();
             }
-            if (entity != null && entity != Entity.Null)
+            if (entity != null && entity != Entity.Null && entity != Entity.Empty)
                 return entity;
             throw new EntityNotFoundException(id);
         }
@@ -131,7 +131,7 @@ namespace TSLog.Common.Data
             if (catalog != null)
             {
                 entity = catalog[code];
-                if (entity != null && entity != Entity.Null)
+                if (entity != null && entity != Entity.Null && entity != Entity.Empty)
                     return entity;
             }
             using (var connection = CloneConnection())
@@ -151,7 +151,7 @@ namespace TSLog.Common.Data
                 }
                 connection.Close();
             }
-            if (entity != null && entity != Entity.Null)
+            if (entity != null && entity != Entity.Null && entity != Entity.Empty)
                 return entity;
             throw new EntityNotFoundException(code);
         }

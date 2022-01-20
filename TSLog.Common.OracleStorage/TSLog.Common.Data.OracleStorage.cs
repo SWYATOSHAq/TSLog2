@@ -17,7 +17,7 @@ namespace TSLog.Common.Data
         protected OracleConnection _connection = null;
         protected string _dataSource = string.Empty;
 
-        private const string DefaultCommonSchema = "ecco";
+        private const string DefaultCommonSchema = "common";
         /// <summary>
         /// Схема для "общих" объектов
         /// </summary>

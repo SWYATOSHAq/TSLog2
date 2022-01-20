@@ -17,9 +17,9 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
-        private const string DefaultStaffSchema = "ecco";
-        private const string DefaultLegalEntitiesSchema = "ecco";
-        private const string DefaultPartnersSchema = "ecco";
+        private const string DefaultStaffSchema = "staff";
+        private const string DefaultLegalEntitiesSchema = "legal_entities";
+        private const string DefaultPartnersSchema = "partners";
         /// <summary>
         /// Схема для объектов учёта персонала
         /// </summary>

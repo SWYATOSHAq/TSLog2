@@ -65,7 +65,7 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : (short)-1;
             var gate = _gates[id];
-            if (gate != null && gate != Gate.Null)
+            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
                 return gate;
             using (var connection = CloneConnection())
             {
@@ -86,7 +86,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (gate != null && gate != Gate.Null)
+            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
                 return gate;
             throw new EntityNotFoundException(nameof(Gate), id);
         }
@@ -96,7 +96,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
             var gate = _gates[code];
-            if (gate != null && gate != Gate.Null)
+            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
                 return gate;
             using (var connection = CloneConnection())
             {
@@ -117,7 +117,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (gate != null && gate != Gate.Null)
+            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
                 return gate;
             throw new EntityNotFoundException(nameof(Gate), code);
         }
@@ -173,7 +173,7 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : -1;
             var logist = _logists[id];
-            if (logist != null && logist != Logist.Null)
+            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
                 return logist;
 
             using (var connection = CloneConnection())
@@ -196,7 +196,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (logist != null && logist != Logist.Null)
+            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
                 return logist;
             throw new EntityNotFoundException(nameof(logist), id);
         }
@@ -206,7 +206,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
             var logist = _logists[code];
-            if (logist != null && logist != Logist.Null)
+            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
                 return logist;
             using (var connection = CloneConnection())
             {
@@ -228,7 +228,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (logist != null && logist != Logist.Null)
+            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
                 return logist;
             throw new EntityNotFoundException(nameof(logist), code);
         }
@@ -314,7 +314,7 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : (short)-1;
             var operationType = _operationTypes[id];
-            if (operationType != null && operationType != OperationType.Null)
+            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
                 return operationType;
 
             using (var connection = CloneConnection())
@@ -338,7 +338,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (operationType != null && operationType != OperationType.Null)
+            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
                 return operationType;
             throw new EntityNotFoundException(nameof(operationType), id);
         }
@@ -348,7 +348,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
             var operationType = _operationTypes[code];
-            if (operationType != null && operationType != OperationType.Null)
+            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
                 return operationType;
             using (var connection = CloneConnection())
             {
@@ -371,7 +371,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (operationType != null && operationType != OperationType.Null)
+            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
                 return operationType;
             throw new EntityNotFoundException(nameof(operationType), code);
         }
@@ -458,7 +458,7 @@ namespace TSLog.Yard.Data
         {
             id = id > 0 ? id : (short)-1;
             var vehicleKind = _vehicleKinds[id];
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
                 return vehicleKind;
 
             using (var connection = CloneConnection())
@@ -482,7 +482,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
                 return vehicleKind;
             throw new EntityNotFoundException(nameof(vehicleKind), id);
         }
@@ -492,7 +492,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("code is empty");
             code = code.Trim().ToUpper();
             var vehicleKind = _vehicleKinds[code];
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
                 return vehicleKind;
             using (var connection = CloneConnection())
             {
@@ -515,7 +515,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null)
+            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
                 return vehicleKind;
             throw new EntityNotFoundException(nameof(vehicleKind), code);
         }
