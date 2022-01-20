@@ -552,3 +552,48 @@ $(document).ready(function() {
 function OpenStatisticsByDate() {
     location.href = '/p/statistics/HumanDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
 }
+
+//====================================================
+
+
+$(document).ready(function() {
+    // make search on every letter change in #card-operation.dropdown-toggle
+    // also on change if nearest selected-item-id is not empty delete data from it and post to api
+    // also change list of items in #card-operation.dropdown-menu
+
+    $('.dropdown-toggle').bind("keypress", function(e) {
+        var inputField = $(this);
+        console.log(inputField.val());
+    });
+
+    // get event on click of every li element in #card-operation.dropdown-menu 
+    // and chenge value of nearest #card-operation.dropdown-toggle by its content and post to api
+    // + save info into 
+
+    $('.dropdown-item').click(function() {
+        var selectedWorker = $(this);
+        var inputGroup = selectedWorker.parent().parent();
+        //
+        inputGroup.children(".dropdown-toggle").val(selectedWorker.text());
+        //
+        console.log(inputGroup.children(".dropdown-toggle"));
+        console.log(inputGroup.children(".position-code").val());
+        console.log(inputGroup.children(".selected-item-id").val());
+
+
+        var postData = {
+            operation_id: $("#identeficator").text(),
+            action_type: 'add',
+            worker_id: inputGroup.children(".selected-item-id").val(),
+            position_code: inputGroup.children(".position-code").val(),
+        };
+
+        $.post("/api/v1/yard/UpdateOperationWorkers", postData, function(data) {
+            console.log(data);
+        });
+
+
+
+        return false;
+    });
+});

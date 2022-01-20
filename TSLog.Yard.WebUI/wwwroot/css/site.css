@@ -75,3 +75,7 @@ td {
     margin-top: 2rem;
 
 }
+
+.dropdown-item {
+    cursor: pointer;
+}
