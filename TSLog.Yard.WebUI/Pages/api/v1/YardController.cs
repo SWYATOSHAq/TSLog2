@@ -382,12 +382,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string Text = string.Empty;
             //
 
-            string searchQuerry = Request.Query["search"];
+            string search_querry = Request.Query["search"];
+            string position_code = Request.Query["position_code"];
 
-            // temp
-            var workers = yardStorage.GetEmployees();
-            //var workers = yardStorage.getWorkers(searchQuerry);
+            var loadedPosition = yardStorage.GetPosition(position_code);
 
+            var workers = yardStorage.FindEmployees(loadedPosition, search_querry);
             //////
             Text = JsonSerializer.Serialize(workers);
             return Text;
