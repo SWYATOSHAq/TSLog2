@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TSLog.Common.BO\TSLog.Common.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Partners.BO\TSLog.Partners.BO.csproj" />
   </ItemGroup>
 
 </Project>

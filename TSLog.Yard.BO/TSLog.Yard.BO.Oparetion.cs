@@ -625,7 +625,7 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_empty == null)
-                    _empty = new Operation();
+                    _empty = new TSLog.Yard.BO.Operation();
                 return _empty;
             }
         }

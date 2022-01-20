@@ -61,6 +61,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployees();
         }
+        public Employee[] FindEmployees(string pattern)
+        {
+            return _oracleStorage.FindEmployees(pattern);
+        }
         public Position GetPosition(short id)
         {
             return _oracleStorage.GetPosition(id);
