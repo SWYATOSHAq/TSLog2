@@ -71,12 +71,13 @@ namespace TSLog.Yard.BO
     {
         public WarehouseAction GetAction(ActionKind actionKind, string id);
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
-        public LegalEntity GetLegalEntity(string id);        
+        public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
         public Partner[] GetPartners(bool getOnlyActive = false);
         public Employee GetEmployee(int id);
         public Employee[] FindEmployees(string pattern);
+        public Employee[] FindEmployees(Position position, string pattern);
         public Employee[] GetEmployees();
         public Department GetDepartment(short id);
         public Department GetDepartment(string code);
