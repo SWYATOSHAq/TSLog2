@@ -16,16 +16,16 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
-        private const string DefaultCommonSchema = "ecco";
-        private const string DefaultStaffSchema = "staff";
-        /// <summary>
-        /// Схема для "общих" объектов БД
-        /// </summary>
-        public string CommonSchema { private get; set; } = DefaultCommonSchema;
+        private const string DefaultStaffSchema = "ecco";
+        private const string DefaultPartnersSchema = "ecco";
         /// <summary>
         /// Схема для объектов учёта персонала
         /// </summary>
-        public string StaffSchema { private get; set; } = DefaultStaffSchema; 
+        public string StaffSchema { protected get; set; } = DefaultStaffSchema;
+        /// <summary>
+        /// Схема для партнёров (покупателей наших складских и логистических услуг)
+        /// </summary>
+        public string PartnersSchema { protected get; set; } = DefaultPartnersSchema;
         public YardOracleStorage(string dataSource) : base(dataSource)
         { }
 
@@ -125,7 +125,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectPartnerByIdSql =
                     $"select p.id, p.name, p.display_order " +
-                    $"  from {CommonSchema}.v_partner p " +
+                    $"  from {PartnersSchema}.par_partner#v p " +
                     $" where upper(trim(p.id)) = :id";
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -151,7 +151,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectPartnerManagersSql =
                     $"select pm.manager_id " +
-                    $"  from {CommonSchema}.v_partner_manager pm " +
+                    $"  from {StaffSchema}.stf_partner_manager#v pm " +
                     $" where pm.partner_id = :partner_id";
                 command.CommandText = SelectPartnerManagersSql;
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
@@ -173,7 +173,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectPartnersSql =
                     $"select p.id, p.name, p.display_order " +
-                    $"  from {CommonSchema}.v_partner p";
+                    $"  from {PartnersSchema}.par_partner#v p";
                 command.CommandText = SelectPartnersSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -210,7 +210,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectEmployeeById =
                     $"select e.id, e.code, e.name " +
-                    $"  from {CommonSchema}.v_employee e " +
+                    $"  from {StaffSchema}.stf_employee#v e " +
                     $" where e.id = :id";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -235,7 +235,7 @@ namespace TSLog.Yard.Data
             {
                 var FindEmployeesSql =
                     $"select e.id, e.code, e.name " +
-                    $"  from {StaffSchema}.v_employee e";
+                    $"  from {StaffSchema}.stf_employee#v e";
                 command.CommandText = FindEmployeesSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -254,7 +254,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectEmployeesSql =
                     $"select e.id, e.code, e.name " +
-                    $"  from {CommonSchema}.v_employee e";
+                    $"  from {StaffSchema}.stf_employee#v e";
                 command.CommandText = SelectEmployeesSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -304,7 +304,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectPositionByIdSql =
                     $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
-                    $"  from {CommonSchema}.v_position p " +
+                    $"  from {StaffSchema}.stf_position#v p " +
                     $" where p.id = :id";
                 command.CommandText = SelectPositionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -333,7 +333,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectPositionByCodeSql =
                     $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
-                    $"  from {CommonSchema}.v_position p " +
+                    $"  from {StaffSchema}.stf_position#v p " +
                     $" where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
@@ -356,7 +356,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectPositionsSql =
                     $"select p.id, p.code, p.name, p.short_name, p.alt_name, p.display_name, p.is_active, p.display_order, p.is_linear, p.note " +
-                    $"  from {CommonSchema}.v_position p";
+                    $"  from {StaffSchema}.stf_position#v p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())

@@ -21,7 +21,7 @@ namespace TSLog.Common.Data
         /// <summary>
         /// Схема для "общих" объектов
         /// </summary>
-        public string CommonSchema { private get; set; } = DefaultCommonSchema;
+        public string CommonSchema { protected get; set; } = DefaultCommonSchema;
 
         public OracleStorage(string dataSource)
         {
