@@ -561,7 +561,11 @@ $(document).ready(function() {
     // also on change if nearest selected-item-id is not empty delete data from it and post to api
     // also change list of items in #card-operation.dropdown-menu
 
-    $('.dropdown-toggle').bind("keyup", function(e) {
+    $('.dropdown-toggle').bind("keyup", DropdownToggleHandler);
+    $('.dropdown-toggle').bind("click", DropdownToggleHandler);
+
+
+    function DropdownToggleHandler(e) {
         var inputField = $(this);
         var inputGroup = inputField.parent();
 
@@ -572,47 +576,82 @@ $(document).ready(function() {
                 position_code: inputGroup.children(".position-code").val(),
             },
             function(data) {
-                console.log(data);
-                // periods = JSON.parse(data);
+                var people = JSON.parse(data);
+                var dropdown = inputGroup.children(".dropdown-menu");
 
-                // RenderUserList(,)
+                RenderUserList(dropdown, people);
             });
 
-    });
+    }
 
-    function RenderUserList(parent, userList) {
+    function RenderUserList(parent, people) {
+        parent.children().remove();
+        people.forEach(human => {
+            var newItem = document.createElement("li");
+            newItem = $(newItem);
+            newItem.addClass("dropdown-item");
+            //
+            newItem.text(human.FullName);
+            newItem.val(human.Id);
+            newItem.click(OnItemClick);
+            //
+            parent.append(newItem);
 
+        });
     }
 
     // get event on click of every li element in #card-operation.dropdown-menu 
     // and chenge value of nearest #card-operation.dropdown-toggle by its content and post to api
     // + save info into 
 
-    $('.dropdown-item').click(function() {
+    function OnItemClick() {
         var selectedWorker = $(this);
         var inputGroup = selectedWorker.parent().parent();
         //
         inputGroup.children(".dropdown-toggle").val(selectedWorker.text());
         //
-        console.log(inputGroup.children(".dropdown-toggle"));
-        console.log(inputGroup.children(".position-code").val());
-        console.log(inputGroup.children(".selected-item-id").val());
+        // console.log(selectedWorker.val());
+        // console.log(inputGroup.children(".dropdown-toggle"));
+        // console.log(inputGroup.children(".position-code").val());
+        // console.log(inputGroup.children(".selected-item-id").val());
+
+        var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
+
+        if (curSelectedWorkerID == "") {
+            // has no selection
+            inputGroup.children(".selected-item-id").val(selectedWorker.val());
+            UpdateWorkerInfo("add", inputGroup);
+
+        } else {
+            // already has a selection
+            if (curSelectedWorkerID != selectedWorker.val()) {
+                // id has changed? so delete previous and add new
+                UpdateWorkerInfo("del", inputGroup);
+                //
+                inputGroup.children(".selected-item-id").val(selectedWorker.val());
+                UpdateWorkerInfo("add", inputGroup);
+            }
+        }
 
 
+
+
+
+        return false;
+    }
+
+    function UpdateWorkerInfo(actionType, inputGroup) {
         var postData = {
             operation_id: $("#identeficator").text(),
-            action_type: 'add',
+            action_type: actionType,
             worker_id: inputGroup.children(".selected-item-id").val(),
             position_code: inputGroup.children(".position-code").val(),
         };
 
         $.post("/api/v1/yard/UpdateOperationWorkers", postData, function(data) {
+            console.log("ret: ");
             console.log(data);
             inputGroup.children(".dropdown-toggle").trigger('click');
         });
-
-
-
-        return false;
-    });
+    }
 });

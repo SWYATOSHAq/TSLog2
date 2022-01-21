@@ -177,9 +177,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         if (type != OperationType.Null)
                             operationToUpdate.Type = type;
 
-                        if (gate != Gate.Null)
-                            operationToUpdate.Gate = gate;
-
                         if (vehicleKind != VehicleKind.Null)
                             operationToUpdate.VehicleKind = vehicleKind;
 
@@ -231,7 +228,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             operationToUpdate.Note = note;
                         //
                         yardStorage.EditOperation(operationToUpdate);
-
+                        try
+                        {
+                            if (operationToUpdate.Gate != gate)
+                                yardStorage.SetOperationGate(operationToUpdate, gate);
+                        }
+                        catch (Exception)
+                        {
+                            yardStorage.SetOperationGate(operationToUpdate);
+                            // TODO say to user that gates has not been successfully updated
+                        }
 
 
                         Text = JsonSerializer.Serialize(operationToUpdate);
