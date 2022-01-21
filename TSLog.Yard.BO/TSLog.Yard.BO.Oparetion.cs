@@ -381,6 +381,36 @@ namespace TSLog.Yard.BO
             }
             return result;
         }
+        /// <summary>
+        /// Общая стоимость работ (в зависимости от назначеных сотрудников)
+        /// </summary>
+        public double TotalCost
+        {
+            get
+            {
+                var result = 0.0;
+                var positions = Positions;
+                var positionsLaborCosts = PositionsLaborCosts();                
+                var positionsWorkers = GetWorkersByPositions();
+                foreach (var position in positions)
+                {
+                    var positionLaborCost = positionsLaborCosts[position];                                        
+                    var positionAvgCost = 0.0;
+                    if (!positionsWorkers.ContainsKey(position))
+                        positionAvgCost = position.LaborHourCost;
+                    else
+                    {
+                        var positionEmployees = positionsWorkers[position];
+                        foreach (var employee in positionEmployees)
+                            positionAvgCost += employee.Cost;
+                        positionAvgCost = positionAvgCost / positionEmployees.Count;
+                    }
+                    result += positionAvgCost * positionLaborCost / 3600;
+                }
+                return result;
+            }
+        }
+
         #endregion
 
         /// <summary>
