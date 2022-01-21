@@ -31,7 +31,7 @@
     else
         selectedYardOperation = operarationsList.Item1.Length > 0 ? operarationsList.Item1[0] : Operation.Empty;
 
-    if (selectedYardOperation.State.Code != "CREATED" && selectedYardOperation.State.Code != "CONFIRMED")
+    if (selectedYardOperation.State.Code != "CREATED" && selectedYardOperation.State.Code != "CONFIRMED" && selectedYardOperation.State.Code != "STARTED")
     {
         isEnabled = false;
     }
