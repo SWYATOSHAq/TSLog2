@@ -183,26 +183,44 @@ namespace TSLog.Common.Data
         {
             code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
             var measureUnit = _measureUnits[code];
-            if (measureUnit != null && measureUnit != MeasureUnit.Null)
+            if (measureUnit != null && measureUnit != MeasureUnit.Null && measureUnit != MeasureUnit.Empty)
                 return measureUnit;
             using (var command = _connection.CreateCommand())
             {
-                var SelectMeasureUnitByCodeSql = $"select * from {CommonSchema}.v_measure_unit m where m.code = :code";
+                var SelectMeasureUnitByCodeSql = 
+                    $"select m.id, m.code," +
+                    $"       m.name, m.short_name, m.alt_name, m.display_name," +
+                    $"       m.is_active, m.display_order," +
+                    $"       m.category, m.is_basic, m.coefficient, m.is_default," +                           
+                    $"       m.note" +
+                    $"  from {CommonSchema}.v_measure_unit m " +
+                    $" where m.code = :code";
                 command.CommandText = SelectMeasureUnitByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
+                {
                     measureUnit = CreateMeasureUnit(reader);
+                    _measureUnits.Add(measureUnit);
+                }                    
                 reader.Close();
             }
-            return measureUnit ?? MeasureUnit.Null;
+            if (measureUnit != null && measureUnit != MeasureUnit.Null && measureUnit != MeasureUnit.Empty)
+                return measureUnit;
+            throw new EntityNotFoundException(code);
         }
         public MeasureUnit[] GetMeasureUnits()
         {
             var measureUnits = new List<MeasureUnit>();
             using (var command = _connection.CreateCommand())
             {
-                var SelectMeasureUnitsSql = $"select * from {CommonSchema}.v_measure_unit";
+                var SelectMeasureUnitsSql =
+                    $"select m.id, m.code," +
+                    $"       m.name, m.short_name, m.alt_name, m.display_name," +
+                    $"       m.is_active, m.display_order," +
+                    $"       m.category, m.is_basic, m.coefficient, m.is_default," +
+                    $"       m.note" +
+                    $"  from {CommonSchema}.v_measure_unit";
                 command.CommandText = SelectMeasureUnitsSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
