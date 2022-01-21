@@ -38,17 +38,12 @@
                                     <td>@i</td>
                                     <td>
                                         <p>@key.DisplayName</p>
-                                        [@{
-                                            @(positionsWorkTime[key]/60)
-                                        } мин.] (@positionsCount[key])
+                                        [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
+                                         чел.] (@positionsCount[key])
                                     </td>
                                     <td>
-                                        @{
-                                            @(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)
-                                        }
-                                        @{
-                                            @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName)
-                                        }
+                                            <p>@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)</p>
+                                            @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName) / час
                                     </td>
                                     <td>
                                         <div class="dropdown rem-outline-on-print">
@@ -72,12 +67,11 @@
                             <tr>
                                 <td>@i</td>
                                 <td>
-                                    <p>@key.DisplayName</p>
-                                    [@{
-                                        @(positionsWorkTime[key]/60)
-                                    } мин.] (@positionsCount[key])
-                                </td>
-                                <td>@key.LaborHourCost @key.LaborHourCostCurrency.ShortName</td>
+                                        <p>@key.DisplayName</p>
+                                        [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
+                                         чел.] (@positionsCount[key])
+                                    </td>
+                                <td><p>@key.LaborHourCost</p> @key.LaborHourCostCurrency.ShortName / час</td>
                                 <td>
                                     <div class="dropdown rem-outline-on-print">
                                         <div class="input-group">
