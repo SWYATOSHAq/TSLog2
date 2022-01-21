@@ -394,13 +394,13 @@ namespace TSLog.Yard.BO
                 var positionsWorkers = GetWorkersByPositions();
                 foreach (var position in positions)
                 {
-                    var positionLaborCost = positionsLaborCosts[position];                    
-                    var positionEmployees = positionsWorkers[position];
+                    var positionLaborCost = positionsLaborCosts[position];                                        
                     var positionAvgCost = 0.0;
-                    if (positionEmployees.Count == 0)
+                    if (!positionsWorkers.ContainsKey(position))
                         positionAvgCost = position.LaborHourCost;
                     else
                     {
+                        var positionEmployees = positionsWorkers[position];
                         foreach (var employee in positionEmployees)
                             positionAvgCost += employee.Cost;
                         positionAvgCost = positionAvgCost / positionEmployees.Count;

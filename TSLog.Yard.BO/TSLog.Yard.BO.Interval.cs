@@ -533,7 +533,7 @@ namespace TSLog.Yard.BO
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
-            return !(From > other.To || To < other.From);
+            return !(From >= other.To || To <= other.From);
         }
         /// <summary>
         /// Возвращает признак "попадания" опеарции двора (ПРР) в текущий интервал
@@ -545,7 +545,7 @@ namespace TSLog.Yard.BO
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-            return !(From > operation.PlanWorkFinishDate || To < operation.PlanWorkStartDate);
+            return !(From >= operation.PlanWorkFinishDate || To <= operation.PlanWorkStartDate);
         }
 
         /// <summary>
