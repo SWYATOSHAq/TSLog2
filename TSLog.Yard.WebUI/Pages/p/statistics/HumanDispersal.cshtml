@@ -6,6 +6,7 @@
     ViewData["Title"] = "распределение людей";
     var storage = Model.yardStorage;
 
+
     // create new object
     //Operation selectedYardOperation = Operation.Empty;
 
@@ -42,6 +43,9 @@
         if (worker.IsLinear)
             displayCollumns.Add(worker.DisplayName);
 
+    var startBracket = "(";
+    var endBracket = ")";
+    var minutesText = " мин. ";
 }
 
 <div class="row p-2 hide-on-print">
@@ -90,25 +94,35 @@
                     @{
                         var tmpWorkersIn = item.MaxParallelPositionWorkers(TypeDirection.In);
                         var tmpWorkersOut = item.MaxParallelPositionWorkers(TypeDirection.Out);
+
+                        var tmpLabourCost = item.PositionsLaborCosts;
                     }
 
                     @foreach (var curWorker in workers)
                     {
                         if (curWorker.IsLinear)
                         {
-                            
-                        <td>
-                            @if (tmpWorkersIn.ContainsKey(curWorker))
-                            {
-                                @tmpWorkersIn[curWorker]
-                            }
-                        </td>
-                        <td>
-                            @if (tmpWorkersOut.ContainsKey(curWorker))
-                            {
-                                @tmpWorkersOut[curWorker]
-                            }
-                        </td>
+
+                            <td>
+
+                                @if (tmpWorkersIn.ContainsKey(curWorker))
+                                {
+                                    @(tmpLabourCost[curWorker]/60) @minutesText
+                                    @startBracket
+                                    @tmpWorkersIn[curWorker]
+                                    @endBracket
+                                }
+                            </td>
+                            <td>
+
+                                @if (tmpWorkersOut.ContainsKey(curWorker))
+                                {
+                                    @(tmpLabourCost[curWorker]/60) @minutesText
+                                    @startBracket
+                                    @tmpWorkersOut[curWorker]
+                                    @endBracket
+                                }
+                            </td>
                         }
                     }
                 </tr>

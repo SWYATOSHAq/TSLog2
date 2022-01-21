@@ -595,7 +595,12 @@ $(document).ready(function() {
         var inputField = $(this);
         var inputGroup = inputField.parent();
 
-        console.log();
+        var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
+        if (curSelectedWorkerID != "") {
+            // has selection
+            UpdateWorkerInfo("del", inputGroup);
+            inputGroup.children(".selected-item-id").val('');
+        }
 
         $.get("/api/v1/yard/SearchWorkersByName", {
                 search: inputField.val(),
@@ -636,11 +641,6 @@ $(document).ready(function() {
         //
         inputGroup.children(".dropdown-toggle").val(selectedWorker.text());
         //
-        // console.log(selectedWorker.val());
-        // console.log(inputGroup.children(".dropdown-toggle"));
-        // console.log(inputGroup.children(".position-code").val());
-        // console.log(inputGroup.children(".selected-item-id").val());
-
         var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
 
         if (curSelectedWorkerID == "") {
