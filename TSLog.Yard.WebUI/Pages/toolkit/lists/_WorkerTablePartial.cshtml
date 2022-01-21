@@ -1,10 +1,11 @@
 ﻿@using TSLog.Staff.BO
 @using TSLog.Yard.BO
-@model (IDictionary<Position, IList<Employee>>, IDictionary<Position, short>, bool)
+@model (IDictionary<Position, IList<Employee>>, IDictionary<Position, short>, IDictionary<Position, int>, bool)
 @{
     var positions = Model.Item1;
     var positionsCount = Model.Item2;
-    var isEnabled = Model.Item3;
+    var positionsWorkTime = Model.Item3;
+    var isEnabled = Model.Item4;
 
     var i = 1;
     var defaultRows = 5;
@@ -35,10 +36,22 @@
                             {
                                 <tr>
                                     <td>@i</td>
-                                    <td>@key.DisplayName ( @positionsCount[key] )</td>
-                                    <td>@{@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)} @{@(employee.Cost > 0 ? employee.CostMeasureUnit.DisplayName : @key.LaborHourCostCurrency.DisplayName)}</td>
                                     <td>
-                                        <div class="dropdown">
+                                        <p>@key.DisplayName</p>
+                                        [@{
+                                            @(positionsWorkTime[key]/60)
+                                        } мин.] (@positionsCount[key])
+                                    </td>
+                                    <td>
+                                        @{
+                                            @(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)
+                                        }
+                                        @{
+                                            @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName)
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="dropdown rem-outline-on-print">
                                             <div class="input-group">
                                                 <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="@employee.FullName">
                                                 <input type="hidden" name="position_code" class="position-code" value="@key.Code">
@@ -58,10 +71,15 @@
                         {
                             <tr>
                                 <td>@i</td>
-                                <td>@key.DisplayName ( @positionsCount[key] )</td>
-                                <td>@key.LaborHourCost @key.LaborHourCostCurrency.DisplayName</td>
                                 <td>
-                                    <div class="dropdown">
+                                    <p>@key.DisplayName</p>
+                                    [@{
+                                        @(positionsWorkTime[key]/60)
+                                    } мин.] (@positionsCount[key])
+                                </td>
+                                <td>@key.LaborHourCost @key.LaborHourCostCurrency.ShortName</td>
+                                <td>
+                                    <div class="dropdown rem-outline-on-print">
                                         <div class="input-group">
                                             <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="">
                                             <input type="hidden" name="position_code" class="position-code" value="@key.Code">

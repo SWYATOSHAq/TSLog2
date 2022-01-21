@@ -80,11 +80,12 @@
 
     var positions = cardData.GetWorkersByPositions();
     var positionsCount = cardData.PositionsWorkersCount();
+    var positionsWorkTime = cardData.PositionsLaborCosts();
     //var workers = cardData.Worke
-    var workerTable = (positions, positionsCount, true);
+    var workerTable = (positions, positionsCount, positionsWorkTime, true);
 }
 
-<div class="col p-2 m-3 shadow" id="card-operation">
+<div class="col p-2 m-3 shadow rem-outline-on-print" id="card-operation">
     <div class="row p-2 m-3 ">
         @if (cardData == Operation.Empty)
         {
