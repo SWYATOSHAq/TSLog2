@@ -78,9 +78,9 @@ namespace TSLog.Yard
         {
             return _oracleStorage.FindEmployees(pattern);
         }
-        public Employee[] FindEmployees(Position position, string pattern)
+        public Employee[] FindEmployees(Position position, string pattern, string workMode = "")
         {
-            return _oracleStorage.FindEmployees(position, pattern);
+            return _oracleStorage.FindEmployees(position, pattern, workMode);
         }
         public Department GetDepartment(short id)
         {
@@ -319,9 +319,9 @@ namespace TSLog.Yard
         #endregion
 
         #region Workers
-        public void AddWorker(Operation operation, Employee worker, Position position)
+        public void AddWorker(Operation operation, Employee worker, Position position, double cost, MeasureUnit costCurrency)
         {
-            _pgsqlStorage.AddWorker(operation, worker, position);
+            _pgsqlStorage.AddWorker(operation, worker, position, cost, costCurrency);
         }
         public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
         {

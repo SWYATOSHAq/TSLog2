@@ -377,7 +377,7 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
-        public Employee[] FindEmployees(Position position, string pattern)
+        public Employee[] FindEmployees(Position position, string pattern, string workMode = "")
         {
             if (position == null)
                 throw new ArgumentNullException(nameof(position));
@@ -389,22 +389,33 @@ namespace TSLog.Yard.Data
                     $"select ep.employee_id" +
                     $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
                     $" where ep.position_id = :position_id" +
-                    $"  and (upper(trim(ep.employee_surname)) like :pattern" +
-                    $"    or upper(trim(ep.employee_first_name)) like :pattern" +
-                    $"    or upper(trim(ep.employee_patronymic)) like :pattern" +
-                    $"    or upper(trim(ep.employee_short_name)) like :pattern" +
-                    $"    or upper(trim(ep.employee_short_name2)) like :pattern" +
-                    $"    or upper(trim(ep.employee_short_name3)) like :pattern" +
-                    $"    or upper(trim(ep.employee_short_name4)) like :pattern" +
-                    $"    or upper(trim(ep.employee_alt_name)) like :pattern" +
-                    $"    or upper(trim(ep.employee_alt_name2)) like :pattern" +
-                    $"    or upper(trim(ep.employee_alt_name3)) like :pattern" +
-                    $"    or upper(trim(ep.employee_alt_name4)) like :pattern" +
-                    $"    or upper(trim(ep.employee_full_name)) like :pattern" +
-                    $"    or upper(trim(ep.employee_full_name2)) like :pattern)";
+                    $"   and (:work_mode is null or upper(trim(ep.work_mode)) = :work_mode) " +
+                    $"   and (upper(trim(ep.employee_surname)) like :pattern" +
+                    $"     or upper(trim(ep.employee_first_name)) like :pattern" +
+                    $"     or upper(trim(ep.employee_patronymic)) like :pattern" +
+                    $"     or upper(trim(ep.employee_short_name)) like :pattern" +
+                    $"     or upper(trim(ep.employee_short_name2)) like :pattern" +
+                    $"     or upper(trim(ep.employee_short_name3)) like :pattern" +
+                    $"     or upper(trim(ep.employee_short_name4)) like :pattern" +
+                    $"     or upper(trim(ep.employee_alt_name)) like :pattern" +
+                    $"     or upper(trim(ep.employee_alt_name2)) like :pattern" +
+                    $"     or upper(trim(ep.employee_alt_name3)) like :pattern" +
+                    $"     or upper(trim(ep.employee_alt_name4)) like :pattern" +
+                    $"     or upper(trim(ep.employee_full_name)) like :pattern" +
+                    $"     or upper(trim(ep.employee_full_name2)) like :pattern)";
+                command.BindByName = true;
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("position_id", position.Id));
+
+                var workModeParameter = new OracleParameter
+                {
+                    ParameterName = "work_mode",
+                    OracleDbType = OracleDbType.NVarchar2,
+                    Value = !string.IsNullOrWhiteSpace(workMode) ? workMode.Trim().ToUpper() : DBNull.Value
+                };
+
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
+                command.Parameters.Add(workModeParameter);
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {

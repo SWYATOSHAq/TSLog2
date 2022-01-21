@@ -405,7 +405,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var Text = "";
 
             string operation_id = Request.Form["operation_id"];
-            string action_type = Request.Form["action"];
+            string action_type = Request.Form["action_type"];
 
             string worker_id = Request.Form["worker_id"];
             string position_code = Request.Form["position_code"];
@@ -420,7 +420,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     switch (action_type)
                     {
                         case "add":
-                            yardStorage.AddWorker(loadedOperation, loadedWorker, loadedPosition);
+                            yardStorage.AddWorker(loadedOperation, loadedWorker, loadedPosition, 0.0, MeasureUnit.Null);
                             break;
                         case "del":
                             yardStorage.RemoveWorker(loadedOperation, loadedWorker, loadedPosition);

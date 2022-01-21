@@ -63,7 +63,7 @@ namespace TSLog.Yard.BO
         public void AddAction(Operation operation, WarehouseAction action);
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);
-        public void AddWorker(Operation operation, Employee worker, Position position);
+        public void AddWorker(Operation operation, Employee worker, Position position, double cost, MeasureUnit costCurrency);
         public Operation.OperationWorker[] GetOperationWorkers(Operation operation);
         public void RemoveWorker(Operation operation, Employee worker, Position position);
     }
@@ -77,7 +77,7 @@ namespace TSLog.Yard.BO
         public Partner[] GetPartners(bool getOnlyActive = false);
         public Employee GetEmployee(int id);
         public Employee[] FindEmployees(string pattern);
-        public Employee[] FindEmployees(Position position, string pattern);
+        public Employee[] FindEmployees(Position position, string pattern, string workMode = "");
         public Employee[] GetEmployees();
         public Department GetDepartment(short id);
         public Department GetDepartment(string code);

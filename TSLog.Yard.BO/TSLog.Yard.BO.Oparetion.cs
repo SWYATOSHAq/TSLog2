@@ -370,6 +370,17 @@ namespace TSLog.Yard.BO
                 return _operationWorkers.ToArray();
             }
         }
+        public IDictionary<Position, IList<Employee>> GetWorkersByPositions()
+        {
+            var result = new Dictionary<Position, IList<Employee>>();
+            foreach (var operationWorker in _operationWorkers)
+            {
+                if (!result.ContainsKey(operationWorker.Position))
+                    result.Add(operationWorker.Position, new List<Employee>());
+                result[operationWorker.Position].Add(operationWorker.Worker);
+            }
+            return result;
+        }
         #endregion
 
         /// <summary>

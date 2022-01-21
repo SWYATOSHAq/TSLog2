@@ -1399,7 +1399,7 @@ namespace TSLog.Yard.Data
                 var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
                 newKeys.Add(key);
                 if (!oldKeys.Contains(key))
-                    AddWorker(operation, operationWorker.Worker, operationWorker.Position);
+                    AddWorker(operation, operationWorker.Worker, operationWorker.Position, 0.0, MeasureUnit.Null);
             }
 
             foreach (var operationWorker in oldWorkers)
@@ -1563,7 +1563,7 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Workers
-        public void AddWorker(Operation operation, Employee worker, Position position)
+        public void AddWorker(Operation operation, Employee worker, Position position, double cost, MeasureUnit costCurrency)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -1571,15 +1571,21 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(worker));
             if (position == null)
                 throw new ArgumentNullException(nameof(position));
+            if (costCurrency == null)
+                throw new ArgumentNullException(nameof(costCurrency));
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
             var sql = $"select {YardSchema}.add_operation_worker(:p_operation_id, " +
                 $":p_worker_id, " +
-                $":p_position_id);";
+                $":p_position_id, " +
+                $":p_cost, " +
+                $"':p_cost_currency');";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, worker.Id));
             command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
+            command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? cost : DBNull.Value));
+            command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? costCurrency.Code : DBNull.Value));
             command.ExecuteScalar();
             connection.Close();
         }
