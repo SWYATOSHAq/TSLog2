@@ -193,7 +193,7 @@ namespace TSLog.Common.Data
                     $"       m.is_active, m.display_order," +
                     $"       m.category, m.is_basic, m.coefficient, m.is_default," +                           
                     $"       m.note" +
-                    $"  from {CommonSchema}.v_measure_unit m " +
+                    $"  from {CommonSchema}.measure_unit#v m " +
                     $" where m.code = :code";
                 command.CommandText = SelectMeasureUnitByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
@@ -220,7 +220,7 @@ namespace TSLog.Common.Data
                     $"       m.is_active, m.display_order," +
                     $"       m.category, m.is_basic, m.coefficient, m.is_default," +
                     $"       m.note" +
-                    $"  from {CommonSchema}.v_measure_unit";
+                    $"  from {CommonSchema}.measure_unit#v";
                 command.CommandText = SelectMeasureUnitsSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
