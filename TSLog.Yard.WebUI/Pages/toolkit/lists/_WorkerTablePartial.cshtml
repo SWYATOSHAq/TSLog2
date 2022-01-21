@@ -15,8 +15,9 @@
     <table class="table table-light p-3 show-table-on-print">
         <thead>
             <tr>
-                <th>номер</th>
+                <th>№</th>
                 <th>Должность</th>
+                <th>Стоимость</th>
                 <th>ФИО ответственного</th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@
                             <tr>
                                 <td>@i</td>
                                 <td>@key.DisplayName ( @positions[key] )</td>
+                                <td>@key.LaborHourCost @key.LaborHourCostCurrency.DisplayName</td>
                                 <td>
                                     <div class="dropdown">
                                         <div class="input-group">
