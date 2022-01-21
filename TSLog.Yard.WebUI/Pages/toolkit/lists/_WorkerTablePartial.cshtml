@@ -1,9 +1,10 @@
 ﻿@using TSLog.Staff.BO
 @using TSLog.Yard.BO
-@model (IDictionary<Position, IList<Employee>>, bool)
+@model (IDictionary<Position, IList<Employee>>, IDictionary<Position, short>, bool)
 @{
     var positions = Model.Item1;
-    var isEnabled = Model.Item2;
+    var positionsCount = Model.Item2;
+    var isEnabled = Model.Item3;
 
     var i = 1;
     var defaultRows = 5;
@@ -22,24 +23,49 @@
             </tr>
         </thead>
         <tbody>
-            @if (positions.Count > 0)
+            @if (positionsCount.Count > 0)
             {
-                @foreach (var key in positions.Keys)
+                @foreach (var key in positionsCount.Keys)
                 {
                     @if (key.IsLinear)
-                        @foreach (var employee in positions[key])
-                        @*@for (var j = 0; j < positions[key]; j++)*@
+                    {
+                        if (positions.ContainsKey(key))
+                            @foreach (var employee in positions[key])
+                            @*@for (var j = 0; j < positions[key]; j++)*@
+                            {
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@key.DisplayName ( @positionsCount[key] )</td>
+                                    <td>@{@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)} @{@(employee.Cost > 0 ? employee.CostMeasureUnit.DisplayName : @key.LaborHourCostCurrency.DisplayName)}</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <div class="input-group">
+                                                <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="@employee.FullName">
+                                                <input type="hidden" name="position_code" class="position-code" value="@key.Code">
+                                                <input type="hidden" name="selected_item_id" class="selected-item-id" value="@employee.Id">
+                                                <ul class="dropdown-menu" aria-labelledby="список сотрудников" style="max-height: 10em; overflow: auto;">
+                                                    <li class="dropdown-item"></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+
+                                i++;
+                            }
+                        @for (var j = 0; j < positionsCount[key] - ((positions.ContainsKey(key) ? positions[key].Count : 0)); j++)
                         {
                             <tr>
                                 <td>@i</td>
-                                <td>@key.DisplayName ( @positions[key] )</td>
+                                <td>@key.DisplayName ( @positionsCount[key] )</td>
                                 <td>@key.LaborHourCost @key.LaborHourCostCurrency.DisplayName</td>
                                 <td>
                                     <div class="dropdown">
                                         <div class="input-group">
-                                            <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="@employee.FullName">
+                                            <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="">
                                             <input type="hidden" name="position_code" class="position-code" value="@key.Code">
-                                            <input type="hidden" name="selected_item_id" class="selected-item-id" value="@employee.Id">
+                                            <input type="hidden" name="selected_item_id" class="selected-item-id" value="">
                                             <ul class="dropdown-menu" aria-labelledby="список сотрудников" style="max-height: 10em; overflow: auto;">
                                                 <li class="dropdown-item"></li>
                                             </ul>
@@ -51,6 +77,8 @@
 
                             i++;
                         }
+                    }
+
                 }
             }
             else

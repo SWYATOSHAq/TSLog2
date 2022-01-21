@@ -79,8 +79,9 @@
     var textFieldsList = (textFieldsBody, isEnabled);
 
     var positions = cardData.GetWorkersByPositions();
+    var positionsCount = cardData.PositionsWorkersCount();
     //var workers = cardData.Worke
-    var workerTable = (positions, true);
+    var workerTable = (positions, positionsCount, true);
 }
 
 <div class="col p-2 m-3 shadow" id="card-operation">
