@@ -358,7 +358,6 @@ function Update() {
         $("#card-operation #vehicle_number").val() != ""
     ) {
 
-
         var postData = {
             operation_id: $("#card-operation #operation_id").val(),
 
@@ -396,6 +395,8 @@ function Update() {
             // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
             location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
         });
+
+
     } else {
         alert('не все обязательные поля введены');
     }
@@ -404,21 +405,46 @@ function Update() {
 }
 
 function ChangeState(stateChangeType) {
-    var postData = {
-        operation_id: $("#identeficator").text(),
-        action: stateChangeType,
-    };
 
-    $.post("/api/v1/yard/changeOperationState", postData, function(data) {
-        var card = JSON.parse(data);
-        console.log(card);
-        if (stateChangeType == "DeleteOperation" || stateChangeType == "CancelOperation")
-            window.location.href = window.location.href.split("?", 1);
-        else
-            window.location.href = window.location.search;
+    var isAllHumanFieldsFull = true;
+    // bruh
+    $(".dropdown .form-control").each(function() {
+        var inputGroup = $(this).parent();
+        var info = inputGroup.children(".selected-item-id").val();
+
+        isAllHumanFieldsFull = isAllHumanFieldsFull && info != '';
     });
 
+    // $(".dropdown .form-control").each(inputField => {
+    //             console.log(inputField.text());
+    //             var inputGroup = inputField.parent();
 
+    //             console.log();
+
+    //             $.get("/api/v1/yard/SearchWorkersByName", {
+    //                 search: inputField.val(),
+    //                 position_code: inputGroup.children(".position-code").val(),
+    //             });
+
+    if (isAllHumanFieldsFull && stateChangeType == 'StartOperationWork' || stateChangeType != 'StartOperationWork') {
+
+        var postData = {
+            operation_id: $("#identeficator").text(),
+            action: stateChangeType,
+        };
+
+        $.post("/api/v1/yard/changeOperationState", postData, function(data) {
+            var card = JSON.parse(data);
+            console.log(card);
+            if (stateChangeType == "DeleteOperation" || stateChangeType == "CancelOperation")
+                window.location.href = window.location.href.split("?", 1);
+            else
+                window.location.href = window.location.search;
+        });
+
+    } else {
+        alert("не все сотрудники были заполнены");
+    }
 }
 
 // 
