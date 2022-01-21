@@ -570,7 +570,7 @@ namespace TSLog.Yard.Data
             return departments.ToArray();
         }
         private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
-        private static Position CreatePosition(DbDataReader reader)
+        private Position CreatePosition(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -593,7 +593,12 @@ namespace TSLog.Yard.Data
                 isActive,
                 displayOrder,
                 isLinear,
-                note);
+                note)
+            {
+                LaborHourCost = Utils.DbValueToDouble(reader["cost"])
+            };
+            var costCurrencyCode = Utils.DbValueToString(reader["cost_currency_code"]);
+            position.LaborHourCostCurrency = GetMeasureUnit(costCurrencyCode);
             return position;
         }
         public Position GetPosition(short id)
@@ -606,10 +611,11 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByIdSql =
-                    $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
+                    $"select p.id, p.code," +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
                     $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear, " +
+                    $"       p.is_linear," +
+                    $"       p.cost, p.cost_currency_code," +
                     $"       p.note " +
                     $"  from {StaffSchema}.stf_position#v p " +
                     $" where p.id = :id";
@@ -640,9 +646,10 @@ namespace TSLog.Yard.Data
             {
                 var SelectPositionByCodeSql =
                     $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
-                    $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear, " +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
+                    $"       p.is_active, p.display_order," +
+                    $"       p.is_linear," +
+                    $"       p.cost, p.cost_currency_code," +
                     $"       p.note " +
                     $"  from {StaffSchema}.stf_position#v p " +
                     $" where p.code = :code";
