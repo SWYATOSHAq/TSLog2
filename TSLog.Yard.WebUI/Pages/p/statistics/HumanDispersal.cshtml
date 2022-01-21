@@ -45,7 +45,7 @@
 
     var startBracket = "(";
     var endBracket = ")";
-    var minutesText = " мин. ";
+    var minutesText = " чел. мин. ";
 }
 
 <div class="row p-2 hide-on-print">
@@ -87,9 +87,15 @@
             {
                 <tr>
                     <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
-                    <td class="h5">@item.OperationsCount</td>
-                    <td>@item.MaxParallelOperations(TypeDirection.In)</td>
-                    <td>@item.MaxParallelOperations(TypeDirection.Out)</td>
+                    <td class="h5">@(item.OperationsCount > 0 ? item.OperationsCount : "")</td>
+                    <td> 
+                    @{var inMaxParallelOperations = item.MaxParallelOperations(TypeDirection.In);}
+                    @(inMaxParallelOperations > 0 ? inMaxParallelOperations : "")
+                    </td>
+                    <td>
+                    @{var outMaxParallelOperations = @item.MaxParallelOperations(TypeDirection.Out);}
+                    @(outMaxParallelOperations > 0 ? outMaxParallelOperations : "")
+                    </td>
 
                     @{
                         var tmpWorkersIn = item.MaxParallelPositionWorkers(TypeDirection.In);
@@ -102,12 +108,20 @@
                     {
                         if (curWorker.IsLinear)
                         {
+                            var timeCost = 0.0;
+                            @if (tmpLabourCost.ContainsKey(curWorker))
+                                {
+                                    timeCost = tmpLabourCost[curWorker] / 60.0;
+                                }
 
                             <td>
 
                                 @if (tmpWorkersIn.ContainsKey(curWorker))
                                 {
-                                    @(tmpLabourCost[curWorker]/60) @minutesText
+                                    @if (tmpLabourCost.ContainsKey(curWorker))
+                                    {
+                                        @timeCost.ToString("F") @minutesText
+                                    }
                                     @startBracket
                                     @tmpWorkersIn[curWorker]
                                     @endBracket
@@ -117,7 +131,10 @@
 
                                 @if (tmpWorkersOut.ContainsKey(curWorker))
                                 {
-                                    @(tmpLabourCost[curWorker]/60) @minutesText
+                                    @if (tmpLabourCost.ContainsKey(curWorker))
+                                    {
+                                        @timeCost.ToString("F") @minutesText
+                                    }
                                     @startBracket
                                     @tmpWorkersOut[curWorker]
                                     @endBracket
