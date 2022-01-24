@@ -511,10 +511,18 @@ $(document).ready(function() {
             todayBtn: true,
             todayHighlight: true,
         })
-        .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now')
+        .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now');
+
+    $("#card_table .datepicker")
         .on("changeDate", function(e) {
             LoadCardsList(e.date.toLocaleDateString());
         });
+
+    $(".time-table .datepicker")
+        .on("changeDate", function(e) {
+            LoadCardsList(e.date.toLocaleDateString());
+        });
+
 
     if ($("#time_table").length) {
         $("#text_operation_time").text("Время операции: --:--:-- (--:--)");
@@ -592,8 +600,8 @@ function OpenClientReportByDate() {
 
 $(document).ready(function() {
     // set params of client-report
-    $(".client-report #dp1").datepicker("setDate", getUrlParameter("start_date") ? getUrlParameter("date") : 'now').on("changeDate", function(e) {});
-    $(".client-report #dp2").datepicker("setDate", getUrlParameter("end_date") ? getUrlParameter("date") : 'now').on("changeDate", function(e) {});
+    $(".client-report #dp1").datepicker("setDate", getUrlParameter("start_date") ? getUrlParameter("start_date") : 'now').on("changeDate", function(e) {});
+    $(".client-report #dp2").datepicker("setDate", getUrlParameter("end_date") ? getUrlParameter("end_date") : 'now').on("changeDate", function(e) {});
 });
 //====================================================
 
