@@ -42,7 +42,7 @@
     displayCollumns.Add("Пропускн. машин"); // add first collumn with amount of cars per period
 
     foreach (var gate in gatesList) // additional collumns
-        displayCollumns.Add(gate==Gate.Null? "не проставлены" : gate.DisplayName);
+        displayCollumns.Add(gate == Gate.Null ? "не проставлены" : gate.DisplayName);
 
 }
 
@@ -140,7 +140,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var gate in gatesData.Keys)
+            @foreach (var gate in gatesList)
             {
                 <tr>
                     <td class="text-right">@gate.DisplayName</td>
