@@ -568,5 +568,23 @@ namespace TSLog.Yard.BO
             string ret = simplified ? $"{From:HH} - {To:HH}" : $"{From:HH\\:mm\\ss} - {To:HH\\:mm\\ss}";
             return ret;
         }
+        /// <summary>
+        ///  Разбивка операций двора (ПРР) по воротам
+        /// </summary>
+        /// <param name="operations">Операции двора (ПРР)</param>
+        /// <returns></returns>
+        public static IDictionary<Gate, List<Operation>> SplitByGates(Operation[] operations)
+        {
+            var result = new Dictionary<Gate, List<Operation>>();
+            foreach (var operation in operations)
+            {
+                if (operation.Gate == null || operation.Gate == Gate.Null || operation.Gate == Gate.Empty)
+                    continue;
+                if (!result.ContainsKey(operation.Gate))
+                    result.Add(operation.Gate, new List<Operation>());
+                result[operation.Gate].Add(operation);
+            }
+            return result;
+        }
     }
 }
