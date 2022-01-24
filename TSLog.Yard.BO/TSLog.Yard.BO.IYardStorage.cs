@@ -69,6 +69,8 @@ namespace TSLog.Yard.BO
     }
     public interface IYardWmsStorage
     {
+        public MeasureUnit GetMeasureUnit(string code);
+        public MeasureUnit[] GetMeasureUnits();
         public WarehouseAction GetAction(ActionKind actionKind, string id);
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
         public LegalEntity GetLegalEntity(string id);

@@ -66,6 +66,14 @@ namespace TSLog.Yard
         }
 
         #region Domains
+        public MeasureUnit GetMeasureUnit(string code)
+        {
+            return _oracleStorage.GetMeasureUnit(code);
+        }
+        public MeasureUnit[] GetMeasureUnits()
+        {
+            return _oracleStorage.GetMeasureUnits();
+        }
         public Employee GetEmployee(int id)
         {
             return _oracleStorage.GetEmployee(id);
