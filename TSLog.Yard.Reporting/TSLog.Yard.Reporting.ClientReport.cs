@@ -17,11 +17,13 @@ namespace TSLog.Yard.Reporting
         public Partner Partner { get; private set; }
         public DateTime FromDate { get; private set; }
         public DateTime ToDate { get; private set; }
-        public ClientReport(Partner partner, DateTime fromDate, DateTime toDate)
+        public ClientReport(IYardStorage storage, Partner partner, DateTime fromDate, DateTime toDate)
         {
             Partner = partner;
             FromDate = fromDate;
             ToDate = toDate;
+
+            Create(storage);
         }
         public class Element
         {

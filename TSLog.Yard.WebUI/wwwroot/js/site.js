@@ -583,6 +583,18 @@ function OpenGateStatisticsByDate() {
     location.href = '/p/statistics/GateDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
 }
 
+function OpenClientReportByDate() {
+    location.href = '/p/statistics/ClientReportDispersal?start_date=' +
+        $("#dp1").datepicker('getDate').toLocaleDateString() +
+        '&end_date=' + $("#dp2").datepicker('getDate').toLocaleDateString() +
+        '&partner=' + $("#partner-filter select").val();
+}
+
+$(document).ready(function() {
+    // set params of client-report
+    $(".client-report #dp1").datepicker("setDate", getUrlParameter("start_date") ? getUrlParameter("date") : 'now').on("changeDate", function(e) {});
+    $(".client-report #dp2").datepicker("setDate", getUrlParameter("end_date") ? getUrlParameter("date") : 'now').on("changeDate", function(e) {});
+});
 //====================================================
 
 

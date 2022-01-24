@@ -1,8 +1,10 @@
-﻿@model (Partners.BO.Partner[], bool, bool)
+﻿@using TSLog.Partners.BO
+@model (Partner[], bool, bool, string)
 @{
     var cardPartnerList = Model.Item1;
     var isDisabled = Model.Item2;
     var isSmall = Model.Item3;
+    var selected_code = Model.Item4;
 }
 
 <div class="input-group">
@@ -10,9 +12,9 @@
     <select id="partner" class="form-select" aria-label="Default select" @(isDisabled ? "disabled" : "")>
         <option value="">Выберите партнера</option>
 
-        @foreach (var curGate in cardPartnerList)
+        @foreach (var curPartner in cardPartnerList)
         {
-            <option value="@curGate.Code">@curGate.DisplayName</option>
+            @: <option value="@curPartner.Code" @((curPartner.Code == selected_code) ? "selected" : "")>@curPartner.DisplayName</option>
         }
 
     </select>
