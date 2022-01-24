@@ -575,8 +575,12 @@ $(document).ready(function() {
     });
 });
 
-function OpenStatisticsByDate() {
+function OpenHumanStatisticsByDate() {
     location.href = '/p/statistics/HumanDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+}
+
+function OpenGateStatisticsByDate() {
+    location.href = '/p/statistics/GateDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
 }
 
 //====================================================
