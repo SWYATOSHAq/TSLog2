@@ -278,6 +278,84 @@ namespace TSLog.Yard.BO
             return result;
         }
         /// <summary>
+        /// Максимальное количество параллельно работающих сотрудников по воротам
+        /// </summary>
+        /// <param name="type">Направление</param>
+        /// <returns>Количества сотрудников по воротам</returns>
+        public IDictionary<Gate, short> MaxParallelGateWorkers(TypeDirection? type = null)
+        {
+            var begins = new Dictionary<DateTime, List<Operation>>();
+            var ends = new Dictionary<DateTime, List<Operation>>();
+            var moments = new HashSet<DateTime>();
+            foreach (var operation in _operations.Values)
+            {
+                if (type == null || operation.Type.Direction == type)
+                {
+                    if (!begins.ContainsKey(operation.PlanWorkStartDate))
+                        begins.Add(operation.PlanWorkStartDate, new List<Operation>());
+                    begins[operation.PlanWorkStartDate].Add(operation);
+
+                    if (!ends.ContainsKey(operation.PlanWorkFinishDate))
+                        ends.Add(operation.PlanWorkFinishDate, new List<Operation>());
+                    ends[operation.PlanWorkFinishDate].Add(operation);
+
+                    if (!moments.Contains(operation.PlanWorkStartDate))
+                        moments.Add(operation.PlanWorkStartDate);
+                    if (!moments.Contains(operation.PlanWorkFinishDate))
+                        moments.Add(operation.PlanWorkFinishDate);
+                }
+            }
+
+            if (!moments.Contains(From))
+                moments.Add(From);
+            if (!moments.Contains(To))
+                moments.Add(To);
+            var temp = moments.ToArray();
+            Array.Sort(temp);
+            var result = new Dictionary<Gate, short>();
+            var state = new Dictionary<Gate, short>();
+            foreach (var moment in temp)
+            {
+                if (moment > To)
+                    break;
+                if (ends.ContainsKey(moment))
+                {
+                    var operatons = ends[moment];
+                    foreach (var operation in operatons)
+                    {
+                        var gate = operation.Gate;
+                        state[gate] -= operation.GetWorkersCount();
+                    }
+                }
+                if (begins.ContainsKey(moment))
+                {
+                    var operatons = begins[moment];
+                    foreach (var operation in operatons)
+                    {
+                        var gate = operation.Gate;
+                        var count = operation.GetWorkersCount();
+                        if (!state.ContainsKey(gate))
+                            state.Add(gate, count);
+                        else
+                            state[gate] += count;
+                    }
+                }
+                if (moment >= From)
+                {
+                    var gates = state.Keys.ToArray();
+                    foreach (var gate in gates)
+                    {
+                        var count = state[gate];
+                        if (!result.ContainsKey(gate))
+                            result.Add(gate, count);
+                        else if (state[gate] > result[gate])
+                            result[gate] = state[gate];
+                    }
+                }
+            }
+            return result;
+        }
+        /// <summary>
         /// Максимальное количество параллельно работающих сотрудников по должностям
         /// </summary>
         /// <param name="type">Направление</param>

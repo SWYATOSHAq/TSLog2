@@ -1,7 +1,7 @@
 ﻿@page
 @using TSLog.Yard.BO
 @using static TSLog.Yard.BO.OperationType
-@model NewRequestModel
+@model HumanDispersalModel
 @{
     ViewData["Title"] = "распределение людей";
     var storage = Model.yardStorage;
@@ -88,13 +88,17 @@
                 <tr>
                     <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
                     <td class="h5">@(item.OperationsCount > 0 ? item.OperationsCount : "")</td>
-                    <td> 
-                    @{var inMaxParallelOperations = item.MaxParallelOperations(TypeDirection.In);}
-                    @(inMaxParallelOperations > 0 ? inMaxParallelOperations : "")
+                    <td>
+                        @{
+                            var inMaxParallelOperations = item.MaxParallelOperations(TypeDirection.In);
+                        }
+                        @(inMaxParallelOperations > 0 ? inMaxParallelOperations : "")
                     </td>
                     <td>
-                    @{var outMaxParallelOperations = @item.MaxParallelOperations(TypeDirection.Out);}
-                    @(outMaxParallelOperations > 0 ? outMaxParallelOperations : "")
+                        @{
+                            var outMaxParallelOperations = @item.MaxParallelOperations(TypeDirection.Out);
+                        }
+                        @(outMaxParallelOperations > 0 ? outMaxParallelOperations : "")
                     </td>
 
                     @{
@@ -110,9 +114,9 @@
                         {
                             var timeCost = 0.0;
                             @if (tmpLabourCost.ContainsKey(curWorker))
-                                {
-                                    timeCost = tmpLabourCost[curWorker] / 60.0;
-                                }
+                            {
+                                timeCost = tmpLabourCost[curWorker] / 60.0;
+                            }
 
                             <td>
 

@@ -175,6 +175,21 @@ namespace TSLog.Yard.BO
                     result = operationWork.WorkersCount;
             return result;
         }
+
+        /// <summary>
+        /// Общее количество работников
+        /// </summary>
+        /// <returns>Количество работников</returns>
+        public short GetWorkersCount(bool showLinear = true)
+        {
+            var positionsWorkers = PositionsWorkersCount();
+            var result = (short)0;
+            foreach (var position in positionsWorkers.Keys)
+                if (position.IsLinear == showLinear)
+                    result += positionsWorkers[position];
+            return result;
+        }
+
         /// <summary>
         /// Количество задействованных работников по должностям
         /// </summary>
@@ -339,7 +354,7 @@ namespace TSLog.Yard.BO
             AddOperationWorker(operationWorker);
         }
         public void AddOperationWorker(OperationWorker operationWorker)
-        { 
+        {
             if (operationWorker == null)
                 throw new ArgumentNullException(nameof(operationWorker));
 
@@ -390,11 +405,11 @@ namespace TSLog.Yard.BO
             {
                 var result = 0.0;
                 var positions = Positions;
-                var positionsLaborCosts = PositionsLaborCosts();                
+                var positionsLaborCosts = PositionsLaborCosts();
                 var positionsWorkers = GetWorkersByPositions();
                 foreach (var position in positions)
                 {
-                    var positionLaborCost = positionsLaborCosts[position];                                        
+                    var positionLaborCost = positionsLaborCosts[position];
                     var positionAvgCost = 0.0;
                     if (!positionsWorkers.ContainsKey(position))
                         positionAvgCost = position.LaborHourCost;
@@ -479,7 +494,7 @@ namespace TSLog.Yard.BO
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
-            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string trailerNumber, 
+            VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string trailerNumber,
             string driverName, string driverPhoneNumber,
             Entity state,
             short priority,
@@ -670,7 +685,7 @@ namespace TSLog.Yard.BO
                 return _empty;
             }
         }
-        public static Operation[] Filter(Operation[] operations, 
+        public static Operation[] Filter(Operation[] operations,
             Partner partner, OperationType operationType, VehicleKind vehicleKind, Gate gate, Entity operationState)
         {
             if (operations == null)
