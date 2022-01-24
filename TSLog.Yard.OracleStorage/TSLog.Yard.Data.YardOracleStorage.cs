@@ -59,7 +59,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectWarehouseActionByIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number " +
-                    $"  from {CommonSchema}.v_warehouse_action a " +
+                    $"  from {CommonSchema}.act_warehouse_action#v a " +
                     $" where a.id = :id " +
                     $"   and a.action_kind = :action_kind";
                 command.CommandText = SelectWarehouseActionByIdSql;
@@ -84,7 +84,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectWarehouseActionByPartnerActionIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number " +
-                    $"  from {CommonSchema}.v_warehouse_action a " +
+                    $"  from {CommonSchema}.act_warehouse_action#v a " +
                     $" where a.partner_number = :partner_number " +
                     $"   and a.partner_id = :partner_id" +
                     $"   and a.kind = :kind";
