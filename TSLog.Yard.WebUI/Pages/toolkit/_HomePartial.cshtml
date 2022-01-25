@@ -12,7 +12,7 @@
     var gatesList = (storage.GetGates(), "", true, true);
 
     var operationList = (storage.GetOperationTypes(), "", true, true);
-    var partnerList = (storage.GetPartners(), false, true);
+    var partnerList = (storage.GetPartners(), false, true, "");
     var vehicleKindList = (storage.GetVehicleKinds(), "", true, true);
     var statesList = (storage.GetOperationStates(), "", true, true);
 
@@ -62,7 +62,7 @@
         </div>
         <div class="row p-2">
             Фильтр:
-        
+
 
             <div class="col-md-3 col-6 p-2 m-1" id="gates-filter">
                 <partial name="toolkit/lists/_GatesDropdownPartial" model="gatesList" />
@@ -82,9 +82,9 @@
             </div>
         </div>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list">
-                <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
-            </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list">
+            <partial name="toolkit/lists/_SelectedDataListPartial" model="operarationsList" />
+        </div>
 
     </div>
 
