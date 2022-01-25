@@ -14,8 +14,17 @@ namespace TSLog.Yard.Reporting
         /// Заголовок отчёта
         /// </summary>
         public string Title { get; set; } = string.Empty;
+        /// <summary>
+        /// Партнёр
+        /// </summary>
         public Partner Partner { get; private set; }
+        /// <summary>
+        /// Дата (и время) начала периода
+        /// </summary>
         public DateTime FromDate { get; private set; }
+        /// <summary>
+        /// Дата (и вермя) окончания периода
+        /// </summary>
         public DateTime ToDate { get; private set; }
         public ClientReport(IYardStorage storage, Partner partner, DateTime fromDate, DateTime toDate)
         {
@@ -25,6 +34,9 @@ namespace TSLog.Yard.Reporting
 
             Create(storage);
         }
+        /// <summary>
+        /// Элемент отчёта
+        /// </summary>
         public class Element
         {
             public Position Position { get; private set; }
@@ -39,7 +51,15 @@ namespace TSLog.Yard.Reporting
                 CostCurrency = costCurrency;
             }
         }
+        /// <summary>
+        /// Список элементов отчёта
+        /// </summary>
         public IList<Element> Elements { get; private set; } = new List<Element>();
+        /// <summary>
+        /// Создание отчёта
+        /// </summary>
+        /// <param name="storage">"Хранилище" данных</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void Create(IYardStorage storage)
         {
             if (storage == null)
