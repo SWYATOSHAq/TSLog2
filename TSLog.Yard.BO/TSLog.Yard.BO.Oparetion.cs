@@ -646,13 +646,13 @@ namespace TSLog.Yard.BO
         }
         public string GetStartTime()
         {
-            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm}") +
-                (FactWorkStartDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkStartDate:dd.MM.yyyy HH:mm})");
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"{PlanWorkStartDate:dd.MM.yyyy HH:mm} (план.)") +
+                (FactWorkStartDate == DateTime.MinValue ? "" : $" / {FactWorkStartDate:dd.MM.yyyy HH:mm} (факт.)");
         }
         public string GetFinishTime()
         {
-            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"план. {PlanWorkFinishDate:dd.MM.yyyy HH:mm}") +
-                (FactWorkFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkFinishDate:dd.MM.yyyy HH:mm})");
+            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"{PlanWorkFinishDate:dd.MM.yyyy HH:mm} (план.)") +
+                (FactWorkFinishDate == DateTime.MinValue ? "" : $" / {FactWorkFinishDate:dd.MM.yyyy HH:mm} (факт.)");
         }
         public string GetGateTime()
         {

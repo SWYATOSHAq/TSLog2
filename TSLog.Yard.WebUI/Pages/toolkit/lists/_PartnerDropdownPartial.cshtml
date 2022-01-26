@@ -14,7 +14,7 @@
 
         @foreach (var curPartner in cardPartnerList)
         {
-            @: <option value="@curPartner.Code" @((curPartner.Code == selected_code) ? "selected" : "")>@curPartner.DisplayName</option>
+            @: <option value="@curPartner.Code" @((curPartner.Code == selected_code) ? "selected" : "")>@curPartner.DisplayName (@curPartner.Code)</option>
         }
 
     </select>

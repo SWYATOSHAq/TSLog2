@@ -76,7 +76,7 @@ namespace TSLog.Yard.BO
         public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
-        public Partner[] GetPartners(bool getOnlyActive = false);
+        public Partner[] GetPartners(bool getOnlyActive = true);
         public Employee GetEmployee(int id);
         public Employee[] FindEmployees(string pattern);
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "");

@@ -8,10 +8,11 @@
 {
     if (cardDataList[curFieldKey].Item3 && (@cardDataList[curFieldKey].Item2 != "") && (@cardDataList[curFieldKey].Item2 != null))
     {
-        <div class="row p-1 m-1 ">
-            <div class="input-group col-12">
-                <span id="@cardDataList[curFieldKey].Item1" class="input-group-text">@curFieldKey: @cardDataList[curFieldKey].Item2</span>
-            </div>
+    <div class="row p-2 m-2 rem-outline-on-print">
+        <div class="input-group">
+            <span class="input-group-text col-4">@curFieldKey</span>
+            <span id="@cardDataList[curFieldKey].Item1" class="input-group-text"><b>@cardDataList[curFieldKey].Item2</b></span>
         </div>
+    </div>
     }
 }

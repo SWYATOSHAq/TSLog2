@@ -74,27 +74,35 @@
             <tr>
                 <th>№</th>
                 <th>Должность</th>
-                <th>стоимость труда</th>
-                <th>сумма</th>
-                <th>валюта</th>
+                <th>Затрата времени (чел. час.)</th>
+                <th>Сумма (руб.)</th>
             </tr>
         </thead>
         <tbody>
             @{
                 var i = 1;
+                var sumLaborCost = 0;
+                var sumCost = 0.0;
             }
             @foreach (var row in reportData.Elements)
             {
                 <tr>
                     <th>@i</th>
                     <td>@row.Position.DisplayName</td>
-                    <td>@(String.Format("{0:0.##}", @row.Cost))</td>
-                    <td>@row.LaborCost</td>
-                    <td>@row.CostCurrency.ShortName</td>
+                    <td>@(new TimeSpan(0, 0, row.LaborCost).ToString(@"hh\:mm\:ss"))</td>
+                    <td>@(String.Format("{0:0,0.##}", @row.Cost))</td>
                 </tr>
 
                 i++;
+                sumLaborCost += row.LaborCost;
+                sumCost += row.Cost;
             }
+            <tr>
+                <th></th>
+                <th>Итого:</th>
+                <td>@(new TimeSpan(0, 0, sumLaborCost).ToString(@"hh\:mm\:ss"))</td>
+                <td>@(String.Format("{0:0,0.##}", sumCost))</td>
+            </tr>
 
         </tbody>
     </table>

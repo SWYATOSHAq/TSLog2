@@ -592,10 +592,14 @@ function OpenGateStatisticsByDate() {
 }
 
 function OpenClientReportByDate() {
-    location.href = '/p/statistics/ClientReportDispersal?start_date=' +
-        $("#dp1").datepicker('getDate').toLocaleDateString() +
-        '&end_date=' + $("#dp2").datepicker('getDate').toLocaleDateString() +
-        '&partner=' + $("#partner-filter select").val();
+    if ($("#dp1").datepicker('getDate') <= $("#dp2").datepicker('getDate') && $("#partner-filter select").val() != "") {
+        location.href = '/p/statistics/ClientReportDispersal?start_date=' +
+            $("#dp1").datepicker('getDate').toLocaleDateString() +
+            '&end_date=' + $("#dp2").datepicker('getDate').toLocaleDateString() +
+            '&partner=' + $("#partner-filter select").val();
+    } else {
+        alert("параметры отчета неверно заполнены");
+    }
 }
 
 $(document).ready(function() {
