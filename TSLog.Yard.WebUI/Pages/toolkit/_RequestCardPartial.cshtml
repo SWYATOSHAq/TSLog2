@@ -51,9 +51,9 @@
     textDataHeader.Add("Ответственный (склад)", ("text_responsible_warehouse", cardData.ResponsibleOfficer?.DisplayName, false));
     textDataHeader.Add("Состояние", ("text_state", cardData.State?.DisplayName, true));
     textDataHeader.Add("План. время операции", ("text_operation_time", new TimeSpan(0, 0, storage.GetTime(cardData.Type, cardData.VehicleKind)).ToString(@"hh\:mm"), true));
-    textDataHeader.Add("Факт. время операции", ("text_operation_fact_time", 
-    cardData.StartDate != DateTime.MinValue && cardData.FinishDate != DateTime.MinValue ? (cardData.StartDate-cardData.FinishDate).ToString(@"hh\:mm") : ""
-    
+    textDataHeader.Add("Факт. время операции", ("text_operation_fact_time",
+    cardData.StartDate != DateTime.MinValue && cardData.FinishDate != DateTime.MinValue ? (cardData.StartDate - cardData.FinishDate).ToString(@"hh\:mm") : ""
+
     , true));
 
     var operationWorks = storage.GetOperationWorks(cardData);
@@ -98,8 +98,10 @@
         }
         else
         {
-            <h1 class="text-info hide-on-print"> @Partner.Serialize(cardData.GetPartners())<br/>(@cardData.State?.DisplayName)<br/><small>@cardData.Type?.DisplayName</small></h1>
+            <h1 class="text-info hide-on-print"> @Partner.Serialize(cardData.GetPartners())<br />(@cardData.State?.DisplayName)<br /><small>@cardData.Type?.DisplayName</small></h1>
+            <div class="m-1 p-1" style="background-color:@cardData.DisplayColor"></div>
         }
+
     </div>
     <!--  -->
     <partial name="toolkit/lists/_TextListPartial" model="textDataList" />

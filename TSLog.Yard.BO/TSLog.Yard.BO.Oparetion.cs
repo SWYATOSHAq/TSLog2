@@ -518,6 +518,39 @@ namespace TSLog.Yard.BO
         {
             get { return GetPartners(); }
         }
+        /// <summary>
+        /// цвет, соответствующий состоянию, для отображения в интерфейсе
+        /// </summary>
+        public string DisplayColor
+        {
+            get
+            {
+                string ret = "";
+                switch (State.Code)
+                {
+                    case "STARTED":
+                        ret = "#b8ffc7"; // green
+                        break;
+
+                    case "WORK_STARTED":
+                        ret = "#ff8282"; // red
+                        break;
+
+                    case "WORK_FINISHED":
+                        ret = "#e9ff91"; // yellow
+                        break;
+
+                    case "FINISHED":
+                        ret = "#d3e7ff"; // blue
+                        break;
+
+                    default:
+                        ret = "#e5e5e5"; // gray
+                        break;
+                }
+                return ret;
+            }
+        }
 
         private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,

@@ -240,6 +240,7 @@ function RenderCard(base, card, date) {
     //
     var cardHeader = document.createElement("div");
     $(cardHeader).addClass("card-header");
+    $(cardHeader).css("background-color", card.DisplayColor);
     $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate) + " (" + ConvertDate(card.PlanWorkFinishDate) + ")");
     //
     var cardBody = document.createElement("div");
