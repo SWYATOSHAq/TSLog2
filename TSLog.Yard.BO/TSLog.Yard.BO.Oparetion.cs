@@ -172,13 +172,13 @@ namespace TSLog.Yard.BO
         }
         public string GetStartTime()
         {
-            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm}") +
-                (FactWorkStartDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkStartDate:dd.MM.yyyy HH:mm})");
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"{PlanWorkStartDate:dd.MM.yyyy HH:mm} (план.)") +
+                (FactWorkStartDate == DateTime.MinValue ? "" : $" / {FactWorkStartDate:dd.MM.yyyy HH:mm} (факт.)");
         }
         public string GetFinishTime()
         {
-            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"план. {PlanWorkFinishDate:dd.MM.yyyy HH:mm}") +
-                (FactWorkFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkFinishDate:dd.MM.yyyy HH:mm})");
+            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"{PlanWorkFinishDate:dd.MM.yyyy HH:mm} (план.)") +
+                (FactWorkFinishDate == DateTime.MinValue ? "" : $" / {FactWorkFinishDate:dd.MM.yyyy HH:mm} (факт.)");
         }
         public string GetGateTime()
         {
@@ -254,30 +254,15 @@ namespace TSLog.Yard.BO
         {
             get
             {
-                string ret = "";
-                switch (State.Code)
+                var result = State.Code switch
                 {
-                    case "STARTED":
-                        ret = "#b8ffc7"; // green
-                        break;
-
-                    case "WORK_STARTED":
-                        ret = "#ff8282"; // red
-                        break;
-
-                    case "WORK_FINISHED":
-                        ret = "#e9ff91"; // yellow
-                        break;
-
-                    case "FINISHED":
-                        ret = "#d3e7ff"; // blue
-                        break;
-
-                    default:
-                        ret = "#e5e5e5"; // gray
-                        break;
-                }
-                return ret;
+                    "STARTED" => "#b8ffc7",// green
+                    "WORK_STARTED" => "#ff8282",// red
+                    "WORK_FINISHED" => "#e9ff91",// yellow
+                    "FINISHED" => "#d3e7ff",// blue
+                    _ => "#e5e5e5",// gray
+                };
+                return result;
             }
         }
     }
