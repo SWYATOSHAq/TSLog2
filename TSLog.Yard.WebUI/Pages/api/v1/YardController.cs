@@ -420,10 +420,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     switch (action_type)
                     {
                         case "add":
-                            yardStorage.AddWorker(loadedOperation, loadedWorker, loadedPosition, 0.0, MeasureUnit.Null);
+                            yardStorage.AddEmployee(loadedOperation, loadedWorker, loadedPosition, 0.0, MeasureUnit.Null);
                             break;
                         case "del":
-                            yardStorage.RemoveWorker(loadedOperation, loadedWorker, loadedPosition);
+                            yardStorage.RemoveEmployee(loadedOperation, loadedWorker, loadedPosition);
                             break;
 
                         default:
