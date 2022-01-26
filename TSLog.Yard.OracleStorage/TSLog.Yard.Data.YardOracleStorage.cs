@@ -460,6 +460,11 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        public Employee[] GetShiftEmployees(DateTime date)
+        {
+            var employees = new List<Employee>();
+            return employees.ToArray();
+        }
         private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
         private static Department CreateDepartment(DbDataReader reader)
         {

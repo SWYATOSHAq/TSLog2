@@ -82,6 +82,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployees();
         }
+        public Employee[] GetShiftEmployees(DateTime date)
+        {
+            return _oracleStorage.GetShiftEmployees(date);
+        }
         public Employee[] FindEmployees(string pattern)
         {
             return _oracleStorage.FindEmployees(pattern);
@@ -327,17 +331,21 @@ namespace TSLog.Yard
         #endregion
 
         #region Workers
-        public void AddWorker(Operation operation, Employee worker, Position position, double cost, MeasureUnit costCurrency)
+        public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
         {
-            _pgsqlStorage.AddWorker(operation, worker, position, cost, costCurrency);
+            _pgsqlStorage.AddEmployee(operation, employee, position, cost, costCurrency);
         }
-        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
+        public Operation.OperationEmployee[] GetOperationEmployees(Operation operation)
         {
-            return _pgsqlStorage.GetOperationWorkers(operation);
+            return _pgsqlStorage.GetOperationEmployees(operation);
         }
-        public void RemoveWorker(Operation operation, Employee worker, Position position)
+        public void AllocateEmployees(Operation operation)
         {
-            _pgsqlStorage.RemoveWorker(operation, worker, position);
+            _pgsqlStorage.AllocateEmployees(operation);
+        }
+        public void RemoveEmployee(Operation operation, Employee employee, Position position)
+        {
+            _pgsqlStorage.RemoveEmployee(operation, employee, position);
         }
         #endregion
 

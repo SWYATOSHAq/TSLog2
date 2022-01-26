@@ -1,17 +1,13 @@
-﻿using System.Text;
-using TSLog.Common.BO;
-using TSLog.ExceptionHandler;
-using TSLog.LegalEntities.BO;
+﻿using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
-using TSLog.WarehouseActions.BO;
 
 namespace TSLog.Yard.BO
 {
     /// <summary>
     /// Операция двора (разгрузка или погрузка автомашины)
     /// </summary>
-    public class Operation : Entity
+    public partial class Operation : Entity
     {
         private const short DefaultPriority = 1;
         /// <summary>
@@ -56,406 +52,6 @@ namespace TSLog.Yard.BO
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
-
-
-        #region Operation works
-        /// <summary>
-        /// Элементарная работа операции двора (ПРР)
-        /// </summary>
-        public class OperationWork
-        {
-            private const short DefaultTime = 600;
-            private const short DefaultWorkersCount = 1;
-            public Work Work { get; set; }
-            public Position Position { get; set; }
-            public short Time { get; set; }
-            public short WorkersCount { get; set; }
-            public OperationWork(Work work, Position position, short time, short workersCount)
-            {
-                Work = work;
-                Position = position;
-                Time = time > 0 ? time : DefaultTime;
-                WorkersCount = workersCount > 0 ? workersCount : DefaultWorkersCount;
-            }
-        }
-        private readonly IList<OperationWork> _operationWorks = new List<OperationWork>();
-        /// <summary>
-        /// Добавление работы в операцию двора (ПРР)
-        /// </summary>
-        /// <param name="work">Работа</param>        
-        /// <exception cref="ArgumentNullException"></exception>
-        public void AddOperationWork(OperationWork operationWork)
-        {
-            if (operationWork == null)
-                throw new ArgumentNullException(nameof(operationWork));
-            _operationWorks.Add(operationWork);
-        }
-        /// <summary>
-        /// Добавление нескольких работ в операцию двора ПРР
-        /// </summary>
-        /// <param name="operationWorks"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void AddOperationWorks(OperationWork[] operationWorks)
-        {
-            if (operationWorks == null)
-                throw new ArgumentNullException(nameof(operationWorks));
-            foreach (OperationWork operationWork in operationWorks)
-                AddOperationWork(operationWork);
-        }
-        /// <summary>
-        /// Должности, задействованные на данной операции двора
-        /// </summary>
-        public Position[] Positions
-        {
-            get
-            {
-                var positions = new HashSet<Position>();
-                foreach (var operationWork in _operationWorks)
-                    if (!positions.Contains(operationWork.Position))
-                        positions.Add(operationWork.Position);
-                return positions.ToArray();
-            }
-        }
-        /// <summary>
-        /// Элементарные работы по данной операции двора (ПРР)
-        /// </summary>
-        public Work[] Works
-        {
-            get
-            {
-                var works = new HashSet<Work>();
-                foreach (var operationWork in _operationWorks)
-                    if (!works.Contains(operationWork.Work))
-                        works.Add(operationWork.Work);
-                return works.ToArray();
-            }
-        }
-        /// <summary>
-        /// Работы операции двора (ПРР)
-        /// </summary>
-        public OperationWork[] OperationWorks
-        {
-            get
-            {
-                return _operationWorks.ToArray();
-            }
-        }
-        #endregion
-
-        #region Workers count
-        /// <summary>
-        /// Количество работников по определённой должности
-        /// </summary>
-        /// <param name="position">Должность</param>
-        /// <returns>Уоличество работников</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public short GetWorkersCount(Position position)
-        {
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            var result = (short)0;
-            foreach (var operationWork in _operationWorks)
-                if (operationWork.Position == position && result < operationWork.WorkersCount)
-                    result = operationWork.WorkersCount;
-            return result;
-        }
-        /// <summary>
-        /// Количество работников, выполняющих определённой элементарную работу
-        /// </summary>
-        /// <param name="work">Элементарная работа</param>
-        /// <returns>Количество работников</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public short GetWorkersCount(Work work)
-        {
-            if (work == null)
-                throw new ArgumentNullException(nameof(work));
-            var result = (short)0;
-            foreach (var operationWork in _operationWorks)
-                if (operationWork.Work == work && result < operationWork.WorkersCount)
-                    result = operationWork.WorkersCount;
-            return result;
-        }
-
-        /// <summary>
-        /// Общее количество работников
-        /// </summary>
-        /// <returns>Количество работников</returns>
-        public short GetWorkersCount(bool showLinear = true)
-        {
-            var positionsWorkers = PositionsWorkersCount();
-            var result = (short)0;
-            foreach (var position in positionsWorkers.Keys)
-                if (position.IsLinear == showLinear)
-                    result += positionsWorkers[position];
-            return result;
-        }
-
-        /// <summary>
-        /// Количество задействованных работников по должностям
-        /// </summary>
-        /// <returns></returns>
-        public IDictionary<Position, short> PositionsWorkersCount()
-        {
-            var result = new Dictionary<Position, short>();
-            foreach (var operationWork in _operationWorks)
-            {
-                var position = operationWork.Position;
-                var count = operationWork.WorkersCount;
-                if (!result.ContainsKey(position))
-                    result.Add(position, count);
-                else if (result[position] > count)
-                    result[position] = count;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Количество задействованых работников по элементарным радотам
-        /// </summary>
-        public IDictionary<Work, short> WorksWorkersCount()
-        {
-            var result = new Dictionary<Work, short>();
-            foreach (var operationWork in _operationWorks)
-            {
-                var work = operationWork.Work;
-                var count = operationWork.WorkersCount;
-                if (!result.ContainsKey(work))
-                    result.Add(work, count);
-                else if (result[work] > count)
-                    result[work] = count;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Общее количество сотрудников для операции двора (ПРР) по всем должностям
-        /// </summary>
-        public short TotalWorkersCount
-        {
-            get
-            {
-                var result = (short)0;
-                var counts = new Dictionary<Position, short>();
-                foreach (var operastionWork in _operationWorks)
-                {
-                    var position = operastionWork.Position;
-                    var count = operastionWork.WorkersCount;
-                    if (!counts.ContainsKey(position))
-                        counts.Add(position, count);
-                    else
-                        counts[position] += count;
-                }
-                foreach (var count in counts.Values)
-                    result += count;
-                return result;
-            }
-        }
-        #endregion
-
-        #region Labor cost
-        /// <summary>
-        /// Возвращает трудозатраты (в человекосекундах) для конкретной должности
-        /// </summary>
-        /// <param name="position">Должности</param>
-        /// <returns>Трудозатраты (в человекосекундах)</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public int GetLaborCost(Position position)
-        {
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            var result = 0;
-            foreach (var operationWork in _operationWorks)
-                if (operationWork.Position == position)
-                    result += operationWork.WorkersCount * operationWork.Time;
-            return result;
-        }
-        /// <summary>
-        /// Возвращает трудозатраты (в человекосекундах) для конертной элементарной работы
-        /// </summary>
-        /// <param name="work">Трудозатраты</param>
-        /// <returns>Трудозатраты (в человекосекундах)</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public int GetLaborCost(Work work)
-        {
-            if (work == null)
-                throw new ArgumentNullException(nameof(work));
-            var result = 0;
-            foreach (var operationWork in _operationWorks)
-                if (operationWork.Work == work)
-                    result += operationWork.WorkersCount * operationWork.Time;
-            return result;
-        }
-        /// <summary>
-        /// Трудозатраты по должностям (с человекосекундах)
-        /// </summary>
-        public IDictionary<Position, int> PositionsLaborCosts()
-        {
-            var result = new Dictionary<Position, int>();
-            foreach (var operstionWork in _operationWorks)
-            {
-                var position = operstionWork.Position;
-                var labor = operstionWork.WorkersCount * operstionWork.Time;
-                if (!result.ContainsKey(position))
-                    result.Add(position, labor);
-                else
-                    result[position] += labor;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Трудозатраты по элементарным работам (с человекосекундах)
-        /// </summary>
-        public IDictionary<Work, int> WorksLaborCosts()
-        {
-            var result = new Dictionary<Work, int>();
-            foreach (var operstionWork in _operationWorks)
-            {
-                var work = operstionWork.Work;
-                var labor = operstionWork.WorkersCount * operstionWork.Time;
-                if (!result.ContainsKey(work))
-                    result.Add(work, labor);
-                else
-                    result[work] += labor;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Общие трудозатраты в человекосекундах
-        /// </summary>
-        public int TotalLaborCost
-        {
-            get
-            {
-                var result = 0;
-                foreach (var operationWork in _operationWorks)
-                    result += operationWork.Time * operationWork.WorkersCount;
-                return result;
-            }
-        }
-        #endregion
-
-        #region Operation workers
-        public class OperationWorker
-        {
-            public Employee Worker { get; private set; }
-            public Position Position { get; private set; }
-            public OperationWorker(Employee worker, Position position)
-            {
-                Worker = worker ?? throw new ArgumentNullException(nameof(worker));
-                Position = position ?? throw new ArgumentNullException(nameof(position));
-            }
-        }
-        private readonly IList<OperationWorker> _operationWorkers = new List<OperationWorker>();
-        public void AddOperationWorker(Employee worker, Position position)
-        {
-            if (worker == null)
-                throw new ArgumentNullException(nameof(worker));
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            var operationWorker = new OperationWorker(worker, position);
-            AddOperationWorker(operationWorker);
-        }
-        public void AddOperationWorker(OperationWorker operationWorker)
-        {
-            if (operationWorker == null)
-                throw new ArgumentNullException(nameof(operationWorker));
-
-            // TODO: check existance
-            _operationWorkers.Add(operationWorker);
-        }
-        public void AddOperationWorkers(OperationWorker[] operationWorkers)
-        {
-            if (operationWorkers == null)
-                throw new ArgumentNullException(nameof(operationWorkers));
-            foreach (var operationWorker in operationWorkers)
-                AddOperationWorker(operationWorker);
-        }
-        public void RemoveOperationWorker(Employee worker, Position position)
-        {
-            if (worker == null)
-                throw new ArgumentNullException(nameof(worker));
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            foreach (var operationWorker in _operationWorkers)
-                if (operationWorker.Worker == worker && operationWorker.Position == position)
-                    _operationWorkers.Remove(operationWorker);
-        }
-        public OperationWorker[] OperationWorkers
-        {
-            get
-            {
-                return _operationWorkers.ToArray();
-            }
-        }
-        public IDictionary<Position, IList<Employee>> GetWorkersByPositions()
-        {
-            var result = new Dictionary<Position, IList<Employee>>();
-            foreach (var operationWorker in _operationWorkers)
-            {
-                if (!result.ContainsKey(operationWorker.Position))
-                    result.Add(operationWorker.Position, new List<Employee>());
-                result[operationWorker.Position].Add(operationWorker.Worker);
-            }
-            return result;
-        }
-        /// <summary>
-        /// Стоимость работ по должностям (в зависимости от назначеых сотрудников)
-        /// </summary>
-        public IDictionary<Position, double> PositionsCosts()
-        {
-            var result = new Dictionary<Position, double>();
-            var positions = Positions;
-            var positionsLaborCosts = PositionsLaborCosts();
-            var positionsWorkers = GetWorkersByPositions();
-            foreach (var position in positions)
-            {
-                var positionLaborCost = positionsLaborCosts[position];
-                var positionAvgCost = 0.0;
-                if (!positionsWorkers.ContainsKey(position))
-                    positionAvgCost = position.LaborHourCost;
-                else
-                {
-                    var positionEmployees = positionsWorkers[position];
-                    foreach (var employee in positionEmployees)
-                        positionAvgCost += employee.Cost;
-                    positionAvgCost = positionAvgCost / positionEmployees.Count;
-                }
-                if (!result.ContainsKey(position))
-                    result.Add(position, 0.0);
-                result[position] += positionAvgCost * positionLaborCost / 3600;
-            }
-            return result;
-        }
-        /// <summary>
-        /// Общая стоимость работ (в зависимости от назначеных сотрудников)
-        /// </summary>
-        public double TotalCost
-        {
-            get
-            {
-                var result = 0.0;
-                var positions = Positions;
-                var positionsLaborCosts = PositionsLaborCosts();
-                var positionsWorkers = GetWorkersByPositions();
-                foreach (var position in positions)
-                {
-                    var positionLaborCost = positionsLaborCosts[position];
-                    var positionAvgCost = 0.0;
-                    if (!positionsWorkers.ContainsKey(position))
-                        positionAvgCost = position.LaborHourCost;
-                    else
-                    {
-                        var positionEmployees = positionsWorkers[position];
-                        foreach (var employee in positionEmployees)
-                            positionAvgCost += employee.Cost;
-                        positionAvgCost = positionAvgCost / positionEmployees.Count;
-                    }
-                    result += positionAvgCost * positionLaborCost / 3600;
-                }
-                return result;
-            }
-        }
-
-        #endregion
-
         /// <summary>
         /// Вид автомашины
         /// </summary>
@@ -514,45 +110,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Список партнеров
         /// </summary>        
-        public Partner[] Partners
-        {
-            get { return GetPartners(); }
-        }
-        /// <summary>
-        /// цвет, соответствующий состоянию, для отображения в интерфейсе
-        /// </summary>
-        public string DisplayColor
-        {
-            get
-            {
-                string ret = "";
-                switch (State.Code)
-                {
-                    case "STARTED":
-                        ret = "#b8ffc7"; // green
-                        break;
 
-                    case "WORK_STARTED":
-                        ret = "#ff8282"; // red
-                        break;
-
-                    case "WORK_FINISHED":
-                        ret = "#e9ff91"; // yellow
-                        break;
-
-                    case "FINISHED":
-                        ret = "#d3e7ff"; // blue
-                        break;
-
-                    default:
-                        ret = "#e5e5e5"; // gray
-                        break;
-                }
-                return ret;
-            }
-        }
-
-        private readonly IDictionary<string, WarehouseAction> _actions = new Dictionary<string, WarehouseAction>();
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
             VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string trailerNumber,
@@ -561,7 +119,7 @@ namespace TSLog.Yard.BO
             short priority,
             string partnerManagerName, string partnerManagerPhoneNumber, string partnerManagerEmail,
             Employee manager)
-            : base(id, code)
+    : base(id, code)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             PlanWorkStartDate = planWorkStartDate;
@@ -607,71 +165,6 @@ namespace TSLog.Yard.BO
             PartnerManagerPhoneNumber = string.Empty;
             PartnerManagerEmail = string.Empty;
         }
-        public WarehouseAction GetAction(ActionKind kind, string id)
-        {
-            var k = kind == ActionKind.Outgo ? "O" : "I";
-            var key = $"{k}{id}";
-            if (_actions.ContainsKey(key))
-                return _actions[key];
-            throw new WarehouseActionNotFoundException(id);
-        }
-        public WarehouseAction GetAction(ActionKind kind, LegalEntity partner, string partnerActionNumber)
-        {
-            var actions = _actions.Values.ToList();
-            var action = actions.Find(a => a.Kind == kind
-                && a.Partner.Id == partner.Id
-                && a.PartnerActionId == partnerActionNumber);
-            if (action != null)
-                return action;
-            throw new WarehouseActionNotFoundException(partner.Id, partnerActionNumber);
-        }
-        public WarehouseAction[] GetActions()
-        {
-            return _actions.Values.ToArray();
-        }
-        public void AddAction(WarehouseAction action)
-        {
-            if (_actions == null)
-                throw new ArgumentNullException(nameof(action));
-
-            var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
-            var key = $"{kind}{action.Id}";
-            if (!_actions.ContainsKey(key))
-                _actions.Add(key, action);
-        }
-        public void AddActions(WarehouseAction[] actions)
-        {
-            foreach (var action in actions)
-                AddAction(action);
-        }
-        public void RemoveAction(WarehouseAction action)
-        {
-            if (_actions == null)
-                throw new ArgumentNullException(nameof(action));
-
-            var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
-            var key = $"{kind}{action.Id}";
-            if (_actions.ContainsKey(key))
-                _actions.Remove(key);
-        }
-        /// <summary>
-        /// Названия всех партнёров операции через запятую
-        /// </summary>
-        public string PartnerNames
-        {
-            get
-            {
-                var names = new StringBuilder();
-                var partners = GetPartners();
-                foreach (var partner in partners)
-                {
-                    if (names.Length > 0)
-                        names.Append(", ");
-                    names.Append(partner.Name);
-                }
-                return names.ToString();
-            }
-        }
         //Getdate TODO
         public string GetDate()
         {
@@ -679,13 +172,13 @@ namespace TSLog.Yard.BO
         }
         public string GetStartTime()
         {
-            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"{PlanWorkStartDate:dd.MM.yyyy HH:mm} (план.)") +
-                (FactWorkStartDate == DateTime.MinValue ? "" : $" / {FactWorkStartDate:dd.MM.yyyy HH:mm} (факт.)");
+            return (PlanWorkStartDate == DateTime.MinValue ? "" : $"план. {PlanWorkStartDate:dd.MM.yyyy HH:mm}") +
+                (FactWorkStartDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkStartDate:dd.MM.yyyy HH:mm})");
         }
         public string GetFinishTime()
         {
-            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"{PlanWorkFinishDate:dd.MM.yyyy HH:mm} (план.)") +
-                (FactWorkFinishDate == DateTime.MinValue ? "" : $" / {FactWorkFinishDate:dd.MM.yyyy HH:mm} (факт.)");
+            return (PlanWorkFinishDate == DateTime.MinValue ? "" : $"план. {PlanWorkFinishDate:dd.MM.yyyy HH:mm}") +
+                (FactWorkFinishDate == DateTime.MinValue ? "" : $" (факт.: {FactWorkFinishDate:dd.MM.yyyy HH:mm})");
         }
         public string GetGateTime()
         {
@@ -703,17 +196,7 @@ namespace TSLog.Yard.BO
             var from = PlanWorkStartDate == DateTime.MinValue ? "//" : $"{PlanWorkStartDate:HH:mm}";
             var to = (PlanWorkFinishDate == DateTime.MinValue) ? "//" : $"{PlanWorkFinishDate:HH:mm}";
             return $"{from} - {to}";
-        }
-        public Partner[] GetPartners()
-        {
-            var partners = new HashSet<Partner>();
-            foreach (var action in _actions.Values)
-            {
-                if (!partners.Contains(action.Partner))
-                    partners.Add(action.Partner);
-            }
-            return partners.ToArray();
-        }
+        }        
         private static Operation? _null = null;
         /// <summary>
         /// Null object
@@ -763,6 +246,6 @@ namespace TSLog.Yard.BO
             if (operationState != null && operationState != Entity.Null)
                 temp = temp.FindAll(o => o.State == operationState);
             return temp.ToArray();
-        }
+        }        
     }
 }

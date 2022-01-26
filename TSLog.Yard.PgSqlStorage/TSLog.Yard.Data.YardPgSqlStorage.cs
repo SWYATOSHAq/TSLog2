@@ -908,8 +908,8 @@ namespace TSLog.Yard.Data
             var operationWorks = GetOperationWorks(operation);
             operation.AddOperationWorks(operationWorks);
 
-            var operationWorkers = GetOperationWorkers(operation);
-            operation.AddOperationWorkers(operationWorkers);
+            var operationWorkers = GetOperationEmployees(operation);
+            operation.AddOperationEmployees(operationWorkers);
 
             return operation;
         }
@@ -1387,26 +1387,26 @@ namespace TSLog.Yard.Data
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
-            var oldWorkers = GetOperationWorkers(operation);
+            var oldWorkers = GetOperationEmployees(operation);
             var oldKeys = new HashSet<string>();
             foreach (var operationWorker in oldWorkers)
-                oldKeys.Add($"{operationWorker.Worker.Id}_{operationWorker.Position.Id}");
+                oldKeys.Add($"{operationWorker.Employee.Id}_{operationWorker.Position.Id}");
 
-            var newWorkers = operation.OperationWorkers;
+            var newWorkers = operation.OperationEmployees;
             var newKeys = new HashSet<string>();
             foreach (var operationWorker in newWorkers)
             {
-                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
+                var key = $"{operationWorker.Employee.Id}_{operationWorker.Position.Id}";
                 newKeys.Add(key);
                 if (!oldKeys.Contains(key))
-                    AddWorker(operation, operationWorker.Worker, operationWorker.Position, 0.0, MeasureUnit.Null);
+                    AddEmployee(operation, operationWorker.Employee, operationWorker.Position, 0.0, MeasureUnit.Null);
             }
 
             foreach (var operationWorker in oldWorkers)
             {
-                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
+                var key = $"{operationWorker.Employee.Id}_{operationWorker.Position.Id}";
                 if (!newKeys.Contains(key))
-                    RemoveWorker(operation, operationWorker.Worker, operationWorker.Position);
+                    RemoveEmployee(operation, operationWorker.Employee, operationWorker.Position);
             }
         }
         public void StartOperationWork(Operation operation)
@@ -1563,12 +1563,12 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Workers
-        public void AddWorker(Operation operation, Employee worker, Position position, double cost, MeasureUnit costCurrency)
+        public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-            if (worker == null)
-                throw new ArgumentNullException(nameof(worker));
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
             if (position == null)
                 throw new ArgumentNullException(nameof(position));
             if (costCurrency == null)
@@ -1582,18 +1582,18 @@ namespace TSLog.Yard.Data
                 $"':p_cost_currency');";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
-            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, worker.Id));
+            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
             command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
             command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? cost : DBNull.Value));
             command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? costCurrency.Code : DBNull.Value));
             command.ExecuteScalar();
             connection.Close();
         }
-        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
+        public Operation.OperationEmployee[] GetOperationEmployees(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-            var operationWorkers = new List<Operation.OperationWorker>();
+            var operationWorkers = new List<Operation.OperationEmployee>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -1611,7 +1611,7 @@ namespace TSLog.Yard.Data
                         var positionId = Utils.DbValueToShort(reader["position_id"]);
                         var worker = GetEmployee(workerId);
                         var position = GetPosition(positionId);
-                        var operationWorker = new Operation.OperationWorker(worker, position);
+                        var operationWorker = new Operation.OperationEmployee(worker, position);
                         operationWorkers.Add(operationWorker);
                     }
                     reader.Close();
@@ -1620,12 +1620,17 @@ namespace TSLog.Yard.Data
             }
             return operationWorkers.ToArray();
         }
-        public void RemoveWorker(Operation operation, Employee worker, Position position)
+        public void AllocateEmployees(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-            if (worker == null)
-                throw new ArgumentNullException(nameof(worker));
+        }
+        public void RemoveEmployee(Operation operation, Employee employee, Position position)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
             if (position == null)
                 throw new ArgumentNullException(nameof(position));
             using var connection = CloneConnection();
@@ -1635,7 +1640,7 @@ namespace TSLog.Yard.Data
                 $":p_position_id);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
-            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, worker.Id));
+            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
             command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
             command.ExecuteScalar();
             connection.Close();
