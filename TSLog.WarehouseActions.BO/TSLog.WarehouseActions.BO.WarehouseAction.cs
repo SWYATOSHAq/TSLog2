@@ -13,9 +13,19 @@ namespace TSLog.WarehouseActions.BO
         /// </summary>
         public new string Id
         {
-            get { return Code;  }
-            protected set { Code = value; }
+            get 
+            { 
+                return Code;  
+            }
+            protected set 
+            { 
+                Code = value; 
+            }
         }
+        /// <summary>
+        /// Номер
+        /// </summary>
+        public string Number { get; private set; }
         /// <summary>
         /// Вид (приход, расход, ...)
         /// </summary>
@@ -36,15 +46,20 @@ namespace TSLog.WarehouseActions.BO
         /// Идентификатор складского действа в системе партнёра
         /// </summary>
         public string PartnerActionId { get; set; }
-        public WarehouseAction(ActionKind kind, string id, Partner partner, string partnerActionId) 
-            : base(-1, id, string.Empty)
+        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, 
+            bool isActive, string note) 
+            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
+            //if (string.IsNullOrWhiteSpace(number))
+            //    throw new ArgumentException("number is empty");
+            Number = number.Trim();
             Kind = kind;
             Partner = partner;
             PartnerActionId = partnerActionId;
         }
         private WarehouseAction() : base()
         {
+            Number = string.Empty;
             Partner = Partner.Empty;
             PartnerActionId = string.Empty;
         }
@@ -58,7 +73,7 @@ namespace TSLog.WarehouseActions.BO
             get
             {
                 if (_null == null)
-                    _null = new WarehouseAction(ActionKind.Income, "NULL", Partner.Null, "NULL");
+                    _null = new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", true, "NULl");
                 return _null;
             }
         }

@@ -34,11 +34,6 @@ namespace TSLog.Links.Data
         public static LinksOracleStorage Instance = null; // TODO: wrong decision
 
         /// <summary>
-        /// Схема общими объектами БД (ecco)
-        /// </summary>
-        public string CommonSchema { private get; set; }
-
-        /// <summary>
         /// Схема с объектами для азличной интеграции (links)
         /// </summary>
         public string LinksSchema { private get; set; }

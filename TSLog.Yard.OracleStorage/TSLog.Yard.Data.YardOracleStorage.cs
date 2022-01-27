@@ -41,12 +41,18 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(reader));
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
             var id = Utils.DbValueToString(reader["id"]);
+            var number = string.Empty;
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var partnerActionId = Utils.DbValueToString(reader["partner_number"]);
+            var isActive = true;
+            var note = string.Empty;
             var action = new WarehouseAction(kind,
                 id,
+                number,
                 partner,
-                partnerActionId);
+                partnerActionId,
+                isActive,
+                note);
             return action;
         }
         public WarehouseAction GetAction(ActionKind actionKind, string id)
@@ -100,6 +106,40 @@ namespace TSLog.Yard.Data
             if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
+        }
+        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
+        {
+            var actions = new List<WarehouseAction>();
+
+            pattern = !string.IsNullOrWhiteSpace(pattern) ? $"%{pattern.Trim().ToUpper()}%" : "%";
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectWarehouseActionByPartnerActionIdSql =
+                    $"select a.kind, " +
+                    $" a.id, a.action_number, " +
+                    $" a.partner_id, " +
+                    $" a.partner_number " +
+                    $"  from {CommonSchema}.act_warehouse_action#v a " +
+                    $" where (upper(trim(a.id)) like :pattern" +
+                    $"     or upper(trim(a.action_number)) like :pattern)" +
+                    $"     or upper(trim(a.partner_number)) like :pattern)" +
+                    $"   and (:partner_id is null or a.partner_id = :partner_id)" +
+                    $"   and a.kind = :kind" +
+                    $"   and rownum < 16";
+                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
+                command.Parameters.Add(new OracleParameter("pattern", pattern));
+                command.Parameters.Add(new OracleParameter("partner_id", 
+                    partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var action = CreateAction(reader);
+                    actions.Add(action);
+                }
+                reader.Close();
+            }
+            return actions.ToArray();
         }
         private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
         private static LegalEntity CreateLegalEntity(DbDataReader reader)
@@ -282,7 +322,7 @@ namespace TSLog.Yard.Data
             employee.EmploymentDate = Utils.DbValueToDateTime(reader["employment_date"]);
             employee.DismissalDate = Utils.DbValueToDateTime(reader["dismissal_date"]);
 
-            var departmentId = Utils.DbValueToInt(reader["department_id"]);
+            //var departmentId = Utils.DbValueToInt(reader["department_id"]);
             //employee.Department = GetDepartment(departmentId);
 
             employee.Cost = Utils.DbValueToDouble(reader["cost"]);

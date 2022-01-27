@@ -99,8 +99,8 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
         defState, 1, 
         "Ivanov", "Ivanov", "Ivanov",
         defManager);
-    newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set", storage.GetPartner("0130"), "69420-80085"));
-    storage.AddOperation(newOperation);
+    //newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set", storage.GetPartner("0130"), "69420-80085"));
+    //storage.AddOperation(newOperation);
     Console.WriteLine("готово");
 
     Console.WriteLine("проверка выгрузки справочников...");

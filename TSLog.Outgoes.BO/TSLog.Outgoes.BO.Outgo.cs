@@ -124,11 +124,6 @@ namespace TSLog.Outgoes.BO
         public string GUID { get; set; } = string.Empty;
 
         /// <summary>
-        /// Номер
-        /// </summary>
-        public string Number { get; set; }
-
-        /// <summary>
         /// Номер в системе партнёра
         /// </summary>
         public string PartnerNumer { get; private set; }
@@ -212,11 +207,8 @@ namespace TSLog.Outgoes.BO
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Outgo(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "")
-            : base(ActionKind.Outgo, id, partner, partnerNumber)
-        {
-            if (string.IsNullOrWhiteSpace(number))
-                throw new ArgumentException("number is empty");
-            Number = number.Trim();
+            : base(ActionKind.Outgo, number, id, partner, partnerNumber, true, note)
+        {            
             Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));
             if (string.IsNullOrWhiteSpace(partnerNumber))

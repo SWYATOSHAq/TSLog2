@@ -75,6 +75,7 @@ namespace TSLog.Yard.BO
         public MeasureUnit[] GetMeasureUnits();
         public WarehouseAction GetAction(ActionKind actionKind, string id);
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
+        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern);
         public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);

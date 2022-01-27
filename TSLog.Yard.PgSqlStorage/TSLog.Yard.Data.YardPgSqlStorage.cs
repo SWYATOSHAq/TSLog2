@@ -1549,11 +1549,18 @@ namespace TSLog.Yard.Data
         private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
             var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+            var id = Utils.DbValueToString(reader["action_id"]);
+            var number = string.Empty;
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
+            var partnerId = Utils.DbValueToString(reader["partner_action_id"]);
+            var note = string.Empty;
             var action = new WarehouseAction(kind,
-                Utils.DbValueToString(reader["action_id"]),
+                id,
+                number,
                 partner,
-                Utils.DbValueToString(reader["partner_action_id"]));
+                partnerId,
+                true,
+                note);
             return action;
         }
         public WarehouseAction[] GetActions(Operation operation)
