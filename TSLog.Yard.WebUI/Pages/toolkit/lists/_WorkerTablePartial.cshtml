@@ -9,6 +9,8 @@
 
     var i = 1;
     var defaultRows = 5;
+
+    var onClick = "onClick";
 }
 
 @if (isEnabled)
@@ -37,13 +39,13 @@
                                 <tr>
                                     <td>@i</td>
                                     <td>
-                                        <p>@key.DisplayName</p>
+                                        <p>@key.DisplayName <button class="btn btn-outline-success m-1" type="button" @onClick="addNewPosition('@key.Code')">+</button></p>
                                         [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
-                                         чел.] (@positionsCount[key])
+                                        чел.] (@positionsCount[key])
                                     </td>
                                     <td>
-                                            <p>@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)</p>
-                                            @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName) / час
+                                        <p>@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)</p>
+                                        @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName) / час
                                     </td>
                                     <td>
                                         <div class="dropdown rem-outline-on-print">
@@ -67,10 +69,10 @@
                             <tr>
                                 <td>@i</td>
                                 <td>
-                                        <p>@key.DisplayName</p>
-                                        [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
-                                         чел.] (@positionsCount[key])
-                                    </td>
+                                    <p>@key.DisplayName <button class="btn btn-outline-success m-1" type="button" @onClick="addNewPosition('@key.Code')">+</button></p>
+                                    [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
+                                    чел.] (@positionsCount[key])
+                                </td>
                                 <td><p>@key.LaborHourCost</p> @key.LaborHourCostCurrency.ShortName / час</td>
                                 <td>
                                     <div class="dropdown rem-outline-on-print">
