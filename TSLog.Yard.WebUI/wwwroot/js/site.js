@@ -717,3 +717,7 @@ $(document).ready(function() {
     if ($("#force-print").val())
         window.print();
 });
+
+function addNewPosition(posCode) {
+    alert(posCode);
+}
