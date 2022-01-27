@@ -103,7 +103,7 @@
         }
         else
         {
-            <h1 class="text-info hide-on-print"> @Partner.Serialize(cardData.GetPartners())<br />(@cardData.State?.DisplayName)<br /><small>@cardData.Type?.DisplayName</small></h1>
+            <h1 class="text-info hide-on-print"> @Partner.Serialize(cardData.GetPartners())<br />@cardData.State?.DisplayName<br /><small>@cardData.Type?.DisplayName</small></h1>
             <div class="m-1 p-1" style="background-color:@cardData.DisplayColor"></div>
         }
 
