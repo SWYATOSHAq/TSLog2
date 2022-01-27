@@ -1227,7 +1227,7 @@ namespace TSLog.Yard.Data
                        $"       ao.manager_id, " +
                        $"       ao.responsible_officer_id, " +
                        $"       ao.note " +
-                       $"  from {YardSchema}.v_active_operation o";
+                       $"  from {YardSchema}.v_active_operation ao";
                     command.CommandText = SelectActiveOperationsSql;
 
                     using var reader = command.ExecuteReader();
