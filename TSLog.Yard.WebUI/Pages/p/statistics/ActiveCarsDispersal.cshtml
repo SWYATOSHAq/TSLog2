@@ -10,11 +10,12 @@
     ViewData["Title"] = "Активные машины";
     var storage = Model.yardStorage;
 
-    var startDate = DateTime.Today.AddDays(-5);
-    var finishDate = DateTime.Today.AddDays(1);
+    //var startDate = DateTime.Today.AddDays(-5);
+    //var finishDate = DateTime.Today.AddDays(1);
 
-    var operationsList = (storage.GetOperations(startDate, finishDate, null), true);
+    //var operationsList = (storage.GetOperations(startDate, finishDate, null), true);
 
-    var operationsList = storage.GetAc;
+    var operationsList = (storage.GetActiveOperations(), false);
+    var a = 1;
 }
 <partial name="toolkit/lists/_OperationsTablePartial" model="operationsList" />
