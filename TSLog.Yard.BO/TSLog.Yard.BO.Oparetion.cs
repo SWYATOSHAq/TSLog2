@@ -127,17 +127,17 @@ namespace TSLog.Yard.BO
             VehicleKind = vehicleKind ?? throw new ArgumentNullException(nameof(vehicleKind));
             if (string.IsNullOrWhiteSpace(vehicleBrand))
                 throw new ArgumentException("vehicle brand is empty");
-            VehicleBrand = vehicleBrand.Trim().ToUpper();
+            VehicleBrand = vehicleBrand.Trim();
             if (string.IsNullOrWhiteSpace(vehicleModel))
                 throw new ArgumentException("vehicle model is empty");
-            VehicleModel = vehicleModel.Trim().ToUpper();
+            VehicleModel = vehicleModel.Trim();
             if (string.IsNullOrWhiteSpace(vehicleNumber))
                 throw new ArgumentException("vehicle number is empty");
             VehicleNumber = vehicleNumber.Trim().ToUpper();
-            TrailerNumber = string.IsNullOrWhiteSpace(trailerNumber) ? string.Empty : trailerNumber.Trim();
+            TrailerNumber = string.IsNullOrWhiteSpace(trailerNumber) ? string.Empty : trailerNumber.Trim().ToUpper();
             if (string.IsNullOrWhiteSpace(driverName))
                 throw new ArgumentException("driver name is empty");
-            DriverName = driverName.Trim().ToUpper();
+            DriverName = driverName.Trim();
             DriverPhoneNumber = string.IsNullOrWhiteSpace(driverPhoneNumber) ? string.Empty : driverPhoneNumber.Trim();
             State = state ?? throw new ArgumentNullException(nameof(state));
             Priority = priority > 0 ? priority : DefaultPriority;

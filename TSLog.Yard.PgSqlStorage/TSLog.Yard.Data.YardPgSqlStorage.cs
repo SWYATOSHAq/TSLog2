@@ -1128,7 +1128,6 @@ namespace TSLog.Yard.Data
             string? driverName)
         {
             var operations = new List<Operation>();
-
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -1186,6 +1185,50 @@ namespace TSLog.Yard.Data
                         string.IsNullOrWhiteSpace(vehicleNumber) ? DBNull.Value : vehicleNumber.ToUpper()));
                     command.Parameters.Add(CreateParameter("driver_name", NpgsqlDbType.Varchar,
                         string.IsNullOrWhiteSpace(driverName) ? DBNull.Value : driverName.ToUpper()));
+
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return operations.ToArray();
+        }
+        public Operation[] GetActiveOperations()
+        {
+            var operations = new List<Operation>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectActiveOperationsSql =
+                       $"select distinct ao.id, " +
+                       $"       ao.type_id, ao.type_code, ao.type_name, " +
+                       $"       ao.plan_work_start_date, ao.fact_work_start_date, " +
+                       $"       ao.plan_work_finish_date, ao.fact_work_finish_date, " +
+                       $"       ao.start_date, ao.finish_date, " +
+                       $"       ao.vehicle_kind_id, ao.vehicle_kind_code, ao.vehicle_kind_name, " +
+                       $"       ao.vehicle_brand, " +
+                       $"       ao.vehicle_model, " +
+                       $"       ao.vehicle_number, " +
+                       $"       ao.trailer_number, " +
+                       $"       ao.driver_name, ao.driver_phone_number, " +
+                       $"       ao.logist_id, ao.logist_code, ao.logist_name, " +
+                       $"       ao.gate_id, ao.gate_code, ao.gate_name, " +
+                       $"       ao.state_id, ao.state_code, ao.state_name, " +
+                       $"       ao.priority, " +
+                       $"       ao.partner_manager_name, " +
+                       $"       ao.partner_manager_phone_number, " +
+                       $"       ao.partner_manager_email, " +
+                       $"       ao.manager_id, " +
+                       $"       ao.responsible_officer_id, " +
+                       $"       ao.note " +
+                       $"  from {YardSchema}.v_active_operation o";
+                    command.CommandText = SelectActiveOperationsSql;
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())

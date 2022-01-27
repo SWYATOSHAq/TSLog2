@@ -49,6 +49,7 @@ namespace TSLog.Yard.BO
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName);
+        public Operation[] GetActiveOperations();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
         public void CancelOperationGate(Operation operation);
