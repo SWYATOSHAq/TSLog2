@@ -1,0 +1,21 @@
+﻿@page
+@using TSLog.Partners.BO
+@using TSLog.Yard.BO
+@using TSLog.Yard.Reporting
+@using static TSLog.Yard.BO.OperationType
+@model PrintDispersalModel
+
+
+@{
+    ViewData["Title"] = "Активные машины";
+    var storage = Model.yardStorage;
+
+    //var startDate = DateTime.Today.AddDays(-5);
+    //var finishDate = DateTime.Today.AddDays(1);
+
+    //var operationsList = (storage.GetOperations(startDate, finishDate, null), true);
+
+    var operationsList = (storage.GetActiveOperations(), false);
+    var a = 1;
+}
+<partial name="toolkit/lists/_OperationsTablePartial" model="operationsList" />

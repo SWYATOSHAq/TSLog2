@@ -3,7 +3,7 @@
 @using TSLog.Yard.BO
 @using TSLog.Yard.Reporting
 @using static TSLog.Yard.BO.OperationType
-@model GateDispersalModel
+@model ClientReportDispersalModel
 @{
     ViewData["Title"] = "отчет по затратам по клиентам";
     var storage = Model.yardStorage;
@@ -35,7 +35,8 @@
     var partnerList = (storage.GetPartners(),
     false,
     true,
-    selectedPartner.Code
+    selectedPartner.Code,
+    "Выберете партнера"
     );
 }
 

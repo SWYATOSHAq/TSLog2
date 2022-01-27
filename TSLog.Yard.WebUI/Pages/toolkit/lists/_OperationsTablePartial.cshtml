@@ -1,21 +1,22 @@
-﻿@using TSLog.Staff.BO
+﻿@using TSLog.Partners.BO
+@using TSLog.Staff.BO
 @using TSLog.Yard.BO
 @model (Operation[], bool)
 @{
     var operations = Model.Item1;
 
 }
-
+<meta http-equiv="refresh" content="60">  
 <style>
     th {
         text-align: center;
-        font-size: 2em;
+        font-size: 1.5em;
     }
 
     td {
         text-align: right;
         background-color: rgb(122, 122, 122);
-        font-size: 1.3em;
+        font-size: 1.2em;
     }
 
     .color-orange {
@@ -29,11 +30,12 @@
     .color-yellow {
         background-color: rgb(255, 255, 158) !important;
     }
-    .container{
+
+    .container {
         max-width: 100% !important;
     }
 </style>
-<h1>Активные машины 27.01.2022 10:44</h1>
+<h1>Активные машины @DateTime.Now.ToString(@"dd.MM.yyyy hh\:mm")</h1>
 <div class="m-1 shadow">
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
@@ -45,38 +47,42 @@
                 <th class="color-yellow">Поклажедатель</th>
                 <th class="color-yellow">Цель приезда</th>
                 <th class="color-yellow">№ заказа</th>
+                <th class="color-yellow">Примечание</th>
+                <th class="color-green">День</th>
                 <th class="color-green">Время прибытия на КПП</th>
                 <th class="color-orange">№ Ворот</th>
+                <th class="color-yellow">Состояние</th>
             </tr>
         </thead>
         <tbody>
+            @{
+                var i = 1;
+            }
             @foreach (var operation in operations)
-           {
-               <tr>
-                <th>1</th>
-                <td>М648 СР 777</td>
-                <td>Hyundai</td>
-                <td>Хрыченков Александр Анатольевич</td>
-                <td>Аскания</td>
-                <td>загрузка</td>
-                <td></td>
-                <td>7:00</td>
-                <td>1</td>
-            </tr>
-           }
+            {
+                <tr>
+                    <th>@i</th>
+                    <td>@operation.VehicleNumber</td>
+                    <td>@operation.VehicleBrand</td>
+                    <td>@operation.DriverName</td>
+                    <td>@(Partner.Serialize(operation.GetPartners()))</td>
+                    <td>@operation.Type.DisplayName</td>
+                    <td>@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : "")</td>
+                    <td>@operation.Note</td>
+                    <td>@operation.StartDate.ToString(@"dd.MM.yyyy")</td>
+                    <td>@operation.StartDate.ToString(@"hh\:mm")</td>
+                    <td>@operation.Gate.ShortName</td>
+                    <td style="background-color: @operation.DisplayColor !important; box-shadow:none">
+                        <button class="btn btn-outline-info m-3" onclick="location.href='/p/dispatcher/DispatcherHome?id=@operation.Id'">открыть</button>
+                        <p>@operation.State.DisplayName</p>
+                        </td>
+                </tr>
 
-            
-            <tr>
-                <th>2</th>
-                <td>М648 СР 777</td>
-                <td>Hyundai</td>
-                <td>Хрыченков Александр Анатольевич</td>
-                <td>Аскания</td>
-                <td>загрузка</td>
-                <td></td>
-                <td>7:30</td>
-                <td>2</td>
-            </tr>
+                i++;
+            }
+
+
+
         </tbody>
     </table>
 </div>
