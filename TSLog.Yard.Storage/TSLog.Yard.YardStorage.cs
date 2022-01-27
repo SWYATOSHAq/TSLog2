@@ -82,6 +82,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployees();
         }
+        public Employee[] GetPlanShiftEmployees(DateTime? date = null)
+        {
+            return _oracleStorage.GetPlanShiftEmployees(date);
+        }
         public Employee[] GetShiftEmployees(DateTime date)
         {
             return _oracleStorage.GetShiftEmployees(date);

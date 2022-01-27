@@ -128,7 +128,7 @@ namespace TSLog.Yard.Data
                     $"   and rownum < 16";
                 command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
-                command.Parameters.Add(new OracleParameter("partner_id", 
+                command.Parameters.Add(new OracleParameter("partner_id",
                     partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
                 command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
@@ -500,9 +500,90 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        private const string DefaultShift = "5/2-40";
+        private string? GetShift(DateTime? date = null)
+        {
+            var shift = DefaultShift;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectShiftSql =
+                    $"select ecco.api_staff.get_shift(:p_date) shift from dual";
+                command.CommandText = SelectShiftSql;
+                command.Parameters.Add(new OracleParameter("p_date", date != null && date != DateTime.MinValue 
+                    ? date : DBNull.Value));
+                var result = command.ExecuteScalar();
+                shift = result != null ? Convert.ToString(result) : DefaultShift;
+            }
+            return shift;
+        }
+        public Employee[] GetPlanShiftEmployees(DateTime? date = null)
+        {
+            var employees = new List<Employee>();
+            var shift = GetShift(date);
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeesSql =
+                    $"select e.id, e.code," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
+                    $"  from {StaffSchema}.stf_employee#v e" +
+                    $" where upper(trim(e.work_mode)) = :shift";
+                command.CommandText = SelectEmployeesSql;
+                command.Parameters.Add(new OracleParameter("shift", shift));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employee = CreateEmployee(reader);
+                    employees.Add(employee);
+                }
+                reader.Close();
+            }
+            return employees.ToArray();
+        }
         public Employee[] GetShiftEmployees(DateTime date)
         {
             var employees = new List<Employee>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeesSql =
+                    $"select distinct se.id, se.code," +
+                    $"       se.surname, se.first_name, se.patronymic," +
+                    $"       se.sex, se.birth_date," +
+                    $"       se.nationality," +
+                    $"       se.phone_number, se.email," +
+                    $"       se.document_name, se.document_series, se.document_number, se.document_issue_date, se.document_issue_organization," +
+                    $"       se.employment_date, se.dismissal_date," +
+                    $"       se.company_id," +
+                    $"       se.department_id," +
+                    $"       se.cost," +
+                    $"       se.cost_currency_code," +
+                    $"       se.is_active," +
+                    $"       se.display_order," +
+                    $"       se.note" +
+                    $"  from {StaffSchema}.stf_employee#v se" +
+                    $" where se.shift_from_date <= :p_date" +
+                    $"   and se.shift_to_date >= :p_date";
+                command.CommandText = SelectEmployeesSql;
+                command.Parameters.Add(new OracleParameter("p_date", date));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employee = CreateEmployee(reader);
+                    employees.Add(employee);
+                }
+                reader.Close();
+            }
             return employees.ToArray();
         }
         private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
