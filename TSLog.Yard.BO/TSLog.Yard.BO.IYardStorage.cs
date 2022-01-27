@@ -49,6 +49,7 @@ namespace TSLog.Yard.BO
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName);
+        public Operation[] GetActiveOperations();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null);
         public void CancelOperationGate(Operation operation);
@@ -63,9 +64,10 @@ namespace TSLog.Yard.BO
         public void AddAction(Operation operation, WarehouseAction action);
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);
-        public void AddWorker(Operation operation, Employee worker, Position position, double cost, MeasureUnit costCurrency);
-        public Operation.OperationWorker[] GetOperationWorkers(Operation operation);
-        public void RemoveWorker(Operation operation, Employee worker, Position position);
+        public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency);
+        public Operation.OperationEmployee[] GetOperationEmployees(Operation operation);
+        public void AllocateEmployees(Operation operation);
+        public void RemoveEmployee(Operation operation, Employee employee, Position position);
     }
     public interface IYardWmsStorage
     {
@@ -81,6 +83,7 @@ namespace TSLog.Yard.BO
         public Employee[] FindEmployees(string pattern);
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "");
         public Employee[] GetEmployees();
+        public Employee[] GetShiftEmployees(DateTime date);
         public Department GetDepartment(short id);
         public Department GetDepartment(string code);
         public Department[] GetDepartments();
