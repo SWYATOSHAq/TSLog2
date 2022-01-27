@@ -129,12 +129,7 @@ namespace TSLog.Incomes.BO
         /// <summary>
         /// (WeaKlaNam) Класс поступающего заказа на товар
         /// </summary>
-        public string Kind { get; set; } = string.Empty;
-
-        /// <summary>
-        ///  Номер
-        /// </summary>
-        public string Number { get; set; }
+        public string ProductKind { get; set; } = string.Empty;
 
         /// <summary>
         /// Номер прихода в системе партнёра
@@ -190,9 +185,8 @@ namespace TSLog.Incomes.BO
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state,
-            string note = "") : base(ActionKind.Income, id, partner, partnerNumber)
+            string note = "") : base(ActionKind.Income, id, number, partner, partnerNumber, true, note)
         {
-            Number = number.Trim();
             Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));
             if (string.IsNullOrWhiteSpace(partnerNumber))

@@ -328,6 +328,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetActions(operation);
         }
+        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
+        {
+            return _oracleStorage.FindActions(kind, partner, pattern);
+        }
         public void RemoveAction(Operation operation, WarehouseAction action)
         {
             _pgsqlStorage.RemoveAction(operation, action);
