@@ -137,14 +137,14 @@
         <partial name="toolkit/lists/_VehicleKindDropdownPartial" model="vehicleKindList" />
     </div>
     <!--  -->
-    <div class="row p-2 m-2 shadow">
+    <div class="row p-2 m-2 shadow rem-outline-on-print">
         <input type="hidden" id="operation_id" name="operation_id" value="@cardData.Id">
         <partial name="toolkit/lists/_FieldListPartial" model="textFieldsList" />
     </div>
 
     <div class="d-none" id="identeficator">@cardData.Id</div>
     <!--  -->
-    <div class="row p-2 m-2 d-flex justify-content-center">
+    <div class="row p-2 m-2 d-flex justify-content-center page-break-after hide-on-print">
 
         @if (cardData == Operation.Empty)
         {
@@ -221,11 +221,10 @@
                 tableVisClass = "table-vis";
             }
         }
-        <div class="@tableVisClass">
-            <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
-        </div>
-
     </div>
+        <div class="  @tableVisClass">
+        <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
+        </div>
 </div>
 
 

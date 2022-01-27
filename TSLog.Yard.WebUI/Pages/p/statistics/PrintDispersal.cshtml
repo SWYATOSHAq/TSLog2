@@ -10,12 +10,19 @@
     ViewData["Title"] = "Активные машины";
     var storage = Model.yardStorage;
 
-    //var startDate = DateTime.Today.AddDays(-5);
-    //var finishDate = DateTime.Today.AddDays(1);
+    string operationID = Request.Query["id"];
+    Operation selectedYardOperation = Operation.Empty;
+    long tmpID = 0;
+    if (long.TryParse(operationID, out tmpID))
+        selectedYardOperation = storage.GetOperation(tmpID);
+    else
+        selectedYardOperation = Operation.Empty;
 
-    //var operationsList = (storage.GetOperations(startDate, finishDate, null), true);
-
-    var operationsList = (storage.GetActiveOperations(), false);
-    var a = 1;
+    var operationToRender = (selectedYardOperation, storage, true, true);
 }
-<partial name="toolkit/lists/_OperationsTablePartial" model="operationsList" />
+@if (tmpID != 0 && selectedYardOperation != Operation.Empty)
+{
+    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+}
+
+<input id="force-print" type="hidden" name="force-print" value="true">

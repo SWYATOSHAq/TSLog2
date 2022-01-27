@@ -35,7 +35,7 @@
         max-width: 100% !important;
     }
 </style>
-<h1>Активные машины @DateTime.Now.ToString(@"dd.MM.yyyy hh\:mm")</h1>
+<h1>Активные машины @DateTime.Now.ToString(@"dd.MM.yyyy HH\:mm")</h1>
 <div class="m-1 shadow">
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
@@ -70,7 +70,7 @@
                     <td>@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : "")</td>
                     <td>@operation.Note</td>
                     <td>@operation.StartDate.ToString(@"dd.MM.yyyy")</td>
-                    <td>@operation.StartDate.ToString(@"hh\:mm")</td>
+                    <td>@operation.StartDate.ToString(@"HH\:mm")</td>
                     <td>@operation.Gate.ShortName</td>
                     <td style="background-color: @operation.DisplayColor !important; box-shadow:none">
                         <button class="btn btn-outline-info m-3" onclick="location.href='/p/dispatcher/DispatcherHome?id=@operation.Id'">открыть</button>

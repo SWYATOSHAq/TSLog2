@@ -16,7 +16,8 @@
 
 
 function PrintCard() {
-    window.print();
+    // 
+    window.open('/p/statistics/printDispersal?id=' + $("#identeficator").text(), '_blank');
 }
 
 function PrintStatisticsTables() {
@@ -709,4 +710,10 @@ $(document).ready(function() {
             // inputGroup.children(".dropdown-toggle").trigger('click');
         });
     }
+});
+
+$(document).ready(function() {
+    // autoprint if page has special tag
+    if ($("#force-print").val())
+        window.print();
 });
