@@ -1,20 +1,25 @@
 ﻿@using TSLog.Yard.BO
-@model (VehicleKind[], string, bool, bool)
+@model (VehicleKind[], string, bool, bool, string)
 @{
     var cardVehicleKindList = Model.Item1;
     var selectedVehicleKind = Model.Item2;
     var isEnabled = Model.Item3;
     var isSmall = Model.Item4;
+
+    var defaultText = Model.Item5;
+
+    if (defaultText == string.Empty)
+        defaultText = "Тип машины не выбран";
 }
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Тип машины'</span>
     <select id="vehicle_kind" class="form-select" aria-label="Default select" @(isEnabled ? "" : "disabled")>
-    <option value="">Выберите тип машины</option>
+    <option value="">@defaultText</option>
 
-    @foreach (var curGate in cardVehicleKindList)
+    @foreach (var curVehicle in cardVehicleKindList)
     {
-       @: <option value="@curGate.Code" @((curGate.Code == selectedVehicleKind) ? "selected" : "")>@curGate.DisplayName</option>
+       @: <option value="@curVehicle.Code" @((curVehicle.Code == selectedVehicleKind) ? "selected" : "")>@curVehicle.DisplayName</option>
     }
     </select>
 </div>

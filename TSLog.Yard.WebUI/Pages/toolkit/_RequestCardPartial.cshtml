@@ -11,31 +11,36 @@
     var gatesList = (storage.GetGates(),
         cardData.Gate?.Code,
         isEnabled,
-        false
+        false,
+        ""
         );
 
     var partnerList = (storage.GetPartners(),
         !isEnabled,
         false,
+        "",
         ""
         );
 
     var logstList = (storage.GetLogists(),
         cardData.Logist?.Code,
         isEnabled,
-        false
+        false,
+        ""
         );
 
     var vehicleKindList = (storage.GetVehicleKinds(),
         cardData.VehicleKind?.Code,
         isEnabled,
-        false
+        false,
+        ""
         );
 
     var operationList = (storage.GetOperationTypes(),
         cardData.Type?.Code,
         isEnabled,
-        false
+        false,
+        ""
         );
 
     //cardData.Type.UpdateTime();

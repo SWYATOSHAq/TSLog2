@@ -50,7 +50,7 @@ const time_finish = 23;
 var trail_length = 0;
 
 function GetTrailLength() {
-    var operation_type_time = $("#text_operation_time").text().split(" ")[2];
+    var operation_type_time = $("#text_operation_time").text().split(" ")[0];
 
     var date1 = new Date(new Date().setHours(0, 0, 0, 0));
     var date2 = ConvertToTime(operation_type_time);
@@ -526,7 +526,7 @@ $(document).ready(function() {
 
 
     if ($("#time_table").length) {
-        $("#text_operation_time").text("Время операции: --:--:-- (--:--)");
+        $("#text_operation_time").text("--:--:-- (--:--)");
     }
 
     function GetOperationTimeSpan(inpDate) {
@@ -538,7 +538,7 @@ $(document).ready(function() {
             function(data) {
                 timeSpan = JSON.parse(data);
                 var time = new Date(new Date().setHours(0, 0, timeSpan, 0));
-                $("#text_operation_time").text("Время операции: " + time.toLocaleTimeString());
+                $("#text_operation_time").text(time.toLocaleTimeString());
             });
 
         $.get("/api/v1/yard/BusyPeriods", {

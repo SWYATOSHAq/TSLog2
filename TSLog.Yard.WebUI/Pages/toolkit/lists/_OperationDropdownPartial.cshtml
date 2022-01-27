@@ -1,16 +1,20 @@
-﻿@model (TSLog.Yard.BO.OperationType[], string, bool, bool)
+﻿@model (TSLog.Yard.BO.OperationType[], string, bool, bool, string)
 @{
     var cardOperationTypesList = Model.Item1;
     var selectedOperation = Model.Item2;
     var isEnabled = Model.Item3;
     var isSmall = Model.Item4;
 
+    var defaultText = Model.Item5;
+
+    if (defaultText == string.Empty)
+        defaultText = "Тип операции не выбран";
 }
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Тип операции'</span>
     <select id="operations" class="form-select" aria-label="Default select" @(isEnabled ? "" : "disabled")>
-    <option value="">Выберите тип операции</option>
+    <option value="">@defaultText</option>
 
     @foreach (var curOperation in cardOperationTypesList)
     {

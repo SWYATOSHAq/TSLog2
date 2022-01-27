@@ -1,15 +1,20 @@
-﻿@model (TSLog.Yard.BO.Logist[], string, bool, bool)
+﻿@model (TSLog.Yard.BO.Logist[], string, bool, bool, string)
 @{
     var cardLogistList = Model.Item1;
     var selectedLogist = Model.Item2;
     var isEnabled = Model.Item3;
     var isSmall = Model.Item4;
+
+    var defaultText = Model.Item5;
+
+    if (defaultText == string.Empty)
+        defaultText = "Логист не выбран";
 }
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : "")">Логист</span>
     <select id="logists" class="form-select" aria-label="Default select" @(isEnabled ? "" : "disabled")>
-    <option value="">Выберите логиста</option>
+    <option value="">@defaultText</option>
 
     @foreach (var curGate in cardLogistList)
     {
