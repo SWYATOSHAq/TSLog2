@@ -1,5 +1,6 @@
 ﻿using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
 using TSLog.WarehouseActions.BO;
 
@@ -9,7 +10,7 @@ namespace TSLog.Incomes.BO
     /// Приход товара на склад (заголовок)
     /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={1497144A-EAAA-437E-84A0-D1AF487D853E}
     /// </summary>
-    public class Income : Entity
+    public class Income : WarehouseAction
     {
         /// <summary>
         /// Товарная позиция прихода
@@ -156,11 +157,6 @@ namespace TSLog.Incomes.BO
         public OperationType Operation { get; set; }
 
         /// <summary>
-        /// Партнёр (покупатель наших складских и логистических услуг)
-        /// </summary>
-        public LegalEntity Partner { get; private set; }
-
-        /// <summary>
         /// (CustVendId) Код контрагента (поставщика/грузополучателя)
         /// </summary>
         public LegalEntity Vendor { get; set; } = LegalEntity.Null;
@@ -193,9 +189,8 @@ namespace TSLog.Incomes.BO
         private readonly IDictionary<Product, Line> _lines = new Dictionary<Product, Line>();
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
-        public Income(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state,
-            string note = "")
-            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, true, -1, note)
+        public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state,
+            string note = "") : base(ActionKind.Income, id, partner, partnerNumber)
         {
             Number = number.Trim();
             Date = date;
@@ -204,6 +199,7 @@ namespace TSLog.Incomes.BO
                 throw new ArgumentException("partnerNumber is empty");
             PartnerNumber = partnerNumber.Trim();
             State = state ?? throw new ArgumentNullException(nameof(state));
+            Note = note;
         }
 
         /// <summary>

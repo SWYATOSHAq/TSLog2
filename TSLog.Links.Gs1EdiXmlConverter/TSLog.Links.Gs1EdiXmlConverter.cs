@@ -554,7 +554,7 @@ namespace TSLog.Links.Gs1EdiXml
             var incomeId = string.Empty;
             string incomeNumber;
             var incomeDate = DateTime.MinValue;
-            var incomePartner = LegalEntity.Null;
+            var incomePartner = Partner.Null;
             var incomePartnerNumber = string.Empty;
             var incomeStateCode = string.Empty;
             Entity incomeState;
@@ -921,7 +921,7 @@ namespace TSLog.Links.Gs1EdiXml
             var outgoId = string.Empty;
             string outgoNumber;
             var outgoDate = DateTime.MinValue;
-            LegalEntity outgoPartner;
+            Partner outgoPartner;
             var outgoPartnerNumber = string.Empty;
             DateTime outgoPlanShippingBegin;
             DateTime outgoPlanShippingEnd;
@@ -1036,7 +1036,7 @@ namespace TSLog.Links.Gs1EdiXml
 
             outgoNumber = _storage.GenerateObjectId(DocumentObjectTypes.DocWMS.ToString(), serviceBuyer);
 
-            outgoPartner = serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
+            outgoPartner = (Partner)serviceBuyer; // Партнёр = покупатель наших складских и логистических услуг
             outgoPlanShippingBegin = Convert.ToDateTime(string.Format("{0} {1}", beginDate, beginTime));
             outgoPlanShippingEnd = Convert.ToDateTime(string.Format("{0} {1}", endDate, endTime));
             outgoState = _storage.GetOutgoState(outgoStateCode);

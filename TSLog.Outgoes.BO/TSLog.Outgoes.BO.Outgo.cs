@@ -1,5 +1,6 @@
 ﻿using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
+using TSLog.Partners.BO;
 using TSLog.Products.BO;
 using TSLog.WarehouseActions.BO;
 
@@ -12,7 +13,7 @@ namespace TSLog.Outgoes.BO
     /// Позиция
     /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={2874B98C-FCA4-4398-964A-E8ACB90EA6FA}
     /// </summary>
-    public class Outgo : Entity
+    public class Outgo : WarehouseAction
     {
         /// <summary>
         /// Товарная позиция расхода
@@ -143,11 +144,6 @@ namespace TSLog.Outgoes.BO
         public Entity Type { get; set; } = Null;
 
         /// <summary>
-        /// Партнёр (покупатель наших складских и логистических услуг)
-        /// </summary>
-        public LegalEntity Partner { get; private set; }
-
-        /// <summary>
         /// Конечный получатель заказа
         /// </summary>
         public LegalEntity Vendor { get; set; } = LegalEntity.Null;
@@ -215,8 +211,8 @@ namespace TSLog.Outgoes.BO
         private readonly IDictionary<Product, Line> _lines = new Dictionary<Product, Line>();
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
-        public Outgo(string id, string number, DateTime date, LegalEntity partner, string partnerNumber, Entity state, string note = "")
-            : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, true, -1, note)
+        public Outgo(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "")
+            : base(ActionKind.Outgo, id, partner, partnerNumber)
         {
             if (string.IsNullOrWhiteSpace(number))
                 throw new ArgumentException("number is empty");
@@ -227,6 +223,7 @@ namespace TSLog.Outgoes.BO
                 throw new ArgumentException("partnerNumber is empty");
             PartnerNumer = partnerNumber;
             State = state ?? throw new ArgumentNullException(nameof(state));
+            Note = note;
         }
 
         /// <summary>
