@@ -816,6 +816,7 @@ namespace TSLog.Yard.Data
                         ":p_vehicle_brand," +
                         ":p_vehicle_model," +
                         ":p_vehicle_number," +
+                        ":p_trailer_number," +
                         ":p_driver_name," +
                         ":p_driver_phone_number," +
                         ":p_logist_id," +
@@ -833,6 +834,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
                     command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
                     command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+                    command.Parameters.Add(CreateParameter("p_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
                     command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
                     command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
                     command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));

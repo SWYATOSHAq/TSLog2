@@ -10,32 +10,12 @@ namespace TSLog.Staff.Data
     public class StaffOracleStorage : OracleStorage, IStaffStorage
     {
         public StaffOracleStorage(string dataSource) : base(dataSource)
-        { }
-        public Employee AddEmployeePosition(Employee employee, Position position)
-        {
-            throw new NotImplementedException();
-        }
-        public Employee AddPartnerManager(Employee employee, Partner partner)
-        {
-            throw new NotImplementedException();
-        }
+        { }       
         public Employee CreateEmployee(Employee employee)
         {
             throw new NotImplementedException();
-        }
-        public void DeleteEmployee(Employee employee)
-        {
-            throw new NotImplementedException();
-        }
+        }        
         public Employee EditEmployee(Employee employee)
-        {
-            throw new NotImplementedException();
-        }
-        public Employee RemoveEmployeePosition(Employee employee, Position position)
-        {
-            throw new NotImplementedException();
-        }
-        public Employee RemovePartnerManager(Employee employee, Partner partner)
         {
             throw new NotImplementedException();
         }
@@ -43,5 +23,30 @@ namespace TSLog.Staff.Data
         {
             throw new NotImplementedException();
         }
+        public void DeleteEmployee(Employee employee)
+        {
+            throw new NotImplementedException();
+        }
+        public Employee AddEmployeePosition(Employee employee, Position position)
+        {
+            throw new NotImplementedException();
+        }
+        public Employee RemoveEmployeePosition(Employee employee, Position position)
+        {
+            throw new NotImplementedException();
+        }
+        public Employee AddPartnerManager(Employee employee, Partner partner)
+        {
+            throw new NotImplementedException();
+        }
+        public Employee RemovePartnerManager(Employee employee, Partner partner)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddEmployeeToShift(Shift shift, Employee employee)
+        { }
+        public void RemoveEmployeeFromShift(Shift shift, Employee employee)
+        { }
     }
 }
