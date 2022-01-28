@@ -138,6 +138,18 @@ function ConvertToTime(strTime) {
     return ret;
 }
 
+function MultiplyTextTimeSpan(strTime, multiplier) {
+    var timeArr = strTime.split(':'); // split it at the colons
+
+    // minutes are worth 60 seconds. Hours are worth 60 minutes.
+    var seconds = (+timeArr[0]) * 60 * 60 + (+timeArr[1]) * 60 + (+timeArr[2]);
+    var newSeconds = seconds * multiplier;
+
+    var t = new Date();
+    t.setHours(0, 0, newSeconds, 0);
+    return t;
+}
+
 $(document).ready(function() {
     // default
     periods = [];
@@ -620,95 +632,95 @@ $(document).ready(function() {
     $('.dropdown-toggle').bind("keyup", DropdownToggleHandler);
     $('.dropdown-toggle').bind("click", DropdownToggleHandler);
 
+});
 
-    function DropdownToggleHandler(e) {
-        var inputField = $(this);
-        var inputGroup = inputField.parent();
+function DropdownToggleHandler(e) {
+    var inputField = $(this);
+    var inputGroup = inputField.parent();
 
-        var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
-        if (curSelectedWorkerID != "") {
-            // has selection
-            UpdateWorkerInfo("del", inputGroup);
-            inputGroup.children(".selected-item-id").val('');
-        }
-
-        $.get("/api/v1/yard/SearchWorkersByName", {
-                search: inputField.val(),
-                position_code: inputGroup.children(".position-code").val(),
-            },
-            function(data) {
-                var people = JSON.parse(data);
-                var dropdown = inputGroup.children(".dropdown-menu");
-
-                RenderUserList(dropdown, people);
-            });
-
+    var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
+    if (curSelectedWorkerID != "") {
+        // has selection
+        UpdateWorkerInfo("del", inputGroup);
+        inputGroup.children(".selected-item-id").val('');
     }
 
-    function RenderUserList(parent, people) {
-        parent.children().remove();
-        people.forEach(human => {
-            var newItem = document.createElement("li");
-            newItem = $(newItem);
-            newItem.addClass("dropdown-item");
-            //
-            newItem.text(human.FullName);
-            newItem.val(human.Id);
-            newItem.click(OnItemClick);
-            //
-            parent.append(newItem);
+    $.get("/api/v1/yard/SearchWorkersByName", {
+            search: inputField.val(),
+            position_code: inputGroup.children(".position-code").val(),
+        },
+        function(data) {
+            var people = JSON.parse(data);
+            var dropdown = inputGroup.children(".dropdown-menu");
 
+            RenderUserList(dropdown, people);
         });
-    }
 
-    // get event on click of every li element in #card-operation.dropdown-menu 
-    // and chenge value of nearest #card-operation.dropdown-toggle by its content and post to api
-    // + save info into 
+}
 
-    function OnItemClick() {
-        var selectedWorker = $(this);
-        var inputGroup = selectedWorker.parent().parent();
+function RenderUserList(parent, people) {
+    parent.children().remove();
+    people.forEach(human => {
+        var newItem = document.createElement("li");
+        newItem = $(newItem);
+        newItem.addClass("dropdown-item");
         //
-        inputGroup.children(".dropdown-toggle").val(selectedWorker.text());
+        newItem.text(human.FullName);
+        newItem.val(human.Id);
+        newItem.click(OnItemClick);
         //
-        var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
+        parent.append(newItem);
 
-        if (curSelectedWorkerID == "") {
-            // has no selection
+    });
+}
+
+// get event on click of every li element in #card-operation.dropdown-menu 
+// and chenge value of nearest #card-operation.dropdown-toggle by its content and post to api
+// + save info into 
+
+function OnItemClick() {
+    var selectedWorker = $(this);
+    var inputGroup = selectedWorker.parent().parent();
+    //
+    inputGroup.children(".dropdown-toggle").val(selectedWorker.text());
+    //
+    var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
+
+    if (curSelectedWorkerID == "") {
+        // has no selection
+        inputGroup.children(".selected-item-id").val(selectedWorker.val());
+        UpdateWorkerInfo("add", inputGroup);
+
+    } else {
+        // already has a selection
+        if (curSelectedWorkerID != selectedWorker.val()) {
+            // id has changed? so delete previous and add new
+            UpdateWorkerInfo("del", inputGroup);
+            //
             inputGroup.children(".selected-item-id").val(selectedWorker.val());
             UpdateWorkerInfo("add", inputGroup);
-
-        } else {
-            // already has a selection
-            if (curSelectedWorkerID != selectedWorker.val()) {
-                // id has changed? so delete previous and add new
-                UpdateWorkerInfo("del", inputGroup);
-                //
-                inputGroup.children(".selected-item-id").val(selectedWorker.val());
-                UpdateWorkerInfo("add", inputGroup);
-            }
         }
-
-
-
-
-
-        return false;
     }
 
-    function UpdateWorkerInfo(actionType, inputGroup) {
-        var postData = {
-            operation_id: $("#identeficator").text(),
-            action_type: actionType,
-            worker_id: inputGroup.children(".selected-item-id").val(),
-            position_code: inputGroup.children(".position-code").val(),
-        };
 
-        $.post("/api/v1/yard/UpdateOperationWorkers", postData, function(data) {
-            console.log("updated");
-        });
-    }
-});
+
+
+
+    return false;
+}
+
+function UpdateWorkerInfo(actionType, inputGroup) {
+    var postData = {
+        operation_id: $("#identeficator").text(),
+        action_type: actionType,
+        worker_id: inputGroup.children(".selected-item-id").val(),
+        position_code: inputGroup.children(".position-code").val(),
+    };
+
+    $.post("/api/v1/yard/UpdateOperationWorkers", postData, function(data) {
+        console.log("updated");
+    });
+}
 
 $(document).ready(function() {
     // autoprint if page has special tag
@@ -716,6 +728,80 @@ $(document).ready(function() {
         window.print();
 });
 
-function addNewPosition(posCode) {
-    alert(posCode);
+
+var maxRowsPerPosition = 4;
+
+function addNewPosition(rowButton) {
+    var row = $(rowButton).parent().parent().parent();
+    var posCode = row.attr('class');
+    console.log($("." + posCode));
+
+    var positionRows = $("." + posCode);
+    console.log(positionRows);
+    if (positionRows.length < maxRowsPerPosition) {
+        var newRow = row.clone();
+        // clear data of new row
+        setRowEmpty(newRow);
+        //
+        var curSize = positionRows.length;
+        row.after(newRow);
+        //
+        RerenderWorkerTableIndexes();
+        RecalculateAdditionalTableInfo(posCode, row.find(".cell-info-text").text(), curSize);
+
+    }
+}
+
+function removePosition(rowButton) {
+    var row = $(rowButton).parent().parent().parent();
+
+    var posCode = row.attr('class');
+
+    console.log($("." + posCode));
+
+    UpdateWorkerInfo("del", row.find(".input-group"));
+    //
+    var positionRows = $("." + posCode);
+    console.log(positionRows);
+    if (positionRows.length > 1) {
+        var curSize = positionRows.length;
+        row.remove();
+        RecalculateAdditionalTableInfo(posCode, row.find(".cell-info-text").text(), curSize);
+    } else
+        setRowEmpty(row);
+
+    //
+    RerenderWorkerTableIndexes();
+}
+
+function setRowEmpty(row) {
+    row.find(".selected-item-id").val("");
+    var dropdownToggle = row.find(".dropdown-toggle");
+
+    dropdownToggle.val("");
+    dropdownToggle.bind("keyup", DropdownToggleHandler);
+    dropdownToggle.bind("click", DropdownToggleHandler);
+}
+
+function RerenderWorkerTableIndexes() {
+    $(".table-row-index").each(function(index) {
+        $(this).text(index + 1);
+    });
+}
+
+function RecalculateAdditionalTableInfo(rowGroupName, exampleText, previousSize) {
+    var rowGroupRows = $("." + rowGroupName);
+    // [01:06:00 чел.] (1/1)	
+    var strTime = exampleText.split("[")[1].split(" ")[0];
+    var neededPersonal = exampleText.split("/")[1].split(")")[0];
+    //
+    var newTime = MultiplyTextTimeSpan(strTime, (previousSize / neededPersonal) / (rowGroupRows.length / neededPersonal));
+    //
+    var outStr = "[" + newTime.toLocaleTimeString() + " чел.] (" + rowGroupRows.length + "/" + neededPersonal + ")";
+    console.log(outStr);
+    rowGroupRows.each(function(index) {
+        $(this).find(".cell-info-text").each(function(index) {
+            $(this).text(outStr);
+        });
+    });
 }

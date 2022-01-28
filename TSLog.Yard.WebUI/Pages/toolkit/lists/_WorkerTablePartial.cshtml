@@ -8,6 +8,8 @@
     var isEnabled = Model.Item4;
 
     var i = 1;
+    var posCount = 0;
+
     var defaultRows = 5;
 
     var onClick = "onClick";
@@ -21,7 +23,7 @@
             <tr>
                 <th>№</th>
                 <th>Должность</th>
-                <th>Стоимость</th>
+                <th class="d-none">Стоимость</th>
                 <th>ФИО ответственного</th>
             </tr>
         </thead>
@@ -32,22 +34,26 @@
                 {
                     @if (key.IsLinear)
                     {
+                        posCount = 1;
                         if (positions.ContainsKey(key))
                             @foreach (var employee in positions[key])
                             @*@for (var j = 0; j < positions[key]; j++)*@
                             {
-                                <tr>
-                                    <td>@i</td>
+                                <tr class="@key.Code">
+                                    <td class="table-row-index">@i</td>
                                     <td>
-                                        <p>@key.DisplayName <button class="btn btn-outline-success m-1" type="button" @onClick="addNewPosition('@key.Code')">+</button></p>
-                                        [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
-                                        чел.] (@positionsCount[key])
+                                        <p>
+                                            @key.DisplayName
+                                            <button class="btn btn-outline-success" type="button" @onClick="addNewPosition(this)">+</button>
+                                            <button class="btn btn-outline-danger m-1" type="button" @onClick="removePosition(this)"> - </button>
+                                        </p>
+                                        <p class="cell-info-text">[@(new TimeSpan(0, 0, positionsWorkTime[key]/positionsCount[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@positionsCount[key])</p>
                                     </td>
-                                    <td>
+                                    <td class="d-none">
                                         <p>@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)</p>
                                         @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName) / час
                                     </td>
-                                    <td>
+                                    <td class="name">
                                         <div class="dropdown rem-outline-on-print">
                                             <div class="input-group">
                                                 <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="@employee.FullName">
@@ -63,18 +69,22 @@
                                 </tr>
 
                                 i++;
+                                posCount++;
                             }
                         @for (var j = 0; j < positionsCount[key] - ((positions.ContainsKey(key) ? positions[key].Count : 0)); j++)
                         {
-                            <tr>
-                                <td>@i</td>
+                            <tr class="@key.Code">
+                                <td class="table-row-index">@i</td>
                                 <td>
-                                    <p>@key.DisplayName <button class="btn btn-outline-success m-1" type="button" @onClick="addNewPosition('@key.Code')">+</button></p>
-                                    [ @(new TimeSpan(0, 0, positionsWorkTime[key]).ToString(@"hh\:mm\:ss"))
-                                    чел.] (@positionsCount[key])
+                                    <p>
+                                        @key.DisplayName
+                                        <button class="btn btn-outline-success m-1" type="button" @onClick="addNewPosition(this)">+</button>
+                                        <button class="btn btn-outline-danger m-1" type="button" @onClick="removePosition(this)"> - </button>
+                                    </p>
+                                    <p class="cell-info-text">[@(new TimeSpan(0, 0, positionsWorkTime[key]/positionsCount[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@positionsCount[key])</p>
                                 </td>
-                                <td><p>@key.LaborHourCost</p> @key.LaborHourCostCurrency.ShortName / час</td>
-                                <td>
+                                <td class="d-none"><p>@key.LaborHourCost</p> @key.LaborHourCostCurrency.ShortName / час</td>
+                                <td class="name">
                                     <div class="dropdown rem-outline-on-print">
                                         <div class="input-group">
                                             <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="">
@@ -90,6 +100,7 @@
                             </tr>
 
                             i++;
+                            posCount++;
                         }
                     }
 
