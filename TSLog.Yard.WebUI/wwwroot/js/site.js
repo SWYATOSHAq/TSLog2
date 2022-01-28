@@ -706,8 +706,6 @@ $(document).ready(function() {
 
         $.post("/api/v1/yard/UpdateOperationWorkers", postData, function(data) {
             console.log("updated");
-            // console.log(data);
-            // inputGroup.children(".dropdown-toggle").trigger('click');
         });
     }
 });
