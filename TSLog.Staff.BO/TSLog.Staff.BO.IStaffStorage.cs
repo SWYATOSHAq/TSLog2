@@ -4,7 +4,7 @@ namespace TSLog.Staff.BO
 {
     public interface IStaffStorage
     {
-        public Employee CreateEmployee(Employee employee);
+        public Employee AddEmployee(Employee employee);
         public Employee SetEmployeeDepartment(Employee employee);
         public Employee AddEmployeePosition(Employee employee, Position position);
         public Employee RemoveEmployeePosition(Employee employee, Position position);

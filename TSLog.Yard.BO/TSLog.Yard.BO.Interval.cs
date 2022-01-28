@@ -641,6 +641,16 @@ namespace TSLog.Yard.BO
             var operationDuration = operation.PlanWorkFinishDate - operation.PlanWorkStartDate;
             return duration / operationDuration;
         }
+        public double IntervalShare(Interval interval)
+        {
+            if (interval == null)
+                throw new ArgumentNullException(nameof(interval));
+            var from = From >= interval.From ? From : interval.From;
+            var to = To <= interval.To ? To : interval.To;
+            var duration = from < to ? to - from : TimeSpan.Zero;
+            var intervalDuration = interval.To - interval.From;
+            return duration / intervalDuration;
+        }
         public string GetFormattedTimeString(bool simplified = true)
         {
             string ret = simplified ? $"{From:HH} - {To:HH}" : $"{From:HH\\:mm\\ss} - {To:HH\\:mm\\ss}";
