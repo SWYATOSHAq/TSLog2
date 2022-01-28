@@ -82,6 +82,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployees();
         }
+        public Employee[] GetPlanShiftEmployees(DateTime? date = null)
+        {
+            return _oracleStorage.GetPlanShiftEmployees(date);
+        }
         public Employee[] GetShiftEmployees(DateTime date)
         {
             return _oracleStorage.GetShiftEmployees(date);
@@ -327,6 +331,10 @@ namespace TSLog.Yard
         public WarehouseAction[] GetActions(Operation operation)
         {
             return _pgsqlStorage.GetActions(operation);
+        }
+        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
+        {
+            return _oracleStorage.FindActions(kind, partner, pattern);
         }
         public void RemoveAction(Operation operation, WarehouseAction action)
         {

@@ -816,6 +816,7 @@ namespace TSLog.Yard.Data
                         ":p_vehicle_brand," +
                         ":p_vehicle_model," +
                         ":p_vehicle_number," +
+                        ":p_trailer_number," +
                         ":p_driver_name," +
                         ":p_driver_phone_number," +
                         ":p_logist_id," +
@@ -833,6 +834,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
                     command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
                     command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+                    command.Parameters.Add(CreateParameter("p_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
                     command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
                     command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
                     command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
@@ -1549,11 +1551,18 @@ namespace TSLog.Yard.Data
         private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
             var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+            var id = Utils.DbValueToString(reader["action_id"]);
+            var number = string.Empty;
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
+            var partnerId = Utils.DbValueToString(reader["partner_action_id"]);
+            var note = string.Empty;
             var action = new WarehouseAction(kind,
-                Utils.DbValueToString(reader["action_id"]),
+                id,
+                number,
                 partner,
-                Utils.DbValueToString(reader["partner_action_id"]));
+                partnerId,
+                true,
+                note);
             return action;
         }
         public WarehouseAction[] GetActions(Operation operation)

@@ -75,6 +75,7 @@ namespace TSLog.Yard.BO
         public MeasureUnit[] GetMeasureUnits();
         public WarehouseAction GetAction(ActionKind actionKind, string id);
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
+        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern);
         public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
@@ -83,6 +84,7 @@ namespace TSLog.Yard.BO
         public Employee[] FindEmployees(string pattern);
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "");
         public Employee[] GetEmployees();
+        public Employee[] GetPlanShiftEmployees(DateTime? date = null);
         public Employee[] GetShiftEmployees(DateTime date);
         public Department GetDepartment(short id);
         public Department GetDepartment(string code);

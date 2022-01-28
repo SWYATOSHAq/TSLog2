@@ -41,12 +41,18 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(reader));
             var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
             var id = Utils.DbValueToString(reader["id"]);
+            var number = string.Empty;
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var partnerActionId = Utils.DbValueToString(reader["partner_number"]);
+            var isActive = true;
+            var note = string.Empty;
             var action = new WarehouseAction(kind,
                 id,
+                number,
                 partner,
-                partnerActionId);
+                partnerActionId,
+                isActive,
+                note);
             return action;
         }
         public WarehouseAction GetAction(ActionKind actionKind, string id)
@@ -100,6 +106,40 @@ namespace TSLog.Yard.Data
             if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
+        }
+        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
+        {
+            var actions = new List<WarehouseAction>();
+
+            pattern = !string.IsNullOrWhiteSpace(pattern) ? $"%{pattern.Trim().ToUpper()}%" : "%";
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectWarehouseActionByPartnerActionIdSql =
+                    $"select a.kind, " +
+                    $" a.id, a.action_number, " +
+                    $" a.partner_id, " +
+                    $" a.partner_number " +
+                    $"  from {CommonSchema}.act_warehouse_action#v a " +
+                    $" where (upper(trim(a.id)) like :pattern" +
+                    $"     or upper(trim(a.action_number)) like :pattern)" +
+                    $"     or upper(trim(a.partner_number)) like :pattern)" +
+                    $"   and (:partner_id is null or a.partner_id = :partner_id)" +
+                    $"   and a.kind = :kind" +
+                    $"   and rownum < 16";
+                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
+                command.Parameters.Add(new OracleParameter("pattern", pattern));
+                command.Parameters.Add(new OracleParameter("partner_id",
+                    partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var action = CreateAction(reader);
+                    actions.Add(action);
+                }
+                reader.Close();
+            }
+            return actions.ToArray();
         }
         private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
         private static LegalEntity CreateLegalEntity(DbDataReader reader)
@@ -282,7 +322,7 @@ namespace TSLog.Yard.Data
             employee.EmploymentDate = Utils.DbValueToDateTime(reader["employment_date"]);
             employee.DismissalDate = Utils.DbValueToDateTime(reader["dismissal_date"]);
 
-            var departmentId = Utils.DbValueToInt(reader["department_id"]);
+            //var departmentId = Utils.DbValueToInt(reader["department_id"]);
             //employee.Department = GetDepartment(departmentId);
 
             employee.Cost = Utils.DbValueToDouble(reader["cost"]);
@@ -460,9 +500,90 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        private const string DefaultShift = "5/2-40";
+        private string? GetShift(DateTime? date = null)
+        {
+            var shift = DefaultShift;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectShiftSql =
+                    $"select ecco.api_staff.get_shift(:p_date) shift from dual";
+                command.CommandText = SelectShiftSql;
+                command.Parameters.Add(new OracleParameter("p_date", date != null && date != DateTime.MinValue 
+                    ? date : DBNull.Value));
+                var result = command.ExecuteScalar();
+                shift = result != null ? Convert.ToString(result) : DefaultShift;
+            }
+            return shift;
+        }
+        public Employee[] GetPlanShiftEmployees(DateTime? date = null)
+        {
+            var employees = new List<Employee>();
+            var shift = GetShift(date);
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeesSql =
+                    $"select e.id, e.code," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
+                    $"  from {StaffSchema}.stf_employee#v e" +
+                    $" where upper(trim(e.work_mode)) = :shift";
+                command.CommandText = SelectEmployeesSql;
+                command.Parameters.Add(new OracleParameter("shift", shift));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employee = CreateEmployee(reader);
+                    employees.Add(employee);
+                }
+                reader.Close();
+            }
+            return employees.ToArray();
+        }
         public Employee[] GetShiftEmployees(DateTime date)
         {
             var employees = new List<Employee>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeesSql =
+                    $"select distinct se.id, se.code," +
+                    $"       se.surname, se.first_name, se.patronymic," +
+                    $"       se.sex, se.birth_date," +
+                    $"       se.nationality," +
+                    $"       se.phone_number, se.email," +
+                    $"       se.document_name, se.document_series, se.document_number, se.document_issue_date, se.document_issue_organization," +
+                    $"       se.employment_date, se.dismissal_date," +
+                    $"       se.company_id," +
+                    $"       se.department_id," +
+                    $"       se.cost," +
+                    $"       se.cost_currency_code," +
+                    $"       se.is_active," +
+                    $"       se.display_order," +
+                    $"       se.note" +
+                    $"  from {StaffSchema}.stf_employee#v se" +
+                    $" where se.shift_from_date <= :p_date" +
+                    $"   and se.shift_to_date >= :p_date";
+                command.CommandText = SelectEmployeesSql;
+                command.Parameters.Add(new OracleParameter("p_date", date));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employee = CreateEmployee(reader);
+                    employees.Add(employee);
+                }
+                reader.Close();
+            }
             return employees.ToArray();
         }
         private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
