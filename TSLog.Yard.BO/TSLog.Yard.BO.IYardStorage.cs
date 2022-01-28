@@ -66,7 +66,7 @@ namespace TSLog.Yard.BO
         public void RemoveAction(Operation operation, WarehouseAction action);
         public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency);
         public Operation.OperationEmployee[] GetOperationEmployees(Operation operation);
-        public void AllocateEmployees(Operation operation);
+        public void AllocateEmployees(Operation operation, DateTime? date = null);
         public void RemoveEmployee(Operation operation, Employee employee, Position position);
     }
     public interface IYardWmsStorage

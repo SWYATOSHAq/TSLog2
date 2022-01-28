@@ -42,7 +42,7 @@ namespace TSLog.Yard
         }
         public void SetOracleLegalEntitiesSchema(string legalEntitiesSchema)
         {
-            _oracleStorage.LegalEntitieSchema = legalEntitiesSchema;
+            _oracleStorage.LegalEntitiesSchema = legalEntitiesSchema;
         }
         public void SetOraclePartnersSchema(string partnersSchema)
         {
@@ -351,7 +351,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperationEmployees(operation);
         }
-        public void AllocateEmployees(Operation operation)
+        public void AllocateEmployees(Operation operation, DateTime? date = null)
         {
             _pgsqlStorage.AllocateEmployees(operation);
         }

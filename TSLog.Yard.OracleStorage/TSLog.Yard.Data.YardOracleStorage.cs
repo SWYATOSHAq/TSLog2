@@ -27,7 +27,7 @@ namespace TSLog.Yard.Data
         /// <summary>
         /// Схема для организаций (юр. лиц)
         /// </summary>
-        public string LegalEntitieSchema { protected get; set; } = DefaultLegalEntitiesSchema;
+        public string LegalEntitiesSchema { protected get; set; } = DefaultLegalEntitiesSchema;
         /// <summary>
         /// Схема для партнёров (покупателей наших складских и логистических услуг)
         /// </summary>
@@ -178,7 +178,7 @@ namespace TSLog.Yard.Data
                     $"       le.name, le.short_name, le.alt_name, le.display_name," +
                     $"       le.is_active, le.display_order," +
                     $"       le.note" +
-                    $"  from {LegalEntitieSchema}.le_legal_entity#v le " +
+                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le " +
                     $" where upper(trim(le.id)) = :id";
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -194,6 +194,8 @@ namespace TSLog.Yard.Data
                 return legalEntity;
             throw new LegalEntityNotFoundException(id);
         }
+
+        #region Partners
         private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");
         private static Partner CreatePartner(DbDataReader reader)
         {
@@ -286,6 +288,42 @@ namespace TSLog.Yard.Data
             partners.Sort();
             return partners.ToArray();
         }
+        #endregion
+
+        #region Shifts
+        private const string DefaultShift = "5/2-40";
+        private Shift CreateShift(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            return null;
+        }
+        private string? GetShiftKind(DateTime? date = null)
+        {
+            var shift = DefaultShift;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectShiftSql =
+                    $"select ecco.api_staff.get_shift(:p_date) shift from dual";
+                command.CommandText = SelectShiftSql;
+                command.Parameters.Add(new OracleParameter("p_date", date != null && date != DateTime.MinValue
+                    ? date : DBNull.Value));
+                var result = command.ExecuteScalar();
+                shift = result != null ? Convert.ToString(result) : DefaultShift;
+            }
+            return shift;
+        }
+        public Shift GetShift(int id)
+        {
+            return null;
+        }
+        public Shift GetShift(DateTime date)
+        {
+            return null;
+        }
+        #endregion
+
+        #region Employees
         private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");
         private Employee CreateEmployee(DbDataReader reader)
         {
@@ -499,27 +537,11 @@ namespace TSLog.Yard.Data
                 reader.Close();
             }
             return employees.ToArray();
-        }
-        private const string DefaultShift = "5/2-40";
-        private string? GetShift(DateTime? date = null)
-        {
-            var shift = DefaultShift;
-            using (var command = _connection.CreateCommand())
-            {
-                var SelectShiftSql =
-                    $"select ecco.api_staff.get_shift(:p_date) shift from dual";
-                command.CommandText = SelectShiftSql;
-                command.Parameters.Add(new OracleParameter("p_date", date != null && date != DateTime.MinValue 
-                    ? date : DBNull.Value));
-                var result = command.ExecuteScalar();
-                shift = result != null ? Convert.ToString(result) : DefaultShift;
-            }
-            return shift;
-        }
+        }        
         public Employee[] GetPlanShiftEmployees(DateTime? date = null)
         {
             var employees = new List<Employee>();
-            var shift = GetShift(date);
+            var shift = GetShiftKind(date);
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
@@ -551,41 +573,38 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
-        public Employee[] GetShiftEmployees(DateTime date)
+        public Employee[] GetShiftEmployees(Shift shift)
         {
+            if (shift == null)
+                throw new ArgumentNullException(nameof(shift));
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
-                var SelectEmployeesSql =
-                    $"select distinct se.id, se.code," +
-                    $"       se.surname, se.first_name, se.patronymic," +
-                    $"       se.sex, se.birth_date," +
-                    $"       se.nationality," +
-                    $"       se.phone_number, se.email," +
-                    $"       se.document_name, se.document_series, se.document_number, se.document_issue_date, se.document_issue_organization," +
-                    $"       se.employment_date, se.dismissal_date," +
-                    $"       se.company_id," +
-                    $"       se.department_id," +
-                    $"       se.cost," +
-                    $"       se.cost_currency_code," +
-                    $"       se.is_active," +
-                    $"       se.display_order," +
-                    $"       se.note" +
-                    $"  from {StaffSchema}.stf_employee#v se" +
-                    $" where se.shift_from_date <= :p_date" +
-                    $"   and se.shift_to_date >= :p_date";
-                command.CommandText = SelectEmployeesSql;
-                command.Parameters.Add(new OracleParameter("p_date", date));
+                var SelectShiftEmployeesSql =
+                    $"select se.id employee_id " +
+                    $"  from ecco.stf_shift_employee#v se " +
+                    $" where se.shift_id = :shift_id";
+                command.CommandText = SelectShiftEmployeesSql;
+                command.Parameters.Add(new OracleParameter("shift_id", shift.Id));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    var employee = CreateEmployee(reader);
+                    var employeeId = Utils.DbValueToInt(reader["employee_id"]);
+                    var employee = GetEmployee(employeeId);
                     employees.Add(employee);
                 }
                 reader.Close();
             }
             return employees.ToArray();
         }
+        public Employee[] GetShiftEmployees(DateTime date)
+        {
+            var shift = GetShift(date);
+            return GetShiftEmployees(shift);
+        }
+        #endregion
+
+        #region Departments
         private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
         private static Department CreateDepartment(DbDataReader reader)
         {
@@ -695,6 +714,9 @@ namespace TSLog.Yard.Data
             departments.Sort();
             return departments.ToArray();
         }
+        #endregion
+
+        #region Positions
         private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
         private Position CreatePosition(DbDataReader reader)
         {
@@ -817,5 +839,6 @@ namespace TSLog.Yard.Data
             positions.Sort();
             return positions.ToArray();
         }
+        #endregion
     }
 }

@@ -660,9 +660,13 @@ namespace TSLog.Yard.Data
         public delegate Partner GetPartnerByIdDelegate(string id);
         public delegate Employee GetEmployeeByIdDelegate(int id);
         public delegate Position GetPositionByIdDelegate(short id);
+        public delegate Shift GetShiftByDateDelegate(DateTime date);
+        public delegate Employee[] GetEmployeesByShiftDelegate(Shift shift);
         public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
         public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
         public GetPositionByIdDelegate? GetPositionById { private get; set; }
+        public GetShiftByDateDelegate? GetShiftByDate { private get; set; }
+        public GetEmployeesByShiftDelegate? GetEmployeesByShift { private get; set; }
         public Partner GetPartner(string id)
         {
             return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
@@ -674,6 +678,14 @@ namespace TSLog.Yard.Data
         private Position GetPosition(short id)
         {
             return GetPositionById != null ? GetPositionById(id) : Position.Null;
+        }
+        private Shift? GetShift(DateTime date)
+        {
+            return GetShiftByDate != null ? GetShiftByDate(date) : null;
+        }
+        private Employee[] GetShiftEmployees(Shift shift)
+        {
+            return GetEmployeesByShift != null ? GetEmployeesByShift(shift) : Array.Empty<Employee>();
         }
         #endregion
 
@@ -1672,10 +1684,106 @@ namespace TSLog.Yard.Data
             }
             return operationWorkers.ToArray();
         }
-        public void AllocateEmployees(Operation operation)
+        private Interval[] GetBisyIntervals(Employee employee, DateTime from, DateTime to)
+        {
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectBisyIntervals =
+                        $"   select ow.worker_id employee_id," +
+                        $"          s.plan_work_start_date," +
+                        $"          s.plan_work_finish_date" +
+                        $"     from yard.operation_worker ow " +
+                        $"left join yard.scheduler s on ow.operation_id = s.id" +
+                        $"    where not(s.plan_work_start_date > :to_date or s.plan_work_finish_date < :from_date)" +
+                        $"      and ow.worker_id = :employee_id";
+                    command.CommandText = SelectBisyIntervals;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
+                    command.Parameters.Add(CreateParameter("employee_id", NpgsqlDbType.Integer, employee.Id));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var fromTime = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+                        var toTime = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+                        var interval = new Interval(fromTime, toTime);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
+        private double GetEmployeeBisyShare(Employee employee, DateTime from, DateTime to)
+        {
+            var result = 0.0;
+            var currentInterval = new Interval(from, to);
+            var intervals = GetBisyIntervals(employee, from, to);            
+            foreach (var interval in intervals)
+            {
+                var share = interval.IntervalShare(currentInterval);
+                result += share;
+            }            
+            return result;
+        }
+        public Employee[] GetLeastBisyEmployees(DateTime from, DateTime to, Position position, Employee[] emplyees, short count = 1)
+        {
+            if (count > emplyees.Length)
+                throw new ArgumentException("");
+            var queue = new PriorityQueue<Employee, double>();
+            foreach (var employee in emplyees)
+            {                
+                var bisyShare = GetEmployeeBisyShare(employee, from, to);
+                queue.Enqueue(employee, bisyShare);
+            }
+            var result = new List<Employee>();
+            while (count > 0)
+            {
+                result.Add(queue.Dequeue());
+                count--;
+            }
+            return result.ToArray();
+        }
+        public void AllocateEmployees(Operation operation, DateTime? date = null)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
+
+            date = date == null || date == DateTime.MinValue ? DateTime.Now : date;
+            date = date > operation.PlanWorkStartDate ? date : operation.PlanWorkStartDate;
+
+            using var connection = CloneConnection();
+            using (var command = connection.CreateCommand())
+            {
+                // Получить смену, которая соответствует началу операции
+                var shift = GetShift((DateTime)date);
+
+                // Определеить сотрудников данной смены, по указанным должностям
+                var employees = GetShiftEmployees(shift);
+
+                // Определить должности, с нужным количеством сотрудников по каждой должности
+                var workersCounts = operation.PositionsWorkersCount();
+                foreach (var pair in workersCounts)
+                {
+                    // Определяем наименее загруженных сотрудников
+                    var duration = operation.PlanWorkFinishDate - operation.PlanWorkStartDate;
+                    var temp = GetLeastBisyEmployees((DateTime)date,
+                        (DateTime)date + duration,
+                        pair.Key,
+                        employees,
+                        pair.Value);
+
+                    // Назначаем сотрудников
+                    foreach (var employee in temp)
+                        AddEmployee(operation, employee, pair.Key, employee.Cost, employee.CostMeasureUnit);
+                }
+            }
+            connection.Close();
         }
         public void RemoveEmployee(Operation operation, Employee employee, Position position)
         {

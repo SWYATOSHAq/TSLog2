@@ -8,6 +8,17 @@ namespace TSLog.Staff.BO
     /// </summary>
     public class Employee : Entity
     {
+        public new int Id 
+        {
+            get
+            {
+                return (int)base.Id;
+            }
+            set
+            {
+                base.Id = value; 
+            }
+        }
         private const double DefaultCost = 100.00;
         public string Surname { get; private set; }
         public string FirstName
@@ -45,6 +56,8 @@ namespace TSLog.Staff.BO
         public Department? Department { get; set; } = null;
         public double Cost { get; set; } = DefaultCost;
         public MeasureUnit CostMeasureUnit { get; set; } = MeasureUnit.Null;
+        private const string DefaultWorkMode = "5/2-40";
+        public string WorkMode { get; set; } = DefaultWorkMode;
 
         public Employee(long id, string code, 
             string surname, string firstName,            
