@@ -186,6 +186,9 @@
                         <div class="d-grid m-2 row">
                             <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('StartOperationWork')">поставить на ворота</button>
                         </div>
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" type="button" onclick="ChangeState('AllocateEmployees')">(авто) Привязать сотрудников</button>
+                        </div>
                         break;
                     case "WORK_STARTED":
                         <div class="d-grid m-2 row">
@@ -222,9 +225,9 @@
             }
         }
     </div>
-        <div class="  @tableVisClass">
+    <div class="  @tableVisClass">
         <partial name="toolkit/lists/_WorkerTablePartial" model="workerTable" />
-        </div>
+    </div>
 </div>
 
 

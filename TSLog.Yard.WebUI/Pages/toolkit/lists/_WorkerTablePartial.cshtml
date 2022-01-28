@@ -44,8 +44,8 @@
                                     <td>
                                         <p>
                                             @key.DisplayName
-                                            <button class="btn btn-outline-success" type="button" @onClick="addNewPosition(this)">+</button>
-                                            <button class="btn btn-outline-danger m-1" type="button" @onClick="removePosition(this)"> - </button>
+                                            <button class="btn btn-outline-success hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
+                                            <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
                                         </p>
                                         <p class="cell-info-text">[@(new TimeSpan(0, 0, positionsWorkTime[key]/positionsCount[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@positionsCount[key])</p>
                                     </td>
@@ -78,8 +78,8 @@
                                 <td>
                                     <p>
                                         @key.DisplayName
-                                        <button class="btn btn-outline-success m-1" type="button" @onClick="addNewPosition(this)">+</button>
-                                        <button class="btn btn-outline-danger m-1" type="button" @onClick="removePosition(this)"> - </button>
+                                        <button class="btn btn-outline-success m-1 hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
+                                        <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
                                     </p>
                                     <p class="cell-info-text">[@(new TimeSpan(0, 0, positionsWorkTime[key]/positionsCount[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@positionsCount[key])</p>
                                 </td>

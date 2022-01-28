@@ -368,6 +368,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     case "DeleteOperation":
                         yardStorage.DeleteOperation(loadedOperation);
                         break;
+                    case "AllocateEmployees":
+                        try
+                        {
+                            yardStorage.AllocateEmployees(loadedOperation);
+                        }
+                        catch (Exception)
+                        {
+                            // TODO ошибка привязки персонала
+                        }
+                        break;
 
                     default:
                         Text = "operation is not specified";
