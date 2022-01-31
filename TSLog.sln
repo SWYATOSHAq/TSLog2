@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.OracleStorage",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Reporting", "TSLog.Yard.Reporting\TSLog.Yard.Reporting.csproj", "{2F4E4043-87DE-4F0E-9337-7BDF3E3B7665}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Staff.WebUI", "TSLog.Staff.WebUI\TSLog.Staff.WebUI.csproj", "{67E948BB-C3AE-48AC-A1A9-045C6C6FC90B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,10 @@ Global
 		{2F4E4043-87DE-4F0E-9337-7BDF3E3B7665}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F4E4043-87DE-4F0E-9337-7BDF3E3B7665}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F4E4043-87DE-4F0E-9337-7BDF3E3B7665}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67E948BB-C3AE-48AC-A1A9-045C6C6FC90B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67E948BB-C3AE-48AC-A1A9-045C6C6FC90B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67E948BB-C3AE-48AC-A1A9-045C6C6FC90B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67E948BB-C3AE-48AC-A1A9-045C6C6FC90B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
