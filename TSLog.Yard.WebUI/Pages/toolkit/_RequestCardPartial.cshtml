@@ -73,6 +73,7 @@
     var lonelyAction = cardData.GetActions().Length > 0 ? cardData.GetActions()[0].PartnerActionId : "";
 
     var textFieldsBody = new Dictionary<string, (string, string)>();
+    var memoFieldsBody = new Dictionary<string, (string, string)>();
     textFieldsBody.Add("Марка авто'", ("vehicle_brand", cardData.VehicleBrand));
     textFieldsBody.Add("Модель авто'", ("vehicle_model", cardData.VehicleModel));
     textFieldsBody.Add("Номер авто'", ("vehicle_number", cardData.VehicleNumber));
@@ -83,10 +84,11 @@
     textFieldsBody.Add("ФИО менеджера", ("manager_name", cardData.PartnerManagerName));
     textFieldsBody.Add("Тел. менеджера", ("manager_phone", cardData.PartnerManagerPhoneNumber));
     textFieldsBody.Add("Почта менеджера", ("manager_email", cardData.PartnerManagerEmail));
-    textFieldsBody.Add("Примечание", ("note", cardData.Note));
+    memoFieldsBody.Add("Примечание", ("note", cardData.Note));
 
     var textDataList = (textDataHeader, isEnabled);
     var textFieldsList = (textFieldsBody, isEnabled);
+    var memoFieldsList = (memoFieldsBody, cardData.State.Code != "FINISHED" && cardData.State.Code != "CANCELED");
 
     var positions = cardData.GetEmployeesByPositions();
     var positionsCount = cardData.PositionsWorkersCount();
@@ -140,7 +142,7 @@
     <div class="row p-2 m-2 shadow rem-outline-on-print">
         <input type="hidden" id="operation_id" name="operation_id" value="@cardData.Id">
         <partial name="toolkit/lists/_FieldListPartial" model="textFieldsList" />
-        <partial name="toolkit/lists/_MemoListPartial" model="textFieldsList" />
+        <partial name="toolkit/lists/_MemoListPartial" model="memoFieldsList" />
     </div>
 
     <div class="d-none" id="identeficator">@cardData.Id</div>
@@ -163,7 +165,7 @@
                 </div>
                 //
 
-                if (cardData.State.Code == "CREATED" || cardData.State.Code == "CONFIRMED" || cardData.State.Code == "STARTED")
+                if (cardData.State.Code != "FINISHED" && cardData.State.Code != "CANCELED")
                 {
 
                     <div class="d-grid m-2 row">

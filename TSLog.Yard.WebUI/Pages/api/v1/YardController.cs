@@ -163,9 +163,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                     // update 
                     var operationToUpdate = yardStorage.GetOperation(operationId);
-                    if (operationToUpdate.State.Code != "CREATED" && operationToUpdate.State.Code != "CONFIRMED" && operationToUpdate.State.Code != "STARTED")
+                    if (operationToUpdate.State.Code == "FINISHED" || operationToUpdate.State.Code == "CANCELED")
                     {
-                        Text = "eror||ошибка, невозможно изменить значение заявки, которая уже в работе";
+                        Text = "eror||ошибка, невозможно изменить значение заявки, которая уже завершена / отменена";
                     }
                     else
                     {
