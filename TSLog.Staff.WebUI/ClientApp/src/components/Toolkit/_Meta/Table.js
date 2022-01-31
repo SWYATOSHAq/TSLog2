@@ -17,10 +17,10 @@ export class Table extends Component {
             <table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Temp. (C)</th>
-                        <th>Temp. (F)</th>
-                        <th>Summary</th>
+                        <th>Дата</th>
+                        <th>Температура.(C)</th>
+                        <th>Температура.(F)</th>
+                        <th>Итог</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,13 +39,12 @@ export class Table extends Component {
 
     render() {
         let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
+            ? <p><em>Загрузка...</em></p>
             : Table.renderForecastsTable(this.state.forecasts);
 
         return (
             <div>
-                <h1 id="tabelLabel" >Weather forecast</h1>
-                <p>This component demonstrates fetching data from the server.</p>
+                <h1 id="tabelLabel" >Проверочная таблица</h1>
                 {contents}
             </div>
         );
