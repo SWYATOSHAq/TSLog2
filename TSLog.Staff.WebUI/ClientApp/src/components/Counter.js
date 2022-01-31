@@ -5,13 +5,13 @@ export class Counter extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { currentCount: 0 };
+    this.state = { currentCount: 1 };
     this.incrementCounter = this.incrementCounter.bind(this);
   }
 
   incrementCounter() {
     this.setState({
-      currentCount: this.state.currentCount + 1
+        currentCount: this.state.currentCount + this.state.currentCount + 1
     });
   }
 

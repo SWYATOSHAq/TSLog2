@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 export class Card extends Component {
-    static displayName = Counter.name;
+    static displayName = Card.name;
 
     constructor(props) {
         super(props);
