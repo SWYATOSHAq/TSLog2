@@ -75,79 +75,7 @@ namespace TSLog.Staff.Data
         private const string DefaultStaffSchema = "staff";
         public string StaffSchema { private get; set; } = DefaultStaffSchema;
         public StaffOracleStorage(string dataSource) : base(dataSource)
-        { }       
-        public Employee AddEmployee(Employee employee)
-        {
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            using (var command = _connection.CreateCommand())
-            {
-                var AddEmployeeSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
-                    $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.create_employee(:p_sex," +
-                    $"        :p_surname," +
-                    $"        :p_first_name," +
-                    $"        :p_patronymic," +
-                    $"        :p_birth_date," +
-                    $"        :p_nationality," +
-                    $"        :p_phone_number," +
-                    $"        :p_email," +
-                    $"        :p_document_name," +
-                    $"        :p_document_series," +
-                    $"        :p_document_number," +
-                    $"        :p_document_issue_date," +
-                    $"        :p_document_issue_organization," +
-                    $"        :p_employment_date," +
-                    $"        :p_dismissal_date," +
-                    $"        :p_company_id," +
-                    $"        :p_department_id," +
-                    $"        :p_cost," +
-                    $"        :p_cost_currency," +
-                    $"        :p_work_mode," +
-                    $"        :p_note);" +
-                    $"end;";
-                command.CommandText = AddEmployeeSql;
-                command.Parameters.Add(new OracleParameter("p_sex", employee.Sex));
-                command.Parameters.Add(new OracleParameter("p_surname", employee.Surname.Trim()));
-                command.Parameters.Add(new OracleParameter("p_first_name", employee.FirstName.Trim()));
-                command.Parameters.Add(new OracleParameter("p_patronymic", 
-                    !string.IsNullOrWhiteSpace(employee.Patronymic) ? employee.Patronymic.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_birth_date", employee.BirthDate));
-                command.Parameters.Add(new OracleParameter("p_nationality", employee.Nationality.Trim()));
-                command.Parameters.Add(new OracleParameter("p_phone_number", 
-                    !string.IsNullOrWhiteSpace(employee.PhoneNumber) ? employee.PhoneNumber.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_email", 
-                    !string.IsNullOrWhiteSpace(employee.Email) ? employee.Email.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_name", 
-                    !string.IsNullOrWhiteSpace(employee.DocumentName) ? employee.DocumentName.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_series", 
-                    !string.IsNullOrWhiteSpace(employee.DocumentSeries) ? employee.DocumentSeries.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_number", 
-                    !string.IsNullOrWhiteSpace(employee.DocumentNumber) ? employee.DocumentNumber.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_issue_date", 
-                    employee.DocumentIssueDate != DateTime.MinValue ? employee.DocumentIssueDate : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_issue_organization", 
-                    !string.IsNullOrWhiteSpace(employee.DocumentIssueOrganization) ? employee.DocumentIssueOrganization.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_employment_date", 
-                    employee.EmploymentDate != DateTime.MinValue ? employee.EmploymentDate : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_dismissal_date", 
-                    employee.DismissalDate != DateTime.MinValue ? employee.DismissalDate : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_company_id", employee.Company.Id));
-                command.Parameters.Add(new OracleParameter("p_department_id", 
-                    employee.Department != null && employee.Department != Department.Null && employee.Department != Department.Empty 
-                    ? employee.Department.Id : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_cost", employee.Cost));
-                command.Parameters.Add(new OracleParameter("p_cost_currency", employee.CostMeasureUnit.Code));
-                command.Parameters.Add(new OracleParameter("p_work_mode", employee.WorkMode.Trim()));
-                command.Parameters.Add(new OracleParameter("p_note", 
-                    !string.IsNullOrWhiteSpace(employee.Note) ? employee.Note.Trim() : DBNull.Value));
-                var id = command.ExecuteScalar();
-                employee.Id = (int)id;
-            }
-            return employee;
-        }
+        { }              
 
 
         private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");
@@ -233,6 +161,151 @@ namespace TSLog.Staff.Data
             if (employee != null && employee != Employee.Null && employee != Employee.Empty)
                 return employee;
             throw new EmployeeNotFoundException(id);
+        }
+        public Employee AddEmployee(Employee employee)
+        {
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
+            using (var command = _connection.CreateCommand())
+            {
+                var AddEmployeeSql =
+                    $"declare" +
+                    $"    l_id number(8);" +
+                    $"begin" +
+                    $"    l_id := {StaffSchema}.api_staff.create_employee(:p_sex," +
+                    $"        :p_surname," +
+                    $"        :p_first_name," +
+                    $"        :p_patronymic," +
+                    $"        :p_birth_date," +
+                    $"        :p_nationality," +
+                    $"        :p_phone_number," +
+                    $"        :p_email," +
+                    $"        :p_document_name," +
+                    $"        :p_document_series," +
+                    $"        :p_document_number," +
+                    $"        :p_document_issue_date," +
+                    $"        :p_document_issue_organization," +
+                    $"        :p_employment_date," +
+                    $"        :p_dismissal_date," +
+                    $"        :p_company_id," +
+                    $"        :p_department_id," +
+                    $"        :p_cost," +
+                    $"        :p_cost_currency," +
+                    $"        :p_work_mode," +
+                    $"        :p_note);" +
+                    $"end;";
+                command.CommandText = AddEmployeeSql;
+                command.Parameters.Add(new OracleParameter("p_sex", employee.Sex));
+                command.Parameters.Add(new OracleParameter("p_surname", employee.Surname.Trim()));
+                command.Parameters.Add(new OracleParameter("p_first_name", employee.FirstName.Trim()));
+                command.Parameters.Add(new OracleParameter("p_patronymic",
+                    !string.IsNullOrWhiteSpace(employee.Patronymic) ? employee.Patronymic.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_birth_date", employee.BirthDate));
+                command.Parameters.Add(new OracleParameter("p_nationality", employee.Nationality.Trim()));
+                command.Parameters.Add(new OracleParameter("p_phone_number",
+                    !string.IsNullOrWhiteSpace(employee.PhoneNumber) ? employee.PhoneNumber.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_email",
+                    !string.IsNullOrWhiteSpace(employee.Email) ? employee.Email.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_name",
+                    !string.IsNullOrWhiteSpace(employee.DocumentName) ? employee.DocumentName.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_series",
+                    !string.IsNullOrWhiteSpace(employee.DocumentSeries) ? employee.DocumentSeries.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_number",
+                    !string.IsNullOrWhiteSpace(employee.DocumentNumber) ? employee.DocumentNumber.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_issue_date",
+                    employee.DocumentIssueDate != DateTime.MinValue ? employee.DocumentIssueDate : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_issue_organization",
+                    !string.IsNullOrWhiteSpace(employee.DocumentIssueOrganization) ? employee.DocumentIssueOrganization.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_employment_date",
+                    employee.EmploymentDate != DateTime.MinValue ? employee.EmploymentDate : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_dismissal_date",
+                    employee.DismissalDate != DateTime.MinValue ? employee.DismissalDate : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_company_id", employee.Company.Id));
+                command.Parameters.Add(new OracleParameter("p_department_id",
+                    employee.Department != null && employee.Department != Department.Null && employee.Department != Department.Empty
+                    ? employee.Department.Id : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_cost", employee.Cost));
+                command.Parameters.Add(new OracleParameter("p_cost_currency", employee.CostMeasureUnit.Code));
+                command.Parameters.Add(new OracleParameter("p_work_mode", employee.WorkMode.Trim()));
+                command.Parameters.Add(new OracleParameter("p_note",
+                    !string.IsNullOrWhiteSpace(employee.Note) ? employee.Note.Trim() : DBNull.Value));
+                var id = command.ExecuteScalar();
+                employee.Id = (int)id;
+            }
+            return employee;
+        }
+        public Employee EditEmployee(Employee employee)
+        {
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
+            using (var command = _connection.CreateCommand())
+            {
+                var EditEmployeeSql =
+                    $"declare" +
+                    $"    l_id number(8);" +
+                    $"begin" +
+                    $"    l_id := {StaffSchema}.api_staff.edit_employee(:p_id," +
+                    $"        :p_sex," +
+                    $"        :p_surname," +
+                    $"        :p_first_name," +
+                    $"        :p_patronymic," +
+                    $"        :p_birth_date," +
+                    $"        :p_nationality," +
+                    $"        :p_phone_number," +
+                    $"        :p_email," +
+                    $"        :p_document_name," +
+                    $"        :p_document_series," +
+                    $"        :p_document_number," +
+                    $"        :p_document_issue_date," +
+                    $"        :p_document_issue_organization," +
+                    $"        :p_employment_date," +
+                    $"        :p_dismissal_date," +
+                    $"        :p_company_id," +
+                    $"        :p_department_id," +
+                    $"        :p_cost," +
+                    $"        :p_cost_currency," +
+                    $"        :p_work_mode," +
+                    $"        :p_note);" +
+                    $"end;";
+                command.CommandText = EditEmployeeSql;
+                command.Parameters.Add(new OracleParameter("p_id", employee.Id));
+                command.Parameters.Add(new OracleParameter("p_sex", employee.Sex));
+                command.Parameters.Add(new OracleParameter("p_surname", employee.Surname.Trim()));
+                command.Parameters.Add(new OracleParameter("p_first_name", employee.FirstName.Trim()));
+                command.Parameters.Add(new OracleParameter("p_patronymic",
+                    !string.IsNullOrWhiteSpace(employee.Patronymic) ? employee.Patronymic.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_birth_date", employee.BirthDate));
+                command.Parameters.Add(new OracleParameter("p_nationality", employee.Nationality.Trim()));
+                command.Parameters.Add(new OracleParameter("p_phone_number",
+                    !string.IsNullOrWhiteSpace(employee.PhoneNumber) ? employee.PhoneNumber.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_email",
+                    !string.IsNullOrWhiteSpace(employee.Email) ? employee.Email.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_name",
+                    !string.IsNullOrWhiteSpace(employee.DocumentName) ? employee.DocumentName.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_series",
+                    !string.IsNullOrWhiteSpace(employee.DocumentSeries) ? employee.DocumentSeries.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_number",
+                    !string.IsNullOrWhiteSpace(employee.DocumentNumber) ? employee.DocumentNumber.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_issue_date",
+                    employee.DocumentIssueDate != DateTime.MinValue ? employee.DocumentIssueDate : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_document_issue_organization",
+                    !string.IsNullOrWhiteSpace(employee.DocumentIssueOrganization) ? employee.DocumentIssueOrganization.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_employment_date",
+                    employee.EmploymentDate != DateTime.MinValue ? employee.EmploymentDate : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_dismissal_date",
+                    employee.DismissalDate != DateTime.MinValue ? employee.DismissalDate : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_company_id", employee.Company.Id));
+                command.Parameters.Add(new OracleParameter("p_department_id",
+                    employee.Department != null && employee.Department != Department.Null && employee.Department != Department.Empty
+                    ? employee.Department.Id : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("p_cost", employee.Cost));
+                command.Parameters.Add(new OracleParameter("p_cost_currency", employee.CostMeasureUnit.Code));
+                command.Parameters.Add(new OracleParameter("p_work_mode", employee.WorkMode.Trim()));
+                command.Parameters.Add(new OracleParameter("p_note",
+                    !string.IsNullOrWhiteSpace(employee.Note) ? employee.Note.Trim() : DBNull.Value));
+                command.ExecuteScalar();
+            }
+            return employee;
         }
         public Employee[] FindEmployees(string pattern)
         {
@@ -363,81 +436,7 @@ namespace TSLog.Staff.Data
                 reader.Close();
             }
             return employees.ToArray();
-        }
-
-        public Employee EditEmployee(Employee employee)
-        {
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            using (var command = _connection.CreateCommand())
-            {
-                var EditEmployeeSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
-                    $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.edit_employee(:p_id," +
-                    $"        :p_sex," +
-                    $"        :p_surname," +
-                    $"        :p_first_name," +
-                    $"        :p_patronymic," +
-                    $"        :p_birth_date," +
-                    $"        :p_nationality," +
-                    $"        :p_phone_number," +
-                    $"        :p_email," +
-                    $"        :p_document_name," +
-                    $"        :p_document_series," +
-                    $"        :p_document_number," +
-                    $"        :p_document_issue_date," +
-                    $"        :p_document_issue_organization," +
-                    $"        :p_employment_date," +
-                    $"        :p_dismissal_date," +
-                    $"        :p_company_id," +
-                    $"        :p_department_id," +
-                    $"        :p_cost," +
-                    $"        :p_cost_currency," +
-                    $"        :p_work_mode," +
-                    $"        :p_note);" +
-                    $"end;";
-                command.CommandText = EditEmployeeSql;
-                command.Parameters.Add(new OracleParameter("p_id", employee.Id));
-                command.Parameters.Add(new OracleParameter("p_sex", employee.Sex));
-                command.Parameters.Add(new OracleParameter("p_surname", employee.Surname.Trim()));
-                command.Parameters.Add(new OracleParameter("p_first_name", employee.FirstName.Trim()));
-                command.Parameters.Add(new OracleParameter("p_patronymic",
-                    !string.IsNullOrWhiteSpace(employee.Patronymic) ? employee.Patronymic.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_birth_date", employee.BirthDate));
-                command.Parameters.Add(new OracleParameter("p_nationality", employee.Nationality.Trim()));
-                command.Parameters.Add(new OracleParameter("p_phone_number",
-                    !string.IsNullOrWhiteSpace(employee.PhoneNumber) ? employee.PhoneNumber.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_email",
-                    !string.IsNullOrWhiteSpace(employee.Email) ? employee.Email.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_name",
-                    !string.IsNullOrWhiteSpace(employee.DocumentName) ? employee.DocumentName.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_series",
-                    !string.IsNullOrWhiteSpace(employee.DocumentSeries) ? employee.DocumentSeries.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_number",
-                    !string.IsNullOrWhiteSpace(employee.DocumentNumber) ? employee.DocumentNumber.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_issue_date",
-                    employee.DocumentIssueDate != DateTime.MinValue ? employee.DocumentIssueDate : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_document_issue_organization",
-                    !string.IsNullOrWhiteSpace(employee.DocumentIssueOrganization) ? employee.DocumentIssueOrganization.Trim() : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_employment_date",
-                    employee.EmploymentDate != DateTime.MinValue ? employee.EmploymentDate : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_dismissal_date",
-                    employee.DismissalDate != DateTime.MinValue ? employee.DismissalDate : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_company_id", employee.Company.Id));
-                command.Parameters.Add(new OracleParameter("p_department_id",
-                    employee.Department != null && employee.Department != Department.Null && employee.Department != Department.Empty
-                    ? employee.Department.Id : DBNull.Value));
-                command.Parameters.Add(new OracleParameter("p_cost", employee.Cost));
-                command.Parameters.Add(new OracleParameter("p_cost_currency", employee.CostMeasureUnit.Code));
-                command.Parameters.Add(new OracleParameter("p_work_mode", employee.WorkMode.Trim()));
-                command.Parameters.Add(new OracleParameter("p_note",
-                    !string.IsNullOrWhiteSpace(employee.Note) ? employee.Note.Trim() : DBNull.Value));
-                command.ExecuteScalar();
-            }
-            return employee;
-        }
+        }                
         public Employee SetEmployeeDepartment(Employee employee)
         {
             if (employee == null)
@@ -458,20 +457,7 @@ namespace TSLog.Staff.Data
                 command.ExecuteScalar();
             }
             return employee;
-        }
-        public void DeleteEmployee(Employee employee)
-        {
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            using var command = _connection.CreateCommand();
-            var DeleteEmployeeSql =
-                $"begin" +
-                $"    {StaffSchema}.api_staff.delete_employee(:p_id);" +
-                $"end;";
-            command.CommandText = DeleteEmployeeSql;
-            command.Parameters.Add(new OracleParameter("id", employee.Id));
-            command.ExecuteScalar();
-        }
+        }        
         public Employee AddEmployeePosition(Employee employee, Position position)
         {
             if (employee == null)
@@ -547,6 +533,19 @@ namespace TSLog.Staff.Data
                 command.ExecuteScalar();
             }
             return employee;
+        }
+        public void DeleteEmployee(Employee employee)
+        {
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
+            using var command = _connection.CreateCommand();
+            var DeleteEmployeeSql =
+                $"begin" +
+                $"    {StaffSchema}.api_staff.delete_employee(:p_id);" +
+                $"end;";
+            command.CommandText = DeleteEmployeeSql;
+            command.Parameters.Add(new OracleParameter("id", employee.Id));
+            command.ExecuteScalar();
         }
 
         public Shift AddShift(Shift shift)
