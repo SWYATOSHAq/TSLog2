@@ -44,7 +44,7 @@ namespace TSLog.Common.Data
                 Username = user,
                 Password = Utils.SecureStringToString(password)
             };
-
+            stringBuilder.PersistSecurityInfo = true;
             _connection.ConnectionString = stringBuilder.ConnectionString;
             _connection.Open();
             stringBuilder.Clear();
