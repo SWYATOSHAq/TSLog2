@@ -5,53 +5,42 @@ export class Table extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { forecasts: [], loading: true };
+        this.state = { headers: ["alfa", "beta", "gamma", "delta"], body: [["alfa1", "beta1", "gamma1", "delta1"], ["alfa2", "beta2", "gamma2", "delta2"]] };
     }
 
-    componentDidMount() {
-        this.populateWeatherData();
-    }
-
-    static renderForecastsTable(forecasts) {
+    static renderTable(headers, body) {
+        console.log(headers);
+        console.log(body);
         return (
             <table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
                     <tr>
-                        <th>Дата</th>
-                        <th>Температура.(C)</th>
-                        <th>Температура.(F)</th>
-                        <th>Итог</th>
+                        {
+                            headers.map((curRow, i) => {
+                                return (<th key={i}>{curRow}</th>)
+                            })
+                        }
                     </tr>
                 </thead>
                 <tbody>
-                    {forecasts.map(forecast =>
-                        <tr key={forecast.date}>
-                            <td>{forecast.date}</td>
-                            <td>{forecast.temperatureC}</td>
-                            <td>{forecast.temperatureF}</td>
-                            <td>{forecast.summary}</td>
-                        </tr>
-                    )}
+                    {body.map((row, i) => {
+                        return (<tr key={i}>
+                            {row.map((cell, j) => {
+                                return (<td key={j}>{cell}</td>)
+                            })}
+                        </tr>)
+                    })}
                 </tbody>
             </table>
         );
     }
 
     render() {
-        let contents = this.state.loading
-            ? <p><em>Загрузка...</em></p>
-            : Table.renderForecastsTable(this.state.forecasts);
-
+        let contents = Table.renderTable(this.state.headers, this.state.body);
         return (
             <div>
                 {contents}
             </div>
         );
-    }
-
-    async populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        const data = await response.json();
-        this.setState({ forecasts: data, loading: false });
     }
 }
