@@ -5,7 +5,7 @@ export class Table extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { headers: ["alfa", "beta", "gamma", "delta"], body: [["alfa1", "beta1", "gamma1", "delta1"], ["alfa2", "beta2", "gamma2", "delta2"]] };
+        this.state = { headers: [], body: [[], []] };
     }
 
     static renderTable(headers, body) {
@@ -16,20 +16,28 @@ export class Table extends Component {
                 <thead>
                     <tr>
                         {
-                            headers.map((curRow, i) => {
-                                return (<th key={i}>{curRow}</th>)
+                            Object.keys(headers).map((curRowKey, i) => {
+                                return (<th key={i}>{headers[curRowKey]}</th>)
                             })
                         }
                     </tr>
                 </thead>
                 <tbody>
-                    {body.map((row, i) => {
-                        return (<tr key={i}>
-                            {row.map((cell, j) => {
-                                return (<td key={j}>{cell}</td>)
-                            })}
-                        </tr>)
-                    })}
+
+                    {
+                        body.map((curRow, i) => {
+                            return (
+                                <tr key={i}>
+                                    {
+                                        Object.keys(headers).map((curRowKey, i) => {
+                                            return (<td>{curRow[curRowKey]}</td>)
+                                        })
+                                    }
+                                </tr>
+                            )
+                        })
+                    }
+
                 </tbody>
             </table>
         );
