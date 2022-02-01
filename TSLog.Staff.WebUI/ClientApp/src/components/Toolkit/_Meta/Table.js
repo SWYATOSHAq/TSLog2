@@ -44,7 +44,6 @@ export class Table extends Component {
 
         return (
             <div>
-                <h1 id="tabelLabel" >Проверочная таблица</h1>
                 {contents}
             </div>
         );

@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import { Table } from '../_Meta/Table';
 
 export class DepartmentTable extends Table {
@@ -13,7 +12,7 @@ export class DepartmentTable extends Table {
 
         return (
             <div>
-                <h1 id="tabelLabel" >bruh</h1>
+                <h1 id="tabelLabel" >подразделения</h1>
                 {table}
             </div>
         );

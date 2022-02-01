@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import { Table } from '../_Meta/Table';
 
 export class PositionTable extends Table {
@@ -13,7 +12,7 @@ export class PositionTable extends Table {
 
         return (
             <div>
-                <h1 id="tabelLabel" >bruh</h1>
+                <h1 id="tabelLabel" >Должности</h1>
                 {table}
             </div>
         );

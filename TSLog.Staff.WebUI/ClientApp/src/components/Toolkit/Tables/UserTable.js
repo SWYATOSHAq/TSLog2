@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import{ Table } from '../_Meta/Table';
+import { Table } from '../_Meta/Table';
 
 export class UserTable extends Table {
     static displayName = UserTable.name;
@@ -13,7 +12,7 @@ export class UserTable extends Table {
 
         return (
             <div>
-                <h1 id="tabelLabel" >bruh</h1>
+                <h1 id="tabelLabel" >Сотрудники</h1>
                 {table}
             </div>
         );
