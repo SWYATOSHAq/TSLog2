@@ -401,7 +401,7 @@ namespace TSLog.Yard.BO
                     var operatons = ends[moment];
                     foreach (var operation in operatons)
                     {
-                        var works = operation.Works;
+                        var works = operation.GetWorks();
                         foreach (var work in works)
                             state[work] -= operation.GetWorkersCount(work);
                     }
@@ -411,7 +411,7 @@ namespace TSLog.Yard.BO
                     var operatons = begins[moment];
                     foreach (var operation in operatons)
                     {
-                        var works = operation.Works;
+                        var works = operation.GetWorks();
                         foreach (var work in works)
                         {
                             var count = operation.GetWorkersCount(work);

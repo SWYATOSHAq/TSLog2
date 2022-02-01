@@ -68,16 +68,13 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Элементарные работы по данной операции двора (ПРР)
         /// </summary>
-        public Work[] Works
+        public Work[] GetWorks()
         {
-            get
-            {
-                var works = new HashSet<Work>();
-                foreach (var operationWork in _operationWorks)
-                    if (!works.Contains(operationWork.Work))
-                        works.Add(operationWork.Work);
-                return works.ToArray();
-            }
+            var works = new HashSet<Work>();
+            foreach (var operationWork in _operationWorks)
+                if (!works.Contains(operationWork.Work))
+                    works.Add(operationWork.Work);
+            return works.ToArray();
         }
         /// <summary>
         /// Работы операции двора (ПРР)
