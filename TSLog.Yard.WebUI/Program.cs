@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using TSLog.Yard;
 using TSLog.Yard.BO;
@@ -8,14 +10,23 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-.AddEntityFrameworkStores<ApplicationDbContext>();
-//;
+builder.Services
+    .AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services
+    .AddDatabaseDeveloperPageExceptionFilter();
+builder.Services
+    .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+builder.Services.AddAuthorization(options => { options.FallbackPolicy = options.DefaultPolicy; });
+
 builder.Services.AddRazorPages();
+builder.Services.AddMvc().AddRazorPagesOptions(options =>
+{
+    options.RootDirectory = "/View";
+});
 
 var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
 
@@ -50,7 +61,7 @@ storage.ConnectPgSql(pgsqlUserName, pgsqlPassword);
 storage.SetPgsqlYardSchema(pgsqlYardSchema);
 
 builder.Services.AddSingleton<IYardStorage>(storage);
-//
+
 
 var app = builder.Build();
 
@@ -76,8 +87,8 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
+    endpoints.MapRazorPages();
 });
-//
 
 app.MapRazorPages();
 

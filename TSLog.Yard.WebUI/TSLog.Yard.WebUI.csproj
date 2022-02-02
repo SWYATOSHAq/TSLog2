@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="6.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
@@ -23,6 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\TSLog.Authorization\TSLog.Authorization.csproj" />
 		<ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
 		<ProjectReference Include="..\TSLog.Yard.Reporting\TSLog.Yard.Reporting.csproj" />
 		<ProjectReference Include="..\TSLog.Yard.Storage\TSLog.Yard.Storage.csproj" />

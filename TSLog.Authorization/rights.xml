@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<rights>
+		<right code="CREATE_OPERATION"></right>
+		<right code="VIEW_ALL_OPERATION"></right>
+		<right code="VIEW_OPERATION_FOR_GUARD"></right>
+		<right code="VIEW_OPERATION_FOR_DISPATCHER"></right>
+		<right code="VIEW_ALL_OPERATION"></right>
+		<right code="FILTER_OPERATIONS_BY_DATE"></right>
+		<right code="FILTER_OPERATIONS_BY_TYPE"></right>
+		<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND"></right>
+		<right code="FILTER_OPERATIONS_BY_STATE"></right>
+		<right code="FILTER_OPERATIONS_BY_GATE"></right>
+		<right code="FILTER_OPERATIONS_BY_PARTNER"></right>
+		<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER"></right>
+		<right code="FILTER_OPERATIONS_BY_DRIVER"></right>
+		<right code="FILTER_OPERATIONS"></right>
+		<right code="EDIT_OPERATION"></right>
+		<right code="EDIT_OPERATION_NOTE"></right>
+		<right code="CANCEL_OPERATION"></right>
+		<right code="DELETE_OPERATION"></right>
+		<right code="SET_OPERATION_GATE"></right>
+		<right code="VIEW_OPERATION_GATE"></right>
+		<right code="START_OPERATION"></right>
+		<right code="START_OPERATION_WORK"></right>
+		<right code="FINISH_OPERATION_WORK"></right>
+		<right code="FINISH_OPERATION"></right>
+		<right code="VIEW_OPERATION_WORKERS"></right>
+		<right code="MANAGE_OPERATION_WORKERS"></right>
+		<right code="VIEW_STAFF_PLAN"></right>
+		<right code="VIEW_GATES_PLAN"></right>
+		<right code="VIEW_PARTNERS_REPORT"></right>
+		<right code="VIEW_ACTIVE_OPERATIONS"></right>
+	</rights>
+	<roles>
+		<role code="PARTNER_OPERATOR"></role>
+		<role code="MANAGER"></role>
+		<role code="GUARD"></role>
+		<role code="OPERATOR"></role>
+		<role code="DISPATCHER"></role>
+		<role code="ADMINISTRATOR"></role>
+	</roles>
+</data>

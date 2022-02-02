@@ -1,0 +1,12 @@
+﻿@page "/DispatcherHome"
+@using TSLog.Yard.BO
+@model DispatcherHomeModel
+
+@{
+    ViewData["Title"] = "Панель администратора";
+
+    var storage = Model.yardStorage;
+    var home = (storage, true, Request);    
+}
+
+<partial name="Toolkit/_HomePartial" model="home" />

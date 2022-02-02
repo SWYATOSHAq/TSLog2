@@ -14,10 +14,8 @@
     return false;
 }
 
-
 function PrintCard() {
-    // 
-    window.open('/p/statistics/printDispersal?id=' + $("#identeficator").text(), '_blank');
+    window.open('/PrintDispersal?id=' + $("#identeficator").text(), '_blank');
 }
 
 function PrintStatisticsTables() {
@@ -42,12 +40,11 @@ function PrintBlock(cellId) {
 const state = {
     time: 0
 };
-//
+
 const time_split = 4;
-//
 const time_start = 2;
 const time_finish = 23;
-//
+
 var trail_length = 0;
 
 function GetTrailLength() {
@@ -125,7 +122,6 @@ function SelectTime(time, cellId) {
             $("#eror-text").addClass("d-none");
             state.time = time;
             $("#text_operation_time").text($("#text_operation_time").text().split(" (")[0] + " ( выбранное время: " + time + ")");
-
         }
     };
 }
@@ -153,13 +149,11 @@ function MultiplyTextTimeSpan(strTime, multiplier) {
 $(document).ready(function() {
     // default
     periods = [];
-
     RenderTable(periods);
 });
 
 function RenderTable(periods) {
     $(".table-1hr-row").remove();
-    // 
 
     time_part = 60 / time_split; // 1 hr per row
     var timeSplits = [];
@@ -219,9 +213,6 @@ function RenderTable(periods) {
     }
 }
 
-//
-
-
 function RemoveCards() {
     $(".action-card").remove();
 }
@@ -232,7 +223,6 @@ function GetCompaniesNames(card) {
         result += ((result.Length > 0) ? ", " : "") + partner.Name;
     }
     return result;
-
 }
 
 function ConvertTime(strTime) {
@@ -244,7 +234,6 @@ function ConvertDate(strTime) {
 }
 
 function RenderCard(base, card, date) {
-
     var baseCol = document.createElement("div");
     $(baseCol).addClass("col  action-card");
 
@@ -285,8 +274,6 @@ function RenderCard(base, card, date) {
     cardBody.append(cardBodyState);
     cardBody.append(cardBodyVehicleKind);
 
-    ///
-
     var cardBodyButton = document.createElement("h5");
     $(cardBodyButton).addClass("btn btn-outline-info m-3");
     $(cardBodyButton).text("открыть");
@@ -316,8 +303,6 @@ function Create() {
         $("#order_id").val() != "" &&
         $("#partner").val() != ""
     ) {
-
-
         var postData = {
             operation_type: $("#operations").val(),
             gate: $("#card-operation .gates").val(),
@@ -333,7 +318,6 @@ function Create() {
             manager_phone: $("#manager_phone").val(),
             manager_email: $("#manager_email").val(),
             note: $("#note").val(),
-
 
             start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
 
@@ -351,14 +335,12 @@ function Create() {
 
             // TODO пока пусть редиректит на лк TSL
             // но тут должна быть вилка в зависимости от типа пользователя
-            // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-            location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            // location.href = '/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            location.href = '/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
         });
     } else {
         alert('не все обязательные поля введены');
     }
-
-
 }
 
 function Update() {
@@ -390,8 +372,6 @@ function Update() {
             manager_email: $("#card-operation #manager_email").val(),
             note: $("#card-operation #note").val(),
 
-
-
             // partner_id: $("#partner").val(),
         };
 
@@ -406,20 +386,15 @@ function Update() {
 
             // TODO пока пусть редиректит на лк TSL
             // но тут должна быть вилка в зависимости от типа пользователя
-            // location.href = '/p/user/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-            location.href = '/p/dispatcher/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            // location.href = '/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            location.href = '/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
         });
-
-
     } else {
         alert('не все обязательные поля введены');
     }
-
-
 }
 
 function ChangeState(stateChangeType) {
-
     var isAllHumanFieldsFull = true;
     // bruh
     $(".dropdown .form-control").each(function() {
@@ -461,11 +436,7 @@ function ChangeState(stateChangeType) {
     }
 }
 
-// 
-
 $(document).ready(function() {
-
-
     // show modal
     if (getUrlParameter('id')) {
         $('#RequestCardModal').modal('toggle');
@@ -543,7 +514,6 @@ $(document).ready(function() {
     }
 
     function GetOperationTimeSpan(inpDate) {
-
         $.get("/api/v1/yard/OperationLength", {
                 operation: $('#operations :selected').val(),
                 vehicle_kind: $('#vehicle_kind :selected').val(),
@@ -561,13 +531,8 @@ $(document).ready(function() {
             },
             function(data) {
                 periods = JSON.parse(data);
-
                 RenderTable(periods);
-
             });
-
-
-
     }
 
     $("#time_table").addClass("d-none");
@@ -598,16 +563,16 @@ $(document).ready(function() {
 });
 
 function OpenHumanStatisticsByDate() {
-    location.href = '/p/statistics/HumanDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+    location.href = '/HumanDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
 }
 
 function OpenGateStatisticsByDate() {
-    location.href = '/p/statistics/GateDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+    location.href = '/GateDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
 }
 
 function OpenClientReportByDate() {
     if ($("#dp1").datepicker('getDate') <= $("#dp2").datepicker('getDate') && $("#partner-filter select").val() != "") {
-        location.href = '/p/statistics/ClientReportDispersal?start_date=' +
+        location.href = '/ClientReportDispersal?start_date=' +
             $("#dp1").datepicker('getDate').toLocaleDateString() +
             '&end_date=' + $("#dp2").datepicker('getDate').toLocaleDateString() +
             '&partner=' + $("#partner-filter select").val();
@@ -623,7 +588,6 @@ $(document).ready(function() {
 });
 //====================================================
 
-
 $(document).ready(function() {
     // make search on every letter change in #card-operation.dropdown-toggle
     // also on change if nearest selected-item-id is not empty delete data from it and post to api
@@ -631,7 +595,6 @@ $(document).ready(function() {
 
     $('.dropdown-toggle').bind("keyup", DropdownToggleHandler);
     $('.dropdown-toggle').bind("click", DropdownToggleHandler);
-
 });
 
 function DropdownToggleHandler(e) {
@@ -655,7 +618,6 @@ function DropdownToggleHandler(e) {
 
             RenderUserList(dropdown, people);
         });
-
 }
 
 function RenderUserList(parent, people) {
@@ -701,11 +663,6 @@ function OnItemClick() {
             UpdateWorkerInfo("add", inputGroup);
         }
     }
-
-
-
-
-
     return false;
 }
 
@@ -728,7 +685,6 @@ $(document).ready(function() {
         window.print();
 });
 
-
 var maxRowsPerPosition = 4;
 
 function addNewPosition(rowButton) {
@@ -748,7 +704,6 @@ function addNewPosition(rowButton) {
         //
         RerenderWorkerTableIndexes();
         RecalculateAdditionalTableInfo(posCode, row.find(".cell-info-text").text(), curSize);
-
     }
 }
 
@@ -769,7 +724,6 @@ function removePosition(rowButton) {
         RecalculateAdditionalTableInfo(posCode, row.find(".cell-info-text").text(), curSize);
     } else
         setRowEmpty(row);
-
     //
     RerenderWorkerTableIndexes();
 }
