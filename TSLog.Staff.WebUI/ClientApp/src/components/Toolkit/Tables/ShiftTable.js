@@ -27,19 +27,25 @@ export class ShiftTable extends Table {
     }
 
     async LoadData() {
-        const response = await fetch('weatherforecast');
+        //const response = await fetch('weatherforecast');
+        //const data = await response.json();
+        //console.log(data);
+
+        //super.setState({
+        //    headers: { date: "Дата", summary: "Итог" , temperatureC: "Темп. С", temperatureF: "Темп. F"},
+        //    dataTypes: { date: "datetime", summary: "string", temperatureC: "int", temperatureF: "int" },
+        //    body: data
+        //});
+
+        const response = await fetch('/api/v1/Staff/Shifts');
         const data = await response.json();
         console.log(data);
 
         super.setState({
-            headers: { date: "Дата", summary: "Итог" , temperatureC: "Темп. С", temperatureF: "Темп. F"},
-            dataTypes: { date: "datetime", summary: "string", temperatureC: "int", temperatureF: "int" },
+            headers: { WorkMode: "Тип работы", From: "От", To: "До" },
+            dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
             body: data
         });
 
-
-        const response2 = await fetch('/api/v1/Staff/Shifts');
-        const data2 = await response2.text();
-        console.log(JSON.parse(data2));
     }
 }
