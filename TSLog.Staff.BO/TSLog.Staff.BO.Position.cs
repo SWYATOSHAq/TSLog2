@@ -8,6 +8,20 @@ namespace TSLog.Staff.BO
     public class Position : Entity
     {
         /// <summary>
+        ///  Идентификатор
+        /// </summary>
+        public new short Id
+        {
+            get
+            {
+                return (short)base.Id;
+            }
+            set
+            {
+                base.Id = value;
+            }
+        }
+        /// <summary>
         /// Признак "линейного" персонала
         /// </summary>
         public bool IsLinear { get; private set; } = true;

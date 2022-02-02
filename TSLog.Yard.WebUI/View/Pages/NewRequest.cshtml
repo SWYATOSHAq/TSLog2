@@ -1,0 +1,46 @@
+﻿@page "/NewRequest"
+@using TSLog.Authorization
+@using TSLog.Yard.BO
+@model NewRequestModel
+@{
+    ViewData["Title"] = "Добавить новый запрос";
+    var storage = Model.yardStorage;
+
+    // create new object
+    var selectedYardOperation = Operation.Empty;
+
+    var operationToRender = (selectedYardOperation, storage, true, false);
+
+    var checker = new RightsCheker();
+    var r = checker.CheckRight("aaaa", User);
+
+    var claims = User.Claims.ToArray();
+    var a = User.IsInRole("S-1-2-1");
+    var isRedmineUser = User.IsInRole("redmine_users");
+    var b = 1;
+}
+
+<!--  -->
+<div class="row p-2 m-3">
+    <div class="col-4 p-4 m-3 shadow time-table hide-on-print overflow-auto" id="time_table">
+        <div class="row">
+        Выберете дату: 
+        </div>
+        <div class="row p-2 m-3">
+            <!--  -->
+            <input type="text" id="dp1" class="datepicker border border-secondary" placeholder="Выберете дату" ne="date" readonly=""><span class="fa fa-calendar"></span>
+            <!--  -->
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="eror-text">
+            <strong>ошибка!</strong>
+            <p>Врямя уже занято, выберите другой промежуток времени</p>
+        </div>        
+        @*
+        @if (isRedmineUser) 
+            { <div>AAAA</div>} 
+        else 
+            { <div>BBBB</div>}
+        *@
+    </div>
+    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+</div>

@@ -8,6 +8,20 @@ namespace TSLog.Staff.BO
     /// </summary>
     public class Department : Entity
     {
+        /// <summary>
+        /// Идентификатор
+        /// </summary>
+        public new short Id
+        {
+            get 
+            {
+                return (short)base.Id;
+            }
+            set
+            {
+                base.Id = value;
+            }
+        }
         private Department _parent = Null;
         /// <summary>
         /// Вышестоящее подразделение
