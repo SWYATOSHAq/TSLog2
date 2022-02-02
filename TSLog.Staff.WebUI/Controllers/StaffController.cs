@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TSLog.Staff.BO;
 
 namespace TSLog.Staff.WebUI.Controllers
@@ -39,8 +40,12 @@ namespace TSLog.Staff.WebUI.Controllers
         [HttpGet("Shifts")]
         public string GetShifts()
         {
-            return "test api";
-            //_storage.GetShifts();
+            var testShifts = new Shift[] {
+                new Shift(-1, DateTime.Now.AddHours(-6), DateTime.Now.AddHours(6), "5/2-40"),
+                new Shift(-1, DateTime.Now.AddHours(12), DateTime.Now.AddHours(18), "5/2-40")
+            };
+            return JsonSerializer.Serialize(testShifts);
+            // https://localhost:7019/api/v1/Staff/Shifts
         }
 
         [HttpPost("CreateUpdateShift")]

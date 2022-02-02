@@ -36,5 +36,9 @@ export class ShiftTable extends Table {
             body: data
         });
 
+
+        const response2 = await fetch('weatherforecast');
+        const data2 = await response2.text();
+        console.log(data2);
     }
 }
