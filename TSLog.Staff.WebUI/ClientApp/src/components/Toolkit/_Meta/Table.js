@@ -5,10 +5,10 @@ export class Table extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { headers: [], body: [[], []] };
+        this.state = { headers: [], dataTypes: [], body: [[], []] };
     }
 
-    static renderTable(headers, body) {
+    static renderTable(headers, dataTypes, body) {
         console.log(headers);
         console.log(body);
         return (
@@ -30,7 +30,25 @@ export class Table extends Component {
                                 <tr key={i}>
                                     {
                                         Object.keys(headers).map((curRowKey, i) => {
-                                            return (<td>{curRow[curRowKey]}</td>)
+                                            var curDataType = dataTypes[curRowKey];
+                                            var cellData = curRow[curRowKey];
+
+                                            if (curDataType === "datetime") {
+                                                var parsedDate = new Date(cellData);
+                                                cellData = parsedDate.toLocaleDateString() + " " + parsedDate.toLocaleTimeString();
+                                            }
+
+                                            if (curDataType === "date") {
+                                                var parsedDate = new Date(cellData);
+                                                cellData = parsedDate.toLocaleDateString();
+                                            }
+
+                                            if (curDataType === "time") {
+                                                var parsedDate = new Date(cellData);
+                                                cellData = parsedDate.toLocaleTimeString();
+                                            }
+
+                                            return (<td>{cellData}</td>)
                                         })
                                     }
                                 </tr>
@@ -44,7 +62,7 @@ export class Table extends Component {
     }
 
     render() {
-        let contents = Table.renderTable(this.state.headers, this.state.body);
+        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body);
         return (
             <div>
                 {contents}
