@@ -52,12 +52,58 @@ namespace TSLog.Staff.WebUI.Controllers
         public string PostCreateUpdateShift()
         {
             return "test api";
+
         }
 
         [HttpPost("DeleteShift")]
-        public string POstDeleteShift()
+        public string PostDeleteShift()
         {
             return "test api";
+        }
+        // -----------------------------
+
+
+        [HttpGet("Employees")]
+        public string GetEmployees()
+        {
+            var testEmployees = new Employee[] {
+                new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true),
+                new Employee(-1, "1", "Sergeyev", "Sergei", DateTime.Today.AddYears(-21), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true)
+            };
+
+
+            return JsonSerializer.Serialize(testEmployees);
+            // https://localhost:7019/api/v1/Staff/Employees
+        }
+
+        // -----------------------------
+
+
+        [HttpGet("Positions")]
+        public string GetPositions()
+        {
+            var testPositions = new Position[]
+            {
+                new Position(-1, "1","engeener"),
+                new Position(-1, "1","programmer"),
+            }
+            return JsonSerializer.Serialize(testPositions);
+            // https://localhost:7019/api/v1/Staff/Departments
+        }
+
+        // -----------------------------
+
+
+        [HttpGet("Departments")]
+        public string GetDepartments()
+        {
+            var testDepartments = new Department[]
+            {
+                new Department(-1, "", "IT","IT","IT", "IT", true,1, new LegalEntities.BO.LegalEntity("koton", "KOTON"), new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true)),
+                new Department(-1, "", "yard","yard","yard", "yard", true,1, new LegalEntities.BO.LegalEntity("koton", "KOTON"), new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true))
+            }
+            return JsonSerializer.Serialize(testDepartments);
+            // https://localhost:7019/api/v1/Staff/Departments
         }
     }
 }

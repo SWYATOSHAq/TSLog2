@@ -29,7 +29,7 @@ export class Table extends Component {
                             return (
                                 <tr key={i}>
                                     {
-                                        Object.keys(headers).map((curRowKey, i) => {
+                                        Object.keys(headers).map((curRowKey, j) => {
                                             var curDataType = dataTypes[curRowKey];
                                             var cellData = curRow[curRowKey];
 
@@ -48,7 +48,7 @@ export class Table extends Component {
                                                 cellData = parsedDate.toLocaleTimeString();
                                             }
 
-                                            return (<td>{cellData}</td>)
+                                            return (<td key={i+"-"+j }>{cellData}</td>)
                                         })
                                     }
                                 </tr>
