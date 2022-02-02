@@ -1,9 +1,37 @@
+using TSLog.Common;
+using TSLog.Staff.BO;
+using TSLog.Staff.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+//
 
+var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
+
+var oracleConnectionSettings = isDebug
+    ? builder.Configuration.GetSection("OracleConnectionDebugSettings")
+    : builder.Configuration.GetSection("OracleConnectionSettings");
+string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
+
+string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
+string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
+
+string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
+string oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema");
+string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema");
+
+var storage = new StaffOracleStorage(oracleTns);
+storage.Connect(oracleUserName, Utils.StringToSecureString(oraclePassword));
+storage.CommonSchema = oracleCommonSchema;
+storage.LegalEntitiesSchema = oracleLegalEntitiesSchema;
+storage.StaffSchema = oracleStaffSchema;
+
+builder.Services.AddSingleton<IStaffStorage>(storage);
+
+//
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

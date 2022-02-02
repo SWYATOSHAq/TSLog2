@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TSLog.Staff.BO;
 
 namespace TSLog.Staff.WebUI.Controllers
 {
@@ -8,10 +9,12 @@ namespace TSLog.Staff.WebUI.Controllers
     {
 
         private readonly ILogger<StaffController> _logger;
+        private readonly IStaffStorage _storage;
 
-        public StaffController(ILogger<StaffController> logger)
+        public StaffController(ILogger<StaffController> logger, IStaffStorage storage)
         {
             _logger = logger;
+            _storage = storage;
         }
         /*
          * get shifts
@@ -37,6 +40,7 @@ namespace TSLog.Staff.WebUI.Controllers
         public string GetShifts()
         {
             return "test api";
+            //_storage.GetShifts();
         }
 
         [HttpPost("CreateUpdateShift")]
