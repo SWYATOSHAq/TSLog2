@@ -40,6 +40,7 @@ namespace TSLog.Staff.WebUI.Controllers
         [HttpGet("Shifts")]
         public string GetShifts()
         {
+
             var testShifts = new Shift[] {
                 new Shift(-1, DateTime.Now.AddHours(-6), DateTime.Now.AddHours(6), "5/2-40"),
                 new Shift(-1, DateTime.Now.AddHours(12), DateTime.Now.AddHours(18), "5/2-40")
@@ -86,7 +87,7 @@ namespace TSLog.Staff.WebUI.Controllers
             {
                 new Position(-1, "1","engeener"),
                 new Position(-1, "1","programmer"),
-            }
+            };
             return JsonSerializer.Serialize(testPositions);
             // https://localhost:7019/api/v1/Staff/Departments
         }
@@ -101,7 +102,7 @@ namespace TSLog.Staff.WebUI.Controllers
             {
                 new Department(-1, "", "IT","IT","IT", "IT", true,1, new LegalEntities.BO.LegalEntity("koton", "KOTON"), new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true)),
                 new Department(-1, "", "yard","yard","yard", "yard", true,1, new LegalEntities.BO.LegalEntity("koton", "KOTON"), new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true))
-            }
+            };
             return JsonSerializer.Serialize(testDepartments);
             // https://localhost:7019/api/v1/Staff/Departments
         }
