@@ -22,16 +22,13 @@ namespace TSLog.Staff.BO
                 base.Id = value;
             }
         }
-        private Department _parent = Null;
+        private Department? _parent = null;
         /// <summary>
         /// Вышестоящее подразделение
         /// </summary>
         public Department Parent
         {
-            get
-            {
-                return _parent;
-            }
+            get => _parent ?? Null;
             set
             {
                 if (this == Null || this == Empty)

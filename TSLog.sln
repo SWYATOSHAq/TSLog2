@@ -67,7 +67,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Reporting", "TSL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.WebUI", "TSLog.Staff.WebUI\TSLog.Staff.WebUI.csproj", "{67E948BB-C3AE-48AC-A1A9-045C6C6FC90B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Authorization", "TSLog.Authorization\TSLog.Authorization.csproj", "{22D486AD-3615-45D5-9D55-72D94BA714A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Authorization", "TSLog.Authorization\TSLog.Authorization.csproj", "{22D486AD-3615-45D5-9D55-72D94BA714A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Staff.Test", "TSLog.Staff.Test\TSLog.Staff.Test.csproj", "{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -191,6 +193,10 @@ Global
 		{22D486AD-3615-45D5-9D55-72D94BA714A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22D486AD-3615-45D5-9D55-72D94BA714A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22D486AD-3615-45D5-9D55-72D94BA714A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
