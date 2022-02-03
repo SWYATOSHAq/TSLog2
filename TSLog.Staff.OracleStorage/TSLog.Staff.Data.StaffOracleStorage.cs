@@ -1045,14 +1045,14 @@ namespace TSLog.Staff.Data
             {
                 var SelectShiftsSql =
                     $"select s.id," +
-                    $"       s.from_date, s.to_date," +
+                    $"       s.start_date, s.finish_date," +
                     $"       s.work_mode," +
                     $"       s.note" +
                     $"  from {StaffSchema}.stf_shift#v s" +
-                    $" where not (s.from_date > :to_date or s.to_date < :from_date)";
+                    $" where not (s.start_date > :finish_date or s.finish_date < :start_date)";
                 command.CommandText = SelectShiftsSql;
-                command.Parameters.Add(new OracleParameter(":from_date", from));
-                command.Parameters.Add(new OracleParameter(":to_date", to));
+                command.Parameters.Add(new OracleParameter(":start_date", from));
+                command.Parameters.Add(new OracleParameter(":finish_date", to));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -1073,14 +1073,15 @@ namespace TSLog.Staff.Data
                     $"declare" +
                     $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);";
+                    $"    l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);" +
+                    $"end;";
                 command.CommandText = AddShiftSql;
                 command.Parameters.Add(new OracleParameter("p_from_date", shift.From));
                 command.Parameters.Add(new OracleParameter("p_to_date", shift.To));
                 command.Parameters.Add(new OracleParameter("p_work_mode", shift.WorkMode));
                 command.Parameters.Add(new OracleParameter("p_note", shift.Note));
                 var id = command.ExecuteScalar();
-                shift.Id = (int)id;
+                shift.Id = (int)command.Parameters["l_id"].Value;
             }
             return shift;
         }
