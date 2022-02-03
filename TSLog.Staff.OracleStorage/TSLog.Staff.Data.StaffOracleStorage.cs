@@ -19,6 +19,11 @@ namespace TSLog.Staff.Data
     {
         private const string DefaultLegalEntitiesSchema = "staff";
         public string LegalEntitiesSchema { private get; set; } = DefaultLegalEntitiesSchema;
+        private const string DefaultStaffSchema = "staff";
+        public string StaffSchema { private get; set; } = DefaultStaffSchema;
+        public StaffOracleStorage(string dataSource) : base(dataSource)
+        { }
+
 
         private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
         private static LegalEntity CreateLegalEntity(DbDataReader reader)
@@ -74,11 +79,6 @@ namespace TSLog.Staff.Data
             throw new LegalEntityNotFoundException(id);
         }
 
-        private const string DefaultStaffSchema = "staff";
-        public string StaffSchema { private get; set; } = DefaultStaffSchema;
-        public StaffOracleStorage(string dataSource) : base(dataSource)
-        { }
-
 
         private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
         private Position CreatePosition(DbDataReader reader)
@@ -121,6 +121,7 @@ namespace TSLog.Staff.Data
 
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectPositionByIdSql =
                     $"select p.id, p.code," +
                     $"       p.name, p.short_name, p.alt_name, p.display_name," +
@@ -155,6 +156,7 @@ namespace TSLog.Staff.Data
 
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectPositionByCodeSql =
                     $"select p.id, p.code, " +
                     $"       p.name, p.short_name, p.alt_name, p.display_name," +
@@ -183,6 +185,7 @@ namespace TSLog.Staff.Data
             var positions = new List<Position>();
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectPositionsSql =
                     $"select p.id, p.code, " +
                     $"       p.name, p.short_name, p.alt_name, p.display_name, " +
@@ -208,11 +211,10 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(position));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var AddPositionSql =
-                    $"declare" +
-                    $"    l_id number(4);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.create_position(:p_code," +
+                    $"    :l_id := {StaffSchema}.api_staff.create_position(:p_code," +
                     $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
                     $"        :p_is_active, :p_display_order," +
                     $"        :p_cost, :p_cost_currency," +
@@ -229,7 +231,10 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_cost", position.LaborHourCost));
                 command.Parameters.Add(new OracleParameter("p_cost_currency", position.LaborHourCostCurrency.Code));
                 command.Parameters.Add(new OracleParameter("p_note", position.Note));
-                var id = command.ExecuteScalar();
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int16, ParameterDirection.Output));
+
+                command.ExecuteNonQuery();
+                var id = (OracleDecimal)command.Parameters["l_id"].Value;
                 position.Id = (short)id;
             }
             return position;
@@ -240,11 +245,10 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(position));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var EditPositionSql =
-                    $"declare" +
-                    $"    l_id number(4);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.edit_position(:p_id, :p_code," +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_position(:p_id, :p_code," +
                     $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
                     $"        :p_is_active, :p_display_order," +
                     $"        :p_cost, :p_cost_currency," +
@@ -262,8 +266,8 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_cost", position.LaborHourCost));
                 command.Parameters.Add(new OracleParameter("p_cost_currency", position.LaborHourCostCurrency.Code));
                 command.Parameters.Add(new OracleParameter("p_note", position.Note));
-                var id = command.ExecuteScalar();
-                position.Id = (short)id;
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int16, ParameterDirection.Output));
+                command.ExecuteScalar();                
             }
             return position;
         }
@@ -272,14 +276,14 @@ namespace TSLog.Staff.Data
             if (position == null)
                 throw new ArgumentNullException(nameof(position));
             using var command = _connection.CreateCommand();
-            var DeletePositionSql =
-                $"declare" +
-                $"    l_id number(8);" +
+            command.BindByName = true;
+            var DeletePositionSql =                
                 $"begin" +
-                $"    l_id := {StaffSchema}.api_staff.delete_position(:p_id);" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_position(:p_id);" +
                 $"end;";
             command.CommandText = DeletePositionSql;
             command.Parameters.Add(new OracleParameter("p_id", position.Id));
+            command.Parameters.Add(new OracleParameter("l_state", OracleDbType.Int16, ParameterDirection.Output));
             command.ExecuteScalar();
         }
 
@@ -314,6 +318,7 @@ namespace TSLog.Staff.Data
 
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectDepartmentByIdSql =
                     $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
@@ -347,6 +352,7 @@ namespace TSLog.Staff.Data
 
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectDepartmentByCodeSql =
                     $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
@@ -374,6 +380,7 @@ namespace TSLog.Staff.Data
             var departments = new List<Department>();
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectDepartmentsSql =
                    $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
@@ -399,11 +406,10 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(department));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var AddDepartmentSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.create_department(:p_code," +
+                    $"    :l_id := {StaffSchema}.api_staff.create_department(:p_code," +
                     $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
                     $"        :p_is_active, :p_display_order," +
                     $"        :p_parent_id," +
@@ -426,8 +432,10 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_company_id", department.Company.Id));
                 command.Parameters.Add(new OracleParameter("p_head_id", department.Head.Id));
                 command.Parameters.Add(new OracleParameter("p_note", department.Note));
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int16, ParameterDirection.Output));
 
-                var id = command.ExecuteScalar();
+                command.ExecuteNonQuery();
+                var id = (OracleDecimal)command.Parameters["l_id"].Value;
                 department.Id = (short)id;
             }
             return department;
@@ -438,11 +446,10 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(department));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var EditDepartmentSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.edit_department(:p_id, :p_code," +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_department(:p_id, :p_code," +
                     $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
                     $"        :p_is_active, :p_display_order," +
                     $"        :p_parent_id," +
@@ -466,9 +473,8 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_company_id", department.Company.Id));
                 command.Parameters.Add(new OracleParameter("p_head_id", department.Head.Id));
                 command.Parameters.Add(new OracleParameter("p_note", department.Note));
-
-                var id = command.ExecuteScalar();
-                department.Id = (short)id;
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int16, ParameterDirection.Output));
+                command.ExecuteScalar();
             }
             return department;
         }
@@ -480,17 +486,16 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(head));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SetDepartmentHeadSqlSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.set_department_head(:p_department_id, :p_head_id);" +
+                    $"    :l_department_id := {StaffSchema}.api_staff.set_department_head(:p_department_id, :p_head_id);" +
                     $"end;";
                 command.CommandText = SetDepartmentHeadSqlSql;
                 command.Parameters.Add(new OracleParameter("p_department_id", department.Id));
                 command.Parameters.Add(new OracleParameter("p_head_id", department.Head.Id));
-                var id = command.ExecuteScalar();
-                department.Id = (short)id;
+                command.Parameters.Add(new OracleParameter("l_department_id", OracleDbType.Int16, ParameterDirection.Output));
+                command.ExecuteNonQuery();
             }
             return department;
         }
@@ -499,14 +504,14 @@ namespace TSLog.Staff.Data
             if (department == null)
                 throw new ArgumentNullException(nameof(department));
             using var command = _connection.CreateCommand();
-            var DeleteDepartmentSql =
-                $"declare" +
-                $"    l_id number(8);" +
+            command.BindByName = true;
+            var DeleteDepartmentSql =                
                 $"begin" +
-                $"    l_id := {StaffSchema}.api_staff.delete_department(:p_id);" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_department(:p_id);" +
                 $"end;";
             command.CommandText = DeleteDepartmentSql;
             command.Parameters.Add(new OracleParameter("p_id", department.Id));
+            command.Parameters.Add(new OracleParameter("l_state", OracleDbType.Int16, ParameterDirection.Output));
             command.ExecuteScalar();
         }
 
@@ -555,45 +560,6 @@ namespace TSLog.Staff.Data
             employee.CostMeasureUnit = GetMeasureUnit(costCurrencyCode);
 
             return employee;
-        }
-        public Employee GetEmployee(int id)
-        {
-            id = id > 0 ? id : 0;
-            var employee = _employees[id];
-            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
-                return employee;
-            using (var command = _connection.CreateCommand())
-            {
-                var SelectEmployeeById =
-                    $"select e.id, e.code," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e " +
-                    $" where e.id = :id";
-                command.CommandText = SelectEmployeeById;
-                command.Parameters.Add(new OracleParameter("id", id));
-                using var reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    employee = CreateEmployee(reader);
-                    _employees.Add(employee);
-                }
-                reader.Close();
-            }
-            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
-                return employee;
-            throw new EmployeeNotFoundException(id);
         }
         public Employee[] FindEmployees(string pattern)
         {
@@ -725,17 +691,56 @@ namespace TSLog.Staff.Data
             }
             return employees.ToArray();
         }
+        public Employee GetEmployee(int id)
+        {
+            id = id > 0 ? id : 0;
+            var employee = _employees[id];
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+                return employee;
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var SelectEmployeeById =
+                    $"select e.id, e.code," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
+                    $"  from {StaffSchema}.stf_employee#v e " +
+                    $" where e.id = :id";
+                command.CommandText = SelectEmployeeById;
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    employee = CreateEmployee(reader);
+                    _employees.Add(employee);
+                }
+                reader.Close();
+            }
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+                return employee;
+            throw new EmployeeNotFoundException(id);
+        }
         public Employee AddEmployee(Employee employee)
         {
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var AddEmployeeSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.create_employee(:p_sex," +
+                    $"    :l_id := {StaffSchema}.api_staff.create_employee(:p_sex," +
                     $"        :p_surname," +
                     $"        :p_first_name," +
                     $"        :p_patronymic," +
@@ -792,7 +797,10 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_work_mode", employee.WorkMode.Trim()));
                 command.Parameters.Add(new OracleParameter("p_note",
                     !string.IsNullOrWhiteSpace(employee.Note) ? employee.Note.Trim() : DBNull.Value));
-                var id = command.ExecuteScalar();
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int32, ParameterDirection.Output));
+
+                command.ExecuteNonQuery();
+                var id = (OracleDecimal)command.Parameters["l_id"].Value;
                 employee.Id = (int)id;
             }
             return employee;
@@ -803,30 +811,20 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var EditEmployeeSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.edit_employee(:p_id," +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_employee(:p_id," +
                     $"        :p_sex," +
-                    $"        :p_surname," +
-                    $"        :p_first_name," +
-                    $"        :p_patronymic," +
+                    $"        :p_surname, :p_first_name, :p_patronymic," +
                     $"        :p_birth_date," +
                     $"        :p_nationality," +
-                    $"        :p_phone_number," +
-                    $"        :p_email," +
-                    $"        :p_document_name," +
-                    $"        :p_document_series," +
-                    $"        :p_document_number," +
-                    $"        :p_document_issue_date," +
-                    $"        :p_document_issue_organization," +
-                    $"        :p_employment_date," +
-                    $"        :p_dismissal_date," +
+                    $"        :p_phone_number, :p_email," +
+                    $"        :p_document_name, :p_document_series, :p_document_number, :p_document_issue_date, :p_document_issue_organization," +
+                    $"        :p_employment_date, :p_dismissal_date," +
                     $"        :p_company_id," +
                     $"        :p_department_id," +
-                    $"        :p_cost," +
-                    $"        :p_cost_currency," +
+                    $"        :p_cost, :p_cost_currency," +
                     $"        :p_work_mode," +
                     $"        :p_note);" +
                     $"end;";
@@ -866,6 +864,7 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_work_mode", employee.WorkMode.Trim()));
                 command.Parameters.Add(new OracleParameter("p_note",
                     !string.IsNullOrWhiteSpace(employee.Note) ? employee.Note.Trim() : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -879,15 +878,15 @@ namespace TSLog.Staff.Data
 
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SetEmployeeDepartmentSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.set_employee_department(:p_employee_id, :p_department_id);" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.set_employee_department(:p_employee_id, :p_department_id);" +
                     $"end;";
                 command.CommandText = SetEmployeeDepartmentSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
                 command.Parameters.Add(new OracleParameter("p_department_id", deparment.Id));
+                command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -898,17 +897,17 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SetEmployeeDepartmentSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.set_employee_department(:p_id, :p_department_id);" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.set_employee_department(:p_id, :p_department_id);" +
                     $"end;";
                 command.CommandText = SetEmployeeDepartmentSql;
                 command.Parameters.Add(new OracleParameter("p_id", employee.Id));
                 command.Parameters.Add(new OracleParameter("id",
                     employee.Department != null && employee.Department != Department.Null && employee.Department != Department.Empty
                     ? employee.Department.Id : DBNull.Value));
+                command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -919,15 +918,15 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var AddEmployeePositionSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.add_employee_position(:p_employee_id, :p_position_id);" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.add_employee_position(:p_employee_id, :p_position_id);" +
                     $"end;";
                 command.CommandText = AddEmployeePositionSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
                 command.Parameters.Add(new OracleParameter("p_position_id", position.Id));
+                command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -938,15 +937,15 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var RemoveEmployeePositionSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.remove_employee_position(:p_employee_id, :p_position_id);" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.remove_employee_position(:p_employee_id, :p_position_id);" +
                     $"end;";
                 command.CommandText = RemoveEmployeePositionSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
                 command.Parameters.Add(new OracleParameter("p_position_id", position.Id));
+                command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -957,15 +956,15 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var AddPartnerManagerSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.add_partner_manager(:p_employee_id, :p_partner_id);" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.add_partner_manager(:p_employee_id, :p_partner_id);" +
                     $"end;";
                 command.CommandText = AddPartnerManagerSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
                 command.Parameters.Add(new OracleParameter("p_partner_id", partner.Id));
+                command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -976,15 +975,15 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(employee));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var RemovePartnerManagerSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.remove_partner_manager(:p_employee_id, :p_partner_id);" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.remove_partner_manager(:p_employee_id, :p_partner_id);" +
                     $"end;";
                 command.CommandText = RemovePartnerManagerSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
                 command.Parameters.Add(new OracleParameter("p_partner_id", partner.Id));
+                command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
             }
             return employee;
@@ -994,12 +993,14 @@ namespace TSLog.Staff.Data
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
             using var command = _connection.CreateCommand();
+            command.BindByName = true;
             var DeleteEmployeeSql =
                 $"begin" +
-                $"    {StaffSchema}.api_staff.delete_employee(:p_id);" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_employee(:p_id);" +
                 $"end;";
             command.CommandText = DeleteEmployeeSql;
             command.Parameters.Add(new OracleParameter("id", employee.Id));
+            command.Parameters.Add(new OracleParameter("l_state", OracleDbType.Int16, ParameterDirection.Output));
             command.ExecuteScalar();
         }
 
@@ -1071,13 +1072,12 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(shift));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var AddShiftSql =
                     $"begin" +
                     $"    :l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);" +
                     $"end;";
                 command.CommandText = AddShiftSql;
-                command.BindByName = true;
-                command.CommandType = CommandType.Text;
                 command.Parameters.Add(new OracleParameter("p_from_date", shift.From));
                 command.Parameters.Add(new OracleParameter("p_to_date", shift.To));
                 command.Parameters.Add(new OracleParameter("p_work_mode", shift.WorkMode));
@@ -1086,7 +1086,6 @@ namespace TSLog.Staff.Data
 
                 command.ExecuteNonQuery();
                 var id = (OracleDecimal)command.Parameters["l_id"].Value;
-
                 shift.Id = (int)id;
             }
             return shift;
@@ -1097,11 +1096,10 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(shift));
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var EditShiftSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.edit_shift(:p_id, :p_from_date, :p_to_date, :p_work_mode, :p_note);" +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_shift(:p_id, :p_from_date, :p_to_date, :p_work_mode, :p_note);" +
                     $"end;";
                 command.CommandText = EditShiftSql;
                 command.Parameters.Add(new OracleParameter("p_id", shift.Id));
@@ -1109,6 +1107,7 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_to_date", shift.To));
                 command.Parameters.Add(new OracleParameter("p_work_mode", shift.WorkMode));
                 command.Parameters.Add(new OracleParameter("p_note", shift.Note));
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
 
                 // TODO: синхронизировать сотрудников
@@ -1122,15 +1121,15 @@ namespace TSLog.Staff.Data
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
             using var command = _connection.CreateCommand();
+            command.BindByName = true;
             var AddEmployeeToShiftSql =
-                $"declare" +
-                $"    l_id number(8);" +
                 $"begin" +
-                $"    l_id := {StaffSchema}.api_staff.add_employee_to_shift(:p_employee_id, :p_shift_id);" +
+                $"    :l_employee_id := {StaffSchema}.api_staff.add_employee_to_shift(:p_employee_id, :p_shift_id);" +
                 $"end;";
             command.CommandText = AddEmployeeToShiftSql;
             command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
             command.Parameters.Add(new OracleParameter("p_shift_id", shift.Id));
+            command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
             command.ExecuteScalar();
         }
         public void RemoveEmployeeFromShift(Shift shift, Employee employee)
@@ -1140,15 +1139,15 @@ namespace TSLog.Staff.Data
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
             using var command = _connection.CreateCommand();
+            command.BindByName = true;
             var RemoveEmployeeFromShiftSql =
-                $"declare" +
-                $"    l_id number(8);" +
                 $"begin" +
-                $"    l_id := {StaffSchema}.api_staff.remove_employee_from_shift(:p_employee_id, :p_shift_id);" +
+                $"    :l_employee_id := {StaffSchema}.api_staff.remove_employee_from_shift(:p_employee_id, :p_shift_id);" +
                 $"end;";
             command.CommandText = RemoveEmployeeFromShiftSql;
             command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
             command.Parameters.Add(new OracleParameter("p_shift_id", shift.Id));
+            command.Parameters.Add(new OracleParameter("l_employee_id", OracleDbType.Int32, ParameterDirection.Output));
             command.ExecuteScalar();
         }
         public void DeleteShift(Shift shift)
@@ -1156,14 +1155,14 @@ namespace TSLog.Staff.Data
             if (shift == null)
                 throw new ArgumentNullException(nameof(shift));
             using var command = _connection.CreateCommand();
+            command.BindByName = true;
             var DeleteShiftSql =
-                $"declare" +
-                $"    l_id number(8);" +
                 $"begin" +
-                $"    l_id := {StaffSchema}.api_staff.delete_shift(:p_id);" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_shift(:p_id);" +
                 $"end;";
             command.CommandText = DeleteShiftSql;
             command.Parameters.Add(new OracleParameter("p_id", shift.Id));
+            command.Parameters.Add(new OracleParameter("l_state", OracleDbType.Int32, ParameterDirection.Output));
             command.ExecuteScalar();
         }
     }
