@@ -41,10 +41,15 @@ namespace TSLog.Staff.WebUI.Controllers
         public string GetShifts()
         {
 
+            var temp = _storage.GetShifts(DateTime.Today.AddYears(-1), DateTime.Today.AddYears(1));
             var testShifts = new Shift[] {
                 new Shift(-1, DateTime.Now.AddHours(-6), DateTime.Now.AddHours(6), "5/2-40"),
                 new Shift(-1, DateTime.Now.AddHours(12), DateTime.Now.AddHours(18), "5/2-40")
             };
+
+            _storage.AddShift(testShifts[0]);
+            _storage.AddShift(testShifts[1]);
+
             return JsonSerializer.Serialize(testShifts);
             // https://localhost:7019/api/v1/Staff/Shifts
         }

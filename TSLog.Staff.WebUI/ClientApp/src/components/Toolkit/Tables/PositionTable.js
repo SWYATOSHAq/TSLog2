@@ -23,13 +23,13 @@ export class PositionTable extends Table {
     }
 
     async LoadData() {
-        const response = await fetch('/api/v1/Staff/Shifts');
+        const response = await fetch('/api/v1/Staff/Positions');
         const data = await response.json();
         console.log(data);
 
         super.setState({
-            headers: { WorkMode: "Тип работы", From: "От", To: "До" },
-            dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
+            headers: { Name: "Наименование"},
+            dataTypes: { Name: "string" },
             body: data
         });
 
