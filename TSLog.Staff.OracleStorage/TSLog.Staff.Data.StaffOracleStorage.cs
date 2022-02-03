@@ -1,4 +1,6 @@
 ﻿using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
+using System.Data;
 using System.Data.Common;
 using TSLog.Common;
 using TSLog.Common.BO;
@@ -1070,17 +1072,22 @@ namespace TSLog.Staff.Data
             using (var command = _connection.CreateCommand())
             {
                 var AddShiftSql =
-                    $"declare" +
-                    $"    l_id number(8);" +
                     $"begin" +
-                    $"    l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);" +
+                    $"    :l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);" +
                     $"end;";
                 command.CommandText = AddShiftSql;
+                command.BindByName = true;
+                command.CommandType = CommandType.Text;
                 command.Parameters.Add(new OracleParameter("p_from_date", shift.From));
                 command.Parameters.Add(new OracleParameter("p_to_date", shift.To));
                 command.Parameters.Add(new OracleParameter("p_work_mode", shift.WorkMode));
                 command.Parameters.Add(new OracleParameter("p_note", shift.Note));
-                shift.Id = (int)command.Parameters["l_id"].Value;
+                command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int32, ParameterDirection.Output));
+
+                command.ExecuteNonQuery();
+                var id = (OracleDecimal)command.Parameters["l_id"].Value;
+
+                shift.Id = (int)id;
             }
             return shift;
         }

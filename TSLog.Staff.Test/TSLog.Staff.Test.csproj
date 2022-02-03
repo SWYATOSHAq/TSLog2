@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TSLog.Common\TSLog.Common.csproj" />
+    <ProjectReference Include="..\TSLog.LegalEntities.BO\TSLog.LegalEntities.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Staff.BO\TSLog.Staff.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Staff.OracleStorage\TSLog.Staff.OracleStorage.csproj" />
+  </ItemGroup>
+
+</Project>
