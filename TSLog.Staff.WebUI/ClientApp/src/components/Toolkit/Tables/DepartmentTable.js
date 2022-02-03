@@ -7,6 +7,7 @@ export class DepartmentTable extends Table {
         super(props);
     }
 
+
     componentDidMount() {
         this.LoadData();
     }
@@ -23,12 +24,12 @@ export class DepartmentTable extends Table {
     }
 
     async LoadData() {
-        const response = await fetch('/api/v1/Staff/Departments');
+        const response = await fetch('/api/v1/Staff/Shifts');
         const data = await response.json();
         console.log(data);
 
         super.setState({
-            headers: {},
+            headers: { WorkMode: "Тип работы", From: "От", To: "До" },
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
             body: data
         });

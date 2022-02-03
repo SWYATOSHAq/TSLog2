@@ -41,16 +41,16 @@ namespace TSLog.Staff.WebUI.Controllers
         public string GetShifts()
         {
 
-            var temp = _storage.GetShifts(DateTime.Today.AddYears(-1), DateTime.Today.AddYears(1));
-            var testShifts = new Shift[] {
-                new Shift(-1, DateTime.Now.AddHours(-6), DateTime.Now.AddHours(6), "5/2-40"),
-                new Shift(-1, DateTime.Now.AddHours(12), DateTime.Now.AddHours(18), "5/2-40")
-            };
+            var shifts = _storage.GetShifts(DateTime.Today.AddYears(-1), DateTime.Today.AddYears(1));
+            //var testShifts = new Shift[] {
+            //    new Shift(-1, DateTime.Now.AddHours(-6), DateTime.Now.AddHours(6), "5/2-40"),
+            //    new Shift(-1, DateTime.Now.AddHours(12), DateTime.Now.AddHours(18), "5/2-40")
+            //};
 
-            _storage.AddShift(testShifts[0]);
-            _storage.AddShift(testShifts[1]);
+            //_storage.AddShift(testShifts[0]);
+            //_storage.AddShift(testShifts[1]);
 
-            return JsonSerializer.Serialize(testShifts);
+            return JsonSerializer.Serialize(shifts);
             // https://localhost:7019/api/v1/Staff/Shifts
         }
 
@@ -103,12 +103,18 @@ namespace TSLog.Staff.WebUI.Controllers
         [HttpGet("Departments")]
         public string GetDepartments()
         {
-            var testDepartments = new Department[]
-            {
-                new Department(-1, "", "IT","IT","IT", "IT", true,1, new LegalEntities.BO.LegalEntity("koton", "KOTON"), new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true)),
-                new Department(-1, "", "yard","yard","yard", "yard", true,1, new LegalEntities.BO.LegalEntity("koton", "KOTON"), new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true))
-            };
-            return JsonSerializer.Serialize(testDepartments);
+            var company = new LegalEntities.BO.LegalEntity("koton", "KOTON");
+            var head = new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), company, true);
+
+            var test1 = new Department(-1, "", "IT", "IT", "IT", "IT", true, 1, company, head);
+            var test2 = new Department(-1, "", "yard", "yard", "yard", "yard", true, 1, company, head);
+
+            //var testDepartments = new Department[]
+            //{
+            //    new Department(-1, "", "IT","IT","IT", "IT", true,1, company, head),
+            //    new Department(-1, "", "yard","yard","yard", "yard", true,1, company, head)
+            //};
+            return JsonSerializer.Serialize(test1);
             // https://localhost:7019/api/v1/Staff/Departments
         }
     }
