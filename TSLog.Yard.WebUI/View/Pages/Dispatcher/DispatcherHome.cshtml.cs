@@ -19,7 +19,6 @@ namespace TSLog.Yard.WebUI.Pages
             foreach (var es in endpointSources)
                 Endpoints.AddRange(es.Endpoints);
         }
-
         public void OnGet()
         { }
     }
