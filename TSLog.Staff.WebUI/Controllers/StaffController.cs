@@ -77,8 +77,9 @@ namespace TSLog.Staff.WebUI.Controllers
                 new Employee(-1, "1", "Sergeyev", "Sergei", DateTime.Today.AddYears(-21), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true)
             };
 
+            var employees = _storage.GetEmployees();
 
-            return JsonSerializer.Serialize(testEmployees);
+            return JsonSerializer.Serialize(employees);
             // https://localhost:7019/api/v1/Staff/Employees
         }
 
@@ -93,6 +94,9 @@ namespace TSLog.Staff.WebUI.Controllers
                 new Position(-1, "1","engeener"),
                 new Position(-1, "1","programmer"),
             };
+
+            var positions = _storage.GetPositions();
+
             return JsonSerializer.Serialize(testPositions);
             // https://localhost:7019/api/v1/Staff/Departments
         }
@@ -106,15 +110,25 @@ namespace TSLog.Staff.WebUI.Controllers
             var company = new LegalEntities.BO.LegalEntity("koton", "KOTON");
             var head = new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), company, true);
 
-            var test1 = new Department(-1, "", "IT", "IT", "IT", "IT", true, 1, company, head);
-            var test2 = new Department(-1, "", "yard", "yard", "yard", "yard", true, 1, company, head);
+            //var test1 = new Department(-1, "", "IT", "IT", "IT", "IT", true, 1, company, head);
+            //var test2 = new Department(-1, "", "yard", "yard", "yard", "yard", true, 1, company, head);
 
-            //var testDepartments = new Department[]
-            //{
-            //    new Department(-1, "", "IT","IT","IT", "IT", true,1, company, head),
-            //    new Department(-1, "", "yard","yard","yard", "yard", true,1, company, head)
-            //};
-            return JsonSerializer.Serialize(test1);
+            var testDepartments = new Department[]
+            {
+                new Department(-1, "", "IT","IT","IT", "IT", true,1, company, head),
+                new Department(-1, "", "yard","yard","yard", "yard", true,1, company, head)
+            };
+
+
+            var departments = _storage.GetDepartments();
+
+
+            // to use with recursive referencing
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+            };
+            return JsonSerializer.Serialize(departments, options);
             // https://localhost:7019/api/v1/Staff/Departments
         }
     }
