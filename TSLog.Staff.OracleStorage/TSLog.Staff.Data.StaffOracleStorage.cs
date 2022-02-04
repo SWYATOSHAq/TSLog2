@@ -191,7 +191,8 @@ namespace TSLog.Staff.Data
                     $"       p.name, p.short_name, p.alt_name, p.display_name, " +
                     $"       p.is_active, p.display_order, " +
                     $"       p.is_linear, " +
-                    $"       p.note " +
+                    $"       p.cost, p.cost_currency_code," +
+                    $"       p.note" +
                     $"  from {StaffSchema}.stf_position#v p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
@@ -323,7 +324,7 @@ namespace TSLog.Staff.Data
                     $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
                     $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.parent_id, d.company_id, d.head_id," +
                     $"       d.note " +
                     $"  from {StaffSchema}.stf_department#v d " +
                     $" where d.id = :id";
@@ -1009,8 +1010,8 @@ namespace TSLog.Staff.Data
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
             var id = Utils.DbValueToInt(reader["id"]);
-            var from = Utils.DbValueToDateTime(reader["from_date"]);
-            var to = Utils.DbValueToDateTime(reader["to_date"]);
+            var from = Utils.DbValueToDateTime(reader["start_date"]);
+            var to = Utils.DbValueToDateTime(reader["finish_date"]);
             var workMode = Utils.DbValueToString(reader["work_mode"]);
             var note = Utils.DbValueToString(reader["note"]);
 
@@ -1046,6 +1047,7 @@ namespace TSLog.Staff.Data
             var shifts = new List<Shift>();
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectShiftsSql =
                     $"select s.id," +
                     $"       s.start_date, s.finish_date," +
