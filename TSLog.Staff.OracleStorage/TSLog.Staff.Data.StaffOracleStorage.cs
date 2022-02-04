@@ -358,7 +358,7 @@ namespace TSLog.Staff.Data
                     $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
                     $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.parent_id, d.company_id, d.head_id," +
                     $"       d.note " +
                     $"  from {StaffSchema}.stf_department#v d " +
                     $" where d.code = :code";
@@ -386,7 +386,7 @@ namespace TSLog.Staff.Data
                    $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
                     $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.parent_id, d.company_id, d.head_id," +
                     $"       d.note " +
                     $"  from {StaffSchema}.stf_department#v d";
                 command.CommandText = SelectDepartmentsSql;
@@ -568,6 +568,7 @@ namespace TSLog.Staff.Data
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var FindEmployeesSql =
                     $"select e.id, e.code," +
                     $"       e.surname, e.first_name, e.patronymic," +
@@ -617,6 +618,7 @@ namespace TSLog.Staff.Data
             var employees = new HashSet<Employee>();
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectEmployeeById =
                     $"select ep.employee_id" +
                     $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
@@ -665,6 +667,7 @@ namespace TSLog.Staff.Data
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectEmployeesSql =
                     $"select e.id, e.code," +
                     $"       e.surname, e.first_name, e.patronymic," +
@@ -1024,6 +1027,7 @@ namespace TSLog.Staff.Data
             Shift? shift = null;
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectShiftById =
                     $"select s.id," +
                     $"       s.from_date, s.to_date," +

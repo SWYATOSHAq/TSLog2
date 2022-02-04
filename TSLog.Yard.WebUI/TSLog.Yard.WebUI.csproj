@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<UserSecretsId>aspnet-TSLog.Yard.WebUI-8B27D027-82D7-4322-A048-5F29A7EDE09D</UserSecretsId>
+		<UserSecretsId>aspnet-TSLog.Yard.WebUI-8B27D027-82D7-4322-A048-5F29A7EDE09D</UserSecretsId>		
 	</PropertyGroup>
 
 	<ItemGroup>
