@@ -6,28 +6,34 @@ export class Card extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            cardType: "Смена",
+            cardType: "",
             isNew: true,
-            fieldList: {
-                From: "От",
-                To: "До",
-                WorkMode: "Тип работы",
-                Note: "Примечание"
-            },
-            fieldTypes: {
-                From: "datetime",
-                To: "datetime",
-                WorkMode: "text",
-                Note: "textarea"
-            },
-            currentValues: {
-                From: "2022-02-04T00:03:22",
-                Id: 100004,
-                Note: "hui",
-                To: "2022-02-04T06:03:22"
-            }
+            fieldList: {},
+            fieldTypes: {},
+            currentValues: {}
         };
     }
+
+    handleChange(section, event) {
+
+
+        this.setState(state => {
+            const cardType = state.cardType;
+            const isNew = state.isNew;
+            const fieldList = state.fieldList;
+            const fieldTypes = state.fieldTypes;
+
+            const currentValues = state.currentValues;
+            currentValues[section] = event.target.value;
+
+
+            //this.state.currentValues[section] = event.target.value;
+            return ({
+                cardType, isNew, fieldList, fieldTypes, currentValues
+            });
+        });
+    }
+
 
     render() {
 
@@ -35,7 +41,7 @@ export class Card extends Component {
 
         return (
             <div className="col-6 m-2 p-2">
-
+                {JSON.stringify(this.state.currentValues)}
                 <div className="card">
                     <div className="card-header">
                       <h4>
@@ -53,10 +59,10 @@ export class Card extends Component {
 
                             switch (this.state.fieldTypes[curRowKey]) {
                                 case "textarea":
-                                    inputType = (<textarea rows="1" className="form-control" value={inputValue}></textarea>);
+                                    inputType = (<textarea rows="1" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></textarea>);
                                     break;
                                 default:
-                                    inputType = (<input className="form-control" value={inputValue}></input>);
+                                    inputType = (<input className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
                                     break;
 
                             }
