@@ -268,7 +268,7 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_cost_currency", position.LaborHourCostCurrency.Code));
                 command.Parameters.Add(new OracleParameter("p_note", position.Note));
                 command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int16, ParameterDirection.Output));
-                command.ExecuteScalar();                
+                command.ExecuteScalar();
             }
             return position;
         }
@@ -278,7 +278,7 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(position));
             using var command = _connection.CreateCommand();
             command.BindByName = true;
-            var DeletePositionSql =                
+            var DeletePositionSql =
                 $"begin" +
                 $"    :l_state := {StaffSchema}.api_staff.delete_position(:p_id);" +
                 $"end;";
@@ -386,7 +386,7 @@ namespace TSLog.Staff.Data
                    $"select d.id, d.code, " +
                     $"       d.name, d.short_name, d.alt_name, d.display_name," +
                     $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
+                    $"       d.parent_id, d.company_id, d.head_id," +
                     $"       d.note " +
                     $"  from {StaffSchema}.stf_department#v d";
                 command.CommandText = SelectDepartmentsSql;
@@ -506,7 +506,7 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(department));
             using var command = _connection.CreateCommand();
             command.BindByName = true;
-            var DeleteDepartmentSql =                
+            var DeleteDepartmentSql =
                 $"begin" +
                 $"    :l_state := {StaffSchema}.api_staff.delete_department(:p_id);" +
                 $"end;";

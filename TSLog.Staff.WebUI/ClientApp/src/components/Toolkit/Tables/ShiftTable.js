@@ -1,4 +1,5 @@
 import { Table } from '../_Meta/Table';
+import { ShiftCard } from '../Cards/ShiftCard';
 
 export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
@@ -21,6 +22,7 @@ export class ShiftTable extends Table {
         return (
             <div>
                 <h1 id="tabelLabel" >смены</h1>
+                <ShiftCard/>
                 {table}
             </div>
         );

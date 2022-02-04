@@ -20,6 +20,9 @@ export class Table extends Component {
                                 return (<th key={i}>{headers[curRowKey]}</th>)
                             })
                         }
+
+                        <th className="col-1"></th>
+                        <th className="col-1"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,6 +54,9 @@ export class Table extends Component {
                                             return (<td key={i+"-"+j }>{cellData}</td>)
                                         })
                                     }
+
+                                    <td className="col-1"><button type="button" className="btn btn-outline-primary">Изменить</button></td>
+                                    <td className="col-1"><button type="button" className="btn btn-outline-danger">Удалить</button></td>
                                 </tr>
                             )
                         })

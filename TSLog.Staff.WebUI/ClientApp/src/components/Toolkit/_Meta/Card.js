@@ -5,24 +5,77 @@ export class Card extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { currentCount: 0 };
-        this.incrementCounter = this.incrementCounter.bind(this);
-    }
-
-    incrementCounter() {
-        this.setState({
-            currentCount: this.state.currentCount + 1
-        });
+        this.state = {
+            cardType: "Смена",
+            isNew: true,
+            fieldList: {
+                From: "От",
+                To: "До",
+                WorkMode: "Тип работы",
+                Note: "Примечание"
+            },
+            fieldTypes: {
+                From: "datetime",
+                To: "datetime",
+                WorkMode: "text",
+                Note: "textarea"
+            },
+            currentValues: {
+                From: "2022-02-04T00:03:22",
+                Id: 100004,
+                Note: "hui",
+                To: "2022-02-04T06:03:22"
+            }
+        };
     }
 
     render() {
+
+        let cardState = this.state.isNew ? "(новая)" : "(редактирование)";
+
         return (
-            <div>
-                <h1>Счетчик</h1>
+            <div className="col-6 m-2 p-2">
 
-                <p aria-live="polite">Текущее зничение: <strong>{this.state.currentCount}</strong></p>
+                <div className="card">
+                    <div className="card-header">
+                      <h4>
+                        {this.state.cardType} {cardState}
+                      </h4>
+                    </div>
+                    <div className="card-body">
 
-                <button className="btn btn-primary" onClick={this.incrementCounter}>Увеличить</button>
+                        {Object.keys(this.state.fieldList).map((curRowKey, i) => {
+                            let inputValue = "";
+                            if (curRowKey in this.state.currentValues)
+                                inputValue = this.state.currentValues[curRowKey];
+
+                            let inputType = null;
+
+                            switch (this.state.fieldTypes[curRowKey]) {
+                                case "textarea":
+                                    inputType = (<textarea rows="1" className="form-control" value={inputValue}></textarea>);
+                                    break;
+                                default:
+                                    inputType = (<input className="form-control" value={inputValue}></input>);
+                                    break;
+
+                            }
+
+                            return (
+                                <div className="input-group m-2" key={i}>
+                                    <div className="input-group-prepend col-4">
+                                        <span className="input-group-text">{this.state.fieldList[curRowKey]}</span>
+                                    </div>
+                                    {inputType}
+                                </div>
+                            )
+                        }) }
+
+                        <div className="d-flex justify-content-center">
+                            <button className="btn btn-success" type="button">сохранить</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
