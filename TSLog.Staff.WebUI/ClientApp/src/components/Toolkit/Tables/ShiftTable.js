@@ -8,10 +8,7 @@ export class ShiftTable extends Table {
 
 
         super(props);
-        this.setState({
-            selectedData: {},
-            data: [],
-        });
+        this.state = {};
     }
 
     updateSetValCallback = (childData) => {
@@ -71,6 +68,7 @@ export class ShiftTable extends Table {
 
         this.setState({
             selectedData: data[0],
+            data: data,
         });
 
     }

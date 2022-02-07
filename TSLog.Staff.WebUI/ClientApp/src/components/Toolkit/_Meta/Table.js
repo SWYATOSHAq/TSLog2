@@ -11,7 +11,7 @@ export class Table extends Component {
             headers: [],
             dataTypes: [],
             body: [[], []],
-            selectRow: (f) => { }
+            selectRow: (f) => { console.log("qwe " + f) },
         };
     }
 
