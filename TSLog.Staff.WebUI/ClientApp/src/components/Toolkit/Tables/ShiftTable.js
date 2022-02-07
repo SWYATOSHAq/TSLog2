@@ -8,7 +8,25 @@ export class ShiftTable extends Table {
 
 
         super(props);
+        this.setState({
+            selectedData: {},
+            data: [],
+        });
+    }
 
+    updateSetValCallback = (childData) => {
+        this.setState({ name: childData })
+    }
+
+    selectRowCallback = (e,index) => {
+        alert("fuck");
+        //this.setState(state => {
+        //    const data = state.data;
+        //    const selectedData = data[index];
+        //    return ({
+        //        data, selectedData
+        //    });
+        //});
     }
 
     componentDidMount() {
@@ -22,7 +40,8 @@ export class ShiftTable extends Table {
         return (
             <div>
                 <h1 id="tabelLabel" >смены</h1>
-                <ShiftCard/>
+                <h5>состояние активной записи таблицы: {JSON.stringify(this.state.selectedData)}</h5>
+                <ShiftCard selectedData={this.state.selectedData} updateSetValCallback={this.updateSetValCallback}/>
                 {table}
             </div>
         );
@@ -46,7 +65,12 @@ export class ShiftTable extends Table {
         super.setState({
             headers: { WorkMode: "Тип работы", From: "От", To: "До" },
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
-            body: data
+            body: data,
+            selectRow: this.selectRowCallback,
+        });
+
+        this.setState({
+            selectedData: data[0],
         });
 
     }

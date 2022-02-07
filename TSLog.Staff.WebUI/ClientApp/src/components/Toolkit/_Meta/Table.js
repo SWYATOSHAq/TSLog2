@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
+import { ChangeButton } from '../_Meta/ChangeButton';
+import { DeleteButton } from '../_Meta/DeleteButton';
 
 export class Table extends Component {
     static displayName = Table.name;
 
     constructor(props) {
         super(props);
-        this.state = { headers: [], dataTypes: [], body: [[], []] };
+        this.state = {
+            headers: [],
+            dataTypes: [],
+            body: [[], []],
+            selectRow: (f) => { }
+        };
     }
 
     static renderTable(headers, dataTypes, body) {
@@ -51,12 +58,18 @@ export class Table extends Component {
                                                 cellData = parsedDate.toLocaleTimeString();
                                             }
 
-                                            return (<td key={i+"-"+j }>{cellData}</td>)
+                                            return (<td key={i + "-" + j}>{cellData}</td>)
                                         })
                                     }
 
-                                    <td className="col-1"><button type="button" className="btn btn-outline-primary">Изменить</button></td>
-                                    <td className="col-1"><button type="button" className="btn btn-outline-danger">Удалить</button></td>
+                                    <td className="col-1">
+                                        <ChangeButton SelectRow={
+                                            this.state === undefined ? (f) => { console.log("bruh " + f) } : this.state.selectRow
+                                        } rowIndex={i} />
+                                    </td>
+                                    <td className="col-1">
+                                        <DeleteButton />
+                                    </td>
                                 </tr>
                             )
                         })

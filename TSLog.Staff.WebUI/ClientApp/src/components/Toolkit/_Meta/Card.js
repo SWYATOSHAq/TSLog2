@@ -10,7 +10,8 @@ export class Card extends Component {
             isNew: true,
             fieldList: {},
             fieldTypes: {},
-            currentValues: {}
+            currentValues: {},
+            syncVal: (a) => {},
         };
     }
 
@@ -22,6 +23,7 @@ export class Card extends Component {
             const isNew = state.isNew;
             const fieldList = state.fieldList;
             const fieldTypes = state.fieldTypes;
+            const syncVal = state.syncVal;
 
             const currentValues = state.currentValues;
             currentValues[section] = event.target.value;
@@ -29,7 +31,7 @@ export class Card extends Component {
 
             //this.state.currentValues[section] = event.target.value;
             return ({
-                cardType, isNew, fieldList, fieldTypes, currentValues
+                cardType, isNew, fieldList, fieldTypes, currentValues, syncVal
             });
         });
     }
