@@ -82,7 +82,9 @@ namespace TSLog.Staff.WebUI.Controllers
         }
 
         #endregion
+
         // -----------------------------
+
         #region Create/Update
         [HttpPost("Shift")]
         [ProducesResponseType(StatusCodes.Status201Created)]

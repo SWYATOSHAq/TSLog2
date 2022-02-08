@@ -28,6 +28,7 @@ export class Card extends Component {
             const currentValues = state.currentValues;
             currentValues[section] = event.target.value;
 
+            syncVal(currentValues);
 
             //this.state.currentValues[section] = event.target.value;
             return ({
@@ -43,7 +44,7 @@ export class Card extends Component {
 
         return (
             <div className="col-6 m-2 p-2">
-                {JSON.stringify(this.state.currentValues)}
+
                 <div className="card">
                     <div className="card-header">
                       <h4>
@@ -54,7 +55,7 @@ export class Card extends Component {
 
                         {Object.keys(this.state.fieldList).map((curRowKey, i) => {
                             let inputValue = "";
-                            if (curRowKey in this.state.currentValues)
+                            if (this.state.currentValues != undefined && curRowKey in this.state.currentValues)
                                 inputValue = this.state.currentValues[curRowKey];
 
                             let inputType = null;

@@ -23,7 +23,7 @@ export class EmployeesTable extends Table {
     }
 
     async LoadData() {
-        const response = await fetch('/api/v1/Staff/Employees');
+        const response = await fetch('/api/v1/Staff/Employee');
         const data = await response.json();
         console.log(data);
 

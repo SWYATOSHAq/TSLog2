@@ -8,18 +8,17 @@ export class Table extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            headers: [],
-            dataTypes: [],
+            headers: {},
+            dataTypes: {},
             body: [[], []],
             selectRow: (f) => { console.log("qwe " + f) },
         };
     }
 
-    static renderTable(headers, dataTypes, body) {
-        console.log(headers);
-        console.log(body);
+    static renderTable(headers, dataTypes, body, changeCallback) {
         return (
-            <table className='table table-striped' aria-labelledby="tabelLabel">
+            <table className='table table-striped' aria-labelledby="tabelLabel" key={this.state === undefined}>
+
                 <thead>
                     <tr>
                         {
@@ -63,9 +62,9 @@ export class Table extends Component {
                                     }
 
                                     <td className="col-1">
-                                        <ChangeButton SelectRow={
-                                            this.state === undefined ? (f) => { console.log("bruh " + f) } : this.state.selectRow
-                                        } rowIndex={i} />
+                                        <ChangeButton
+                                            SelectRow={changeCallback}
+                                            rowIndex={i} />
                                     </td>
                                     <td className="col-1">
                                         <DeleteButton />
@@ -81,7 +80,8 @@ export class Table extends Component {
     }
 
     render() {
-        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body);
+        //this.state.selectRow("--");
+        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body, this.state.selectRow);
         return (
             <div>
                 {contents}

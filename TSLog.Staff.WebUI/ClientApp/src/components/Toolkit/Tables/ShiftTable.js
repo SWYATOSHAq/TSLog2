@@ -8,22 +8,27 @@ export class ShiftTable extends Table {
 
 
         super(props);
-        this.state = {};
+        //this.state = {};
     }
 
     updateSetValCallback = (childData) => {
         this.setState({ name: childData })
     }
 
-    selectRowCallback = (e,index) => {
-        alert("fuck");
-        //this.setState(state => {
-        //    const data = state.data;
-        //    const selectedData = data[index];
-        //    return ({
-        //        data, selectedData
-        //    });
-        //});
+    selectRowCallback = (index, e) => {
+        console.log(index);
+        console.log(this.state.activeRowIndex);
+        console.log(this.state.body[this.state.activeRowIndex]);
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+            const selectRow = state.selectRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, activeRowIndex: index,
+            });
+        });
     }
 
     componentDidMount() {
@@ -37,38 +42,23 @@ export class ShiftTable extends Table {
         return (
             <div>
                 <h1 id="tabelLabel" >смены</h1>
-                <h5>состояние активной записи таблицы: {JSON.stringify(this.state.selectedData)}</h5>
-                <ShiftCard selectedData={this.state.selectedData} updateSetValCallback={this.updateSetValCallback}/>
+                <h5>состояние активной записи таблицы: {JSON.stringify(this.state.body[this.state.activeRowIndex])}</h5>
+                <ShiftCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
                 {table}
             </div>
         );
     }
 
     async LoadData() {
-        //const response = await fetch('weatherforecast');
-        //const data = await response.json();
-        //console.log(data);
-
-        //super.setState({
-        //    headers: { date: "Дата", summary: "Итог" , temperatureC: "Темп. С", temperatureF: "Темп. F"},
-        //    dataTypes: { date: "datetime", summary: "string", temperatureC: "int", temperatureF: "int" },
-        //    body: data
-        //});
-
-        const response = await fetch('/api/v1/Staff/Shifts');
+        const response = await fetch('/api/v1/Staff/Shift');
         const data = await response.json();
-        console.log(data);
-
-        super.setState({
+        //console.log(data);
+        this.setState({
             headers: { WorkMode: "Тип работы", From: "От", To: "До" },
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
             body: data,
             selectRow: this.selectRowCallback,
-        });
-
-        this.setState({
-            selectedData: data[0],
-            data: data,
+            activeRowIndex: 0,
         });
 
     }

@@ -16,8 +16,8 @@ export class ShiftCard extends Card {
         let card = super.render();
 
         return (
-            <div key={this.props.selectedData}>
-                fffffffff {JSON.stringify(this.props.selectedData)}
+            <div>
+                состояние shift card: {JSON.stringify(this.props.selectedData)}
                 <p>ShiftCard</p>
                 {card}
 
@@ -32,10 +32,10 @@ export class ShiftCard extends Card {
         //const selCard = this.props.selCard;
         //console.log(selCard);
 
-        const selCard = {};
-        //const selCard = this.props.selectedData;
+        //const selCard = {};
+        const selCard = this.props.selectedData;
 
-        const isNew = selCard == {};
+        const isNew = selCard === {};
         super.setState({
             cardType: "Смена",
             isNew: isNew,

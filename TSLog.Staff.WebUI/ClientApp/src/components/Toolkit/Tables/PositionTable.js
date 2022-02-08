@@ -23,7 +23,7 @@ export class PositionTable extends Table {
     }
 
     async LoadData() {
-        const response = await fetch('/api/v1/Staff/Positions');
+        const response = await fetch('/api/v1/Staff/Position');
         const data = await response.json();
         console.log(data);
 

@@ -24,7 +24,7 @@ export class DepartmentTable extends Table {
     }
 
     async LoadData() {
-        const response = await fetch('/api/v1/Staff/Departments');
+        const response = await fetch('/api/v1/Staff/Department');
         const data = await response.json();
         console.log(data);
 
