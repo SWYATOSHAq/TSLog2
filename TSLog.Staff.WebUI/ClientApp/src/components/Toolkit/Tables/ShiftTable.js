@@ -5,10 +5,7 @@ export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
 
     constructor(props) {
-
-
         super(props);
-        //this.state = {};
     }
 
     updateSetValCallback = (childData) => {
@@ -16,6 +13,20 @@ export class ShiftTable extends Table {
     }
 
     selectRowCallback = (index, e) => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: index,
+            });
+        });
+    }
+
+    deleteRowCallback = (index, e) => {
         console.log(index);
         console.log(this.state.activeRowIndex);
         console.log(this.state.body[this.state.activeRowIndex]);
@@ -23,10 +34,15 @@ export class ShiftTable extends Table {
             const headers = state.headers;
             const dataTypes = state.dataTypes;
             const body = state.body;
+
+            body.splice(index, 1); // remove 1 element by index
+
             const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+            const activeRowIndex = state.activeRowIndex;
 
             return ({
-                headers, dataTypes, body, selectRow, activeRowIndex: index,
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex,
             });
         });
     }
@@ -42,7 +58,6 @@ export class ShiftTable extends Table {
         return (
             <div>
                 <h1 id="tabelLabel" >смены</h1>
-                <h5>состояние активной записи таблицы: {JSON.stringify(this.state.body[this.state.activeRowIndex])}</h5>
                 <ShiftCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
                 {table}
             </div>
@@ -58,6 +73,7 @@ export class ShiftTable extends Table {
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
             body: data,
             selectRow: this.selectRowCallback,
+            deleteRow: this.deleteRowCallback,
             activeRowIndex: 0,
         });
 

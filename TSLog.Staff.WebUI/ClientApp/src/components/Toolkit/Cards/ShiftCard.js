@@ -17,8 +17,6 @@ export class ShiftCard extends Card {
 
         return (
             <div>
-                состояние shift card: {JSON.stringify(this.props.selectedData)}
-                <p>ShiftCard</p>
                 {card}
 
             </div>

@@ -11,13 +11,15 @@ export class Table extends Component {
             headers: {},
             dataTypes: {},
             body: [[], []],
-            selectRow: (f) => { console.log("qwe " + f) },
+            activeRowIndex: 0,
+            selectRow: (f) => {  },
+            deleteRow: (f) => {  },
         };
     }
 
-    static renderTable(headers, dataTypes, body, changeCallback) {
+    static renderTable(headers, dataTypes, body, changeCallback, deleteCallback, activeRowIndex) {
         return (
-            <table className='table table-striped' aria-labelledby="tabelLabel" key={this.state === undefined}>
+            <table className='table table-hover' aria-labelledby="tabelLabel" key={this.state === undefined}>
 
                 <thead>
                     <tr>
@@ -36,7 +38,7 @@ export class Table extends Component {
                     {
                         body.map((curRow, i) => {
                             return (
-                                <tr key={i}>
+                                <tr key={i} className={activeRowIndex === i ? "bg-light" : "" }>
                                     {
                                         Object.keys(headers).map((curRowKey, j) => {
                                             var curDataType = dataTypes[curRowKey];
@@ -64,10 +66,14 @@ export class Table extends Component {
                                     <td className="col-1">
                                         <ChangeButton
                                             SelectRow={changeCallback}
-                                            rowIndex={i} />
+                                            rowIndex={i}
+                                        />
                                     </td>
                                     <td className="col-1">
-                                        <DeleteButton />
+                                        <DeleteButton
+                                            DeleteRow={deleteCallback}
+                                            rowIndex={i}
+                                        />
                                     </td>
                                 </tr>
                             )
@@ -81,7 +87,7 @@ export class Table extends Component {
 
     render() {
         //this.state.selectRow("--");
-        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body, this.state.selectRow);
+        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body, this.state.selectRow, this.state.deleteRow, this.state.activeRowIndex);
         return (
             <div>
                 {contents}
