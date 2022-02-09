@@ -1,0 +1,19 @@
+﻿@using TSLog.Yard.WebUI.Models
+
+@model FieldsModel
+@{
+    var elements = Model.Elements;
+}
+
+@foreach (var element in elements)
+{
+    <div class="row p-2 m-2 rem-outline-on-print">
+        <div class="input-group">
+            <span class="input-group-text col-3">@element.Caption</span>
+            <textarea rows="5" 
+                id="@element.Code" 
+                aria-label="@element.Caption" 
+                class="form-control" @(element.IsEnabled ? string.Empty : "disabled")>@element.Value</textarea>
+        </div>
+    </div>
+}

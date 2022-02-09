@@ -97,7 +97,8 @@ function SelectTime(time, cellId) {
 
             if ($("." + nextTrailBlock).length == 0) {
                 erorOccuredCount++;
-            } else {
+            }
+            else {
                 if ($("." + nextTrailBlock).prop("disabled")) {
                     erorOccuredCount++;
                 }
@@ -113,15 +114,17 @@ function SelectTime(time, cellId) {
                 //if (erorOccuredCount == trail_length) {
                 $("#eror-text p").text("Врямя недоступно из за типа операции, выберите другой промежуток времени или тип операции");
 
-            } else {
+            }
+            else {
                 $("#eror-text p").text("Врямя уже занято, выберите другой промежуток времени");
             }
             erorOccuredCount = 0;
             state.time = 0;
-        } else {
+        }
+        else {
             $("#eror-text").addClass("d-none");
             state.time = time;
-            $("#text_operation_time").text($("#text_operation_time").text().split(" (")[0] + " ( выбранное время: " + time + ")");
+            $("#text_operation_time").text($("#text_operation_time").text().split(" (")[0] + " (выбранное время: " + time + ")");
         }
     };
 }

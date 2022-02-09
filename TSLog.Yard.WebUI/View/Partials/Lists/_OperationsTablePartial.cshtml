@@ -1,10 +1,11 @@
 ﻿@using TSLog.Partners.BO
 @using TSLog.Staff.BO
 @using TSLog.Yard.BO
-@model (Operation[], bool)
-@{
-    var operations = Model.Item1;
+@using TSLog.Yard.WebUI.Models
 
+@model OperationsModel
+@{
+    var operations = Model.Operations;
 }
 <meta http-equiv="refresh" content="60">  
 <style>
@@ -12,25 +13,20 @@
         text-align: center;
         font-size: 1.5em;
     }
-
     td {
         text-align: right;
         background-color: rgb(122, 122, 122);
         font-size: 1.2em;
     }
-
     .color-orange {
         background-color: rgb(255, 222, 161) !important;
     }
-
     .color-green {
         background-color: rgb(158, 255, 158) !important;
     }
-
     .color-yellow {
         background-color: rgb(255, 255, 158) !important;
     }
-
     .container {
         max-width: 100% !important;
     }
@@ -67,7 +63,7 @@
                     <td>@operation.DriverName</td>
                     <td>@(Partner.Serialize(operation.GetPartners()))</td>
                     <td>@operation.Type.DisplayName</td>
-                    <td>@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : "")</td>
+                    <td>@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty)</td>
                     <td>@operation.Note</td>
                     <td>@operation.StartDate.ToString(@"dd.MM.yyyy")</td>
                     <td>@operation.StartDate.ToString(@"HH\:mm")</td>
@@ -75,14 +71,10 @@
                     <td style="background-color: @operation.DisplayColor !important; box-shadow:none">
                         <button class="btn btn-outline-info m-3" onclick="location.href='/p/dispatcher/DispatcherHome?id=@operation.Id'">открыть</button>
                         <p>@operation.State.DisplayName</p>
-                        </td>
+                    </td>
                 </tr>
-
                 i++;
             }
-
-
-
         </tbody>
     </table>
 </div>

@@ -1,15 +1,14 @@
 ﻿@page "/ActiveCarsDispersal"
-@using TSLog.Partners.BO
 @using TSLog.Yard.BO
-@using TSLog.Yard.Reporting
-@using static TSLog.Yard.BO.OperationType
+@using TSLog.Yard.WebUI.Models
+
 @model ActiveCarsDispersalModel
-
-
 @{
     ViewData["Title"] = "Активные машины";
-    var storage = Model.yardStorage;
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
 
-    var operationsList = (storage.GetActiveOperations(), false);
+    var operations = storage.GetActiveOperations();
+    var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
-<partial name="toolkit/lists/_OperationsTablePartial" model="operationsList" />
+<partial name="Partials/Lists/_OperationsTablePartial" model="operationsModel" />

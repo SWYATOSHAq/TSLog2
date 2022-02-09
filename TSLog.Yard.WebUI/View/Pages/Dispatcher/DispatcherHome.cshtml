@@ -1,12 +1,13 @@
 ﻿@page "/DispatcherHome"
-@using TSLog.Yard.BO
-@model DispatcherHomeModel
+@using TSLog.Yard.WebUI.Models
 
+@model DispatcherHomeModel
 @{
     ViewData["Title"] = "Панель администратора";
 
-    var storage = Model.yardStorage;
-    var home = (storage, true, Request);    
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var homeModel = new HomePartialModel(rightsChecker, storage, true, Request);    
 }
 
-<partial name="Toolkit/_HomePartial" model="home" />
+<partial name="Partials/_HomePartial" model="homeModel" />

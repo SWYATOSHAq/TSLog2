@@ -1,0 +1,25 @@
+﻿@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
+@model VehicleKindsModel
+@{
+    var kinds = Model.VehicleKinds;
+    var selectedKind = Model.SelectedKind;
+    var isEnabled = Model.IsEnabled;
+    var isSmall = Model.IsSmall;
+    var defaultText = Model.DefaultText;
+
+    if (string.IsNullOrWhiteSpace(defaultText))
+        defaultText = "Тип машины не выбран";
+}
+
+<div class="input-group">
+    <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Тип машины*</span>
+    <select id="vehicle_kind" class="form-select" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+    <option value="">@defaultText</option>
+    @foreach (var kind in kinds)
+    {
+       @: <option value="@kind.Code" @((kind.Code == selectedKind) ? "selected" : string.Empty)>@kind.DisplayName</option>
+    }
+    </select>
+</div>

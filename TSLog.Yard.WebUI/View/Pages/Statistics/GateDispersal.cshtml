@@ -1,28 +1,20 @@
 ﻿@page "/GateDispersal"
 @using TSLog.Yard.BO
-@using static TSLog.Yard.BO.OperationType
+@using TSLog.Yard.WebUI.Models
+
 @model GateDispersalModel
 @{
-    ViewData["Title"] = "распределение людей по воротам";
-    var storage = Model.yardStorage;
-
-    // create new object
-    //Operation selectedYardOperation = Operation.Empty;
-
-    //var operationToRender = (selectedYardOperation, storage, true, false);
+    ViewData["Title"] = "Распределение людей по воротам";
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
 
     var displayCollumns = new List<string>();
     int startTime = 9;
     int endTime = 21;
     // 9-21 period
 
-    string strDate = Request.Query["date"];
-    DateTime date;
-
-    if (strDate == null)
-        date = DateTime.Today;
-    else
-        date = DateTime.Parse(strDate);
+    string _date = Request.Query["date"];
+    var date = string.IsNullOrWhiteSpace(_date) ? DateTime.Today : DateTime.Parse(_date);
 
     var dayStart = date.AddHours(startTime);
     var dayEnd = dayStart.AddHours(endTime - startTime);
@@ -31,29 +23,24 @@
 
     dayInterval.AddOperations(operations);
     var intervals = dayInterval.Split();
-    //
+    
     // count statsitics about amount of personal per gates
-
-    var gatesData = dayInterval.MaxParallelGateWorkers(); // data to display as overall summ of workers
-    var gatesList = gatesData.Keys.ToList();
-    gatesList.Sort();
+    var data = dayInterval.MaxParallelGateWorkers(); // data to display as overall summ of workers
+    var gates = data.Keys.ToList();
+    gates.Sort();
 
     displayCollumns.Add("Пропускн. машин"); // add first collumn with amount of cars per period
 
-    foreach (var gate in gatesList) // additional collumns
+    foreach (var gate in gates)
         displayCollumns.Add(gate == Gate.Null ? "не проставлены" : gate.DisplayName);
-
 }
 
-<div class="row p-2 hide-on-print">
-    Выберете дату:
-</div>
+<div class="row p-2 hide-on-print">Выберете дату:</div>
 <div class="row p-2 m-3">
-    <!--  -->
-    <input type="text" id="dp1" class="datepicker border border-secondary hide-on-print " placeholder="Выберете дату" ne="date" readonly=""><span class="fa fa-calendar"></span>
-    <!--  -->
-    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3" type="button" onclick="OpenGateStatisticsByDate()">применить</button>
-    <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3" type="button" onclick="PrintStatisticsTables()">печать</button>
+    <input type="text" id="dp1" class="datepicker border border-secondary hide-on-print " placeholder="Выберете дату" ne="date" readonly="">
+    <span class="fa fa-calendar"></span>
+    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3" type="button" onclick="OpenGateStatisticsByDate()">Применить</button>
+    <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3" type="button" onclick="PrintStatisticsTables()">Печать</button>
 </div>
 <div class="my-5 shadow statistics-table">
     <table class="table table-light table-bordered table-striped">
@@ -83,54 +70,46 @@
             @foreach (var item in intervals)
             {
                 <tr>
-                    <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
-                    <td class="h5">@(item.OperationsCount > 0 ? item.OperationsCount : "")</td>
+                    <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">Печать</button></th>
+                    <td class="h5">@(item.OperationsCount > 0 ? item.OperationsCount : string.Empty)</td>
                     <td>
                         @{
-                            var inMaxParallelOperations = item.MaxParallelOperations(TypeDirection.In);
+                            var inMaxParallelOperations = item.MaxParallelOperations(OperationType.TypeDirection.In);
                         }
-                        @(inMaxParallelOperations > 0 ? inMaxParallelOperations : "")
+                        @(inMaxParallelOperations > 0 ? inMaxParallelOperations : string.Empty)
                     </td>
                     <td>
                         @{
-                            var outMaxParallelOperations = @item.MaxParallelOperations(TypeDirection.Out);
+                            var outMaxParallelOperations = @item.MaxParallelOperations(OperationType.TypeDirection.Out);
                         }
-                        @(outMaxParallelOperations > 0 ? outMaxParallelOperations : "")
+                        @(outMaxParallelOperations > 0 ? outMaxParallelOperations : string.Empty)
                     </td>
-
                     @{
-                        var tmpWorkersIn = item.MaxParallelGateWorkers(TypeDirection.In);
-                        var tmpWorkersOut = item.MaxParallelGateWorkers(TypeDirection.Out);
+                        var tmpWorkersIn = item.MaxParallelGateWorkers(OperationType.TypeDirection.In);
+                        var tmpWorkersOut = item.MaxParallelGateWorkers(OperationType.TypeDirection.Out);
 
                     }
-
-                    @foreach (var curGate in gatesList)
+                    @foreach (var gate in gates)
                     {
                         <td>
-
-                            @if (tmpWorkersIn.ContainsKey(curGate))
+                            @if (tmpWorkersIn.ContainsKey(gate))
                             {
-                                @tmpWorkersIn[curGate]
+                                @tmpWorkersIn[gate]
                             }
                         </td>
                         <td>
-
-                            @if (tmpWorkersOut.ContainsKey(curGate))
+                            @if (tmpWorkersOut.ContainsKey(gate))
                             {
-                                @tmpWorkersOut[curGate]
+                                @tmpWorkersOut[gate]
                             }
                         </td>
                     }
                 </tr>
-
                 i++;
             }
         </tbody>
     </table>
-
-
 </div>
-
 <div class="my-5 shadow w-25 statistics-table">
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
@@ -139,18 +118,16 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var gate in gatesList)
+            @foreach (var gate in gates)
             {
                 <tr>
                     <td class="text-right">@gate.DisplayName</td>
-                    <td>@gatesData[gate]</td>
+                    <td>@data[gate]</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
-
-
 <div id="to-print">
     @{
         i = 0;
@@ -159,8 +136,7 @@
     @foreach (var interval in intervals)
     {
         <div class="interval-print interval-print-@i show-on-print">
-            <div>период времени: <b> @interval.GetFormattedTimeString() </b></div>
-
+            <div>период времени: <b> @interval.GetFormattedTimeString()</b></div>
             @{
                 j = 1;
             }
@@ -171,42 +147,13 @@
                 {
                     pageBreakClass = "page-break-after";
                 }
-                var operationToRender = (operation, storage, false, true);
+                var operationModel = new OperationModel(rightsChecker, storage, operation, false, true);
                 <div class="operation @pageBreakClass">
-                    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+                    <partial name="Partials/_OperationPartial" model="operationModel" />
                 </div>
                 j++;
             }
         </div>
-
-        //<div>
-        //    <div>@item.GetFormattedTimeString()</div>
-        //    <div>@item.MaxParallelOperations(TypeDirection.In)</div>
-        //    <div>@item.MaxParallelOperations(TypeDirection.Out)</div>
-
-        //    @{
-        //        var tmpWorkersIn = item.MaxParallelPositionWorkers(TypeDirection.In);
-        //        var tmpWorkersOut = item.MaxParallelPositionWorkers(TypeDirection.Out);
-        //    }
-
-        //    @foreach (var curWorker in workers)
-        //    {
-        //        <div>
-        //            @if (tmpWorkersIn.ContainsKey(curWorker))
-        //            {
-        //                @tmpWorkersIn[curWorker]
-        //            }
-        //        </div>
-        //        <div>
-        //            @if (tmpWorkersOut.ContainsKey(curWorker))
-        //            {
-        //                @tmpWorkersOut[curWorker]
-        //            }
-        //        </div>
-        //    }
-        //</div>
-
         i++;
     }
-
 </div>

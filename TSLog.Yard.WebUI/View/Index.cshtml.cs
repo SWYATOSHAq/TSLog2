@@ -1,13 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using TSLog.Authorization;
+using TSLog.Yard.BO;
 
-namespace TSLog.Yard.WebUI.Pages
+namespace TSLog.Yard.WebUI.Models
 {
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        public IndexModel(ILogger<IndexModel> logger)
+        public RightsChecker RightsChecker { get; private set; }
+        public IYardStorage Storage { get; private set; }
+        public IndexModel(ILogger<IndexModel> logger, RightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
+            RightsChecker = rightsChecker;
+            Storage = storage;            
         }
         public void OnGet()
         { }

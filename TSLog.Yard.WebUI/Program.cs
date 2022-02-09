@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using TSLog.Authorization;
 using TSLog.Yard;
 using TSLog.Yard.BO;
 using TSLog.Yard.WebUI.Data;
@@ -61,6 +63,12 @@ storage.SetPgsqlYardSchema(pgsqlYardSchema);
 
 builder.Services.AddSingleton<IYardStorage>(storage);
 
+var rightsChecker = new RightsChecker();
+builder.Services.AddSingleton<RightsChecker>(rightsChecker);
+var programFileName = Assembly.GetExecutingAssembly().Location;
+var programDirectory = Path.GetDirectoryName(programFileName) ?? throw new Exception("Rights file not found");
+var rightsFileName = Path.Combine(programDirectory, "rights.xml");
+rightsChecker.GetRights(rightsFileName);
 
 var app = builder.Build();
 

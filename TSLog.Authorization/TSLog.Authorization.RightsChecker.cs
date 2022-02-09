@@ -1,0 +1,74 @@
+﻿using System.Security.Claims;
+using System.Xml;
+
+namespace TSLog.Authorization
+{
+    /// <summary>
+    /// Класс для проверки прав пользователя
+    /// </summary>
+    public class RightsChecker
+    {
+        private readonly IDictionary<string, Role> _roles = new Dictionary<string, Role>();
+        private void ParseRole(XmlReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var roleCode = reader.GetAttribute("code") ?? string.Empty;
+            var roleName = reader.GetAttribute("name") ?? string.Empty;
+            var roleGroupName = reader.GetAttribute("groupName") ?? string.Empty;
+            if (!_roles.ContainsKey(roleCode))
+                _roles.Add(roleCode, new Role(roleCode, roleName, roleGroupName));
+            var role = _roles[roleCode];
+            while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    if (reader.Name == "right")
+                    {
+                        var rightCode = reader.GetAttribute("code") ?? string.Empty;
+                        if (!role.Rights.Contains(rightCode))
+                            role.Rights.Add(rightCode);
+                        reader.Read();
+                    }
+                    else
+                        reader.Read();
+                }
+                if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "role")
+                    break;
+                else
+                    reader.Read();
+            }
+        }
+        public void GetRights(string fileName)
+        {
+            _roles.Clear();
+            using var reader = XmlReader.Create(fileName);
+            while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    if (reader.Name == "role")
+                        ParseRole(reader);
+                    else
+                        reader.Read();
+                }
+                else
+                    reader.Read();
+            }
+            reader.Close();
+        }
+
+        public bool CheckRight(string right, ClaimsPrincipal user)
+        {
+            if (string.IsNullOrWhiteSpace(right))
+                return false;
+            right = right.Trim().ToUpper();
+            var rights = new HashSet<string>();
+            foreach (var role in _roles.Values)
+                if (user.IsInRole(role.GroupName))
+                    rights.UnionWith(role.Rights);                        
+
+            return rights.Contains(right);
+        }
+    }
+}

@@ -2,53 +2,30 @@
 @using TSLog.Partners.BO
 @using TSLog.Yard.BO
 @using TSLog.Yard.Reporting
-@using static TSLog.Yard.BO.OperationType
+@using TSLog.Yard.WebUI.Models
+
 @model ClientReportDispersalModel
 @{
-    ViewData["Title"] = "отчет по затратам по клиентам";
-    var storage = Model.yardStorage;
+    ViewData["Title"] = "Отчет по затратам по клиентам";
+    var storage = Model.Storage;
 
     string partner = Request.Query["partner"];
     var selectedPartner = partner == null ? Partner.Null : storage.GetPartner(partner);
 
-
-    string start_date = Request.Query["start_date"];
-    string end_date = Request.Query["end_date"];
-
-    DateTime startDate;
-    DateTime endDate;
-
-    if (start_date == null)
-        startDate = DateTime.Today;
-    else
-        startDate = DateTime.Parse(start_date);
-
-    if (end_date == null)
-        endDate = DateTime.Today;
-    else
-        endDate = DateTime.Parse(end_date);
-
+    string _startDate = Request.Query["start_date"];
+    string _endDate = Request.Query["end_date"];
+    var startDate = string.IsNullOrWhiteSpace(_startDate) ? DateTime.Today : DateTime.Parse(_startDate);
+    var endDate = string.IsNullOrWhiteSpace(_endDate) ? DateTime.Today : DateTime.Parse(_endDate);
     endDate = endDate.AddDays(1).AddSeconds(-1);
 
-    var reportData = new ClientReport(storage, selectedPartner, startDate, endDate);
-
-    var partnerList = (storage.GetPartners(),
-    false,
-    true,
-    selectedPartner.Code,
-    "Выберете партнера"
-    );
+    var report = new ClientReport(storage, selectedPartner, startDate, endDate);
+    var partnersModel = new PartnersModel(storage.GetPartners(), false, true, selectedPartner.Code, "Выберете партнера");
 }
 
 <div class="row p-2 hide-on-print">
-    <div class="col p-2 hide-on-print">
-        Выберете начальную дату:
-    </div>
-    <div class="col p-2 hide-on-print">
-        Выберете конечную дату:
-    </div>
-    <div class="col p-2 hide-on-print">
-    </div>
+    <div class="col p-2 hide-on-print">Выберете начальную дату:</div>
+    <div class="col p-2 hide-on-print">Выберете конечную дату:</div>
+    <div class="col p-2 hide-on-print"></div>
 </div>
 <div class="row p-1 hide-on-print client-report">
     <div class="col">
@@ -58,7 +35,7 @@
         <input type="text" id="dp2" class="datepicker border border-secondary hide-on-print" placeholder="Выберете дату" ne="date" readonly=""><span class="fa fa-calendar"></span>
     </div>
     <div class="col" id="partner-filter">
-        <partial name="toolkit/lists/_PartnerDropdownPartial" model="partnerList" />
+        <partial name="Partials/Lists/_PartnersDropdownPartial" model="partnersModel" />
     </div>
 </div>
 <div class="row p-2 m-1">
@@ -66,7 +43,7 @@
     <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-1" type="button" onclick="PrintStatisticsTables()">печать</button>
 </div>
 <h2>
-    @startDate.ToShortDateString() - @endDate.ToShortDateString() @(selectedPartner == Partner.Null ? "" : selectedPartner.DisplayName)
+    @startDate.ToShortDateString() - @endDate.ToShortDateString() @(selectedPartner == Partner.Null ? string.Empty : selectedPartner.DisplayName)
 </h2>
 <div class="my-5 shadow statistics-table">
 
@@ -85,7 +62,7 @@
                 var sumLaborCost = 0;
                 var sumCost = 0.0;
             }
-            @foreach (var row in reportData.Elements)
+            @foreach (var row in report.Elements)
             {
                 <tr>
                     <th>@i</th>
@@ -93,7 +70,6 @@
                     <td>@(new TimeSpan(0, 0, row.LaborCost).ToString(@"hh\:mm\:ss"))</td>
                     <td>@(String.Format("{0:0,0.##}", @row.Cost))</td>
                 </tr>
-
                 i++;
                 sumLaborCost += row.LaborCost;
                 sumCost += row.Cost;
@@ -104,7 +80,6 @@
                 <td>@(new TimeSpan(0, 0, sumLaborCost).ToString(@"hh\:mm\:ss"))</td>
                 <td>@(String.Format("{0:0,0.##}", sumCost))</td>
             </tr>
-
         </tbody>
     </table>
 </div>

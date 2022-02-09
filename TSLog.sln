@@ -71,7 +71,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Authorization", "TSLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.Test", "TSLog.Staff.Test\TSLog.Staff.Test.csproj", "{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.AD.Test", "TSLog.AD.Test\TSLog.AD.Test.csproj", "{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.AD.Test", "TSLog.AD.Test\TSLog.AD.Test.csproj", "{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

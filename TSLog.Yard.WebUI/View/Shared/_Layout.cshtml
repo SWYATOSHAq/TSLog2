@@ -1,23 +1,21 @@
 ﻿@using Microsoft.Extensions.Configuration
 @using System.Security.Principal
-@using System.DirectoryServices.ActiveDirectory
-@using System.DirectoryServices
+@using TSLog.Authorization
 @using TSLog.Yard.WebUI.Pages
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject IConfiguration Configuration
 @{
+    var rightsChecker = Model.RightsChecker;
+
     var isDebug = Configuration.GetValue<bool>("IsDebug");
-    var debugTextTag = "(DEBUG " + User.Identity.Name + ")";
+    var userName = User.Identity.Name;
+    var debugTextTag = $"(DEBUG {userName})";    
 
-    var aType = User.Identity.AuthenticationType;
-    var isAdmin = User.IsInRole("YardAdministrators");
-    var isManager = User.IsInRole("Managers");
-    var isAdmin2 = User.IsInRole("/ROOT/access_group/Yard/YardAdministrators");
-    var isRedmineUser = User.IsInRole("redmine_users");
-
-    var x = 0;
+    var createOperation = true || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var viewStaffPlan = true || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
+    var viewGatesPlan = true || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
+    var viewPartnersReport = true || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    var viewActiveOperations = true || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -33,8 +31,7 @@
         @ViewData["Title"]
     </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css">
-
+    <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TSLog.Yard.WebUI.styles.css" asp-append-version="true" />
 </head>
@@ -43,8 +40,16 @@
     <header class="hide-on-print">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index"> <img src="/img/logo-min.png" alt="TSL"></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">
+                    <img src="/img/logo-min.png" alt="TSL">
+                </a>
+                <button class="navbar-toggler" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target=".navbar-collapse" 
+                    aria-controls="navbarSupportedContent" 
+                    aria-expanded="false" 
+                    aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -52,25 +57,39 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="/DispatcherHome">ЛК TSL</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/NewRequest">Cоздать запрос</a>
-                        </li>
+                        @if (createOperation)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/NewOperation">Cоздать запрос</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark d-none" href="/UserHome">ЛК пользователя</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/HumanDispersal">План. персонал</a>
-                        </li>
-                        <li class="nav-item">                            
-                            <a class="nav-link text-dark" href="/GateDispersal">План. ворота</a>                            
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/ClientReportDispersal">Статистика затрат по клиентам</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/ActiveCarsDispersal">Список активных машин</a>
-                        </li>
-
+                        @if (viewStaffPlan)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/HumanDispersal">План. персонал</a>
+                            </li>
+                        }
+                        @if (viewGatesPlan)
+                        {
+                            <li class="nav-item">                            
+                                <a class="nav-link text-dark" href="/GateDispersal">План. ворота</a>                            
+                            </li>
+                        }
+                        @if (viewPartnersReport)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/ClientReportDispersal">Статистика затрат по клиентам</a>
+                            </li>
+                        }
+                        @if (viewActiveOperations)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/ActiveCarsDispersal">Список активных машин</a>
+                            </li>
+                        }
                         <!-- <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li> -->
@@ -87,21 +106,16 @@
             @RenderBody()
         </main>
     </div>
-
     <footer class="border-top footer text-muted hide-on-print">
         <div class="container">
             &copy; 2021-2022 - TSL - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="~/lib/bootstrap/popper/popper.min.js"></script>
-
     <script src="~/lib/datepicker/bootstrap-datepicker.js"></script>
     <script src="~/lib/datepicker/bootstrap-datepicker.ru.min.js"></script>
-
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

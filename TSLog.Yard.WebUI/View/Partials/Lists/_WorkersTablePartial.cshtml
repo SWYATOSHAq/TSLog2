@@ -1,17 +1,17 @@
 ﻿@using TSLog.Staff.BO
 @using TSLog.Yard.BO
-@model (IDictionary<Position, IList<Employee>>, IDictionary<Position, short>, IDictionary<Position, int>, bool)
+@using TSLog.Yard.WebUI.Models
+
+@model WorkersModel
 @{
-    var positions = Model.Item1;
-    var positionsCount = Model.Item2;
-    var positionsWorkTime = Model.Item3;
-    var isEnabled = Model.Item4;
+    var allocatedWorkers = Model.AllocatedWorkers;
+    var planWorkersCounts = Model.PlanWorkersCounts;
+    var laborCost = Model.LaborCost;
+    var isEnabled = Model.IsEnabled;
 
     var i = 1;
     var posCount = 0;
-
     var defaultRows = 5;
-
     var onClick = "onClick";
 }
 
@@ -28,16 +28,15 @@
             </tr>
         </thead>
         <tbody>
-            @if (positionsCount.Count > 0)
+            @if (planWorkersCounts.Count > 0)
             {
-                @foreach (var key in positionsCount.Keys)
+                @foreach (var key in planWorkersCounts.Keys)
                 {
                     @if (key.IsLinear)
                     {
                         posCount = 1;
-                        if (positions.ContainsKey(key))
-                            @foreach (var employee in positions[key])
-                            @*@for (var j = 0; j < positions[key]; j++)*@
+                        if (allocatedWorkers.ContainsKey(key))
+                            @foreach (var employee in allocatedWorkers[key])
                             {
                                 <tr class="@key.Code">
                                     <td class="table-row-index">@i</td>
@@ -47,7 +46,7 @@
                                             <button class="btn btn-outline-success hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
                                             <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
                                         </p>
-                                        <p class="cell-info-text">[@(new TimeSpan(0, 0, positionsWorkTime[key]/positionsCount[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@positionsCount[key])</p>
+                                        <p class="cell-info-text">[@(new TimeSpan(0, 0, laborCost[key]/planWorkersCounts[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@planWorkersCounts[key])</p>
                                     </td>
                                     <td class="d-none">
                                         <p>@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)</p>
@@ -67,11 +66,10 @@
 
                                     </td>
                                 </tr>
-
                                 i++;
                                 posCount++;
                             }
-                        @for (var j = 0; j < positionsCount[key] - ((positions.ContainsKey(key) ? positions[key].Count : 0)); j++)
+                        @for (var j = 0; j < planWorkersCounts[key] - ((allocatedWorkers.ContainsKey(key) ? allocatedWorkers[key].Count : 0)); j++)
                         {
                             <tr class="@key.Code">
                                 <td class="table-row-index">@i</td>
@@ -81,7 +79,7 @@
                                         <button class="btn btn-outline-success m-1 hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
                                         <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
                                     </p>
-                                    <p class="cell-info-text">[@(new TimeSpan(0, 0, positionsWorkTime[key]/positionsCount[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@positionsCount[key])</p>
+                                    <p class="cell-info-text">[@(new TimeSpan(0, 0, laborCost[key]/planWorkersCounts[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@planWorkersCounts[key])</p>
                                 </td>
                                 <td class="d-none"><p>@key.LaborHourCost</p> @key.LaborHourCostCurrency.ShortName / час</td>
                                 <td class="name">
@@ -95,15 +93,12 @@
                                             </ul>
                                         </div>
                                     </div>
-
                                 </td>
                             </tr>
-
                             i++;
                             posCount++;
                         }
                     }
-
                 }
             }
             else

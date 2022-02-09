@@ -1,11 +1,14 @@
 ﻿@page "/UserHome"
-@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
 @model UserHomeModel
 @{
     ViewData["Title"] = "Список заявок";
-    var storage = Model.yardStorage;
 
-    var home = (storage, false, Request);
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+
+    var homeModel = new HomePartialModel(rightsChecker, storage, false, Request);
 }
 
-<partial name="toolkit/_HomePartial" model="home" />
+<partial name="Partials/_HomePartial" model="homeModel" />

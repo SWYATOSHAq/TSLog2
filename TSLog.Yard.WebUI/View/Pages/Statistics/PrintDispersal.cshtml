@@ -1,28 +1,22 @@
-﻿@page
-@using TSLog.Partners.BO
+﻿@page "/PrintDispersal"
 @using TSLog.Yard.BO
-@using TSLog.Yard.Reporting
-@using static TSLog.Yard.BO.OperationType
-@model PrintDispersalModel
+@using TSLog.Yard.WebUI.Models
 
+@model PrintDispersalModel
 
 @{
     ViewData["Title"] = "Активные машины";
-    var storage = Model.yardStorage;
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
 
-    string operationID = Request.Query["id"];
-    Operation selectedYardOperation = Operation.Empty;
-    long tmpID = 0;
-    if (long.TryParse(operationID, out tmpID))
-        selectedYardOperation = storage.GetOperation(tmpID);
-    else
-        selectedYardOperation = Operation.Empty;
-
-    var operationToRender = (selectedYardOperation, storage, true, true);
+    string id = Request.Query["id"];
+    var operation = Operation.Empty;
+    long tempId = 0;
+    operation = long.TryParse(id, out tempId) ? storage.GetOperation(tempId) : Operation.Empty;
+    var operationModel = new OperationModel(rightsChecker, storage, operation, true, true);
 }
-@if (tmpID != 0 && selectedYardOperation != Operation.Empty)
+@if (tempId != 0 && operation != Operation.Empty)
 {
-    <partial name="toolkit/_RequestCardPartial" model="operationToRender" />
+    <partial name="Partials/_OperationPartial" model="operationModel" />
 }
-
 <input id="force-print" type="hidden" name="force-print" value="true">

@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <data>
 	<rights>
+		<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 		<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 		<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром"></right>
 		<right code="VIEW_ALL_OPERATION" name="Просмотр всех операций"></right>
@@ -18,6 +19,7 @@
 		<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 		<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
 		<right code="FILTER_OPERATIONS" name="Фильтр операции по любым полям"></right>
+		<right code="VIEW_OPERATION" name="Просмотр карточки операции"></right>
 		<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
 		<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
 		<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
@@ -39,24 +41,37 @@
 		<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 	</rights>
 	<roles>
-		<role code="PARTNER_OPERATOR" name="Оператор партёра">
+		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="">
+			<right code="USE_YARD"></right>
 			<right code="VIEW_OPERATION_FOR_PARTNER"></right>
 			<right code="CREATE_OPERATION_BY_PARTNER"></right>
 			<right code="EDIT_OPERATION_BY_PARTNER"></right>
 			<right code="CANCEL_OPERATION"></right>
 		</role>
-		<role code="MANAGER" name="Менеджер клиента">
+		<role code="MANAGER" name="Менеджер клиента" groupName="Managers">
+			<right code="USE_YARD"></right>
+			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
+			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
+			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND" name="Фильтр операций по виду автомашины"></right>
+			<right code="FILTER_OPERATIONS_BY_STATE" name="Фильтр операций по состоянию"></right>
+			<!--
+			<right code="FILTER_OPERATIONS_BY_GATE" name="Фильтр операций по воротам"></right>
+			-->
+			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 			<right code="VIEW_OPERATION_FOR_MANAGER"></right>
 		</role>
-		<role code="MANAGER_LEAD" name="Руководитель клиентских менеджеров">
+		<role code="MANAGER_LEAD" name="Руководитель клиентских менеджеров" groupName="">
+			<right code="USE_YARD"></right>
 			<right code="VIEW_OPERATION_FOR_MANAGER_LEAD"></right>
 		</role>	
-		<role code="GUARD" name="Сотрудник охраны на КПП">
+		<role code="GUARD" name="Сотрудник охраны на КПП" groupName="Guards">
+			<right code="USE_YARD"></right>
 			<right code="VIEW_OPERATION_FOR_GUARD"></right>
 			<right code="START_OPERATION"></right>
 			<right code="FINISH_OPERATION"></right>
 		</role>
-		<role code="OPERATOR" name="Оператор склада">
+		<role code="OPERATOR" name="Оператор склада" groupName="WarehouseOperators">
+			<right code="USE_YARD"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND"></right>
@@ -66,7 +81,8 @@
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER"></right>
 		</role>
-		<role code="DISPATCHER" name="Диспетчер двора">
+		<role code="DISPATCHER" name="Диспетчер двора" groupName="YardDispatchers">
+			<right code="USE_YARD"></right>
 			<right code="VIEW_OPERATION_FOR_DISPATCHER"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE"></right>
@@ -80,8 +96,8 @@
 			<right code="MANAGE_OPERATION_WORKERS"></right>
 			<right code="DELETE_OPERATION"></right>
 		</role>
-		<role code="ADMINISTRATOR" name="Администратор двора">
-			
+		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators">
+			<right code="USE_YARD"></right>
 		</role>
 	</roles>
 </data>
