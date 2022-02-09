@@ -67,7 +67,8 @@ export class ShiftTable extends Table {
     async LoadData() {
         const response = await fetch('/api/v1/Staff/Shift');
         const data = await response.json();
-        //console.log(data);
+        console.log(data);
+
         this.setState({
             headers: { WorkMode: "Тип работы", From: "От", To: "До" },
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
@@ -76,6 +77,8 @@ export class ShiftTable extends Table {
             deleteRow: this.deleteRowCallback,
             activeRowIndex: 0,
         });
+
+        this.selectRowCallback(-1, this);
 
     }
 }

@@ -18,7 +18,6 @@ export class ShiftCard extends Card {
         return (
             <div>
                 {card}
-
             </div>
         );
     }

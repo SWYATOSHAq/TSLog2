@@ -16,51 +16,33 @@ export class DepartmentCard extends Card {
         let card = super.render();
 
         return (
-            <div key={this.props.selectedData}>
-                fffffffff {JSON.stringify(this.props.selectedData)}
-                <p>ShiftCard</p>
+            <div>
                 {card}
-
             </div>
         );
     }
 
     async SelectData() {
-        //const response = await fetch('/api/v1/Staff/Shifts');
-        //const data = await response.json();
-        //console.log(data);
-        //const selCard = this.props.selCard;
-        //console.log(selCard);
-
-        const selCard = {};
-        //const selCard = this.props.selectedData;
+        const selCard = this.props.selectedData;
 
         const isNew = selCard == {};
         super.setState({
-            cardType: "Смена",
+            cardType: "Подразделение",
             isNew: isNew,
             fieldList: {
-                From: "От",
-                To: "До",
-                WorkMode: "Тип работы",
-                Note: "Примечание"
+                Name: "Наименование",
+                ShortName: "Кор. наименование",
+                Code: "Код",
+                IsActive: "Активен",
             },
             fieldTypes: {
-                From: "datetime",
-                To: "datetime",
-                WorkMode: "text",
-                Note: "textarea"
+                Name: "text",
+                ShortName: "text",
+                Code: "text",
+                IsActive: "text",
             },
             currentValues: selCard,
             syncVal: this.props.updateSetValCallback,
         });
-
-
-        //currentValues: {
-        //        From: "2022-02-04T00:03:22",
-        //        Id: 100004,
-        //        Note: "hui",
-        //        To: "2022-02-04T06:03:22"
-        //    }
     }
 }
