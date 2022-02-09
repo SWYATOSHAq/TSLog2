@@ -1,18 +1,26 @@
 import React, { Component } from 'react';
+import { ChangeButton } from '../_Meta/ChangeButton';
+import { DeleteButton } from '../_Meta/DeleteButton';
 
 export class Table extends Component {
     static displayName = Table.name;
 
     constructor(props) {
         super(props);
-        this.state = { headers: [], dataTypes: [], body: [[], []] };
+        this.state = {
+            headers: {},
+            dataTypes: {},
+            body: [[], []],
+            activeRowIndex: 0,
+            selectRow: (f) => {  },
+            deleteRow: (f) => {  },
+        };
     }
 
-    static renderTable(headers, dataTypes, body) {
-        console.log(headers);
-        console.log(body);
+    static renderTable(headers, dataTypes, body, changeCallback, deleteCallback, activeRowIndex) {
         return (
-            <table className='table table-striped' aria-labelledby="tabelLabel">
+            <table className='table table-hover' aria-labelledby="tabelLabel" key={this.state === undefined}>
+
                 <thead>
                     <tr>
                         {
@@ -30,33 +38,52 @@ export class Table extends Component {
                     {
                         body.map((curRow, i) => {
                             return (
-                                <tr key={i}>
+                                <tr key={i} className={activeRowIndex === i ? "bg-light" : "" }>
                                     {
                                         Object.keys(headers).map((curRowKey, j) => {
                                             var curDataType = dataTypes[curRowKey];
                                             var cellData = curRow[curRowKey];
+                                            var parsedDate = null;
 
                                             if (curDataType === "datetime") {
-                                                var parsedDate = new Date(cellData);
+                                                parsedDate = new Date(cellData);
                                                 cellData = parsedDate.toLocaleDateString() + " " + parsedDate.toLocaleTimeString();
                                             }
 
                                             if (curDataType === "date") {
-                                                var parsedDate = new Date(cellData);
+                                                parsedDate = new Date(cellData);
                                                 cellData = parsedDate.toLocaleDateString();
                                             }
 
                                             if (curDataType === "time") {
-                                                var parsedDate = new Date(cellData);
+                                                parsedDate = new Date(cellData);
                                                 cellData = parsedDate.toLocaleTimeString();
                                             }
 
-                                            return (<td key={i+"-"+j }>{cellData}</td>)
+                                            if (curDataType === "bool") {
+                                                cellData = cellData ? "Да" : "Нет";
+                                            }
+
+                                            if (curDataType === "company") {
+                                                cellData = cellData.DisplayName;
+                                            }
+                                            
+                                            return (<td key={i + "-" + j}>{cellData}</td>)
                                         })
                                     }
 
-                                    <td className="col-1"><button type="button" className="btn btn-outline-primary">Изменить</button></td>
-                                    <td className="col-1"><button type="button" className="btn btn-outline-danger">Удалить</button></td>
+                                    <td className="col-1">
+                                        <ChangeButton
+                                            SelectRow={changeCallback}
+                                            rowIndex={i}
+                                        />
+                                    </td>
+                                    <td className="col-1">
+                                        <DeleteButton
+                                            DeleteRow={deleteCallback}
+                                            rowIndex={i}
+                                        />
+                                    </td>
                                 </tr>
                             )
                         })
@@ -68,7 +95,8 @@ export class Table extends Component {
     }
 
     render() {
-        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body);
+        //this.state.selectRow("--");
+        let contents = Table.renderTable(this.state.headers, this.state.dataTypes, this.state.body, this.state.selectRow, this.state.deleteRow, this.state.activeRowIndex);
         return (
             <div>
                 {contents}

@@ -1,10 +1,62 @@
 import { Table } from '../_Meta/Table';
+import { PositionCard } from '../Cards/PositionCard';
+import { CreateNewButton } from '../_Meta/CreateNewButton';
 
 export class PositionTable extends Table {
     static displayName = PositionTable.name;
 
-    constructor(props) {
-        super(props);
+    updateSetValCallback = (childData) => {
+        this.setState({ name: childData })
+    }
+
+    selectRowCallback = (index, e) => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: index,
+            });
+        });
+    }
+    createNewCallback = () => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+
+            body.unshift({}); // pre append empty object
+
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: 0,
+            });
+        });
+    }
+    deleteRowCallback = (index, e) => {
+        console.log(index);
+        console.log(this.state.activeRowIndex);
+        console.log(this.state.body[this.state.activeRowIndex]);
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+
+            body.splice(index, 1); // remove 1 element by index
+
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+            const activeRowIndex = state.activeRowIndex;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex,
+            });
+        });
     }
 
     componentDidMount() {
@@ -17,21 +69,35 @@ export class PositionTable extends Table {
         return (
             <div>
                 <h1 id="tabelLabel" >Должности</h1>
+                <PositionCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
+                <CreateNewButton CreateNew={this.createNewCallback}/>
                 {table}
             </div>
         );
     }
 
     async LoadData() {
-        const response = await fetch('/api/v1/Staff/Positions');
+        const response = await fetch('/api/v1/Staff/Position');
         const data = await response.json();
         console.log(data);
 
         super.setState({
-            headers: { Name: "Наименование"},
-            dataTypes: { Name: "string" },
-            body: data
+            headers: {
+                Name: "Наименование",
+                IsActive: "Активен",
+                LaborHourCost: "Стоимость часа",
+            },
+            dataTypes: {
+                Name: "string",
+                IsActive: "bool",
+                LaborHourCost: "string",
+            },
+            body: data,
+            selectRow: this.selectRowCallback,
+            deleteRow: this.deleteRowCallback,
+            activeRowIndex: 0,
         });
+        this.selectRowCallback(-1, this);
 
     }
 }

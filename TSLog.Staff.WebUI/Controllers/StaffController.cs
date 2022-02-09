@@ -34,102 +34,169 @@ namespace TSLog.Staff.WebUI.Controllers
          * create / update department
          * delete department
          * 
-         * 
          */
 
-        [HttpGet("Shifts")]
+        #region get lists of data
+
+        [HttpGet("Shift")]
         public string GetShifts()
         {
-
+            // TODO выбирать период по которому будет загружен список смен
             var shifts = _storage.GetShifts(DateTime.Today.AddYears(-1), DateTime.Today.AddYears(1));
-            //var testShifts = new Shift[] {
-            //    new Shift(-1, DateTime.Now.AddHours(-6), DateTime.Now.AddHours(6), "5/2-40"),
-            //    new Shift(-1, DateTime.Now.AddHours(12), DateTime.Now.AddHours(18), "5/2-40")
-            //};
-
-            //_storage.AddShift(testShifts[0]);
-            //_storage.AddShift(testShifts[1]);
 
             return JsonSerializer.Serialize(shifts);
             // https://localhost:7019/api/v1/Staff/Shifts
         }
 
-        [HttpPost("CreateUpdateShift")]
-        public string PostCreateUpdateShift()
-        {
-            return "test api";
-
-        }
-
-        [HttpPost("DeleteShift")]
-        public string PostDeleteShift()
-        {
-            return "test api";
-        }
-        // -----------------------------
-
-
-        [HttpGet("Employees")]
+        [HttpGet("Employee")]
         public string GetEmployees()
         {
-            var testEmployees = new Employee[] {
-                new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true),
-                new Employee(-1, "1", "Sergeyev", "Sergei", DateTime.Today.AddYears(-21), new LegalEntities.BO.LegalEntity("koton", "KOTON"), true)
-            };
-
             var employees = _storage.GetEmployees();
-
             return JsonSerializer.Serialize(employees);
             // https://localhost:7019/api/v1/Staff/Employees
         }
 
-        // -----------------------------
 
 
-        [HttpGet("Positions")]
+        [HttpGet("Position")]
         public string GetPositions()
         {
-            var testPositions = new Position[]
-            {
-                new Position(-1, "1","engeener"),
-                new Position(-1, "1","programmer"),
-            };
-
             var positions = _storage.GetPositions();
 
-            return JsonSerializer.Serialize(testPositions);
+            return JsonSerializer.Serialize(positions);
             // https://localhost:7019/api/v1/Staff/Departments
         }
 
-        // -----------------------------
-
-
-        [HttpGet("Departments")]
+        [HttpGet("Department")]
         public string GetDepartments()
         {
-            var company = new LegalEntities.BO.LegalEntity("koton", "KOTON");
-            var head = new Employee(-1, "1", "Ivanov", "Ivan", DateTime.Today.AddYears(-22), company, true);
-
-            //var test1 = new Department(-1, "", "IT", "IT", "IT", "IT", true, 1, company, head);
-            //var test2 = new Department(-1, "", "yard", "yard", "yard", "yard", true, 1, company, head);
-
-            var testDepartments = new Department[]
-            {
-                new Department(-1, "", "IT","IT","IT", "IT", true,1, company, head),
-                new Department(-1, "", "yard","yard","yard", "yard", true,1, company, head)
-            };
-
-
             var departments = _storage.GetDepartments();
-
 
             // to use with recursive referencing
             var options = new JsonSerializerOptions
             {
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
             };
             return JsonSerializer.Serialize(departments, options);
             // https://localhost:7019/api/v1/Staff/Departments
         }
+
+        #endregion
+
+        // -----------------------------
+
+        #region Create/Update
+        [HttpPost("Shift")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Shift> PostCreateUpdateShift(Shift shift)
+        {
+            var retShift = shift;
+            if (shift.Id > 0)
+            {
+                // update
+                retShift = _storage.EditShift(shift);
+            }
+            else
+            {
+                //create new
+                retShift = _storage.AddShift(shift);
+            }
+            return retShift;
+        }
+
+        [HttpPost("Employee")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> PostCreateUpdateEmployee(Employee employee)
+        {
+            var retEmployee = employee;
+            if (employee.Id > 0)
+            {
+                // update
+                retEmployee = _storage.EditEmployee(employee);
+            }
+            else
+            {
+                //create new
+                retEmployee = _storage.AddEmployee(employee);
+            }
+            return retEmployee;
+        }
+
+        [HttpPost("Position")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Position> PostCreateUpdatePosition(Position pisition)
+        {
+            var retPosition = pisition;
+            if (pisition.Id > 0)
+            {
+                // update
+                retPosition = _storage.EditPosition(pisition);
+            }
+            else
+            {
+                //create new
+                retPosition = _storage.AddPosition(pisition);
+            }
+            return retPosition;
+        }
+
+        [HttpPost("Department")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Department> PostCreateUpdateDepartment(Department pisition)
+        {
+            var retDepartment = pisition;
+            if (pisition.Id > 0)
+            {
+                // update
+                retDepartment = _storage.EditDepartment(pisition);
+            }
+            else
+            {
+                //create new
+                retDepartment = _storage.AddDepartment(pisition);
+            }
+            return retDepartment;
+        }
+        #endregion
+
+        // -----------------------------
+
+        #region delete
+
+        [HttpDelete("Shift")]
+        public string DeleteShift(Shift shift)
+        {
+            _storage.DeleteShift(shift);
+            return "deleted";
+        }
+
+        [HttpDelete("Employee")]
+        public string DeleteEmployee(Employee employee)
+        {
+            _storage.DeleteEmployee(employee);
+            return "deleted";
+        }
+
+        [HttpDelete("Position")]
+        public string DeletePosition(Position shift)
+        {
+            //_storage.DeletePosition(shift);
+            return "cancelled";
+        }
+
+        [HttpDelete("Department")]
+        public string DeleteShift(Department shift)
+        {
+            _storage.DeleteDepartment(shift);
+            return "deleted";
+        }
+
+
+        #endregion
+
     }
 }

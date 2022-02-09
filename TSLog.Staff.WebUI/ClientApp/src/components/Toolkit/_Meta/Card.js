@@ -10,7 +10,8 @@ export class Card extends Component {
             isNew: true,
             fieldList: {},
             fieldTypes: {},
-            currentValues: {}
+            currentValues: {},
+            syncVal: (a) => {},
         };
     }
 
@@ -22,14 +23,16 @@ export class Card extends Component {
             const isNew = state.isNew;
             const fieldList = state.fieldList;
             const fieldTypes = state.fieldTypes;
+            const syncVal = state.syncVal;
 
             const currentValues = state.currentValues;
             currentValues[section] = event.target.value;
 
+            syncVal(currentValues);
 
             //this.state.currentValues[section] = event.target.value;
             return ({
-                cardType, isNew, fieldList, fieldTypes, currentValues
+                cardType, isNew, fieldList, fieldTypes, currentValues, syncVal
             });
         });
     }
@@ -41,7 +44,7 @@ export class Card extends Component {
 
         return (
             <div className="col-6 m-2 p-2">
-                {JSON.stringify(this.state.currentValues)}
+
                 <div className="card">
                     <div className="card-header">
                       <h4>
@@ -52,7 +55,7 @@ export class Card extends Component {
 
                         {Object.keys(this.state.fieldList).map((curRowKey, i) => {
                             let inputValue = "";
-                            if (curRowKey in this.state.currentValues)
+                            if (this.state.currentValues !== undefined && curRowKey in this.state.currentValues)
                                 inputValue = this.state.currentValues[curRowKey];
 
                             let inputType = null;
@@ -60,6 +63,15 @@ export class Card extends Component {
                             switch (this.state.fieldTypes[curRowKey]) {
                                 case "textarea":
                                     inputType = (<textarea rows="1" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></textarea>);
+                                    break;
+                                case "datetime":
+                                    inputType = (<input type="datetime-local" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    break;
+                                case "date":
+                                    inputType = (<input type="datetime-local" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    break;
+                                case "bool":
+                                    inputType = (<input type="checkbox" className="form-check-input m-2" checked={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
                                     break;
                                 default:
                                     inputType = (<input className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);

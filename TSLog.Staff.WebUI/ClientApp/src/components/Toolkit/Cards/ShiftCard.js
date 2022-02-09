@@ -3,11 +3,6 @@ import { Card } from '../_Meta/Card';
 export class ShiftCard extends Card {
     static displayName = ShiftCard.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
     componentDidMount() {
         this.SelectData();
     }
@@ -17,20 +12,13 @@ export class ShiftCard extends Card {
 
         return (
             <div>
-                <p>ShiftCard</p>
                 {card}
-
             </div>
         );
     }
 
     async SelectData() {
-        //const response = await fetch('/api/v1/Staff/Shifts');
-        //const data = await response.json();
-        //console.log(data);
-        //const selCard = this.props.selCard;
-        //console.log(selCard);
-        const selCard = {};
+        const selCard = this.props.selectedData;
 
         const isNew = selCard === {};
         super.setState({
@@ -48,7 +36,8 @@ export class ShiftCard extends Card {
                 WorkMode: "text",
                 Note: "textarea"
             },
-            currentValues: selCard
+            currentValues: selCard,
+            syncVal: this.props.updateSetValCallback,
         });
 
 

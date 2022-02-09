@@ -1,14 +1,63 @@
 import { Table } from '../_Meta/Table';
 import { ShiftCard } from '../Cards/ShiftCard';
+import { CreateNewButton } from '../_Meta/CreateNewButton';
 
 export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
 
-    constructor(props) {
+    updateSetValCallback = (childData) => {
+        this.setState({ name: childData })
+    }
 
+    selectRowCallback = (index, e) => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
 
-        super(props);
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: index,
+            });
+        });
+    }
+    createNewCallback = () => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
 
+            body.unshift({}); // pre append empty object
+
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: 0,
+            });
+        });
+    }
+
+    deleteRowCallback = (index, e) => {
+        console.log(index);
+        console.log(this.state.activeRowIndex);
+        console.log(this.state.body[this.state.activeRowIndex]);
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+
+            body.splice(index, 1); // remove 1 element by index
+
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+            const activeRowIndex = state.activeRowIndex;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex,
+            });
+        });
     }
 
     componentDidMount() {
@@ -22,32 +71,28 @@ export class ShiftTable extends Table {
         return (
             <div>
                 <h1 id="tabelLabel" >смены</h1>
-                <ShiftCard/>
+                <ShiftCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
+                <CreateNewButton CreateNew={this.createNewCallback}/>
                 {table}
             </div>
         );
     }
 
     async LoadData() {
-        //const response = await fetch('weatherforecast');
-        //const data = await response.json();
-        //console.log(data);
-
-        //super.setState({
-        //    headers: { date: "Дата", summary: "Итог" , temperatureC: "Темп. С", temperatureF: "Темп. F"},
-        //    dataTypes: { date: "datetime", summary: "string", temperatureC: "int", temperatureF: "int" },
-        //    body: data
-        //});
-
-        const response = await fetch('/api/v1/Staff/Shifts');
+        const response = await fetch('/api/v1/Staff/Shift');
         const data = await response.json();
         console.log(data);
 
-        super.setState({
+        this.setState({
             headers: { WorkMode: "Тип работы", From: "От", To: "До" },
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
-            body: data
+            body: data,
+            selectRow: this.selectRowCallback,
+            deleteRow: this.deleteRowCallback,
+            activeRowIndex: 0,
         });
+
+        this.selectRowCallback(-1, this);
 
     }
 }
