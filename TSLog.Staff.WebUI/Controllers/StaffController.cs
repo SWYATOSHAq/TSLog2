@@ -75,7 +75,7 @@ namespace TSLog.Staff.WebUI.Controllers
             // to use with recursive referencing
             var options = new JsonSerializerOptions
             {
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
             };
             return JsonSerializer.Serialize(departments, options);
             // https://localhost:7019/api/v1/Staff/Departments

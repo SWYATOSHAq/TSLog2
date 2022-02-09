@@ -60,6 +60,14 @@ export class Table extends Component {
                                                 cellData = parsedDate.toLocaleTimeString();
                                             }
 
+                                            if (curDataType === "bool") {
+                                                cellData = cellData ? "Да" : "Нет";
+                                            }
+
+                                            if (curDataType === "company") {
+                                                cellData = cellData.DisplayName;
+                                            }
+                                            
                                             return (<td key={i + "-" + j}>{cellData}</td>)
                                         })
                                     }

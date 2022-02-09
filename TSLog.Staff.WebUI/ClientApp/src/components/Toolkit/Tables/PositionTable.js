@@ -65,8 +65,16 @@ export class PositionTable extends Table {
         console.log(data);
 
         super.setState({
-            headers: { Name: "Наименование"},
-            dataTypes: { Name: "string" },
+            headers: {
+                Name: "Наименование",
+                IsActive: "Активен",
+                LaborHourCost: "Стоимость часа",
+            },
+            dataTypes: {
+                Name: "string",
+                IsActive: "bool",
+                LaborHourCost: "string",
+            },
             body: data,
             selectRow: this.selectRowCallback,
             deleteRow: this.deleteRowCallback,

@@ -65,8 +65,8 @@ export class DepartmentTable extends Table {
         console.log(data);
 
         super.setState({
-            headers: { DisplayName: "Наименование" },
-            dataTypes: { DisplayName: "string" },
+            headers: { DisplayName: "Наименование", IsActive: "Активен" },
+            dataTypes: { DisplayName: "string", IsActive: "bool" },
             body: data,
             selectRow: this.selectRowCallback,
             deleteRow: this.deleteRowCallback,

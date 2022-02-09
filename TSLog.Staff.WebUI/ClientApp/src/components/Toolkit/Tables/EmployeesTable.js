@@ -65,8 +65,22 @@ export class EmployeesTable extends Table {
         console.log(data);
 
         super.setState({
-            headers: { FullName: "ФИО", Sex: "Должность", BirthDate: "Дата рождения", Code: "Отдел" },
-            dataTypes: { FullName: "string", Sex: "string", BirthDate: "date", Code: "string" },
+            headers: {
+                Surname: "Фамилия",
+                Name: "Имя",
+                Patronymic: "Отчество",
+                Company: "Компания",
+                Sex: "Пол",
+                BirthDate: "Дата рождения",
+            },
+            dataTypes: {
+                Surname: "string",
+                Name: "string",
+                Patronymic: "string",
+                Company: "company",
+                Sex: "string",
+                BirthDate: "date",
+            },
             body: data,
             selectRow: this.selectRowCallback,
             deleteRow: this.deleteRowCallback,

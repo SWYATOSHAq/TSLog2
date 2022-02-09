@@ -33,7 +33,7 @@ export class DepartmentCard extends Card {
                 Name: "text",
                 ShortName: "text",
                 Code: "text",
-                IsActive: "text",
+                IsActive: "bool",
             },
             currentValues: selCard,
             syncVal: this.props.updateSetValCallback,
