@@ -4,12 +4,6 @@ import { DepartmentCard } from '../Cards/DepartmentCard';
 export class DepartmentTable extends Table {
     static displayName = DepartmentTable.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
-
     updateSetValCallback = (childData) => {
         this.setState({ name: childData })
     }

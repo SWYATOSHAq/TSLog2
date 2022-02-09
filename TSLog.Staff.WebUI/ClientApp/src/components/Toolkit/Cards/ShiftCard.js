@@ -3,11 +3,6 @@ import { Card } from '../_Meta/Card';
 export class ShiftCard extends Card {
     static displayName = ShiftCard.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
     componentDidMount() {
         this.SelectData();
     }
@@ -23,13 +18,6 @@ export class ShiftCard extends Card {
     }
 
     async SelectData() {
-        //const response = await fetch('/api/v1/Staff/Shifts');
-        //const data = await response.json();
-        //console.log(data);
-        //const selCard = this.props.selCard;
-        //console.log(selCard);
-
-        //const selCard = {};
         const selCard = this.props.selectedData;
 
         const isNew = selCard === {};

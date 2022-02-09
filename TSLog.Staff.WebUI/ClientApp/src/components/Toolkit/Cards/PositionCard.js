@@ -3,12 +3,6 @@ import { Card } from '../_Meta/Card';
 export class PositionCard extends Card {
     static displayName = PositionCard.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
-
     componentDidMount() {
         this.SelectData();
     }
@@ -26,7 +20,7 @@ export class PositionCard extends Card {
     async SelectData() {
         const selCard = this.props.selectedData;
 
-        const isNew = selCard == {};
+        const isNew = selCard === {};
         super.setState({
             cardType: "Должность",
             isNew: isNew,

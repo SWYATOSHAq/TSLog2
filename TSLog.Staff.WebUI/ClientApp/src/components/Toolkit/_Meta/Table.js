@@ -43,19 +43,20 @@ export class Table extends Component {
                                         Object.keys(headers).map((curRowKey, j) => {
                                             var curDataType = dataTypes[curRowKey];
                                             var cellData = curRow[curRowKey];
+                                            var parsedDate = null;
 
                                             if (curDataType === "datetime") {
-                                                var parsedDate = new Date(cellData);
+                                                parsedDate = new Date(cellData);
                                                 cellData = parsedDate.toLocaleDateString() + " " + parsedDate.toLocaleTimeString();
                                             }
 
                                             if (curDataType === "date") {
-                                                var parsedDate = new Date(cellData);
+                                                parsedDate = new Date(cellData);
                                                 cellData = parsedDate.toLocaleDateString();
                                             }
 
                                             if (curDataType === "time") {
-                                                var parsedDate = new Date(cellData);
+                                                parsedDate = new Date(cellData);
                                                 cellData = parsedDate.toLocaleTimeString();
                                             }
 

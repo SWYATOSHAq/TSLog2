@@ -55,7 +55,7 @@ export class Card extends Component {
 
                         {Object.keys(this.state.fieldList).map((curRowKey, i) => {
                             let inputValue = "";
-                            if (this.state.currentValues != undefined && curRowKey in this.state.currentValues)
+                            if (this.state.currentValues !== undefined && curRowKey in this.state.currentValues)
                                 inputValue = this.state.currentValues[curRowKey];
 
                             let inputType = null;

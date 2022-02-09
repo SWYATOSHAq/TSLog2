@@ -4,10 +4,6 @@ import { ShiftCard } from '../Cards/ShiftCard';
 export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
 
-    constructor(props) {
-        super(props);
-    }
-
     updateSetValCallback = (childData) => {
         this.setState({ name: childData })
     }

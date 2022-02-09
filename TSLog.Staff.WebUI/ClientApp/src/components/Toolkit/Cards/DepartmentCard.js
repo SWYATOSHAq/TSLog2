@@ -2,12 +2,6 @@ import { Card } from '../_Meta/Card';
 
 export class DepartmentCard extends Card {
     static displayName = DepartmentCard.name;
-
-    constructor(props) {
-        super(props);
-    }
-
-
     componentDidMount() {
         this.SelectData();
     }
@@ -25,7 +19,7 @@ export class DepartmentCard extends Card {
     async SelectData() {
         const selCard = this.props.selectedData;
 
-        const isNew = selCard == {};
+        const isNew = selCard === {};
         super.setState({
             cardType: "Подразделение",
             isNew: isNew,

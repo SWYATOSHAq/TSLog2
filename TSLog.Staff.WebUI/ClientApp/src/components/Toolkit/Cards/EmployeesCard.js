@@ -3,11 +3,6 @@ import { Card } from '../_Meta/Card';
 export class EmployeesCard extends Card {
     static displayName = EmployeesCard.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
     componentDidMount() {
         this.SelectData();
     }
@@ -25,7 +20,7 @@ export class EmployeesCard extends Card {
     async SelectData() {
         const selCard = this.props.selectedData;
 
-        const isNew = selCard == {};
+        const isNew = selCard === {};
         super.setState({
             cardType: "Работник",
             isNew: isNew,

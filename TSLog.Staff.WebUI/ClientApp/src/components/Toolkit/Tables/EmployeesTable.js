@@ -4,11 +4,6 @@ import { EmployeesCard } from '../Cards/EmployeesCard';
 export class EmployeesTable extends Table {
     static displayName = EmployeesTable.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
     updateSetValCallback = (childData) => {
         this.setState({ name: childData })
     }
@@ -71,7 +66,7 @@ export class EmployeesTable extends Table {
 
         super.setState({
             headers: { FullName: "ФИО", Sex: "Должность", BirthDate: "Дата рождения", Code: "Отдел" },
-            dataTypes: { FullName: "string", Sex: "string", BirthDate: "date", Sex: "string" },
+            dataTypes: { FullName: "string", Sex: "string", BirthDate: "date", Code: "string" },
             body: data,
             selectRow: this.selectRowCallback,
             deleteRow: this.deleteRowCallback,

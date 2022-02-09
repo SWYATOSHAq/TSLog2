@@ -4,11 +4,6 @@ import { PositionCard } from '../Cards/PositionCard';
 export class PositionTable extends Table {
     static displayName = PositionTable.name;
 
-    constructor(props) {
-        super(props);
-    }
-
-
     updateSetValCallback = (childData) => {
         this.setState({ name: childData })
     }
