@@ -1,6 +1,7 @@
 import { Table } from '../_Meta/Table';
 import { ShiftCard } from '../Cards/ShiftCard';
 import { CreateNewButton } from '../_Meta/CreateNewButton';
+import { DropdownDepartments } from '../_Meta/DropdownDepartments';
 
 export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
@@ -72,7 +73,9 @@ export class ShiftTable extends Table {
             <div>
                 <h1 id="tabelLabel" >смены</h1>
                 <ShiftCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
-                <CreateNewButton CreateNew={this.createNewCallback}/>
+                <CreateNewButton CreateNew={this.createNewCallback} />
+                <DropdownDepartments />
+
                 {table}
             </div>
         );
