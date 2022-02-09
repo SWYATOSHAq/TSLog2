@@ -1,5 +1,6 @@
 import { Table } from '../_Meta/Table';
 import { DepartmentCard } from '../Cards/DepartmentCard';
+import { CreateNewButton } from '../_Meta/CreateNewButton';
 
 export class DepartmentTable extends Table {
     static displayName = DepartmentTable.name;
@@ -21,7 +22,22 @@ export class DepartmentTable extends Table {
             });
         });
     }
+    createNewCallback = () => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
 
+            body.unshift({}); // pre append empty object
+
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: 0,
+            });
+        });
+    }
     deleteRowCallback = (index, e) => {
         console.log(index);
         console.log(this.state.activeRowIndex);
@@ -54,6 +70,7 @@ export class DepartmentTable extends Table {
             <div>
                 <h1 id="tabelLabel" >подразделения</h1>
                 <DepartmentCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
+                <CreateNewButton CreateNew={this.createNewCallback}/>
                 {table}
             </div>
         );

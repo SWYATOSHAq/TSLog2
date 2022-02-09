@@ -1,5 +1,6 @@
 import { Table } from '../_Meta/Table';
 import { ShiftCard } from '../Cards/ShiftCard';
+import { CreateNewButton } from '../_Meta/CreateNewButton';
 
 export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
@@ -18,6 +19,22 @@ export class ShiftTable extends Table {
 
             return ({
                 headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: index,
+            });
+        });
+    }
+    createNewCallback = () => {
+        this.setState(state => {
+            const headers = state.headers;
+            const dataTypes = state.dataTypes;
+            const body = state.body;
+
+            body.unshift({}); // pre append empty object
+
+            const selectRow = state.selectRow;
+            const deleteRow = state.deleteRow;
+
+            return ({
+                headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: 0,
             });
         });
     }
@@ -55,6 +72,7 @@ export class ShiftTable extends Table {
             <div>
                 <h1 id="tabelLabel" >смены</h1>
                 <ShiftCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
+                <CreateNewButton CreateNew={this.createNewCallback}/>
                 {table}
             </div>
         );
