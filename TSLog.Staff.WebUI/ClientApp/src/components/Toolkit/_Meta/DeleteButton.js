@@ -9,6 +9,6 @@ export class DeleteButton extends Component {
 
     render() {
 
-        return (<button type="button" className="btn btn-outline-danger">Удалить</button>);
+        return (<button type="button" className="btn btn-outline-danger" onClick={this.props.DeleteRow.bind(this, this.props.rowIndex)}>Удалить</button>);
     }
 }
