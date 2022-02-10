@@ -31,8 +31,6 @@ export class Dropdown extends Component {
         if (selectedVal === undefined)
             selectedVal = "";
 
-        //selectedVal = '{"Id":"10000","Address":"","Info1":"","Info2":"","Code":"10000","Name":"ООО «БЫСТРО ГРУПП»","ShortName":"","AltName":"ООО «БЫСТРО ГРУПП»","DisplayName":"ООО «БЫСТРО ГРУПП»","Note":"","IsActive":true,"DisplayOrder":-1}';
-
         return (
             <select className="form-select" aria-label="Default select example" value={selectedVal} onChange={this.updateSelectedValue}>
                 <option value="">Выберите значение</option>

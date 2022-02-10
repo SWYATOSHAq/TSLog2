@@ -10,6 +10,7 @@ export class EmployeesTable extends Table {
     }
 
     selectRowCallback = (index, e) => {
+        window.scrollTo(0, 0);
         this.setState(state => {
             const headers = state.headers;
             const dataTypes = state.dataTypes;
