@@ -79,6 +79,29 @@ namespace TSLog.Staff.Data
             throw new LegalEntityNotFoundException(id);
         }
 
+        public LegalEntity[] GetEmployers()
+        {
+            var employers = new List<LegalEntity>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select le.id," +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name," +
+                    $"       le.is_active, le.display_order," +
+                    $"       le.note" +
+                    $"  from {LegalEntitiesSchema}.le_legal_entity_employer#v le";
+                command.CommandText = SelectPartnerByIdSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employer = CreateLegalEntity(reader);
+                    employers.Add(employer);
+                }
+                reader.Close();
+            }
+            employers.Sort();
+            return employers.ToArray();
+        }
 
         private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
         private Position CreatePosition(DbDataReader reader)

@@ -9,6 +9,7 @@ namespace TSLog.Staff.BO
         // get list
         public Department[] GetDepartments();
         public Employee[] GetEmployees();
+        public LegalEntity[] GetEmployers();
         public Position[] GetPositions();
         public Shift[] GetShifts(DateTime from, DateTime to);
         public Employee[] FindEmployees(string pattern);

@@ -45,7 +45,7 @@ namespace TSLog.Staff.WebUI.Controllers
             var shifts = _storage.GetShifts(DateTime.Today.AddYears(-1), DateTime.Today.AddYears(1));
 
             return JsonSerializer.Serialize(shifts);
-            // https://localhost:7019/api/v1/Staff/Shifts
+            // https://localhost:7019/api/v1/Staff/Shift
         }
 
         [HttpGet("Employee")]
@@ -53,10 +53,16 @@ namespace TSLog.Staff.WebUI.Controllers
         {
             var employees = _storage.GetEmployees();
             return JsonSerializer.Serialize(employees);
-            // https://localhost:7019/api/v1/Staff/Employees
+            // https://localhost:7019/api/v1/Staff/Employee
         }
 
-
+        [HttpGet("Employer")]
+        public string GetEmployers()
+        {
+            var employers = _storage.GetEmployers();
+            return JsonSerializer.Serialize(employers);
+            // https://localhost:7019/api/v1/Staff/Employer
+        }
 
         [HttpGet("Position")]
         public string GetPositions()
@@ -64,7 +70,7 @@ namespace TSLog.Staff.WebUI.Controllers
             var positions = _storage.GetPositions();
 
             return JsonSerializer.Serialize(positions);
-            // https://localhost:7019/api/v1/Staff/Departments
+            // https://localhost:7019/api/v1/Staff/Position
         }
 
         [HttpGet("Department")]
@@ -78,7 +84,7 @@ namespace TSLog.Staff.WebUI.Controllers
                 ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
             };
             return JsonSerializer.Serialize(departments, options);
-            // https://localhost:7019/api/v1/Staff/Departments
+            // https://localhost:7019/api/v1/Staff/Department
         }
 
         #endregion

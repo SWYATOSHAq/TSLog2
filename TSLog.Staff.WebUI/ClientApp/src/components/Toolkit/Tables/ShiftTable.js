@@ -1,7 +1,7 @@
 import { Table } from '../_Meta/Table';
 import { ShiftCard } from '../Cards/ShiftCard';
 import { CreateNewButton } from '../_Meta/CreateNewButton';
-import { DropdownDepartments } from '../_Meta/DropdownDepartments';
+import { Dropdown } from '../_Meta/Dropdown';
 
 export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
@@ -74,7 +74,7 @@ export class ShiftTable extends Table {
                 <h1 id="tabelLabel" >смены</h1>
                 <ShiftCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
                 <CreateNewButton CreateNew={this.createNewCallback} />
-                <DropdownDepartments />
+                <Dropdown DataList={this.state.dropdownDataList}/>
 
                 {table}
             </div>
@@ -84,18 +84,25 @@ export class ShiftTable extends Table {
     async LoadData() {
         const response = await fetch('/api/v1/Staff/Shift');
         const data = await response.json();
+
+        const responseEmployer = await fetch('/api/v1/Staff/Employer');
+        const dataEmployer = await responseEmployer.json();
+
         console.log(data);
+        console.log(dataEmployer);
 
         this.setState({
             headers: { WorkMode: "Тип работы", From: "От", To: "До" },
             dataTypes: { WorkMode: "string", From: "datetime", To: "datetime" },
             body: data,
+            dropdownDataList: dataEmployer,
             selectRow: this.selectRowCallback,
             deleteRow: this.deleteRowCallback,
             activeRowIndex: 0,
         });
 
         this.selectRowCallback(-1, this);
+
 
     }
 }
