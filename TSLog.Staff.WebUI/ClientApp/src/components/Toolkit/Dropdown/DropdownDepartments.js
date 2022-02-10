@@ -17,7 +17,10 @@ export class DropdownDepartments extends Component {
 
     render() {
         return (
-            <Dropdown DataList={this.state.dropdownDataList} />
+            <Dropdown
+                DataList={this.state.dropdownDataList}
+                selectedValue={this.props.JsonSelectedValue}
+                CallbackSelectValue={this.props.CallbackSelectValue}/>
         );
     }
 

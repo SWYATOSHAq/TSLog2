@@ -11,11 +11,14 @@ export class Dropdown extends Component {
     }
 
     updateSelectedValue = (event) => {
-        this.setState({ selectedValue: event.target.value })
-        const callbackSelectValue = this.props.CallbackSelectValue;
-        if (callbackSelectValue !== undefined) 
-            callbackSelectValue(event.target.value);
-        console.log(event.target.value);
+        if (event.target.value !== "") {
+            this.setState({ selectedValue: event.target.value })
+            const callbackSelectValue = this.props.CallbackSelectValue;
+            
+            if (callbackSelectValue !== undefined)
+                callbackSelectValue(event.target.value);
+        }
+
     }
 
     render() {
@@ -24,20 +27,21 @@ export class Dropdown extends Component {
             data = [];
 
         var selectedVal = this.state.selectedValue;
+
         if (selectedVal === undefined)
             selectedVal = "";
 
-            return (
-            <div className="p-2">
-                    <select className="form-select" aria-label="Default select example" value={selectedVal} onChange={this.updateSelectedValue}>
-                    <option value="">Выберите значение</option>
-                    {
-                        data.map((row, i) => {
-                            return (<option key={i} value={row.Id}>{row.DisplayName}</option>)
-                        })
-                    }
-                </select>
-            </div>
+        //selectedVal = '{"Id":"10000","Address":"","Info1":"","Info2":"","Code":"10000","Name":"ООО «БЫСТРО ГРУПП»","ShortName":"","AltName":"ООО «БЫСТРО ГРУПП»","DisplayName":"ООО «БЫСТРО ГРУПП»","Note":"","IsActive":true,"DisplayOrder":-1}';
+
+        return (
+            <select className="form-select" aria-label="Default select example" value={selectedVal} onChange={this.updateSelectedValue}>
+                <option value="">Выберите значение</option>
+                {
+                    data.map((row, i) => {
+                        return (<option key={i} value={JSON.stringify(row)}>{row.DisplayName}</option>)
+                    })
+                }
+            </select>
         );
     }
 }

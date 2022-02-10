@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-export class SelectEmployees extends Component {
-    static displayName = SelectEmployees.name;
+export class Multiselect extends Component {
+    static displayName = Multiselect.name;
 
     render() {
         return (

@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { DropdownCompanies } from '../Dropdown/DropdownCompanies';
+import { DropdownDepartments } from '../Dropdown/DropdownDepartments';
 
 export class Card extends Component {
     static displayName = Card.name;
@@ -11,7 +13,7 @@ export class Card extends Component {
             fieldList: {},
             fieldTypes: {},
             currentValues: {},
-            syncVal: (a) => {},
+            syncVal: (a) => { },
         };
     }
 
@@ -38,6 +40,26 @@ export class Card extends Component {
     }
 
 
+    handleDropdownChange(newValue, section) {
+        this.setState(state => {
+            const cardType = state.cardType;
+            const isNew = state.isNew;
+            const fieldList = state.fieldList;
+            const fieldTypes = state.fieldTypes;
+            const syncVal = state.syncVal;
+
+            const currentValues = state.currentValues;
+            currentValues[section] = JSON.parse(newValue);
+
+            syncVal(currentValues);
+
+            //this.state.currentValues[section] = event.target.value;
+            return ({
+                cardType, isNew, fieldList, fieldTypes, currentValues, syncVal
+            });
+        });
+    }
+
     render() {
 
         let cardState = this.state.isNew ? "(новая)" : "(редактирование)";
@@ -47,9 +69,9 @@ export class Card extends Component {
 
                 <div className="card">
                     <div className="card-header">
-                      <h4>
-                        {this.state.cardType} {cardState}
-                      </h4>
+                        <h4>
+                            {this.state.cardType} {cardState}
+                        </h4>
                     </div>
                     <div className="card-body">
 
@@ -73,6 +95,13 @@ export class Card extends Component {
                                 case "bool":
                                     inputType = (<input type="checkbox" className="form-check-input m-2" checked={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
                                     break;
+                                case "company": 
+                                    inputType = (<DropdownCompanies JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)}/>);
+                                    break;
+                                case "department":
+                                    inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)}/>);
+                                    
+                                    break;
                                 default:
                                     inputType = (<input className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
                                     break;
@@ -87,7 +116,7 @@ export class Card extends Component {
                                     {inputType}
                                 </div>
                             )
-                        }) }
+                        })}
 
                         <div className="d-flex justify-content-center">
                             <button className="btn btn-success" type="button">сохранить</button>
