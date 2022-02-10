@@ -67,7 +67,6 @@ export class Table extends Component {
                                             if (curDataType === "company") {
                                                 cellData = cellData.DisplayName;
                                             }
-                                            
                                             return (<td key={i + "-" + j}>{cellData}</td>)
                                         })
                                     }
@@ -85,7 +84,7 @@ export class Table extends Component {
                                         />
                                     </td>
                                 </tr>
-                            )
+                                )
                         })
                     }
 

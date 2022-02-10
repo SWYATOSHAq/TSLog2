@@ -95,7 +95,7 @@ namespace TSLog.Staff.WebUI.Controllers
         [HttpPost("Shift")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Shift> PostCreateUpdateShift(Shift shift)
+        public string PostCreateUpdateShift(Shift shift)
         {
             var retShift = shift;
             if (shift.Id > 0)
@@ -108,13 +108,13 @@ namespace TSLog.Staff.WebUI.Controllers
                 //create new
                 retShift = _storage.AddShift(shift);
             }
-            return retShift;
+            return JsonSerializer.Serialize(retShift);
         }
 
         [HttpPost("Employee")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Employee> PostCreateUpdateEmployee(Employee employee)
+        public string PostCreateUpdateEmployee(Employee employee)
         {
             var retEmployee = employee;
             if (employee.Id > 0)
@@ -127,13 +127,13 @@ namespace TSLog.Staff.WebUI.Controllers
                 //create new
                 retEmployee = _storage.AddEmployee(employee);
             }
-            return retEmployee;
+            return JsonSerializer.Serialize(retEmployee);
         }
 
         [HttpPost("Position")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Position> PostCreateUpdatePosition(Position pisition)
+        public string PostCreateUpdatePosition(Position pisition)
         {
             var retPosition = pisition;
             if (pisition.Id > 0)
@@ -146,13 +146,13 @@ namespace TSLog.Staff.WebUI.Controllers
                 //create new
                 retPosition = _storage.AddPosition(pisition);
             }
-            return retPosition;
+            return JsonSerializer.Serialize(retPosition);
         }
 
         [HttpPost("Department")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Department> PostCreateUpdateDepartment(Department pisition)
+        public string PostCreateUpdateDepartment(Department pisition)
         {
             var retDepartment = pisition;
             if (pisition.Id > 0)
@@ -165,7 +165,7 @@ namespace TSLog.Staff.WebUI.Controllers
                 //create new
                 retDepartment = _storage.AddDepartment(pisition);
             }
-            return retDepartment;
+            return JsonSerializer.Serialize(retDepartment);
         }
         #endregion
 

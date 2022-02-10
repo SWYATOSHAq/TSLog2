@@ -30,7 +30,7 @@ export class Card extends Component {
             const currentValues = state.currentValues;
             currentValues[section] = event.target.value;
 
-            syncVal(currentValues);
+            //syncVal(currentValues);
 
             //this.state.currentValues[section] = event.target.value;
             return ({
@@ -99,7 +99,7 @@ export class Card extends Component {
                                     inputType = (<DropdownCompanies JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)}/>);
                                     break;
                                 case "department":
-                                    inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)}/>);
+                                    inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)}/>);
                                     
                                     break;
                                 default:
@@ -119,7 +119,7 @@ export class Card extends Component {
                         })}
 
                         <div className="d-flex justify-content-center">
-                            <button className="btn btn-success" type="button">сохранить</button>
+                            <button className="btn btn-success" type="button" onClick={this.state.syncVal.bind(this, this.state.currentValues)}>сохранить</button>
                         </div>
                     </div>
                 </div>

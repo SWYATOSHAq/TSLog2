@@ -6,7 +6,36 @@ export class ShiftTable extends Table {
     static displayName = ShiftTable.name;
 
     updateSetValCallback = (childData) => {
-        this.setState({ name: childData })
+        console.log('-----------------------------------');
+        console.log(childData);
+        console.log('-----------------------------------');
+        //this.setState({ name: childData });
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(childData)
+        };
+
+        fetch('/api/v1/Staff/Shift', requestOptions)
+            .then(response => response.json())
+            .then(newData => {
+                console.log(newData);
+                this.setState(state => {
+                    const headers = state.headers;
+                    const dataTypes = state.dataTypes;
+                    const activeRowIndex = state.activeRowIndex;
+                    const body = state.body;
+                    body[activeRowIndex] = newData;
+
+                    const selectRow = state.selectRow;
+                    const deleteRow = state.deleteRow;
+
+                    return ({
+                        headers, dataTypes, body, selectRow, deleteRow, activeRowIndex,
+                    });
+                });
+            });
     }
 
     selectRowCallback = (index, e) => {
@@ -38,6 +67,8 @@ export class ShiftTable extends Table {
                 headers, dataTypes, body, selectRow, deleteRow, activeRowIndex: 0,
             });
         });
+        this.selectRowCallback(-1, this); // deselect active row
+
     }
 
     deleteRowCallback = (index, e) => {
