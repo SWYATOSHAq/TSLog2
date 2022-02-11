@@ -1,0 +1,47 @@
+﻿.arrow-container {
+    width: 20vmin;
+    height: 10vmin;
+    transform: translate(50%,0);
+}
+
+.arrow {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    width: 4vmin;
+    height: 4vmin;
+    background: transparent;
+    border-top: 1vmin solid gray;
+    border-right: 1vmin solid gray;
+    box-shadow: 0 0 0 lightgray;
+    transition: all 200ms ease;
+
+    &.left {
+        left: 0;
+        transform: translate3d(0,-50%,0) rotate(-135deg);
+        border-bottom: none;
+        border-left: none;
+    }
+
+    &.right {
+        right: 0;
+        transform: translate3d(0,-50%,0) rotate(45deg);
+        border-bottom: none;
+        border-left: none;
+    }
+
+    &:hover {
+        border-color: blue;
+        box-shadow: 0.5vmin -0.5vmin 0 black;
+    }
+
+    &:before { // for better hit area
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-40%,-60%) rotate(45deg);
+        width: 200%;
+        height: 200%;
+    }
+}
