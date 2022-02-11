@@ -8,7 +8,7 @@ namespace TSLog.Staff.BO
     /// </summary>
     public class Employee : Entity
     {
-        public new int Id 
+        public new int Id
         {
             get
             {
@@ -16,7 +16,7 @@ namespace TSLog.Staff.BO
             }
             set
             {
-                base.Id = value; 
+                base.Id = value;
             }
         }
         private const double DefaultCost = 100.00;
@@ -33,9 +33,9 @@ namespace TSLog.Staff.BO
             }
         }
         public string Patronymic { get; set; } = string.Empty;
-        public string FullName
+        public new string DisplayName
         {
-            get 
+            get
             {
                 return $"{Surname} {FirstName} {Patronymic}";
             }
@@ -59,12 +59,12 @@ namespace TSLog.Staff.BO
         private const string DefaultWorkMode = "5/2-40";
         public string WorkMode { get; set; } = DefaultWorkMode;
 
-        public Employee(long id, string code, 
-            string surname, string firstName,            
+        public Employee(long id, string code,
+            string surname, string firstName,
             DateTime birthDate,
             LegalEntity company,
             bool isActive,
-            string note = "") 
+            string note = "")
             : base(id, code, firstName, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
             if (string.IsNullOrWhiteSpace(surname))
@@ -72,7 +72,7 @@ namespace TSLog.Staff.BO
             if (string.IsNullOrWhiteSpace(firstName))
                 throw new ArgumentException("firstName is empty");
             Surname = surname.Trim();
-            Name = firstName.Trim();            
+            Name = firstName.Trim();
             BirthDate = birthDate;
             Company = company ?? throw new ArgumentNullException(nameof(company));
         }

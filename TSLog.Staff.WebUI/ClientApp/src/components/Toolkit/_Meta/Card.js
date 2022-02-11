@@ -65,7 +65,7 @@ export class Card extends Component {
         let cardState = this.state.isNew ? "(новая)" : "(редактирование)";
 
         return (
-            <div className="col-6 m-2 p-2">
+            <div className="col m-2 p-2">
 
                 <div className="card">
                     <div className="card-header">

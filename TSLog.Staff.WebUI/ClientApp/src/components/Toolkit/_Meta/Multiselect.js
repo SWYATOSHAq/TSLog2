@@ -6,57 +6,77 @@ export class Multiselect extends Component {
 
     constructor(props) {
         super(props);
+        let storedItems = this.props.DataValues;
+        if (storedItems === undefined)
+            storedItems = [];
+
+        let inputItems = this.props.DataList;
+        if (inputItems === undefined)
+            inputItems = [];
+
+        inputItems = inputItems.filter(item => !storedItems.includes(item));
+
         this.state = {
-            storedItems: [
-                { DisplayName: "aaa" },
-                { DisplayName: "aaa" },
-                { DisplayName: "aaa" },
-            ],
-            inputItems: [
-                { DisplayName: "fffff1" },
-                { DisplayName: "fffff2" },
-                { DisplayName: "ffff3" },
-                { DisplayName: "ffff4" },
-                { DisplayName: "ffff5" },
-                { DisplayName: "ffff6" },
-                { DisplayName: "ffff7" },
-                { DisplayName: "ffff8" },
-                { DisplayName: "ffff9" },
-                { DisplayName: "ffff10" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-                { DisplayName: "fffff" },
-            ],
-            value:[""],
+            storedItems,
+            storedValue: [],
+            inputItems,
+            inputValue: [],
         };
     }
 
-    handleChange(event) {
+    handleChange(fieldType, event) {
         let newVal = event.target.value;
-        //let stateVal = this.state.value
+        let stateVal = this.state[fieldType];
 
-        //console.log(stateVal)
-        console.log(newVal);
+        stateVal.indexOf(newVal) === -1
+            ? stateVal.push(newVal)
+            : stateVal.length === 1
+                ? (stateVal = [])
+                : stateVal.splice(stateVal.indexOf(newVal), 1);
 
-        console.log(event);
+        this.setState({ fieldType: stateVal });
 
-        //stateVal.indexOf(newVal) === -1
-        //    ? stateVal.push(newVal)
-        //    : stateVal.length === 1
-        //        ? (stateVal = [])
-        //        : stateVal.splice(stateVal.indexOf(newVal), 1)
+        let callbackFunc = this.props.callbackOnChange;
+        if (callbackFunc !== undefined)
+            callbackFunc(stateVal.map(i => this.state.storedItems[i]));
+    }
 
-        //this.setState({ value: stateVal })
+    setStoredItems() {
+        let stateVal = this.state.inputValue;
+        let dataArr = this.state.inputItems;
+        let targetArr = this.state.storedItems;
+
+        let { toList, fromlist, maskList } = this.moveData(dataArr, targetArr, stateVal);
+
+        this.setState({
+            inputValue: maskList,
+            inputItems: fromlist,
+            storedItems: toList,
+        });
+    }
+
+    freeStoredItems() {
+        let stateVal = this.state.storedValue;
+        let dataArr = this.state.storedItems;
+        let targetArr = this.state.inputItems;
+
+        let { toList, fromlist, maskList } = this.moveData(dataArr, targetArr, stateVal);
+
+        this.setState({
+            storedValue: maskList,
+            storedItems: fromlist,
+            inputItems: toList,
+        });
+    }
+
+    moveData(fromlist, toList, maskList) {
+        let maskedItems = maskList.map(i => fromlist[i]);
+
+        toList = toList.concat(maskedItems).sort();;
+        fromlist = fromlist.filter(item => !maskedItems.includes(item)).sort();
+        maskList = [];
+
+        return { toList, fromlist, maskList };
     }
 
     render() {
@@ -64,18 +84,24 @@ export class Multiselect extends Component {
             <div className="p-2 row">
                 <div className="p-2 col-4">
                     <h5>Выбранные</h5>
-                    <select className="form-select" multiple>
+                    <select
+                        className="form-select"
+                        multiple
+                        value={this.state.storedValue}
+                        onChange={this.handleChange.bind(this, 'storedValue')}
+                        key={this.state.storedValue}
+                    >
                         {
                             this.state.storedItems.map((row, i) => {
                                 return (<option key={i} value={i}>{row.DisplayName}</option>)
                             })
                         }
-                      </select>
+                    </select>
                 </div>
                 <div className="col-4">
-                    <div class="arrow-container">
-                        <button class="arrow left"></button>
-                        <button class="arrow right"></button>
+                    <div className="arrow-container">
+                        <button className="arrow left" onClick={this.setStoredItems.bind(this)}></button>
+                        <button className="arrow right" onClick={this.freeStoredItems.bind(this)}></button>
                     </div>
                 </div>
                 <div className="p-2 col-4">
@@ -83,19 +109,16 @@ export class Multiselect extends Component {
                     <select
                         className="form-select"
                         multiple
-                        value={this.state.value}
-                        onChange={this.handleChange}
+                        value={this.state.inputValue}
+                        onChange={this.handleChange.bind(this, 'inputValue')}
+                        key={this.state.inputValue}
                     >
                         {
                             this.state.inputItems.map((row, i) => {
-                                return (<option key={i} value={i}>{row.DisplayName} {"<"}-{i}  </option>)
+                                return (<option key={i} value={i}>{row.DisplayName}</option>)
                             })
                         }
-                      </select>
-                </div>
-
-                <div className="p-2 col-12">
-                    {JSON.stringify(this.state.inputItems)}
+                    </select>
                 </div>
             </div>
 
