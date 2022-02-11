@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { DropdownCompanies } from '../Dropdown/DropdownCompanies';
 import { DropdownDepartments } from '../Dropdown/DropdownDepartments';
+import { MultiselectWorkers } from '../Multiselect/MultiselectWorkers';
+import { MultiselectPositions } from '../Multiselect/MultiselectPositions';
 
 export class Card extends Component {
     static displayName = Card.name;
@@ -95,12 +97,17 @@ export class Card extends Component {
                                 case "bool":
                                     inputType = (<input type="checkbox" className="form-check-input m-2" checked={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
                                     break;
-                                case "company": 
-                                    inputType = (<DropdownCompanies JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)}/>);
+                                case "company":
+                                    inputType = (<DropdownCompanies JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)} />);
                                     break;
                                 case "department":
-                                    inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)}/>);
-                                    
+                                    inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)} />);
+                                case "employees":
+                                    inputType = (<div className="col-12"><MultiselectWorkers /></div>);
+                                case "positions":
+                                    inputType = (<div className="col-12"><MultiselectPositions /></div>);
+
+
                                     break;
                                 default:
                                     inputType = (<input className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);

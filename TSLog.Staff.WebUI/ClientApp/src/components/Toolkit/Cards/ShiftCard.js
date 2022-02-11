@@ -28,13 +28,15 @@ export class ShiftCard extends Card {
                 From: "От",
                 To: "До",
                 WorkMode: "Тип работы",
-                Note: "Примечание"
+                Note: "Примечание",
+                Employees: "Работники",
             },
             fieldTypes: {
                 From: "datetime",
                 To: "datetime",
                 WorkMode: "text",
-                Note: "textarea"
+                Note: "textarea",
+                Employees: "employees",
             },
             currentValues: selCard,
             syncVal: this.props.updateSetValCallback,
