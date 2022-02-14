@@ -102,13 +102,14 @@ export class Card extends Component {
                                     break;
                                 case "department":
                                     inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)} />);
+                                    break;
                                 case "employees":
                                     inputType = (<div className="col-12"><MultiselectWorkers /></div>);
+                                    break;
                                 case "positions":
                                     inputType = (<div className="col-12"><MultiselectPositions /></div>);
-
-
                                     break;
+
                                 default:
                                     inputType = (<input className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
                                     break;

@@ -38,7 +38,7 @@ export class EmployeesCard extends Card {
                 DocumentSeries: "Серия документа",
                 DocumentIssueOrganization: "Орг. выдав. документ",
                 DocumentIssueDate: "Дата выдачи документа",
-
+                Positions: "Должности",
             },
             fieldTypes: {
 
@@ -55,6 +55,8 @@ export class EmployeesCard extends Card {
                 DocumentSeries: "text",
                 DocumentIssueOrganization: "text",
                 DocumentIssueDate: "date",
+                Positions: "positions",
+                
             },
             currentValues: selCard,
             syncVal: this.props.updateSetValCallback,
