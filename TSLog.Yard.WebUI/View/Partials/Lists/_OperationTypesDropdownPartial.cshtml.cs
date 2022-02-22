@@ -12,7 +12,7 @@ namespace TSLog.Yard.WebUI.Models
         public OperationTypesModel(OperationType[] types, string selectedType, bool isEnabled, bool isSmall, string defaultText)
         {
             OperationTypes = types;
-            SelectedType = selectedType.Trim();
+            SelectedType = !string.IsNullOrWhiteSpace(selectedType) ? selectedType.Trim() : string.Empty;
             IsEnabled = isEnabled;
             IsSmall = isSmall;
             DefaultText = defaultText.Trim();

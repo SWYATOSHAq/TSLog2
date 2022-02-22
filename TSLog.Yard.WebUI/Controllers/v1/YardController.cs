@@ -95,10 +95,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("OperationsList")]
         public string GetOperationsList()
         {
-            var Text = "";
-            //
-            string operationDate = Request.Query["date"];
+            var text = string.Empty;
 
+            string date = Request.Query["date"];
             string gate = Request.Query["gate"];
             string partnerID = Request.Query["partner_id"];
             string operationType = Request.Query["operation_type"];
@@ -113,17 +112,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var searchVehicleKind = !string.IsNullOrWhiteSpace(vehicleKind) ? yardStorage.GetVehicleKind(vehicleKind) : VehicleKind.Null;
             var searchState = !string.IsNullOrWhiteSpace(state) ? yardStorage.GetOperationState(state) : Entity.Null;
 
-            if (DateTime.TryParse(operationDate, out DateTime tmp))
+            if (DateTime.TryParse(date, out DateTime tmp))
             {
                 // search for period of 1 day or 2 days?
                 var daysSpan = 2;
                 var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), Array.Empty<Partner>());
                 // additional filters
                 loadedOperations = Operation.Filter(loadedOperations, partner, searchOperationType, searchVehicleKind, searchGate, searchState);
-                //
-                Text = JsonSerializer.Serialize(loadedOperations);
+                text = JsonSerializer.Serialize(loadedOperations);
             }
-            return Text;
+            return text;
         }
 
         [HttpPost("CreateUpdateOperation")]

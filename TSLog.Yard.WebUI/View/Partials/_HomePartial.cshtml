@@ -21,16 +21,31 @@
     var filterOperationsByVehicle = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
     var filterOperationsByDriver = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
 
-    var gatesModel = new GatesModel(storage.GetGates(), string.Empty, true, true, "Все ворота");
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), string.Empty, true, true, "Все типы операций");
-    var partnersModel = new PartnersModel(storage.GetPartners(), false, true, string.Empty, "Все партнеры");
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), string.Empty, true, true, "Все типы машин");
-    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), string.Empty, true, true, "Все состояния");
+    string requestDate = request.Query["date"];
+    var date = requestDate != null ? DateTime.Parse(requestDate) : DateTime.Today;
+    string selectedGate = request.Query["gate"];
+    string selectedType = request.Query["type"];
+    string selectedPartner = request.Query["partner"];
+    string selectedVehicleKind = request.Query["vehicleKind"];
+    string selectedState = request.Query["state"];
 
-    string reqdate = request.Query["date"];
-    var selDate = reqdate != null ? DateTime.Parse(reqdate) : DateTime.Today;
+    var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота");
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций");
+    var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, false, true, "Все партнеры");
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind, true, true, "Все типы машин");
+    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния");
 
-    var operations = storage.GetOperations(selDate.Date, selDate.AddDays(1).AddTicks(-1), null);
+    var span = 2;
+    var operations = storage.GetOperations(date.Date, date.AddDays(span).AddTicks(-1),
+        !string.IsNullOrWhiteSpace(selectedType) ? storage.GetOperationType(selectedType) : null,
+        !string.IsNullOrWhiteSpace(selectedVehicleKind) ? storage.GetVehicleKind(selectedVehicleKind) : null,
+        !string.IsNullOrWhiteSpace(selectedState) ? storage.GetOperationState(selectedState) : null,
+        !string.IsNullOrWhiteSpace(selectedGate) ? storage.GetGate(selectedGate) : null,
+        !string.IsNullOrWhiteSpace(selectedPartner) ? storage.GetPartner(selectedPartner) : null,
+        null,
+        null,
+        null);
+
     var operarationsModel = new OperationsModel(rightsChecker, storage, operations, true, request);
 
     string id = request.Query["id"];
@@ -47,63 +62,86 @@
     var operationModel = new OperationModel(rightsChecker, storage, operation, isEnabled, isAdmin);
 }
 
-<div class="row p-2 m-3">
-    <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto" id="card_table">
-        <div class="row">Выберете дату:</div>
-        <div class="row p-2 m-3">
-            <input type="text"
-                id="dp1"
-                class="datepicker border border-secondary col-5 m-1"
-                placeholder="Выберете дату"
-                ne="date"
-                readonly />
+<div class="row p-2 m-3 card-table">
+    <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto card-table" id="card_table">
+        <div class="row row2">
+            <div class="container2">
+                <span class="caption">Выберете дату:</span>
+            </div>            
+        </div>
+        <div class="row row2">
+            <div class="container2">
+                <input type="text"
+                    id="dp1"
+                    class="datepicker border border-secondary datepicker2"
+                    placeholder="Выберете дату"
+                    ne="date"
+                    readonly />
+            </div>            
         </div>
         @if (createOperation)
         {
-            <div class="d-grid gap-2">
-                <button title="Создать заявку" class="btn btn-outline-success hide-on-print" type="button" onclick="location.href = '/NewOperation?date=' + $('.datepicker').datepicker('getDate').toLocaleDateString()"><h5>+</h5></button>
+            <div class="row row2">
+                <div class="container2">
+                    <button title="Создать заявку" 
+                        class="btn btn-outline-success hide-on-print create-operation" 
+                        type="button" 
+                    onclick="location.href = '/NewOperation?date=' + $('.datepicker').datepicker('getDate').toLocaleDateString()">
+                        Создать
+                    </button>
+                </div>                
             </div>
         }
-        <div class="row p-1">Фильтры:</div>
-        <div class="row p-1">
+        <div class="row row2">
+            <div class="container2">
+                <span class="caption">Фильтры:</span>
+            </div>            
+        </div>
+        <div class="row row2">
             @if (filterOperationsByGate)
             {
-                <div class="col-md-3 col-6 p-1 m-1" id="gates-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="gates-filter">
                     <partial name="Partials/Lists/_GatesDropdownPartial" model="gatesModel" />
                 </div>
             }
             @if (filterOperationsByType)
             {
-                <div class="col-md-3 col-6 p-1 m-1" id="op-types-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="op-types-filter">
                     <partial name="Partials/Lists/_OperationTypesDropdownPartial" model="operationTypesModel" />
                 </div>    
             }
             @if (filterOperationsByPartner)
             {
-                <div class="col-md-3 col-6 p-1 m-1" id="partner-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="partner-filter">
                     <partial name="Partials/Lists/_PartnersDropdownPartial" model="partnersModel" />
                 </div>
             }
             @if (filterOperationsByVehicleKind)
             {
-                <div class="col-md-3 col-6 p-1 m-1" id="vehicle-kind-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="vehicle-kind-filter">
                     <partial name="Partials/Lists/_VehicleKindsDropdownPartial" model="vehicleKindsModel" />
                 </div>                
             }
             @if (filterOperationsByState)
             {
-                <div class="col-md-3 col-6 p-1 m-1" id="states-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="states-filter">
                     <partial name="Partials/Lists/_OperationStatesDropdownPartial" model="operationStatesModel" />
                 </div>    
             }
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list row2">
             <partial name="Partials/Lists/_OperationsPartial" model="operarationsModel" />
         </div>
     </div>
 
     <!-- Modal operation card -->
-    <div class="modal fade rem-outline-on-print" id="RequestCardModal" tabindex="-1" role="dialog" aria-labelledby="reqCard" aria-hidden="true">
+    <div class="modal fade rem-outline-on-print" 
+        id="RequestCardModal" 
+        tabindex="-1" 
+        role="dialog" 
+        aria-labelledby="reqCard" 
+        aria-hidden="true"
+    >
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-body">

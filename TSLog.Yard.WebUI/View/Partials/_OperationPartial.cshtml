@@ -11,7 +11,7 @@
     var isAdmin = Model.IsAdmin;
 
     var gatesModel = new GatesModel(storage.GetGates(), operation.Gate?.Code, isEnabled, false, string.Empty);
-    var partnersModel = new PartnersModel(storage.GetPartners(), !isEnabled, false, string.Empty, string.Empty);
+    var partnersModel = new PartnersModel(storage.GetPartners(), string.Empty, !isEnabled, false, string.Empty);
     var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist?.Code, isEnabled, false, string.Empty);
     var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind?.Code, isEnabled, false, string.Empty);
     var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type?.Code, isEnabled, false, string.Empty);

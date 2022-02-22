@@ -12,7 +12,7 @@ namespace TSLog.Yard.WebUI.Models
         public GatesModel(Gate[] gates, string selectedGate, bool isEnabled, bool isSmall, string defaultText)
         {
             Gates = gates;
-            SelectedGate = selectedGate;
+            SelectedGate = !string.IsNullOrWhiteSpace(selectedGate) ? selectedGate.Trim() : string.Empty ;
             IsEnabled = isEnabled;
             IsSmall = isSmall;
             DefaultText = defaultText;

@@ -80,3 +80,69 @@ td {
 .dropdown-item {
     cursor: pointer;
 }
+
+.datepicker2 {
+    width: 200px;
+    padding: 4px;
+    padding-left: 8px;
+    margin: 0px;
+    border-radius: 4px !important;
+}
+
+.row2 {
+    padding: 0px;
+    margin: 0px;
+}
+
+.create-operation {
+    padding: 4px !important;
+    margin: 0px;
+    width: 200px;
+    border-radius: 4px !important;
+}
+
+.filter-element {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-left: 0px;
+    border-radius: 20px;
+    margin: 0px;
+}
+
+.action-card {
+    padding: 0px;
+    margin: 0px;
+}
+
+.card {
+    padding: 0px !important;
+    margin: 0px !important;
+    border-radius: 4px !important;
+}
+
+.caption {
+    padding: 0px;
+    margin: 0px;
+}
+
+.card-table {
+    padding: 0px;
+    margin: 0px;
+}
+
+.container2 {
+    padding: 4px !important;
+    margin: 0px !important;
+}
+
+.filter-drop-down {
+    padding: 4px !important;
+    margin: 0px !important;
+    border-radius: 4px !important;
+}
+
+.open-operation {
+    padding: 4px !important;
+    margin: 8px !important;
+}

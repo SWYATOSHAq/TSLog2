@@ -19,7 +19,7 @@
     endDate = endDate.AddDays(1).AddSeconds(-1);
 
     var report = new ClientReport(storage, selectedPartner, startDate, endDate);
-    var partnersModel = new PartnersModel(storage.GetPartners(), false, true, selectedPartner.Code, "Выберете партнера");
+    var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner.Code, false, true, "Выберете партнера");
 }
 
 <div class="row p-2 hide-on-print">

@@ -40,6 +40,13 @@ namespace TSLog.Staff.BO
                 return $"{Surname} {FirstName} {Patronymic}";
             }
         }
+        public string FullName
+        {
+            get 
+            {
+                return DisplayName;
+            }
+        }
         public string Sex { get; set; } = "M";
         public DateTime BirthDate { get; private set; }
         public string Nationality { get; set; } = string.Empty;

@@ -12,7 +12,7 @@ namespace TSLog.Yard.WebUI.Models
         public OperationStatesModel(Entity[] states, string selectedState, bool isEnabled, bool isSmall, string defaultText)
         {
             OperationStates = states;
-            SelectedState = selectedState.Trim();
+            SelectedState = !string.IsNullOrWhiteSpace(selectedState) ? selectedState.Trim() : string.Empty;
             IsEnabled = isEnabled;
             IsSmall = isSmall;
             DefaultText = defaultText.Trim();

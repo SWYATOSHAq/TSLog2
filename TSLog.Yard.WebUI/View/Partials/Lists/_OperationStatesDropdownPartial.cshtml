@@ -14,7 +14,7 @@
 
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Состояния</span>
-    <select id="state" class="form-select" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+    <select id="state" class="form-select filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
     <option value="">@defaultText</option>
     @foreach (var state in states)
     {

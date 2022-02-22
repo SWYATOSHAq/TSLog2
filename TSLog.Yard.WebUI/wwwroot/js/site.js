@@ -1,12 +1,11 @@
-﻿function getUrlParameter(sParam) {
+﻿function GetUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
 
     for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
+        sParameterName = sURLVariables[i].split("=");
         if (sParameterName[0] === sParam) {
             return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
         }
@@ -15,7 +14,7 @@
 }
 
 function PrintCard() {
-    window.open('/PrintDispersal?id=' + $("#identeficator").text(), '_blank');
+    window.open("/PrintDispersal?id=" + $("#identeficator").text(), "_blank");
 }
 
 function PrintStatisticsTables() {
@@ -30,7 +29,7 @@ function PrintBlock(cellId) {
     // hide all intervals but selected
     $(".interval-print").addClass("d-none");
     $(".interval-print-" + cellId).removeClass("d-none");
-    //
+    
     window.print();
     // unhide all
     $(".statistics-table").removeClass("d-none");
@@ -78,7 +77,6 @@ function SelectTime(time, cellId) {
         // ResetVisibility();
         GetTrailLength();
 
-        //
         $("." + cellId).removeClass("btn-outline-primary");
         $("." + cellId).addClass("btn-info");
         // add trail
@@ -90,7 +88,7 @@ function SelectTime(time, cellId) {
             var shift = Math.floor(nextCellCollumn / time_split);
 
             nextCellCollumn = nextCellCollumn % time_split;
-            var nextTrailBlock = parsedCellId[0] + '-' + (shift + Number(parsedCellId[1])) + '-' + nextCellCollumn;
+            var nextTrailBlock = parsedCellId[0] + "-" + (shift + Number(parsedCellId[1])) + "-" + nextCellCollumn;
 
             $("." + nextTrailBlock).removeClass("btn-outline-primary");
             $("." + nextTrailBlock).addClass("btn-info");
@@ -113,7 +111,6 @@ function SelectTime(time, cellId) {
             if (true) {
                 //if (erorOccuredCount == trail_length) {
                 $("#eror-text p").text("Врямя недоступно из за типа операции, выберите другой промежуток времени или тип операции");
-
             }
             else {
                 $("#eror-text p").text("Врямя уже занято, выберите другой промежуток времени");
@@ -130,11 +127,11 @@ function SelectTime(time, cellId) {
 }
 
 function ConvertToTime(strTime) {
-    var ret = $(".datepicker").datepicker('getDate');
+    var result = $(".datepicker").datepicker("getDate");
     var arrTime = strTime.split(":");
 
-    ret.setHours(arrTime[0], arrTime[1], 0, 0);
-    return ret;
+    result.setHours(arrTime[0], arrTime[1], 0, 0);
+    return result;
 }
 
 function MultiplyTextTimeSpan(strTime, multiplier) {
@@ -163,7 +160,7 @@ function RenderTable(periods) {
     for (var i = time_start; i <= time_finish; i++) {
         timeSplits[i] = [];
         for (var j = 0; j < time_split; j++) {
-            timeSplits[i][j] = "" + i % 24 + ":" + ("" + (j * time_part)).padStart(2, '0');
+            timeSplits[i][j] = "" + i % 24 + ":" + ("" + (j * time_part)).padStart(2, "0");
         }
     }
 
@@ -175,12 +172,12 @@ function RenderTable(periods) {
     for (let row of timeSplits) {
         var newRow = document.createElement("div");
         $(newRow).addClass("row").addClass("p-2").addClass("table-1hr-row");
-        //
+        
         if (row != undefined)
             for (let bu_text of row) {
                 var newButton = document.createElement("button");
                 $(newButton).addClass("btn col p-2 m-1 shadow").text(bu_text);
-                //
+                
                 // check if time is awailable or not
                 var isSuitable = false;
 
@@ -200,10 +197,8 @@ function RenderTable(periods) {
                     $(newButton).attr("disabled", true);
                 } else {
                     $(newButton).addClass("btn-outline-primary");
-                    //$(newButton).attr("disabled", true);
-
                 }
-                //
+                
                 var cellId = "bu-" + i + "-" + j % time_split;
                 $(newButton).addClass(cellId);
                 $(newButton).on('click', SelectTime(bu_text, cellId));
@@ -238,19 +233,22 @@ function ConvertDate(strTime) {
 
 function RenderCard(base, card, date) {
     var baseCol = document.createElement("div");
-    $(baseCol).addClass("col  action-card");
+    $(baseCol).addClass("col action-card");
+
+    var card0 = document.createElement("div");
+    $(card0).addClass("container2");
 
     var baseCard = document.createElement("div");
-    $(baseCard).addClass("card m-1");
-    //
+    $(baseCard).addClass("m-1 card");
+    
     var cardHeader = document.createElement("div");
     $(cardHeader).addClass("card-header");
     $(cardHeader).css("background-color", card.DisplayColor);
     $(cardHeader).text(ConvertTime(card.PlanWorkStartDate) + " - " + ConvertTime(card.PlanWorkFinishDate) + " (" + ConvertDate(card.PlanWorkFinishDate) + ")");
-    //
+
     var cardBody = document.createElement("div");
     $(cardBody).addClass("card-body");
-    ///
+    
     var cardBodyMndnr = document.createElement("h5");
     $(cardBodyMndnr).addClass("card-title");
     $(cardBodyMndnr).text(GetCompaniesNames(card));
@@ -270,25 +268,59 @@ function RenderCard(base, card, date) {
     var cardBodyVehicleKind = document.createElement("p");
     $(cardBodyVehicleKind).addClass("card-text block-size-2");
     $(cardBodyVehicleKind).text(card.VehicleKind.DisplayName);
-    ///
+
+    var cardBodyVehicleNumber = document.createElement("p");
+    $(cardBodyVehicleNumber).addClass("card-text");
+    $(cardBodyVehicleNumber).text(card.VehicleNumber);
+
+    var cardBodyDriverName = document.createElement("p");
+    $(cardBodyDriverName).addClass("card-text block-size-2");
+    $(cardBodyDriverName).text(card.DriverName);
+
     cardBody.append(cardBodyMndnr);
     cardBody.append(cardBodyInputType);
     cardBody.append(cardBodyGate);
     cardBody.append(cardBodyState);
     cardBody.append(cardBodyVehicleKind);
+    cardBody.append(cardBodyVehicleNumber);
+    cardBody.append(cardBodyDriverName);
 
     var cardBodyButton = document.createElement("h5");
-    $(cardBodyButton).addClass("btn btn-outline-info m-3");
+    $(cardBodyButton).addClass("btn btn-outline-info m-3 open-operation");
     $(cardBodyButton).text("открыть");
-    $(cardBodyButton).click(function() {
-        location.href = '?id=' + card.Id + '&date=' + date;
+    $(cardBodyButton).click(function () {
+        /*
+        var ref = "?date=" + date;
+        const params = new URLSearchParams(window.location.search)
+        for (const param of params) {
+            if (param[0] == "gate") {
+                ref = ref + "&gate=" + param[1];
+            }
+            else if (param[0] == "type") {
+                ref = ref + "&type=" + param[1];
+            }
+            else if (param[0] == "partner") {
+                ref = ref + "&partner=" + param[1];
+            }
+            else if (param[0] == "vehicleKind") {
+                ref = ref + "&vehicleKind=" + param[1];
+            }
+            else if (param[0] == "state") {
+                ref = ref + "&state=" + param[1];
+            }
+        }
+        */
+        var ref = CreateFiltersRequest();
+        ref = ref + "&id=" + card.Id;
+        location.href = ref;
     });
-    //
+    
     baseCard.append(cardHeader);
     baseCard.append(cardBody);
     baseCard.append(cardBodyButton);
-    //
-    baseCol.append(baseCard);
+
+    card0.append(baseCard)
+    baseCol.append(card0);
     base.append(baseCol);
 }
 
@@ -342,7 +374,7 @@ function Create() {
             location.href = '/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
         });
     } else {
-        alert('не все обязательные поля введены');
+        alert("не все обязательные поля введены");
     }
 }
 
@@ -390,36 +422,27 @@ function Update() {
             // TODO пока пусть редиректит на лк TSL
             // но тут должна быть вилка в зависимости от типа пользователя
             // location.href = '/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-            location.href = '/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+            location.href = "/DispatcherHome?id=" + card.Id + "&date=" + $(".datepicker").datepicker("getDate").toLocaleDateString();
         });
     } else {
-        alert('не все обязательные поля введены');
+        alert("не все обязательные поля введены");
     }
 }
 
 function ChangeState(stateChangeType) {
+    if (stateChangeType == "DeleteOperation" && !window.confirm("Удалить операцию двора?")) {
+        return;
+    }
+
     var isAllHumanFieldsFull = true;
-    // bruh
     $(".dropdown .form-control").each(function() {
         var inputGroup = $(this).parent();
         var info = inputGroup.children(".selected-item-id").val();
 
-        isAllHumanFieldsFull = isAllHumanFieldsFull && info != '';
+        isAllHumanFieldsFull = isAllHumanFieldsFull && info != "";
     });
 
-    // $(".dropdown .form-control").each(inputField => {
-    //             console.log(inputField.text());
-    //             var inputGroup = inputField.parent();
-
-    //             console.log();
-
-    //             $.get("/api/v1/yard/SearchWorkersByName", {
-    //                 search: inputField.val(),
-    //                 position_code: inputGroup.children(".position-code").val(),
-    //             });
-
-    if (isAllHumanFieldsFull && stateChangeType == 'StartOperationWork' || stateChangeType != 'StartOperationWork') {
-
+    if (isAllHumanFieldsFull && stateChangeType == "StartOperationWork" || stateChangeType != "StartOperationWork") {
         var postData = {
             operation_id: $("#identeficator").text(),
             action: stateChangeType,
@@ -433,84 +456,90 @@ function ChangeState(stateChangeType) {
             else
                 window.location.href = window.location.search;
         });
-
     } else {
         alert("не все сотрудники были заполнены");
     }
 }
 
-$(document).ready(function() {
-    // show modal
-    if (getUrlParameter('id')) {
-        $('#RequestCardModal').modal('toggle');
+function CreateFiltersRequest() {
+    var date = $("#dp1").datepicker('getDate');
+    var value = date.toLocaleDateString();
+    var result = "?date=" + value;
+    value = $('#gates-filter select :selected')[0].value;
+    if (value != "")
+        result = result.concat("&gate=" + value);
+    value = $('#partner-filter select :selected')[0].value;
+    if (value != "")
+        result = result.concat("&partner=" + value);
+    value = $('#op-types-filter select :selected')[0].value;
+    if (value != "")
+        result = result.concat("&type=" + value);
+    value = $('#vehicle-kind-filter select :selected')[0].value;
+    if (value != "")
+        result = result.concat("&vehicleKind=" + value);
+    value = $('#states-filter select :selected')[0].value;
+    if (value != "")
+        result = result.concat("&state=" + value);
+
+    return result;
+}
+
+function LoadCardsList() {
+    if ($("#time_table").length) {
+        manageTimeTable(dateParam);
     }
-    // event on change
-    $('#gates-filter select').on('change', function() {
-        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
-    });
-    $('#partner-filter select').on('change', function() {
-        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
-    });
-    $('#op-types-filter select').on('change', function() {
-        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
-    });
-    $('#vehicle-kind-filter select').on('change', function() {
-        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
-    });
-    $('#states-filter select').on('change', function() {
-        LoadCardsList($(".datepicker").datepicker('getDate').toLocaleDateString());
-    });
-    //
-    function LoadCardsList(dateParam) {
-        if ($("#time_table").length) {
-            manageTimeTable(dateParam);
-        }
-        // 
 
+    var date = $("#dp1").datepicker('getDate');
+    var stringDate = date.toLocaleDateString();
 
-        $.get("/api/v1/yard/operationsList", {
-                "date": dateParam,
+    $.get("/api/v1/yard/operationsList", {
+            "date": stringDate,
+            "gate": $("#gates-filter select").val(),
+            "partner_id": $("#partner-filter select").val(),
+            "operation_type": $("#op-types-filter select").val(),
+            "vehicle_kind": $("#vehicle-kind-filter select").val(),
+            "state": $("#states-filter select").val()
+        },
+        function (data) {
+            var operations = JSON.parse(data);
 
-                "gate": $("#gates-filter select").val(),
-                "partner_id": $("#partner-filter select").val(),
-                "operation_type": $("#op-types-filter select").val(),
-                "vehicle_kind": $("#vehicle-kind-filter select").val(),
-                "state": $("#states-filter select").val()
-            },
-            function(data) {
-                //$(".result").html(data);
-                var cards = JSON.parse(data);
+            RemoveCards();
+            for (let operation of operations) {
+                console.log(operation);
+                RenderCard($(".data-operation-list"), operation, stringDate);
+            }
+        });
+    var newUrl = window.location.href.split('?')[0] + CreateFiltersRequest();
+    history.pushState({}, null, newUrl);
+}
 
-                RemoveCards();
-                for (let card of cards) {
-                    console.log(card);
+function OnChangeFilter() {
+    LoadCardsList();
+}
 
-                    RenderCard($(".data-operation-list"), card, dateParam);
-                }
-
-            });
+$(document).ready(function () {
+    // Show modal
+    if (GetUrlParameter("id")) {
+        $("#RequestCardModal").modal("toggle");
     }
+
+    // Event on change
+    $("#gates-filter select").on("change", OnChangeFilter);
+    $("#partner-filter select").on("change", OnChangeFilter);
+    $("#op-types-filter select").on("change", OnChangeFilter);
+    $("#vehicle-kind-filter select").on("change", OnChangeFilter);
+    $("#states-filter select").on("change", OnChangeFilter);
 
     $(".datepicker").datepicker({
-            format: "dd.mm.yyyy",
-            autoclose: true,
-            // startDate: "0d",
-            language: "ru",
-            todayBtn: true,
-            todayHighlight: true,
-        })
-        .datepicker("setDate", getUrlParameter("date") ? getUrlParameter("date") : 'now');
+        format: "dd.mm.yyyy",
+        autoclose: true,
+        language: "ru",
+        todayBtn: true,
+        todayHighlight: true,
+    }).datepicker("setDate", GetUrlParameter("date") ? GetUrlParameter("date") : "now");
 
-    $("#card_table .datepicker")
-        .on("changeDate", function(e) {
-            LoadCardsList(e.date.toLocaleDateString());
-        });
-
-    $(".time-table .datepicker")
-        .on("changeDate", function(e) {
-            LoadCardsList(e.date.toLocaleDateString());
-        });
-
+    $("#card_table .datepicker").on("changeDate", OnChangeFilter);
+    $(".time-table .datepicker").on("changeDate", OnChangeFilter);
 
     if ($("#time_table").length) {
         $("#text_operation_time").text("--:--:-- (--:--)");
@@ -557,28 +586,31 @@ $(document).ready(function() {
     }
 
     $("#operations").change(function() {
-        manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
+        manageTimeTable($(".datepicker").datepicker("getDate").toLocaleDateString());
     });
 
     $("#vehicle_kind").change(function() {
-        manageTimeTable($(".datepicker").datepicker('getDate').toLocaleDateString());
+        manageTimeTable($(".datepicker").datepicker("getDate").toLocaleDateString());
     });
+
+    var newUrl = window.location.href.split('?')[0] + createFiltersRequest();
+    history.pushState({}, null, newUrl);
 });
 
 function OpenHumanStatisticsByDate() {
-    location.href = '/HumanDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+    location.href = "/HumanDispersal?date=" + $(".datepicker").datepicker("getDate").toLocaleDateString();
 }
 
 function OpenGateStatisticsByDate() {
-    location.href = '/GateDispersal?date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+    location.href = "/GateDispersal?date=" + $(".datepicker").datepicker("getDate").toLocaleDateString();
 }
 
 function OpenClientReportByDate() {
-    if ($("#dp1").datepicker('getDate') <= $("#dp2").datepicker('getDate') && $("#partner-filter select").val() != "") {
-        location.href = '/ClientReportDispersal?start_date=' +
+    if ($("#dp1").datepicker('getDate') <= $("#dp2").datepicker("getDate") && $("#partner-filter select").val() != "") {
+        location.href = "/ClientReportDispersal?start_date=" +
             $("#dp1").datepicker('getDate').toLocaleDateString() +
-            '&end_date=' + $("#dp2").datepicker('getDate').toLocaleDateString() +
-            '&partner=' + $("#partner-filter select").val();
+            "&end_date=" + $("#dp2").datepicker("getDate").toLocaleDateString() +
+            "&partner=" + $("#partner-filter select").val();
     } else {
         alert("параметры отчета неверно заполнены");
     }
@@ -586,10 +618,9 @@ function OpenClientReportByDate() {
 
 $(document).ready(function() {
     // set params of client-report
-    $(".client-report #dp1").datepicker("setDate", getUrlParameter("start_date") ? getUrlParameter("start_date") : 'now').on("changeDate", function(e) {});
-    $(".client-report #dp2").datepicker("setDate", getUrlParameter("end_date") ? getUrlParameter("end_date") : 'now').on("changeDate", function(e) {});
+    $(".client-report #dp1").datepicker("setDate", GetUrlParameter("start_date") ? GetUrlParameter("start_date") : "now").on("changeDate", function(e) {});
+    $(".client-report #dp2").datepicker("setDate", GetUrlParameter("end_date") ? GetUrlParameter("end_date") : "now").on("changeDate", function(e) {});
 });
-//====================================================
 
 $(document).ready(function() {
     // make search on every letter change in #card-operation.dropdown-toggle
@@ -629,13 +660,12 @@ function RenderUserList(parent, people) {
         var newItem = document.createElement("li");
         newItem = $(newItem);
         newItem.addClass("dropdown-item");
-        //
+
         newItem.text(human.FullName);
         newItem.val(human.Id);
         newItem.click(OnItemClick);
-        //
-        parent.append(newItem);
 
+        parent.append(newItem);
     });
 }
 
@@ -646,9 +676,8 @@ function RenderUserList(parent, people) {
 function OnItemClick() {
     var selectedWorker = $(this);
     var inputGroup = selectedWorker.parent().parent();
-    //
     inputGroup.children(".dropdown-toggle").val(selectedWorker.text());
-    //
+
     var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
 
     if (curSelectedWorkerID == "") {
@@ -661,7 +690,6 @@ function OnItemClick() {
         if (curSelectedWorkerID != selectedWorker.val()) {
             // id has changed? so delete previous and add new
             UpdateWorkerInfo("del", inputGroup);
-            //
             inputGroup.children(".selected-item-id").val(selectedWorker.val());
             UpdateWorkerInfo("add", inputGroup);
         }
@@ -690,9 +718,9 @@ $(document).ready(function() {
 
 var maxRowsPerPosition = 4;
 
-function addNewPosition(rowButton) {
+function AddNewPosition(rowButton) {
     var row = $(rowButton).parent().parent().parent();
-    var posCode = row.attr('class');
+    var posCode = row.attr("class");
     console.log($("." + posCode));
 
     var positionRows = $("." + posCode);
@@ -700,38 +728,36 @@ function addNewPosition(rowButton) {
     if (positionRows.length < maxRowsPerPosition) {
         var newRow = row.clone();
         // clear data of new row
-        setRowEmpty(newRow);
-        //
+        SetRowEmpty(newRow);
+
         var curSize = positionRows.length;
         row.after(newRow);
-        //
+
         RerenderWorkerTableIndexes();
         RecalculateAdditionalTableInfo(posCode, row.find(".cell-info-text").text(), curSize);
     }
 }
 
-function removePosition(rowButton) {
+function RemovePosition(rowButton) {
     var row = $(rowButton).parent().parent().parent();
-
     var posCode = row.attr('class');
-
     console.log($("." + posCode));
 
     UpdateWorkerInfo("del", row.find(".input-group"));
-    //
+
     var positionRows = $("." + posCode);
     console.log(positionRows);
     if (positionRows.length > 1) {
         var curSize = positionRows.length;
         row.remove();
         RecalculateAdditionalTableInfo(posCode, row.find(".cell-info-text").text(), curSize);
-    } else
-        setRowEmpty(row);
-    //
+    } else {
+        SetRowEmpty(row);
+    }
     RerenderWorkerTableIndexes();
 }
 
-function setRowEmpty(row) {
+function SetRowEmpty(row) {
     row.find(".selected-item-id").val("");
     var dropdownToggle = row.find(".dropdown-toggle");
 
@@ -751,9 +777,8 @@ function RecalculateAdditionalTableInfo(rowGroupName, exampleText, previousSize)
     // [01:06:00 чел.] (1/1)	
     var strTime = exampleText.split("[")[1].split(" ")[0];
     var neededPersonal = exampleText.split("/")[1].split(")")[0];
-    //
     var newTime = MultiplyTextTimeSpan(strTime, (previousSize / neededPersonal) / (rowGroupRows.length / neededPersonal));
-    //
+
     var outStr = "[" + newTime.toLocaleTimeString() + " чел.] (" + rowGroupRows.length + "/" + neededPersonal + ")";
     console.log(outStr);
     rowGroupRows.each(function(index) {

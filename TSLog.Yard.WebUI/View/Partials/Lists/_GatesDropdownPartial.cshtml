@@ -13,7 +13,7 @@
 }
 <div class="input-group">
     <span class="input-group-text col-3 @(isSmall  ? "d-none" : string.Empty)">Номер ворот</span>
-    <select class="form-select gates" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+    <select class="form-select gates filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
     <option value="">@defaultText</option>
     @foreach (var gate in gates)
     {

@@ -12,7 +12,7 @@ namespace TSLog.Yard.WebUI.Models
         public VehicleKindsModel(VehicleKind[] kinds, string selectedKind, bool isEnabled, bool isSmall, string defaultText)
         {
             VehicleKinds = kinds;
-            SelectedKind = selectedKind.Trim();
+            SelectedKind = !string.IsNullOrWhiteSpace(selectedKind) ? selectedKind.Trim() : string.Empty;
             IsEnabled = isEnabled;
             IsSmall = isSmall;
             DefaultText = defaultText.Trim();
