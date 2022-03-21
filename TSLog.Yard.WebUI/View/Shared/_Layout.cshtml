@@ -11,11 +11,13 @@
     var userName = User.Identity.Name;
     var debugTextTag = $"(DEBUG {userName})";    
 
-    var createOperation = true || rightsChecker.CheckRight("CREATE_OPERATION", User);
-    var viewStaffPlan = true || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
-    var viewGatesPlan = true || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
-    var viewPartnersReport = true || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
-    var viewActiveOperations = true || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var createOperation = rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var viewStaffPlan = rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
+    var viewGatesPlan = rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
+    var viewPartnersReport = rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    var viewActiveOperations = rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var viewGuardPage = rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var date = DateTime.Today.ToString("dd.MM.yyyy");
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +57,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/DispatcherHome">ЛК TSL</a>
+                            <a class="nav-link text-dark" href="/DispatcherHome?from_date=@date&to_date=@date">ЛК TSL</a>
                         </li>
                         @if (createOperation)
                         {
@@ -88,6 +90,12 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/ActiveCarsDispersal">Список активных машин</a>
+                            </li>
+                        }
+                        @if (viewGuardPage)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/GuardPage">Управление въездом/выездом</a>
                             </li>
                         }
                         <!-- <li class="nav-item">

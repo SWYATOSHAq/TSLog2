@@ -6,5 +6,6 @@
     ViewData["Title"] = "index";
 }
 @{    
-    Response.Redirect("/DispatcherHome");
+    var date = DateTime.Today.ToString("dd.MM.yyyy");
+    Response.Redirect($"/DispatcherHome?from_date={date}&to_date={date}");
 }

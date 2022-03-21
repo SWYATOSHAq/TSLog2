@@ -11,18 +11,20 @@
     var isAdmin = isEnabled;
 }
 @{
-    var createOperation = true || rightsChecker.CheckRight("CREATE_OPERATION", User);
-    var filterOperationsByDate = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
-    var filterOperationsByType = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
-    var filterOperationsByVehicleKind = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
-    var filterOperationsByState = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_STATE", User);
-    var filterOperationsByGate = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_GATE", User);
-    var filterOperationsByPartner = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
-    var filterOperationsByVehicle = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
-    var filterOperationsByDriver = true || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
+    var createOperation = rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var filterOperationsByDate = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
+    var filterOperationsByType = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
+    var filterOperationsByVehicleKind = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
+    var filterOperationsByState = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_STATE", User);
+    var filterOperationsByGate = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_GATE", User);
+    var filterOperationsByPartner = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
+    var filterOperationsByVehicle = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
+    var filterOperationsByDriver = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
 
-    string requestDate = request.Query["date"];
-    var date = requestDate != null ? DateTime.Parse(requestDate) : DateTime.Today;
+    string requestFromDate = request.Query["from_date"];
+    var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
+    string requestToDate = request.Query["to_date"];    
+    var toDate = requestToDate != null ? DateTime.Parse(requestToDate) : DateTime.Today;
     string selectedGate = request.Query["gate"];
     string selectedType = request.Query["type"];
     string selectedPartner = request.Query["partner"];
@@ -35,8 +37,8 @@
     var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind, true, true, "Все типы машин");
     var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния");
 
-    var span = 2;
-    var operations = storage.GetOperations(date.Date, date.AddDays(span).AddTicks(-1),
+    var span = 1;
+    var operations = storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1),
         !string.IsNullOrWhiteSpace(selectedType) ? storage.GetOperationType(selectedType) : null,
         !string.IsNullOrWhiteSpace(selectedVehicleKind) ? storage.GetVehicleKind(selectedVehicleKind) : null,
         !string.IsNullOrWhiteSpace(selectedState) ? storage.GetOperationState(selectedState) : null,
@@ -64,21 +66,6 @@
 
 <div class="row p-2 m-3 card-table">
     <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto card-table" id="card_table">
-        <div class="row row2">
-            <div class="container2">
-                <span class="caption">Выберете дату:</span>
-            </div>            
-        </div>
-        <div class="row row2">
-            <div class="container2">
-                <input type="text"
-                    id="dp1"
-                    class="datepicker border border-secondary datepicker2"
-                    placeholder="Выберете дату"
-                    ne="date"
-                    readonly />
-            </div>            
-        </div>
         @if (createOperation)
         {
             <div class="row row2">
@@ -86,7 +73,7 @@
                     <button title="Создать заявку" 
                         class="btn btn-outline-success hide-on-print create-operation" 
                         type="button" 
-                    onclick="location.href = '/NewOperation?date=' + $('.datepicker').datepicker('getDate').toLocaleDateString()">
+                        onclick="location.href='/NewOperation'">
                         Создать
                     </button>
                 </div>                
@@ -97,7 +84,33 @@
                 <span class="caption">Фильтры:</span>
             </div>            
         </div>
-        <div class="row row2">
+        
+        <div id="filters" class="row row2">
+            <div class="row row2">
+                <div class="container2">
+                    <span class="caption">Выберете даты:</span>
+                </div>            
+            </div>
+            <div class="row row3">
+                <div class="container3">
+                    <label for="from-date-picker">С:</label>
+                    <input type="text"
+                        id="from-date-picker"
+                        class="datepicker border border-secondary datepicker2"
+                        placeholder="Выберете дату"
+                        ne="date"
+                        readonly />
+                </div>  
+                <div class="container3">
+                    <label for="to-date-picker">по:</label>
+                    <input type="text"
+                        id="to-date-picker"
+                        class="datepicker border border-secondary datepicker2"
+                        placeholder="Выберете дату"
+                        ne="date"
+                        readonly />
+                </div>  
+            </div>
             @if (filterOperationsByGate)
             {
                 <div class="col-md-3 col-6 filter-element container2" id="gates-filter">
@@ -106,27 +119,43 @@
             }
             @if (filterOperationsByType)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="op-types-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="operation-types-filter">
                     <partial name="Partials/Lists/_OperationTypesDropdownPartial" model="operationTypesModel" />
                 </div>    
             }
             @if (filterOperationsByPartner)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="partner-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="partners-filter">
                     <partial name="Partials/Lists/_PartnersDropdownPartial" model="partnersModel" />
                 </div>
             }
             @if (filterOperationsByVehicleKind)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="vehicle-kind-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="vehicle-kinds-filter">
                     <partial name="Partials/Lists/_VehicleKindsDropdownPartial" model="vehicleKindsModel" />
                 </div>                
             }
             @if (filterOperationsByState)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="states-filter">
+                <div class="col-md-3 col-6 filter-element container2" id="operation-states-filter">
                     <partial name="Partials/Lists/_OperationStatesDropdownPartial" model="operationStatesModel" />
                 </div>    
+            }
+            @if (filterOperationsByVehicle)
+            {
+                <div class="col-md-3 col-6 filter-element container2" id="vehicle-number-filter">
+                    <div id="vehicle-number-block" class="input-group">                        
+                        <input class="form-control filter-text-box" id="vehicle-number-input" placeholder="Номер машины">
+                    </div>
+                </div>                
+            }
+            @if (filterOperationsByDriver)
+            {
+                <div class="col-md-3 col-6 filter-element container2" id="driver-name-filter">
+                    <div id="driver-name-block" class="input-group">
+                        <input class="form-control filter-text-box" id="driver-name-input" placeholder="Ф. И. О. водителя">
+                    </div>
+                </div>                
             }
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list row2">

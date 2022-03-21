@@ -27,15 +27,23 @@
             /// Признак доступности
             /// </summary>
             public bool IsEnabled { get; private set; }
-            public Field(string code, string caption, string value, bool isVisible, bool isEnabled)
+            /// <summary>
+            /// Признак обязательного поля
+            /// </summary>
+            public bool IsRequired { get; private set; }
+            public Field(string code, string caption, string value, bool isVisible, bool isEnabled, bool isRequired = false)
             {
                 Code = code.Trim();
                 Caption = caption.Trim();
                 Value = value.Trim();
                 IsVisible = isVisible;
                 IsEnabled = isEnabled;
+                IsRequired = isRequired;
             }
         }
+        /// <summary>
+        /// Список элементов
+        /// </summary>
         public IList<Field> Elements { get; private set;}
         public FieldsModel(IList<Field> elements)
         {

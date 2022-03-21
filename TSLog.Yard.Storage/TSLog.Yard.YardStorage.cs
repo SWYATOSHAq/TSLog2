@@ -233,9 +233,9 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetGateIntervals(gate, from, to);
         }
-        public Operation AddOperation(Operation operation)
+        public Operation AddOperation(Operation operation, string user = "")
         {
-            return _pgsqlStorage.AddOperation(operation);
+            return _pgsqlStorage.AddOperation(operation, user);
         }
         public Operation GetOperation(long id)
         {
@@ -269,49 +269,53 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetActiveOperations();
         }
+        public Operation[] GetOperationsForGuard()
+        {
+            return _pgsqlStorage.GetOperationsForGuard();
+        }
         public Partner[] GetOperationsPartners(DateTime from, DateTime to)
         {
             return _pgsqlStorage.GetOperationsPartners(from, to);
         }
-        public void EditOperation(Operation operation)
+        public void EditOperation(Operation operation, string user = "")
         {
-            _pgsqlStorage.EditOperation(operation);
+            _pgsqlStorage.EditOperation(operation, user);
         }
-        public Gate SetOperationGate(Operation operation, Gate? gate = null)
+        public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "")
         {
-            return _pgsqlStorage.SetOperationGate(operation, gate);
+            return _pgsqlStorage.SetOperationGate(operation, gate, user);
         }
-        public void CancelOperationGate(Operation operation)
+        public void CancelOperationGate(Operation operation, string user = "")
         {
-            _pgsqlStorage.CancelOperationGate(operation);
+            _pgsqlStorage.CancelOperationGate(operation, user);
         }
-        public void SetResponsibleOfficer(Operation operation, Employee officer)
+        public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "")
         {
-            _pgsqlStorage.SetResponsibleOfficer(operation, officer);
+            _pgsqlStorage.SetResponsibleOfficer(operation, officer, user);
         }
-        public void StartOperation(Operation operation)
+        public void StartOperation(Operation operation, string user = "")
         {
-            _pgsqlStorage.StartOperation(operation);
+            _pgsqlStorage.StartOperation(operation, user);
         }
-        public void StartOperationWork(Operation operation)
+        public void StartOperationWork(Operation operation, string user = "")
         {
-            _pgsqlStorage.StartOperationWork(operation);
+            _pgsqlStorage.StartOperationWork(operation, user);
         }
-        public void FinishOperationWork(Operation operation)
+        public void FinishOperationWork(Operation operation, string user = "")
         {
-            _pgsqlStorage.FinishOperationWork(operation);
+            _pgsqlStorage.FinishOperationWork(operation, user);
         }
-        public void FinishOperation(Operation operation)
+        public void FinishOperation(Operation operation, string user = "")
         {
-            _pgsqlStorage.FinishOperation(operation);
+            _pgsqlStorage.FinishOperation(operation, user);
         }
-        public void CancelOperation(Operation operation)
+        public void CancelOperation(Operation operation, string user = "")
         {
-            _pgsqlStorage.CancelOperation(operation);
+            _pgsqlStorage.CancelOperation(operation, user);
         }
-        public void DeleteOperation(Operation operation)
+        public void DeleteOperation(Operation operation, string user = "")
         {
-            _pgsqlStorage.DeleteOperation(operation);
+            _pgsqlStorage.DeleteOperation(operation, user);
         }
         #endregion
 

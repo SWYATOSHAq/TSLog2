@@ -12,13 +12,13 @@
         defaultText = "Логист не выбран";
 }
 
-<div class="input-group">
+<div id="logists-block" class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Логист</span>
-    <select id="logists" class="form-select filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
-    <option value="">@defaultText</option>
-    @foreach (var logist in logists)
-    {
-       @: <option value="@logist.Code" @((logist.Code == selectedLogist) ? "selected" : string.Empty)>@logist.DisplayName</option>
-    }
+    <select id="logists-dropdown" class="form-select filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+        <option value="">@defaultText</option>
+        @foreach (var logist in logists)
+        {
+            @: <option value="@logist.Code" @((logist.Code == selectedLogist) ? "selected" : string.Empty)>@logist.DisplayName</option>
+        }
     </select>
 </div>

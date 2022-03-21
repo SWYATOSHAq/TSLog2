@@ -36,18 +36,20 @@
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
             <tr>
-                <th class="color-yellow">№</th>
-                <th class="color-yellow">№ Т/С (прицепа)</th>
-                <th class="color-yellow">Марка Т/С</th>
-                <th class="color-yellow">Ф.И.О.</th>
-                <th class="color-yellow">Поклажедатель</th>
-                <th class="color-yellow">Цель приезда</th>
-                <th class="color-yellow">№ заказа</th>
-                <th class="color-yellow">Примечание</th>
-                <th class="color-green">День</th>
-                <th class="color-green">Время прибытия на КПП</th>
-                <th class="color-orange">№ Ворот</th>
-                <th class="color-yellow">Состояние</th>
+                <th class="color-yellow table-header">№</th>
+                <th class="color-yellow table-header">№ Т/С (прицепа)</th>
+                <th class="color-yellow table-header">Марка Т/С</th>
+                <th class="color-yellow table-header">Ф.И.О.</th>
+                <th class="color-yellow table-header">Поклажедатель</th>
+                <th class="color-yellow table-header">Цель приезда</th>
+                <th class="color-yellow table-header">№ заказа</th>
+                <th class="color-yellow table-header">Примечание</th>
+                <th class="color-green table-header">День</th>
+                <th class="color-green table-header">Время прибытия на КПП</th>
+                <th class="color-green table-header">Начало работы</th>
+                <th class="color-orange table-header">Инициатор допуска ТС</th>
+                <th class="color-orange table-header">№ Ворот</th>
+                <th class="color-yellow table-header">Состояние</th>
             </tr>
         </thead>
         <tbody>
@@ -56,21 +58,27 @@
             }
             @foreach (var operation in operations)
             {
-                <tr>
-                    <th>@i</th>
-                    <td>@operation.VehicleNumber</td>
-                    <td>@operation.VehicleBrand</td>
-                    <td>@operation.DriverName</td>
-                    <td>@(Partner.Serialize(operation.GetPartners()))</td>
-                    <td>@operation.Type.DisplayName</td>
-                    <td>@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty)</td>
+                <tr class="table-row">
+                    <th class="table-cell">@i</th>
+                    <td class="table-cell">@operation.VehicleNumber</td>
+                    <td class="table-cell">@operation.VehicleBrand</td>
+                    <td class="table-cell">@operation.DriverName</td>
+                    <td class="table-cell">@Partner.Serialize(operation.GetPartners())</td>
+                    <td class="table-cell">@operation.Type.DisplayName</td>
+                    <td class="table-cell">@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty)</td>
                     <td>@operation.Note</td>
-                    <td>@operation.StartDate.ToString(@"dd.MM.yyyy")</td>
-                    <td>@operation.StartDate.ToString(@"HH\:mm")</td>
-                    <td>@operation.Gate.ShortName</td>
-                    <td style="background-color: @operation.DisplayColor !important; box-shadow:none">
-                        <button class="btn btn-outline-info m-3" onclick="location.href='/p/dispatcher/DispatcherHome?id=@operation.Id'">открыть</button>
-                        <p>@operation.State.DisplayName</p>
+                    <td class="table-cell">@operation.StartDate.ToString(@"dd.MM.yyyy")</td>
+                    <td class="table-cell">@operation.StartDate.ToString(@"HH\:mm")</td>
+                    <td class="table-cell">@operation.PlanWorkStartDate.ToString(@"dd.MM.yyyy HH\:mm")</td>
+                    <td class="table-cell">
+                        @operation.CreateDate
+                        <br />
+                        @operation.Creator
+                    </td>
+                    <td class="table-cell">@operation.Gate.ShortName</td>
+                    <td class="table-cell" style="background-color: @operation.DisplayColor !important; box-shadow:none">
+                        <button class="btn btn-outline-info m-3 table-cell-button" onclick="location.href='/DispatcherHome?id=@operation.Id'">открыть</button>
+                        <p class="text-center p-margin-0">@operation.State.DisplayName</p>
                     </td>
                 </tr>
                 i++;

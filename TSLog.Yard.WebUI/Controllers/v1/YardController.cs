@@ -6,7 +6,6 @@ using TSLog.Partners.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 using static TSLog.Yard.BO.OperationType;
-using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
 {
@@ -14,11 +13,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
     [ApiController]
     public class YardController : ControllerBase
     {
-        private readonly IYardStorage yardStorage;
-
+        private readonly IYardStorage _storage;
         public YardController(IYardStorage storage)
         {
-            yardStorage = storage;
+            _storage = storage;
         }
         /*
          * get info about operation by id
@@ -30,66 +28,47 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("BusyPeriods")]
         public string GetBusyPeriods()
         {
-            // TODO test
-            // default
-            string Text;
-            //
-            string strDate = Request.Query["date"];
-            var date = DateTime.Parse(strDate);
+            string stringDate = Request.Query["date"];
+            string stringOperationType = Request.Query["operation"];
+            string stringVehicleKind = Request.Query["vehicle_kind"];
 
+            var date = DateTime.Parse(stringDate);
+            var operationType = _storage.GetOperationType(stringOperationType);
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
 
-            string strOperation = Request.Query["operation"];
-            var operation = yardStorage.GetOperationType(strOperation);
-
-            string strVehicleKind = Request.Query["vehicle_kind"];
-            var vehicleKind = yardStorage.GetVehicleKind(strVehicleKind);
-
-            //
-            var periods = yardStorage.GetAvalibleIntervals(date, date.AddDays(2), operation, vehicleKind);
+            var span = 2;
+            var periods = _storage.GetAvalibleIntervals(date, date.AddDays(span), operationType, vehicleKind);
             var busyPeriods = Interval.Union(periods);
-            //
-            Text = JsonSerializer.Serialize(busyPeriods);
-            return Text;
+
+            var text = JsonSerializer.Serialize(busyPeriods);
+            return text;
         }
 
         [HttpGet("OperationLength")]
         public string GetOperationLength()
         {
-            // TODO test
-            // default
-            string Text;
-            //
+            string stringOperationType = Request.Query["operation"];            
+            string stringVehicleKind = Request.Query["vehicle_kind"];
 
-            string strOperation = Request.Query["operation"];
-            var operation = yardStorage.GetOperationType(strOperation);
+            var operationType = _storage.GetOperationType(stringOperationType);
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            var timeSpan = _storage.GetTime(operationType, vehicleKind);
 
-            string strVehicleKind = Request.Query["vehicle_kind"];
-            var vehicleKind = yardStorage.GetVehicleKind(strVehicleKind);
-
-            //
-            var timeSpan = yardStorage.GetTime(operation, vehicleKind);
-
-            ////
-            Text = JsonSerializer.Serialize(timeSpan);
-            return Text;
+            var text = JsonSerializer.Serialize(timeSpan);
+            return text;
         }
 
         [HttpGet("OperationData")]
         public string GetOperationData()
         {
-            // TODO test
-            // default
-            var Text = "";
-            //
-            string operationID = Request.Query["operation_id"];
-
-            if (long.TryParse(operationID, out long tmpID))
+            var text = string.Empty;
+            string stringId = Request.Query["operation_id"];
+            if (long.TryParse(stringId, out long id))
             {
-                var loadedOperation = yardStorage.GetOperation(tmpID);
-                Text = JsonSerializer.Serialize(loadedOperation);
+                var operation = _storage.GetOperation(id);
+                text = JsonSerializer.Serialize(operation);
             }
-
-            return Text;
+            return text;
         }
 
         [HttpGet("OperationsList")]
@@ -97,29 +76,29 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             var text = string.Empty;
 
-            string date = Request.Query["date"];
-            string gate = Request.Query["gate"];
-            string partnerID = Request.Query["partner_id"];
-            string operationType = Request.Query["operation_type"];
-            string vehicleKind = Request.Query["vehicle_kind"];
-            string state = Request.Query["state"];
+            string stringFromDate = Request.Query["from_date"];
+            string stringToDate = Request.Query["to_date"];
+            string stringGate = Request.Query["gate"];
+            string stringPartnerId = Request.Query["partner_id"];
+            string stringOperationType = Request.Query["operation_type"];
+            string stringVehicleKind = Request.Query["vehicle_kind"];
+            string stringState = Request.Query["state"];
+            string stringVehicleNumber = Request.Query["vehicle_number"];
+            string stringDriverName = Request.Query["driver_name"];
 
-            var partner = !string.IsNullOrWhiteSpace(partnerID) ? yardStorage.GetPartner(partnerID) : Partner.Null;
-            //var searchPartners = partner == Partner.Null ? Array.Empty<Partner>() : new Partner[] { partner };
+            var partner = !string.IsNullOrWhiteSpace(stringPartnerId) ? _storage.GetPartner(stringPartnerId) : Partner.Null;
+            var gate = !string.IsNullOrWhiteSpace(stringGate) ? _storage.GetGate(stringGate) : Gate.Null;
+            var operationType = !string.IsNullOrWhiteSpace(stringOperationType) ? _storage.GetOperationType(stringOperationType) : Null;
+            var vehicleKind = !string.IsNullOrWhiteSpace(stringVehicleKind) ? _storage.GetVehicleKind(stringVehicleKind) : VehicleKind.Null;
+            var state = !string.IsNullOrWhiteSpace(stringState) ? _storage.GetOperationState(stringState) : Entity.Null;
 
-            var searchGate = !string.IsNullOrWhiteSpace(gate) ? yardStorage.GetGate(gate) : Gate.Null;
-            var searchOperationType = !string.IsNullOrWhiteSpace(operationType) ? yardStorage.GetOperationType(operationType) : OperationType.Null;
-            var searchVehicleKind = !string.IsNullOrWhiteSpace(vehicleKind) ? yardStorage.GetVehicleKind(vehicleKind) : VehicleKind.Null;
-            var searchState = !string.IsNullOrWhiteSpace(state) ? yardStorage.GetOperationState(state) : Entity.Null;
-
-            if (DateTime.TryParse(date, out DateTime tmp))
+            if (DateTime.TryParse(stringFromDate, out DateTime fromDate) && DateTime.TryParse(stringToDate, out DateTime toDate))
             {
-                // search for period of 1 day or 2 days?
-                var daysSpan = 2;
-                var loadedOperations = yardStorage.GetOperations(tmp.Date, tmp.AddDays(daysSpan).AddTicks(-1), Array.Empty<Partner>());
-                // additional filters
-                loadedOperations = Operation.Filter(loadedOperations, partner, searchOperationType, searchVehicleKind, searchGate, searchState);
-                text = JsonSerializer.Serialize(loadedOperations);
+                var span = 1;
+                var operations = _storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1), Array.Empty<Partner>());
+                operations = Operation.Filter(operations, partner, operationType, vehicleKind, gate, state,
+                    stringVehicleNumber, stringDriverName);
+                text = JsonSerializer.Serialize(operations);
             }
             return text;
         }
@@ -127,78 +106,78 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("CreateUpdateOperation")]
         public string GetInsertUpdateData()
         {
-            var operation_type = Request.Form["operation_type"];
-            //var gate = Request.Form["gate"];
-            var vehicle_kind = Request.Form["vehicle_kind"];
-            string vehicle_brand = Request.Form["vehicle_brand"];
-            string vehicle_model = Request.Form["vehicle_model"];
-            string vehicle_number = Request.Form["vehicle_number"];
-            string order_id = Request.Form["order_id"];
-            string driver_name = Request.Form["driver_name"];
+            var user = string.Empty;
+            if (User != null && User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
+                user = User.Identity.Name.Split('\\').Last();
 
-            string driver_phone = Request.Form["driver_phone"];
-            string manager_name = Request.Form["manager_name"];
-            string manager_phone = Request.Form["manager_phone"];
-            string manager_email = Request.Form["manager_email"];
-            string note = Request.Form["note"];
+            var text = "Error||[внутренная ошибка: ошибка создания/обновления записи, обратитесь к ответственному лицу]";
 
-            string gate_id = Request.Form["gate"];
+            string stringOperationId = Request.Form["operation_id"];
+            string stringStartDate = Request.Form["start_date"];
+            string stringFinishDate = Request.Form["finish_date"];
+            string stringGateId = Request.Form["gate"];
+            string stringOperationType = Request.Form["operation_type"];
+            string stringVehicleKind = Request.Form["vehicle_kind"];            
+            string stringVehicleBrand = Request.Form["vehicle_brand"];
+            string stringVehicleModel = Request.Form["vehicle_model"];
+            string stringVehicleNumber = Request.Form["vehicle_number"];
+            string stringOrderId = Request.Form["order_id"];
+            string stringDriverName = Request.Form["driver_name"];
+            string stringDriverPhoneNumber = Request.Form["driver_phone"];
+            string stringManagerName = Request.Form["manager_name"];
+            string stringManagerPhoneNumber = Request.Form["manager_phone"];
+            string stringManagerEmail = Request.Form["manager_email"];
+            string stringNote = Request.Form["note"];
+            string stringPartnerId = Request.Form["partner_id"];
 
-            //
-            string operation_id = Request.Form["operation_id"];
-            //
-            var start_date = Request.Form["start_date"];
-            var finish_date = Request.Form["finish_date"];
-
-            string Text = "eror||[внутренная ошибка: ошибка создания/обновления записи, обратитесь к ответственному лицу]";
-
-            if (operation_id != null)
+            if (stringOperationId != null)
             {
-                long operationId;
-
-                if (long.TryParse(operation_id, out operationId))
+                if (long.TryParse(stringOperationId, out long id))
                 {
-
-                    // update 
-                    var operationToUpdate = yardStorage.GetOperation(operationId);
-                    if (operationToUpdate.State.Code == "FINISHED" || operationToUpdate.State.Code == "CANCELED")
-                    {
-                        Text = "eror||ошибка, невозможно изменить значение заявки, которая уже завершена / отменена";
-                    }
+                    var operation = _storage.GetOperation(id);
+                    if (operation.State.Code == "FINISHED" || operation.State.Code == "CANCELED")
+                        text = "Error||ошибка, невозможно изменить значение заявки, которая уже завершена / отменена";
                     else
                     {
-                        //set values
-                        var type = yardStorage.GetOperationType(operation_type);
-                        var gate = yardStorage.GetGate(gate_id);
-                        var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
+                        var gate = _storage.GetGate(stringGateId);
+                        var operationType = _storage.GetOperationType(stringOperationType);                        
+                        var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
 
-                        if (type != OperationType.Null)
-                            operationToUpdate.Type = type;
-
+                        if (operationType != Null)
+                            operation.Type = operationType;
                         if (vehicleKind != VehicleKind.Null)
-                            operationToUpdate.VehicleKind = vehicleKind;
+                            operation.VehicleKind = vehicleKind;
+                        if (!string.IsNullOrWhiteSpace(stringVehicleBrand))
+                            operation.VehicleBrand = stringVehicleBrand;
+                        if (!string.IsNullOrWhiteSpace(stringVehicleModel))
+                            operation.VehicleModel = stringVehicleModel;
+                        if (!string.IsNullOrWhiteSpace(stringVehicleNumber))
+                            operation.VehicleNumber = stringVehicleNumber;
+                        if (!string.IsNullOrWhiteSpace(stringDriverName))
+                            operation.DriverName = stringDriverName;
+                        if (!string.IsNullOrWhiteSpace(stringDriverPhoneNumber))
+                            operation.DriverPhoneNumber = stringDriverPhoneNumber;
+                        if (!string.IsNullOrWhiteSpace(stringManagerName))
+                            operation.PartnerManagerName = stringManagerName;
+                        if (!string.IsNullOrWhiteSpace(stringManagerPhoneNumber))
+                            operation.PartnerManagerPhoneNumber = stringManagerPhoneNumber;
+                        if (string.IsNullOrWhiteSpace(stringManagerEmail))
+                            operation.PartnerManagerEmail = stringManagerEmail;
+                        if (!string.IsNullOrWhiteSpace(stringNote))
+                            operation.Note = stringNote;
 
-
-                        if (vehicle_brand != null)
-                            operationToUpdate.VehicleBrand = vehicle_brand;
-                        if (vehicle_model != null)
-                            operationToUpdate.VehicleModel = vehicle_model;
-                        if (vehicle_number != null)
-                            operationToUpdate.VehicleNumber = vehicle_number;
-                        if (order_id != null)
+                        if (!string.IsNullOrWhiteSpace(stringOrderId))
                         {
-                            var tmpPartner = Partner.Null;
-                            var curActions = operationToUpdate.GetActions();
-                            // remove previous
-                            foreach (var curAction in curActions)
+                            var partner = Partner.Null;
+                            var actions = operation.GetActions();
+                            foreach (var action in actions)
                             {
-                                tmpPartner = curAction.Partner;
-                                operationToUpdate.RemoveAction(curAction);
+                                partner = action.Partner;
+                                operation.RemoveAction(action);
                             }
-                            // add new
-                            ActionKind actionKind = ActionKind.Income;
 
-                            switch (type.Direction)
+                            var actionKind = ActionKind.Income;
+                            switch (operationType.Direction)
                             {
                                 case TypeDirection.In:
                                     actionKind = ActionKind.Income;
@@ -209,87 +188,65 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                                 default:
                                     break;
                             }
-                            operationToUpdate.AddAction(yardStorage.GetAction(actionKind, tmpPartner, order_id));
+                            operation.AddAction(_storage.GetAction(actionKind, partner, stringOrderId));
                         }
-                        if (driver_name != null)
-                            operationToUpdate.DriverName = driver_name;
 
-                        if (driver_phone != null)
-                            operationToUpdate.DriverPhoneNumber = driver_phone;
-                        if (manager_name != null)
-                            operationToUpdate.PartnerManagerName = manager_name;
-                        if (manager_phone != null)
-                            operationToUpdate.PartnerManagerPhoneNumber = manager_phone;
-                        if (manager_email != null)
-                            operationToUpdate.PartnerManagerEmail = manager_email;
-                        if (note != null)
-                            operationToUpdate.Note = note;
-                        //
-                        yardStorage.EditOperation(operationToUpdate);
-                        try
+                        _storage.EditOperation(operation, user);
+                        if (operation.Gate != gate)
                         {
-                            if (operationToUpdate.Gate != gate)
-                                yardStorage.SetOperationGate(operationToUpdate, gate);
+                            try
+                            {
+                                _storage.SetOperationGate(operation, gate, user);
+                            }
+                            catch (Exception)
+                            {
+                                _storage.SetOperationGate(operation, null, user);
+                                // TODO: Say to user that gates has not been successfully updated
+                            }
                         }
-                        catch (Exception)
-                        {
-                            yardStorage.SetOperationGate(operationToUpdate);
-                            // TODO say to user that gates has not been successfully updated
-                        }
-
-
-                        Text = JsonSerializer.Serialize(operationToUpdate);
+                        text = JsonSerializer.Serialize(operation);
                     }
-
                 }
                 else
-                {
-                    Text = "eror||ошибка, информация не обновлена";
-                }
+                    text = "Error||ошибка, информация не обновлена";
             }
             else
             {
-                // create
-                var type = yardStorage.GetOperationType(operation_type);
-                var vehicleKind = yardStorage.GetVehicleKind(vehicle_kind);
-
-                var startDate = DateTime.Parse(start_date);
-                var finishDate = startDate;
-
-                finishDate = finishDate.Add(new TimeSpan(0, 0, yardStorage.GetTime(type, vehicleKind)));
-
-                short priority = 1;
-                var partnerManagerName = string.Empty;
-                var partnerManagerPhoneNumber = string.Empty;
-                var partnerManagerEmail = string.Empty;
-
+                var operationType = _storage.GetOperationType(stringOperationType);
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+                var startDate = DateTime.Parse(stringStartDate);
+                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetTime(operationType, vehicleKind)));
+                var priority = (short)1;
+                var partnerManagerName = stringManagerName;
+                var partnerManagerPhoneNumber = stringManagerPhoneNumber;
+                var partnerManagerEmail = stringManagerEmail;
                 var trailerNumber = string.Empty;
+                var state = _storage.GetOperationState("CREATED");
 
-                var defState = yardStorage.GetOperationState("CREATED");
-                var defManager = yardStorage.GetEmployee(100004); // TODO load dinamicly
+                var partner = _storage.GetPartner(stringPartnerId);
+                var manager = _storage.GetPartnerManagers(partner)[0];
 
-                var newOperation = new Operation(-1, null, type, startDate, finishDate,
-                    vehicleKind, vehicle_brand, vehicle_model, vehicle_number, trailerNumber, driver_name, string.Empty,
-                    defState,
+                var operation = new Operation(-1, null, operationType, startDate, finishDate,
+                    vehicleKind, stringVehicleBrand, stringVehicleModel, stringVehicleNumber, trailerNumber, 
+                    stringDriverName, stringDriverPhoneNumber,
+                    state,
                     priority,
                     partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-                    defManager);
+                    manager);
 
-                if (driver_phone != null)
-                    newOperation.DriverPhoneNumber = driver_phone;
-                if (manager_name != null)
-                    newOperation.PartnerManagerName = manager_name;
-                if (manager_phone != null)
-                    newOperation.PartnerManagerPhoneNumber = manager_phone;
-                if (manager_email != null)
-                    newOperation.PartnerManagerEmail = manager_email;
-                if (note != null)
-                    newOperation.Note = note;
+                if (!string.IsNullOrWhiteSpace(stringDriverPhoneNumber))
+                    operation.DriverPhoneNumber = stringDriverPhoneNumber;
+                if (!string.IsNullOrWhiteSpace(stringManagerName))
+                    operation.PartnerManagerName = stringManagerName;
+                if (!string.IsNullOrWhiteSpace(stringManagerPhoneNumber))
+                    operation.PartnerManagerPhoneNumber = stringManagerPhoneNumber;
+                if (!string.IsNullOrWhiteSpace(stringManagerEmail))
+                    operation.PartnerManagerEmail = stringManagerEmail;
+                if (!string.IsNullOrWhiteSpace(stringNote))
+                    operation.Note = stringNote;
 
-                //type.Direction
-                ActionKind actionKind = ActionKind.Income;
-
-                switch (type.Direction)
+                var actionKind = ActionKind.Income;
+                switch (operationType.Direction)
                 {
                     case TypeDirection.In:
                         actionKind = ActionKind.Income;
@@ -300,75 +257,72 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     default:
                         break;
                 }
+                var action = _storage.GetAction(actionKind, partner, stringOrderId);
+                operation.AddAction(action);
 
                 try
-                {
-                    newOperation.AddAction(yardStorage.GetAction(actionKind, yardStorage.GetPartner(Request.Form["partner_id"]), order_id));
-                    yardStorage.AddOperation(newOperation);
+                {                    
+                    _storage.AddOperation(operation, user);
                     try
                     {
-                        yardStorage.SetOperationGate(newOperation);
+                        _storage.SetOperationGate(operation, null, user);
                     }
                     catch (Exception e)
                     {
-                        Text = "eror||ошибка, ворота не были проставлены, измените время или тип машины";
+                        text = "Error||ошибка, ворота не были проставлены, измените время или тип машины";
                     }
-
-                    Text = JsonSerializer.Serialize(newOperation);
+                    text = JsonSerializer.Serialize(operation);
                 }
-                //catch (WarehouseActionNotFoundException e) // bruh dont working
                 catch (WarehouseActionNotFoundException)
                 {
-                    Text = "eror||ошибка, номер заказа партнера не соответствует типу заказа / не действителен или отсутствует в БД";
+                    text = "Error||ошибка, номер заказа партнера не соответствует типу заказа / не действителен или отсутствует в БД";
                 }
-
-
-
-
             }
-
-            return Text;
+            return text;
         }
 
         [HttpPost("ChangeOperationState")]
         public string PostChangeOperationState()
         {
-            var Text = "";
+            var user = string.Empty;
+            if (User != null && User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
+                user = User.Identity.Name.Split('\\').Last();
 
-            string operationID = Request.Form["operation_id"];
-            string actionWithOperation = Request.Form["action"];
+            var text = string.Empty;
 
-            if (long.TryParse(operationID, out long tmpID))
+            string stringId = Request.Form["operation_id"];
+            string stringAction = Request.Form["action"];
+
+            if (long.TryParse(stringId, out long id))
             {
-                var loadedOperation = yardStorage.GetOperation(tmpID);
-
-                switch (actionWithOperation)
+                var operation = _storage.GetOperation(id);
+                switch (stringAction)
                 {
                     case "StartOperation":
-                        yardStorage.StartOperation(loadedOperation);
+                        _storage.StartOperation(operation, user);
                         break;
                     case "ResetOperationGate":
-                        yardStorage.SetOperationGate(loadedOperation);
+                        _storage.SetOperationGate(operation, null, user);
                         break;
                     case "StartOperationWork":
-                        yardStorage.StartOperationWork(loadedOperation);
+                        _storage.StartOperationWork(operation, user);
                         break;
                     case "FinishOperation":
-                        yardStorage.FinishOperation(loadedOperation);
+                        _storage.FinishOperation(operation, user);
                         break;
                     case "FinishOperationWork":
-                        yardStorage.FinishOperationWork(loadedOperation);
+                        _storage.FinishOperationWork(operation, user);
                         break;
                     case "CancelOperation":
-                        yardStorage.CancelOperation(loadedOperation);
+                        _storage.CancelOperation(operation, user);
                         break;
                     case "DeleteOperation":
-                        yardStorage.DeleteOperation(loadedOperation);
+                        _storage.DeleteOperation(operation, user);
                         break;
                     case "AllocateEmployees":
                         try
                         {
-                            yardStorage.AllocateEmployees(loadedOperation);
+                            _storage.AllocateEmployees(operation);
                         }
                         catch (Exception)
                         {
@@ -377,72 +331,58 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         break;
 
                     default:
-                        Text = "operation is not specified";
+                        text = "Operation is not specified";
                         break;
                 }
-
-                //
-                Text = JsonSerializer.Serialize(loadedOperation);
+                text = JsonSerializer.Serialize(operation);
             }
-
-            return Text;
+            return text;
         }
 
         [HttpGet("SearchWorkersByName")]
         public string GetSearchWorkersByName()
         {
-            // default
-            string Text = string.Empty;
-            //
+            string stringSearchQuery = Request.Query["search"];
+            string stringPositionCode = Request.Query["position_code"];
 
-            string search_querry = Request.Query["search"];
-            string position_code = Request.Query["position_code"];
+            var loadedPosition = _storage.GetPosition(stringPositionCode);
+            var workers = _storage.FindEmployees(loadedPosition, stringSearchQuery);
 
-            var loadedPosition = yardStorage.GetPosition(position_code);
-
-            var workers = yardStorage.FindEmployees(loadedPosition, search_querry);
-            //////
-            Text = JsonSerializer.Serialize(workers);
-            return Text;
+            var text = JsonSerializer.Serialize(workers);
+            return text;
         }
 
         [HttpPost("UpdateOperationWorkers")]
         public string PostUpdateOperationWorkers()
         {
-            var Text = "";
+            var text = string.Empty;
 
-            string operation_id = Request.Form["operation_id"];
-            string action_type = Request.Form["action_type"];
+            string stringId = Request.Form["operation_id"];
+            string stringActionType = Request.Form["action_type"];
+            string stringWorkerId = Request.Form["worker_id"];
+            string stringPositionCode = Request.Form["position_code"];
 
-            string worker_id = Request.Form["worker_id"];
-            string position_code = Request.Form["position_code"];
+            if (long.TryParse(stringId, out long id) && int.TryParse(stringWorkerId, out int workerId))
+            {
+                var operation = _storage.GetOperation(id);
+                var worker = _storage.GetEmployee(workerId);
+                var position = _storage.GetPosition(stringPositionCode);
 
-            if (long.TryParse(operation_id, out long operationID))
-                if (int.TryParse(worker_id, out int workerID))
+                switch (stringActionType)
                 {
-                    var loadedOperation = yardStorage.GetOperation(operationID);
-                    var loadedWorker = yardStorage.GetEmployee(workerID);
-                    var loadedPosition = yardStorage.GetPosition(position_code);
-
-                    switch (action_type)
-                    {
-                        case "add":
-                            yardStorage.AddEmployee(loadedOperation, loadedWorker, loadedPosition, 0.0, MeasureUnit.Null);
-                            break;
-                        case "del":
-                            yardStorage.RemoveEmployee(loadedOperation, loadedWorker, loadedPosition);
-                            break;
-
-                        default:
-                            Text = "action type is not specified";
-                            break;
-                    }
-
-                    //
-                    Text = JsonSerializer.Serialize(loadedOperation);
+                    case "add":
+                        _storage.AddEmployee(operation, worker, position, 0.0, MeasureUnit.Null);
+                        break;
+                    case "del":
+                        _storage.RemoveEmployee(operation, worker, position);
+                        break;
+                    default:
+                        text = "Action type is not specified";
+                        break;
                 }
-
-            return Text;
+                text = JsonSerializer.Serialize(operation);
+            }
+            return text;
         }
     }
 }

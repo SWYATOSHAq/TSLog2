@@ -20,8 +20,8 @@ builder.Services
     .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-//builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-//builder.Services.AddAuthorization(options => { options.FallbackPolicy = options.DefaultPolicy; });
+builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+builder.Services.AddAuthorization(options => { options.FallbackPolicy = options.DefaultPolicy; });
 
 builder.Services.AddRazorPages();
 builder.Services.AddMvc().AddRazorPagesOptions(options =>

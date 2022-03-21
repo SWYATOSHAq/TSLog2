@@ -35,7 +35,7 @@ namespace TSLog.Yard.BO
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
         public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
         public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);
-        public Operation AddOperation(Operation operation);
+        public Operation AddOperation(Operation operation, string user = "");
         public Operation GetOperation(long id);
         public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind);
         public Operation.OperationWork[] GetOperationWorks(Operation operation);
@@ -50,17 +50,18 @@ namespace TSLog.Yard.BO
             string? vehicleNumber,
             string? driverName);
         public Operation[] GetActiveOperations();
+        public Operation[] GetOperationsForGuard();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
-        public Gate SetOperationGate(Operation operation, Gate? gate = null);
-        public void CancelOperationGate(Operation operation);
-        public void EditOperation(Operation operation);
-        public void StartOperation(Operation operation);
-        public void SetResponsibleOfficer(Operation operation, Employee officer);
-        public void StartOperationWork(Operation operation);
-        public void FinishOperationWork(Operation operation);
-        public void FinishOperation(Operation operation);
-        public void CancelOperation(Operation operation);
-        public void DeleteOperation(Operation operation);
+        public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "");
+        public void CancelOperationGate(Operation operation, string user = "");
+        public void EditOperation(Operation operation, string user = "");
+        public void StartOperation(Operation operation, string user = "");
+        public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "");
+        public void StartOperationWork(Operation operation, string user = "");
+        public void FinishOperationWork(Operation operation, string user = "");
+        public void FinishOperation(Operation operation, string user = "");
+        public void CancelOperation(Operation operation, string user = "");
+        public void DeleteOperation(Operation operation, string user = "");
         public void AddAction(Operation operation, WarehouseAction action);
         public WarehouseAction[] GetActions(Operation operation);
         public void RemoveAction(Operation operation, WarehouseAction action);

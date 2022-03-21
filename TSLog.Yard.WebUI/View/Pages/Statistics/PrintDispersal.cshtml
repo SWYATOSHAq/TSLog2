@@ -9,13 +9,13 @@
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    string id = Request.Query["id"];
+    string stringId = Request.Query["id"];
     var operation = Operation.Empty;
-    long tempId = 0;
-    operation = long.TryParse(id, out tempId) ? storage.GetOperation(tempId) : Operation.Empty;
+    long id = 0;
+    operation = long.TryParse(stringId, out id) ? storage.GetOperation(id) : Operation.Empty;
     var operationModel = new OperationModel(rightsChecker, storage, operation, true, true);
 }
-@if (tempId != 0 && operation != Operation.Empty)
+@if (id != 0 && operation != Operation.Empty)
 {
     <partial name="Partials/_OperationPartial" model="operationModel" />
 }

@@ -11,13 +11,13 @@
     if (string.IsNullOrWhiteSpace(defaultText))
         defaultText = "Ворота не выбраны";
 }
-<div class="input-group">
+<div id="gates-block" class="input-group">
     <span class="input-group-text col-3 @(isSmall  ? "d-none" : string.Empty)">Номер ворот</span>
-    <select class="form-select gates filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
-    <option value="">@defaultText</option>
-    @foreach (var gate in gates)
-    {
-       @: <option value="@gate.Code" @((gate.Code == selectedGate) ? "selected" : string.Empty)>@gate.DisplayName</option>
-    }
+    <select id="gates-dropdown" class="form-select gates filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+        <option value="">@defaultText</option>
+        @foreach (var gate in gates)
+        {
+           @: <option value="@gate.Code" @((gate.Code == selectedGate) ? "selected" : string.Empty)>@gate.DisplayName</option>
+        }
     </select>
 </div>

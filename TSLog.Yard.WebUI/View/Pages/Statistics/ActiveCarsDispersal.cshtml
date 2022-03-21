@@ -1,4 +1,6 @@
 ﻿@page "/ActiveCarsDispersal"
+@using System.DirectoryServices.AccountManagement
+@using TSLog.Common;
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
@@ -9,6 +11,23 @@
     var storage = Model.Storage;
 
     var operations = storage.GetActiveOperations();
+    Array.Sort(operations, Operation.CompareByPlanWorkStartDate);
+
+    var context = new PrincipalContext(ContextType.Domain);
+    foreach (var operation in operations)
+    {
+        try
+        {
+            var creator = UserPrincipal.FindByIdentity(context, operation.Creator);
+            if (creator == null)
+                continue;
+            var shortName = Utils.FullNameToShortName(creator.DisplayName);
+            operation.Creator = $"{shortName} ({creator.EmailAddress})";
+        }
+        catch
+        { }
+    }
+
     var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
 <partial name="Partials/Lists/_OperationsTablePartial" model="operationsModel" />

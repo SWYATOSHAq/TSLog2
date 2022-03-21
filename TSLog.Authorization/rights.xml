@@ -39,6 +39,7 @@
 		<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
 		<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
 		<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+		<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 	</rights>
 	<roles>
 		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="">
@@ -58,6 +59,8 @@
 			<right code="FILTER_OPERATIONS_BY_GATE" name="Фильтр операций по воротам"></right>
 			-->
 			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
+			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
+			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операций по Ф. И. О. водителя"></right>
 			<right code="VIEW_OPERATION_FOR_MANAGER"></right>
 		</role>
 		<role code="MANAGER_LEAD" name="Руководитель клиентских менеджеров" groupName="">
@@ -69,6 +72,18 @@
 			<right code="VIEW_OPERATION_FOR_GUARD"></right>
 			<right code="START_OPERATION"></right>
 			<right code="FINISH_OPERATION"></right>
+			<right code="VIEW_GUARD_PAGE"></right>
+			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+			<right code="FILTER_OPERATIONS_BY_DATE"></right>
+			<right code="FILTER_OPERATIONS_BY_TYPE"></right>
+			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND"></right>
+			<right code="FILTER_OPERATIONS_BY_STATE"></right>
+			<!--
+			<right code="FILTER_OPERATIONS_BY_GATE"></right>
+			-->
+			<right code="FILTER_OPERATIONS_BY_PARTNER"></right>
+			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER"></right>
+			<right code="FILTER_OPERATIONS_BY_DRIVER"></right>
 		</role>
 		<role code="OPERATOR" name="Оператор склада" groupName="WarehouseOperators">
 			<right code="USE_YARD"></right>
@@ -83,6 +98,7 @@
 		</role>
 		<role code="DISPATCHER" name="Диспетчер двора" groupName="YardDispatchers">
 			<right code="USE_YARD"></right>
+			<right code="CREATE_OPERATION"></right>
 			<right code="VIEW_OPERATION_FOR_DISPATCHER"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE"></right>
@@ -93,8 +109,17 @@
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER"></right>
 			<right code="VIEW_OPERATION_WORKERS"></right>
+			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
+			<right code="START_OPERATION_WORK" name="Начало работ по операции"></right>
+			<right code="FINISH_OPERATION_WORK" name="Окончание работ по операции"></right>
+			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 			<right code="MANAGE_OPERATION_WORKERS"></right>
 			<right code="DELETE_OPERATION"></right>
+			<right code="VIEW_STAFF_PLAN" name="Просмотр плана по персоналу"></right>
+			<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
+			<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
+			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>			
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators">
 			<right code="USE_YARD"></right>

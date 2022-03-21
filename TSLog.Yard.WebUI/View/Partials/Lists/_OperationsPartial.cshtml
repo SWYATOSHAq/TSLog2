@@ -15,8 +15,10 @@
     //<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
     //<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
 
-    string temp = request.Query["date"];
-    var date = string.IsNullOrWhiteSpace(temp) ? DateTime.Today : DateTime.Parse(temp);
+    string stringFromDate = request.Query["from_date"];
+    string stringToDate = request.Query["to_date"];
+    var fromDate = string.IsNullOrWhiteSpace(stringFromDate) ? DateTime.Today : DateTime.Parse(stringFromDate);
+    var toDate = string.IsNullOrWhiteSpace(stringToDate) ? DateTime.Today : DateTime.Parse(stringToDate);
 
     string selectedGate = request.Query["gate"];
     string selectedType = request.Query["type"];
@@ -65,8 +67,9 @@
                 </div>
                 @if (displayAdditionalInfo)
                 {
-                    var stringDate = date.ToString("d.M.yyyy");
-                    var parameters = new StringBuilder($"?id={operation.Id}&date={stringDate}");
+                    stringFromDate = fromDate.ToString("d.M.yyyy");
+                    stringToDate = toDate.ToString("d.M.yyyy");
+                    var parameters = new StringBuilder($"?id={operation.Id}&from_date={stringFromDate}&to_date={stringToDate}");
                     if (filter.Length > 0)
                         parameters.Append(filter.ToString());
 

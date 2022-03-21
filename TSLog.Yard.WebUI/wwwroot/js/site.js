@@ -40,11 +40,11 @@ const state = {
     time: 0
 };
 
-const time_split = 4;
-const time_start = 2;
-const time_finish = 23;
+const timeSplit = 4;
+const timeStart = 2;
+const timeFinish = 23;
 
-var trail_length = 0;
+var trailLength = 0;
 
 function GetTrailLength() {
     var operation_type_time = $("#text_operation_time").text().split(" ")[0];
@@ -55,10 +55,9 @@ function GetTrailLength() {
     var diffInSeconds = Math.abs(date1 - date2) / 1000;
     var hours = Math.floor(diffInSeconds / 60 / 60 % 24);
     var minutes = Math.floor(diffInSeconds / 60 % 60);
-
     var koef = hours + minutes / 60;
 
-    trail_length = Math.floor((time_split * koef) - 1);
+    trailLength = Math.floor((timeSplit * koef) - 1);
 
     ResetVisibility();
 }
@@ -79,15 +78,14 @@ function SelectTime(time, cellId) {
 
         $("." + cellId).removeClass("btn-outline-primary");
         $("." + cellId).addClass("btn-info");
-        // add trail
         var parsedCellId = cellId.split("-");
         var erorOccuredCount = 0;
 
-        for (var i = 1; i <= trail_length; i++) {
+        for (var i = 1; i <= trailLength; i++) {
             var nextCellCollumn = Number(parsedCellId[2]) + i;
-            var shift = Math.floor(nextCellCollumn / time_split);
+            var shift = Math.floor(nextCellCollumn / timeSplit);
 
-            nextCellCollumn = nextCellCollumn % time_split;
+            nextCellCollumn = nextCellCollumn % timeSplit;
             var nextTrailBlock = parsedCellId[0] + "-" + (shift + Number(parsedCellId[1])) + "-" + nextCellCollumn;
 
             $("." + nextTrailBlock).removeClass("btn-outline-primary");
@@ -106,14 +104,13 @@ function SelectTime(time, cellId) {
         if (erorOccuredCount > 0) {
             $(".btn-info").addClass("btn-outline-primary");
             $(".btn-info").removeClass("btn-info");
-
             $("#eror-text").removeClass("d-none");
+
             if (true) {
-                //if (erorOccuredCount == trail_length) {
-                $("#eror-text p").text("Врямя недоступно из за типа операции, выберите другой промежуток времени или тип операции");
+                $("#eror-text p").text("Время недоступно из за типа операции, выберите другой промежуток времени или тип операции");
             }
             else {
-                $("#eror-text p").text("Врямя уже занято, выберите другой промежуток времени");
+                $("#eror-text p").text("Время уже занято, выберите другой промежуток времени");
             }
             erorOccuredCount = 0;
             state.time = 0;
@@ -126,18 +123,21 @@ function SelectTime(time, cellId) {
     };
 }
 
-function ConvertToTime(strTime) {
-    var result = $(".datepicker").datepicker("getDate");
-    var arrTime = strTime.split(":");
+function ConvertToTime(stringTime) {
+    var workStartDatePicker = document.getElementById("work-start-date-picker");
+    var stringDate = workStartDatePicker.value.replaceAll(".", "/");
+    stringDate = stringDate.replace(/(\d+[/])(\d+[/])/, '$2$1');
 
-    result.setHours(arrTime[0], arrTime[1], 0, 0);
+    var result = new Date(stringDate);
+    var times = stringTime.split(":");
+    result.setHours(times[0], times[1], 0, 0);
     return result;
 }
 
-function MultiplyTextTimeSpan(strTime, multiplier) {
-    var timeArr = strTime.split(':'); // split it at the colons
+function MultiplyTextTimeSpan(stringTime, multiplier) {
+    var timeArr = stringTime.split(':'); // split it at the colons
 
-    // minutes are worth 60 seconds. Hours are worth 60 minutes.
+    // Minutes are worth 60 seconds. Hours are worth 60 minutes.
     var seconds = (+timeArr[0]) * 60 * 60 + (+timeArr[1]) * 60 + (+timeArr[2]);
     var newSeconds = seconds * multiplier;
 
@@ -147,7 +147,6 @@ function MultiplyTextTimeSpan(strTime, multiplier) {
 }
 
 $(document).ready(function() {
-    // default
     periods = [];
     RenderTable(periods);
 });
@@ -155,11 +154,11 @@ $(document).ready(function() {
 function RenderTable(periods) {
     $(".table-1hr-row").remove();
 
-    time_part = 60 / time_split; // 1 hr per row
+    time_part = 60 / timeSplit; // 1 hr per row
     var timeSplits = [];
-    for (var i = time_start; i <= time_finish; i++) {
+    for (var i = timeStart; i <= timeFinish; i++) {
         timeSplits[i] = [];
-        for (var j = 0; j < time_split; j++) {
+        for (var j = 0; j < timeSplit; j++) {
             timeSplits[i][j] = "" + i % 24 + ":" + ("" + (j * time_part)).padStart(2, "0");
         }
     }
@@ -180,7 +179,6 @@ function RenderTable(periods) {
                 
                 // check if time is awailable or not
                 var isSuitable = false;
-
                 var today = new Date();
 
                 for (let period of periods) {
@@ -199,10 +197,9 @@ function RenderTable(periods) {
                     $(newButton).addClass("btn-outline-primary");
                 }
                 
-                var cellId = "bu-" + i + "-" + j % time_split;
+                var cellId = "bu-" + i + "-" + j % timeSplit;
                 $(newButton).addClass(cellId);
                 $(newButton).on('click', SelectTime(bu_text, cellId));
-                //
                 newRow.append(newButton);
                 j++;
                 timeTable.append(newRow);
@@ -215,23 +212,23 @@ function RemoveCards() {
     $(".action-card").remove();
 }
 
-function GetCompaniesNames(card) {
+function GetCompaniesNames(operation) {
     var result = "";
-    for (let partner of card.Partners) {
+    for (let partner of operation.Partners) {
         result += ((result.Length > 0) ? ", " : "") + partner.Name;
     }
     return result;
 }
 
-function ConvertTime(strTime) {
-    return new Date(strTime).toLocaleTimeString();
+function ConvertTime(stringTime) {
+    return new Date(stringTime).toLocaleTimeString();
 }
 
-function ConvertDate(strTime) {
-    return new Date(strTime).toLocaleDateString();
+function ConvertDate(stringDate) {
+    return new Date(stringDate).toLocaleDateString();
 }
 
-function RenderCard(base, card, date) {
+function RenderCard(base, card) {
     var baseCol = document.createElement("div");
     $(baseCol).addClass("col action-card");
 
@@ -325,23 +322,23 @@ function RenderCard(base, card, date) {
 }
 
 function Create() {
-    // check for required fields
+    // Check for required fields
     // time, operation_type, vehicle_kind, vehicle_brand, vehicle_model, vehicle_number
-    if (
-        state.time != 0 &&
-        $("#operations").val() != "" &&
-        $("#vehicle_kind").val() != "" &&
+    if (state.time != 0 &&
+        $("#operation-types-dropdown").val() != "" &&
+        $("#vehicle_kinds-dropdown").val() != "" &&
         $("#vehicle_brand").val() != "" &&
         $("#vehicle_model").val() != "" &&
         $("#vehicle_number").val() != "" &&
         $("#driver_name").val() != "" &&
         $("#order_id").val() != "" &&
-        $("#partner").val() != ""
-    ) {
+        $("#partner").val() != "") {
+
+        var workStartDatePicker = document.getElementById("work-start-date-picker");
         var postData = {
-            operation_type: $("#operations").val(),
+            operation_type: $("#operation-types-dropdown").val(),
             gate: $("#card-operation .gates").val(),
-            vehicle_kind: $("#vehicle_kind").val(),
+            vehicle_kind: $("#vehicle-kinds-dropdown").val(),
             vehicle_brand: $("#vehicle_brand").val(),
             vehicle_model: $("#vehicle_model").val(),
             vehicle_number: $("#vehicle_number").val(),
@@ -354,9 +351,8 @@ function Create() {
             manager_email: $("#manager_email").val(),
             note: $("#note").val(),
 
-            start_date: $(".datepicker").datepicker('getDate').toLocaleDateString() + " " + state.time,
-
-            partner_id: $("#partner").val(),
+            start_date: workStartDatePicker.value + " " + state.time,
+            partner_id: $("#partners-dropdown ").val(),
         };
 
         $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
@@ -368,33 +364,36 @@ function Create() {
                 var card = JSON.parse(data);
             }
 
-            // TODO пока пусть редиректит на лк TSL
+            // TODO: пока пусть редиректит на лк TSL
             // но тут должна быть вилка в зависимости от типа пользователя
-            // location.href = '/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-            location.href = '/DispatcherHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
+
+            location.href = '/DispatcherHome?id=' + card.Id +
+                '&from_date=' + workStartDatePicker.value +
+                '&to_date=' + workStartDatePicker.value;
         });
     } else {
-        alert("не все обязательные поля введены");
+        alert("Не все обязательные поля введены");
     }
 }
 
 function Update() {
-    // check for required fields
+    // Check for required fields
     // time, operation_type, vehicle_kind, vehicle_brand, vehicle_model, vehicle_number
-    if (
-        $("#card-operation #operations").val() != "" &&
-        $("#card-operation #vehicle_kind").val() != "" &&
+
+    var workStartDatePicker = document.getElementById("work-start-date-picker");
+
+    if ($("#card-operation #operation-types-dropdown").val() != "" &&
+        $("#card-operation #vehicle-kinds-dropdown").val() != "" &&
         $("#card-operation #vehicle_brand").val() != "" &&
         $("#card-operation #vehicle_model").val() != "" &&
-        $("#card-operation #vehicle_number").val() != ""
-    ) {
+        $("#card-operation #vehicle_number").val() != "") {
 
         var postData = {
             operation_id: $("#card-operation #operation_id").val(),
 
-            operation_type: $("#card-operation #operations").val(),
+            operation_type: $("#card-operation #operation-types-dropdown").val(),
             gate: $("#card-operation .gates").val(),
-            vehicle_kind: $("#card-operation #vehicle_kind").val(),
+            vehicle_kind: $("#card-operation #vehicle-kinds-dropdown").val(),
             vehicle_brand: $("#card-operation #vehicle_brand").val(),
             vehicle_model: $("#card-operation #vehicle_model").val(),
             vehicle_number: $("#card-operation #vehicle_number").val(),
@@ -406,8 +405,6 @@ function Update() {
             manager_phone: $("#card-operation #manager_phone").val(),
             manager_email: $("#card-operation #manager_email").val(),
             note: $("#card-operation #note").val(),
-
-            // partner_id: $("#partner").val(),
         };
 
         $.post("/api/v1/yard/createUpdateOperation", postData, function(data) {
@@ -419,10 +416,11 @@ function Update() {
                 var card = JSON.parse(data);
             }
 
-            // TODO пока пусть редиректит на лк TSL
+            // TODO: пока пусть редиректит на лк TSL
             // но тут должна быть вилка в зависимости от типа пользователя
-            // location.href = '/UserHome?id=' + card.Id + '&date=' + $(".datepicker").datepicker('getDate').toLocaleDateString();
-            location.href = "/DispatcherHome?id=" + card.Id + "&date=" + $(".datepicker").datepicker("getDate").toLocaleDateString();
+            location.href = "/DispatcherHome?id=" + card.Id +
+                "&from_date=" + workStartDatePicker.value +
+                "&to_date=" + workStartDatePicker.value;
         });
     } else {
         alert("не все обязательные поля введены");
@@ -457,31 +455,122 @@ function ChangeState(stateChangeType) {
                 window.location.href = window.location.search;
         });
     } else {
-        alert("не все сотрудники были заполнены");
+        alert("Не все сотрудники были заполнены!");
     }
 }
 
+function ShowGuardPage() {
+    location.href = "/GuardPage";
+}
+
+function PassVehicle(id, action) {
+    var data = {
+        operation_id: id,
+        action: action,
+    };
+    $.post("/api/v1/yard/changeOperationState", data, ShowGuardPage);
+}
+
+function LetVehicleIn(id) {
+    PassVehicle(id, "StartOperation");
+}
+
+function ReleaseVehicle(id) {
+    PassVehicle(id, "FinishOperation");
+}
+
 function CreateFiltersRequest() {
-    var date = $("#dp1").datepicker('getDate');
-    var value = date.toLocaleDateString();
-    var result = "?date=" + value;
-    value = $('#gates-filter select :selected')[0].value;
+    var fromDatePicker = document.getElementById("from-date-picker");
+    var value = fromDatePicker.value;
+    var result = "?from_date=" + value;
+
+    var toDatePicker = document.getElementById("to-date-picker");
+    value = toDatePicker.value;
     if (value != "")
-        result = result.concat("&gate=" + value);
-    value = $('#partner-filter select :selected')[0].value;
-    if (value != "")
-        result = result.concat("&partner=" + value);
-    value = $('#op-types-filter select :selected')[0].value;
-    if (value != "")
-        result = result.concat("&type=" + value);
-    value = $('#vehicle-kind-filter select :selected')[0].value;
-    if (value != "")
-        result = result.concat("&vehicleKind=" + value);
-    value = $('#states-filter select :selected')[0].value;
-    if (value != "")
-        result = result.concat("&state=" + value);
+        result = result.concat("&to_date=" + value);
+
+    var filters = document.getElementById("filters");
+    var gatesDropdown = filters.querySelector("#gates-dropdown");
+    if (gatesDropdown != undefined && gatesDropdown.value != "") {
+        result = result.concat("&gate=" + gatesDropdown.value);
+    }
+
+    var partnersDropdown = filters.querySelector("#partners-dropdown");
+    if (partnersDropdown != undefined && partnersDropdown.value != "") {        
+        result = result.concat("&partner=" + partnersDropdown.value);
+    }
+
+    var operationTypesDropdown = filters.querySelector("#operation-types-dropdown");
+    if (operationTypesDropdown != undefined && operationTypesDropdown.value != "") {
+        result = result.concat("&type=" + operationTypesDropdown.value);
+    }    
+
+    var vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-dropdown");
+    if (vehicleKindsDropdown != undefined && vehicleKindsDropdown.value != "") {
+        result = result.concat("&vehicleKind=" + vehicleKindsDropdown.value);
+    }
+
+    var operationStatesDropdown = filters.querySelector("#operation-states-dropdown");
+    if (operationStatesDropdown != undefined && operationStatesDropdown.value != "") {
+        result = result.concat("&state=" + operationStatesDropdown.value);
+    }
+
+    var vehicleNumberInput = filters.querySelector("#vehicle-number-input");
+    if (vehicleNumberInput != undefined && vehicleNumberInput.value != "") {
+        result = result.concat("&vehicle_number=" + vehicleNumberInput.value);
+    }
+
+    var driverNameInput = filters.querySelector("#driver-name-input");
+    if (driverNameInput != undefined && driverNameInput.value != "") {
+        result = result.concat("&driver_name=" + driverNameInput.value);
+    }   
 
     return result;
+}
+
+function CreateFilterRequest() {
+    var data = {};
+
+    var fromDatePicker = document.getElementById("from-date-picker");
+    var stringFromDate = fromDatePicker.value;
+    var toDatePicker = document.getElementById("to-date-picker");
+    var stringToDate = toDatePicker.value;
+
+    data.from_date = stringFromDate;
+    data.to_date = stringToDate;
+    var filters = document.getElementById("filters");
+
+    var gatesDropdown = filters.querySelector("#gates-dropdown");
+    data.gate = gatesDropdown != undefined ? gatesDropdown.value : "";
+
+    var partnersDropdown = filters.querySelector("#partners-dropdown");
+    data.partner_id = partnersDropdown != undefined ? partnersDropdown.value : "";
+
+    var operationTypesDropdown = filters.querySelector("#operation-types-dropdown");
+    data.operation_type = operationTypesDropdown != undefined ? operationTypesDropdown.value : "";
+
+    var vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-dropdown");
+    data.vehicle_kind = vehicleKindsDropdown != undefined ? vehicleKindsDropdown.value : "";
+
+    var operationStatesDropdown = filters.querySelector("#operation-states-dropdown");
+    data.state = operationStatesDropdown != undefined ? operationStatesDropdown.value : "";
+
+    var vehicleNumberInput = filters.querySelector("#vehicle-number-input");
+    data.vehicle_number = vehicleNumberInput != undefined ? vehicleNumberInput.value : "";
+
+    var driverNameInput = filters.querySelector("#driver-name-input");
+    data.driver_name = driverNameInput != undefined ? driverNameInput.value : "";
+
+    return data;
+}
+
+function ParseOperations(data) {
+    var operations = JSON.parse(data);
+    RemoveCards();
+    for (let operation of operations) {
+        console.log(operation);
+        RenderCard($(".data-operation-list"), operation);
+    }
 }
 
 function LoadCardsList() {
@@ -489,32 +578,55 @@ function LoadCardsList() {
         manageTimeTable(dateParam);
     }
 
-    var date = $("#dp1").datepicker('getDate');
-    var stringDate = date.toLocaleDateString();
-
-    $.get("/api/v1/yard/operationsList", {
-            "date": stringDate,
-            "gate": $("#gates-filter select").val(),
-            "partner_id": $("#partner-filter select").val(),
-            "operation_type": $("#op-types-filter select").val(),
-            "vehicle_kind": $("#vehicle-kind-filter select").val(),
-            "state": $("#states-filter select").val()
-        },
-        function (data) {
-            var operations = JSON.parse(data);
-
-            RemoveCards();
-            for (let operation of operations) {
-                console.log(operation);
-                RenderCard($(".data-operation-list"), operation, stringDate);
-            }
-        });
+    var request = CreateFilterRequest();
+    $.get("/api/v1/yard/operationsList", request, ParseOperations);
     var newUrl = window.location.href.split('?')[0] + CreateFiltersRequest();
     history.pushState({}, null, newUrl);
 }
 
 function OnChangeFilter() {
     LoadCardsList();
+}
+
+function ParseOperationDuration(data) {
+    timeSpan = JSON.parse(data);
+    var time = new Date(new Date().setHours(0, 0, timeSpan, 0));
+    $("#text_operation_time").text(time.toLocaleTimeString());
+}
+
+function ParseBisyIntervals(data) {
+    periods = JSON.parse(data);
+    RenderTable(periods);
+}
+
+function UpdateTimeTable() {
+    var workStartDatePicker = document.getElementById("work-start-date-picker");
+    var workStartDate = workStartDatePicker.value;
+
+    var operationTypeCode = $('#operation-types-dropdown :selected').val();
+    var vehicleKindCode = $('#vehicle-kinds-dropdown :selected').val();
+
+    if (operationTypeCode != "" && vehicleKindCode != "") {
+        $("#time_table").removeClass("d-none");
+        try {
+            var data = {
+                operation: operationTypeCode,
+                vehicle_kind: vehicleKindCode,
+            }
+            $.get("/api/v1/yard/OperationLength", data, ParseOperationDuration);
+            data = {
+                date: workStartDate,
+                operation: operationTypeCode,
+                vehicle_kind: vehicleKindCode,
+            }
+            $.get("/api/v1/yard/BusyPeriods", data, ParseBisyIntervals);
+        } catch (e) {
+            console.log(e);
+        }
+    } else {
+        $("#time_table").addClass("d-none");
+        $("#text_operation_time").text("<Не определено>");
+    }
 }
 
 $(document).ready(function () {
@@ -524,76 +636,94 @@ $(document).ready(function () {
     }
 
     // Event on change
-    $("#gates-filter select").on("change", OnChangeFilter);
-    $("#partner-filter select").on("change", OnChangeFilter);
-    $("#op-types-filter select").on("change", OnChangeFilter);
-    $("#vehicle-kind-filter select").on("change", OnChangeFilter);
-    $("#states-filter select").on("change", OnChangeFilter);
-
-    $(".datepicker").datepicker({
-        format: "dd.mm.yyyy",
-        autoclose: true,
-        language: "ru",
-        todayBtn: true,
-        todayHighlight: true,
-    }).datepicker("setDate", GetUrlParameter("date") ? GetUrlParameter("date") : "now");
-
-    $("#card_table .datepicker").on("changeDate", OnChangeFilter);
-    $(".time-table .datepicker").on("changeDate", OnChangeFilter);
-
-    if ($("#time_table").length) {
-        $("#text_operation_time").text("--:--:-- (--:--)");
-    }
-
-    function GetOperationTimeSpan(inpDate) {
-        $.get("/api/v1/yard/OperationLength", {
-                operation: $('#operations :selected').val(),
-                vehicle_kind: $('#vehicle_kind :selected').val(),
-            },
-            function(data) {
-                timeSpan = JSON.parse(data);
-                var time = new Date(new Date().setHours(0, 0, timeSpan, 0));
-                $("#text_operation_time").text(time.toLocaleTimeString());
+    var filters = document.getElementById("filters");
+    if (filters != undefined) {
+        var fromDatePicker = $("#from-date-picker");
+        if (fromDatePicker != undefined) {
+            fromDatePicker.datepicker({
+                format: "dd.mm.yyyy",
+                autoclose: true,
+                language: "ru",
+                todayBtn: true,
+                todayHighlight: true,
             });
-
-        $.get("/api/v1/yard/BusyPeriods", {
-                date: inpDate,
-                operation: $('#operations :selected').val(),
-                vehicle_kind: $('#vehicle_kind :selected').val(),
-            },
-            function(data) {
-                periods = JSON.parse(data);
-                RenderTable(periods);
-            });
-    }
-
-    $("#time_table").addClass("d-none");
-
-    function manageTimeTable(inpDate) {
-        var val1 = $('#operations :selected').val();
-        var val2 = $('#vehicle_kind :selected').val();
-
-        if (val1.length == 0 || val2.length == 0) {
-            $("#time_table").addClass("d-none");
-        } else {
-            $("#time_table").removeClass("d-none");
-            try {
-                GetOperationTimeSpan(inpDate);
-            } catch (e) {
-                console.log(e);
-            }
+            fromDatePicker.val(GetUrlParameter("from_date") ? GetUrlParameter("from_date") : "now");
+            fromDatePicker.on('changeDate', OnChangeFilter);
         }
+        var toDatePicker = $("#to-date-picker");
+        if (toDatePicker != undefined) {
+            toDatePicker.datepicker({
+                format: "dd.mm.yyyy",
+                autoclose: true,
+                language: "ru",
+                todayBtn: true,
+                todayHighlight: true,
+            });
+            toDatePicker.val(GetUrlParameter("to_date") ? GetUrlParameter("to_date") : "now");
+            toDatePicker.on('changeDate', OnChangeFilter);
+        }
+
+        var gatesDropdown = filters.querySelector("#gates-dropdown");
+        if (gatesDropdown != undefined)
+            gatesDropdown.onchange = OnChangeFilter
+
+        var partnersDropdown = filters.querySelector("#partners-dropdown");
+        if (partnersDropdown != undefined)
+            partnersDropdown.onchange = OnChangeFilter
+
+        var operationTypesDropdown = filters.querySelector("#operation-types-dropdown");
+        if (operationTypesDropdown != undefined)
+            operationTypesDropdown.onchange = OnChangeFilter
+
+        var vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-dropdown");
+        if (vehicleKindsDropdown != undefined)
+            vehicleKindsDropdown.onchange = OnChangeFilter
+
+        var operationStatesDropdown = filters.querySelector("#operation-states-dropdown");
+        if (operationStatesDropdown != undefined)
+            operationStatesDropdown.onchange = OnChangeFilter
+
+        var vehicleNumberInput = filters.querySelector("#vehicle-number-input");
+        if (vehicleNumberInput != undefined)
+            vehicleNumberInput.onchange = OnChangeFilter
+
+        var driverNameInput = filters.querySelector("#driver-name-input");
+        if (driverNameInput != undefined)
+            driverNameInput.onchange = OnChangeFilter
     }
 
-    $("#operations").change(function() {
-        manageTimeTable($(".datepicker").datepicker("getDate").toLocaleDateString());
-    });
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+    if (page == "NewOperation") {
+        var workStartDatePicker = $("#work-start-date-picker");
+        if (workStartDatePicker != undefined) {
+            workStartDatePicker.datepicker({
+                format: "dd.mm.yyyy",
+                autoclose: true,
+                language: "ru",
+                todayBtn: true,
+                todayHighlight: true,
+            });
+            var stringDate = (new Date()).toLocaleString("ru-RU", { year: 'numeric', month: 'numeric', day: 'numeric' });
+            workStartDatePicker.val(stringDate);
+            workStartDatePicker.on('changeDate', UpdateTimeTable);
+        }
 
-    $("#vehicle_kind").change(function() {
-        manageTimeTable($(".datepicker").datepicker("getDate").toLocaleDateString());
-    });
+        $("#time_table").addClass("d-none");
+        if ($("#time_table").length) {
+            $("#text_operation_time").text("<Не определено>");
+        }
 
-    var newUrl = window.location.href.split('?')[0] + createFiltersRequest();
+        var operationTypesDropdown = document.getElementById("operation-types-dropdown");
+        if (operationTypesDropdown != undefined)
+            operationTypesDropdown.onchange = UpdateTimeTable;
+
+        var vehiclekindsDropDown = document.getElementById("vehicle-kinds-dropdown");
+        if (vehiclekindsDropDown != undefined)
+            vehiclekindsDropDown.onchange = UpdateTimeTable;
+    }    
+
+    var newUrl = window.location.href.split('?')[0] + CreateFiltersRequest();
     history.pushState({}, null, newUrl);
 });
 
@@ -617,13 +747,13 @@ function OpenClientReportByDate() {
 }
 
 $(document).ready(function() {
-    // set params of client-report
-    $(".client-report #dp1").datepicker("setDate", GetUrlParameter("start_date") ? GetUrlParameter("start_date") : "now").on("changeDate", function(e) {});
+    // Set params of client-report
+    $(".client-report #from-date-picker").datepicker("setDate", GetUrlParameter("start_date") ? GetUrlParameter("start_date") : "now").on("changeDate", function(e) {});
     $(".client-report #dp2").datepicker("setDate", GetUrlParameter("end_date") ? GetUrlParameter("end_date") : "now").on("changeDate", function(e) {});
 });
 
 $(document).ready(function() {
-    // make search on every letter change in #card-operation.dropdown-toggle
+    // Make search on every letter change in #card-operation.dropdown-toggle
     // also on change if nearest selected-item-id is not empty delete data from it and post to api
     // also change list of items in #card-operation.dropdown-menu
 
@@ -635,8 +765,8 @@ function DropdownToggleHandler(e) {
     var inputField = $(this);
     var inputGroup = inputField.parent();
 
-    var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
-    if (curSelectedWorkerID != "") {
+    var curSelectedWorkerId = inputGroup.children(".selected-item-id").val()
+    if (curSelectedWorkerId != "") {
         // has selection
         UpdateWorkerInfo("del", inputGroup);
         inputGroup.children(".selected-item-id").val('');
@@ -672,7 +802,6 @@ function RenderUserList(parent, people) {
 // get event on click of every li element in #card-operation.dropdown-menu 
 // and chenge value of nearest #card-operation.dropdown-toggle by its content and post to api
 // + save info into 
-
 function OnItemClick() {
     var selectedWorker = $(this);
     var inputGroup = selectedWorker.parent().parent();
@@ -681,20 +810,21 @@ function OnItemClick() {
     var curSelectedWorkerID = inputGroup.children(".selected-item-id").val()
 
     if (curSelectedWorkerID == "") {
-        // has no selection
         inputGroup.children(".selected-item-id").val(selectedWorker.val());
         UpdateWorkerInfo("add", inputGroup);
 
     } else {
-        // already has a selection
         if (curSelectedWorkerID != selectedWorker.val()) {
-            // id has changed? so delete previous and add new
             UpdateWorkerInfo("del", inputGroup);
             inputGroup.children(".selected-item-id").val(selectedWorker.val());
             UpdateWorkerInfo("add", inputGroup);
         }
     }
     return false;
+}
+
+function WriteUpdateLog() {
+    console.log("updated");
 }
 
 function UpdateWorkerInfo(actionType, inputGroup) {
@@ -705,13 +835,10 @@ function UpdateWorkerInfo(actionType, inputGroup) {
         position_code: inputGroup.children(".position-code").val(),
     };
 
-    $.post("/api/v1/yard/UpdateOperationWorkers", postData, function(data) {
-        console.log("updated");
-    });
+    $.post("/api/v1/yard/UpdateOperationWorkers", postData, WriteUpdateLog);
 }
 
 $(document).ready(function() {
-    // autoprint if page has special tag
     if ($("#force-print").val())
         window.print();
 });
@@ -727,7 +854,6 @@ function AddNewPosition(rowButton) {
     console.log(positionRows);
     if (positionRows.length < maxRowsPerPosition) {
         var newRow = row.clone();
-        // clear data of new row
         SetRowEmpty(newRow);
 
         var curSize = positionRows.length;
@@ -774,7 +900,6 @@ function RerenderWorkerTableIndexes() {
 
 function RecalculateAdditionalTableInfo(rowGroupName, exampleText, previousSize) {
     var rowGroupRows = $("." + rowGroupName);
-    // [01:06:00 чел.] (1/1)	
     var strTime = exampleText.split("[")[1].split(" ")[0];
     var neededPersonal = exampleText.split("/")[1].split(")")[0];
     var newTime = MultiplyTextTimeSpan(strTime, (previousSize / neededPersonal) / (rowGroupRows.length / neededPersonal));

@@ -8,9 +8,18 @@
 {
     @if (element.IsVisible)
     {
-        <div class="row p-2 m-2 rem-outline-on-print">
-            <div class="input-group">
-                <span class="input-group-text col-3">@element.Caption</span>
+        <div class="row rem-outline-on-print element">
+            <div class="input-group element-content">
+                <span class="input-group-text col-4">
+                    @if (element.IsRequired)
+                    {
+                        <b>@element.Caption</b>
+                    }
+                    else
+                    {
+                        @element.Caption    
+                    }                    
+                </span>
                 <input type="text" 
                     id="@element.Code" 
                     aria-label="@element.Caption" 

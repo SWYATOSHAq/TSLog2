@@ -12,13 +12,13 @@
     string partner = Request.Query["partner"];
     var selectedPartner = partner == null ? Partner.Null : storage.GetPartner(partner);
 
-    string _startDate = Request.Query["start_date"];
-    string _endDate = Request.Query["end_date"];
-    var startDate = string.IsNullOrWhiteSpace(_startDate) ? DateTime.Today : DateTime.Parse(_startDate);
-    var endDate = string.IsNullOrWhiteSpace(_endDate) ? DateTime.Today : DateTime.Parse(_endDate);
-    endDate = endDate.AddDays(1).AddSeconds(-1);
+    string stringFromDate = Request.Query["start_date"];
+    string stringToDate = Request.Query["end_date"];
+    var fromDate = string.IsNullOrWhiteSpace(stringFromDate) ? DateTime.Today : DateTime.Parse(stringFromDate);
+    var toDate = string.IsNullOrWhiteSpace(stringToDate) ? DateTime.Today : DateTime.Parse(stringToDate);
+    toDate = toDate.AddDays(1).AddSeconds(-1);
 
-    var report = new ClientReport(storage, selectedPartner, startDate, endDate);
+    var report = new ClientReport(storage, selectedPartner, fromDate, toDate);
     var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner.Code, false, true, "Выберете партнера");
 }
 
@@ -43,7 +43,7 @@
     <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-1" type="button" onclick="PrintStatisticsTables()">печать</button>
 </div>
 <h2>
-    @startDate.ToShortDateString() - @endDate.ToShortDateString() @(selectedPartner == Partner.Null ? string.Empty : selectedPartner.DisplayName)
+    @fromDate.ToShortDateString() - @toDate.ToShortDateString() @(selectedPartner == Partner.Null ? string.Empty : selectedPartner.DisplayName)
 </h2>
 <div class="my-5 shadow statistics-table">
 

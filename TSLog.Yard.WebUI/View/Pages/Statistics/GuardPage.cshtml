@@ -1,0 +1,13 @@
+﻿@page "/GuardPage"
+@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
+@model GuardPageModel
+@{
+    ViewData["Title"] = "Машины на въезд и на выезд";
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var operations = storage.GetOperationsForGuard();
+    var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
+}
+<partial name="Partials/Lists/_GuardOperationsTable" model="operationsModel" />

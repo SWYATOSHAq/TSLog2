@@ -74,7 +74,6 @@ td {
     margin: 0;
     padding: 0;
     margin-top: 2rem;
-
 }
 
 .dropdown-item {
@@ -91,7 +90,15 @@ td {
 
 .row2 {
     padding: 0px;
+    margin: 0px;    
+}
+
+.row3 {
+    padding: 0px;
     margin: 0px;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
 }
 
 .create-operation {
@@ -133,7 +140,13 @@ td {
 
 .container2 {
     padding: 4px !important;
+    margin: 0px !important;   
+}
+
+.container3 {
+    padding: 4px !important;
     margin: 0px !important;
+    width: 240px;
 }
 
 .filter-drop-down {
@@ -142,7 +155,71 @@ td {
     border-radius: 4px !important;
 }
 
+.filter-text-box {
+    padding: 4px !important;
+    margin: 0px !important;
+    border-radius: 4px !important;
+}
+
+.filter-label {
+    padding: 4px !important;
+    margin: 0px !important;
+    width: 100px;
+}
+
 .open-operation {
     padding: 4px !important;
     margin: 8px !important;
+}
+
+.table-header {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-cell {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 12px !important;
+}
+
+.table-row {
+    line-height: 25px;
+    min-height: 25px;
+    height: 25px;
+}
+
+.table-cell-button {
+    padding: 0px !important;
+    margin: 0px !important;
+    vertical-align: middle !important;
+    width: 100%;
+    display: inline-block;
+}
+
+.p-margin-0 {
+    margin: 0px !important;
+}
+
+.fields-container {
+    display: block !important;
+    margin: 0px !important;
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
+    padding: 0px !important;
+}
+
+.element {
+    padding: 0px !important;
+    margin: 4px !important;
+}
+
+.combobox-element {
+    padding: 0px !important;
+    margin: 4px !important;
+}
+
+.element-content {
+    padding: 0px !important;
+    margin: 0px !important;
 }

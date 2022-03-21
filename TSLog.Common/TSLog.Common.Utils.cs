@@ -45,22 +45,18 @@ namespace TSLog.Common
         {
             return !string.IsNullOrWhiteSpace(value) ? string.Format("'{0}'", value) : "null";
         }
-
         public static string ToSql(int value)
         {
             return value > 0 ? value.ToString() : "null";
         }
-
         public static string ToSql(long value)
         {
             return value > 0 ? value.ToString() : "null";
         }
-
         public static string ToSql(double value)
         {
             return value.ToString().Replace(',', '.');
         }
-
         public static string ToSql(DateTime value)
         {
             return value != DateTime.MinValue ? string.Format("'{0}'", value.ToString("dd.MM.yyyy")) : "null";
@@ -228,6 +224,26 @@ namespace TSLog.Common
         public static string DbValueToString(object value, string defaultValue = null)
         {
             return value != DBNull.Value ? Convert.ToString(value) : (defaultValue ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Преобразует полное Ф. И. О. (Фамилия Имя Отчество) в краткое (Фамилия И. О.)
+        /// </summary>
+        /// <param name="fullName">Полное Ф. И. О.</param>
+        /// <returns>Краткое Ф. И. О.</returns>
+        public static string FullNameToShortName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+                return string.Empty;
+            while (fullName.IndexOf("  ") > 0)
+                fullName = fullName.Replace("  ", " ");
+            fullName = fullName.Trim();
+
+            var names = fullName.Split(' ');
+            var shortName = names[0];
+            for (int i = 1; i < names.Length; i++) 
+                shortName = shortName + " " + names[i][0] + ".";
+            return shortName;
         }
     }
 }

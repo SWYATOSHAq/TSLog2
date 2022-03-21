@@ -812,7 +812,7 @@ namespace TSLog.Yard.Data
             }
             return intervals.ToArray();
         }
-        public Operation AddOperation(Operation operation)
+        public Operation AddOperation(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -837,7 +837,8 @@ namespace TSLog.Yard.Data
                         ":p_partner_manager_phone_number," +
                         ":p_partner_manager_email," +
                         ":p_manager_id," +
-                        ":p_note);";
+                        ":p_note," +
+                        ":p_user);";
                     command.CommandText = sql;
 
                     command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
@@ -858,6 +859,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
                     command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
                     command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
 
                     operation.Id = Convert.ToInt64(command.ExecuteScalar());
                 }
@@ -890,6 +892,11 @@ namespace TSLog.Yard.Data
             var partnerManagerEmail = Utils.DbValueToString(reader["partner_manager_email"]);
             var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
 
+            var createDate = Utils.DbValueToDateTime(reader["created"]);
+            var creator = Utils.DbValueToString(reader["creator"]);
+            var editDate = Utils.DbValueToDateTime(reader["edited"]);
+            var editor = Utils.DbValueToString(reader["editor"]);
+
             var operation = new Operation(Convert.ToInt64(reader["id"]), null,
                 type,
                 planWorkStartDate, planWorkFinishDate,
@@ -902,7 +909,11 @@ namespace TSLog.Yard.Data
                 FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
                 FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
                 StartDate = Utils.DbValueToDateTime(reader["start_date"]),
-                FinishDate = Utils.DbValueToDateTime(reader["finish_date"])
+                FinishDate = Utils.DbValueToDateTime(reader["finish_date"]),
+                CreateDate = createDate,
+                Creator = creator,
+                EditDate = editDate,
+                Editor = editor
             };
 
             var logistId = Utils.DbValueToInt(reader["logist_id"]);
@@ -950,7 +961,8 @@ namespace TSLog.Yard.Data
                         $"       o.priority, " +
                         $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email, " +
                         $"       o.manager_id, " +
-                        $"       o.responsible_officer_id, o.note " +
+                        $"       o.responsible_officer_id, o.note," +
+                        $"       o.created, o.creator, o.edited, o.editor" +
                         $"  from {YardSchema}.v_operation o " +
                         $" where o.id = :id";
                     command.CommandText = sql;
@@ -1053,7 +1065,8 @@ namespace TSLog.Yard.Data
                         $"       po.partner_manager_email, " +
                         $"       po.manager_id, " +
                         $"       po.responsible_officer_id, " +
-                        $"       po.note " +
+                        $"       po.note," +
+                        $"       po.created, po.creator, po.edited, po.editor" +
                         $"  from {YardSchema}.v_partner_operation po " +
                         $" where not (po.plan_work_start_date > :to_date " +
                         $"    or po.plan_work_finish_date < :from_date) " +
@@ -1111,7 +1124,8 @@ namespace TSLog.Yard.Data
                         $"       o.partner_manager_email, " +
                         $"       o.manager_id, " +
                         $"       o.responsible_officer_id, " +
-                        $"       o.note " +
+                        $"       o.note," +
+                        $"       o.created, o.creator, o.edited, o.editor" +
                         $"  from {YardSchema}.v_operation o " +
                         $" where not (o.plan_work_start_date > :to_date " +
                         $"    or o.plan_work_finish_date < :from_date)";
@@ -1167,7 +1181,8 @@ namespace TSLog.Yard.Data
                        $"       po.partner_manager_email, " +
                        $"       po.manager_id, " +
                        $"       po.responsible_officer_id, " +
-                       $"       po.note " +
+                       $"       po.note," +
+                       $"       po.created, po.creator, po.edited, po.editor" +
                        $"  from {YardSchema}.v_partner_operation po " +
                        $" where not (:to_date is not null and po.plan_work_start_date > :to_date " +
                        $"         or :from_date is not null and po.plan_work_finish_date < :from_date) " +
@@ -1240,9 +1255,56 @@ namespace TSLog.Yard.Data
                        $"       ao.partner_manager_email, " +
                        $"       ao.manager_id, " +
                        $"       ao.responsible_officer_id, " +
-                       $"       ao.note " +
+                       $"       ao.note," +
+                       $"       ao.created, ao.creator, ao.edited, ao.editor" +
                        $"  from {YardSchema}.v_active_operation ao";
                     command.CommandText = SelectActiveOperationsSql;
+
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return operations.ToArray();
+        }
+        public Operation[] GetOperationsForGuard()
+        {
+            var operations = new List<Operation>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var SelectOperationsForGuardSql =
+                       $"  select distinct o.id, " +
+                       $"         o.type_id, o.type_code, o.type_name, " +
+                       $"         o.plan_work_start_date, o.fact_work_start_date, " +
+                       $"         o.plan_work_finish_date, o.fact_work_finish_date, " +
+                       $"         o.start_date, o.finish_date, " +
+                       $"         o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
+                       $"         o.vehicle_brand, " +
+                       $"         o.vehicle_model, " +
+                       $"         o.vehicle_number, " +
+                       $"         o.trailer_number, " +
+                       $"         o.driver_name, o.driver_phone_number, " +
+                       $"         o.logist_id, o.logist_code, o.logist_name, " +
+                       $"         o.gate_id, o.gate_code, o.gate_name, " +
+                       $"         o.state_id, o.state_code, o.state_name, " +
+                       $"         o.priority, " +
+                       $"         o.partner_manager_name, " +
+                       $"         o.partner_manager_phone_number, " +
+                       $"         o.partner_manager_email, " +
+                       $"         o.manager_id, " +
+                       $"         o.responsible_officer_id, " +
+                       $"         o.note," +
+                       $"         o.created, o.creator, o.edited, o.editor" +
+                       $"    from {YardSchema}.v_operation_for_guard o\n" +
+                       $"order by o.vehicle_number";
+                    command.CommandText = SelectOperationsForGuardSql;
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -1283,7 +1345,7 @@ namespace TSLog.Yard.Data
             }
             return partners.ToArray();
         }
-        public Gate SetOperationGate(Operation operation, Gate? gate = null)
+        public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -1292,10 +1354,12 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql = $"select {YardSchema}.set_operation_gate(:p_id," +
-                        $":p_gate_code);";
+                        $":p_gate_code," +
+                        $":p_user);";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
                     command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate != null ? gate.Code : DBNull.Value));
+                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
                     var gateId = Convert.ToInt16(command.ExecuteScalar());
                     operation.Gate = GetGate(gateId);
                 }
@@ -1303,22 +1367,23 @@ namespace TSLog.Yard.Data
             }
             return operation.Gate;
         }
-        public void CancelOperationGate(Operation operation)
+        public void CancelOperationGate(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
             using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
-                var CancelOperationGateSql = $"select {YardSchema}.cancel_operation_gate(:p_id,);";
+                var CancelOperationGateSql = $"select {YardSchema}.cancel_operation_gate(:p_id, :p_user);";
                 command.CommandText = CancelOperationGateSql;
                 command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
                 command.ExecuteNonQuery();
                 operation.Gate = Gate.Null;
             }
             connection.Close();
         }
-        public void EditOperation(Operation operation)
+        public void EditOperation(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -1343,7 +1408,8 @@ namespace TSLog.Yard.Data
                     $":p_partner_manager_phone_number," +
                     $":p_partner_manager_email," +
                     $":p_manager_id," +
-                    $":p_note);";
+                    $":p_note," +
+                    $":p_user);";
                 command.CommandText = sql;
 
                 command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
@@ -1365,6 +1431,7 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
                 command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
                 command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
 
                 command.ExecuteScalar();
             }
@@ -1408,20 +1475,21 @@ namespace TSLog.Yard.Data
 
             connection.Close();
         }
-        public void StartOperation(Operation operation)
+        public void StartOperation(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.start_operation(:p_id);";
+            var sql = $"select {YardSchema}.start_operation(:p_id, :p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
         }
-        public void SetResponsibleOfficer(Operation operation, Employee officer)
+        public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -1431,10 +1499,12 @@ namespace TSLog.Yard.Data
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
             var sql = $"select {YardSchema}.set_operation_responsible_officer(:p_id, " +
-                $":p_responsible_officer_id);";
+                $":p_responsible_officer_id," +
+                $":p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_responsible_officer_id", NpgsqlDbType.Integer, officer.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             operation.ResponsibleOfficer = officer;
             connection.Close();
@@ -1466,68 +1536,73 @@ namespace TSLog.Yard.Data
                     RemoveEmployee(operation, operationWorker.Employee, operationWorker.Position);
             }
         }
-        public void StartOperationWork(Operation operation)
+        public void StartOperationWork(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.start_operation_work(:p_id);";
+            var sql = $"select {YardSchema}.start_operation_work(:p_id, :p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
         }
-        public void FinishOperationWork(Operation operation)
+        public void FinishOperationWork(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.finish_operation_work(:p_id);";
+            var sql = $"select {YardSchema}.finish_operation_work(:p_id, :p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
         }
-        public void FinishOperation(Operation operation)
+        public void FinishOperation(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.finish_operation(:p_id);";
+            var sql = $"select {YardSchema}.finish_operation(:p_id, :p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
         }
-        public void CancelOperation(Operation operation)
+        public void CancelOperation(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.cancel_operation(:p_id);";
+            var sql = $"select {YardSchema}.cancel_operation(:p_id, :p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
         }
-        public void DeleteOperation(Operation operation)
+        public void DeleteOperation(Operation operation, string user = "")
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.delete_operation(:p_id);";
+            var sql = $"select {YardSchema}.delete_operation(:p_id, :p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
         }

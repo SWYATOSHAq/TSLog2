@@ -107,10 +107,11 @@ namespace TSLog.Yard.BO
         public string PartnerManagerName { get; set; }
         public string PartnerManagerPhoneNumber { get; set; }
         public string PartnerManagerEmail { get; set; }
-        /// <summary>
-        /// Список партнеров
-        /// </summary>        
-
+        public DateTime CreateDate { get; set; } = DateTime.MinValue;
+        public string Creator { get; set; } = string.Empty;
+        public DateTime EditDate { get; set; } = DateTime.MinValue;
+        public string Editor { get; set; } = string.Empty;
+        
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,
             VehicleKind vehicleKind, string vehicleBrand, string vehicleModel, string vehicleNumber, string trailerNumber,
@@ -165,7 +166,6 @@ namespace TSLog.Yard.BO
             PartnerManagerPhoneNumber = string.Empty;
             PartnerManagerEmail = string.Empty;
         }
-        //Getdate TODO
         public string GetDate()
         {
             return (PlanWorkStartDate == DateTime.MinValue ? "" : $"({PlanWorkStartDate:dd.MM.yyyy})");
@@ -230,7 +230,8 @@ namespace TSLog.Yard.BO
             }
         }
         public static Operation[] Filter(Operation[] operations,
-            Partner partner, OperationType operationType, VehicleKind vehicleKind, Gate gate, Entity operationState)
+            Partner partner, OperationType operationType, VehicleKind vehicleKind, Gate gate, Entity operationState,
+            string vehicleNumber = "", string driverName = "")
         {
             if (operations == null)
                 throw new ArgumentNullException(nameof(operations));
@@ -245,10 +246,22 @@ namespace TSLog.Yard.BO
                 temp = temp.FindAll(o => o.Gate == gate);
             if (operationState != null && operationState != Entity.Null)
                 temp = temp.FindAll(o => o.State == operationState);
+
+            if (!string.IsNullOrWhiteSpace(vehicleNumber))
+            {
+                vehicleNumber = vehicleNumber.Trim().ToUpper();
+                temp = temp.FindAll(o => o.VehicleNumber.ToUpper().Contains(vehicleNumber));
+            }
+            if (!string.IsNullOrWhiteSpace(driverName))
+            {
+                driverName = driverName.Trim().ToUpper();
+                temp = temp.FindAll(o => o.DriverName.ToUpper().Contains(driverName));
+            }            
+
             return temp.ToArray();
         }    
         /// <summary>
-        /// цвет, соответствующий состоянию, для отображения в интерфейсе
+        /// Цвет, соответствующий состоянию, для отображения в интерфейсе
         /// </summary>
         public string DisplayColor
         {
@@ -264,6 +277,10 @@ namespace TSLog.Yard.BO
                 };
                 return result;
             }
+        }
+        public static int CompareByPlanWorkStartDate(Operation operation1, Operation operation2)
+        {
+            return operation2.PlanWorkStartDate.CompareTo(operation1.PlanWorkStartDate);
         }
     }
 }

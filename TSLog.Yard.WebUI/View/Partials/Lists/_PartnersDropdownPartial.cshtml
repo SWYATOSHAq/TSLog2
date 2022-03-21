@@ -12,9 +12,9 @@
         defaultText = "Партнер не выбран";
 }
 
-<div class="input-group">
+<div id="partners-block" class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Партнер*</span>
-    <select id="partner" class="form-select filter-drop-down" aria-label="Default select" @(isDisabled ? "disabled" : string.Empty)>
+    <select id="partners-dropdown" class="form-select filter-drop-down" aria-label="Default select" @(isDisabled ? "disabled" : string.Empty)>
         <option value="">@defaultText</option>
         @foreach (var partner in partners)
         {

@@ -26,6 +26,16 @@ namespace TSLog.Yard.BO
         /// Приход или расход
         /// </summary>
         public TypeDirection Direction { get; private set; }
+        /// <summary>
+        /// Приход или расход (текстом)
+        /// </summary>
+        public string DirectionName 
+        {
+            get
+            {
+                return Direction == TypeDirection.Out ? "Погрузка" : "Разгрузка";
+            }
+        }
         public OperationType(long id, TypeDirection direction,
             string code, string name, string shortName, string altName, string displayName, int time,
             bool isActive = true, short displayOrder = -1,
@@ -49,7 +59,7 @@ namespace TSLog.Yard.BO
 
         public override string ToString()
         {
-            return $"{this.DisplayName}";
+            return $"{DisplayName}";
         }
 
         private static OperationType? _null = null;

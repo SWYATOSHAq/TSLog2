@@ -259,7 +259,7 @@ namespace TSLog.Yard.Data
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    var managerId = Utils.DbValueToShort(reader["manager_id"]);
+                    var managerId = Utils.DbValueToInt(reader["manager_id"]);
                     var manager = GetEmployee(managerId);
                     managers.Add(manager);
                 }

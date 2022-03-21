@@ -12,13 +12,13 @@
         defaultText = "Состояние не выбрано";
 }
 
-<div class="input-group">
+<div id="operation-states-block" class="input-group">
     <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Состояния</span>
-    <select id="state" class="form-select filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
-    <option value="">@defaultText</option>
-    @foreach (var state in states)
-    {
-       @: <option value="@state.Code" @((state.Code == selectedState) ? "selected" : string.Empty)>@state.DisplayName</option>
-    }
+    <select id="operation-states-dropdown" class="form-select filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+        <option value="">@defaultText</option>
+        @foreach (var state in states)
+        {
+           @: <option value="@state.Code" @((state.Code == selectedState) ? "selected" : string.Empty)>@state.DisplayName</option>
+        }
     </select>
 </div>

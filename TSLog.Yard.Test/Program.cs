@@ -1,9 +1,7 @@
-﻿using TSLog.WarehouseActions.BO;
-using TSLog.Yard;
+﻿using TSLog.Yard;
 using TSLog.Yard.BO;
 using Microsoft.Extensions.Configuration;
-
-// See https://aka.ms/new-console-template for more information
+using TSLog.WarehouseActions.BO;
 
 var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -12,7 +10,6 @@ var builder = new ConfigurationBuilder()
 var configuration = builder.Build();
 
 var isDebug = configuration.GetValue<bool>("IsDebug");
-
 var oracleConnectionSettings = isDebug
     ? configuration.GetSection("OracleConnectionDebugSettings")
     : configuration.GetSection("OracleConnectionSettings");
@@ -80,10 +77,10 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     Console.WriteLine("проверка выгрузки объектов по коду...");
     var operationState = storage.GetOperationState("CREATED");
     var operationType = storage.GetOperationType("O_BOX_MONO");
-    var vehicleKind = storage.GetVehicleKind("20_TONS");
-    // test full cycle
+    var vehicleKind = storage.GetVehicleKind("20_TONS");    
     Console.WriteLine("готово");
 
+    // Test full cycle
     Console.WriteLine("сборка тестовой операции...");
     var type = storage.GetOperationType("O_BOX_MIX");
     var testVehicleKind = storage.GetVehicleKind("20_TONS");
@@ -91,34 +88,38 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var finishDate = startDate;
     finishDate = finishDate.Add(new TimeSpan(0, storage.GetTime(type, vehicleKind), 0));
     var defState = storage.GetOperationState("CREATED");
-    var defManager = storage.GetEmployee(10405);
+    var defManager = storage.GetEmployee(100004);
 
-    var newOperation = new Operation(-1, null, type, startDate, finishDate, 
-        vehicleKind, "some brand", "some model", "50me-nu|\\/|beR", "trailer number", 
+    var user = "m.burov";
+    var operation = new Operation(-1, null, type, startDate, finishDate, 
+        vehicleKind, "some brand", "some model", "ABCDEF", "trailer number", 
         "Ivan Ivanov", "123-456-789", 
         defState, 1, 
-        "Ivanov", "Ivanov", "Ivanov",
+        "Ivanov", "Ivan", "Ivanovich",
         defManager);
-    //newOperation.AddAction(new WarehouseAction(ActionKind.Income, "not-set", storage.GetPartner("0130"), "69420-80085"));
-    //storage.AddOperation(newOperation);
+
+    var action = storage.GetAction(ActionKind.Outgo, partner, "ВБ00-008867");
+
+    operation.AddAction(action);
+    storage.AddOperation(operation, user);
     Console.WriteLine("готово");
 
     Console.WriteLine("проверка выгрузки справочников...");
-    var actions = newOperation.GetActions();
-    var partners = newOperation.GetPartners();
+    var actions = operation.GetActions();
+    var partners = operation.GetPartners();
     Console.WriteLine("готово");
 
     Console.WriteLine("проведение операции по состояниям...");
-    storage.SetOperationGate(newOperation);
-    storage.StartOperation(newOperation);
-    storage.StartOperationWork(newOperation);
-    storage.FinishOperation(newOperation);
-    storage.FinishOperationWork(newOperation);
+    storage.SetOperationGate(operation, null, user);
+    storage.StartOperation(operation, user);
+    storage.StartOperationWork(operation, user);
+    storage.FinishOperation(operation, user);
+    storage.FinishOperationWork(operation, user);
     Console.WriteLine("готово");
 
     Console.WriteLine("отмена и удаление операции...");
-    storage.CancelOperation(newOperation);
-    storage.DeleteOperation(newOperation);
+    storage.CancelOperation(operation, user);
+    storage.DeleteOperation(operation, user);
     Console.WriteLine("готово");
 
     // TODO: test filter
