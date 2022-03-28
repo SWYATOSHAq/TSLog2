@@ -51,7 +51,7 @@ body {
     }
 
 #time_table, #card_table {
-    height: 130vh;
+    height: auto;
 }
 
 th {
@@ -80,31 +80,43 @@ td {
     cursor: pointer;
 }
 
+.datepicker2-label {
+    margin: 0px !important;
+    padding: 0px !important;
+    padding-right: 4px !important;
+    width: auto !important;
+    text-align: center !important;
+    display: flex;
+    align-items: center;
+}
+
 .datepicker2 {
-    width: 200px;
-    padding: 4px;
-    padding-left: 8px;
+    width: 120px;
     margin: 0px;
+    margin-right: 24px !important;
+    padding: 0px;
     border-radius: 4px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
 }
 
 .row2 {
-    padding: 0px;
-    margin: 0px;    
+    margin: 0px !important;
+    padding: 0px !important;
 }
 
 .row3 {
-    padding: 0px;
     margin: 0px;
+    padding: 0px;
     display: inline-flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
 }
 
 .create-operation {
-    padding: 4px !important;
-    margin: 0px;
-    width: 200px;
+    margin: 0px !important;
+    padding: 0px !important;
+    width: 120px;
     border-radius: 4px !important;
 }
 
@@ -150,13 +162,17 @@ td {
 }
 
 .filter-drop-down {
-    padding: 4px !important;
+    padding: 0px !important;
+    padding-left: 4px !important;
     margin: 0px !important;
     border-radius: 4px !important;
+    display: flex;
+    align-items: center;
 }
 
 .filter-text-box {
-    padding: 4px !important;
+    padding: 0px !important;
+    padding-left: 4px !important;
     margin: 0px !important;
     border-radius: 4px !important;
 }

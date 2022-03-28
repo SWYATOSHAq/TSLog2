@@ -6,7 +6,7 @@ namespace TSLog.Yard.WebUI.Models
 {
     public class GuardPageModel : PageModel
     {
-        private readonly ILogger<ActiveCarsDispersalModel> _logger;
+        private readonly ILogger<PresentVehiclesPageModel> _logger;
         /// <summary>
         /// Хранилище объектов
         /// </summary>
@@ -15,7 +15,7 @@ namespace TSLog.Yard.WebUI.Models
         /// Объект для проверки прав
         /// </summary>
         public RightsChecker RightsChecker { get; private set; }
-        public GuardPageModel(ILogger<ActiveCarsDispersalModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public GuardPageModel(ILogger<PresentVehiclesPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

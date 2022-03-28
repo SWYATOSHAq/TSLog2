@@ -28,7 +28,7 @@ namespace TSLog.Yard.Reporting
         public DateTime ToDate { get; private set; }
         public ClientReport(IYardStorage storage, Partner partner, DateTime fromDate, DateTime toDate)
         {
-            Partner = partner;
+            Partner = partner != null && partner != Partner.Empty ? partner : Partner.Null;
             FromDate = fromDate;
             ToDate = toDate;
 
@@ -69,7 +69,10 @@ namespace TSLog.Yard.Reporting
             var rur = storage.GetMeasureUnit("RUR");
 
             var interval = new Interval(FromDate, ToDate);
-            var operations = storage.GetOperations(FromDate, ToDate, new Partner[1] { Partner });
+            List<Partner> partners = new List<Partner>();
+            if (Partner != null && Partner != Partner.Null && Partner != Partner.Empty)
+                partners.Add(Partner);
+            var operations = storage.GetOperations(FromDate, ToDate, partners.ToArray());
             var elements = new Dictionary<Position, Element>();
             foreach (var operation in operations)
             {

@@ -1,0 +1,41 @@
+﻿.client-report-operation-date-picker-label {
+    margin: 0px !important;
+    padding: 0px !important;
+    padding-right: 4px !important;
+    width: auto !important;
+    text-align: center !important;
+    display: flex;
+    align-items: center;
+}
+
+.client-report-operation-date-picker {
+    margin: 0px !important;
+    margin-right: 24px !important;
+    padding: 0px !important;
+    width: 120px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.client-report-filter-label {
+    margin: 0px !important;
+    padding: 0px !important;
+    padding-right: 4px !important;
+    width: auto !important;
+    text-align: center !important;
+    display: flex;
+    align-items: center;
+}
+
+.client-report-filter-container {
+    margin: 0px;
+    padding: 0px;
+    width: 240px;
+}
+
+.client-report-button {
+    margin: 8px !important;
+    margin-left: 0px !important;
+    padding: 0px;
+    width: 120px;
+}

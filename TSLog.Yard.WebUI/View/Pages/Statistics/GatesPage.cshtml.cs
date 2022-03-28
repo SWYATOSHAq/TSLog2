@@ -4,12 +4,12 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Yard.WebUI.Models
 {
-    public class HumanDispersalModel : PageModel
+    public class GatesPageModel : PageModel
     {
-        private readonly ILogger<HumanDispersalModel> _logger;
+        private readonly ILogger<GatesPageModel> _logger;
         public RightsChecker RightsChecker { get; private set; }
         public IYardStorage Storage { get; private set; }        
-        public HumanDispersalModel(ILogger<HumanDispersalModel> logger, RightsChecker rightsChecker, IYardStorage storage)
+        public GatesPageModel(ILogger<GatesPageModel> logger, RightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
             RightsChecker = rightsChecker;

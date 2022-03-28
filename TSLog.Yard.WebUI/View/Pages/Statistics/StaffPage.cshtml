@@ -1,8 +1,8 @@
-﻿@page "/HumanDispersal"
+﻿@page "/StaffPage"
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
-@model HumanDispersalModel
+@model StaffPageModel
 @{
     ViewData["Title"] = "Распределение людей";
     var rightsChecker = Model.RightsChecker;
@@ -11,7 +11,6 @@
     var displayCollumns = new List<string>();
     int startTime = 9;
     int endTime = 21;
-    // 9-21 period
 
     string _date = Request.Query["date"];
     var date = string.IsNullOrWhiteSpace(_date) ? DateTime.Today : DateTime.Parse(_date);
@@ -35,33 +34,44 @@
 
     var startBracket = "[";
     var endBracket = "]";
-    var minutesText = " чел. мин. ";
+    var minutesText = " ч. мин. ";
 }
-
-<div class="row p-2 hide-on-print">Выберете дату:</div>
-<div class="row p-2 m-3">
-    <input type="text" id="dp1" class="datepicker border border-secondary hide-on-print " placeholder="Выберете дату" ne="date" readonly=""><span class="fa fa-calendar"></span>
-    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3" type="button" onclick="OpenHumanStatisticsByDate()">Применить</button>
-    <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3" type="button" onclick="PrintStatisticsTables()">Печать</button>
+<div class="row row2 row3">
+    <label class="positions-plan-operation-date-picker-label" 
+        for="operation-date-picker">Выберете дату:</label>
+    <input type="text"
+        id="operation-date-picker"
+        class="datepicker border border-secondary hide-on-print datepicker2 positions-plan-operation-date-picker"
+        placeholder="Выберете дату"
+        ne="date"
+        readonly="" />    
 </div>
-<div class="my-5 shadow statistics-table">
+<div class="row p-2 m-1 row2">
+    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3 positions-plan-button"
+        type="button" 
+        onclick="ShowStaffPage()">Применить</button>
+    <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3 positions-plan-button" 
+        type="button" 
+        onclick="PrintTable()">Печать</button>
+</div>
+<div class="my-5 statistics-table">
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
             <tr>
-                <th>@date.ToString("dd.MM.yyyy")</th>
-                <th>Количество сум. машин</th>
-                @foreach (var workerType in displayCollumns)
+                <th class="table-header">@date.ToString("dd.MM.yyyy")</th>
+                <th class="table-header">Количество сум. машин</th>
+                @foreach (var position in displayCollumns)
                 {
-                    <th colspan="2">@workerType</th>
+                    <th class="table-header" colspan="2">@position</th>
                 }
             </tr>
             <tr>
-                <th>Интервал</th>
-                <th></th>
-                @foreach (var workerType in displayCollumns)
+                <th class="table-header">Интервал</th>
+                <th class="table-header"></th>
+                @foreach (var position in displayCollumns)
                 {
-                    <th>Приемка</th>
-                    <th>Отгрузка</th>
+                    <th class="table-header">Приемка</th>
+                    <th class="table-header">Отгрузка</th>
                 }
             </tr>
         </thead>
@@ -72,15 +82,15 @@
             @foreach (var item in intervals)
             {
                 <tr>
-                    <th>@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto" type="button" onclick="PrintBlock(@i)">печать</button></th>
-                    <td class="h5">@(item.OperationsCount > 0 ? item.OperationsCount : string.Empty)</td>
-                    <td>
+                    <th class="positions-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto positions-plan-table-cell-button" type="button" onclick="PrintBlock(@i)">Печать</button></th>
+                    <td class="h5 positions-plan-table-cell">@(item.OperationsCount > 0 ? item.OperationsCount : string.Empty)</td>
+                    <td class="positions-plan-table-cell">
                         @{
                             var inMaxParallelOperations = item.MaxParallelOperations(OperationType.TypeDirection.In);
                         }
                         @(inMaxParallelOperations > 0 ? inMaxParallelOperations : string.Empty)
                     </td>
-                    <td>
+                    <td class="positions-plan-table-cell">
                         @{
                             var outMaxParallelOperations = @item.MaxParallelOperations(OperationType.TypeDirection.Out);
                         }
@@ -91,36 +101,36 @@
                         var tmpWorkersOut = item.MaxParallelPositionWorkers(OperationType.TypeDirection.Out);
                         var tmpLabourCost = item.PositionsLaborCosts;
                     }
-                    @foreach (var curWorker in workers)
+                    @foreach (var worker in workers)
                     {
-                        if (curWorker.IsLinear)
+                        if (worker.IsLinear)
                         {
                             var timeCost = 0.0;
-                            @if (tmpLabourCost.ContainsKey(curWorker))
+                            @if (tmpLabourCost.ContainsKey(worker))
                             {
-                                timeCost = tmpLabourCost[curWorker] / 60.0;
+                                timeCost = Math.Round(tmpLabourCost[worker] / 60.0);
                             }
-                            <td>
-                                @if (tmpWorkersIn.ContainsKey(curWorker))
+                            <td class="positions-plan-table-cell">
+                                @if (tmpWorkersIn.ContainsKey(worker))
                                 {
-                                    @if (tmpLabourCost.ContainsKey(curWorker))
+                                    @if (tmpLabourCost.ContainsKey(worker))
                                     {
-                                        @timeCost.ToString("F") @minutesText
+                                        @timeCost.ToString() @minutesText
                                     }
                                     @startBracket
-                                    @tmpWorkersIn[curWorker]
+                                    @tmpWorkersIn[worker]
                                     @endBracket
                                 }
                             </td>
-                            <td>
-                                @if (tmpWorkersOut.ContainsKey(curWorker))
+                            <td class="positions-plan-table-cell">
+                                @if (tmpWorkersOut.ContainsKey(worker))
                                 {
-                                    @if (tmpLabourCost.ContainsKey(curWorker))
+                                    @if (tmpLabourCost.ContainsKey(worker))
                                     {
-                                        @timeCost.ToString("F") @minutesText
+                                        @timeCost.ToString() @minutesText
                                     }
                                     @startBracket
-                                    @tmpWorkersOut[curWorker]
+                                    @tmpWorkersOut[worker]
                                     @endBracket
                                 }
                             </td>
@@ -132,19 +142,21 @@
         </tbody>
     </table>
 </div>
-<div class="my-5 shadow w-25 statistics-table">
+<div class="my-5 w-25 statistics-table">
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
             <tr>
-                <td colspan="2">Потребность в персонале</td>
+                <td class="positions-plan-table-cell" colspan="2">Потребность в персонале</td>
             </tr>
         </thead>
         <tbody>
             @foreach (var worker in workersData.Keys)
             {
+                if (!worker.IsLinear)
+                    continue;
                 <tr>
                     <td class="text-right">@worker.DisplayName</td>
-                    <td>@workersData[worker]</td>
+                    <td class="positions-plan-table-cell">@workersData[worker]</td>
                 </tr>
             }
         </tbody>
@@ -157,7 +169,7 @@
     }
     @foreach (var interval in intervals)
     {
-        <div class="interval-print interval-print-@i show-on-print">
+        <div id="interval" class="interval-print interval-print-@i show-on-print">
             <div>Период времени: <b>@interval.GetFormattedTimeString()</b></div>
             @{
                 j = 1;

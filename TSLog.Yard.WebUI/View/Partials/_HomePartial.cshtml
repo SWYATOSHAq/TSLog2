@@ -10,16 +10,20 @@
     var request = Model.Request;
     var isAdmin = isEnabled;
 }
+@inject IConfiguration Configuration
 @{
-    var createOperation = rightsChecker.CheckRight("CREATE_OPERATION", User);
-    var filterOperationsByDate = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
-    var filterOperationsByType = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
-    var filterOperationsByVehicleKind = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
-    var filterOperationsByState = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_STATE", User);
-    var filterOperationsByGate = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_GATE", User);
-    var filterOperationsByPartner = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
-    var filterOperationsByVehicle = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
-    var filterOperationsByDriver = rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@{    
+    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var filterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
+    var filterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
+    var filterOperationsByVehicleKind = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
+    var filterOperationsByState = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_STATE", User);
+    var filterOperationsByGate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_GATE", User);
+    var filterOperationsByPartner = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
+    var filterOperationsByVehicle = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
+    var filterOperationsByDriver = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
 
     string requestFromDate = request.Query["from_date"];
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
@@ -66,50 +70,24 @@
 
 <div class="row p-2 m-3 card-table">
     <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto card-table" id="card_table">
-        @if (createOperation)
-        {
-            <div class="row row2">
-                <div class="container2">
-                    <button title="Создать заявку" 
-                        class="btn btn-outline-success hide-on-print create-operation" 
-                        type="button" 
-                        onclick="location.href='/NewOperation'">
-                        Создать
-                    </button>
-                </div>                
-            </div>
-        }
-        <div class="row row2">
-            <div class="container2">
-                <span class="caption">Фильтры:</span>
-            </div>            
-        </div>
-        
-        <div id="filters" class="row row2">
-            <div class="row row2">
-                <div class="container2">
-                    <span class="caption">Выберете даты:</span>
-                </div>            
-            </div>
-            <div class="row row3">
-                <div class="container3">
-                    <label for="from-date-picker">С:</label>
-                    <input type="text"
-                        id="from-date-picker"
-                        class="datepicker border border-secondary datepicker2"
-                        placeholder="Выберете дату"
-                        ne="date"
-                        readonly />
-                </div>  
-                <div class="container3">
-                    <label for="to-date-picker">по:</label>
-                    <input type="text"
-                        id="to-date-picker"
-                        class="datepicker border border-secondary datepicker2"
-                        placeholder="Выберете дату"
-                        ne="date"
-                        readonly />
-                </div>  
+        <div id="filters" class="row row2">            
+            <div class="row container2">
+                <label class="datepicker2-label"
+                    for="from-date-picker">Дата с:</label>
+                <input type="text"
+                    id="from-date-picker"
+                    class="datepicker border border-secondary datepicker2"
+                    placeholder="Выберете дату"
+                    ne="date"
+                    readonly />
+                <label class="datepicker2-label"
+                    for="to-date-picker">Дата по:</label>
+                <input type="text"
+                    id="to-date-picker"
+                    class="datepicker border border-secondary datepicker2"
+                    placeholder="Выберете дату"
+                    ne="date"
+                    readonly />
             </div>
             @if (filterOperationsByGate)
             {

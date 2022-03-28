@@ -8,16 +8,19 @@
     var rightsChecker = Model.RightsChecker;
 
     var isDebug = Configuration.GetValue<bool>("IsDebug");
-    var userName = User.Identity.Name;
-    var debugTextTag = $"(DEBUG {userName})";    
-
-    var createOperation = rightsChecker.CheckRight("CREATE_OPERATION", User);
-    var viewStaffPlan = rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
-    var viewGatesPlan = rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
-    var viewPartnersReport = rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
-    var viewActiveOperations = rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
-    var viewGuardPage = rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+    var userName = User.Identity != null ? User.Identity.Name : string.Empty;
+    var debugText = $"(DEBUG {userName})";    
+    
+    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var viewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
+    var viewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
+    var viewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    var viewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var viewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
     var date = DateTime.Today.ToString("dd.MM.yyyy");
+
+    var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -28,14 +31,30 @@
     <title>
         @if (isDebug)
         {
-            @debugTextTag;
+            @debugText;
         }
         @ViewData["Title"]
     </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @if (page == "StaffPage")
+    {
+        <link rel="stylesheet" href="~/css/StaffPage.css" asp-append-version="true" />
+    }
+    else if (page == "GatesPage")
+    {
+        <link rel="stylesheet" href="~/css/GatesPage.css" asp-append-version="true" />
+    }    
+    else if (page == "ClientReportPage")
+    {
+        <link rel="stylesheet" href="~/css/ClientReportPage.css" asp-append-version="true" />
+    }  
+
+    <!--
     <link rel="stylesheet" href="~/TSLog.Yard.WebUI.styles.css" asp-append-version="true" />
+    -->
 </head>
 
 <body>
@@ -71,25 +90,25 @@
                         @if (viewStaffPlan)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="/HumanDispersal">План. персонал</a>
+                                <a class="nav-link text-dark" href="/StaffPage?date=@date">План персонала</a>
                             </li>
                         }
                         @if (viewGatesPlan)
                         {
                             <li class="nav-item">                            
-                                <a class="nav-link text-dark" href="/GateDispersal">План. ворота</a>                            
+                                <a class="nav-link text-dark" href="/GatesPage?date=@date">План ворот</a>                            
                             </li>
                         }
                         @if (viewPartnersReport)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="/ClientReportDispersal">Статистика затрат по клиентам</a>
+                                <a class="nav-link text-dark" href="/ClientReportPage">Статистика затрат по клиентам</a>
                             </li>
                         }
                         @if (viewActiveOperations)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="/ActiveCarsDispersal">Список активных машин</a>
+                                <a class="nav-link text-dark" href="/PresentVehiclesPage">Машины во дворе</a>
                             </li>
                         }
                         @if (viewGuardPage)
@@ -98,9 +117,11 @@
                                 <a class="nav-link text-dark" href="/GuardPage">Управление въездом/выездом</a>
                             </li>
                         }
-                        <!-- <li class="nav-item">
+                        <!-- 
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li> -->
+                        </li>
+                        -->
                     </ul>
                     <div class="d-none">
                         <partial name="_LoginPartial" />
@@ -119,12 +140,34 @@
             &copy; 2021-2022 - TSL - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
+    <!-- External libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/bootstrap/popper/popper.min.js"></script>
     <script src="~/lib/datepicker/bootstrap-datepicker.js"></script>
     <script src="~/lib/datepicker/bootstrap-datepicker.ru.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Common scriprs -->
+    <script type="text/javascript" src="~/js/Common.js"></script>
+
+    @{
+        if (page == "StaffPage")
+        {
+            <script type="text/javascript" src="~/js/StaffPage.js"></script>
+        }
+        else if (page == "GatesPage")
+        {        
+            <script type="text/javascript" src="~/js/GatesPage.js"></script>
+        }    
+        else if (page == "ClientReportPage")
+        {        
+            <script type="text/javascript" src="~/js/ClientReportPage.js"></script>
+        }  
+        else
+        {
+            <script src="~/js/site.js" asp-append-version="true"></script>        
+        }
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

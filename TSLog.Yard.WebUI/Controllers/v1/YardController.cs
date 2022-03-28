@@ -19,88 +19,151 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage = storage;
         }
         /*
-         * get info about operation by id
-         * get list of operations by filter (start time, finish time, doors, partner)
-         * create / update operation
-         * change state
-         */
+            get info about operation by id
+            get list of operations by filter (start time, finish time, doors, partner)
+            create / update operation
+            change state
+        */
 
-        [HttpGet("BusyPeriods")]
-        public string GetBusyPeriods()
+        private string GetUser()
         {
-            string stringDate = Request.Query["date"];
-            string stringOperationType = Request.Query["operation"];
-            string stringVehicleKind = Request.Query["vehicle_kind"];
-
-            var date = DateTime.Parse(stringDate);
-            var operationType = _storage.GetOperationType(stringOperationType);
-            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-
-            var span = 2;
-            var periods = _storage.GetAvalibleIntervals(date, date.AddDays(span), operationType, vehicleKind);
-            var busyPeriods = Interval.Union(periods);
-
-            var text = JsonSerializer.Serialize(busyPeriods);
-            return text;
+            var user = string.Empty;
+            if (User != null && User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
+                user = User.Identity.Name.Split('\\').Last();
+            return user;
         }
 
-        [HttpGet("OperationLength")]
-        public string GetOperationLength()
+        [HttpGet("BusyIntervals")]
+        public string GetBusyIntervals()
         {
-            string stringOperationType = Request.Query["operation"];            
-            string stringVehicleKind = Request.Query["vehicle_kind"];
+            try
+            {
+                Response.StatusCode = 500;
+                string stringDate = Request.Query["date"];
+                string stringOperationType = Request.Query["operation"];
+                string stringVehicleKind = Request.Query["vehicle_kind"];
 
-            var operationType = _storage.GetOperationType(stringOperationType);
-            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-            var timeSpan = _storage.GetTime(operationType, vehicleKind);
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
 
-            var text = JsonSerializer.Serialize(timeSpan);
-            return text;
+                var date = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(stringDate) && !DateTime.TryParse(stringDate.Trim(), out date))
+                    return $"Wrong date {stringDate}";
+
+                var operationType = _storage.GetOperationType(stringOperationType);
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+
+                var span = 2;
+                var periods = _storage.GetAvalibleIntervals(date, date.AddDays(span), operationType, vehicleKind);
+                var intervals = Interval.Union(periods);
+                var text = JsonSerializer.Serialize(intervals);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
         }
 
-        [HttpGet("OperationData")]
-        public string GetOperationData()
+        [HttpGet("OperationDuration")]
+        public string GetOperationDuration()
         {
-            var text = string.Empty;
+            try
+            {
+                Response.StatusCode = 500;
+                string stringOperationType = Request.Query["operation"];
+                string stringVehicleKind = Request.Query["vehicle_kind"];
+
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
+
+                var operationType = _storage.GetOperationType(stringOperationType);
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+                var timeSpan = _storage.GetTime(operationType, vehicleKind);
+                var text = JsonSerializer.Serialize(timeSpan);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
+        [HttpGet("Operation")]
+        public string GetOperation()
+        {
+            Response.StatusCode = 500;
             string stringId = Request.Query["operation_id"];
+            if (string.IsNullOrWhiteSpace(stringId))
+                return "Operation id is empty";
+
+            stringId = stringId.Trim();
             if (long.TryParse(stringId, out long id))
             {
                 var operation = _storage.GetOperation(id);
-                text = JsonSerializer.Serialize(operation);
+                var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
             }
-            return text;
+            else
+                return $"Wrong operation id {stringId}";
         }
 
-        [HttpGet("OperationsList")]
-        public string GetOperationsList()
+        [HttpGet("Operations")]
+        public string GetOperations()
         {
-            var text = string.Empty;
-
-            string stringFromDate = Request.Query["from_date"];
-            string stringToDate = Request.Query["to_date"];
-            string stringGate = Request.Query["gate"];
-            string stringPartnerId = Request.Query["partner_id"];
-            string stringOperationType = Request.Query["operation_type"];
-            string stringVehicleKind = Request.Query["vehicle_kind"];
-            string stringState = Request.Query["state"];
-            string stringVehicleNumber = Request.Query["vehicle_number"];
-            string stringDriverName = Request.Query["driver_name"];
-
-            var partner = !string.IsNullOrWhiteSpace(stringPartnerId) ? _storage.GetPartner(stringPartnerId) : Partner.Null;
-            var gate = !string.IsNullOrWhiteSpace(stringGate) ? _storage.GetGate(stringGate) : Gate.Null;
-            var operationType = !string.IsNullOrWhiteSpace(stringOperationType) ? _storage.GetOperationType(stringOperationType) : Null;
-            var vehicleKind = !string.IsNullOrWhiteSpace(stringVehicleKind) ? _storage.GetVehicleKind(stringVehicleKind) : VehicleKind.Null;
-            var state = !string.IsNullOrWhiteSpace(stringState) ? _storage.GetOperationState(stringState) : Entity.Null;
-
-            if (DateTime.TryParse(stringFromDate, out DateTime fromDate) && DateTime.TryParse(stringToDate, out DateTime toDate))
+            try
             {
+                Response.StatusCode = 500;
+                string stringFromDate = Request.Query["from_date"];
+                string stringToDate = Request.Query["to_date"];
+                string stringGate = Request.Query["gate"];
+                string stringPartnerId = Request.Query["partner_id"];
+                string stringOperationType = Request.Query["operation_type"];
+                string stringVehicleKind = Request.Query["vehicle_kind"];
+                string stringState = Request.Query["state"];
+                string stringVehicleNumber = Request.Query["vehicle_number"];
+                string stringDriverName = Request.Query["driver_name"];
+
+                var partner = !string.IsNullOrWhiteSpace(stringPartnerId) ? _storage.GetPartner(stringPartnerId) : Partner.Null;
+                var gate = !string.IsNullOrWhiteSpace(stringGate) ? _storage.GetGate(stringGate) : Gate.Null;
+                var operationType = !string.IsNullOrWhiteSpace(stringOperationType) ? _storage.GetOperationType(stringOperationType) : Null;
+                var vehicleKind = !string.IsNullOrWhiteSpace(stringVehicleKind) ? _storage.GetVehicleKind(stringVehicleKind) : VehicleKind.Null;
+                var state = !string.IsNullOrWhiteSpace(stringState) ? _storage.GetOperationState(stringState) : Entity.Null;
+
+                var fromDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(stringFromDate))
+                {
+                    stringFromDate = stringFromDate.Trim();
+                    if (!DateTime.TryParse(stringFromDate, out fromDate))
+                        return $"Wrong from date {stringFromDate}";
+                }
+                var toDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(stringToDate))
+                {
+                    stringToDate = stringToDate.Trim();
+                    if (!DateTime.TryParse(stringToDate, out toDate))
+                        return $"Wrong to date {stringToDate}";
+                }
+
                 var span = 1;
                 var operations = _storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1), Array.Empty<Partner>());
                 operations = Operation.Filter(operations, partner, operationType, vehicleKind, gate, state,
                     stringVehicleNumber, stringDriverName);
-                text = JsonSerializer.Serialize(operations);
+                var text = JsonSerializer.Serialize(operations);
+                Response.StatusCode = 200;
+                return text;
             }
-            return text;
+            catch (Exception exception)
+            {                
+                return exception.Message;
+            }
         }
 
         [HttpPost("CreateUpdateOperation")]
@@ -284,10 +347,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("ChangeOperationState")]
         public string PostChangeOperationState()
         {
-            var user = string.Empty;
-            if (User != null && User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
-                user = User.Identity.Name.Split('\\').Last();
-
+            var user = GetUser();
             var text = string.Empty;
 
             string stringId = Request.Form["operation_id"];
@@ -298,26 +358,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var operation = _storage.GetOperation(id);
                 switch (stringAction)
                 {
-                    case "StartOperation":
-                        _storage.StartOperation(operation, user);
-                        break;
                     case "ResetOperationGate":
                         _storage.SetOperationGate(operation, null, user);
                         break;
-                    case "StartOperationWork":
-                        _storage.StartOperationWork(operation, user);
-                        break;
-                    case "FinishOperation":
-                        _storage.FinishOperation(operation, user);
-                        break;
-                    case "FinishOperationWork":
-                        _storage.FinishOperationWork(operation, user);
-                        break;
-                    case "CancelOperation":
-                        _storage.CancelOperation(operation, user);
-                        break;
-                    case "DeleteOperation":
-                        _storage.DeleteOperation(operation, user);
+                    case "StartOperation":
+                        _storage.StartOperation(operation, user);
                         break;
                     case "AllocateEmployees":
                         try
@@ -329,16 +374,85 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             // TODO ошибка привязки персонала
                         }
                         break;
-
-                    default:
-                        text = "Operation is not specified";
+                    case "StartOperationWork":
+                        _storage.StartOperationWork(operation, user);
                         break;
+                    case "FinishOperationWork":
+                        _storage.FinishOperationWork(operation, user);
+                        break;
+                    case "FinishOperation":
+                        _storage.FinishOperation(operation, user);
+                        break;                    
+                    case "CancelOperation":
+                        _storage.CancelOperation(operation, user);
+                        break;
+                    case "DeleteOperation":
+                        _storage.DeleteOperation(operation, user);
+                        break;                    
+                    default:
+                        return "Operation is not specified";
                 }
                 text = JsonSerializer.Serialize(operation);
             }
             return text;
         }
 
+        [HttpPost("SetOperationGate")]
+        public string PostSetOperationGate()
+        {
+            var user = GetUser();
+            string stringId = Request.Form["operation_id"];
+            if (long.TryParse(stringId, out long id))
+            {                
+                try
+                {
+                    var operation = _storage.GetOperation(id);
+                    _storage.SetOperationGate(operation, null, user);
+                    return JsonSerializer.Serialize(operation);
+                }
+                catch (Exception exception)
+                {
+                    return exception.Message;
+                }
+            }
+            else
+                return $"Wrong operation id {stringId}";
+        }
+        [HttpPost("StartOperation")]
+        public string PostStartOperation()
+        {
+            return string.Empty;
+        }
+        [HttpPost("AllocateEmployees")]
+        public string PostAllocateEmployees()
+        {
+            return string.Empty;
+        }
+        [HttpPost("StartOperationWork")]
+        public string StartOperationWork()
+        {
+            return string.Empty;
+        }
+        [HttpPost("FinishOperationWork")]
+        public string PostFinishOperationWork()
+        {
+            return string.Empty;
+        }
+        [HttpPost("FinishOperation")]
+        public string PostFinishOperation()
+        {
+            return string.Empty;
+        }
+        [HttpPost("CancelOperation")]
+        public string PostCancelOperation()
+        {
+            return string.Empty;
+        }
+        [HttpPost("DeleteOperation")]
+        public string PostDeleteOperation()
+        {
+            return string.Empty;
+        }
         [HttpGet("SearchWorkersByName")]
         public string GetSearchWorkersByName()
         {
@@ -351,7 +465,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var text = JsonSerializer.Serialize(workers);
             return text;
         }
-
         [HttpPost("UpdateOperationWorkers")]
         public string PostUpdateOperationWorkers()
         {

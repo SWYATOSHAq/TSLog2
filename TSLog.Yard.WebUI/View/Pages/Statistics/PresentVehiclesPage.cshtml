@@ -1,14 +1,29 @@
-﻿@page "/ActiveCarsDispersal"
+﻿@page "/PresentVehiclesPage"
 @using System.DirectoryServices.AccountManagement
 @using TSLog.Common;
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
-@model ActiveCarsDispersalModel
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model PresentVehiclesPageModel
 @{
     ViewData["Title"] = "Активные машины";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
+
+    var viewPresentVehiclesPage = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    if (!viewPresentVehiclesPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+
+        //var url = "/Error";
+        //Response.Redirect(url);
+        //return;
+    }
 
     var operations = storage.GetActiveOperations();
     Array.Sort(operations, Operation.CompareByPlanWorkStartDate);

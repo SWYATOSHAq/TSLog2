@@ -20,8 +20,12 @@ builder.Services
     .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-builder.Services.AddAuthorization(options => { options.FallbackPolicy = options.DefaultPolicy; });
+var useAuthentication = builder.Configuration.GetValue<bool>("UseAuthentication");
+if (useAuthentication)
+{
+    builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+    builder.Services.AddAuthorization(options => { options.FallbackPolicy = options.DefaultPolicy; });
+}
 
 builder.Services.AddRazorPages();
 builder.Services.AddMvc().AddRazorPagesOptions(options =>
@@ -68,7 +72,9 @@ builder.Services.AddSingleton<RightsChecker>(rightsChecker);
 var programFileName = Assembly.GetExecutingAssembly().Location;
 var programDirectory = Path.GetDirectoryName(programFileName) ?? throw new Exception("Rights file not found");
 var rightsFileName = Path.Combine(programDirectory, "rights.xml");
+var userPartnersFileName = Path.Combine(programDirectory, "userPartners.xml");
 rightsChecker.GetRights(rightsFileName);
+rightsChecker.GetUserPartners(userPartnersFileName);
 
 var app = builder.Build();
 
@@ -84,11 +90,13 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
-app.UseAuthentication();
-app.UseAuthorization();
+if (useAuthentication)
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
 
 // map api
 app.UseEndpoints(endpoints =>
@@ -98,5 +106,4 @@ app.UseEndpoints(endpoints =>
 });
 
 app.MapRazorPages();
-
 app.Run();

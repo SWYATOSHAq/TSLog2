@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<userPartners>
+	<user name="Оператор АКФА" login="AKFA_OPERATOR">
+		<partner code="0018" name="0018. АКФА"/>
+	</user>
+	<user name="Оператор БЛС" login="BLC_OPERATOR">
+		<partner code="0021" name="0021. БЛС"/>
+	</user>
+</userPartners>

@@ -1,0 +1,115 @@
+﻿@page "/ClientReportPage"
+@using TSLog.Partners.BO
+@using TSLog.Yard.BO
+@using TSLog.Yard.Reporting
+@using TSLog.Yard.WebUI.Models
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model ClientReportPageModel
+@{
+    ViewData["Title"] = "Отчет по затратам по клиентам";
+
+    var storage = Model.Storage;
+    var rightsChecker = Model.RightsChecker;
+
+    var viewClientReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    if (!viewClientReportPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+
+        //var url = "/Error";
+        //Response.Redirect(url);
+        //return;
+    }    
+
+    string stringFromDate = Request.Query["from_date"];
+    string stringToDate = Request.Query["to_date"];
+    var fromDate = string.IsNullOrWhiteSpace(stringFromDate) ? DateTime.Today : DateTime.Parse(stringFromDate);
+    var toDate = string.IsNullOrWhiteSpace(stringToDate) ? DateTime.Today : DateTime.Parse(stringToDate);
+    toDate = toDate.AddDays(1).AddSeconds(-1);
+
+    string stringPartner = Request.Query["partner"];
+    var partner = string.IsNullOrWhiteSpace(stringPartner) ? Partner.Null : storage.GetPartner(stringPartner);
+
+    var report = new ClientReport(storage, partner, fromDate, toDate);
+    var partnersModel = new PartnersModel(storage.GetPartners(), partner.Code, false, true, "Все клиенты");
+
+    var header = $"{fromDate.ToShortDateString()} - {toDate.ToShortDateString()}";
+    if (partner != null && partner != Partner.Null && partner != Partner.Empty)
+        header = header + $" ({partner.DisplayName})";
+    else
+        header = header + $" (все клиенты)";
+}
+
+<div class="row p-1 hide-on-print client-report row2 row3">
+    <label class="client-report-operation-date-picker-label" for="from-date-picker">Начальная дата:</label>
+    <input id="from-operation-date-picker" 
+        type="text" 
+        class="datepicker border border-secondary hide-on-print client-report-operation-date-picker" 
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+    <label class="client-report-operation-date-picker-label" for="to-date-picker">Конечная дата:</label>
+    <input id="to-operation-date-picker" 
+        type="text" 
+        class="datepicker border border-secondary hide-on-print client-report-operation-date-picker" 
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+        <label class="client-report-filter-label" for="partners-filter-container">Клиент:</label>
+        <div id="partners-filter-container" class="client-report-filter-container">
+            <partial name="Partials/Lists/_PartnersDropdownPartial" model="partnersModel" />
+        </div>    
+</div>
+<div class="row p-2 m-1 row2">
+    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 client-report-button" 
+        type="button" 
+        onclick="ShowClientReportPage()">Применить</button>
+    <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-1 client-report-button" 
+        type="button" 
+        onclick="PrintTable()">Печать</button>
+</div>
+<h3 id="client-report-header">@header</h3>
+<div class="my-5 statistics-table">
+
+    <table class="table table-light table-bordered table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>Должность</th>
+                <th>Затрата времени (чел. час.)</th>
+                <th>Сумма (руб.)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var i = 1;
+                var laborCostSum = 0;
+                var costSum = 0.0;
+            }
+            @foreach (var element in report.Elements)
+            {
+                var laborCost = ((double)element.LaborCost / 3600.00).ToString("N");
+                <tr>
+                    <th>@i</th>
+                    <td>@element.Position.DisplayName</td>
+                    <td>@laborCost</td>
+                    <td>@(element.Cost.ToString("N"))</td>
+                </tr>
+                i++;
+                laborCostSum += element.LaborCost;
+                costSum += element.Cost;
+            }
+            <tr>
+                <th></th>
+                <td><b>Итого:</b></td>
+                <td>@(((double)laborCostSum / 3600.00).ToString("N"))</td>
+                <td>@(costSum.ToString("N"))</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

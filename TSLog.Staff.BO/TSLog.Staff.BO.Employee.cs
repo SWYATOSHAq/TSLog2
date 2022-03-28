@@ -49,6 +49,9 @@ namespace TSLog.Staff.BO
         }
         public string Sex { get; set; } = "M";
         public DateTime BirthDate { get; private set; }
+        /// <summary>
+        /// Гражданство (подданство)
+        /// </summary>
         public string Nationality { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

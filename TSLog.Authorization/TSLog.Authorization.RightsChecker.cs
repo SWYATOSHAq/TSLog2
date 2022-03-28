@@ -9,6 +9,7 @@ namespace TSLog.Authorization
     public class RightsChecker
     {
         private readonly IDictionary<string, Role> _roles = new Dictionary<string, Role>();
+        private readonly IDictionary<string, User> _users = new Dictionary<string, User>();
         private void ParseRole(XmlReader reader)
         {
             if (reader == null)
@@ -39,6 +40,34 @@ namespace TSLog.Authorization
                     reader.Read();
             }
         }
+        private void ParseUser(XmlReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var name = reader.GetAttribute("name") ?? string.Empty;
+            var login = reader.GetAttribute("login") ?? string.Empty;
+            if (!_users.ContainsKey(login))
+                _users.Add(login, new User(name, login));
+            var user = _users[login];
+            while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    if (reader.Name == "partner")
+                    {
+                        var partnerCode = reader.GetAttribute("code") ?? string.Empty;
+                        user.AddPartner(partnerCode);
+                        reader.Read();
+                    }
+                    else
+                        reader.Read();
+                }
+                if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "user")
+                    break;
+                else
+                    reader.Read();
+            }
+        }
         public void GetRights(string fileName)
         {
             _roles.Clear();
@@ -49,6 +78,24 @@ namespace TSLog.Authorization
                 {
                     if (reader.Name == "role")
                         ParseRole(reader);
+                    else
+                        reader.Read();
+                }
+                else
+                    reader.Read();
+            }
+            reader.Close();
+        }
+        public void GetUserPartners(string fileName)
+        {
+            _users.Clear();
+            using var reader = XmlReader.Create(fileName);
+            while (reader.ReadState == ReadState.Initial || reader.ReadState == ReadState.Interactive)
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    if (reader.Name == "user")
+                        ParseUser(reader);
                     else
                         reader.Read();
                 }

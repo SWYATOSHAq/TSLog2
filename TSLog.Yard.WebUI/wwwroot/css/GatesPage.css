@@ -1,0 +1,39 @@
+﻿.gates-plan-operation-date-picker-label {
+    margin: 0px !important;
+    padding: 0px !important;
+    padding-right: 4px !important;
+    width: auto !important;
+    text-align: center !important;
+    display: flex;
+    align-items: center;
+}
+
+.gates-plan-operation-date-picker {
+    margin: 0px !important;
+    padding: 0px !important;
+    padding-right: 4px !important;
+    width: 120px !important;
+    text-align: center !important;
+    display: flex;
+    align-items: center;
+}
+
+.gates-plan-button {
+    margin: 8px !important;
+    margin-left: 0px !important;
+    padding: 0px;
+    width: 120px;
+}
+
+.gates-plan-table-cell {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.gates-plan-table-cell-button {
+    padding: 0px !important;
+    margin: 0px !important;
+    vertical-align: middle !important;
+    width: 100%;
+    display: inline-block;
+}

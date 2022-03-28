@@ -5,7 +5,6 @@ namespace TSLog.Staff.BO
 {
     public interface IStaffStorage
     {
-
         // get list
         public Department[] GetDepartments();
         public Employee[] GetEmployees();
@@ -48,6 +47,5 @@ namespace TSLog.Staff.BO
         public void AddEmployeeToShift(Shift shift, Employee employee);
         public void RemoveEmployeeFromShift(Shift shift, Employee employee);
         public Employee AddEmployeePosition(Employee employee, Position position);
-
     }
 }

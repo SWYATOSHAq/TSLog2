@@ -2,11 +2,27 @@
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
 @model GuardPageModel
 @{
     ViewData["Title"] = "Машины на въезд и на выезд";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
+
+    var viewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    if (!viewGuardPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+
+        //var url = "/Error";
+        //Response.Redirect(url);
+        //return;
+    }
+
     var operations = storage.GetOperationsForGuard();
     var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
