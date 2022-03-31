@@ -10,8 +10,9 @@ export class ListItem extends Component {
         return (
             <div>
             <span style={liStyle}>{this.props.label}</span>
-            <button type="button" className="btn btn-outline-primary">Изменить <i className='fa fa-eclamation'/></button>
-            <button type="button" className="btn btn-outline-danger">Удалить <i className='fa fa-trash-o'/></button>
+            <button type="button" className="btn btn-outline-primary"><i className="fa-solid fa-arrow-right-arrow-left"></i></button>
+            <button type="button" className="btn btn-outline-primary"><i className="fa-solid fa-id-card-clip"></i></button>
+            <button type="button" className="btn btn-outline-danger"><i className='fa fa-trash-o'/></button>
             </div>
     );
     };

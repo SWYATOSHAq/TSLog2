@@ -5,6 +5,6 @@ export class BlockLevelButton extends Component {
 
     render() {
 
-        return <button type="button" class="btn btn-primary btn-lg btn-block">Добавить</button>;
+        return <button type="button" className="btn btn-primary btn-lg btn-block">Добавить</button>;
     }
 }
