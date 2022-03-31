@@ -6,7 +6,7 @@ import { DepartmentTable } from './components/Toolkit/Tables/DepartmentTable';
 import { PositionTable } from './components/Toolkit/Tables/PositionTable';
 import { ShiftTable } from './components/Toolkit/Tables/ShiftTable';
 import { EmployeesTable } from './components/Toolkit/Tables/EmployeesTable';
-import { JobTable } from './components/Toolkit/Tables/JobTable';
+import { JobTable } from './components/Toolkit/Tables/JobTable/JobTable';
 
 import './custom.css'
 
