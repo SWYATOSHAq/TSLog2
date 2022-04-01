@@ -20,10 +20,6 @@
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
-
-        //var url = "/Error";
-        //Response.Redirect(url);
-        //return;
     }    
 
     string stringFromDate = Request.Query["from_date"];
@@ -68,14 +64,13 @@
 <div class="row p-2 m-1 row2">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 client-report-button" 
         type="button" 
-        onclick="ShowClientReportPage()">Применить</button>
+        onclick="clientReportPage.showClientReportPage()">Применить</button>
     <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-1 client-report-button" 
         type="button" 
-        onclick="PrintTable()">Печать</button>
+        onclick="clientReportPage.printTable()">Печать</button>
 </div>
 <h3 id="client-report-header">@header</h3>
 <div class="my-5 statistics-table">
-
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
             <tr>

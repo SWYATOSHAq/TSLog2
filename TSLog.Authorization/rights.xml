@@ -2,8 +2,12 @@
 <data>
 	<rights code="RIGHTS" name="Список всех доступых действий и привилегий">
 		<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+		<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
+		<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
 		<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 		<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром"></right>
+		<right code="GET_OPERATION" name="Получение данных об операции двора" note="Получение данных об операции двора"></right>
+		<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
 		<right code="VIEW_ALL_OPERATION" name="Просмотр всех операций"></right>
 		<right code="VIEW_OPERATION_FOR_GUARD" name="Просмотр операций для сотрудника охраны на КПП"></right>
 		<right code="VIEW_OPERATION_FOR_MANAGER" name="Просмотр операций для менеджера (операций партнёров данного менеджера)"></right>
@@ -34,6 +38,7 @@
 		<right code="FINISH_OPERATION_WORK" name="Окончание работ по операции"></right>
 		<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 		<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
+		<right code="GET_WORKERS" name="" note=""></right>
 		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
 		<right code="VIEW_STAFF_PLAN" name="Просмотр плана по персоналу"></right>
 		<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>

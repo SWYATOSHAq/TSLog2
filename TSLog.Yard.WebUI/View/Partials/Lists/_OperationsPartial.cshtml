@@ -3,6 +3,10 @@
 @using TSLog.Partners.BO
 @using TSLog.Yard.WebUI.Models
 
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
 @model OperationsModel
 @{
     var rightsChecker = Model.RightsChecker;
@@ -11,9 +15,10 @@
     var displayAdditionalInfo = Model.DisplayAdditoonalInfo;
     var request = Model.Request;
 
-    //<right code="VIEW_OPERATION" name="Просмотр карточки операции"></right>
-    //<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
-    //<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
+    var use = !useAuthentication || rightsChecker.CheckRight("USE_YARD", User);
+    var view = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION", User);
+    var edit = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
+    var editByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
 
     string stringFromDate = request.Query["from_date"];
     string stringToDate = request.Query["to_date"];
@@ -37,6 +42,8 @@
         filter.Append($"&vehicleKind={selectedVehicleKind}");
     if (!string.IsNullOrWhiteSpace(selectedState))
         filter.Append($"&state={selectedState}");
+
+    var host = request.Host;
 }
 @foreach (var operation in operations)
 {
@@ -67,13 +74,7 @@
                 </div>
                 @if (displayAdditionalInfo)
                 {
-                    stringFromDate = fromDate.ToString("d.M.yyyy");
-                    stringToDate = toDate.ToString("d.M.yyyy");
-                    var parameters = new StringBuilder($"?id={operation.Id}&from_date={stringFromDate}&to_date={stringToDate}");
-                    if (filter.Length > 0)
-                        parameters.Append(filter.ToString());
-
-                    var link = $"location.href='{parameters.ToString()}'";
+                    var link = $"location.href='https://{host}/OperationPage?id={operation.Id}'";
                     @: <button class="btn btn-outline-info m-3 open-operation" onclick="@link">Открыть</button>
                 }
             </div>

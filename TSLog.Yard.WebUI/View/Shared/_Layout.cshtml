@@ -11,7 +11,7 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
     var userName = User.Identity != null ? User.Identity.Name : string.Empty;
     var debugText = $"(DEBUG {userName})";    
-    
+
     var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
     var viewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
     var viewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
@@ -76,12 +76,12 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/DispatcherHome?from_date=@date&to_date=@date">ЛК TSL</a>
+                            <a class="nav-link text-dark" href="/OperationsPage?from_date=@date&to_date=@date">ЛК TSL</a>
                         </li>
                         @if (createOperation)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="/NewOperation">Cоздать запрос</a>
+                                <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
                             </li>
                         }
                         <li class="nav-item">
@@ -149,9 +149,22 @@
 
     <!-- Common scriprs -->
     <script type="text/javascript" src="~/js/Common.js"></script>
+    <script type="text/javascript" src="~/js/Api.js"></script>
 
     @{
-        if (page == "StaffPage")
+        if (page == "OperationPage")
+        {
+            <script type="text/javascript" src="~/js/OperationPage.js"></script>
+        }
+        else if (page == "OperationPrintPage")
+        {
+            <script type="text/javascript" src="~/js/OperationPrintPage.js"></script>
+        }
+        else if (page == "OperationsPage")
+        {
+            <script type="text/javascript" src="~/js/OperationsPage.js"></script>
+        }
+        else if (page == "StaffPage")
         {
             <script type="text/javascript" src="~/js/StaffPage.js"></script>
         }
@@ -162,10 +175,10 @@
         else if (page == "ClientReportPage")
         {        
             <script type="text/javascript" src="~/js/ClientReportPage.js"></script>
-        }  
-        else
-        {
-            <script src="~/js/site.js" asp-append-version="true"></script>        
+        }
+        else if (page == "GuardPage")
+        {        
+            <script type="text/javascript" src="~/js/GuardPage.js"></script>
         }
     }
 

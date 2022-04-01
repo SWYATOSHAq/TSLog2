@@ -1,4 +1,4 @@
-﻿@page "/NewOperation"
+﻿@page "/OperationPage"
 @using TSLog.Authorization
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
@@ -7,29 +7,46 @@
 @{
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
-@model NewOperationModel
+@model OperationPageModel
 @{
     ViewData["Title"] = "Добавить новый запрос";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
-    if (!createOperation)
-    {        
-        Response.StatusCode = 403;
-        throw new UnauthorizedAccessException();
-
-        //var url = "/Error";
-        //Response.Redirect(url);
-        //return;
-    }
-
+    string stringId = Request.Query["id"];
     var operation = Operation.Empty;
+    if (string.IsNullOrWhiteSpace(stringId))
+    {
+        // Создание
+        var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+        if (!createOperation)
+        {        
+            Response.StatusCode = 403;
+            throw new UnauthorizedAccessException();
+        }
+    }
+    else
+    {
+        // Редактирование
+        var createOperation = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION", User) || rightsChecker.CheckRight("EDIT_OPERATION", User);
+        if (!createOperation)
+        {
+            Response.StatusCode = 403;
+            throw new UnauthorizedAccessException();
+        }
+        if (long.TryParse(stringId, out long operationId))
+            operation = storage.GetOperation(operationId);
+        else
+        {
+            Response.StatusCode = 500;
+            throw new Exception($"Wrong operation id {stringId}");
+        }
+    }
     var operationModel = new OperationModel(rightsChecker, storage, operation, true, false);
 }
 
 <div class="row">
-    <div class="col-4 time-table hide-on-print overflow-auto" id="time_table">
+    <div class="col-4 time-table hide-on-print overflow-auto" id="time-table">
         <div class="row row3">
             <label for="work-start-date-picker"
                 class="datepicker2-label">Выберете дату:</label>
@@ -46,5 +63,5 @@
             <p>Врямя уже занято, выберите другой промежуток времени</p>
         </div>        
     </div>
-    <partial name="Partials/_OperationPartial" model="operationModel" />
+    <partial name="Partials/_OperationBlock" model="operationModel" />
 </div>

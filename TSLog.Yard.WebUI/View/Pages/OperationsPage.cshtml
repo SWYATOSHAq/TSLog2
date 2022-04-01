@@ -1,0 +1,13 @@
+﻿@page "/OperationsPage"
+@using TSLog.Yard.WebUI.Models
+
+@model OperationsPageModel
+@{
+    ViewData["Title"] = "Панель администратора";
+
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var homeModel = new OperationsBlockModel(rightsChecker, storage, true, Request);    
+}
+
+<partial name="Partials/_OperationsBlock" model="homeModel" />

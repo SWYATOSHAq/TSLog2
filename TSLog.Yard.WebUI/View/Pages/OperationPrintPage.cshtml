@@ -1,7 +1,7 @@
-﻿@page "/PrintDispersal"
+﻿@page "/OperationPrintPage"
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
-@model PrintDispersalModel
+@model OperationPrintPageModel
 
 @{
     ViewData["Title"] = "Активные машины";
@@ -16,6 +16,6 @@
 }
 @if (id != 0 && operation != Operation.Empty)
 {
-    <partial name="Partials/_OperationPartial" model="operationModel" />
+    <partial name="Partials/_OperationBlock" model="operationModel" />
 }
 <input id="force-print" type="hidden" name="force-print" value="true">

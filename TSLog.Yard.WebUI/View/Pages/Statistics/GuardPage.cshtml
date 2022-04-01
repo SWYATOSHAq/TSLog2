@@ -17,10 +17,6 @@
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
-
-        //var url = "/Error";
-        //Response.Redirect(url);
-        //return;
     }
 
     var operations = storage.GetOperationsForGuard();

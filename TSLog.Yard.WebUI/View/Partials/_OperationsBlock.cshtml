@@ -2,7 +2,7 @@
 @using TSLog.Authorization
 @using TSLog.Yard.WebUI.Models
 
-@model HomePartialModel
+@model OperationsBlockModel
 @{
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;    
@@ -29,11 +29,11 @@
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
     string requestToDate = request.Query["to_date"];    
     var toDate = requestToDate != null ? DateTime.Parse(requestToDate) : DateTime.Today;
-    string selectedGate = request.Query["gate"];
-    string selectedType = request.Query["type"];
-    string selectedPartner = request.Query["partner"];
-    string selectedVehicleKind = request.Query["vehicleKind"];
-    string selectedState = request.Query["state"];
+    string selectedGate = request.Query["gate_code"];
+    string selectedType = request.Query["operation_type_code"];
+    string selectedPartner = request.Query["partner_id"];
+    string selectedVehicleKind = request.Query["vehicle_kind_code"];
+    string selectedState = request.Query["state_code"];
 
     var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота");
     var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций");
@@ -138,26 +138,6 @@
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list row2">
             <partial name="Partials/Lists/_OperationsPartial" model="operarationsModel" />
-        </div>
-    </div>
-
-    <!-- Modal operation card -->
-    <div class="modal fade rem-outline-on-print" 
-        id="RequestCardModal" 
-        tabindex="-1" 
-        role="dialog" 
-        aria-labelledby="reqCard" 
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <partial name="Partials/_OperationPartial" model="operationModel" />
-                </div>
-                <div class="modal-footer hide-on-print">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>

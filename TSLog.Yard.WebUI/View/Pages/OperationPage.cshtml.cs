@@ -4,16 +4,16 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Yard.WebUI.Models
 {
-    public class PrintDispersalModel : PageModel
+    public class OperationPageModel : PageModel
     {
-        private readonly ILogger<PrintDispersalModel> _logger;
-        public IYardStorage Storage { get; private set; }
+        private readonly ILogger<OperationPageModel> _logger;
         public RightsChecker RightsChecker { get; private set; }
-        public PrintDispersalModel(ILogger<PrintDispersalModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public IYardStorage Storage { get; private set; }        
+        public OperationPageModel(ILogger<OperationPageModel> logger, RightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
-            Storage = storage;
             RightsChecker = rightsChecker;
+            Storage = storage;            
         }
         public void OnGet()
         { }

@@ -4,6 +4,10 @@
 @using TSLog.Staff.BO;
 @using TSLog.Yard.WebUI.Models
 
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
 @model OperationModel
 @{
     var rightsChecker = Model.RightChecker;
@@ -11,35 +15,35 @@
     var operation = Model.Operation;    
     var isEnabled = Model.IsEnabled;
     var isAdmin = Model.IsAdmin;
+        
+    var save = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
+    var start = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
+    var startWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
+    var finishWork = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
+    var finish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
+    var cancel = !useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User);
+    var delete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
 
-    var save = rightsChecker.CheckRight("EDIT_OPERATION", User);
-    var start = rightsChecker.CheckRight("START_OPERATION", User);
-    var startWork = rightsChecker.CheckRight("START_OPERATION_WORK", User);
-    var finishWork = rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
-    var finish = rightsChecker.CheckRight("FINISH_OPERATION", User);
-    var cancel = rightsChecker.CheckRight("CANCEL_OPERATION", User);
-    var delete = rightsChecker.CheckRight("DELETE_OPERATION", User);
-
-    var gatesModel = new GatesModel(storage.GetGates(), operation.Gate?.Code, isEnabled, false, string.Empty);
+    var gatesModel = new GatesModel(storage.GetGates(), operation.Gate.Code, isEnabled, false, string.Empty);
     var partnersModel = new PartnersModel(storage.GetPartners(), string.Empty, !isEnabled, false, string.Empty);
-    var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist?.Code, isEnabled, false, string.Empty);
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind?.Code, isEnabled, false, string.Empty, true);
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type?.Code, isEnabled, false, string.Empty, true);
+    var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist.Code, isEnabled, false, string.Empty);
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind.Code, isEnabled, false, string.Empty, true);
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type.Code, isEnabled, false, string.Empty, true);
 
     // Основные поля (не редактируются)
     var elements = new List<FieldsModel.Field>();
     elements.Add(new FieldsModel.Field("text_org_name", "Наим. организации", Partner.Serialize(operation.GetPartners()), true, isEnabled));
     elements.Add(new FieldsModel.Field("text_start_time", "Начало работ", operation.GetStartTime(), true, isEnabled));
     elements.Add(new FieldsModel.Field("text_leave_time", "Окончание работ", operation.GetFinishTime(), true, isEnabled));
-    elements.Add(new FieldsModel.Field("text_logist", "Логист", operation.Logist?.DisplayName, false, isEnabled));
-    elements.Add(new FieldsModel.Field("text_responsible", "Ответственный", operation.Manager?.DisplayName, true, isEnabled));
+    elements.Add(new FieldsModel.Field("text_logist", "Логист", operation.Logist.DisplayName, false, isEnabled));
+    elements.Add(new FieldsModel.Field("text_responsible", "Ответственный", operation.Manager.DisplayName, true, isEnabled));
     elements.Add(new FieldsModel.Field("text_responsible_warehouse", "Ответственный (склад)", 
         operation.ResponsibleOfficer != null && operation.ResponsibleOfficer != Employee.Null && operation.ResponsibleOfficer != Employee.Empty ? operation.ResponsibleOfficer.DisplayName : "<Не выбран>", 
         true, isEnabled));
-    elements.Add(new FieldsModel.Field("text_state", "Состояние", operation.State?.DisplayName, true, isEnabled));
+    elements.Add(new FieldsModel.Field("text_state", "Состояние", operation.State.DisplayName, true, isEnabled));
 
     var planDuration = new TimeSpan(0, 0, storage.GetTime(operation.Type, operation.VehicleKind)).ToString(@"hh\:mm");
-    elements.Add(new FieldsModel.Field("text_operation_time", "План. время операции", planDuration, true, isEnabled));
+    elements.Add(new FieldsModel.Field("operation-time-text", "План. время операции", planDuration, true, isEnabled));
     var factDuration = operation.StartDate != DateTime.MinValue && operation.FinishDate != DateTime.MinValue
         ? (operation.StartDate - operation.FinishDate).ToString(@"hh\:mm") 
         : string.Empty;
@@ -171,110 +175,104 @@
         <partial name="Partials/Lists/_VehicleKindsDropdownPartial" model="vehicleKindsModel" />
     </div>
     <div class="row rem-outline-on-print fields-container">
-        <input type="hidden" id="operation_id" name="operation_id" value="@operation.Id">
+        <input type="hidden" id="id-input" name="id-input" value="@operation.Id">
         <partial name="Partials/Lists/_MinorFieldsPartial" model="minorFieldsModel" />
         <partial name="Partials/Lists/_MemosPartial" model="memoModel" />
     </div>
 
-    <div class="d-none" id="identeficator">@operation.Id</div>
+    <div class="d-none" id="id-text">@operation.Id</div>
     <div class="row p-2 m-2 d-flex justify-content-center page-break-after hide-on-print">
 
         @if (operation == Operation.Empty)
         {
             <div class="d-grid gap-2 col-4">
-                <button class="btn btn-outline-success hide-on-print" type="button" onclick="Create()">Создать</button>
+                <button class="btn btn-outline-success hide-on-print" type="button" onclick="CreateOperation()">Создать</button>
             </div>
         }
         else
         {
-            if (isAdmin)
+            <div class="d-grid m-2 row">
+                <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="printOperation()">Печать</button>
+            </div>
+            if (operation.State.Code != "FINISHED" && operation.State.Code != "CANCELED" && save)
             {
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="PrintCard()">Печать</button>
+                    <button class="btn btn-outline-secondary hide-on-print col-4  mx-auto" type="button" onclick="EditOperation()">Сохранить изменения</button>
                 </div>
-                if (operation.State.Code != "FINISHED" && operation.State.Code != "CANCELED" && save)
-                {
+            }
+            switch (operation.State.Code)
+            {
+                case "CREATED":
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-secondary hide-on-print col-4  mx-auto" type="button" onclick="Update()">Сохранить изменения</button>
+                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
+                            type="button" 
+                            onclick="setOperationGate()">(Авто) Назначить ворота</button>
                     </div>
-                }
-                switch (operation.State.Code)
-                {
-                    case "CREATED":
+                    break;
+                case "CONFIRMED":
+                    if (start)
+                    {
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4  mx-auto" 
+                                type="button" 
+                                onclick="startOperation()">Принять машину</button>
+                        </div>
+                    }                        
+                    break;
+                case "STARTED":
+                    if (startWork)
+                    {
                         <div class="d-grid m-2 row">
                             <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
                                 type="button" 
-                                onclick="ChangeState('ResetOperationGate')">Привязыть ворота (автом.)</button>
+                                onclick="startOperationWork()">Поставить на ворота</button>
                         </div>
-                        break;
-                    case "CONFIRMED":
-                        if (start)
-                        {
-                            <div class="d-grid m-2 row">
-                                <button class="btn btn-outline-success hide-on-print col-4  mx-auto" 
-                                    type="button" 
-                                    onclick="ChangeState('StartOperation')">Принять машину</button>
-                            </div>
-                        }                        
-                        break;
-                    case "STARTED":
-                        if (startWork)
-                        {
-                            <div class="d-grid m-2 row">
-                                <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
-                                    type="button" 
-                                    onclick="ChangeState('StartOperationWork')">Поставить на ворота</button>
-                            </div>
-                            <div class="d-grid m-2 row">
-                                <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
-                                    type="button" 
-                                    onclick="ChangeState('AllocateEmployees')">(авто) Привязать сотрудников</button>
-                            </div>
-                        }
-                        break;
-                    case "WORK_STARTED":
-                        if (finishWork)
-                        {
-                            <div class="d-grid m-2 row">
-                                <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
-                                    type="button" 
-                                    onclick="ChangeState('FinishOperationWork')">Завершить работу</button>
-                            </div>
-                        }
-                        break;
-                    case "WORK_FINISHED":
-                        if (finish)
-                        {
-                            <div class="d-grid m-2 row">
-                                <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
-                                    type="button" 
-                                    onclick="ChangeState('FinishOperation')">Отпустить машину</button>
-                            </div>
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                <div class="mt-5"></div>
-                if (delete)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" 
-                            type="button" 
-                            onclick="ChangeState('DeleteOperation')">Удалить</button>
-                    </div>
-                }
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
+                                type="button" 
+                                onclick="allocateOperationEmployees()">(Авто) Назначить сотрудников</button>
+                        </div>
+                    }
+                    break;
+                case "WORK_STARTED":
+                    if (finishWork)
+                    {
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
+                                type="button" 
+                                onclick="finishOperationWork()">Завершить работу</button>
+                        </div>
+                    }
+                    break;
+                case "WORK_FINISHED":
+                    if (finish)
+                    {
+                        <div class="d-grid m-2 row">
+                            <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
+                                type="button" 
+                                onclick="finishOperation()">Отпустить машину</button>
+                        </div>
+                    }
+                    break;
+                default:
+                    break;
             }
-            else
+            <div class="mt-5"></div>
+            if (delete)
             {
-                if (cancel)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" 
-                            type="button" 
-                            onclick="ChangeState('CancelOperation')">Отменить</button>
-                    </div>
-                }
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" 
+                        type="button" 
+                        onclick="deleteOperation()">Удалить</button>
+                </div>
+            }
+            if (cancel)
+            {
+                <div class="d-grid m-2 row">
+                    <button class="btn btn-danger hide-on-print col-4 mx-auto" 
+                        type="button" 
+                        onclick="CancelOperation()">Отменить</button>
+                </div>
             }
         }
         @{

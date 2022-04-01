@@ -58,12 +58,12 @@
                 if (operation.State.Code == "CONFIRMED")
                 {
                     buttonCaption = "Впустить";
-                    onClick = $"LetVehicleIn({operation.Id})";
+                    onClick = $"guardPage.letVehicleIn({operation.Id})";
                 }
                 else if (operation.State.Code == "WORK_FINISHED")
                 {
                     buttonCaption = "Выпустить";                    
-                    onClick = $"ReleaseVehicle({operation.Id})";;
+                    onClick = $"guardPage.releaseVehicle({operation.Id})";;
                 }
 
                 var creatorName = operation.Creator;

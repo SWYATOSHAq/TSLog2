@@ -49,10 +49,10 @@
 <div class="row p-2 m-1 row2">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3 positions-plan-button"
         type="button" 
-        onclick="ShowStaffPage()">Применить</button>
+        onclick="staffPage.showStaffPage()">Применить</button>
     <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3 positions-plan-button" 
         type="button" 
-        onclick="PrintTable()">Печать</button>
+        onclick="staffPage.printTable()">Печать</button>
 </div>
 <div class="my-5 statistics-table">
     <table class="table table-light table-bordered table-striped">
@@ -183,7 +183,7 @@
                 }
                 var operationModel = new OperationModel(rightsChecker, storage, operation, false, true);
                 <div class="operation @pageBreakClass">
-                    <partial name="Partials/_OperationPartial" model="operationModel" />
+                    <partial name="Partials/_OperationBlock" model="operationModel" />
                 </div>
                 j++;
             }

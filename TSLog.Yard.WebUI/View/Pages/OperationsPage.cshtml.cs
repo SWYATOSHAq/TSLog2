@@ -4,13 +4,13 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Yard.WebUI.Models
 {
-    public class DispatcherHomeModel : PageModel
+    public class OperationsPageModel : PageModel
     {
-        private readonly ILogger<DispatcherHomeModel> _logger;
+        private readonly ILogger<OperationsPageModel> _logger;
         public IYardStorage Storage { get; private set; }
         public RightsChecker RightsChecker { get; private set; }
         public List<Endpoint> Endpoints { get; private set; }
-        public DispatcherHomeModel(ILogger<DispatcherHomeModel> logger, 
+        public OperationsPageModel(ILogger<OperationsPageModel> logger, 
             IYardStorage storage, 
             RightsChecker rightsChecker,
             IEnumerable<EndpointDataSource> endpointSources)

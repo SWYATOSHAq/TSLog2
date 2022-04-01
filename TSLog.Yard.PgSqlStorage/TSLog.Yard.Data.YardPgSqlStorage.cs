@@ -662,11 +662,13 @@ namespace TSLog.Yard.Data
         public delegate Position GetPositionByIdDelegate(short id);
         public delegate Shift GetShiftByDateDelegate(DateTime date);
         public delegate Employee[] GetEmployeesByShiftDelegate(Shift shift);
+        public delegate Employee[] GetEmployeesDelegate();
         public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
         public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
         public GetPositionByIdDelegate? GetPositionById { private get; set; }
         public GetShiftByDateDelegate? GetShiftByDate { private get; set; }
         public GetEmployeesByShiftDelegate? GetEmployeesByShift { private get; set; }
+        public GetEmployeesDelegate? GetEmployees { private get; set; }
         public Partner GetPartner(string id)
         {
             return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
@@ -686,6 +688,10 @@ namespace TSLog.Yard.Data
         private Employee[] GetShiftEmployees(Shift shift)
         {
             return GetEmployeesByShift != null ? GetEmployeesByShift(shift) : Array.Empty<Employee>();
+        }
+        private Employee[] GetAllEmployees()
+        {
+            return GetEmployees != null ? GetEmployees() : Array.Empty<Employee>();
         }
         #endregion
 
@@ -1718,13 +1724,13 @@ namespace TSLog.Yard.Data
                 $":p_worker_id, " +
                 $":p_position_id, " +
                 $":p_cost, " +
-                $"':p_cost_currency');";
+                $":p_cost_currency);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
             command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
             command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? cost : DBNull.Value));
-            command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? costCurrency.Code : DBNull.Value));
+            command.Parameters.Add(CreateParameter("p_cost_currency", NpgsqlDbType.Varchar, cost > 0.0 ? costCurrency.Code : DBNull.Value));
             command.ExecuteScalar();
             connection.Close();
         }
@@ -1769,13 +1775,12 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectBisyIntervals =
-                        $"   select ow.worker_id employee_id," +
-                        $"          s.plan_work_start_date," +
-                        $"          s.plan_work_finish_date" +
-                        $"     from yard.operation_worker ow " +
-                        $"left join yard.scheduler s on ow.operation_id = s.id" +
-                        $"    where not(s.plan_work_start_date > :to_date or s.plan_work_finish_date < :from_date)" +
-                        $"      and ow.worker_id = :employee_id";
+                        "select wbi.employee_id," + 
+                        "       wbi.plan_work_start_date," + 
+                        "       wbi.plan_work_finish_date" +
+                        "  from yard.v_worker_busy_intervals wbi" +
+                        " where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)" +
+                        "   and wbi.employee_id = :employee_id";
                     command.CommandText = SelectBisyIntervals;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
@@ -1809,7 +1814,7 @@ namespace TSLog.Yard.Data
         public Employee[] GetLeastBisyEmployees(DateTime from, DateTime to, Position position, Employee[] emplyees, short count = 1)
         {
             if (count > emplyees.Length)
-                throw new ArgumentException("");
+                throw new ArgumentException($"Not enough employees (has - {emplyees.Length}, need - {count})!");
             var queue = new PriorityQueue<Employee, double>();
             foreach (var employee in emplyees)
             {                
@@ -1839,7 +1844,8 @@ namespace TSLog.Yard.Data
                 var shift = GetShift((DateTime)date);
 
                 // Определеить сотрудников данной смены, по указанным должностям
-                var employees = GetShiftEmployees(shift);
+                //var employees = GetShiftEmployees(shift);
+                var employees = GetAllEmployees();
 
                 // Определить должности, с нужным количеством сотрудников по каждой должности
                 var workersCounts = operation.PositionsWorkersCount();
