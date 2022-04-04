@@ -2,7 +2,17 @@ import React, { Component } from 'react';
 import './ListItem.css'
 
 export class ListItem extends Component {
-    static displayName = ListItem.name;
+    static di
+
+    onLabelClick = () => {
+        console.log(`Done: ${this.props.label}`);
+    }
+    // constructor() {
+    //     super();
+    //     this.onLabelClick = () => {
+    //         console.log(`Done: ${this.props.label}`);
+    //     }
+    // }
 
     render() {
         const liStyle = {
@@ -10,11 +20,10 @@ export class ListItem extends Component {
         };
         return (
             <div className='change-button'>
-                <span className='profession' style={liStyle}>{this.props.label}</span>
+                <span className='profession' style={liStyle} onClick={ this.onLabelClick } >{this.props.label}</span>
                 <div>
-                <button type="button" className="btn btn-outline-primary button-icons"><i className="fa-solid fa-arrow-right-arrow-left"></i></button>
-                <button type="button" className="btn btn-outline-primary button-icons"><i className="fa-solid fa-id-card-clip"></i></button>
-                <button type="button" className="btn btn-outline-danger button-icons"><i className='fa fa-trash-o'/></button>
+                    <button type="button" className="btn btn-outline-primary button-icons"><i className="fa-solid fa-id-card-clip"></i></button>
+                    <button type="button" className="btn btn-outline-danger button-icons" ><i className='fa fa-trash-o'/></button>
                 </div>
             </div>
     );
