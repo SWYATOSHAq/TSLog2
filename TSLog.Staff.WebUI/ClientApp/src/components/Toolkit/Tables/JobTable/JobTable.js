@@ -8,6 +8,8 @@ import './JobTable.css'
 
 export class JobTable extends Table{
 
+    maxId = 100;
+
     state = {
         jobListData: [
             { label: 'Менеджер по продажам', important: false, id: 1 },
@@ -28,6 +30,23 @@ export class JobTable extends Table{
         });
     }
 
+    addItem = (text) => {
+        const newItem = {
+            label: text,
+            important: false,
+            id: this.maxId++
+        }
+        this.setState(({ jobListData }) => {
+            const newArr = [
+                ...jobListData,
+                newItem
+            ];
+            return {
+                jobListData: newArr
+            };
+        })
+    }
+
     render(){
         return (
             <div>
@@ -36,7 +55,7 @@ export class JobTable extends Table{
                     <SearchPanel />
                     <ItemStatusFilter />
                 </div>
-                <BlockLevelButton />
+                <BlockLevelButton onItemAdded={ this.addItem }/>
                 <JobsList list={this.state.jobListData}
                 onDeleted={ this.deleteItem }/>
             </div>
