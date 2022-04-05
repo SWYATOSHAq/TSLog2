@@ -8,3 +8,10 @@
 .button-icons {
     margin-right: 15px;
 }
+.done {
+    text-decoration: line-through;
+}
+.important {
+    font-weight: bold;
+    color: steelblue;
+}

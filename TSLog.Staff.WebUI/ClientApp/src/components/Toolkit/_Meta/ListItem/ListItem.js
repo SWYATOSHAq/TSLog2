@@ -2,28 +2,43 @@ import React, { Component } from 'react';
 import './ListItem.css'
 
 export class ListItem extends Component {
-    static di
+    static displayName = ListItem.name;
 
-    onLabelClick = () => {
-        console.log(`Done: ${this.props.label}`);
+    state = {
+        done: false,
+        important: false
     }
-    // constructor() {
-    //     super();
-    //     this.onLabelClick = () => {
-    //         console.log(`Done: ${this.props.label}`);
-    //     }
-    // }
-
+    onLabelClick = () => {
+        this.setState(({done}) => {
+            return {
+                done: !done
+            }
+        })
+    }
+    onMarkImportant = () => {
+        this.setState((state) => {
+            return {
+                important: !state.important
+            }
+        })
+    }
     render() {
-        const liStyle = {
-            color: this.props.important ? 'tomato' : 'black'
-        };
+        const { done, important } = this.state;
+        let classNames = 'profession';
+        if (done) {
+            classNames += ' done';
+        }
+        if (important) {
+            classNames += ' important';
+        }
         return (
             <div className='change-button'>
-                <span className='profession' style={liStyle} onClick={ this.onLabelClick } >{this.props.label}</span>
+                <span className= { classNames } onClick={ this.onLabelClick } >{this.props.label}</span>
                 <div>
-                    <button type="button" className="btn btn-outline-primary button-icons"><i className="fa-solid fa-id-card-clip"></i></button>
-                    <button type="button" className="btn btn-outline-danger button-icons" ><i className='fa fa-trash-o'/></button>
+                    <button type="button" className="btn btn-outline-primary button-icons"
+                    onClick={this.onMarkImportant}><i className="fa-solid fa-id-card-clip"></i></button>
+                    <button type="button" className="btn btn-outline-danger button-icons"
+                    onClick={this.props.onDeleted}><i className='fa fa-trash-o'/></button>
                 </div>
             </div>
     );

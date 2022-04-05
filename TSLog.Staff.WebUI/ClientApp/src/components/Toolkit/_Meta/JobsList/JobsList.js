@@ -9,7 +9,8 @@ export class JobsList extends Component {
             const { id, ...itemProps} = item;
             return (
                 <li key={id} className="list-group-item">
-                    <ListItem {...itemProps}/>
+                    <ListItem {...itemProps}
+                    onDeleted={() => this.props.onDeleted(id)}/>
                 </li>
             );
             });

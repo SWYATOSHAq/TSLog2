@@ -8,6 +8,26 @@ import './JobTable.css'
 
 export class JobTable extends Table{
 
+    state = {
+        jobListData: [
+            { label: 'Менеджер по продажам', important: false, id: 1 },
+            { label: 'Кладовщик', important: true, id: 2 },
+            { label: 'Водитель высотного штабелера', important: false, id: 3 }
+        ]
+    }
+    deleteItem = (id) => {
+        this.setState(({ jobListData }) => {
+            const idx = jobListData.findIndex((el) => el.id === id);
+
+            const newArray = [...jobListData.slice(0, idx),
+                ...jobListData.slice(idx + 1)];
+
+            return {
+                jobListData: newArray
+            };
+        });
+    }
+
     render(){
         return (
             <div>
@@ -17,18 +37,19 @@ export class JobTable extends Table{
                     <ItemStatusFilter />
                 </div>
                 <BlockLevelButton />
-                <JobsList list={JobListData}/>
+                <JobsList list={this.state.jobListData}
+                onDeleted={ this.deleteItem }/>
             </div>
         );
     }
 }
 
 
-const JobListData = [
-    { label: 'Менеджер по продажам', important: false, id: 1 },
-    { label: 'Кладовщик', important: true, id: 2 },
-    { label: 'Водитель высотного штабелера', important: false, id: 3 }
-];
+// const JobListData = [
+//     { label: 'Менеджер по продажам', important: false, id: 1 },
+//     { label: 'Кладовщик', important: true, id: 2 },
+//     { label: 'Водитель высотного штабелера', important: false, id: 3 }
+// ];
 
 
 
