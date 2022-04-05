@@ -5,13 +5,13 @@ export class ListItem extends Component {
     static displayName = ListItem.name;
 
     state = {
-        done: false,
+        inSearch: false,
         important: false
     }
     onLabelClick = () => {
-        this.setState(({done}) => {
+        this.setState(({done: inSearch}) => {
             return {
-                done: !done
+                inSearch: !inSearch
             }
         })
     }
@@ -23,10 +23,10 @@ export class ListItem extends Component {
         })
     }
     render() {
-        const { done, important } = this.state;
+        const { inSearch, important } = this.state;
         let classNames = 'profession';
-        if (done) {
-            classNames += ' done';
+        if (inSearch) {
+            classNames += ' inSearch';
         }
         if (important) {
             classNames += ' important';

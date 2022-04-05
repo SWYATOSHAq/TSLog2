@@ -47,6 +47,10 @@ export class JobTable extends Table{
         })
     }
 
+    // onToggleImportant = (id) = {
+    //
+    // }
+
     render(){
         return (
             <div>
@@ -64,11 +68,6 @@ export class JobTable extends Table{
 }
 
 
-// const JobListData = [
-//     { label: 'Менеджер по продажам', important: false, id: 1 },
-//     { label: 'Кладовщик', important: true, id: 2 },
-//     { label: 'Водитель высотного штабелера', important: false, id: 3 }
-// ];
 
 
 
