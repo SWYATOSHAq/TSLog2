@@ -17,7 +17,8 @@ export class JobTable extends Table{
             this.createItem('Водитель высотного штабелера'),
             this.createItem('Начальник склада')
         ],
-        term: ''
+        term: '',
+        filter: 'все' // все, в штате, в подборе
       }
 
     createItem(label) {
@@ -93,18 +94,37 @@ export class JobTable extends Table{
     }
 
     onSearchChange = (term) => {
-        this.setState({term});
+        this.setState({ term });
+    }
+
+    onFilterChange = (filter) => {
+        this.setState({ filter });
+    }
+
+    filterItems(items, filter) {
+        switch (filter) {
+            case 'все':
+                return items;
+            case 'в подборе':
+                return items.filter((item) => item.inSearch);
+            case 'в штате':
+                return items.filter((item) => !item.inSearch);
+            default:
+                return items;
+        }
     }
 
     render(){
-        const visibleItems = this.search(this.state.jobListData, this.state.term);
+        const visibleItems = this.filterItems(this.search(this.state.jobListData, this.state.term), this.state.filter);
         return (
             <div>
                 <h1 id="tabelLabel" >Справочник профессий</h1>
                 <div className='status-string'>
                     <SearchPanel
                         onSearchChange={ this.onSearchChange }/>
-                    <ItemStatusFilter />
+                    <ItemStatusFilter
+                        filter={ this.state.filter }
+                        onFilterChange={this.onFilterChange}/>
                 </div>
                 <BlockLevelButton onItemAdded={ this.addItem }/>
                 <JobsList list={ visibleItems }
