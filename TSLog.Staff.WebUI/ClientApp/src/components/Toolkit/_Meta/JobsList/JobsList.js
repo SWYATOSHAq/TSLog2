@@ -10,7 +10,9 @@ export class JobsList extends Component {
             return (
                 <li key={id} className="list-group-item">
                     <ListItem {...itemProps}
-                    onDeleted={() => this.props.onDeleted(id)}/>
+                    onDeleted={() => this.props.onDeleted(id)}
+                    onToggleImportant={() => this.props.onToggleImportant(id)}
+                    onToggleInSearch={() => this.props.onToggleInSearch(id)}/>
                 </li>
             );
             });

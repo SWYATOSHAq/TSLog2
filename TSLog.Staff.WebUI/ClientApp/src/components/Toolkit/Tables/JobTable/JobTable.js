@@ -12,11 +12,23 @@ export class JobTable extends Table{
 
     state = {
         jobListData: [
-            { label: 'Менеджер по продажам', important: false, id: 1 },
-            { label: 'Кладовщик', important: true, id: 2 },
-            { label: 'Водитель высотного штабелера', important: false, id: 3 }
-        ]
+            this.createItem('Менеджер по продажам'),
+            this.createItem('Кладовщик'),
+            this.createItem('Водитель высотного штабелера'),
+            this.createItem('Начальник склада')
+        ],
+        term: ''
+      }
+
+    createItem(label) {
+        return {
+            label,
+            important: false,
+            inSearch: false,
+            id: this.maxId++
+        }
     }
+
     deleteItem = (id) => {
         this.setState(({ jobListData }) => {
             const idx = jobListData.findIndex((el) => el.id === id);
@@ -31,11 +43,7 @@ export class JobTable extends Table{
     }
 
     addItem = (text) => {
-        const newItem = {
-            label: text,
-            important: false,
-            id: this.maxId++
-        }
+        const newItem = this.createItem(text);
         this.setState(({ jobListData }) => {
             const newArr = [
                 ...jobListData,
@@ -47,21 +55,62 @@ export class JobTable extends Table{
         })
     }
 
-    // onToggleImportant = (id) = {
-    //
-    // }
+    toggleProperty(arr, id, propName){
+        const idx = arr.findIndex((el) => el.id === id);
+
+        //1. Update obj
+        const oldItem = arr[idx];
+        const newItem = {...oldItem, [propName]: !oldItem[propName]};
+        //2. Construct new array
+        return [...arr.slice(0, idx),
+            newItem,
+            ...arr.slice(idx + 1)
+        ];
+    }
+
+    onToggleImportant = (id) => {
+        this.setState(({ jobListData }) => {
+            return {
+                jobListData: this.toggleProperty(jobListData, id, 'important')
+            };
+        });
+    }
+    onToggleInSearch = (id) => {
+        this.setState(({ jobListData }) => {
+            return {
+                jobListData: this.toggleProperty(jobListData, id, 'inSearch')
+            };
+        });
+    }
+
+    search(items, term) {
+        if (term.length === 0 ) {
+            return items;
+        }
+        return items.filter((item) => {
+            return item.label.toLowerCase().indexOf(term.toLowerCase()) > -1;
+        });
+    }
+
+    onSearchChange = (term) => {
+        this.setState({term});
+    }
 
     render(){
+        const visibleItems = this.search(this.state.jobListData, this.state.term);
         return (
             <div>
                 <h1 id="tabelLabel" >Справочник профессий</h1>
                 <div className='status-string'>
-                    <SearchPanel />
+                    <SearchPanel
+                        onSearchChange={ this.onSearchChange }/>
                     <ItemStatusFilter />
                 </div>
                 <BlockLevelButton onItemAdded={ this.addItem }/>
-                <JobsList list={this.state.jobListData}
-                onDeleted={ this.deleteItem }/>
+                <JobsList list={ visibleItems }
+                    onDeleted={ this.deleteItem }
+                    onToggleImportant={ this.onToggleImportant }
+                    onToggleInSearch={ this.onToggleInSearch }/>
             </div>
         );
     }
