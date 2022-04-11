@@ -315,9 +315,9 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.FinishOperationWork(operation, user);
         }
-        public void SetOperationNote(Operation operation, string note, string user = "")
+        public void SetOperationNote(Operation operation, string user = "")
         {
-            _pgsqlStorage.SetOperationNote(operation, note, user);
+            _pgsqlStorage.SetOperationNote(operation, user);
         }
         public void FinishOperation(Operation operation, string user = "")
         {

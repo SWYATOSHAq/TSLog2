@@ -86,7 +86,7 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var testVehicleKind = storage.GetVehicleKind("20_TONS");
     var startDate = DateTime.Now.AddDays(3);
     var finishDate = startDate;
-    finishDate = finishDate.Add(new TimeSpan(0, storage.GetTime(type, vehicleKind), 0));
+    finishDate = finishDate.Add(new TimeSpan(0, storage.GetDuration(type, vehicleKind), 0));
     var defState = storage.GetOperationState("CREATED");
     var defManager = storage.GetEmployee(100004);
 

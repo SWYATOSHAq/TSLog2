@@ -430,9 +430,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong priority {temp}";
                 }
 
-                string partnerManagerName = data.managerName;
-                string partnerManagerPhoneNumber = data.managerPhoneNumber;
-                string partnerManagerEmail = data.managerEmail;
+                string partnerManagerName = data.partnerManagerName;
+                string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+                string partnerManagerEmail = data.partnerManagerEmail;
                 string note = data.note;
 
                 string partnerId = data.partnerId;
@@ -541,9 +541,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong priority {temp}";
                 }
 
-                string partnerManagerName = data.managerName;
-                string partnerManagerPhoneNumber = data.managerPhoneNumber;
-                string partnerManagerEmail = data.managerEmail;
+                string partnerManagerName = data.partnerManagerName;
+                string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+                string partnerManagerEmail = data.partnerManagerEmail;
                 string note = data.note;
 
                 string partnerActioinId = data.partnerActionId;
@@ -602,15 +602,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (!long.TryParse(temp, out long id))
                     return $"Wrong operation id {temp}!";
                 var operation = _storage.GetOperation(id);
-                                
+
+                var operationType = operation.Type;
                 temp = data.operationTypeCode;
                 if (!string.IsNullOrWhiteSpace(temp))
-                    operation.Type = _storage.GetOperationType(temp);
+                    operationType = _storage.GetOperationType(temp);
 
                 var vehicleKind = operation.VehicleKind;
                 temp = data.vehicleKindCode;
                 if (!string.IsNullOrWhiteSpace(temp))
-                    operation.VehicleKind = _storage.GetVehicleKind(temp);
+                    vehicleKind = _storage.GetVehicleKind(temp);
 
                 var planWorkStartDate = operation.PlanWorkStartDate;
                 var planWorkFinishDate = operation.PlanWorkFinishDate;
@@ -619,7 +620,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (!DateTime.TryParse(temp, out planWorkStartDate))
                         return $"Wrong start date {temp}!";
-                    operation.PlanWorkStartDate = planWorkStartDate;
                     planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind)));
                 }
                 
@@ -631,8 +631,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     if (tempFinishDate > planWorkFinishDate)
                         planWorkFinishDate = tempFinishDate;
                 }
-                operation.PlanWorkFinishDate = planWorkFinishDate;
-
 
                     temp = data.vehicleBrand;
                 if (!string.IsNullOrWhiteSpace(temp))
@@ -655,7 +653,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.DriverPhoneNumber = temp;
 
                 var gate = operation.Gate;
-                temp = data.getaCode;                
+                temp = data.gateCode;                
                 if (!string.IsNullOrWhiteSpace(temp))
                     gate = _storage.GetGate(temp);
 
@@ -668,13 +666,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.Priority = priority;
                 }
 
-                temp = data.managerName;
+                temp = data.partnerManagerName;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.PartnerManagerName = temp;
-                temp = data.managerPhoneNumber;
+                temp = data.partnerManagerPhoneNumber;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.PartnerManagerPhoneNumber = temp;
-                temp = data.managerEmail;
+                temp = data.partnerManagerEmail;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.PartnerManagerEmail = temp;
                 temp = data.note;
@@ -705,28 +703,34 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
                 var changeGate = operation.Type.Code != operation.Type.Code 
                     || operation.VehicleKind.Code != vehicleKind.Code
-                    || operation.StartDate != planWorkStartDate
-                    || operation.FinishDate != planWorkFinishDate;
+                    || operation.PlanWorkStartDate != planWorkStartDate
+                    || operation.PlanWorkFinishDate != planWorkFinishDate;
 
+                operation.Type = operationType;
+                operation.VehicleKind = vehicleKind;
+                operation.PlanWorkStartDate = planWorkStartDate;
+                operation.PlanWorkFinishDate = planWorkFinishDate;
                 var userName = _rightsChecker.GetUserName(User);
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.EditOperation(operation, userName);
-                if (operation.Gate != gate)
+                if (operation.Gate.Code != gate.Code)
+                {
                     try
                     {
                         _storage.SetOperationGate(operation, gate, userName);
-                        _storage.SetResponsibleOfficer(operation, employee);
                     }
                     catch
                     {
                         _storage.SetOperationGate(operation, null, userName);
-                        _storage.SetResponsibleOfficer(operation, employee);
                     }
-                else if (changeGate)
+                    _storage.SetResponsibleOfficer(operation, employee);
+                }
+                else if (changeGate) 
                 {
                     _storage.SetOperationGate(operation, null, userName);
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
+
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -760,23 +764,24 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {temp}!";
                 var operation = _storage.GetOperation(id);
 
+                var operationType = operation.Type;
                 temp = data.operationTypeCode;
                 if (!string.IsNullOrWhiteSpace(temp))
-                    operation.Type = _storage.GetOperationType(temp);
+                    operationType = _storage.GetOperationType(temp);
 
                 var vehicleKind = operation.VehicleKind;
                 temp = data.vehicleKindCode;
                 if (!string.IsNullOrWhiteSpace(temp))
                     vehicleKind = _storage.GetVehicleKind(temp);
 
-                var startDate = operation.StartDate;
-                var finishDate = operation.FinishDate;
+                var planWorkStartDate = operation.StartDate;
+                var planWorkFinishDate = operation.FinishDate;
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    if (!DateTime.TryParse(temp, out startDate))
+                    if (!DateTime.TryParse(temp, out planWorkStartDate))
                         return $"Wrong start date {temp}!";
-                    finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind)));
+                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind)));
                 }
 
                 temp = data.finishDate;
@@ -784,8 +789,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
                         return $"Wrong finish date {temp}";
-                    if (tempFinishDate > finishDate)
-                        finishDate = tempFinishDate;
+                    if (tempFinishDate > planWorkFinishDate)
+                        planWorkFinishDate = tempFinishDate;
                 }
 
                 temp = data.vehicleBrand;
@@ -822,13 +827,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.Priority = priority;
                 }
 
-                temp = data.managerName;
+                temp = data.partnerManagerName;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.PartnerManagerName = temp;
-                temp = data.managerPhoneNumber;
+                temp = data.partnerManagerPhoneNumber;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.PartnerManagerPhoneNumber = temp;
-                temp = data.managerEmail;
+                temp = data.partnerManagerEmail;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.PartnerManagerEmail = temp;
                 temp = data.note;
@@ -852,15 +857,49 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return "Partner has not managers!";
                 operation.Manager = managers[0];
 
-                // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
-                var cancelGate = operation.Type.Code != operation.Type.Code
-                    || operation.VehicleKind.Code != vehicleKind.Code
-                    || operation.StartDate != startDate
-                    || operation.FinishDate != finishDate;
-                
+                operation.Type = operationType;
+                operation.VehicleKind = vehicleKind;
+                operation.PlanWorkStartDate = planWorkStartDate;
+                operation.PlanWorkFinishDate = planWorkFinishDate;
                 _storage.EditOperation(operation, user);
-                if (cancelGate)
-                    _storage.CancelOperationGate(operation, user);
+                var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPatch("SetOperationNote")]
+        async public Task<string> SetOperationNote()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var startOperationWork = _rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+                if (_useAuthentication && !useYard && !startOperationWork)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string temp = data.id;
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Operation id is empty";
+
+                if (!long.TryParse(temp, out long id))
+                    return $"Wrong operation id {temp}";
+
+                var operation = _storage.GetOperation(id);
+                operation.Note = data.note;
+                
+                _storage.SetOperationNote(operation, _rightsChecker.GetUserName(User));
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -908,8 +947,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     }
 
                 var operation = _storage.GetOperation(id);
-                _storage.SetOperationGate(operation, gate, _rightsChecker.GetUserName(User));
-                var employee = Employee.Null;
+                var userName = _rightsChecker.GetUserName(User);
+                _storage.SetOperationGate(operation, gate, userName);
+                var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetResponsibleOfficer(operation, employee);
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
@@ -1091,44 +1131,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.FinishOperationWork(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
-        }
-        [HttpPatch("SetOperationNote")]
-        async public Task<string> SetOperationNote()
-        {
-            try
-            {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var startOperationWork = _rightsChecker.CheckRight("START_OPERATION_WORK", User);
-                if (_useAuthentication && !useYard && !startOperationWork)
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string temp = data.id;
-                if (string.IsNullOrWhiteSpace(temp))
-                    return "Operation id is empty";
-
-                if (!long.TryParse(temp, out long id))
-                    return $"Wrong operation id {temp}";
-
-                string note = data.note;
-
-                var operation = _storage.GetOperation(id);
-                _storage.SetOperationNote(operation, note, _rightsChecker.GetUserName(User));
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;

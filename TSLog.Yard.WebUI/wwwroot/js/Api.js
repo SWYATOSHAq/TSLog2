@@ -91,6 +91,26 @@
         }
     }
 
+    async editOperationNote(data) {
+        const url = "./api/v1/yard/SetOperationNote";
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            const operation = await response.json();
+            console.log(operation);
+            location.reload();
+        }
+        else {
+            const message = await response.text();
+            console.log(message);
+            alert(message);
+        }
+    }
+
     async setOperationGate(id, gateCode) {
         const url = "./api/v1/yard/SetOperationGate";
         const data = {

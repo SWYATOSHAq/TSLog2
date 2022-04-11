@@ -134,7 +134,7 @@ namespace TSLog.Authorization
         {
             if (string.IsNullOrWhiteSpace(userName))
                 throw new ArgumentException("User name is empty!");
-            userName = userName.Split('\\')[1];
+            userName = userName.Split('\\').Last();
             userName = userName.ToLower();
             if (!_users.ContainsKey(userName))
                 throw new ArgumentException($"User {userName} not found!");

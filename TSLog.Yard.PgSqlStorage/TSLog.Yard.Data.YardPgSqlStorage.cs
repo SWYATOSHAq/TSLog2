@@ -1600,9 +1600,20 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
-        public void SetOperationNote(Operation operation, string note, string user = "")
+        public void SetOperationNote(Operation operation, string user = "")
         {
-            return;
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using var connection = CloneConnection();
+            using var command = connection.CreateCommand();
+            var sql = $"select {YardSchema}.set_operation_note(:p_id, :p_note, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+            connection.Close();
         }
         public void FinishOperation(Operation operation, string user = "")
         {

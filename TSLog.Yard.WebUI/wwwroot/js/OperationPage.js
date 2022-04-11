@@ -384,7 +384,7 @@
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
-            vehicleKindCode: document.getElementById("#ehicle-kinds-select").value,
+            vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
             vehicleBrand: document.getElementById("vehicle-brand-input").value,
             vehicleModel: document.getElementById("vehicle-model-input").value,
             vehicleNumber: document.getElementById("vehicle-number-input").value,
@@ -394,10 +394,10 @@
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: $("#note-textarea").value,
-            partnerOrderId: document.getElementById("partner-action-id-input").value
+            note: document.getElementById("note-textarea").value,
+            partnerActionId: document.getElementById("partner-action-id-input").value
         };
-        api.createOperationByPartner(data);
+        await api.createOperationByPartner(data);
     }
 
     getOperationId() {
@@ -425,7 +425,7 @@
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
-            gateCode: document.getElementById("gates-select").value,
+            gateCode: document.getElementById("gates-select") != undefined ? document.getElementById("gates-select").value : "",
             vehicleBrand: document.getElementById("vehicle-brand-input").value,
             vehicleModel: document.getElementById("vehicle-model-input").value,
             vehicleNumber: document.getElementById("vehicle-number-input").value,
@@ -474,6 +474,14 @@
             partnerActionId: document.getElementById("partner-action-id-input").value
         };
         api.editOperationByPartner(data);
+    }
+
+    async editOperationNote() {
+        const data = {
+            id: this.getOperationId(),
+            note: document.getElementById("note-textarea").value
+        };
+        api.editOperationNote(data);
     }
 
     async setOperationGate() {
@@ -702,12 +710,15 @@
 
     setControlsState() {
 
+        /*
         if (this.factWorkStartDate <= utils.nullDate) {
             document.getElementById("time-div").removeAttribute("disabled");
             document.getElementById("work-start-date-picker").removeAttribute("disabled");
             document.getElementById("operation-types-select").removeAttribute("disabled");
-            document.getElementById("vehicle-kinds-select").removeAttribute("disabled");            
-            document.getElementById("gates-select").removeAttribute("disabled");
+            document.getElementById("vehicle-kinds-select").removeAttribute("disabled");
+            if (document.getElementById("gates-select") != undefined) {
+                document.getElementById("gates-select").removeAttribute("disabled");
+            }            
             document.getElementById("vehicle-brand-input").removeAttribute("disabled");
             document.getElementById("vehicle-model-input").removeAttribute("disabled");
             document.getElementById("vehicle-number-input").removeAttribute("disabled");
@@ -724,8 +735,10 @@
             document.getElementById("time-div").setAttribute("disabled", "");
             document.getElementById("work-start-date-picker").setAttribute("disabled", "");
             document.getElementById("operation-types-select").setAttribute("disabled", "");
-            document.getElementById("vehicle-kinds-select").setAttribute("disabled", "");            
-            document.getElementById("gates-select").setAttribute("disabled", "");
+            document.getElementById("vehicle-kinds-select").setAttribute("disabled", "");
+            if (document.getElementById("gates-select") != undefined) {
+                document.getElementById("gates-select").setAttribute("disabled", "");
+            }
             document.getElementById("vehicle-brand-input").setAttribute("disabled", "");
             document.getElementById("vehicle-model-input").setAttribute("disabled", "");
             document.getElementById("vehicle-number-input").setAttribute("disabled", "");
@@ -740,6 +753,33 @@
 
             this.disableTimeTable();
         }
+        */
+
+        if (this.factWorkStartDate > utils.nullDate) {
+            document.getElementById("time-div").setAttribute("disabled", "");
+            document.getElementById("work-start-date-picker").setAttribute("disabled", "");
+            document.getElementById("operation-types-select").setAttribute("disabled", "");
+            document.getElementById("vehicle-kinds-select").setAttribute("disabled", "");
+            if (document.getElementById("gates-select") != undefined) {
+                document.getElementById("gates-select").setAttribute("disabled", "");
+            }
+            document.getElementById("vehicle-brand-input").setAttribute("disabled", "");
+            document.getElementById("vehicle-model-input").setAttribute("disabled", "");
+            document.getElementById("vehicle-number-input").setAttribute("disabled", "");
+            document.getElementById("trailer-number-input").setAttribute("disabled", "");
+            document.getElementById("driver-name-input").setAttribute("disabled", "");
+            document.getElementById("driver-phone-number-input").setAttribute("disabled", "");
+            document.getElementById("partner-manager-name-input").setAttribute("disabled", "");
+            document.getElementById("partner-manager-phone-number-input").setAttribute("disabled", "");
+            document.getElementById("partner-manager-email-input").setAttribute("disabled", "");
+            document.getElementById("partners-select").setAttribute("disabled", "");
+            document.getElementById("partner-action-id-input").setAttribute("disabled", "");            
+        }
+        // Костыль для охраны
+        if (document.getElementById("operation-types-select").hasAttribute("disabled")) {
+            document.getElementById("work-start-date-picker").setAttribute("disabled", "");
+            this.disableTimeTable();
+        }            
     }
 
     async showPage() {

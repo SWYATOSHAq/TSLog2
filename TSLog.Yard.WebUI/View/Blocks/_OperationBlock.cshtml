@@ -13,24 +13,24 @@
     var rightsChecker = Model.RightChecker;
     var storage = Model.Storage;
     var operation = Model.Operation != null && Model.Operation != Operation.Null ? Model.Operation : Operation.Empty;    
-    var isEnabled = Model.IsEnabled;
 
     var setGate = !useAuthentication || rightsChecker.CheckRight("SET_OPERATION_GATE", User);
-    var save = !useAuthentication 
+    var canEditAttributes = !useAuthentication
         || rightsChecker.CheckRight("EDIT_OPERATION", User)
         || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
-    var start = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
-    var startWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
-    var finishWork = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
-    var finish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
-    var cancel = (!useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User)) 
+    var canEditNote = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+    var canStart = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
+    var canStartWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
+    var canFinishWork = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
+    var canFinish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
+    var canCancel = (!useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User)) 
         && (operation.State.Code != "FINISHED")
         && (operation.State.Code != "CANCELED");
-    var delete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
+    var canDelete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
+    var canViewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
 
     var divClasses = "input-group dropdown-div";
-    var selectClasses = "form-select dropdown-select";
-    var gatesModel = new GatesModel(storage.GetGates(), operation.Gate.Code, isEnabled, false, string.Empty, divClasses, selectClasses);
+    var selectClasses = "form-select dropdown-select";    
 
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
     var partnerId = string.Empty;
@@ -46,12 +46,12 @@
         partnerId = operation.Partners.Length > 0 ? operation.Partners[0].Id : string.Empty;
         partners = storage.GetPartners();
     }
-    
-    var partnersModel = new PartnersModel(partners, partnerId, !isPartnerUser, false, string.Empty, divClasses, selectClasses);
-    
-    var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist.Code, isEnabled, false, string.Empty, divClasses, selectClasses);
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind.Code, isEnabled, false, string.Empty, divClasses, selectClasses);
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type.Code, isEnabled, false, string.Empty, divClasses, selectClasses);
+
+    var gatesModel = new GatesModel(storage.GetGates(), operation.Gate.Code, !isPartnerUser && canEditAttributes, false, string.Empty, divClasses, selectClasses);
+    var partnersModel = new PartnersModel(partners, partnerId, !isPartnerUser && canEditAttributes, false, string.Empty, divClasses, selectClasses);    
+    var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
 
     var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
 
@@ -64,15 +64,20 @@
         durationText = $"{hours.ToString().PadLeft(2, '0')}:{minutes.ToString().PadLeft(2, '0')}";    
     }    
 
-    //var context = new PrincipalContext(ContextType.Domain);
-    //var creator = UserPrincipal.FindByIdentity(context, operation.Creator);
-
     var allocatedWorkers = operation.GetEmployeesByPositions();
     var planWorkersCounts = operation.PositionsWorkersCount();
     var _laborCost = operation.PositionsLaborCosts();
     var workersModel = new WorkersModel(allocatedWorkers, planWorkersCounts, _laborCost, true);
 
     var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
+    var createOperationOnclick = !isPartnerUser ? "operationPage.createOperation()" : "operationPage.createOperationByPartner()";
+    var editOperationOnclick = "";
+    if (canEditAttributes)
+        editOperationOnclick = !isPartnerUser ? "operationPage.editOperation()" : "operationPage.editOperationByPartner()";
+    else if (canEditAttributes)
+    editOperationOnclick = "operationPage.editOperationNote()";
+
+    var disabledString = !canEditAttributes ? " disabled" : string.Empty;
 }
 
 <div class="col p-2 m-2 rem-outline-on-print" id="card-operation">
@@ -128,7 +133,7 @@
         <span class="input-group-text col-4">
             <b>№ заказа клиена*</b>
         </span>
-        <input id="partner-action-id-input" class="form-control" value="" />
+        <input id="partner-action-id-input" class="form-control" value="" @disabledString />
     </div>
     <div class="row rem-outline-on-print input-group input-div">
         <span class="input-group-text col-4">
@@ -152,48 +157,48 @@
             <span class="input-group-text col-4">
                 <b>Марка авто*</b>
             </span>
-            <input type="text" id="vehicle-brand-input" class="form-control" value="">
+            <input type="text" id="vehicle-brand-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">
                 <b>Модель авто*</b>
             </span>
-            <input type="text" id="vehicle-model-input" class="form-control" value="">
+            <input type="text" id="vehicle-model-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">
                 <b>Номер авто*</b>
             </span>
-            <input type="text" id="vehicle-number-input" class="form-control" value="">
+            <input type="text" id="vehicle-number-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">
                 <b>Номер прицепа</b>
             </span>
-            <input type="text" id="trailer-number-input" class="form-control" value="">
+            <input type="text" id="trailer-number-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">
                 <b>Ф. И. О. водителя*</b>
             </span>
-            <input type="text" id="driver-name-input" class="form-control" value="">
+            <input type="text" id="driver-name-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">Тел. водителя</span>
-            <input type="text" id="driver-phone-number-input" class="form-control" value="">
+            <input type="text" id="driver-phone-number-input" class="form-control" value="" @disabledString>
         </div>
 
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">Ф. И. О. менеджера (клиент)</span>
-            <input type="text" id="partner-manager-name-input" class="form-control" value="">
+            <input type="text" id="partner-manager-name-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">Тел. менеджера (клиент)</span>
-            <input type="text" id="partner-manager-phone-number-input" class="form-control" value="">
+            <input type="text" id="partner-manager-phone-number-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">Эл. почта менеджера (клиент)</span>
-            <input type="text" id="partner-manager-email-input" class="form-control" value="">
+            <input type="text" id="partner-manager-email-input" class="form-control" value="" @disabledString>
         </div>
 
         <div class="row p-2 m-2 rem-outline-on-print input-group textarea-div">
@@ -207,33 +212,35 @@
         @if (operation == Operation.Empty)
         {
             <div class="d-grid gap-2 col-4">
-                <button class="btn btn-outline-success hide-on-print" type="button" onclick="operationPage.createOperation()">Создать</button>
+                <button class="btn btn-outline-success hide-on-print" 
+                    type="button" 
+                    onclick="@createOperationOnclick">Создать</button>
             </div>
         }
         else
         {
             <div class="d-grid m-2 row">
                 <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="operationPage.printOperation()">Печать</button>
-            </div>            
-            if (stateCode != "FINISHED" && stateCode != "CANCELED" && save)
+            </div>
+            @if (canEditAttributes || canEditNote)
             {
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="operationPage.editOperation()">Сохранить изменения</button>
-                </div>
-            }
-            if (stateCode == "CREATED" && setGate)
+                    <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="@editOperationOnclick">Сохранить изменения</button>
+                </div>   
+            }            
+            @if (stateCode == "CREATED" && setGate)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
                 </div>
             }
-            if (stateCode == "CONFIRMED" &&  start)
+            @if (stateCode == "CONFIRMED" &&  canStart)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.startOperation()">Принять машину</button>
                 </div>
             }      
-            if (stateCode == "STARTED" && startWork)
+            @if (stateCode == "STARTED" && canStartWork)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.startOperationWork()">Поставить на ворота</button>
@@ -242,26 +249,26 @@
                     <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.allocateOperationEmployees()">(Авто) Назначить сотрудников</button>
                 </div>
             }
-            if (stateCode == "WORK_STARTED" && finishWork)
+            @if (stateCode == "WORK_STARTED" && canFinishWork)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" type="button" onclick="operationPage.finishOperationWork()">Завершить работу</button>
                 </div>
             }
-            if (stateCode == "WORK_FINISHED" && finish)
+            @if (stateCode == "WORK_FINISHED" && canFinish)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" type="button" onclick="operationPage.finishOperation()">Отпустить машину</button>
                 </div>
             }
             <div class="mt-5"></div>
-            if (delete)
+            @if (canDelete)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.deleteOperation()">Удалить</button>
                 </div>
             }
-            if (cancel)
+            @if (canCancel)
             {
                 <div class="d-grid m-2 row">
                     <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.cancelOperation()">Отменить</button>
@@ -274,7 +281,10 @@
         if (stateCode == "STARTED")
             tableVisClass = "table-vis";
     }
-    <div class="@tableVisClass">
-        <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
-    </div>
+    @if (!isPartnerUser && canViewOperationWorkers)
+    {
+        <div class="@tableVisClass">
+            <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
+        </div>    
+    }    
 </div>

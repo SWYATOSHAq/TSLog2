@@ -1,4 +1,5 @@
 ﻿@using TSLog.Yard.BO
+@using TSLog.Partners.BO
 @using TSLog.Authorization
 @using TSLog.Yard.WebUI.Models
 
@@ -37,8 +38,6 @@
     var divClasses = "col-md-3 col-6 filter-div";
     var selectClasses = "form-select filter-select";
     var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота", divClasses, selectClasses);
-
-
     var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций", divClasses, selectClasses);
     var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, true, true, "Все партнеры", divClasses, selectClasses);
     var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind, true, true, "Все типы машин", divClasses, selectClasses);
@@ -54,6 +53,20 @@
         null,
         null,
         null);
+
+    var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
+
+    if (isPartnerUser)
+    {
+        var userName = rightsChecker.GetUserName(User);
+        var partnerId = rightsChecker.GetPartnerIdByUser(userName);
+
+        var list = new List<Operation>();
+        foreach (var operation in operations)
+            if (operation.Partners.Length <= 0 || operation.Partners.Length > 0 && (operation.Partners[0].Id == partnerId))
+                list.Add(operation);
+        operations = list.ToArray();
+    }
 
     var operarationsModel = new OperationsModel(rightsChecker, storage, operations, true, request);
 }

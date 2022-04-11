@@ -93,30 +93,29 @@
         const toDatePicker = document.getElementById("to-date-picker");
         result = result + "&to_date=" + toDatePicker.value;
 
-        const filters = document.getElementById("filters");
-        const gatesDropdown = filters.querySelector("#gates-dropdown");
-        if (gatesDropdown != undefined && gatesDropdown.value != "") {
-            result = result + "&gate_code=" + gatesDropdown.value;
+        const gatesSelect = document.getElementById("gates-select");
+        if (gatesSelect != undefined && gatesSelect.value != "") {
+            result = result + "&gate_code=" + gatesSelect.value;
         }
 
-        const partnersDropdown = filters.querySelector("#partners-dropdown");
-        if (partnersDropdown != undefined && partnersDropdown.value != "") {
-            result = result + "&partner_id=" + partnersDropdown.value;
+        const partnersSelect = document.getElementById("partners-select");
+        if (partnersSelect != undefined && partnersSelect.value != "") {
+            result = result + "&partner_id=" + partnersSelect.value;
         }
 
-        const operationTypesDropdown = filters.querySelector("#operation-types-dropdown");
-        if (operationTypesDropdown != undefined && operationTypesDropdown.value != "") {
-            result = result + "&operation_type_code=" + operationTypesDropdown.value;
+        const operationTypesSelect = document.getElementById("operation-types-select");
+        if (operationTypesSelect != undefined && operationTypesSelect.value != "") {
+            result = result + "&operation_type_code=" + operationTypesSelect.value;
         }
 
-        const vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-dropdown");
-        if (vehicleKindsDropdown != undefined && vehicleKindsDropdown.value != "") {
-            result = result + "&vehicle_kind_code=" + vehicleKindsDropdown.value;
+        const vehicleKindsSelect = document.getElementById("vehicle-kinds-select");
+        if (vehicleKindsSelect != undefined && vehicleKindsSelect.value != "") {
+            result = result + "&vehicle_kind_code=" + vehicleKindsSelect.value;
         }
 
-        const operationStatesDropdown = filters.querySelector("#operation-states-dropdown");
-        if (operationStatesDropdown != undefined && operationStatesDropdown.value != "") {
-            result = result + "&state_code=" + operationStatesDropdown.value;
+        const operationStatesSelect = document.getElementById("operation-states-select");
+        if (operationStatesSelect != undefined && operationStatesSelect.value != "") {
+            result = result + "&state_code=" + operationStatesSelect.value;
         }
 
         const vehicleNumberInput = filters.querySelector("#vehicle-number-input");
@@ -157,8 +156,8 @@
         container.replaceChildren();
     }
 
-    onChangeFilter() {
-        this.getOperations();
+    async onChangeFilter() {
+        await this.getOperations();
     }
 
     show() {
@@ -194,23 +193,23 @@
             toDatePicker.on("changeDate", this.onChangeFilter.bind(this));
         }
 
-        const gatesDropdown = filters.querySelector("#gates-dropdown");
+        const gatesDropdown = filters.querySelector("#gates-select");
         if (gatesDropdown != undefined)
             gatesDropdown.onchange = this.onChangeFilter.bind(this);
 
-        const partnersDropdown = filters.querySelector("#partners-dropdown");
+        const partnersDropdown = filters.querySelector("#partners-select");
         if (partnersDropdown != undefined)
             partnersDropdown.onchange = this.onChangeFilter.bind(this);
 
-        const operationTypesDropdown = filters.querySelector("#operation-types-dropdown");
+        const operationTypesDropdown = filters.querySelector("#operation-types-select");
         if (operationTypesDropdown != undefined)
             operationTypesDropdown.onchange = this.onChangeFilter.bind(this);
 
-        const vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-dropdown");
+        const vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-select");
         if (vehicleKindsDropdown != undefined)
             vehicleKindsDropdown.onchange = this.onChangeFilter.bind(this);
 
-        const operationStatesDropdown = filters.querySelector("#operation-states-dropdown");
+        const operationStatesDropdown = filters.querySelector("#operation-states-select");
         if (operationStatesDropdown != undefined)
             operationStatesDropdown.onchange = this.onChangeFilter.bind(this);
 

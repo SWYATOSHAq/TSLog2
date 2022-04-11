@@ -60,7 +60,7 @@ namespace TSLog.Yard.BO
         public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "");
         public void StartOperationWork(Operation operation, string user = "");
         public void FinishOperationWork(Operation operation, string user = "");
-        public void SetOperationNote(Operation operation, string note, string user = "");
+        public void SetOperationNote(Operation operation, string user = "");
         public void FinishOperation(Operation operation, string user = "");
         public void CancelOperation(Operation operation, string user = "");
         public void DeleteOperation(Operation operation, string user = "");

@@ -33,7 +33,8 @@
         var createOperation = !useAuthentication
             || rightsChecker.CheckRight("VIEW_OPERATION", User)
             || rightsChecker.CheckRight("EDIT_OPERATION", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
+            || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
+            || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
         if (!createOperation)
         {
             Response.StatusCode = 403;
@@ -47,12 +48,7 @@
             throw new Exception($"Wrong operation id {stringId}");
         }
     }
-    // TODO: зависимости от прав
-    var isEnable = operation == Operation.Empty 
-        || operation.State.Code == "CREATED" 
-        || operation.State.Code == "CONFIRMED" 
-        || operation.State.Code == "STARTED";
-    var operationModel = new OperationModel(rightsChecker, storage, operation, isEnable);
+    var operationModel = new OperationModel(rightsChecker, storage, operation, true);
 }
 
 <div class="row">
