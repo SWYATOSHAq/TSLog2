@@ -8,7 +8,7 @@
     createUrl() {
         const fromOperationDatePicker = document.getElementById("from-operation-date-picker");
         const toOperationDatePicker = document.getElementById("to-operation-date-picker");        
-        const partnersDropdown = document.getElementById("partners-dropdown");
+        const partnersDropdown = document.getElementById("partners-select");
         let url = this.shortUrl + "?from_date=" + fromOperationDatePicker.value + "&to_date=" + toOperationDatePicker.value;
         if (partnersDropdown.value != "") {
             url = url + "&partner=" + partnersDropdown.value;

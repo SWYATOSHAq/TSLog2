@@ -3,20 +3,22 @@
 @model PartnersModel
 @{
     var partners = Model.Partners;
-    var isDisabled = Model.IsDisabled;
-    var isSmall = Model.IsSmall;
     var selectedPartner = Model.SelectedPartner;
+    var isEnabled = Model.IsEnabled;
+    var isSmall = Model.IsSmall;    
     var defaultText = Model.DefaultText;
+    var divClasses = Model.DivClasses;
+    var selectClasses = Model.SelectClasses;
 
     if (string.IsNullOrWhiteSpace(defaultText))
         defaultText = "Партнер не выбран";
 }
 
-<div id="partners-block" class="input-group">
-    <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Партнер*</span>
-    <select id="partners-dropdown" 
-        class="form-select filter-drop-down" 
-        aria-label="Default select" @(isDisabled ? "disabled" : string.Empty)>
+<div id="partners-div" class="@divClasses">
+    <span class="input-group-text col-3@(isSmall ? " d-none" : string.Empty)">
+        <b>Партнер*</b>
+    </span>
+    <select id="partners-select" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
         <option value="">@defaultText</option>
         @foreach (var partner in partners)
         {

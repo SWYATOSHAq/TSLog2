@@ -80,6 +80,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployee(id);
         }
+        public Employee GetEmployeeByAdLogin(string login)
+        {
+            return _oracleStorage.GetEmployeeByAdLogin(login);
+        }
         public Employee[] GetEmployees()
         {
             return _oracleStorage.GetEmployees();
@@ -219,9 +223,13 @@ namespace TSLog.Yard
         #endregion
 
         #region Operations
-        public short GetTime(OperationType operationType, VehicleKind vehicleKind)
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
         {
-            return _pgsqlStorage.GetTime(operationType, vehicleKind);
+            return _pgsqlStorage.GetDuration(operationType, vehicleKind);
+        }
+        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            return _pgsqlStorage.GetLaborCost(operationType, vehicleKind);
         }
         public Interval[] GetAllIntervals(DateTime from, DateTime to)
         {
@@ -306,6 +314,10 @@ namespace TSLog.Yard
         public void FinishOperationWork(Operation operation, string user = "")
         {
             _pgsqlStorage.FinishOperationWork(operation, user);
+        }
+        public void SetOperationNote(Operation operation, string note, string user = "")
+        {
+            _pgsqlStorage.SetOperationNote(operation, note, user);
         }
         public void FinishOperation(Operation operation, string user = "")
         {

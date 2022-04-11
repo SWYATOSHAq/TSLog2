@@ -60,6 +60,10 @@ namespace TSLog.Yard.BO
             if (_actions.ContainsKey(key))
                 _actions.Remove(key);
         }
+        public void RemoveActions()
+        {
+            _actions.Clear();
+        }
         public Partner[] GetPartners()
         {
             var partners = new HashSet<Partner>();

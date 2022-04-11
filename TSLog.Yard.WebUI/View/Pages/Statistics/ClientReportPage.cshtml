@@ -15,7 +15,8 @@
     var storage = Model.Storage;
     var rightsChecker = Model.RightsChecker;
 
-    var viewClientReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    var viewClientReportPage = !useAuthentication 
+        || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User));
     if (!viewClientReportPage)
     {        
         Response.StatusCode = 403;
@@ -32,13 +33,15 @@
     var partner = string.IsNullOrWhiteSpace(stringPartner) ? Partner.Null : storage.GetPartner(stringPartner);
 
     var report = new ClientReport(storage, partner, fromDate, toDate);
-    var partnersModel = new PartnersModel(storage.GetPartners(), partner.Code, false, true, "Все клиенты");
+    var divClasses = "input-group dropdown-div";
+    var selectClasses = "form-select dropdown-select";
+    var partnersModel = new PartnersModel(storage.GetPartners(), partner.Code, true, true, "Все клиенты", divClasses, selectClasses);
 
     var header = $"{fromDate.ToShortDateString()} - {toDate.ToShortDateString()}";
     if (partner != null && partner != Partner.Null && partner != Partner.Empty)
         header = header + $" ({partner.DisplayName})";
     else
-        header = header + $" (все клиенты)";
+        header = header + $" (Все клиенты)";
 }
 
 <div class="row p-1 hide-on-print client-report row2 row3">
@@ -56,10 +59,8 @@
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />
-        <label class="client-report-filter-label" for="partners-filter-container">Клиент:</label>
-        <div id="partners-filter-container" class="client-report-filter-container">
-            <partial name="Partials/Lists/_PartnersDropdownPartial" model="partnersModel" />
-        </div>    
+    <label class="client-report-filter-label" for="partners-filter-container">Клиент:</label>
+    <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
 </div>
 <div class="row p-2 m-1 row2">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 client-report-button" 

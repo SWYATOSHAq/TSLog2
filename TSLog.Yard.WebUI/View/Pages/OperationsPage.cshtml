@@ -7,7 +7,7 @@
 
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
-    var homeModel = new OperationsBlockModel(rightsChecker, storage, true, Request);    
+    var operationsBlockModel = new OperationsBlockModel(rightsChecker, storage, true, Request);    
 }
 
-<partial name="Partials/_OperationsBlock" model="homeModel" />
+<partial name="Blocks/_OperationsBlock" model="operationsBlockModel" />

@@ -120,24 +120,9 @@ td {
     border-radius: 4px !important;
 }
 
-.filter-element {
-    padding-bottom: 0px;
-    padding-top: 0px;
-    padding-right: 0px;
-    padding-left: 0px;
-    border-radius: 20px;
-    margin: 0px;
-}
-
-.action-card {
+.operations-list-element {
     padding: 0px;
     margin: 0px;
-}
-
-.card {
-    padding: 0px !important;
-    margin: 0px !important;
-    border-radius: 4px !important;
 }
 
 .caption {
@@ -145,29 +130,10 @@ td {
     margin: 0px;
 }
 
-.card-table {
-    padding: 0px;
-    margin: 0px;
-}
-
-.container2 {
-    padding: 4px !important;
-    margin: 0px !important;   
-}
-
 .container3 {
     padding: 4px !important;
     margin: 0px !important;
     width: 240px;
-}
-
-.filter-drop-down {
-    padding: 0px !important;
-    padding-left: 4px !important;
-    margin: 0px !important;
-    border-radius: 4px !important;
-    display: flex;
-    align-items: center;
 }
 
 .filter-text-box {
@@ -233,9 +199,4 @@ td {
 .combobox-element {
     padding: 0px !important;
     margin: 4px !important;
-}
-
-.element-content {
-    padding: 0px !important;
-    margin: 0px !important;
 }

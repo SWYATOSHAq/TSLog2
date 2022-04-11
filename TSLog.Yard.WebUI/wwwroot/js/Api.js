@@ -1,4 +1,16 @@
 ﻿class Api {
+    async getOperation(id) {
+        let response = await fetch("./api/v1/yard/Operation?id=" + id);
+        if (response.status >= 200 && response.status < 300) {
+            return await response.json();            
+        }
+        else {            
+            const text = await response.text();
+            console.log(text);
+            return null;
+        }
+    }
+
     async createOperation(data) {
         const url = "./api/v1/yard/CreateOperation";
         const options = {
@@ -10,7 +22,27 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            window.location.reload();
+            location.href = location.href + "?id=" + operation.Id;
+        }
+        else {
+            const message = await response.text();
+            console.log(message);
+            alert(message);
+        }
+    }
+
+    async createOperationByPartner(data) {
+        const url = "./api/v1/yard/CreateOperationByPartner";
+        const options = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            const operation = await response.json();
+            console.log(operation);
+            location.href = location.href + "?id=" + operation.Id;
         }
         else {
             const message = await response.text();
@@ -30,7 +62,27 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            window.location.reload();
+            location.reload();
+        }
+        else {
+            const message = await response.text();
+            console.log(message);
+            alert(message);
+        }
+    }
+
+    async editOperationByPartner(data) {
+        const url = "./api/v1/yard/EditOperationByPartner";
+        const options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            const operation = await response.json();
+            console.log(operation);
+            location.reload();
         }
         else {
             const message = await response.text();

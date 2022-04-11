@@ -169,7 +169,7 @@
     }
     @foreach (var interval in intervals)
     {
-        <div id="interval" class="interval-print interval-print-@i show-on-print">
+        <div id="intervals" class="interval-print interval-print-@i show-on-print">
             <div>Период времени: <b>@interval.GetFormattedTimeString()</b></div>
             @{
                 j = 1;
@@ -181,9 +181,9 @@
                 {
                     pageBreakClass = "page-break-after";
                 }
-                var operationModel = new OperationModel(rightsChecker, storage, operation, false, true);
+                var operationModel = new OperationModel(rightsChecker, storage, operation, false);
                 <div class="operation @pageBreakClass">
-                    <partial name="Partials/_OperationBlock" model="operationModel" />
+                    <partial name="Blocks/_OperationBlock" model="operationModel" />
                 </div>
                 j++;
             }

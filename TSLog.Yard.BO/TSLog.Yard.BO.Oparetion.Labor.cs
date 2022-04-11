@@ -75,9 +75,9 @@ namespace TSLog.Yard.BO
             return result;
         }
         /// <summary>
-        /// Общие трудозатраты в человекосекундах
+        /// Общие ПЛАНОВЫЕ трудозатраты в человекосекундах
         /// </summary>
-        public int TotalLaborCost
+        public int PlanLaborCost
         {
             get
             {
@@ -85,6 +85,16 @@ namespace TSLog.Yard.BO
                 foreach (var operationWork in _operationWorks)
                     result += operationWork.Time * operationWork.WorkersCount;
                 return result;
+            }
+        }
+        /// <summary>
+        /// Общие ФАКТИЧЕСКИЕ трудозатраты в человекосекундах
+        /// </summary>
+        public int FactLaborCost
+        {
+            get 
+            {
+                return FactWorkFinishDate != DateTime.MinValue ? PlanLaborCost : 0;
             }
         }
     }

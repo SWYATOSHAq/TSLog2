@@ -12,10 +12,10 @@
     var operation = Operation.Empty;
     long id = 0;
     operation = long.TryParse(stringId, out id) ? storage.GetOperation(id) : Operation.Empty;
-    var operationModel = new OperationModel(rightsChecker, storage, operation, true, true);
+    var operationModel = new OperationModel(rightsChecker, storage, operation, true);
 }
 @if (id != 0 && operation != Operation.Empty)
 {
-    <partial name="Partials/_OperationBlock" model="operationModel" />
+    <partial name="Blocks/_OperationBlock" model="operationModel" />
 }
 <input id="force-print" type="hidden" name="force-print" value="true">

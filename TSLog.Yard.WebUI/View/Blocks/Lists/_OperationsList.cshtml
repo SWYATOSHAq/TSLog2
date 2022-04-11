@@ -45,11 +45,11 @@
 
     var host = request.Host;
 }
-@foreach (var operation in operations)
-{
-    <div class="col action-card">
-        <div class="container2">
-            <div class="card">
+<div id="operations-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 operations-div">
+    @foreach (var operation in operations)
+    {        
+        <div class="operation-outer-div ">
+            <div class="col operation-div">
                 <div class="card-header" style="background-color:@operation.DisplayColor">@operation.GetPlanTime() @operation.GetDate()</div>
                 <div class="card-body">
                     @if (displayAdditionalInfo)
@@ -64,7 +64,7 @@
                         }
                         else
                         {
-                            @: не проставлены
+                            @: Не проставлены
                         }
                     </p>
                     <p class="card-text">@operation.State.DisplayName</p>
@@ -75,9 +75,9 @@
                 @if (displayAdditionalInfo)
                 {
                     var link = $"location.href='https://{host}/OperationPage?id={operation.Id}'";
-                    @: <button class="btn btn-outline-info m-3 open-operation" onclick="@link">Открыть</button>
+                    @: <button class="btn btn-outline-info m-3 open-operation-button" onclick="@link">Открыть</button>
                 }
             </div>
         </div>
-    </div>
-}
+    }
+</div>

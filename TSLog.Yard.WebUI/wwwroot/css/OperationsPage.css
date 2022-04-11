@@ -1,0 +1,62 @@
+﻿.filters-div {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.dates-div {
+    margin: 0px !important;
+    padding: 4px !important;
+}
+
+.filter-div {
+    padding: 4px !important;
+}
+
+.filter-select {
+    padding: 0px !important;
+    padding-left: 8px !important;
+    margin: 0px !important;
+    /*    border-radius: 4px !important; */
+    align-items: center;
+}
+
+.filter-input {
+    padding: 0px !important;
+    padding-left: 8px !important;
+    margin: 0px !important;
+}
+
+.operations-div {
+    padding: 0px !important;
+    margin: 0px !important;
+    margin-top: 4px !important;
+}
+
+.operation-outer-div {
+    padding: 4px !important;
+}
+
+.operation-div {
+    padding: 0px !important;
+    margin: 0px !important;
+    border-radius: 4px;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+}
+
+.card-body {
+    padding: 8px !important;    
+    padding-bottom: 0px !important;
+}
+
+.card-text {
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+}
+
+.open-operation-button {
+    margin: 8px !important;
+    margin-top: 0px !important;
+    width: -webkit-fill-available;
+}

@@ -37,14 +37,14 @@
     }
 
     printBlock(cellId) {
-        // hide tables
+        // Hide tables
         $(".statistics-table").addClass("d-none");
-        // hide all intervals but selected
+        // Hide all intervals but selected
         $(".interval-print").addClass("d-none");
         $(".interval-print-" + cellId).removeClass("d-none");
 
         window.print();
-        // unhide all
+        // Unhide all
         $(".statistics-table").removeClass("d-none");
         $(".interval-print").removeClass("d-none");
     }

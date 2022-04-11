@@ -5,16 +5,15 @@
 @model OperationsBlockModel
 @{
     var rightsChecker = Model.RightsChecker;
-    var storage = Model.Storage;    
+    var storage = Model.Storage;
     var isEnabled = Model.IsEnabled;
     var request = Model.Request;
-    var isAdmin = isEnabled;
 }
 @inject IConfiguration Configuration
 @{
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
-@{    
+@{
     var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
     var filterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
     var filterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
@@ -27,7 +26,7 @@
 
     string requestFromDate = request.Query["from_date"];
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
-    string requestToDate = request.Query["to_date"];    
+    string requestToDate = request.Query["to_date"];
     var toDate = requestToDate != null ? DateTime.Parse(requestToDate) : DateTime.Today;
     string selectedGate = request.Query["gate_code"];
     string selectedType = request.Query["operation_type_code"];
@@ -35,11 +34,15 @@
     string selectedVehicleKind = request.Query["vehicle_kind_code"];
     string selectedState = request.Query["state_code"];
 
-    var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота");
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций");
-    var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, false, true, "Все партнеры");
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind, true, true, "Все типы машин");
-    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния");
+    var divClasses = "col-md-3 col-6 filter-div";
+    var selectClasses = "form-select filter-select";
+    var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота", divClasses, selectClasses);
+
+
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций", divClasses, selectClasses);
+    var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, true, true, "Все партнеры", divClasses, selectClasses);
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind, true, true, "Все типы машин", divClasses, selectClasses);
+    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния", divClasses, selectClasses);
 
     var span = 1;
     var operations = storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1),
@@ -53,25 +56,12 @@
         null);
 
     var operarationsModel = new OperationsModel(rightsChecker, storage, operations, true, request);
-
-    string id = request.Query["id"];
-    var operation = Operation.Empty;
-    long tempId = 0;
-    if (long.TryParse(id, out tempId))
-        operation = storage.GetOperation(tempId);
-    else
-        operation = operations.Length > 0 ? operations[0] : Operation.Empty;
-
-    if (operation.State.Code != "CREATED" && operation.State.Code != "CONFIRMED" && operation.State.Code != "STARTED")
-        isEnabled = false;
-
-    var operationModel = new OperationModel(rightsChecker, storage, operation, isEnabled, isAdmin);
 }
 
 <div class="row p-2 m-3 card-table">
     <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto card-table" id="card_table">
-        <div id="filters" class="row row2">            
-            <div class="row container2">
+        <div id="filters" class="row filters-div">            
+            <div class="row dates-div">
                 <label class="datepicker2-label"
                     for="from-date-picker">Дата с:</label>
                 <input type="text"
@@ -91,53 +81,37 @@
             </div>
             @if (filterOperationsByGate)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="gates-filter">
-                    <partial name="Partials/Lists/_GatesDropdownPartial" model="gatesModel" />
-                </div>
+                <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
             }
             @if (filterOperationsByType)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="operation-types-filter">
-                    <partial name="Partials/Lists/_OperationTypesDropdownPartial" model="operationTypesModel" />
-                </div>    
+                <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />
             }
             @if (filterOperationsByPartner)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="partners-filter">
-                    <partial name="Partials/Lists/_PartnersDropdownPartial" model="partnersModel" />
-                </div>
+                <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
             }
             @if (filterOperationsByVehicleKind)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="vehicle-kinds-filter">
-                    <partial name="Partials/Lists/_VehicleKindsDropdownPartial" model="vehicleKindsModel" />
-                </div>                
+                <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />
             }
             @if (filterOperationsByState)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="operation-states-filter">
-                    <partial name="Partials/Lists/_OperationStatesDropdownPartial" model="operationStatesModel" />
-                </div>    
+                <partial name="Blocks/Lists/_OperationStatesDropdown" model="operationStatesModel" />
             }
             @if (filterOperationsByVehicle)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="vehicle-number-filter">
-                    <div id="vehicle-number-block" class="input-group">                        
-                        <input class="form-control filter-text-box" id="vehicle-number-input" placeholder="Номер машины">
-                    </div>
-                </div>                
+                <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">                        
+                    <input class="form-control filter-input" id="vehicle-number-input" placeholder="Номер машины">
+                </div>
             }
             @if (filterOperationsByDriver)
             {
-                <div class="col-md-3 col-6 filter-element container2" id="driver-name-filter">
-                    <div id="driver-name-block" class="input-group">
-                        <input class="form-control filter-text-box" id="driver-name-input" placeholder="Ф. И. О. водителя">
-                    </div>
-                </div>                
+                <div id="vehicle-number-div" class="col-md-3 col-6 filter-div"> 
+                    <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">
+                </div>
             }
-        </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2 data-operation-list row2">
-            <partial name="Partials/Lists/_OperationsPartial" model="operarationsModel" />
-        </div>
+        </div>        
+        <partial name="Blocks/Lists/_OperationsList" model="operarationsModel" />        
     </div>
 </div>

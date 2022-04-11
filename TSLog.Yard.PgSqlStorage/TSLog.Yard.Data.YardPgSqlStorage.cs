@@ -696,7 +696,7 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Operations     
-        public short GetTime(OperationType operationType, VehicleKind vehicleKind)
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
         {
             if (operationType == null)
                 throw new ArgumentNullException(nameof(operationType));
@@ -725,6 +725,36 @@ namespace TSLog.Yard.Data
             }
             // TODO: get default time for current operation type
             return time;
+        }
+        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var laborCost = OperationType.DefaultLaborCost;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select otvkw.time, otvkw.workers_count" +
+                        $"  from {YardSchema}.v_ot_vk_work otvkw " +
+                        $" where otvkw.operation_type_id = :operation_type_id " +
+                        $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return laborCost;
         }
         private Interval CreateInterval(DbDataReader reader)
         {
@@ -946,6 +976,7 @@ namespace TSLog.Yard.Data
         }
         public Operation GetOperation(long id)
         {
+            var operation = Operation.Null;
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -975,14 +1006,13 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Bigint, id));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        return operation;
-                    }
+                        operation = CreateOperation(reader);
                     reader.Close();
                 }
                 connection.Close();
             }
+            if (operation != null && operation != Operation.Null && operation != Operation.Empty)
+                return operation;
             throw new OperationNotFoundException(id);
         }
         public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind)
@@ -1569,6 +1599,10 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
             command.ExecuteScalar();
             connection.Close();
+        }
+        public void SetOperationNote(Operation operation, string note, string user = "")
+        {
+            return;
         }
         public void FinishOperation(Operation operation, string user = "")
         {

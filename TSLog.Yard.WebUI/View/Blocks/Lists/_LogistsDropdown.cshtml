@@ -7,18 +7,20 @@
     var isEnabled = Model.IsEnabled;
     var isSmall = Model.IsSmall;
     var defaultText = Model.DefaultText;
+    var divClasses = Model.DivClasses;
+    var selectClasses = Model.SelectClasses;
 
     if (string.IsNullOrWhiteSpace(string.Empty))
         defaultText = "Логист не выбран";
 }
 
-<div id="logists-block" class="input-group">
-    <span class="input-group-text col-3 @(isSmall ? "d-none" : string.Empty)">Логист</span>
-    <select id="logists-dropdown" class="form-select filter-drop-down" aria-label="Default select" @(isEnabled ? string.Empty : "disabled")>
+<div id="logists-div" class="@divClasses">
+    <span class="input-group-text col-3@(isSmall ? " d-none" : string.Empty)">Логист</span>
+    <select id="logists-select" class="@selectClasses@(isEnabled ? string.Empty : " disabled")>
         <option value="">@defaultText</option>
         @foreach (var logist in logists)
         {
-            @: <option value="@logist.Code" @((logist.Code == selectedLogist) ? "selected" : string.Empty)>@logist.DisplayName</option>
+            @: <option value="@logist.Code" @((logist.Code != selectedLogist) ? string.Empty : " selected")>@logist.DisplayName</option>
         }
     </select>
 </div>

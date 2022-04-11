@@ -19,10 +19,6 @@
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
-
-        //var url = "/Error";
-        //Response.Redirect(url);
-        //return;
     }
 
     var operations = storage.GetActiveOperations();
@@ -45,4 +41,4 @@
 
     var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
-<partial name="Partials/Lists/_OperationsTablePartial" model="operationsModel" />
+<partial name="Blocks/Lists/_OperationsTable" model="operationsModel" />

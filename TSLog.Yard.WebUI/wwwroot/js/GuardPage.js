@@ -15,11 +15,11 @@
     }
 
     letVehicleIn(id) {
-        passVehicle(id, "START_OPERATION");
+        this.passVehicle(id, "START_OPERATION");
     }
 
     releaseVehicle(id) {
-        passVehicle(id, "FINISH_OPERATION");
+        this.passVehicle(id, "FINISH_OPERATION");
     }
 
     showGuardPage() {

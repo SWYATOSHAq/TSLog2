@@ -66,22 +66,8 @@
                     onClick = $"guardPage.releaseVehicle({operation.Id})";;
                 }
 
-                var creatorName = operation.Creator;
-                var creatorEmailAddress = string.Empty;
-                try
-                {
-                    var creator = UserPrincipal.FindByIdentity(context, operation.Creator);
-                    if (creator != null)
-                    {
-                        creatorName = Utils.FullNameToShortName(creator.DisplayName);
-                        creatorEmailAddress = creator.EmailAddress;
-                    }
-                }
-                catch
-                {
-                    creatorName = operation.Creator;      
-                    creatorEmailAddress = string.Empty;
-                }
+                var responsibleOfficerName = operation.ResponsibleOfficer != null && operation.ResponsibleOfficer != Employee.Null && operation.ResponsibleOfficer != Employee.Empty
+                    ? operation.ResponsibleOfficer.FullName : string.Empty;
 
                 <tr class="table-row">
                     <td class="table-cell">@operation.VehicleBrand</td>
@@ -101,12 +87,7 @@
                     <td class="table-cell">
                         @operation.CreateDate
                         <br />
-                        <b>@creatorName</b>   
-                        @if (!string.IsNullOrWhiteSpace(creatorEmailAddress))
-                        {
-                            <br />
-                            @creatorEmailAddress                            
-                        }
+                        <b>@responsibleOfficerName</b>   
                     </td>
                     <td class="table-cell" style="background-color: @operation.DisplayColor !important; box-shadow:none">
                         <p class="text-center p-margin-0">@operation.State.DisplayName</p>

@@ -9,14 +9,12 @@ namespace TSLog.Yard.WebUI.Models
         public IYardStorage Storage { get; private set; }
         public Operation Operation { get; private set; }
         public bool IsEnabled { get; private set; }
-        public bool IsAdmin { get; private set; }
-        public OperationModel(RightsChecker rightsChecker, IYardStorage storage, Operation operation, bool isEnabled, bool isAdmin)
+        public OperationModel(RightsChecker rightsChecker, IYardStorage storage, Operation operation, bool isEnabled)
         {
             RightChecker = rightsChecker;
             Storage = storage;
             Operation = operation;
             IsEnabled = isEnabled;
-            IsAdmin = isAdmin;
         }
     }
 }

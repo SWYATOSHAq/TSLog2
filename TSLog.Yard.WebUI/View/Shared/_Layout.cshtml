@@ -12,7 +12,9 @@
     var userName = User.Identity != null ? User.Identity.Name : string.Empty;
     var debugText = $"(DEBUG {userName})";    
 
-    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var createOperation = !useAuthentication 
+        || rightsChecker.CheckRight("CREATE_OPERATION", User)
+        || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
     var viewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
     var viewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
     var viewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
@@ -37,9 +39,17 @@
     </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
 
-    @if (page == "StaffPage")
+    @if (page == "OperationPage")
+    {
+        <link rel="stylesheet" href="~/css/OperationPage.css" asp-append-version="true" />
+    }
+    else if (page == "OperationsPage")
+    {
+        <link rel="stylesheet" href="~/css/OperationsPage.css" asp-append-version="true" />
+    }
+    else if (page == "StaffPage")
     {
         <link rel="stylesheet" href="~/css/StaffPage.css" asp-append-version="true" />
     }
@@ -50,6 +60,10 @@
     else if (page == "ClientReportPage")
     {
         <link rel="stylesheet" href="~/css/ClientReportPage.css" asp-append-version="true" />
+    }  
+    else if (page == "GuardPage")
+    {
+        <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
     }  
 
     <!--
@@ -123,9 +137,6 @@
                         </li>
                         -->
                     </ul>
-                    <div class="d-none">
-                        <partial name="_LoginPartial" />
-                    </div>
                 </div>
             </div>
         </nav>

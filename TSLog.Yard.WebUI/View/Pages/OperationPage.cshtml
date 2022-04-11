@@ -9,7 +9,7 @@
 }
 @model OperationPageModel
 @{
-    ViewData["Title"] = "Добавить новый запрос";
+    ViewData["Title"] = "Создать заявку";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
@@ -18,7 +18,9 @@
     if (string.IsNullOrWhiteSpace(stringId))
     {
         // Создание
-        var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+        var createOperation = !useAuthentication 
+            || rightsChecker.CheckRight("CREATE_OPERATION", User)
+            || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
         if (!createOperation)
         {        
             Response.StatusCode = 403;
@@ -27,8 +29,11 @@
     }
     else
     {
-        // Редактирование
-        var createOperation = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION", User) || rightsChecker.CheckRight("EDIT_OPERATION", User);
+        // Просмотр или редактирование
+        var createOperation = !useAuthentication
+            || rightsChecker.CheckRight("VIEW_OPERATION", User)
+            || rightsChecker.CheckRight("EDIT_OPERATION", User)
+            || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
         if (!createOperation)
         {
             Response.StatusCode = 403;
@@ -42,26 +47,34 @@
             throw new Exception($"Wrong operation id {stringId}");
         }
     }
-    var operationModel = new OperationModel(rightsChecker, storage, operation, true, false);
+    // TODO: зависимости от прав
+    var isEnable = operation == Operation.Empty 
+        || operation.State.Code == "CREATED" 
+        || operation.State.Code == "CONFIRMED" 
+        || operation.State.Code == "STARTED";
+    var operationModel = new OperationModel(rightsChecker, storage, operation, isEnable);
 }
 
 <div class="row">
-    <div class="col-4 time-table hide-on-print overflow-auto" id="time-table">
-        <div class="row row3">
-            <label for="work-start-date-picker"
-                class="datepicker2-label">Выберете дату:</label>
-            <input type="text" 
-                id="work-start-date-picker" 
-                class="datepicker border border-secondary datepicker2" 
-                placeholder="Выберете дату" 
-                ne="date" 
-                readonly="">
+    <div class="col-4 time-table hide-on-print overflow-auto" id="time-div">
+        <div id="time-header-div">
+            <div class="row row3" id="work-start-date-div" disable>
+                <label for="work-start-date-picker" class="datepicker2-label">Выберете дату:</label>
+                <input type="text" 
+                    id="work-start-date-picker" 
+                    class="datepicker border border-secondary datepicker2" 
+                    placeholder="Выберете дату" 
+                    ne="date" 
+                    readonly=""/>
+            </div>
+            <p id="error-p"></p>
+            <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="error-div">
+                <strong>Ошибка!</strong>
+                <p>Врямя уже занято, выберите другой промежуток времени!</p>
+            </div>
         </div>
-        <p></p>
-        <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="eror-text">
-            <strong>Ошибка!</strong>
-            <p>Врямя уже занято, выберите другой промежуток времени</p>
-        </div>        
+        <div id="time-table-div">
+        </div>
     </div>
-    <partial name="Partials/_OperationBlock" model="operationModel" />
+    <partial name="Blocks/_OperationBlock" model="operationModel" />
 </div>

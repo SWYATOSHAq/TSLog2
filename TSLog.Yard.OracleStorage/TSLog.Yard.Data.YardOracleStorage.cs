@@ -346,6 +346,8 @@ namespace TSLog.Yard.Data
                 isActive,
                 note);
             employee.Patronymic = Utils.DbValueToString(reader["patronymic"]);
+            employee.WmsLogin = Utils.DbValueToString(reader["wms_login"]);
+            employee.AdLogin = Utils.DbValueToString(reader["ad_login"]);
             employee.Sex = Utils.DbValueToString(reader["sex"]);
             employee.Nationality = Utils.DbValueToString(reader["nationality"]);
             employee.PhoneNumber = Utils.DbValueToString(reader["phone_number"]);
@@ -378,7 +380,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeeById =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
@@ -408,6 +410,49 @@ namespace TSLog.Yard.Data
                 return employee;
             throw new EmployeeNotFoundException(id);
         }
+        public Employee GetEmployeeByAdLogin(string login)
+        {
+            if (string.IsNullOrWhiteSpace(login))
+                throw new ArgumentException("Login is empty!");
+            login = login.Trim().ToLower();
+            var employees = _employees.Entities.ToList();
+            var employee = employees.Find(e => e.AdLogin.Trim().ToLower() == login);
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+                return employee;
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var SelectEmployeeById =
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
+                    $"  from {StaffSchema}.stf_employee#v e " +
+                    $" where e.ad_login = :ad_login";
+                command.CommandText = SelectEmployeeById;
+                command.Parameters.Add(new OracleParameter("ad_login", login));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    employee = CreateEmployee(reader);
+                    _employees.Add(employee);
+                }
+                reader.Close();
+            }
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+                return employee;
+            throw new EmployeeNotFoundException("AD login", login);
+        }
         public Employee[] FindEmployees(string pattern)
         {
             pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
@@ -415,7 +460,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var FindEmployeesSql =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
@@ -512,7 +557,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
@@ -545,7 +590,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +

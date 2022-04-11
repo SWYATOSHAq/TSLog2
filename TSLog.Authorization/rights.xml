@@ -2,6 +2,7 @@
 <data>
 	<rights code="RIGHTS" name="Список всех доступых действий и привилегий">
 		<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+		<right code="PARTNER_USER" name="Использование функционала модуля управления двором пользователем клиента"></right>
 		<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
 		<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
 		<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
@@ -47,8 +48,9 @@
 		<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 	</rights>
 	<roles code="ROLES" name="Список ролей">
-		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="">
+		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="YardPartnerOperators">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+			<right code="PARTNER_USER" name="Использование функционала модуля управления двором пользователем клиента"></right>
 			<right code="VIEW_OPERATION_FOR_PARTNER" name="Просмотр операций определённого партнёра"></right>
 			<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром"></right>
 			<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
@@ -61,7 +63,7 @@
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
 		</role>
-		<role code="MANAGER" name="Менеджер клиента" groupName="Managers">
+		<role code="MANAGER" name="Менеджер клиента" groupName="Managers" note="Клиентские менеджеры">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
@@ -75,11 +77,11 @@
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операций по Ф. И. О. водителя"></right>
 			<right code="VIEW_OPERATION_FOR_MANAGER" name="Просмотр операций для менеджера (операций партнёров данного менеджера)"></right>
 		</role>
-		<role code="MANAGER_LEAD" name="Руководитель клиентских менеджеров" groupName="">
+		<role code="MANAGER_LEAD" name="Руководитель клиентских менеджеров" groupName="ManagerLeads" note="Руководство клиентских менеджеров">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="VIEW_OPERATION_FOR_MANAGER_LEAD" name="Просмотр всех операция для коммерческого директора"></right>
 		</role>	
-		<role code="GUARD" name="Сотрудник охраны на КПП" groupName="Guards">
+		<role code="GUARD" name="Сотрудник охраны на КПП" groupName="Guards" note="Сотрудники охраны">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="VIEW_OPERATION_FOR_GUARD" name="Просмотр операций для сотрудника охраны на КПП"></right>
 			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
@@ -97,7 +99,7 @@
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
 		</role>
-		<role code="OPERATOR" name="Оператор склада" groupName="WarehouseOperators">
+		<role code="OPERATOR" name="Оператор склада" groupName="WarehouseOperators" note="Операторы СУС">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
@@ -108,7 +110,7 @@
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
 		</role>
-		<role code="DISPATCHER" name="Диспетчер двора" groupName="YardDispatchers">
+		<role code="DISPATCHER" name="Диспетчер двора" groupName="YardDispatchers" note="Диспетчеры склада">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 			<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
@@ -134,7 +136,7 @@
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>			
 		</role>
-		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators">
+		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 			<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
