@@ -147,7 +147,7 @@
             const message = await response.text();
             console.log(message);
         }
-        url = window.location.href.split('?')[0] + parameters;
+        url = this.shortUrl + parameters;
         history.pushState({}, null, url);
     }
 
@@ -158,6 +158,18 @@
 
     async onChangeFilter() {
         await this.getOperations();
+    }
+
+    getOperationTypeHint() {
+        const select = document.getElementById("operation-types-select");
+        if (select.selectedIndex >= 0) {
+            select.title = select.options[select.selectedIndex].getAttribute("note");
+        }        
+    }
+
+    async onChangeOperationType() {
+        await this.getOperations();
+        this.getOperationTypeHint();        
     }
 
     show() {
@@ -193,25 +205,25 @@
             toDatePicker.on("changeDate", this.onChangeFilter.bind(this));
         }
 
-        const gatesDropdown = filters.querySelector("#gates-select");
-        if (gatesDropdown != undefined)
-            gatesDropdown.onchange = this.onChangeFilter.bind(this);
+        const gatesSelect = filters.querySelector("#gates-select");
+        if (gatesSelect != undefined)
+            gatesSelect.onchange = this.onChangeFilter.bind(this);
 
-        const partnersDropdown = filters.querySelector("#partners-select");
-        if (partnersDropdown != undefined)
-            partnersDropdown.onchange = this.onChangeFilter.bind(this);
+        const partnersSelect = filters.querySelector("#partners-select");
+        if (partnersSelect != undefined)
+            partnersSelect.onchange = this.onChangeFilter.bind(this);
 
-        const operationTypesDropdown = filters.querySelector("#operation-types-select");
-        if (operationTypesDropdown != undefined)
-            operationTypesDropdown.onchange = this.onChangeFilter.bind(this);
+        const operationTypesSelect = filters.querySelector("#operation-types-select");
+        if (operationTypesSelect != undefined)
+            operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
 
-        const vehicleKindsDropdown = filters.querySelector("#vehicle-kinds-select");
-        if (vehicleKindsDropdown != undefined)
-            vehicleKindsDropdown.onchange = this.onChangeFilter.bind(this);
+        const vehicleKindsSelect = filters.querySelector("#vehicle-kinds-select");
+        if (vehicleKindsSelect != undefined)
+            vehicleKindsSelect.onchange = this.onChangeFilter.bind(this);
 
-        const operationStatesDropdown = filters.querySelector("#operation-states-select");
-        if (operationStatesDropdown != undefined)
-            operationStatesDropdown.onchange = this.onChangeFilter.bind(this);
+        const operationStatesSelect = filters.querySelector("#operation-states-select");
+        if (operationStatesSelect != undefined)
+            operationStatesSelect.onchange = this.onChangeFilter.bind(this);
 
         const vehicleNumberInput = filters.querySelector("#vehicle-number-input");
         if (vehicleNumberInput != undefined)
@@ -223,6 +235,8 @@
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+
+        this.getOperationTypeHint();
     }
 }
 

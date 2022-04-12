@@ -16,14 +16,14 @@
 }
 @{
     var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
-    var filterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
-    var filterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
-    var filterOperationsByVehicleKind = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
-    var filterOperationsByState = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_STATE", User);
-    var filterOperationsByGate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_GATE", User);
-    var filterOperationsByPartner = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
-    var filterOperationsByVehicle = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
-    var filterOperationsByDriver = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
+    var canFilterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
+    var canFilterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
+    var canFilterOperationsByVehicleKind = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
+    var canFilterOperationsByState = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_STATE", User);
+    var canFilterOperationsByGate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_GATE", User);
+    var canFilterOperationsByPartner = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
+    var canFilterOperationsByVehicle = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
+    var canFilterOperationsByDriver = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
 
     string requestFromDate = request.Query["from_date"];
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
@@ -55,7 +55,6 @@
         null);
 
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
-
     if (isPartnerUser)
     {
         var userName = rightsChecker.GetUserName(User);
@@ -73,7 +72,13 @@
 
 <div class="row p-2 m-3 card-table">
     <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto card-table" id="card_table">
-        <div id="filters" class="row filters-div">            
+        <div class="row create-operation-div">
+            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
+                type="button" 
+                title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
+                onclick="location.href = '/OperationPage'">Создать заявку</button>
+        </div>
+        <div id="filters" class="row filters-div">
             <div class="row dates-div">
                 <label class="datepicker2-label"
                     for="from-date-picker">Дата с:</label>
@@ -92,33 +97,33 @@
                     ne="date"
                     readonly />
             </div>
-            @if (filterOperationsByGate)
+            @if (canFilterOperationsByGate)
             {
                 <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
             }
-            @if (filterOperationsByType)
+            @if (canFilterOperationsByType)
             {
                 <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />
             }
-            @if (filterOperationsByPartner)
+            @if (canFilterOperationsByPartner)
             {
                 <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
             }
-            @if (filterOperationsByVehicleKind)
+            @if (canFilterOperationsByVehicleKind)
             {
                 <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />
             }
-            @if (filterOperationsByState)
+            @if (canFilterOperationsByState)
             {
                 <partial name="Blocks/Lists/_OperationStatesDropdown" model="operationStatesModel" />
             }
-            @if (filterOperationsByVehicle)
+            @if (canFilterOperationsByVehicle)
             {
                 <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">                        
                     <input class="form-control filter-input" id="vehicle-number-input" placeholder="Номер машины">
                 </div>
             }
-            @if (filterOperationsByDriver)
+            @if (canFilterOperationsByDriver)
             {
                 <div id="vehicle-number-div" class="col-md-3 col-6 filter-div"> 
                     <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">

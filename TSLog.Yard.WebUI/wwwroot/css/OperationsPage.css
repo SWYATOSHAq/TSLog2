@@ -1,4 +1,16 @@
-﻿.filters-div {
+﻿.create-operation-div {
+    padding: 0px !important;
+    margin: 0px !important;
+    margin-bottom: 16px !important;
+}
+
+.create-operation-button {
+    padding: 0px !important;
+    margin: 0px !important;
+    width: 100%;
+}
+
+.filters-div {
     padding: 0px !important;
     margin: 0px !important;
 }
@@ -16,7 +28,6 @@
     padding: 0px !important;
     padding-left: 8px !important;
     margin: 0px !important;
-    /*    border-radius: 4px !important; */
     align-items: center;
 }
 
@@ -52,7 +63,7 @@
 
 .card-text {
     margin-top: 2px !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 18px !important;
 }
 
 .open-operation-button {

@@ -18,11 +18,24 @@
     <span class="input-group-text col-3@(isSmall ? " d-none" : string.Empty)">
         <b>Тип операции*</b>
     </span>
-    <select id="operation-types-select" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
-        <option value="">@defaultText</option>
+    <select id="operation-types-select" title="" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
+        <option note="@defaultText" value="">@defaultText</option>
         @foreach (var type in types)
         {
-           @: <option value="@type.Code"@((type.Code != selectedType) ? string.Empty : " selected")>@type</option>
-        }
+            var noteText = type.Note;
+            @: <option title="@type.Note" note="@noteText" value="@type.Code"@((type.Code != selectedType) ? string.Empty : " selected")>@type</option>
+        }        
     </select>
+    @if (!isSmall)
+    {
+        <button id="operation-type-note-button" class="btn btn-outline-secondary hide-on-print">
+            <b>?</b>
+        </button>   
+        <div id="operation-type-note-div" class="operation-type-note">
+            <div class="operation-type-note-content">
+                <span id="operation-type-note-close-span" class="operation-type-note-close">&times;</span>
+                <p id="operation-type-note-p"></p>
+            </div>
+        </div>
+    }    
 </div>

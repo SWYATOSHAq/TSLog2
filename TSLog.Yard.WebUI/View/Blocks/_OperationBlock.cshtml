@@ -55,15 +55,6 @@
 
     var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
 
-    var duration = (operation.PlanWorkFinishDate - operation.PlanWorkStartDate).TotalSeconds;
-    var durationText = "<Не указано>";
-    if (duration > 0)
-    {
-        var hours = Math.Floor(duration / 3600);
-        var minutes = Math.Floor((duration - hours * 3600) / 60);
-        durationText = $"{hours.ToString().PadLeft(2, '0')}:{minutes.ToString().PadLeft(2, '0')}";    
-    }    
-
     var allocatedWorkers = operation.GetEmployeesByPositions();
     var planWorkersCounts = operation.PositionsWorkersCount();
     var _laborCost = operation.PositionsLaborCosts();
@@ -154,33 +145,23 @@
         <input type="hidden" id="id-input" name="id-input" value="">
 
         <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Марка авто*</b>
-            </span>
+            <span class="input-group-text col-4">Марка авто</span>
             <input type="text" id="vehicle-brand-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Модель авто*</b>
-            </span>
+            <span class="input-group-text col-4">Модель авто</span>
             <input type="text" id="vehicle-model-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Номер авто*</b>
-            </span>
+            <span class="input-group-text col-4">Номер авто</span>
             <input type="text" id="vehicle-number-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Номер прицепа</b>
-            </span>
+            <span class="input-group-text col-4">Номер прицепа</span>
             <input type="text" id="trailer-number-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Ф. И. О. водителя*</b>
-            </span>
+            <span class="input-group-text col-4">Ф. И. О. водителя</span>
             <input type="text" id="driver-name-input" class="form-control" value="" @disabledString>
         </div>
         <div class="row rem-outline-on-print input-group input-div">
@@ -274,6 +255,9 @@
                     <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.cancelOperation()">Отменить</button>
                 </div>
             }
+            <div class="d-grid m-2 row">
+                <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="history.back()">Закрыть</button>
+            </div>
         }
     </div>
     @{

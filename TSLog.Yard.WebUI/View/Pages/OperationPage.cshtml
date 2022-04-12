@@ -8,8 +8,7 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
 @model OperationPageModel
-@{
-    ViewData["Title"] = "Создать заявку";
+@{    
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
@@ -18,6 +17,7 @@
     if (string.IsNullOrWhiteSpace(stringId))
     {
         // Создание
+        ViewData["Title"] = "Создать заявку";
         var createOperation = !useAuthentication 
             || rightsChecker.CheckRight("CREATE_OPERATION", User)
             || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
@@ -30,12 +30,13 @@
     else
     {
         // Просмотр или редактирование
-        var createOperation = !useAuthentication
+        ViewData["Title"] = "Карточка заявки";
+        var editOperation = !useAuthentication
             || rightsChecker.CheckRight("VIEW_OPERATION", User)
             || rightsChecker.CheckRight("EDIT_OPERATION", User)
             || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
             || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
-        if (!createOperation)
+        if (!editOperation)
         {
             Response.StatusCode = 403;
             throw new UnauthorizedAccessException();

@@ -19,6 +19,7 @@
     avalibleIntervals = [];
     operationBlocksCount = 0;
     blocks = [];
+    doDisplay = false;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -97,7 +98,7 @@
             index++;
 
             block = document.getElementById(tempId);
-            if (this.factWorkStartDate <= utils.nullDate && (block == undefined || block.getAttribute("disabled"))) {
+            if (!this.doDisplay && this.factWorkStartDate <= utils.nullDate && (block == undefined || block.getAttribute("disabled"))) {
                 hasError = true;
                 break;
             }
@@ -122,7 +123,8 @@
 
     selectPlanStartDate(blockId) {
         this.setPlanStartDate(blockId);
-        this.showSelectedBlocks(blockId);        
+        
+        this.showSelectedBlocks(blockId);
     }
 
     showDuration() {
@@ -279,7 +281,16 @@
         }       
     }
 
+    getOperationTypeHint() {
+        const select = document.getElementById("operation-types-select");
+        if (select.selectedIndex >= 0) {
+            select.title = select.options[select.selectedIndex].getAttribute("note");
+        }
+    }
+
     async onChangeOperationTypeVehicleKind() {
+        this.getOperationTypeHint();
+
         await this.getPlanDuration();
         await this.getPlanLaborCost();
         this.showDuration();
@@ -295,8 +306,10 @@
         this.showTimeTable();
         const blockId = this.getBlockId(this.planWorkStartDate);
         if (blockId != "") {
+            this.doDisplay = true;
             this.showSelectedBlocks(blockId);
-        }
+            this.doDisplay = false;
+        }        
     }
 
     async onChangePlanWorkStartDate() {
@@ -307,7 +320,9 @@
         if (tempDate.getTime() == this.getSelectedDate().getTime()) {
             const blockId = this.getBlockId(this.planWorkStartDate);
             if (blockId != "") {
+                this.doDisplay = true;
                 this.showSelectedBlocks(blockId);
+                this.doDisplay = false;
             }
         }        
     }
@@ -336,11 +351,7 @@
     async createOperation() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
-            document.getElementById("vehicle-kinds-select").value == "" ||
-            document.getElementById("vehicle-brand-input").value == "" ||
-            document.getElementById("vehicle-model-input").value == "" ||
-            document.getElementById("vehicle-number-input").value == "" ||
-            document.getElementById("driver-name-input").value == "" ||
+            document.getElementById("vehicle-kinds-select").value == "" ||            
             document.getElementById("partners-select").value == "" ||
             document.getElementById("partner-action-id-input").value == "")            
         {
@@ -372,10 +383,6 @@
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
             document.getElementById("vehicle-kinds-select").value == "" ||
-            document.getElementById("vehicle-brand-input").value == "" ||
-            document.getElementById("vehicle-model-input").value == "" ||
-            document.getElementById("vehicle-number-input").value == "" ||
-            document.getElementById("driver-name-input").value == "" ||
             document.getElementById("partner-action-id-input").value == "") {
             alert("Не все обязательные поля заполнены!");
             return;
@@ -532,63 +539,7 @@
         }
         this.rerenderWorkerTableIndexes();
     }
-
-    async dropdownToggleHandler() {
-        const inputField = this;
-        const inputGroup = inputField.parentElement;
-
-        const workerId = inputGroup.querySelector(".selected-worker-id").value;
-        if (workerId != "") {
-            removeOperationWorker(inputGroup);
-            inputGroup.querySelector(".selected-worker-id").value = "";
-        }
-
-        const url = "./api/v1/yard/GetWorkers?name_pattern=" + inputField.value + "&position_code=" + inputGroup.querySelector(".position-code").value;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            const workers = await response.json();
-            const dropdown = inputGroup.querySelector(".dropdown-menu");
-            showWorkers(dropdown, workers);
-        }
-        else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
-        }
-    }
-
-    showWorkers(parent, workers) {
-        parent.replaceChildren();
-        workers.forEach(worker => {
-            const workerItem = document.createElement("li");
-            workerItem.classList.add("dropdown-item");
-
-            workerItem.textContent = worker.FullName;
-            workerItem.value = worker.Id;
-            workerItem.onclick = onItemClick;
-            parent.append(workerItem);
-        });
-    }
-
-    onItemClick() {
-        const selectedWorker = this;
-        const inputGroup = selectedWorker.parentElement.parentElement;
-        inputGroup.querySelector(".dropdown-toggle").value = selectedWorker.textContent;
-        const selectedWorkerIdInput = inputGroup.querySelector(".selected-worker-id");
-
-        const workerId = selectedWorkerIdInput.value;
-        if (workerId == "") {
-            selectedWorkerIdInput.value = selectedWorker.value;
-            addOperationWorker(inputGroup);
-
-        } else if (workerId != selectedWorker.value) {
-            removeOperationWorker(inputGroup);
-            selectedWorkerIdInput.value = selectedWorker.value;
-            addOperationWorker(inputGroup);
-        }
-        return false;
-    }
-
+    
     setRowEmpty(row) {
         row.find(".selected-worker-id").val("");
         const dropdownToggle = row.find(".dropdown-toggle");
@@ -710,51 +661,6 @@
 
     setControlsState() {
 
-        /*
-        if (this.factWorkStartDate <= utils.nullDate) {
-            document.getElementById("time-div").removeAttribute("disabled");
-            document.getElementById("work-start-date-picker").removeAttribute("disabled");
-            document.getElementById("operation-types-select").removeAttribute("disabled");
-            document.getElementById("vehicle-kinds-select").removeAttribute("disabled");
-            if (document.getElementById("gates-select") != undefined) {
-                document.getElementById("gates-select").removeAttribute("disabled");
-            }            
-            document.getElementById("vehicle-brand-input").removeAttribute("disabled");
-            document.getElementById("vehicle-model-input").removeAttribute("disabled");
-            document.getElementById("vehicle-number-input").removeAttribute("disabled");
-            document.getElementById("trailer-number-input").removeAttribute("disabled");
-            document.getElementById("driver-name-input").removeAttribute("disabled");
-            document.getElementById("driver-phone-number-input").removeAttribute("disabled");
-            document.getElementById("partner-manager-name-input").removeAttribute("disabled");
-            document.getElementById("partner-manager-phone-number-input").removeAttribute("disabled");
-            document.getElementById("partner-manager-email-input").removeAttribute("disabled");
-            document.getElementById("partners-select").removeAttribute("disabled");
-            document.getElementById("partner-action-id-input").removeAttribute("disabled");
-        }
-        else {
-            document.getElementById("time-div").setAttribute("disabled", "");
-            document.getElementById("work-start-date-picker").setAttribute("disabled", "");
-            document.getElementById("operation-types-select").setAttribute("disabled", "");
-            document.getElementById("vehicle-kinds-select").setAttribute("disabled", "");
-            if (document.getElementById("gates-select") != undefined) {
-                document.getElementById("gates-select").setAttribute("disabled", "");
-            }
-            document.getElementById("vehicle-brand-input").setAttribute("disabled", "");
-            document.getElementById("vehicle-model-input").setAttribute("disabled", "");
-            document.getElementById("vehicle-number-input").setAttribute("disabled", "");
-            document.getElementById("trailer-number-input").setAttribute("disabled", "");
-            document.getElementById("driver-name-input").setAttribute("disabled", "");
-            document.getElementById("driver-phone-number-input").setAttribute("disabled", "");
-            document.getElementById("partner-manager-name-input").setAttribute("disabled", "");
-            document.getElementById("partner-manager-phone-number-input").setAttribute("disabled", "");
-            document.getElementById("partner-manager-email-input").setAttribute("disabled", "");
-            document.getElementById("partners-select").setAttribute("disabled", "");
-            document.getElementById("partner-action-id-input").setAttribute("disabled", "");
-
-            this.disableTimeTable();
-        }
-        */
-
         if (this.factWorkStartDate > utils.nullDate) {
             document.getElementById("time-div").setAttribute("disabled", "");
             document.getElementById("work-start-date-picker").setAttribute("disabled", "");
@@ -780,6 +686,28 @@
             document.getElementById("work-start-date-picker").setAttribute("disabled", "");
             this.disableTimeTable();
         }            
+    }
+
+    showOperationTypeNote() {
+        if (document.getElementById("operation-types-select").value == "")
+            return;
+        const p = document.getElementById("operation-type-note-p");
+        const select = document.getElementById("operation-types-select");
+        p.innerText = select.options[select.selectedIndex].getAttribute("note");
+        const noteDiv = document.getElementById("operation-type-note-div");
+        noteDiv.style.display = "block";
+    }
+
+    hideOperationTypeNote() {
+        const noteDiv = document.getElementById("operation-type-note-div");
+        noteDiv.style.display = "none";
+    }
+
+    windowClick(event) {
+        const noteDiv = document.getElementById("operation-type-note-div");
+        if (event.target == noteDiv) {
+            this.hideOperationTypeNote();
+        }
     }
 
     async showPage() {
@@ -850,7 +778,9 @@
             this.showTimeTable();
             const blockId = this.getBlockId(this.planWorkStartDate);
             if (blockId != "") {
+                this.doDisplay = true;
                 this.showSelectedBlocks(blockId);
+                this.doDisplay = false;
             }
             await this.showManager();
         } else {
@@ -877,16 +807,81 @@
         partnersSelect.onchange = this.onChangePartner.bind(this);               
 
         this.setControlsState();
+        this.getOperationTypeHint();
 
         // Make search on every letter change in #card-operation.dropdown-toggle
-        // also on change if nearest selected-item-id is not empty delete data from it and post to api
+        // also on change if nearest selected-worker-id is not empty delete data from it and post to api
         // also change list of items in #card-operation.dropdown-menu
 
-        $('.dropdown-toggle').bind("keyup", this.dropdownToggleHandler.bind(this));
-        $('.dropdown-toggle').bind("click", this.dropdownToggleHandler.bind(this));
+        $('.dropdown-toggle').bind("keyup", dropdownToggleHandler);
+        $('.dropdown-toggle').bind("click", dropdownToggleHandler);
+
+        const showOperationTypeNoteButton = document.getElementById("operation-type-note-button");
+        const closeOperationTypeNoteSpan = document.getElementById("operation-type-note-close-span");
+
+        showOperationTypeNoteButton.onclick = this.showOperationTypeNote.bind(this);
+        closeOperationTypeNoteSpan.onclick = this.hideOperationTypeNote.bind(this);
+
+        window.onclick = this.windowClick.bind(this);
     }
 }
 
 const operationPage = new OperationPage();
+
+function showWorkers(parent, workers) {
+    parent.replaceChildren();
+    workers.forEach(worker => {
+        const workerItem = document.createElement("li");
+        workerItem.classList.add("dropdown-item");
+
+        workerItem.textContent = worker.FullName;
+        workerItem.value = worker.Id;
+        workerItem.onclick = onItemClick;
+        parent.append(workerItem);
+    });
+}
+
+async function onItemClick() {
+    const selectedWorker = this;
+    const inputGroup = selectedWorker.parentElement.parentElement;
+    inputGroup.querySelector(".dropdown-toggle").value = selectedWorker.textContent;
+    const selectedWorkerIdInput = inputGroup.querySelector(".selected-worker-id");
+
+    const workerId = selectedWorkerIdInput.value;
+    if (workerId == "") {
+        selectedWorkerIdInput.value = selectedWorker.value;
+        await operationPage.addOperationWorker(inputGroup);
+
+    } else if (workerId != selectedWorker.value) {
+        await operationPage.removeOperationWorker(inputGroup);
+        selectedWorkerIdInput.value = selectedWorker.value;
+        await operationPage.addOperationWorker(inputGroup);
+    }
+    return false;
+}
+
+async function dropdownToggleHandler() {
+    const inputField = this;
+    const inputGroup = inputField.parentElement;
+
+    const workerId = inputGroup.querySelector(".selected-worker-id").value;
+    if (workerId != "") {
+        await operationPage.removeOperationWorker(inputGroup);
+        inputGroup.querySelector(".selected-worker-id").value = "";
+    }
+
+    const url = "./api/v1/yard/GetWorkers?name_pattern=" + inputField.value + "&position_code=" + inputGroup.querySelector(".position-code").value;
+    const response = await fetch(url);
+    if (response.status >= 200 && response.status < 300) {
+        const workers = await response.json();
+        const dropdown = inputGroup.querySelector(".dropdown-menu");
+        showWorkers(dropdown, workers);
+    }
+    else {
+        const message = await response.text();
+        console.log(message);
+        alert(message);
+    }
+}
 
 $(document).ready(operationPage.showPage.bind(operationPage));

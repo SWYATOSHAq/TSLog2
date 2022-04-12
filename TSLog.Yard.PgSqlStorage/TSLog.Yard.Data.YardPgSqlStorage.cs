@@ -1879,6 +1879,11 @@ namespace TSLog.Yard.Data
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
+            //  Удаляем текущие связи работников с операциями двора (ПРР)
+            var operationEmployees = GetOperationEmployees(operation);
+            foreach (var operationEmployee in operationEmployees)
+                RemoveEmployee(operation, operationEmployee.Employee, operationEmployee.Position);
+
             date = date == null || date == DateTime.MinValue ? DateTime.Now : date;
             date = date > operation.PlanWorkStartDate ? date : operation.PlanWorkStartDate;
 

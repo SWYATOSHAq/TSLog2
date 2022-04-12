@@ -271,7 +271,7 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            window.location.reload();
+            location.href = "/OperationsPage";
         }
         else {
             const message = await response.text();
@@ -294,7 +294,7 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            window.location.href = "/OperationsPage";
+            location.href = "/OperationsPage";
         }
         else {
             const message = await response.text();
@@ -317,7 +317,7 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            window.location.href = "/OperationsPage";
+            location.href = "/OperationsPage";
         }
         else {
             const message = await response.text();

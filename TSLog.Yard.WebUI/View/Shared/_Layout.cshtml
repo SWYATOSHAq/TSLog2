@@ -12,14 +12,14 @@
     var userName = User.Identity != null ? User.Identity.Name : string.Empty;
     var debugText = $"(DEBUG {userName})";    
 
-    var createOperation = !useAuthentication 
+    var canCreateOperation = !useAuthentication 
         || rightsChecker.CheckRight("CREATE_OPERATION", User)
         || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
-    var viewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
-    var viewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
-    var viewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
-    var viewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
-    var viewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var canViewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
+    var canViewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
+    var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
     var date = DateTime.Today.ToString("dd.MM.yyyy");
 
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -65,10 +65,6 @@
     {
         <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
     }  
-
-    <!--
-    <link rel="stylesheet" href="~/TSLog.Yard.WebUI.styles.css" asp-append-version="true" />
-    -->
 </head>
 
 <body>
@@ -92,7 +88,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="/OperationsPage?from_date=@date&to_date=@date">ЛК TSL</a>
                         </li>
-                        @if (createOperation)
+                        @if (canCreateOperation && page != "OperationsPage")
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
@@ -101,41 +97,36 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark d-none" href="/UserHome">ЛК пользователя</a>
                         </li>
-                        @if (viewStaffPlan)
+                        @if (canViewStaffPlan)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/StaffPage?date=@date">План персонала</a>
                             </li>
                         }
-                        @if (viewGatesPlan)
+                        @if (canViewGatesPlan)
                         {
                             <li class="nav-item">                            
                                 <a class="nav-link text-dark" href="/GatesPage?date=@date">План ворот</a>                            
                             </li>
                         }
-                        @if (viewPartnersReport)
+                        @if (canViewPartnersReport)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/ClientReportPage">Статистика затрат по клиентам</a>
                             </li>
                         }
-                        @if (viewActiveOperations)
+                        @if (canViewActiveOperations)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/PresentVehiclesPage">Машины во дворе</a>
                             </li>
                         }
-                        @if (viewGuardPage)
+                        @if (canViewGuardPage)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/GuardPage">Управление въездом/выездом</a>
                             </li>
                         }
-                        <!-- 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        -->
                     </ul>
                 </div>
             </div>

@@ -418,6 +418,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string trailerNumber = data.trailerNumber;                
 
                 string driverName = data.driverName;
+                if (string.IsNullOrWhiteSpace(driverName))
+                    driverName = "<Не указано>";
                 string driverPhoneNumber = data.driverPhoneNumber;
 
                 var state = _storage.GetOperationState("CREATED");
@@ -529,6 +531,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string trailerNumber = data.trailerNumber;
 
                 string driverName = data.driverName;
+                if (string.IsNullOrWhiteSpace(driverName))
+                    driverName = "<Не указано>";
                 string driverPhoneNumber = data.driverPhoneNumber;
 
                 var state = _storage.GetOperationState("CREATED");
