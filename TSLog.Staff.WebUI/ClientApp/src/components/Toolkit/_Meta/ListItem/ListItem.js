@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import './ListItem.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faIdCardClip, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 
 export class ListItem extends Component {
     static displayName = ListItem.name;
@@ -18,9 +20,9 @@ export class ListItem extends Component {
                 <span className= { classNames } onClick={ this.props.onToggleInSearch } >{this.props.label}</span>
                 <div>
                     <button type="button" className="btn btn-outline-primary button-icons"
-                    onClick={this.props.onToggleImportant}><i className="fa-solid fa-id-card-clip"></i></button>
+                    onClick={this.props.onToggleImportant}><FontAwesomeIcon icon= { faIdCardClip } /></button>
                     <button type="button" className="btn btn-outline-danger button-icons"
-                    onClick={this.props.onDeleted}><i className='fa fa-trash-o'/></button>
+                    onClick={this.props.onDeleted}><FontAwesomeIcon icon= { faTrashCan } /></button>
                 </div>
             </div>
     );

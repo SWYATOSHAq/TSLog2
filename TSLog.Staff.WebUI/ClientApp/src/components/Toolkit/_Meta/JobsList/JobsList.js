@@ -7,6 +7,26 @@ export class JobsList extends Component {
     render() {
         const elements = this.props.list.map((item) => {
             const { id, ...itemProps} = item;
+
+            const getResource = async(url) => {
+                const res = await fetch(url);
+                if (!res.ok) {
+                    throw new Error(`Could not fetch ${url}` +
+                        `, received ${res.status}`)
+                }
+                const body = await res.json();
+                return body;
+            };
+
+            getResource('http://staff.apsk.ru/api/v1/Staff/Position')
+                .then((body) => {
+                    console.log(body[0].Code);
+                })
+                .catch((err) => {
+                    console.error('Could not fetch',err);
+                });
+
+
             return (
                 <li key={id} className="list-group-item">
                     <ListItem {...itemProps}
