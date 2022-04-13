@@ -636,8 +636,16 @@
         api.finishOperationWork(this.getOperationId());
     }
 
+    showOperationsPage() {
+        let operationsPageUrl = sessionStorage.getItem("OPERATIONS_PAGE_URL");
+        if (operationsPageUrl == null || operationsPageUrl == "")
+            operationsPageUrl = "/OperationsPage"
+        location.href = operationsPageUrl;
+    }
+
     async finishOperation() {
         api.finishOperation(this.getOperationId());
+        this.showOperationsPage();
     }
 
     async cancelOperation() {
@@ -645,6 +653,7 @@
             return;
         }
         api.cancelOperation(this.getOperationId());
+        this.showOperationsPage();
     }
 
     async deleteOperation() {
@@ -652,6 +661,11 @@
             return;
         }
         api.deleteOperation(this.getOperationId());
+        this.showOperationsPage();
+    }
+
+    closeOperation() {
+        this.showOperationsPage();
     }
 
     printOperation() {

@@ -74,7 +74,7 @@
                 </div>
                 @if (displayAdditionalInfo)
                 {
-                    var link = $"location.href='https://{host}/OperationPage?id={operation.Id}'";
+                    var link = $"operationsPage.openOperation({operation.Id})";
                     @: <button class="btn btn-outline-info m-3 open-operation-button" onclick="@link">Открыть</button>
                 }
             </div>

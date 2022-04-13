@@ -271,7 +271,6 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            location.href = "/OperationsPage";
         }
         else {
             const message = await response.text();
@@ -294,7 +293,6 @@
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
             console.log(operation);
-            location.href = "/OperationsPage";
         }
         else {
             const message = await response.text();
@@ -316,8 +314,7 @@
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
-            console.log(operation);
-            location.href = "/OperationsPage";
+            console.log(operation);            
         }
         else {
             const message = await response.text();

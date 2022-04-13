@@ -52,7 +52,7 @@
         toOperationDatePicker.on("changeDate", this.onChangeDate.bind(this));
 
         const partner = utils.getUrlParameter("partner");
-        const partnersDropdown = document.getElementById("partners-dropdown");
+        const partnersDropdown = document.getElementById("partners-select");
         if (partner != "") {
             partnersDropdown.value = partner;
         }

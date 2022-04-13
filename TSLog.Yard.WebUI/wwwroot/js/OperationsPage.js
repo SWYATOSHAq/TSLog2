@@ -17,7 +17,19 @@
         location.href = "OperationPage?id=" + id;
     }
 
-    showOperation(card) {
+    openOperation(id) {
+        sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
+        const url = "OperationPage?id=" + id;
+        location.href = url;
+    }
+
+    createOpenOperation(id) {
+        return function () {
+            this.openOperation(id);
+        }        
+    }
+
+    showOperation(block) {
         const operationOuterDiv = document.createElement("div");
         $(operationOuterDiv).addClass("col operation-outer-div");
 
@@ -26,39 +38,39 @@
 
         const cardHeader = document.createElement("div");
         $(cardHeader).addClass("card-header");
-        $(cardHeader).css("background-color", card.DisplayColor);
-        $(cardHeader).text(utils.convertTime(card.PlanWorkStartDate) + " - " + utils.convertTime(card.PlanWorkFinishDate) + " (" + utils.convertDate(card.PlanWorkFinishDate) + ")");
+        $(cardHeader).css("background-color", block.DisplayColor);
+        $(cardHeader).text(utils.convertTime(block.PlanWorkStartDate) + " - " + utils.convertTime(block.PlanWorkFinishDate) + " (" + utils.convertDate(block.PlanWorkFinishDate) + ")");
 
         const cardBody = document.createElement("div");
         $(cardBody).addClass("card-body");
 
         const cardBodyMndnr = document.createElement("h5");
         $(cardBodyMndnr).addClass("card-title");
-        $(cardBodyMndnr).text(this.getPartnersNames(card));
+        $(cardBodyMndnr).text(this.getPartnersNames(block));
 
         const cardBodyInputType = document.createElement("p");
         $(cardBodyInputType).addClass("card-text block-size-2");
-        $(cardBodyInputType).text(card.Type.DisplayName);
+        $(cardBodyInputType).text(block.Type.DisplayName);
 
         const cardBodyGate = document.createElement("p");
         $(cardBodyGate).addClass("card-text  text-primary font-1-3");
-        $(cardBodyGate).text((card.Gate.DisplayName == "NULL" ? "не проставлены" : card.Gate.DisplayName));
+        $(cardBodyGate).text((block.Gate.DisplayName == "NULL" ? "не проставлены" : block.Gate.DisplayName));
 
         const cardBodyState = document.createElement("p");
         $(cardBodyState).addClass("card-text");
-        $(cardBodyState).text(card.State.DisplayName);
+        $(cardBodyState).text(block.State.DisplayName);
 
         const cardBodyVehicleKind = document.createElement("p");
         $(cardBodyVehicleKind).addClass("card-text block-size-2");
-        $(cardBodyVehicleKind).text(card.VehicleKind.DisplayName);
+        $(cardBodyVehicleKind).text(block.VehicleKind.DisplayName);
 
         const cardBodyVehicleNumber = document.createElement("p");
         $(cardBodyVehicleNumber).addClass("card-text");
-        $(cardBodyVehicleNumber).text(card.VehicleNumber);
+        $(cardBodyVehicleNumber).text(block.VehicleNumber);
 
         const cardBodyDriverName = document.createElement("p");
         $(cardBodyDriverName).addClass("card-text block-size-2");
-        $(cardBodyDriverName).text(card.DriverName);
+        $(cardBodyDriverName).text(block.DriverName);
 
         cardBody.append(cardBodyMndnr);
         cardBody.append(cardBodyInputType);
@@ -71,10 +83,7 @@
         const cardBodyButton = document.createElement("h5");
         $(cardBodyButton).addClass("btn btn-outline-info m-3 open-operation-button");
         $(cardBodyButton).text("Открыть");
-        $(cardBodyButton).click(function () {
-            const url = "OperationPage?id=" + card.Id;
-            location.href = url;
-        });
+        $(cardBodyButton).click(this.createOpenOperation(block.Id).bind(this));
 
         operationDiv.append(cardHeader);
         operationDiv.append(cardBody);
@@ -173,7 +182,6 @@
     }
 
     show() {
-        const filters = document.getElementById("filters");
         const fromDatePicker = $("#from-date-picker");
         if (fromDatePicker != undefined) {
             fromDatePicker.datepicker({
@@ -183,7 +191,7 @@
                 todayBtn: true,
                 todayHighlight: true,
             });
-            const fromDate = utils.getUrlParameter("from_date");
+            let fromDate = utils.getUrlParameter("from_date");
             if (fromDate == "")
                 fromDate = utils.getNowDate();
             fromDatePicker.datepicker("setDate", fromDate);
@@ -198,38 +206,38 @@
                 todayBtn: true,
                 todayHighlight: true,
             });
-            const toDate = utils.getUrlParameter("to_date");
+            let toDate = utils.getUrlParameter("to_date");
             if (toDate == "")
                 toDate = utils.getNowDate();
             toDatePicker.datepicker("setDate", toDate);
             toDatePicker.on("changeDate", this.onChangeFilter.bind(this));
         }
 
-        const gatesSelect = filters.querySelector("#gates-select");
+        const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined)
             gatesSelect.onchange = this.onChangeFilter.bind(this);
 
-        const partnersSelect = filters.querySelector("#partners-select");
+        const partnersSelect = document.getElementById("partners-select");
         if (partnersSelect != undefined)
             partnersSelect.onchange = this.onChangeFilter.bind(this);
 
-        const operationTypesSelect = filters.querySelector("#operation-types-select");
+        const operationTypesSelect = document.getElementById("operation-types-select");
         if (operationTypesSelect != undefined)
             operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
 
-        const vehicleKindsSelect = filters.querySelector("#vehicle-kinds-select");
+        const vehicleKindsSelect = document.getElementById("vehicle-kinds-select");
         if (vehicleKindsSelect != undefined)
             vehicleKindsSelect.onchange = this.onChangeFilter.bind(this);
 
-        const operationStatesSelect = filters.querySelector("#operation-states-select");
+        const operationStatesSelect = document.getElementById("operation-states-select");
         if (operationStatesSelect != undefined)
             operationStatesSelect.onchange = this.onChangeFilter.bind(this);
 
-        const vehicleNumberInput = filters.querySelector("#vehicle-number-input");
+        const vehicleNumberInput = document.getElementById("vehicle-number-input");
         if (vehicleNumberInput != undefined)
             vehicleNumberInput.onchange = this.onChangeFilter.bind(this);
 
-        const driverNameInput = filters.querySelector("#driver-name-input");
+        const driverNameInput = document.getElementById("driver-name-input");
         if (driverNameInput != undefined)
             driverNameInput.onchange = this.onChangeFilter.bind(this);
 
