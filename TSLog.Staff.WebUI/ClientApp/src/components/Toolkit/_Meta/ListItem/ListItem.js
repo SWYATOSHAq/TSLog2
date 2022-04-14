@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './ListItem.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faIdCardClip, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { faIdCardClip } from '@fortawesome/free-solid-svg-icons'
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 
 export class ListItem extends Component {
     static displayName = ListItem.name;

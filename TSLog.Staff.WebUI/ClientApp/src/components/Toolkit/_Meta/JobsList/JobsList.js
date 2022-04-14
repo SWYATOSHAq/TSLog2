@@ -18,9 +18,9 @@ export class JobsList extends Component {
                 return body;
             };
 
-            getResource('http://staff.apsk.ru/api/v1/Staff/Position')
+            getResource('/api/v1/Staff/Position')
                 .then((body) => {
-                    console.log(body[0].Code);
+                    console.log(body);
                 })
                 .catch((err) => {
                     console.error('Could not fetch',err);
