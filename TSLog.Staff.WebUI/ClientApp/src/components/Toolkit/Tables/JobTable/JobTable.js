@@ -5,30 +5,50 @@ import { JobsList} from "../../_Meta/JobsList/JobsList";
 import { ItemStatusFilter } from "../../_Meta/ItemStatusFilter/ItemStatusFilter";
 import {BlockLevelButton} from "../../_Meta/BlockLevelButton/BlockLevelButton";
 import './JobTable.css'
+import LoadInfo from "../../../../services/loadInfo";
 
 export class JobTable extends Table{
 
     maxId = 100;
 
+    loadItem = new LoadInfo();
+
     state = {
-        jobListData: [
-            this.createItem('Менеджер по продажам'),
-            this.createItem('Кладовщик'),
-            this.createItem('Водитель высотного штабелера'),
-            this.createItem('Начальник склада')
-        ],
+        // jobListData: [
+        //     this.createItem('Менеджер по продажам'),
+        //     this.createItem('Кладовщик'),
+        //     this.createItem('Водитель высотного штабелера'),
+        //     this.createItem('Начальник склада')
+        //
+        // ],
+        job: null,
         term: '',
         filter: 'все' // все, в штате, в подборе
-      }
-
-    createItem(label) {
-        return {
-            label,
-            important: false,
-            inSearch: false,
-            id: this.maxId++
-        }
     }
+
+    constructor() {
+        super();
+        this.createItem();
+    }
+
+    createItem() {
+        this.loadItem
+            .getProfessions()
+            .then((item) => {
+                this.setState({
+                    job: item[0].DisplayName
+                });
+            });
+    }
+
+    // createItem(label) {
+    //     return {
+    //         label,
+    //         important: false,
+    //         inSearch: false,
+    //         id: this.maxId++
+    //     }
+    // }
 
     deleteItem = (id) => {
         this.setState(({ jobListData }) => {
@@ -116,6 +136,7 @@ export class JobTable extends Table{
 
     render(){
         const visibleItems = this.filterItems(this.search(this.state.jobListData, this.state.term), this.state.filter);
+
         return (
             <div>
                 <h1 id="tabelLabel" >Справочник профессий</h1>
