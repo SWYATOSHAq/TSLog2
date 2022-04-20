@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TSLog.Partners.BO\TSLog.Partners.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Staff.BO\TSLog.Staff.BO.csproj" />
+  </ItemGroup>
+
+</Project>

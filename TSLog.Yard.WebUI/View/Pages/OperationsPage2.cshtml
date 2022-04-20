@@ -3,11 +3,9 @@
 
 @model OperationsPage2Model
 @{
-    ViewData["Title"] = "Панель администратора";
-
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
-    var operationsBlockModel = new OperationsBlockModel(rightsChecker, storage, true, Request);    
+    var operationsBlockModel = new OperationsBlock2Model(rightsChecker, storage, true, Request);    
 }
 
-<partial name="Blocks/_OperationsBlock" model="operationsBlockModel" />
+<partial name="Blocks/_OperationsBlock2" model="operationsBlockModel" />

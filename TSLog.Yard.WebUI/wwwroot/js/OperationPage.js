@@ -43,12 +43,14 @@
     }
 
     getBlockId(date) {
-        const time = date.getHours() * 60 * 60 + date.getMinutes() * 60 + date.getSeconds();
-        for (let i = 0; i < this.blocks.length; i++) {
-            if (time >= this.blocks[i].startTime && time < this.blocks[i].finishTime) {
-                return this.blocks[i].id;
+        if (date != null && date != undefined && date > utils.nullDate) {
+            const time = date.getHours() * 60 * 60 + date.getMinutes() * 60 + date.getSeconds();
+            for (let i = 0; i < this.blocks.length; i++) {
+                if (time >= this.blocks[i].startTime && time < this.blocks[i].finishTime) {
+                    return this.blocks[i].id;
+                }
             }
-        }
+        }        
         return "";
     }
 

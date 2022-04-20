@@ -38,39 +38,39 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
         private dynamic OperationToDynamic(Operation operation)
         {
-            dynamic temp = new ExpandoObject();
-            temp.id = operation.Id;
-            temp.stateCode = operation.State.Code; 
-            temp.typeCode = operation.Type.Code;
-            temp.vehicleKindCode = operation.VehicleKind.Code;
-            temp.startDate = operation.StartDate;
-            temp.planWorkStartDate = operation.PlanWorkStartDate;
-            temp.factWorkStartDate = operation.FactWorkStartDate;
-            temp.planWorkFinishDate = operation.PlanWorkFinishDate;
-            temp.factWorkFinishDate = operation.FactWorkFinishDate;
-            temp.finishDate = operation.FinishDate;
-            temp.planDuration = (operation.PlanWorkFinishDate - operation.PlanWorkStartDate).TotalSeconds;
-            temp.factDuration = (operation.FactWorkFinishDate - operation.FactWorkStartDate).TotalSeconds;
-            temp.planLaborCost = operation.PlanLaborCost;
-            temp.factLaborCost = operation.FactLaborCost;
-            temp.gateCode = operation.Gate.Code;
-            temp.vehicleBrand = operation.VehicleBrand;
-            temp.vehicleModel = operation.VehicleModel;
-            temp.vehicleNumber = operation.VehicleNumber;
-            temp.trailerNumber = operation.TrailerNumber;
-            temp.driverName = operation.DriverName;
-            temp.driverPhoneNumber = operation.DriverPhoneNumber;
-            temp.partnerManagerName = operation.PartnerManagerName;
-            temp.partnerManagerPhoneNumber = operation.PartnerManagerPhoneNumber;
-            temp.partnerManagerEmail = operation.PartnerManagerEmail;
-            temp.responsibleOfficer = operation.ResponsibleOfficer != null && operation.ResponsibleOfficer != Employee.Null && operation.ResponsibleOfficer != Employee.Empty
+            dynamic result = new ExpandoObject();
+            result.id = operation.Id;
+            result.stateCode = operation.State.Code; 
+            result.typeCode = operation.Type.Code;
+            result.vehicleKindCode = operation.VehicleKind.Code;
+            result.startDate = operation.StartDate;
+            result.planWorkStartDate = operation.PlanWorkStartDate;
+            result.factWorkStartDate = operation.FactWorkStartDate;
+            result.planWorkFinishDate = operation.PlanWorkFinishDate;
+            result.factWorkFinishDate = operation.FactWorkFinishDate;
+            result.finishDate = operation.FinishDate;
+            result.planDuration = (operation.PlanWorkFinishDate - operation.PlanWorkStartDate).TotalSeconds;
+            result.factDuration = (operation.FactWorkFinishDate - operation.FactWorkStartDate).TotalSeconds;
+            result.planLaborCost = operation.PlanLaborCost;
+            result.factLaborCost = operation.FactLaborCost;
+            result.gateCode = operation.Gate.Code;
+            result.vehicleBrand = operation.VehicleBrand;
+            result.vehicleModel = operation.VehicleModel;
+            result.vehicleNumber = operation.VehicleNumber;
+            result.trailerNumber = operation.TrailerNumber;
+            result.driverName = operation.DriverName;
+            result.driverPhoneNumber = operation.DriverPhoneNumber;
+            result.partnerManagerName = operation.PartnerManagerName;
+            result.partnerManagerPhoneNumber = operation.PartnerManagerPhoneNumber;
+            result.partnerManagerEmail = operation.PartnerManagerEmail;
+            result.responsibleOfficer = operation.ResponsibleOfficer != null && operation.ResponsibleOfficer != Employee.Null && operation.ResponsibleOfficer != Employee.Empty
                 ? operation.ResponsibleOfficer.FullName : string.Empty;
-            temp.note = operation.Note;
+            result.note = operation.Note;
 
-            temp.partnerId = operation.Partners.Length > 0 ? operation.Partners[0].Id : string.Empty;
-            temp.partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
+            result.partnerId = operation.Partners.Length > 0 ? operation.Partners[0].Id : string.Empty;
+            result.partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
 
-            return temp;
+            return result;
         }
         private dynamic[] OperationsToDynamic(Operation[] operations)
         {
@@ -360,6 +360,31 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
             catch (Exception exception)
             {                
+                return exception.Message;
+            }
+        }
+        [HttpGet("ActiveOperations")]
+        public string GetActiveOperations()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperations = _rightsChecker.CheckRight("GET_ACTIVE_OPERATIONS", User);
+                if (_useAuthentication && !useYard && !getOperations)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var operations = _storage.GetActiveOperations();
+                var list = OperationsToDynamic(operations);
+                var text = JsonSerializer.Serialize(list);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
                 return exception.Message;
             }
         }

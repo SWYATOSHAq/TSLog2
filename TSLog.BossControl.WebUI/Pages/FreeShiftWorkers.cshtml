@@ -1,0 +1,18 @@
+﻿@page "/FreeShiftWorkers"
+@model TSLog.BossControl.WebUI.Pages.FreeWorkersModel
+
+<div>
+    <b>Свободные сотрудники</b>
+    <table class="table table-light table-bordered table-striped free-workers-table">
+        <thead>
+            <tr>
+                <th class="table-column-header">Сотрудник</th>
+                <th class="table-column-header">Участок (пред.)</th>
+                <th class="table-column-header">Мандант (пред.)</th>
+                <th class="table-column-header">Время ухода</th>
+            </tr>
+        </thead>
+        <tbody id="sites-workers-tbody">
+        </tbody>
+    </table>
+</div>

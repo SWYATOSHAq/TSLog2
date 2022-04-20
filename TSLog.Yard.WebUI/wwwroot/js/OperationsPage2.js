@@ -29,70 +29,15 @@
         }        
     }
 
-    showOperation(block) {
+    showOperation(operation) {
         const operationOuterDiv = document.createElement("div");
-        $(operationOuterDiv).addClass("col operation-outer-div");
-
-        const operationDiv = document.createElement("div");
-        $(operationDiv).addClass("col operation-div");
-
-        const cardHeader = document.createElement("div");
-        $(cardHeader).addClass("card-header");
-        $(cardHeader).css("background-color", block.DisplayColor);
-        $(cardHeader).text(utils.convertTime(block.PlanWorkStartDate) + " - " + utils.convertTime(block.PlanWorkFinishDate) + " (" + utils.convertDate(block.PlanWorkFinishDate) + ")");
-
-        const cardBody = document.createElement("div");
-        $(cardBody).addClass("card-body");
-
-        const cardBodyMndnr = document.createElement("h5");
-        $(cardBodyMndnr).addClass("card-title");
-        $(cardBodyMndnr).text(this.getPartnersNames(block));
-
-        const cardBodyInputType = document.createElement("p");
-        $(cardBodyInputType).addClass("card-text block-size-2");
-        $(cardBodyInputType).text(block.Type.DisplayName);
-
-        const cardBodyGate = document.createElement("p");
-        $(cardBodyGate).addClass("card-text  text-primary font-1-3");
-        $(cardBodyGate).text((block.Gate.DisplayName == "NULL" ? "не проставлены" : block.Gate.DisplayName));
-
-        const cardBodyState = document.createElement("p");
-        $(cardBodyState).addClass("card-text");
-        $(cardBodyState).text(block.State.DisplayName);
-
-        const cardBodyVehicleKind = document.createElement("p");
-        $(cardBodyVehicleKind).addClass("card-text block-size-2");
-        $(cardBodyVehicleKind).text(block.VehicleKind.DisplayName);
-
-        const cardBodyVehicleNumber = document.createElement("p");
-        $(cardBodyVehicleNumber).addClass("card-text");
-        $(cardBodyVehicleNumber).text(block.VehicleNumber);
-
-        const cardBodyDriverName = document.createElement("p");
-        $(cardBodyDriverName).addClass("card-text block-size-2");
-        $(cardBodyDriverName).text(block.DriverName);
-
-        cardBody.append(cardBodyMndnr);
-        cardBody.append(cardBodyInputType);
-        cardBody.append(cardBodyGate);
-        cardBody.append(cardBodyState);
-        cardBody.append(cardBodyVehicleKind);
-        cardBody.append(cardBodyVehicleNumber);
-        cardBody.append(cardBodyDriverName);
-
-        const cardBodyButton = document.createElement("h5");
-        $(cardBodyButton).addClass("btn btn-outline-info m-3 open-operation-button");
-        $(cardBodyButton).text("Открыть");
-        $(cardBodyButton).click(this.createOpenOperation(block.Id).bind(this));
-
-        operationDiv.append(cardHeader);
-        operationDiv.append(cardBody);
-        operationDiv.append(cardBodyButton);
-
-        operationOuterDiv.append(operationDiv);
+        
 
         const container = document.getElementById("operations-container");
         container.appendChild(operationOuterDiv);
+
+        const tableBody = document.getElementById("operations-table-body");
+        tableBody.appendChild(row);
     }
 
     createParameters() {
@@ -148,7 +93,6 @@
             const operations = await response.json();
             this.clearOperations();
             for (let operation of operations) {
-                console.log(operation);
                 this.showOperation(operation);
             }
         }
@@ -243,6 +187,9 @@
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+
+        // TODO: set filters
+        await this.getOperations();
 
         this.getOperationTypeHint();
     }

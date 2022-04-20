@@ -65,10 +65,14 @@
     {
         <link rel="stylesheet" href="~/css/ClientReportPage.css" asp-append-version="true" />
     }  
+    else if (page == "PresentVehiclesPage")
+    {
+        <link rel="stylesheet" href="~/css/PresentVehiclesPage.css" asp-append-version="true" />
+    }  
     else if (page == "GuardPage")
     {
         <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
-    }  
+    } 
 </head>
 
 <body>
@@ -90,17 +94,14 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/OperationsPage?from_date=@date&to_date=@date">ЛК TSL</a>
+                            <a class="nav-link text-dark" href="/OperationsPage?from_date=@date&to_date=@date">ЛК ТСЛ</a>
                         </li>
                         @if (canCreateOperation && page != "OperationsPage")
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
                             </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark d-none" href="/UserHome">ЛК пользователя</a>
-                        </li>
+                        }                        
                         @if (canViewStaffPlan)
                         {
                             <li class="nav-item">
@@ -143,7 +144,7 @@
     </div>
     <footer class="border-top footer text-muted hide-on-print">
         <div class="container">
-            &copy; 2021-2022 - TSL - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2021-2022 - ТСЛ - <a asp-area="" asp-page="/Privacy">Приватность</a>
         </div>
     </footer>
     <!-- External libraries -->
@@ -185,6 +186,10 @@
         else if (page == "ClientReportPage")
         {        
             <script type="text/javascript" src="~/js/ClientReportPage.js"></script>
+        }
+        else if (page == "PresentVehiclesPage")
+        {        
+            <script type="text/javascript" src="~/js/PresentVehiclesPage.js"></script>
         }
         else if (page == "GuardPage")
         {        

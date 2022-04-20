@@ -18,6 +18,11 @@
     var canEditAttributes = !useAuthentication
         || rightsChecker.CheckRight("EDIT_OPERATION", User)
         || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
+    canEditAttributes = canEditAttributes && (operation == Operation.Empty ||
+        operation.State.Code == "CREATED" || 
+        operation.State.Code == "CONFIRMED" ||
+        operation.State.Code == "STARTED");
+
     var canEditNote = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
     var canStart = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
     var canStartWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
@@ -65,8 +70,8 @@
     var editOperationOnclick = "";
     if (canEditAttributes)
         editOperationOnclick = !isPartnerUser ? "operationPage.editOperation()" : "operationPage.editOperationByPartner()";
-    else if (canEditAttributes)
-    editOperationOnclick = "operationPage.editOperationNote()";
+    else
+        editOperationOnclick = "operationPage.editOperationNote()";
 
     var disabledString = !canEditAttributes ? " disabled" : string.Empty;
 }

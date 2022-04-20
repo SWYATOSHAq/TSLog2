@@ -46,6 +46,7 @@
 		<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
 		<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
 		<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+		<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 		<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 	</rights>
 	<roles code="ROLES" name="Список ролей">
@@ -91,6 +92,7 @@
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND" name="Фильтр операций по виду автомашины"></right>
@@ -140,6 +142,7 @@
 			<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
 			<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>			
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
@@ -168,6 +171,7 @@
 			<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
 			<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
+			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 		</role>
 	</roles>
