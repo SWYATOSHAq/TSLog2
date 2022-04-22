@@ -16,6 +16,7 @@ export class ListItem extends Component {
         if (this.props.important) {
             classNames += ' important';
         }
+        console.log('Отображается элемент списк');
         return (
             <div className='change-button'>
                 <span className= { classNames } onClick={ this.props.onToggleInSearch } >{this.props.label}</span>

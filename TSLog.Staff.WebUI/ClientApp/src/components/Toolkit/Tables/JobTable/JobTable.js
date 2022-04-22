@@ -11,35 +11,89 @@ export class JobTable extends Table{
 
     maxId = 100;
 
+
+
     loadItem = new LoadInfo();
 
+    componentDidMount() {
+        this.createItem();
+    }
+
+    // createItem() {
+    //     this.loadItem.getProfessions().then((item) => {
+    //         this.setState({
+    //             jobListData: item
+    //         });
+    //     });
+
+
+    createItem() {
+        console.log('Загружается state', this.createJoblistObject());
+        this.setState({
+                jobListData: this.createJoblistObject()
+            });
+
+        // return {
+        //     label:
+        //     important: false,
+        //     inSearch: false,
+        //     id: this.maxId++
+        // }
+        console.log('State загружен')
+    }
+
     state = {
+
         // jobListData: [
         //     this.createItem('Менеджер по продажам'),
         //     this.createItem('Кладовщик'),
         //     this.createItem('Водитель высотного штабелера'),
         //     this.createItem('Начальник склада')
-        //
         // ],
-        job: null,
+        jobListData: [],
         term: '',
-        filter: 'все' // все, в штате, в подборе
+        filter: 'все', // все, в штате, в подборе
     }
 
-    constructor() {
-        super();
-        this.createItem();
-    }
-
-    createItem() {
-        this.loadItem
-            .getProfessions()
-            .then((item) => {
-                this.setState({
-                    job: item[0].DisplayName
+    createJoblistObject(){
+        let arrOfObj = [];
+        Promise.all([this.loadItem.getProfessions(), this.loadItem.getId()]).then(body => {
+            for (let i = 0; i < body[0].length; i++) {
+                arrOfObj.push({
+                    label: body[0][i],
+                    important: false,
+                    inSearch: false,
+                    id: body[1][i]
                 });
-            });
+            }
+        });
+        console.log(arrOfObj);
+        return arrOfObj;
     }
+        // {
+        //     label: 'Менеджер по продажам',
+        //     important: false,
+        //     inSearch: false,
+        //     id: 2001
+        // },
+        // {
+        //     label: 'Завхоз',
+        //     important: false,
+        //     inSearch: false,
+        //     id: 2002
+        // }
+        // this.loadItem.getProfessions().then(body => {
+        //     for (let i = 0; i < body.length; i++) {
+        //         arrOfObj.push({
+        //             label: body[i],
+        //             important: false,
+        //             inSearch: false,
+        //             id: this.maxId++
+        //         });
+        //     }
+        //
+        // });
+
 
     // createItem(label) {
     //     return {
@@ -76,7 +130,7 @@ export class JobTable extends Table{
         })
     }
 
-    toggleProperty(arr, id, propName){
+    toggleProperty(arr, id, propName) {
         const idx = arr.findIndex((el) => el.id === id);
 
         //1. Update obj
@@ -136,7 +190,7 @@ export class JobTable extends Table{
 
     render(){
         const visibleItems = this.filterItems(this.search(this.state.jobListData, this.state.term), this.state.filter);
-
+        console.log('Rendering', visibleItems);
         return (
             <div>
                 <h1 id="tabelLabel" >Справочник профессий</h1>

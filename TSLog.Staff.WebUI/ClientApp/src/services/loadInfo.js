@@ -8,14 +8,27 @@ export default class LoadInfo {
         return await res.json();
     }
 
-    async getProfessions() {
+    async getData() {
         const res = await this.getResource('/api/v1/Staff/Position');
-        return res
+     return res
     }
+
+    async getProfessions() {
+        const professions = await this.getData().then(body => body.map((element) => element.DisplayName));
+        return await professions
+    }
+
+    async getId() {
+        const id = await this.getData().then(body => body.map((element) => element.Id));
+        return await id
+    }
+
 }
 
-const professions = new LoadInfo();
 
-professions.getProfessions().then((body) => {
-    console.log(body);
-});
+
+// const professions = new LoadInfo();
+// professions.getProfessions().then((body) => {
+//     console.log(body);
+// });
+
