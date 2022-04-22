@@ -12,7 +12,7 @@
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    var viewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_GUARD_PAGE", User));
     if (!viewGuardPage)
     {        
         Response.StatusCode = 403;

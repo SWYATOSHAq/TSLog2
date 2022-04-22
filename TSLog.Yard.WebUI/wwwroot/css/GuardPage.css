@@ -1,2 +1,24 @@
-﻿body {
+﻿th {
+    text-align: center;
+}
+
+td {
+    text-align: right;
+    background-color: rgb(122, 122, 122);
+}
+
+.color-orange {
+    background-color: rgb(255, 222, 161) !important;
+}
+
+.color-green {
+    background-color: rgb(158, 255, 158) !important;
+}
+
+.color-yellow {
+    background-color: rgb(255, 255, 158) !important;
+}
+
+.container {
+    max-width: 100% !important;
 }

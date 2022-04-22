@@ -11,90 +11,67 @@
     var context = new PrincipalContext(ContextType.Domain);
 }
 <meta http-equiv="refresh" content="60">  
-<style>
-    th {
-        text-align: center;
-    }
-    td {
-        text-align: right;
-        background-color: rgb(122, 122, 122);
-    }
-    .color-orange {
-        background-color: rgb(255, 222, 161) !important;
-    }
-    .color-green {
-        background-color: rgb(158, 255, 158) !important;
-    }
-    .color-yellow {
-        background-color: rgb(255, 255, 158) !important;
-    }
-    .container {
-        max-width: 100% !important;
-    }
-</style>
-<h2>Заявки</h2>
-<div class="m-1">
-    <table class="table table-light table-bordered table-striped">
-        <thead class="thead-light">
-            <tr>
-                <th class="color-yellow table-header">Марка Т/С</th>
-                <th class="color-yellow table-header">№ Т/С (прицепа)</th>                
-                <th class="color-yellow table-header">Ф.И.О.</th>
-                <th class="color-yellow table-header">Поклажедатель</th>
-                <th class="color-yellow table-header">Цель приезда</th>
-                <th class="color-yellow table-header">Прибытие на КПП</th>
-                <th class="color-yellow table-header">Начало работы план (факт)</th>
-                <th class="color-yellow table-header">Инициатор допуска ТС</th>
-                <th class="color-yellow table-header">Состояние</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var operation in operations)
+<h2>Машины на въезд и на выезд</h2>
+<table class="table table-light table-bordered table-striped">
+    <thead class="thead-light">
+        <tr>
+            <th class="color-yellow table-header">Марка Т/С</th>
+            <th class="color-yellow table-header">№ Т/С (прицепа)</th>                
+            <th class="color-yellow table-header">Ф.И.О.</th>
+            <th class="color-yellow table-header">Поклажедатель</th>
+            <th class="color-yellow table-header">Цель приезда</th>
+            <th class="color-yellow table-header">Прибытие на КПП</th>
+            <th class="color-yellow table-header">Начало работы план (факт)</th>
+            <th class="color-yellow table-header">Инициатор допуска ТС</th>
+            <th class="color-yellow table-header">Состояние</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var operation in operations)
+        {
+            var startDate = operation.StartDate == DateTime.MinValue ? "Ожидается" : operation.StartDate.ToString("dd.MM.yyyy HH:mm");
+
+            var buttonCaption = "";
+            var onClick = "location.href='/GuardPage";
+            if (operation.State.Code == "CONFIRMED")
             {
-                var startDate = operation.StartDate == DateTime.MinValue ? "Ожидается" : operation.StartDate.ToString("dd.MM.yyyy HH:mm");
-
-                var buttonCaption = "";
-                var onClick = "location.href='/GuardPage";
-                if (operation.State.Code == "CONFIRMED")
-                {
-                    buttonCaption = "Впустить";
-                    onClick = $"guardPage.letVehicleIn({operation.Id})";
-                }
-                else if (operation.State.Code == "WORK_FINISHED")
-                {
-                    buttonCaption = "Выпустить";                    
-                    onClick = $"guardPage.releaseVehicle({operation.Id})";;
-                }
-
-                var responsibleOfficerName = operation.ResponsibleOfficer != null && operation.ResponsibleOfficer != Employee.Null && operation.ResponsibleOfficer != Employee.Empty
-                    ? operation.ResponsibleOfficer.FullName : string.Empty;
-
-                <tr class="table-row">
-                    <td class="table-cell">@operation.VehicleBrand</td>
-                    <td class="table-cell">@operation.VehicleNumber</td>                    
-                    <td class="table-cell">@operation.DriverName</td>
-                    <td class="table-cell">@Partner.Serialize(operation.GetPartners())</td>
-                    <td class="table-cell">@operation.Type.DirectionName</td>
-                    <td class="table-cell">@startDate</td>
-                    <td class="table-cell">
-                        @operation.PlanWorkStartDate.ToString("dd.MM.yyyy HH:mm")
-                        @if (operation.FactWorkStartDate != DateTime.MinValue)
-                        {
-                            <br />
-                            <b>(@operation.FactWorkStartDate.ToString("dd.MM.yyyy HH:mm"))</b>
-                        }
-                    </td>
-                    <td class="table-cell">
-                        @operation.CreateDate
-                        <br />
-                        <b>@responsibleOfficerName</b>   
-                    </td>
-                    <td class="table-cell" style="background-color: @operation.DisplayColor !important; box-shadow:none">
-                        <p class="text-center p-margin-0">@operation.State.DisplayName</p>
-                        <button class="btn btn-outline-info table-cell-button" onclick="@onClick">@buttonCaption</button>
-                    </td>
-                </tr>
+                buttonCaption = "Впустить";
+                onClick = $"guardPage.letVehicleIn({operation.Id})";
             }
-        </tbody>
-    </table>
-</div>
+            else if (operation.State.Code == "WORK_FINISHED")
+            {
+                buttonCaption = "Выпустить";                    
+                onClick = $"guardPage.releaseVehicle({operation.Id})";;
+            }
+
+            var responsibleOfficerName = operation.ResponsibleOfficer != null && operation.ResponsibleOfficer != Employee.Null && operation.ResponsibleOfficer != Employee.Empty
+                ? operation.ResponsibleOfficer.FullName : string.Empty;
+
+            <tr class="table-row">
+                <td class="table-cell">@operation.VehicleBrand</td>
+                <td class="table-cell">@operation.VehicleNumber</td>                    
+                <td class="table-cell">@operation.DriverName</td>
+                <td class="table-cell">@Partner.Serialize(operation.GetPartners())</td>
+                <td class="table-cell">@operation.Type.DirectionName</td>
+                <td class="table-cell">@startDate</td>
+                <td class="table-cell">
+                    @operation.PlanWorkStartDate.ToString("dd.MM.yyyy HH:mm")
+                    @if (operation.FactWorkStartDate != DateTime.MinValue)
+                    {
+                        <br />
+                        <b>(@operation.FactWorkStartDate.ToString("dd.MM.yyyy HH:mm"))</b>
+                    }
+                </td>
+                <td class="table-cell">
+                    @operation.CreateDate
+                    <br />
+                    <b>@responsibleOfficerName</b>   
+                </td>
+                <td class="table-cell" style="background-color: @operation.DisplayColor !important; box-shadow:none">
+                    <p class="text-center p-margin-0">@operation.State.DisplayName</p>
+                    <button class="btn btn-outline-info table-cell-button" onclick="@onClick">@buttonCaption</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -148,7 +148,6 @@
             const operations = await response.json();
             this.clearOperations();
             for (let operation of operations) {
-                console.log(operation);
                 this.showOperation(operation);
             }
         }
@@ -182,6 +181,7 @@
     }
 
     show() {
+        /*
         const fromDatePicker = $("#from-date-picker");
         if (fromDatePicker != undefined) {
             fromDatePicker.datepicker({
@@ -208,10 +208,20 @@
             });
             let toDate = utils.getUrlParameter("to_date");
             if (toDate == "")
-                toDate = utils.getNowDate();
+                toDate = fromDate;
             toDatePicker.datepicker("setDate", toDate);
             toDatePicker.on("changeDate", this.onChangeFilter.bind(this));
         }
+        */
+
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = fromDate;
+        viewUtils.initDatePicker("from-date-picker", fromDate, this.onChangeFilter.bind(this));
+        viewUtils.initDatePicker("to-date-picker", toDate, this.onChangeFilter.bind(this));
 
         const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined)

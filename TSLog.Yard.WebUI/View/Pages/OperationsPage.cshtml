@@ -9,5 +9,19 @@
     var storage = Model.Storage;
     var operationsBlockModel = new OperationsBlockModel(rightsChecker, storage, true, Request);    
 }
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@{
+    var viewPresentVehiclesPage = !useAuthentication || 
+        rightsChecker.CheckRight("USE_YARD", User) && (rightsChecker.CheckRight("VIEW_OPERATIONS", User) 
+            || rightsChecker.CheckRight("VIEW_OPERATIONS_FOR_PARTNER", User));
+    if (!viewPresentVehiclesPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
+}
 
 <partial name="Blocks/_OperationsBlock" model="operationsBlockModel" />

@@ -1,12 +1,47 @@
-﻿th {
+﻿.filters-div {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.dates-div {
+    margin: 0px !important;
+    padding: 4px !important;
+    padding-left: 0px !important;
+}
+
+.filter-div {
+    padding: 4px !important;
+    padding-left: 0px !important;
+    padding-right: 8px !important;
+    width: 240px !important;
+}
+
+.filter-select {
+    padding: 0px !important;
+    padding-left: 8px !important;
+    margin: 0px !important;
+    align-items: center;
+}
+
+.filter-input {
+    padding: 0px !important;
+    padding-left: 8px !important;
+    margin: 0px !important;
+}
+
+.operations-table {
+    margin-top: 4px !important;
+}
+
+th {
     text-align: center;
-    font-size: 1.2em;
+    /*font-size: 1.2em;*/
 }
 
 td {
     text-align: right;
     background-color: rgb(122, 122, 122);
-    font-size: 1.1em;
+    /*font-size: 1.1em;*/
 }
 
 .color-orange {

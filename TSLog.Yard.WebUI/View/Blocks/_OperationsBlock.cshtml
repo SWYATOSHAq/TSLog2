@@ -15,7 +15,9 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
 @{
-    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var createOperation = !useAuthentication 
+        || rightsChecker.CheckRight("CREATE_OPERATION", User)
+        || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
     var canFilterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
     var canFilterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
     var canFilterOperationsByVehicleKind = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
@@ -72,12 +74,15 @@
 
 <div class="row p-2 m-3 card-table">
     <div class="col-12 p-4 m-3 shadow hide-on-print overflow-auto card-table" id="card_table">
-        <div class="row create-operation-div">
-            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                type="button" 
-                title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
-                onclick="location.href = '/OperationPage'">Создать заявку</button>
-        </div>
+        @if (createOperation)
+        {
+            <div class="row create-operation-div">
+                <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
+                    type="button" 
+                    title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
+                    onclick="location.href = '/OperationPage'">Создать заявку</button>
+            </div>
+        }
         <div id="filters" class="row filters-div">
             <div class="row dates-div">
                 <label class="datepicker2-label"

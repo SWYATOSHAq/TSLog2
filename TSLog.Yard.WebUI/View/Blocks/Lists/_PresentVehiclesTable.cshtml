@@ -6,15 +6,32 @@
 @model OperationsModel
 @{
     var operations = Model.Operations;
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var request = Model.Request;
+
+    var divClasses = "col-md-3 col-6 filter-div";
+    var selectClasses = "form-select filter-select";
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), "", true, true, "Все типы операций", divClasses, selectClasses);
+    VehicleKindsModel? vehicleKindsModel = null;
+    LogistsModel? logistsModel = null;
+    var gatesModel = new GatesModel(storage.GetGates(), "", true, true, "Все ворота", divClasses, selectClasses);
+    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), "", true, true, "Все состояния", divClasses, selectClasses);
+    var partnersModel = new PartnersModel(storage.GetPartners(), "", true, true, "Все партнеры", divClasses, selectClasses);
+
+    var filtersModel = new OperationsFiltersBlockModel(false, 
+        operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
+        true, true);
 }
 <meta http-equiv="refresh" content="60">  
 <h1>Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1>
-<table class="table table-light table-bordered table-striped">
+<partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
+<table class="table table-light table-bordered table-striped operations-table">
     <thead class="thead-light">
         <tr>
             <th class="color-yellow table-header">№</th>
             <th class="color-yellow table-header">№ Т/С (прицепа)</th>
-            <th class="color-yellow table-header">Марка Т/С</th>
+            <th class="color-yellow table-header">Марка<br />Т/С</th>
             <th class="color-yellow table-header">
                 Шофёр
                 <br />
@@ -25,59 +42,12 @@
             <th class="color-yellow table-header">№ заказа</th>
             <th class="color-yellow table-header">Примечание</th>
             <th class="color-green table-header">Прибытие</th>
-            <th class="color-green table-header">Начало работы план (факт)</th>
+            <th class="color-green table-header" style="width: 10% !important">Начало работы<br />план (факт)</th>
             <th class="color-orange table-header">Инициатор допуска ТС</th>
             <th class="color-orange table-header">№ Ворот</th>
             <th class="color-yellow table-header">Состояние</th>
         </tr>
     </thead>
     <tbody id="active-operations-tbody">
-        @{
-            var i = 1;
-        }
-        @foreach (var operation in operations)
-        {
-            var startDate = operation.StartDate.ToString(@"dd.MM.yyyy");
-            var startTime = operation.StartDate.ToString(@"HH\:mm");
-
-            var planWorkStartDate = operation.PlanWorkStartDate.ToString(@"dd.MM.yyyy");
-            var planWorkStartTime = operation.PlanWorkStartDate.ToString(@"HH\:mm");
-            var factWorkStartDateTime = operation.FactWorkStartDate != DateTime.MinValue 
-                ? operation.FactWorkStartDate.ToString(@"(HH\:mm - dd.MM.yyyy)")
-                : string.Empty;
-
-            <tr class="table-row">
-                <th class="table-cell">@i</th>
-                <td class="table-cell">@operation.VehicleNumber</td>
-                <td class="table-cell">@operation.VehicleBrand</td>
-                <td class="table-cell">@operation.DriverName</td>
-                <td class="table-cell">@Partner.Serialize(operation.GetPartners())</td>
-                <td class="table-cell">@operation.Type.DisplayName</td>
-                <td class="table-cell">@(operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty)</td>
-                <td>@operation.Note</td>
-                <td class="table-cell">
-                    <b>@startTime</b>
-                    <br />
-                    @startDate
-                </td>
-                <td class="table-cell">
-                    <b>@planWorkStartTime</b> - @planWorkStartDate
-                    @if (!string.IsNullOrWhiteSpace(factWorkStartDateTime))
-                    {
-                        <br />
-                        @factWorkStartDateTime
-                    }
-                </td>
-                <td class="table-cell">
-                    @operation.ResponsibleOfficer.FullName
-                </td>
-                <td class="table-cell">@operation.Gate.ShortName</td>
-                <td class="table-cell" style="background-color: @operation.DisplayColor !important; box-shadow:none">
-                    <button class="btn btn-outline-info m-3 table-cell-button" onclick="location.href='/OperationPage?id=@operation.Id'">Открыть</button>
-                    <p class="text-center p-margin-0">@operation.State.DisplayName</p>
-                </td>
-            </tr>
-            i++;
-        }
     </tbody>
 </table>

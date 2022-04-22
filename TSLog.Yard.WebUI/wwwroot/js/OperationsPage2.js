@@ -31,7 +31,6 @@
 
     showOperation(operation) {
         const operationOuterDiv = document.createElement("div");
-        
 
         const container = document.getElementById("operations-container");
         container.appendChild(operationOuterDiv);
