@@ -69,7 +69,7 @@ namespace TSLog.Yard.Reporting
             var rur = storage.GetMeasureUnit("RUR");
 
             var interval = new Interval(FromDate, ToDate);
-            List<Partner> partners = new List<Partner>();
+            var partners = new List<Partner>();
             if (Partner != null && Partner != Partner.Null && Partner != Partner.Empty)
                 partners.Add(Partner);
             var operations = storage.GetOperations(FromDate, ToDate, partners.ToArray());

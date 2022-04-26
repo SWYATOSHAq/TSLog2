@@ -231,7 +231,7 @@ namespace TSLog.Yard.BO
         }
         public static Operation[] Filter(Operation[] operations,
             Partner partner, OperationType operationType, VehicleKind vehicleKind, Gate gate, Entity operationState,
-            string vehicleNumber = "", string driverName = "")
+            string vehicleNumber = "", string driverName = "", string partnerActionId = "")
         {
             if (operations == null)
                 throw new ArgumentNullException(nameof(operations));
@@ -256,7 +256,12 @@ namespace TSLog.Yard.BO
             {
                 driverName = driverName.Trim().ToUpper();
                 temp = temp.FindAll(o => o.DriverName.ToUpper().Contains(driverName));
-            }            
+            }
+            if (!string.IsNullOrWhiteSpace(partnerActionId))
+            {
+                partnerActionId = partnerActionId.Trim().ToUpper();
+                temp = temp.FindAll(o => o.HasActions(partnerActionId));
+            }
 
             return temp.ToArray();
         }    

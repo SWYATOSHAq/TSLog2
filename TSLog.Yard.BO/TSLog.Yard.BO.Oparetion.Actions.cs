@@ -64,6 +64,16 @@ namespace TSLog.Yard.BO
         {
             _actions.Clear();
         }
+        public bool HasActions(string pattern)
+        {
+            if (string.IsNullOrWhiteSpace(pattern))
+                return true;
+            pattern = pattern.Trim().ToUpper();
+            foreach (var action in _actions.Values)
+                if (action.PartnerActionId.ToUpper().Contains(pattern))
+                    return true;
+            return false;
+        }
         public Partner[] GetPartners()
         {
             var partners = new HashSet<Partner>();

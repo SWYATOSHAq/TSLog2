@@ -7,6 +7,7 @@ using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using TSLog.Yard.Reporting;
 using static TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
@@ -44,6 +45,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.stateDisplayName = operation.State.DisplayName;
             result.typeCode = operation.Type.Code;
             result.typeDisplayName = operation.Type.DisplayName;
+            result.directionName = operation.Type.DirectionName;
             result.vehicleKindCode = operation.VehicleKind.Code;
             result.startDate = operation.StartDate;
             result.planWorkStartDate = operation.PlanWorkStartDate;
@@ -328,6 +330,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string stringStateCode = Request.Query["state_code"];
                 string stringVehicleNumber = Request.Query["vehicle_number"];
                 string stringDriverName = Request.Query["driver_name"];
+                string stringPartnerActionId = Request.Query["partner_action_id"];
 
                 var partner = !string.IsNullOrWhiteSpace(stringPartnerId) ? _storage.GetPartner(stringPartnerId) : Partner.Null;
                 var gate = !string.IsNullOrWhiteSpace(stringGateCode) ? _storage.GetGate(stringGateCode) : Gate.Null;
@@ -353,7 +356,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var span = 1;
                 var operations = _storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1), Array.Empty<Partner>());
                 operations = Operation.Filter(operations, partner, operationType, vehicleKind, gate, state,
-                    stringVehicleNumber, stringDriverName);
+                    stringVehicleNumber, stringDriverName, stringPartnerActionId);
 
                 var list = new List<Operation>();
                 var partnersIds = GetPartnersIds();
@@ -385,6 +388,31 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var operations = _storage.GetActiveOperations();
+                var list = OperationsToDynamic(operations);
+                var text = JsonSerializer.Serialize(list);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("GuardOperations")]
+        public string GetGuardOperations()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperations = _rightsChecker.CheckRight("GET_GUARD_OPERATIONS", User);
+                if (_useAuthentication && !useYard && !getOperations)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var operations = _storage.GetGuardOperations();
                 var list = OperationsToDynamic(operations);
                 var text = JsonSerializer.Serialize(list);
                 Response.StatusCode = 200;
@@ -495,8 +523,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var user = _rightsChecker.GetUserName(User);
                 _storage.AddOperation(operation, user);
-                _storage.SetOperationGate(operation, null, user);
+                // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
+                // неьзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
+                _storage.SetOperationGate(operation, null, user);                
                 _storage.SetResponsibleOfficer(operation, employee, user);
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
@@ -984,8 +1014,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 var userName = _rightsChecker.GetUserName(User);
-                _storage.SetOperationGate(operation, gate, userName);
+                // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
+                // неьзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(userName);
+                _storage.SetOperationGate(operation, gate, userName);                
                 _storage.SetResponsibleOfficer(operation, employee);
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
@@ -1402,6 +1434,81 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 _storage.RemoveEmployee(operation, worker, position);
                 var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
+
+        private dynamic LaborReportElementToDynamic(LaborReport.Element element)
+        {
+            dynamic result = new ExpandoObject();
+            result.partnerId = element.Partner.Id;
+            result.partnerName = element.Partner.Name;
+            result.positionId = element.Position.Id;
+            result.positionName = element.Position.Name;
+
+            result.bcWorkersCount = element.BcWorkersCount;
+            result.bcLaborCost = element.BcLaborCost;
+
+            result.ysPlanLaborCost = element.YSPlanLaborCost;
+            result.ysFactLaborCost = element.YSFactLaborCost;
+
+            result.yaWorkersCount = element.YAWorkersCount;
+            result.yaPlanLaborCost = element.YAPlanLaborCost;
+            result.yaFactLaborCost = element.YAFactLaborCost;
+
+            return result;
+        }
+        private dynamic[] LaborReportElementsToDynamic(LaborReport.Element[] elements)
+        {
+            var objects = new List<dynamic>();
+            foreach (var element in elements)
+                objects.Add(LaborReportElementToDynamic(element));
+            return objects.ToArray();
+        }
+        [HttpGet("LaborReport")]
+        public string GetLaborReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperations = _rightsChecker.CheckRight("GET_LABOR_REPORT", User);
+                if (_useAuthentication && !useYard && !getOperations)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string stringFromDate = Request.Query["from_date"];
+                string stringToDate = Request.Query["to_date"];
+
+                var fromDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(stringFromDate))
+                {
+                    stringFromDate = stringFromDate.Trim();
+                    if (!DateTime.TryParse(stringFromDate, out fromDate))
+                        return $"Wrong from date {stringFromDate}";
+                }
+                var toDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(stringToDate))
+                {
+                    stringToDate = stringToDate.Trim();
+                    if (!DateTime.TryParse(stringToDate, out toDate))
+                        return $"Wrong to date {stringToDate}";
+                }
+
+                var report = new LaborReport(fromDate, toDate);
+                report.Create(_storage);
+                var elements = report.Elements;
+                var result = LaborReportElementsToDynamic(elements);
+
+                var text = JsonSerializer.Serialize(result);
                 Response.StatusCode = 200;
                 return text;
             }

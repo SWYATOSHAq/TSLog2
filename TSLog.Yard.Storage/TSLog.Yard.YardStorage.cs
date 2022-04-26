@@ -271,17 +271,18 @@ namespace TSLog.Yard
             Partner? partner,
             string? vehicleBrand,
             string? vehicleNumber,
-            string? driverName)
+            string? driverName,
+            string? partnerActionId)
         {
-            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, vehicleBrand, vehicleNumber, driverName);
+            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, vehicleBrand, vehicleNumber, driverName, partnerActionId);
         }
         public Operation[] GetActiveOperations()
         {
             return _pgsqlStorage.GetActiveOperations();
         }
-        public Operation[] GetOperationsForGuard()
+        public Operation[] GetGuardOperations()
         {
-            return _pgsqlStorage.GetOperationsForGuard();
+            return _pgsqlStorage.GetGuardOperations();
         }
         public Partner[] GetOperationsPartners(DateTime from, DateTime to)
         {
@@ -377,6 +378,23 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.RemoveEmployee(operation, employee, position);
         }
+        #endregion
+
+        #region Reporting
+
+        public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            return _pgsqlStorage.GetYardStandardLabocCosts(fromDate, toDate);
+        }
+        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate) 
+        {
+            return _pgsqlStorage.GetYardAllocatedLabocCosts(fromDate, toDate);
+        }
+        public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            return _oracleStorage.GetBcLabocCosts(fromDate, toDate);
+        }
+
         #endregion
 
         public void Dispose()

@@ -36,6 +36,17 @@
         const minutes = Math.trunc((seconds - hours * 3600) / 60);
         return hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
     }
+
+    addParameter(parameters, parameterName, elementName) {
+        const element = document.getElementById(elementName);
+        if (element != undefined && element.value != "") {
+            if (parameters != "") {
+                parameters = parameters + "&";
+            }
+            parameters = parameters + parameterName + "=" + element.value;
+        }
+        return parameters;
+    }
 }
 
 const utils = new Utils();

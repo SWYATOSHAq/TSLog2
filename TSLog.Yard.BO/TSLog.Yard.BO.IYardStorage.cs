@@ -9,7 +9,7 @@ namespace TSLog.Yard.BO
     /// <summary>
     /// Интерфейс хранилища данных для модуля упраления двором
     /// </summary>
-    public interface IYardStorage : IYardCommonStorage, IYardWmsStorage { }
+    public interface IYardStorage : IYardCommonStorage, IYardReportingStorage, IYardWmsStorage, IBcReportingStorage { }
     public interface IYardCommonStorage
     {
         public OperationType GetOperationType(short id);
@@ -49,9 +49,10 @@ namespace TSLog.Yard.BO
             Partner? partner,
             string? vehicleBrand,
             string? vehicleNumber,
-            string? driverName);
+            string? driverName,
+            string? partnerActionId);
         public Operation[] GetActiveOperations();
-        public Operation[] GetOperationsForGuard();
+        public Operation[] GetGuardOperations();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "");
         public void CancelOperationGate(Operation operation, string user = "");
@@ -96,5 +97,14 @@ namespace TSLog.Yard.BO
         public Position GetPosition(short id);
         public Position GetPosition(string code);
         public Position[] GetPositions();
+    }
+    public interface IYardReportingStorage
+    {
+        public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate);
+        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate);
+    }
+    public interface IBcReportingStorage
+    {
+        public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate);
     }
 }

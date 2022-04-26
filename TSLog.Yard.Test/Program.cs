@@ -49,7 +49,8 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var filterType = storage.GetOperationType(1006);
     var filterFromDate = DateTime.Parse("15.01.2022");
     var filterToDate = DateTime.Parse("16.01.2022");
-    var filteredOperations = storage.GetOperations(filterFromDate, filterToDate, null, null, null, null, null, string.Empty, string.Empty, string.Empty);
+    var filteredOperations = storage.GetOperations(filterFromDate, filterToDate, null, null, null, null, null, 
+        string.Empty, string.Empty, string.Empty, string.Empty);
     Console.WriteLine("готово");
 
     Console.WriteLine("загрузка партнера по mndnr и информации по партнеру...");

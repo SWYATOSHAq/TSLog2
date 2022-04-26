@@ -20,6 +20,8 @@
     var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
     var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
     var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
+
     var date = DateTime.Today.ToString("dd.MM.yyyy");
 
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -72,6 +74,10 @@
     else if (page == "GuardPage")
     {
         <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
+    } 
+    else if (page == "LaborReportPage")
+    {
+        <link rel="stylesheet" href="~/css/LaborReportPage.css" asp-append-version="true" />
     } 
 </head>
 
@@ -130,6 +136,12 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/GuardPage">Управление въездом/выездом</a>
+                            </li>
+                        }
+                        @if (canViewLaborReportPage)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/LaborReportPage">Отчёт о трудозатратах</a>
                             </li>
                         }
                     </ul>
@@ -195,6 +207,10 @@
         else if (page == "GuardPage")
         {        
             <script type="text/javascript" src="~/js/GuardPage.js"></script>
+        }
+        else if (page == "LaborReportPage")
+        {        
+            <script type="text/javascript" src="~/js/LaborReportPage.js"></script>
         }
     }
 

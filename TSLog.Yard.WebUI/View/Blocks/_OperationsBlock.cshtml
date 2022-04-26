@@ -26,6 +26,7 @@
     var canFilterOperationsByPartner = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER", User);
     var canFilterOperationsByVehicle = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
     var canFilterOperationsByDriver = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
+    var canFilterByPartnerActionId = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER_ACTION_ID", User);
 
     string requestFromDate = request.Query["from_date"];
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
@@ -36,6 +37,9 @@
     string selectedPartner = request.Query["partner_id"];
     string selectedVehicleKind = request.Query["vehicle_kind_code"];
     string selectedState = request.Query["state_code"];
+    string selectedVehicleNumber = request.Query["vehicle_number"];
+    string selectedDriverName = request.Query["driver_name"];
+    string selectedPartnerActionId = request.Query["partner_action_id"];
 
     var divClasses = "col-md-3 col-6 filter-div";
     var selectClasses = "form-select filter-select";
@@ -53,8 +57,9 @@
         !string.IsNullOrWhiteSpace(selectedGate) ? storage.GetGate(selectedGate) : null,
         !string.IsNullOrWhiteSpace(selectedPartner) ? storage.GetPartner(selectedPartner) : null,
         null,
-        null,
-        null);
+        selectedVehicleNumber,
+        selectedDriverName,
+        selectedPartnerActionId);
 
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
     if (isPartnerUser)
@@ -133,6 +138,12 @@
                 <div id="vehicle-number-div" class="col-md-3 col-6 filter-div"> 
                     <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">
                 </div>
+            }
+            @if (canFilterByPartnerActionId)
+            {
+                <div id="action-div" class="col-md-3 col-6 filter-div"> 
+                    <input class="form-control filter-input" id="partner-action-id-input" placeholder="Заказ/приход">
+                </div>        
             }
         </div>        
         <partial name="Blocks/Lists/_OperationsList" model="operarationsModel" />        

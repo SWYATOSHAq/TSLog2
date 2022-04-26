@@ -96,53 +96,24 @@
     }
 
     createParameters() {
-        const fromDatePicker = document.getElementById("from-date-picker");
-        let result = "?from_date=" + fromDatePicker.value;
+        let result = "";
 
-        const toDatePicker = document.getElementById("to-date-picker");
-        result = result + "&to_date=" + toDatePicker.value;
+        result = utils.addParameter(result, "from_date", "from-date-picker");
+        result = utils.addParameter(result, "to_date", "to-date-picker");
+        result = utils.addParameter(result, "operation_type_code", "operation-types-select");
+        result = utils.addParameter(result, "vehicle_kind_code", "vehicle-kinds-select");
+        result = utils.addParameter(result, "gate_code", "gates-select");
+        result = utils.addParameter(result, "state_code", "operation-states-select");
+        result = utils.addParameter(result, "partner_id", "partners-select");
+        result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
+        result = utils.addParameter(result, "driver_name", "driver-name-input");
+        result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
 
-        const gatesSelect = document.getElementById("gates-select");
-        if (gatesSelect != undefined && gatesSelect.value != "") {
-            result = result + "&gate_code=" + gatesSelect.value;
-        }
-
-        const partnersSelect = document.getElementById("partners-select");
-        if (partnersSelect != undefined && partnersSelect.value != "") {
-            result = result + "&partner_id=" + partnersSelect.value;
-        }
-
-        const operationTypesSelect = document.getElementById("operation-types-select");
-        if (operationTypesSelect != undefined && operationTypesSelect.value != "") {
-            result = result + "&operation_type_code=" + operationTypesSelect.value;
-        }
-
-        const vehicleKindsSelect = document.getElementById("vehicle-kinds-select");
-        if (vehicleKindsSelect != undefined && vehicleKindsSelect.value != "") {
-            result = result + "&vehicle_kind_code=" + vehicleKindsSelect.value;
-        }
-
-        const operationStatesSelect = document.getElementById("operation-states-select");
-        if (operationStatesSelect != undefined && operationStatesSelect.value != "") {
-            result = result + "&state_code=" + operationStatesSelect.value;
-        }
-
-        const vehicleNumberInput = filters.querySelector("#vehicle-number-input");
-        if (vehicleNumberInput != undefined && vehicleNumberInput.value != "") {
-            result = result + "&vehicle_number=" + vehicleNumberInput.value;
-        }
-
-        const driverNameInput = filters.querySelector("#driver-name-input");
-        if (driverNameInput != undefined && driverNameInput.value != "") {
-            result = result + "&driver_name=" + driverNameInput.value;
-        }
-
-        return result;
+        return result != "" ? "?" + result : "";
     }
 
     async getOperations() {
-        const parameters = this.createParameters();
-        let url = "./api/v1/yard/Operations" + parameters;
+        const url = "./api/v1/yard/Operations" + this.createParameters();
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             const operations = await response.json();
@@ -155,8 +126,6 @@
             const message = await response.text();
             console.log(message);
         }
-        url = this.shortUrl + parameters;
-        history.pushState({}, null, url);
     }
 
     clearOperations() {
@@ -166,6 +135,8 @@
 
     async onChangeFilter() {
         await this.getOperations();
+        const url = this.shortUrl + this.createParameters();;
+        history.pushState({}, null, url);
     }
 
     getOperationTypeHint() {
@@ -181,39 +152,6 @@
     }
 
     show() {
-        /*
-        const fromDatePicker = $("#from-date-picker");
-        if (fromDatePicker != undefined) {
-            fromDatePicker.datepicker({
-                format: "dd.mm.yyyy",
-                autoclose: true,
-                language: "ru",
-                todayBtn: true,
-                todayHighlight: true,
-            });
-            let fromDate = utils.getUrlParameter("from_date");
-            if (fromDate == "")
-                fromDate = utils.getNowDate();
-            fromDatePicker.datepicker("setDate", fromDate);
-            fromDatePicker.on("changeDate", this.onChangeFilter.bind(this));
-        }
-        const toDatePicker = $("#to-date-picker");
-        if (toDatePicker != undefined) {
-            toDatePicker.datepicker({
-                format: "dd.mm.yyyy",
-                autoclose: true,
-                language: "ru",
-                todayBtn: true,
-                todayHighlight: true,
-            });
-            let toDate = utils.getUrlParameter("to_date");
-            if (toDate == "")
-                toDate = fromDate;
-            toDatePicker.datepicker("setDate", toDate);
-            toDatePicker.on("changeDate", this.onChangeFilter.bind(this));
-        }
-        */
-
         let fromDate = utils.getUrlParameter("from_date");
         if (fromDate == "")
             fromDate = utils.getNowDate();
@@ -223,33 +161,14 @@
         viewUtils.initDatePicker("from-date-picker", fromDate, this.onChangeFilter.bind(this));
         viewUtils.initDatePicker("to-date-picker", toDate, this.onChangeFilter.bind(this));
 
-        const gatesSelect = document.getElementById("gates-select");
-        if (gatesSelect != undefined)
-            gatesSelect.onchange = this.onChangeFilter.bind(this);
-
-        const partnersSelect = document.getElementById("partners-select");
-        if (partnersSelect != undefined)
-            partnersSelect.onchange = this.onChangeFilter.bind(this);
-
-        const operationTypesSelect = document.getElementById("operation-types-select");
-        if (operationTypesSelect != undefined)
-            operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
-
-        const vehicleKindsSelect = document.getElementById("vehicle-kinds-select");
-        if (vehicleKindsSelect != undefined)
-            vehicleKindsSelect.onchange = this.onChangeFilter.bind(this);
-
-        const operationStatesSelect = document.getElementById("operation-states-select");
-        if (operationStatesSelect != undefined)
-            operationStatesSelect.onchange = this.onChangeFilter.bind(this);
-
-        const vehicleNumberInput = document.getElementById("vehicle-number-input");
-        if (vehicleNumberInput != undefined)
-            vehicleNumberInput.onchange = this.onChangeFilter.bind(this);
-
-        const driverNameInput = document.getElementById("driver-name-input");
-        if (driverNameInput != undefined)
-            driverNameInput.onchange = this.onChangeFilter.bind(this);
+        viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("vehicle-kinds-select", utils.getUrlParameter("vehicle_kind_code"), this.onChangeOperationType.bind(this));
+        viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);

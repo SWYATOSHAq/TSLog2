@@ -9,9 +9,11 @@
 		<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром"></right>
 		<right code="GET_OPERATION" name="Получение данных об операции двора" note="Получение данных об операции двора"></right>
 		<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
+		<right code="VIEW_OPERATIONS" name="Просмотр операций"></right>
 		<right code="VIEW_OPERATION" name="Просмотр операции"></right>
 		<right code="VIEW_ALL_OPERATION" name="Просмотр всех операций"></right>
 		<right code="VIEW_OPERATION_FOR_GUARD" name="Просмотр операций для сотрудника охраны на КПП"></right>
+		<right code="GET_GUARD_OPERATIONS" name="Получение операций для сотрудника охраны (которые должны заехать и которые готовы к выезду)"></right>
 		<right code="VIEW_OPERATION_FOR_MANAGER" name="Просмотр операций для менеджера (операций партнёров данного менеджера)"></right>
 		<right code="VIEW_OPERATION_FOR_MANAGER_LEAD" name="Просмотр всех операция для коммерческого директора"></right>
 		<right code="VIEW_OPERATION_FOR_PARTNER" name="Просмотр операций определённого партнёра"></right>
@@ -24,6 +26,7 @@
 		<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 		<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 		<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
+		<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 		<right code="FILTER_OPERATIONS" name="Фильтр операции по любым полям"></right>
 		<right code="VIEW_OPERATION" name="Просмотр карточки операции"></right>
 		<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
@@ -48,6 +51,8 @@
 		<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 		<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 		<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
+
+		<right code="GET_LABOR_REPORT" name="Просмотр операций для сотрудника охраны"></right>		
 	</rights>
 	<roles code="ROLES" name="Список ролей">
 		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="YardPartnerOperators">
@@ -64,6 +69,7 @@
 			<right code="FILTER_OPERATIONS_BY_GATE" name="Фильтр операций по воротам"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
+			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 		</role>
 		<role code="MANAGER" name="Менеджер клиента" groupName="Managers" note="Клиентские менеджеры">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -77,6 +83,7 @@
 			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операций по Ф. И. О. водителя"></right>
+			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 			<right code="VIEW_OPERATION_FOR_MANAGER" name="Просмотр операций для менеджера (операций партнёров данного менеджера)"></right>
 		</role>
 		<role code="MANAGER_LEAD" name="Руководитель клиентских менеджеров" groupName="ManagerLeads" note="Руководство клиентских менеджеров">
@@ -85,12 +92,14 @@
 		</role>	
 		<role code="GUARD" name="Сотрудник охраны на КПП" groupName="Guards" note="Сотрудники охраны">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+			<right code="VIEW_OPERATIONS" name="Просмотр операций"></right>
 			<right code="VIEW_OPERATION_FOR_GUARD" name="Просмотр операций для сотрудника охраны на КПП"></right>
 			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 			<right code="VIEW_OPERATION" name="Просмотр операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
+			<right code="GET_GUARD_OPERATIONS" name="Получение операций для сотрудника охраны (которые должны заехать и которые готовы к выезду)"></right>
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
@@ -103,9 +112,11 @@
 			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
+			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 		</role>
 		<role code="OPERATOR" name="Оператор склада" groupName="WarehouseOperators" note="Операторы СУС">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+			<right code="VIEW_OPERATIONS" name="Просмотр операций"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND" name="Фильтр операций по виду автомашины"></right>
@@ -114,6 +125,7 @@
 			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
+			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 		</role>
 		<role code="DISPATCHER" name="Диспетчер двора" groupName="YardDispatchers" note="Диспетчеры склада">
@@ -123,6 +135,7 @@
 			<right code="SET_OPERATION_GATE" name="Установка ворот операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="VIEW_OPERATION_FOR_DISPATCHER"></right>
+			<right code="VIEW_OPERATIONS" name="Просмотр операций"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND" name="Фильтр операций по виду автомашины"></right>
@@ -131,6 +144,7 @@
 			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
+			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 			<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
 			<right code="START_OPERATION_WORK" name="Начало работ по операции"></right>
@@ -143,7 +157,8 @@
 			<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
-			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>			
+			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
+			<right code="GET_LABOR_REPORT" name="Просмотр операций для сотрудника охраны"></right>
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -152,6 +167,7 @@
 			<right code="SET_OPERATION_GATE" name="Установка ворот операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="VIEW_OPERATION_FOR_DISPATCHER"></right>
+			<right code="VIEW_OPERATIONS" name="Просмотр операций"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_KIND" name="Фильтр операций по виду автомашины"></right>
@@ -160,6 +176,7 @@
 			<right code="FILTER_OPERATIONS_BY_PARTNER" name="Фильтр операций по партнёру"></right>
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
+			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 			<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
 			<right code="START_OPERATION_WORK" name="Начало работ по операции"></right>

@@ -14,10 +14,10 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
 @{
-    var viewPresentVehiclesPage = !useAuthentication || 
+    var viewOperationsPage = !useAuthentication || 
         rightsChecker.CheckRight("USE_YARD", User) && (rightsChecker.CheckRight("VIEW_OPERATIONS", User) 
             || rightsChecker.CheckRight("VIEW_OPERATIONS_FOR_PARTNER", User));
-    if (!viewPresentVehiclesPage)
+    if (!viewOperationsPage)
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();

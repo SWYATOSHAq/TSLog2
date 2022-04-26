@@ -1,4 +1,5 @@
 ﻿@page "/GuardPage"
+@using TSLog.Common.BO
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
@@ -19,7 +20,40 @@
         throw new UnauthorizedAccessException();
     }
 
-    var operations = storage.GetOperationsForGuard();
-    var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
+    var divClasses = "col-md-3 col-6 filter-div";
+    var selectClasses = "form-select filter-select";
+    OperationTypesModel? operationTypesModel = null;
+    VehicleKindsModel? vehicleKindsModel = null;
+    LogistsModel? logistsModel = null;
+    GatesModel? gatesModel = null;
+    var states =  new Entity[] { storage.GetOperationState("CONFIRMED"), storage.GetOperationState("WORK_FINISHED") };
+    var operationStatesModel = new OperationStatesModel(states, "", true, true, "Все состояния", divClasses, selectClasses);
+    var partnersModel = new PartnersModel(storage.GetPartners(), "", true, true, "Все партнеры", divClasses, selectClasses);
+
+    var filtersModel = new OperationsFiltersBlockModel(false, 
+        operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
+        true, true, false);
+
+    OperationsSortBlockModel sortModel = null;
 }
-<partial name="Blocks/Lists/_GuardOperationsTable" model="operationsModel" />
+<meta http-equiv="refresh" content="60">  
+<h2 id="header2">Машины на въезд и на выезд</h2>
+<partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
+<partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+<table class="table table-light table-bordered table-striped guard-operations-table">
+    <thead class="thead-light">
+        <tr>
+            <th class="color-yellow table-header">Марка Т/С</th>
+            <th class="color-yellow table-header">№ Т/С (прицепа)</th>                
+            <th class="color-yellow table-header">Водитель<br />(Ф. И. О.)</th>
+            <th class="color-yellow table-header">Поклажедатель</th>
+            <th class="color-yellow table-header">Цель приезда</th>
+            <th class="color-yellow table-header">Прибытие на КПП</th>
+            <th class="color-yellow table-header">Начало работы план (факт)</th>
+            <th class="color-yellow table-header">Инициатор допуска ТС</th>
+            <th class="color-yellow table-header">Состояние</th>
+        </tr>
+    </thead>
+    <tbody id="guard-operations-tbody">
+    </tbody>
+</table>

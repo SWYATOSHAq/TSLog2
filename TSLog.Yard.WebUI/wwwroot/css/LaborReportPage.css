@@ -1,0 +1,47 @@
+﻿.dates-div {
+    margin: 0px !important;
+    padding: 0px !important;
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+}
+
+.date-label {
+    width: auto !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    margin-right: 4px !important;
+}
+
+.date-input {
+    width: 120px !important;
+    padding: 0px !important;
+    margin: 0px;
+    margin-right: 16px;
+    text-align: center;
+}
+
+.button-div {
+    margin: 0px !important;
+    padding: 0px !important;
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+}
+
+.create-button {
+    padding: 0px !important;
+    margin: 0px !important;
+    width: 120px !important;
+}
+
+.guard-operations-table {
+    margin-top: 8px;    
+}
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: right;
+    background-color: rgb(122, 122, 122);
+}

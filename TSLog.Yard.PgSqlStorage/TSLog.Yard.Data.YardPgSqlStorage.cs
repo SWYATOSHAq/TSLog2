@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using NpgsqlTypes;
 using System.Data.Common;
+using System.Dynamic;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
@@ -16,7 +17,7 @@ namespace TSLog.Yard.Data
     /// <summary>
     /// Класс для работы с данными в БД PostgreeSQL
     /// </summary>
-    public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage
+    public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage
     {
         private const string DefaultYardSchema = "yard";
         /// <summary>
@@ -1189,7 +1190,8 @@ namespace TSLog.Yard.Data
             Partner? partner,
             string? vehicleBrand,
             string? vehicleNumber,
-            string? driverName)
+            string? driverName,
+            string? partnerActionId)
         {
             var operations = new List<Operation>();
             using (var connection = CloneConnection())
@@ -1197,39 +1199,40 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                       $"select distinct po.id, " +
-                       $"       po.type_id, po.type_code, po.type_name, " +
-                       $"       po.plan_work_start_date, po.fact_work_start_date, " +
-                       $"       po.plan_work_finish_date, po.fact_work_finish_date, " +
-                       $"       po.start_date, po.finish_date, " +
-                       $"       po.vehicle_kind_id, po.vehicle_kind_code, po.vehicle_kind_name, " +
-                       $"       po.vehicle_brand, " +
-                       $"       po.vehicle_model, " +
-                       $"       po.vehicle_number, " +
-                       $"       po.trailer_number, " +
-                       $"       po.driver_name, po.driver_phone_number, " +
-                       $"       po.logist_id, po.logist_code, po.logist_name, " +
-                       $"       po.gate_id, po.gate_code, po.gate_name, " +
-                       $"       po.state_id, po.state_code, po.state_name, " +
-                       $"       po.priority, " +
-                       $"       po.partner_manager_name, " +
-                       $"       po.partner_manager_phone_number, " +
-                       $"       po.partner_manager_email, " +
-                       $"       po.manager_id, " +
-                       $"       po.responsible_officer_id, " +
-                       $"       po.note," +
-                       $"       po.created, po.creator, po.edited, po.editor" +
-                       $"  from {YardSchema}.v_partner_operation po " +
-                       $" where not (:to_date is not null and po.plan_work_start_date > :to_date " +
-                       $"         or :from_date is not null and po.plan_work_finish_date < :from_date) " +
-                       $"   and (:type_id is null or :type_id = po.type_id) " +
-                       $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id) " +
-                       $"   and (:state_id is null or :state_id = po.state_id) " +
-                       $"   and (:gate_id is null or :gate_id = po.gate_id) " +
-                       $"   and (:partner_id is null or :partner_id = po.partner_id) " +
-                       $"   and (trim(coalesce(:vehicle_brand, '')) = '' or upper(po.vehicle_brand) like '%' || upper(:vehicle_brand) || '%') " +
-                       $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%') " +
-                       $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%') ";
+                       $"select distinct po.id,\n" +
+                       $"       po.type_id, po.type_code, po.type_name,\n" +
+                       $"       po.plan_work_start_date, po.fact_work_start_date,\n" +
+                       $"       po.plan_work_finish_date, po.fact_work_finish_date,\n" +
+                       $"       po.start_date, po.finish_date,\n" +
+                       $"       po.vehicle_kind_id, po.vehicle_kind_code, po.vehicle_kind_name,\n" +
+                       $"       po.vehicle_brand,\n" +
+                       $"       po.vehicle_model,\n" +
+                       $"       po.vehicle_number,\n" +
+                       $"       po.trailer_number,\n" +
+                       $"       po.driver_name, po.driver_phone_number,\n" +
+                       $"       po.logist_id, po.logist_code, po.logist_name,\n" +
+                       $"       po.gate_id, po.gate_code, po.gate_name,\n" +
+                       $"       po.state_id, po.state_code, po.state_name,\n" +
+                       $"       po.priority,\n" +
+                       $"       po.partner_manager_name,\n" +
+                       $"       po.partner_manager_phone_number,\n" +
+                       $"       po.partner_manager_email,\n" +
+                       $"       po.manager_id,\n" +
+                       $"       po.responsible_officer_id,\n" +
+                       $"       po.note,\n" +
+                       $"       po.created, po.creator, po.edited, po.editor\n" +
+                       $"  from {YardSchema}.v_partner_operation po\n" +
+                       $" where not (:to_date is not null and po.plan_work_start_date > :to_date\n" +
+                       $"         or :from_date is not null and po.plan_work_finish_date < :from_date)\n" +
+                       $"   and (:type_id is null or :type_id = po.type_id)\n" +
+                       $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id)\n" +
+                       $"   and (:state_id is null or :state_id = po.state_id)\n" +
+                       $"   and (:gate_id is null or :gate_id = po.gate_id)\n" +
+                       $"   and (:partner_id is null or :partner_id = po.partner_id)\n" +
+                       $"   and (trim(coalesce(:vehicle_brand, '')) = '' or upper(po.vehicle_brand) like '%' || upper(:vehicle_brand) || '%')\n" +
+                       $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%')\n" +
+                       $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%')\n" +
+                       $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
                     command.CommandText = sql;
 
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
@@ -1250,6 +1253,8 @@ namespace TSLog.Yard.Data
                         string.IsNullOrWhiteSpace(vehicleNumber) ? DBNull.Value : vehicleNumber.ToUpper()));
                     command.Parameters.Add(CreateParameter("driver_name", NpgsqlDbType.Varchar,
                         string.IsNullOrWhiteSpace(driverName) ? DBNull.Value : driverName.ToUpper()));
+                    command.Parameters.Add(CreateParameter("partner_action_id", NpgsqlDbType.Varchar,
+                        string.IsNullOrWhiteSpace(partnerActionId) ? DBNull.Value : partnerActionId.ToUpper()));
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -1308,7 +1313,7 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
-        public Operation[] GetOperationsForGuard()
+        public Operation[] GetGuardOperations()
         {
             var operations = new List<Operation>();
             using (var connection = CloneConnection())
@@ -1936,6 +1941,164 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        #endregion
+
+        #region Reporting
+
+        public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            var lines = new List<dynamic>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = 
+                        "with operation_labor as (\n" +
+                        "   select o.id,\n" +
+                        "          o.plan_work_start_date, o.fact_work_start_date,\n" +
+                        "          o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                        "          o.plan_work_finish_date - o.plan_work_start_date plan_duration,\n" +
+                        "          o.fact_work_finish_date - o.fact_work_start_date fact_duration,\n" +
+                        "          case\n" +
+                        "              when o.fact_work_finish_date is not null and o.fact_work_start_date is not null then 1\n" +
+                        "              else 0\n" +
+                        "          end work_finished,\n" +
+                        "          case\n" +
+                        "              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) < 0 then 0\n" +
+                        "              else extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
+                        "          end / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date)) plan_k,\n" +
+                        "          case\n" +
+                        "              when extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) < 0 then 0\n" +
+                        "              else extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
+                        "          end / (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date)) fact_k,\n" +
+                        "          case\n" +
+                        "              when o.fact_work_finish_date is null\n" +
+                        "                or o.fact_work_start_date is null\n" +
+                        "                or o.plan_work_finish_date is null\n" +
+                        "                or o.plan_work_start_date is null\n" +
+                        "                or o.plan_work_finish_date = o.plan_work_start_date then 1\n" +
+                        "              else (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date))\n" +
+                        "                 / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date))\n" +
+                        "          end k,\n" +
+                        "          --o.type_id,\n" +
+                        "          --o.vehicle_kind_id,\n" +
+                        "          ow.position_id,\n" +
+                        "          --ow.work_id,\n" +
+                        "          --ow.workers_count,\n" +
+                        "          (select min(oa.partner_id) from yard.v_operation_action oa where oa.operation_id = o.id) partner_id,\n" +
+                        "          sum(ow.\"time\" * ow.workers_count) labor_cost\n" +
+                        "     from yard.v_operation o\n" +
+                        "left join yard.v_ot_vk_work ow on o.type_id = ow.operation_type_id and o.vehicle_kind_id = ow.vehicle_kind_id\n" +
+                        " group by o.id,\n" +
+                        "          ow.position_id,\n" +
+                        "          o.plan_work_start_date, o.fact_work_start_date,\n" +
+                        "          o.plan_work_finish_date, o.fact_work_finish_date\n" +
+                        ")\n" +
+                        "   select ol.partner_id, p.name partner_name,\n" +
+                        "          ol.position_id, ps.name position_name,\n" +
+                        "          round((sum(ol.labor_cost * ol.plan_k) / 3600)::numeric, 2) plan_labor_cost,\n" +
+                        "          round((sum(ol.labor_cost * ol.fact_k * ol.k) / 3600)::numeric, 2) fact_labor_cost\n" +
+                        "     from operation_labor ol\n" +
+                        "left join yard.v_partner p on ol.partner_id = p.id\n" +
+                        "left join yard.v_position ps on ol.position_id = ps.id\n" +
+                        "    where ol.work_finished = 1\n" +
+                        "          and(ol.position_id != 1005)\n" +
+                        "          and(ol.position_id != 1008)\n" +
+                        "          and(ol.position_id != 1015)\n" +
+                        "          and(ol.position_id != 1017)\n" +
+                        "          and not(ol.plan_work_start_date > :to_date or ol.plan_work_finish_date < :from_date)\n" +
+                        " group by ol.partner_id, p.name,\n" +
+                        "          ol.position_id, ps.name\n" +
+                        " order by ol.partner_id,\n" +
+                        "          ol.position_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        dynamic line = new ExpandoObject();
+                        line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
+                        line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                        line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
+                        line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                        lines.Add(line);
+                    }                       
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return lines.ToArray();
+        }
+        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            var lines = new List<dynamic>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        "with data as (\n" +
+                        "   select ow.worker_id,\n" +
+                        "          ow.position_id, pos.\"name\" position_name,\n" +
+                        "          par.id partner_id, par.\"name\" partner_name,\n" +
+                        "          o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                        "          case\n" +
+                        "              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) > 0\n" +
+                        "                  then extract('epoch' from least(:to_date, o.plan_work_finish_date)) -extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
+                        "              else 0\n" +
+                        "          end plan_duration,\n" +
+                        "          o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                        "          case\n" +
+                        "              when o.plan_work_start_date is not null\n" +
+                        "               and o.plan_work_finish_date is not null\n" +
+                        "               and o.fact_work_start_date is not null\n" +
+                        "               and o.fact_work_finish_date is not null\n" +
+                        "               and extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) > 0\n" +
+                        "                   then extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
+                        "              else 0\n" +
+                        "          end fact_duration\n" +
+                        "     from yard.v_operation_worker ow\n" +
+                        "left join yard.v_position pos on ow.position_id = pos.id\n" +
+                        "left join yard.v_partner par on par.id = (select oa.partner_id from yard.v_operation_action oa where oa.operation_id = ow.operation_id)\n" +
+                        "left join yard.v_operation o on ow.operation_id = o.id\n" +
+                        "    where not(o.plan_work_start_date >= :to_date or o.plan_work_finish_date <= :from_date)\n" +
+                        "       or not(o.fact_work_start_date >= :to_date or o.fact_work_finish_date <= :from_date)\n" +
+                        ")\n" +
+                        "  select d.partner_id, d.partner_name,\n" +
+                        "         d.position_id, d.position_name,\n" +
+                        "         count(distinct d.worker_id) workers_count,\n" +
+                        "         round(sum(d.plan_duration)::numeric / 3600, 2) plan_labor_cost,\n" +
+                        "         round(sum(d.plan_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_plan_labor_cost,\n" +
+                        "         round(sum(d.fact_duration)::numeric / 3600, 2) fact_labor_cost,\n" +
+                        "         round(sum(d.fact_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_fact_labor_cost\n" +
+                        "    from data d\n" +
+                        "group by d.partner_id, d.partner_name,\n" +
+                        "         d.position_id, d.position_name\n" +
+                        "order by d.partner_id,\n" +
+                        "         d.position_id";
+
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        dynamic line = new ExpandoObject();
+                        line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
+                        line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                        line.WorkersCount = Utils.DbValueToInt(reader["workers_count"]);
+                        line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
+                        line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                        lines.Add(line);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return lines.ToArray();
+        }
+
         #endregion
     }
 }

@@ -1,14 +1,13 @@
-﻿@using TSLog.Partners.BO
+﻿@using TSLog.Common.BO
+@using TSLog.Partners.BO
 @using TSLog.Staff.BO
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
 @model OperationsModel
 @{
-    var operations = Model.Operations;
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
-    var request = Model.Request;
 
     var divClasses = "col-md-3 col-6 filter-div";
     var selectClasses = "form-select filter-select";
@@ -16,15 +15,18 @@
     VehicleKindsModel? vehicleKindsModel = null;
     LogistsModel? logistsModel = null;
     var gatesModel = new GatesModel(storage.GetGates(), "", true, true, "Все ворота", divClasses, selectClasses);
-    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), "", true, true, "Все состояния", divClasses, selectClasses);
+    var states =  new Entity[] { storage.GetOperationState("STARTED"), 
+        storage.GetOperationState("WORK_STARTED"), 
+        storage.GetOperationState("WORK_FINISHED") };
+    var operationStatesModel = new OperationStatesModel(states, "", true, true, "Все состояния", divClasses, selectClasses);
     var partnersModel = new PartnersModel(storage.GetPartners(), "", true, true, "Все партнеры", divClasses, selectClasses);
 
     var filtersModel = new OperationsFiltersBlockModel(false, 
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
-        true, true);
+        true, true, true);
 }
 <meta http-equiv="refresh" content="60">  
-<h1>Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1>
+<h1 id="header1">Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1>
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
 <table class="table table-light table-bordered table-striped operations-table">
     <thead class="thead-light">
@@ -33,7 +35,7 @@
             <th class="color-yellow table-header">№ Т/С (прицепа)</th>
             <th class="color-yellow table-header">Марка<br />Т/С</th>
             <th class="color-yellow table-header">
-                Шофёр
+                Водитель
                 <br />
                 (Ф. И. О.)
             </th>

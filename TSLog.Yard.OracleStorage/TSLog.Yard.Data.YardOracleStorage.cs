@@ -1,5 +1,6 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
+using System.Dynamic;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
@@ -884,6 +885,53 @@ namespace TSLog.Yard.Data
             positions.Sort();
             return positions.ToArray();
         }
+        #endregion
+
+        #region Reporting
+
+        public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            var lines = new List<dynamic>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    "   select--d.worker_id employee_id,\n" +
+                    "          --emp.employee_surname, emp.employee_first_name, emp.employee_patronymic,\n" +
+                    "          d.partner_id, p.name partner_name,\n" +
+                    "          emp.position_id, emp.position_name,\n" +
+                    "          --Количество работников(различных)\n" +
+                    "          count(distinct d.worker_id) workers_count,\n" +
+                    "          --d.start_date, d.finish_date,\n" +
+                    "          --Трудозатраты в человекочасах\n" +
+                    "          round(sum((d.finish_date - d.start_date) * 24), 2) labor_cost,\n" +
+                    "          --Нормализованные трудозатраты(суммарные / количество работников) в человекочасах\n" +
+                    "          round(sum((d.finish_date - d.start_date) * 24) / count(distinct d.worker_id), 2) norm_labor_cost\n" +
+                    "          --d.site_id\n" +
+                    "     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +
+                    "left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    "left join ecco.par_partner#v p on d.partner_id = p.id\n" +
+                    " group by emp.position_id, emp.position_name,\n" +
+                    "          d.partner_id, p.name\n" +
+                    " order by d.partner_id, emp.position_id";
+
+                command.CommandText = SelectPartnerByIdSql;
+                command.Parameters.Add(new OracleParameter("from_date", fromDate));
+                command.Parameters.Add(new OracleParameter("to_date", toDate));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    dynamic line = new ExpandoObject();
+                    line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
+                    line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                    line.WorkersCount = Utils.DbValueToInt(reader["workers_count"]);
+                    line.LaborCost = Utils.DbValueToDouble(reader["labor_cost"]);
+                    lines.Add(line);
+                }
+                reader.Close();
+            }
+            return lines.ToArray();
+        }
+
         #endregion
     }
 }

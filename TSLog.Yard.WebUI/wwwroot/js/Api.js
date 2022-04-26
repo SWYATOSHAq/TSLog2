@@ -25,6 +25,20 @@
         }
     }
 
+    async getGuardOperations() {
+        let url = "./api/v1/yard/GuardOperations";
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            const operations = await response.json();
+            return operations;
+        }
+        else {
+            const message = await response.text();
+            console.log(message);
+            return [];
+        }
+    }
+
     async createOperation(data) {
         const url = "./api/v1/yard/CreateOperation";
         const options = {

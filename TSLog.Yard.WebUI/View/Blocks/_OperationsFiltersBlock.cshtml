@@ -14,6 +14,7 @@
     var partnersModel = Model.PartnersModel;
     var filterByVehicleNumber = Model.FilterByVehicleNumber;
     var filterByDriveName = Model.FilterByDriveName;
+    var filterByPartnerActionId = Model.FilterByPartnerActionId;
 }
 <div id="filters" class="row filters-div">
     @if (filteByDates)
@@ -22,7 +23,7 @@
             <label class="datepicker2-label"
                 for="from-date-picker">Дата с:</label>
             <input type="text"
-                id="from-date-picker"
+                id="from-date-input"
                 class="datepicker border border-secondary datepicker2"
                 placeholder="Выберете дату"
                 ne="date"
@@ -30,7 +31,7 @@
             <label class="datepicker2-label"
                 for="to-date-picker">Дата по:</label>
             <input type="text"
-                id="to-date-picker"
+                id="to-date-input"
                 class="datepicker border border-secondary datepicker2"
                 placeholder="Выберете дату"
                 ne="date"
@@ -72,5 +73,11 @@
         <div id="vehicle-number-div" class="col-md-3 col-6 filter-div"> 
             <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">
         </div>
+    }
+    @if (filterByPartnerActionId)
+    {
+        <div id="action-div" class="col-md-3 col-6 filter-div"> 
+            <input class="form-control filter-input" id="partner-action-id-input" placeholder="Заказ/приход">
+        </div>        
     }
 </div>
