@@ -22,13 +22,13 @@ namespace TSLog.Yard.Reporting
             public Partner Partner { get; private set; }
             public Position Position { get; private set; }
             #region Boss control
-            public int BcWorkersCount { get; set; } = 1;
+            public int BcWorkersCount { get; set; } = 0;
             public double BcLaborCost { get; set; } = 0;
             public double BcNormalizedLaborCost
             {
                 get
                 {
-                    return BcLaborCost / BcWorkersCount;
+                    return BcWorkersCount > 0 ? BcLaborCost / BcWorkersCount : BcWorkersCount;
                 }
             }
             #endregion            
@@ -39,21 +39,21 @@ namespace TSLog.Yard.Reporting
             #endregion
 
             #region Yard by allocated workers
-            public int YAWorkersCount { get; set; } = 1;
+            public int YAWorkersCount { get; set; } = 0;
             public double YAPlanLaborCost { get; set; } = 0;
             public double YAFactLaborCost { get; set; } = 0;
             public double YANormalizedPlanLaborCost
             {
                 get
                 {
-                    return YAPlanLaborCost / BcWorkersCount;
+                    return BcWorkersCount > 0 ? YAPlanLaborCost / BcWorkersCount : 0;
                 }
             }
             public double YANormalizedfactLaborCost
             {
                 get
                 {
-                    return YAFactLaborCost / BcWorkersCount;
+                    return BcWorkersCount > 0 ? YAFactLaborCost / BcWorkersCount : 0;
                 }
             }
             #endregion
@@ -92,7 +92,7 @@ namespace TSLog.Yard.Reporting
             foreach (var line in lines)
             {
                 var partner = storage.GetPartner(line.PartnerId);
-                var position = storage.GetPosition(line.PositionId);
+                var position = line.PositionId > 0 ? storage.GetPosition(line.PositionId) : Position.Null;
                 var element = new Element(partner, position);
                 element.BcLaborCost = line.LaborCost;
                 element.BcWorkersCount = line.WorkersCount;
@@ -105,7 +105,7 @@ namespace TSLog.Yard.Reporting
             foreach (var line in lines)
             {
                 var partner = storage.GetPartner(line.PartnerId);
-                var position = storage.GetPosition(line.PositionId);
+                var position = line.PositionId > 0 ? storage.GetPosition(line.PositionId) : Position.Null;
                 var key = $"{partner.Id}_{position.Id.ToString()}";
                 if (_elements.ContainsKey(key))
                 {
@@ -126,7 +126,7 @@ namespace TSLog.Yard.Reporting
             foreach (var line in lines)
             {
                 var partner = storage.GetPartner(line.PartnerId);
-                var position = storage.GetPosition(line.PositionId);
+                var position = line.PositionId > 0 ? storage.GetPosition(line.PositionId) : Position.Null;
                 var key = $"{partner.Id}_{position.Id.ToString()}";
                 if (_elements.ContainsKey(key))
                 {

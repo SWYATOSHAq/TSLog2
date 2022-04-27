@@ -1502,6 +1502,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     if (!DateTime.TryParse(stringToDate, out toDate))
                         return $"Wrong to date {stringToDate}";
                 }
+                toDate = toDate.AddDays(1);
 
                 var report = new LaborReport(fromDate, toDate);
                 report.Create(_storage);

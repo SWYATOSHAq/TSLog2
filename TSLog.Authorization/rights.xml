@@ -52,7 +52,7 @@
 		<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 		<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 
-		<right code="GET_LABOR_REPORT" name="Просмотр операций для сотрудника охраны"></right>		
+		<right code="VIEW_LABOR_REPORT_PAGE" name="Просмотр операций для сотрудника охраны"></right>		
 	</rights>
 	<roles code="ROLES" name="Список ролей">
 		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="YardPartnerOperators">
@@ -158,7 +158,7 @@
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
-			<right code="GET_LABOR_REPORT" name="Просмотр операций для сотрудника охраны"></right>
+			<right code="VIEW_LABOR_REPORT_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>

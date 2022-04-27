@@ -12,7 +12,8 @@
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_LABOR_REPORT", User));
+    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) 
+        && rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User));
     if (!viewGuardPage)
     {        
         Response.StatusCode = 403;
@@ -23,41 +24,41 @@
     var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
 <h2 id="header2">Отчёт по трудозатратам</h2>
-<div class="row p-1 hide-on-print dates-div">
+<div class="row dates-div">
     <label class="date-label" for="from-date-input">Начальная дата:</label>
     <input id="from-date-input" 
-        type="text" 
-        class="datepicker border border-secondary hide-on-print date-input" 
+        class="datepicker border border-secondary date-input" 
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />
     <label class="date-label" for="to-date-input">Конечная дата:</label>
     <input id="to-date-input" 
-        type="text" 
-        class="datepicker border border-secondary hide-on-print date-input" 
+        class="datepicker border border-secondary date-input" 
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />
 </div>
-<div class="row p-2 m-1 button-div">
+<div class="row button-div">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
         type="button" 
-        onclick="laborReportPage.CreateReport()">Применить</button>
+        onclick="laborReportPage.createReport()">Применить</button>
 </div>
 <table class="table table-light table-bordered table-striped guard-operations-table">
     <thead class="thead-light">
         <tr>
-            <th class="color-yellow table-header">Марка Т/С</th>
-            <th class="color-yellow table-header">№ Т/С (прицепа)</th>                
-            <th class="color-yellow table-header">Водитель<br />(Ф. И. О.)</th>
-            <th class="color-yellow table-header">Поклажедатель</th>
-            <th class="color-yellow table-header">Цель приезда</th>
-            <th class="color-yellow table-header">Прибытие на КПП</th>
-            <th class="color-yellow table-header">Начало работы план (факт)</th>
-            <th class="color-yellow table-header">Инициатор допуска ТС</th>
-            <th class="color-yellow table-header">Состояние</th>
+            <th class="table-header" rowspan="2">Клиент (мандант)</th>
+            <th class="table-header" rowspan="2">Должность</th>
+            <th class="table-header" colspan="2">Босс контроль</th>
+            <th class="table-header" colspan="3">Двор (назначенные)</th>
+        </tr>
+        <tr>
+            <th class="table-header">Кол-во чел.</th>
+            <th class="table-header">Факт. (чел. * час)</th>
+            <th class="table-header">Кол-во чел.</th>
+            <th class="table-header">План. (чел. * час)</th>
+            <th class="table-header">Факт. (чел. * час)</th>
         </tr>
     </thead>
-    <tbody id="guard-operations-tbody">
+    <tbody id="elements-tbody">
     </tbody>
 </table>

@@ -10,111 +10,78 @@
     createParameters() {
         let result = "";
 
-        result = utils.addParameter(result, "state_code", "operation-states-select");
-        result = utils.addParameter(result, "partner_id", "partners-select");
+        result = utils.addParameter(result, "from_date", "from-date-input");
+        result = utils.addParameter(result, "to_date", "to-date-input");
 
         return result != "" ? "?" + result : "";
     }
 
-    async getData() {
-        this.operations = await api.getGuardOperations();
+    async getData(fromDate, toDate) {
+        this.data = await api.createLaborReport(fromDate, toDate);
     }
 
-    clear() {
-        const operationsTbody = document.getElementById("guard-operations-tbody");
-        operationsTbody.replaceChildren();
+    clearReport() {
+        const elementsTbody = document.getElementById("elements-tbody");
+        elementsTbody.replaceChildren();
     }
 
-    showLine(line, lineTr) {
-        operationTr.classList.add("table-row");
+    showElement(element, elementTr) {
+        elementTr.classList.add("table-row");
 
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames]);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.directionName]);
+        viewUtils.createCell(elementTr, ["table-cell"], [element.partnerName]);
+        viewUtils.createCell(elementTr, ["table-cell"], [element.positionName]);
 
-        let date = new Date(operation.startDate);
-        const startDate = date > utils.nullDate ? date.toLocaleTimeString() + " - " + date.toLocaleDateString(): "Ожидается";
-        viewUtils.createCell(operationTr, ["table-cell"], [startDate]);
+        const bcLaborCost = parseFloat(element.bcLaborCost).toFixed(2);
+        const yaPlanLaborCost = parseFloat(element.yaPlanLaborCost).toFixed(2);
+        const yaFactLaborCost = parseFloat(element.yaFactLaborCost).toFixed(2);
 
-        date = new Date(operation.planWorkStartDate);
-        let contents = [date.toLocaleTimeString() + " - " + date.toLocaleDateString()];
-        date = new Date(operation.factWorkStartDate);
-        if (date > utils.nullDate) {
-            contents.push(document.createElement("br"));
-            const startTimeB = document.createElement("b");
-            startTimeB.textContent = "(" + date.toLocaleTimeString() + " - " + date.toLocaleDateString() + ")";
-            contents.push(startTimeB)
-        }
-        viewUtils.createCell(operationTr, ["table-cell"], contents);
+        const correctStyles = Number(element.bcWorkersCount) == Number(element.yaWorkersCount)
+            ? ["table-cell", "correct-values"]
+            : ["table-cell"];
+        const incorrectStyles = bcLaborCost == 0.0 || yaPlanLaborCost == 0.0 || Math.abs(bcLaborCost - yaPlanLaborCost) / Math.max(bcLaborCost, yaPlanLaborCost) > 0.1
+            ? ["table-cell", "incorrect-values"]
+            : ["table-cell"];
 
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.responsibleOfficer]);
-
-        const passVehicleP = document.createElement("p");
-        passVehicleP.classList.add("text-center");
-        passVehicleP.classList.add("p-margin-0");
-        passVehicleP.textContent = operation.stateDisplayName;
-
-        const passVehicleButton = document.createElement("button");
-        passVehicleButton.classList.add("btn");
-        passVehicleButton.classList.add("btn-outline-info");
-        passVehicleButton.classList.add("m-3");
-        passVehicleButton.classList.add("table-cell-button");
-        if (operation.stateCode == "CONFIRMED") {
-            passVehicleButton.onclick = this.createLetVehicleIn(operation.id);
-            passVehicleButton.textContent = "Впустить";
-        } else if (operation.stateCode = "WORK_FINISHED") {
-            passVehicleButton.onclick = this.createReleaseVehicle(operation.id);
-            passVehicleButton.textContent = "Выпустить";
-        } else {
-            passVehicleButton.onclick = null;
-            passVehicleButton.textContent = "?";
-        }
-        viewUtils.createCell(operationTr, ["table-cell"], [passVehicleP, passVehicleButton],
-            "background-color: " + operation.displayColor + " !important; box-shadow:none");
+        viewUtils.createCell(elementTr, correctStyles, [element.bcWorkersCount]);
+        viewUtils.createCell(elementTr, incorrectStyles, [bcLaborCost]);
+        viewUtils.createCell(elementTr, correctStyles, [element.yaWorkersCount]);
+        viewUtils.createCell(elementTr, incorrectStyles, [yaPlanLaborCost]);
+        viewUtils.createCell(elementTr, ["table-cell"], [yaFactLaborCost]);
     }
 
     showReport() {
-        const operationsTbody = document.getElementById("guard-operations-tbody");
-        let operationTr = null;
-
-        const vehicleNumberInput = document.getElementById("vehicle-number-input");
-        const vehicleNumber = vehicleNumberInput != undefined ? vehicleNumberInput.value.toUpperCase() : "";
-        const driverNameInput = document.getElementById("driver-name-input");
-        const driverName = driverNameInput != undefined ? driverNameInput.value.toUpperCase() : "";
-
-        for (let operation of this.operations) {
-            const statesSelect = document.getElementById("operation-states-select");
-            if (statesSelect != undefined && statesSelect.value != "" && operation.stateCode != statesSelect.value) {
-                continue;
-            }
-            const partnersSelect = document.getElementById("partners-select");
-            if (partnersSelect != undefined && partnersSelect.value != "" && operation.partnerId != partnersSelect.value) {
-                continue;
-            }
-
-            if (!operation.vehicleNumber.toUpperCase().includes(vehicleNumber)) {
-                continue;
-            }
-            if (!operation.driverName.toUpperCase().includes(driverName)) {
-                continue;
-            }
-            operationTr = document.createElement("tr");
-            this.showOperation(operation, operationTr);
-            operationsTbody.append(operationTr);
-        }
+        const elementsTbody = document.getElementById("elements-tbody");
+        for (let element of this.data) {
+            let elementTr = document.createElement("tr");
+            this.showElement(element, elementTr);
+            elementsTbody.append(elementTr);
+        }                
     }
 
-    async show() {
-        await this.getOperations();        
+    onDateChange() {
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
 
-        viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+    async createReport() {
+        this.clearReport();
+        await this.getData(utils.getUrlParameter("from_date"), utils.getUrlParameter("to_date"));
+        this.showReport()
+    }
 
-        this.showOperations();
+    async show() {        
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = fromDate;
+        await this.getData(fromDate, toDate);
+        
+        viewUtils.initDatePicker("from-date-input", fromDate, this.onDateChange.bind(this));
+        viewUtils.initDatePicker("to-date-input", toDate, this.onDateChange.bind(this));
+
+        this.showReport();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }

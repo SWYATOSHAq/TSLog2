@@ -1,18 +1,18 @@
 ﻿class ViewUtils {
     initDatePicker(id, date, onChangeFunction) {
-        const datePicker = $("#" + id);
-        if (datePicker == undefined || datePicker == null) {
+        const dateInput = $("#" + id);
+        if (dateInput == undefined || dateInput == null) {
             return;
         }
-        datePicker.datepicker({
+        dateInput.datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
             language: "ru",
             todayBtn: true,
             todayHighlight: true,
         });
-        datePicker.datepicker("setDate", date);
-        datePicker.on("changeDate", onChangeFunction);
+        dateInput.datepicker("setDate", date);
+        dateInput.on("changeDate", onChangeFunction);
     }
 
     initSelect(id, value, onChangeFunction) {

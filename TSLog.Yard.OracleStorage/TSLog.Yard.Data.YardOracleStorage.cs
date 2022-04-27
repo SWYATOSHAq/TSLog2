@@ -907,9 +907,10 @@ namespace TSLog.Yard.Data
                     "          --Нормализованные трудозатраты(суммарные / количество работников) в человекочасах\n" +
                     "          round(sum((d.finish_date - d.start_date) * 24) / count(distinct d.worker_id), 2) norm_labor_cost\n" +
                     "          --d.site_id\n" +
-                    "     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +
+                    "     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +                    
                     "left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
                     "left join ecco.par_partner#v p on d.partner_id = p.id\n" +
+                    "    where d.site_id in (select id from ecco.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
                     " group by emp.position_id, emp.position_name,\n" +
                     "          d.partner_id, p.name\n" +
                     " order by d.partner_id, emp.position_id";
@@ -918,7 +919,7 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("from_date", fromDate));
                 command.Parameters.Add(new OracleParameter("to_date", toDate));
                 using var reader = command.ExecuteReader();
-                if (reader.Read())
+                while (reader.Read())
                 {
                     dynamic line = new ExpandoObject();
                     line.PartnerId = Utils.DbValueToString(reader["partner_id"]);

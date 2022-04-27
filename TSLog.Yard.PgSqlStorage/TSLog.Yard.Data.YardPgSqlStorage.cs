@@ -2075,6 +2075,7 @@ namespace TSLog.Yard.Data
                         "    from data d\n" +
                         "group by d.partner_id, d.partner_name,\n" +
                         "         d.position_id, d.position_name\n" +
+                        "  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" + 
                         "order by d.partner_id,\n" +
                         "         d.position_id";
 
