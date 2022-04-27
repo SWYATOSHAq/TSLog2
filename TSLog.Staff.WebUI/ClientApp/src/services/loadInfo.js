@@ -15,12 +15,12 @@ export default class LoadInfo {
 
     async getProfessions() {
         const professions = await this.getData().then(body => body.map((element) => element.DisplayName));
-        return await professions
+        return professions
     }
 
     async getId() {
         const id = await this.getData().then(body => body.map((element) => element.Id));
-        return await id
+        return id
     }
 
 }
