@@ -11,13 +11,17 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
     var userName = User.Identity != null ? User.Identity.Name : string.Empty;
     var debugText = $"(DEBUG {userName})";    
-    
-    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
-    var viewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
-    var viewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
-    var viewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
-    var viewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
-    var viewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+
+    var canCreateOperation = !useAuthentication 
+        || rightsChecker.CheckRight("CREATE_OPERATION", User)
+        || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+    var canViewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
+    var canViewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
+    var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
+    var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
+
     var date = DateTime.Today.ToString("dd.MM.yyyy");
 
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -37,9 +41,21 @@
     </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
 
-    @if (page == "StaffPage")
+    @if (page == "OperationPage")
+    {
+        <link rel="stylesheet" href="~/css/OperationPage.css" asp-append-version="true" />
+    }
+    else if (page == "OperationsPage")
+    {
+        <link rel="stylesheet" href="~/css/OperationsPage.css" asp-append-version="true" />
+    }
+    else if (page == "OperationsPage2")
+    {
+        <link rel="stylesheet" href="~/css/OperationsPage2.css" asp-append-version="true" />
+    }
+    else if (page == "StaffPage")
     {
         <link rel="stylesheet" href="~/css/StaffPage.css" asp-append-version="true" />
     }
@@ -51,10 +67,18 @@
     {
         <link rel="stylesheet" href="~/css/ClientReportPage.css" asp-append-version="true" />
     }  
-
-    <!--
-    <link rel="stylesheet" href="~/TSLog.Yard.WebUI.styles.css" asp-append-version="true" />
-    -->
+    else if (page == "PresentVehiclesPage")
+    {
+        <link rel="stylesheet" href="~/css/PresentVehiclesPage.css" asp-append-version="true" />
+    }  
+    else if (page == "GuardPage")
+    {
+        <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
+    } 
+    else if (page == "LaborReportPage")
+    {
+        <link rel="stylesheet" href="~/css/LaborReportPage.css" asp-append-version="true" />
+    } 
 </head>
 
 <body>
@@ -76,56 +100,51 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/DispatcherHome?from_date=@date&to_date=@date">ЛК TSL</a>
+                            <a class="nav-link text-dark" href="/OperationsPage?from_date=@date&to_date=@date">ЛК ТСЛ</a>
                         </li>
-                        @if (createOperation)
+                        @if (canCreateOperation && page != "OperationsPage")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="/NewOperation">Cоздать запрос</a>
+                                <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
                             </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark d-none" href="/UserHome">ЛК пользователя</a>
-                        </li>
-                        @if (viewStaffPlan)
+                        }                        
+                        @if (canViewStaffPlan)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/StaffPage?date=@date">План персонала</a>
                             </li>
                         }
-                        @if (viewGatesPlan)
+                        @if (canViewGatesPlan)
                         {
                             <li class="nav-item">                            
                                 <a class="nav-link text-dark" href="/GatesPage?date=@date">План ворот</a>                            
                             </li>
                         }
-                        @if (viewPartnersReport)
+                        @if (canViewPartnersReport)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/ClientReportPage">Статистика затрат по клиентам</a>
                             </li>
                         }
-                        @if (viewActiveOperations)
+                        @if (canViewActiveOperations)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/PresentVehiclesPage">Машины во дворе</a>
                             </li>
                         }
-                        @if (viewGuardPage)
+                        @if (canViewGuardPage)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/GuardPage">Управление въездом/выездом</a>
                             </li>
                         }
-                        <!-- 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        -->
+                        @if (canViewLaborReportPage)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/LaborReportPage">Отчёт о трудозатратах</a>
+                            </li>
+                        }
                     </ul>
-                    <div class="d-none">
-                        <partial name="_LoginPartial" />
-                    </div>
                 </div>
             </div>
         </nav>
@@ -137,7 +156,7 @@
     </div>
     <footer class="border-top footer text-muted hide-on-print">
         <div class="container">
-            &copy; 2021-2022 - TSL - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2021-2022 - ТСЛ - <a asp-area="" asp-page="/Privacy">Приватность</a>
         </div>
     </footer>
     <!-- External libraries -->
@@ -149,9 +168,27 @@
 
     <!-- Common scriprs -->
     <script type="text/javascript" src="~/js/Common.js"></script>
+    <script type="text/javascript" src="~/js/CommonView.js"></script>
+    <script type="text/javascript" src="~/js/Api.js"></script>
 
     @{
-        if (page == "StaffPage")
+        if (page == "OperationPage")
+        {
+            <script type="text/javascript" src="~/js/OperationPage.js"></script>
+        }
+        else if (page == "OperationPrintPage")
+        {
+            <script type="text/javascript" src="~/js/OperationPrintPage.js"></script>
+        }
+        else if (page == "OperationsPage")
+        {
+            <script type="text/javascript" src="~/js/OperationsPage.js"></script>
+        }
+        else if (page == "OperationsPage2")
+        {
+            <script type="text/javascript" src="~/js/OperationsPage2.js"></script>
+        }
+        else if (page == "StaffPage")
         {
             <script type="text/javascript" src="~/js/StaffPage.js"></script>
         }
@@ -162,10 +199,18 @@
         else if (page == "ClientReportPage")
         {        
             <script type="text/javascript" src="~/js/ClientReportPage.js"></script>
-        }  
-        else
-        {
-            <script src="~/js/site.js" asp-append-version="true"></script>        
+        }
+        else if (page == "PresentVehiclesPage")
+        {        
+            <script type="text/javascript" src="~/js/PresentVehiclesPage.js"></script>
+        }
+        else if (page == "GuardPage")
+        {        
+            <script type="text/javascript" src="~/js/GuardPage.js"></script>
+        }
+        else if (page == "LaborReportPage")
+        {        
+            <script type="text/javascript" src="~/js/LaborReportPage.js"></script>
         }
     }
 

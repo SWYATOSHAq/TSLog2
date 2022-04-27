@@ -1,0 +1,25 @@
+﻿@using TSLog.Yard.WebUI.Models
+
+@model GatesModel
+@{
+    var gates = Model.Gates;
+    var selectedGate = Model.SelectedGate;
+    var isEnabled = Model.IsEnabled;
+    var isSmall = Model.IsSmall;
+    var defaultText = Model.DefaultText;
+    var divClasses = Model.DivClasses;
+    var selectClasses = Model.SelectClasses;
+
+    if (string.IsNullOrWhiteSpace(defaultText))
+        defaultText = "Ворота не выбраны";
+}
+<div id="gates-div" class="@divClasses">
+    <span class="input-group-text col-3@(isSmall  ? " d-none" : string.Empty)">Ворота</span>
+    <select id="gates-select" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
+        <option value="">@defaultText</option>
+        @foreach (var gate in gates)
+        {
+           @: <option value="@gate.Code"@((gate.Code != selectedGate) ? string.Empty : " selected")>@gate.DisplayName</option>
+        }
+    </select>
+</div>

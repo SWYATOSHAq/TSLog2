@@ -1,0 +1,11 @@
+﻿@page "/OperationsPage2"
+@using TSLog.Yard.WebUI.Models
+
+@model OperationsPage2Model
+@{
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var operationsBlockModel = new OperationsBlock2Model(rightsChecker, storage, true, Request);    
+}
+
+<partial name="Blocks/_OperationsBlock2" model="operationsBlockModel" />

@@ -69,6 +69,8 @@ namespace TSLog.Staff.WebUI.Controllers
         {
             var positions = _storage.GetPositions();
 
+            Response.Headers.Add("Access-Control-Allow-Origin", "Hello Alex!!!");
+
             return JsonSerializer.Serialize(positions);
             // https://localhost:7019/api/v1/Staff/Position
         }

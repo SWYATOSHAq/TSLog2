@@ -527,7 +527,7 @@ namespace TSLog.Yard.BO
             {
                 var result = 0;
                 foreach (var operation in _operations.Values)
-                    result += Convert.ToInt32(operation.TotalLaborCost * OperationShare(operation));
+                    result += Convert.ToInt32(operation.PlanLaborCost * OperationShare(operation));
                 return result;
             }
         }

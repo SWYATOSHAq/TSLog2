@@ -35,7 +35,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Плановая дата и время начала непосредственно работ
         /// </summary>
-        public DateTime PlanWorkStartDate { get; private set; }
+        public DateTime PlanWorkStartDate { get; set; }
         /// <summary>
         /// Фактическая дата и время начала непосредственно работ
         /// </summary>
@@ -43,7 +43,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Плановая дата и время окончания непосредственно работ
         /// </summary>
-        public DateTime PlanWorkFinishDate { get; private set; }
+        public DateTime PlanWorkFinishDate { get; set; }
         /// <summary>
         /// Фактическая дата и время окончания непосредственно работ
         /// </summary>
@@ -103,7 +103,7 @@ namespace TSLog.Yard.BO
         /// <summary>
         /// Приоритет
         /// </summary>
-        public int Priority { get; set; }
+        public short Priority { get; set; }
         public string PartnerManagerName { get; set; }
         public string PartnerManagerPhoneNumber { get; set; }
         public string PartnerManagerEmail { get; set; }
@@ -231,7 +231,7 @@ namespace TSLog.Yard.BO
         }
         public static Operation[] Filter(Operation[] operations,
             Partner partner, OperationType operationType, VehicleKind vehicleKind, Gate gate, Entity operationState,
-            string vehicleNumber = "", string driverName = "")
+            string vehicleNumber = "", string driverName = "", string partnerActionId = "")
         {
             if (operations == null)
                 throw new ArgumentNullException(nameof(operations));
@@ -256,7 +256,12 @@ namespace TSLog.Yard.BO
             {
                 driverName = driverName.Trim().ToUpper();
                 temp = temp.FindAll(o => o.DriverName.ToUpper().Contains(driverName));
-            }            
+            }
+            if (!string.IsNullOrWhiteSpace(partnerActionId))
+            {
+                partnerActionId = partnerActionId.Trim().ToUpper();
+                temp = temp.FindAll(o => o.HasActions(partnerActionId));
+            }
 
             return temp.ToArray();
         }    

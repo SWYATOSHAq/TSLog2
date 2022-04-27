@@ -20,6 +20,8 @@ namespace TSLog.Staff.BO
             }
         }
         private const double DefaultCost = 100.00;
+        public string WmsLogin { get; set; } = string.Empty;
+        public string AdLogin { get; set; } = string.Empty;
         public string Surname { get; private set; }
         public string FirstName
         {

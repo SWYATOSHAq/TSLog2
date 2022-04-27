@@ -547,6 +547,8 @@ namespace TSLog.Staff.Data
                 throw new ArgumentNullException(nameof(reader));
             var id = Convert.ToInt64(reader["id"]);
             var code = Utils.DbValueToString(reader["code"]);
+            var wmsLogin = Utils.DbValueToString(reader["wms_login"]);
+            var adLogin = Utils.DbValueToString(reader["ad_login"]);
             var surname = Utils.DbValueToString(reader["surname"]);
             var firstName = Utils.DbValueToString(reader["first_name"]);
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
@@ -561,6 +563,10 @@ namespace TSLog.Staff.Data
                 company,
                 isActive,
                 note);
+
+            employee.WmsLogin = wmsLogin;
+            employee.AdLogin = adLogin;
+
             employee.Patronymic = Utils.DbValueToString(reader["patronymic"]);
             employee.Sex = Utils.DbValueToString(reader["sex"]);
             employee.Nationality = Utils.DbValueToString(reader["nationality"]);
@@ -593,7 +599,7 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var FindEmployeesSql =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, wms_login, ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
@@ -692,7 +698,7 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectEmployeesSql =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
@@ -728,7 +734,7 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectEmployeeById =
-                    $"select e.id, e.code," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
                     $"       e.surname, e.first_name, e.patronymic," +
                     $"       e.sex, e.birth_date," +
                     $"       e.nationality," +
@@ -757,6 +763,49 @@ namespace TSLog.Staff.Data
             if (employee != null && employee != Employee.Null && employee != Employee.Empty)
                 return employee;
             throw new EmployeeNotFoundException(id);
+        }
+        public Employee GetEmployeeByAdLogin(string login)        
+        {
+            if (string.IsNullOrWhiteSpace(login))
+                throw new ArgumentException("Login is empty!");
+            login = login.Trim().ToLower();
+            var employees = _employees.Entities.ToList();
+            var employee = employees.Find(e => e.AdLogin.Trim().ToLower() == login);
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+                return employee;
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var SelectEmployeeById =
+                    $"select e.id, e.code, e.wms_login, e.ad_login," +
+                    $"       e.surname, e.first_name, e.patronymic," +
+                    $"       e.sex, e.birth_date," +
+                    $"       e.nationality," +
+                    $"       e.phone_number, e.email," +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
+                    $"       e.employment_date, e.dismissal_date," +
+                    $"       e.company_id," +
+                    $"       e.department_id," +
+                    $"       e.cost," +
+                    $"       e.cost_currency_code," +
+                    $"       e.is_active," +
+                    $"       e.display_order," +
+                    $"       e.note" +
+                    $"  from {StaffSchema}.stf_employee#v e " +
+                    $" where e.ad_login = :ad_login";
+                command.CommandText = SelectEmployeeById;
+                command.Parameters.Add(new OracleParameter("ad_login", login));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    employee = CreateEmployee(reader);
+                    _employees.Add(employee);
+                }
+                reader.Close();
+            }
+            if (employee != null && employee != Employee.Null && employee != Employee.Empty)
+                return employee;
+            throw new EmployeeNotFoundException("AD login", login);
         }
         public Employee AddEmployee(Employee employee)
         {

@@ -10,39 +10,21 @@
 }
 @model PresentVehiclesPageModel
 @{
-    ViewData["Title"] = "Активные машины";
+    ViewData["Title"] = "Машины во дворе";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    var viewPresentVehiclesPage = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var viewPresentVehiclesPage = !useAuthentication || 
+        rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
     if (!viewPresentVehiclesPage)
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
-
-        //var url = "/Error";
-        //Response.Redirect(url);
-        //return;
     }
 
     var operations = storage.GetActiveOperations();
     Array.Sort(operations, Operation.CompareByPlanWorkStartDate);
 
-    var context = new PrincipalContext(ContextType.Domain);
-    foreach (var operation in operations)
-    {
-        try
-        {
-            var creator = UserPrincipal.FindByIdentity(context, operation.Creator);
-            if (creator == null)
-                continue;
-            var shortName = Utils.FullNameToShortName(creator.DisplayName);
-            operation.Creator = $"{shortName} ({creator.EmailAddress})";
-        }
-        catch
-        { }
-    }
-
     var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
-<partial name="Partials/Lists/_OperationsTablePartial" model="operationsModel" />
+<partial name="Blocks/Lists/_PresentVehiclesTable" model="operationsModel" />

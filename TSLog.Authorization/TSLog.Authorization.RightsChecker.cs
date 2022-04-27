@@ -105,6 +105,13 @@ namespace TSLog.Authorization
             reader.Close();
         }
 
+        public string GetUserName(ClaimsPrincipal user)
+        {
+            var userName = "a.ilenkova"; // Для теста!
+            if (user != null && user.Identity != null && !string.IsNullOrWhiteSpace(user.Identity.Name))
+                userName = user.Identity.Name.Split('\\').Last();
+            return userName;
+        }
         public bool CheckRight(string right, ClaimsPrincipal user)
         {
             if (string.IsNullOrWhiteSpace(right))
@@ -116,6 +123,34 @@ namespace TSLog.Authorization
                     rights.UnionWith(role.Rights);                        
 
             return rights.Contains(right);
+        }
+        /// <summary>
+        /// Возвращает идентификатор партнёра (клиента) по имени пользователя
+        /// </summary>
+        /// <param name="userName">Имя пользователя</param>
+        /// <returns>Идентификатор партнёра (клиента)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public string GetPartnerIdByUser(string userName) 
+        {
+            if (string.IsNullOrWhiteSpace(userName))
+                throw new ArgumentException("User name is empty!");
+            userName = userName.Split('\\').Last();
+            userName = userName.ToLower();
+            if (!_users.ContainsKey(userName))
+                throw new ArgumentException($"User {userName} not found!");
+            var user = _users[userName];
+            var partners = user.GetPartners();
+            return partners[0];
+        }
+        public HashSet<string> GetPartnersIdsByUser(string userName)
+        {
+            if (string.IsNullOrWhiteSpace(userName))
+                throw new ArgumentException("User name is empty!");
+            if (!_users.ContainsKey(userName))
+                return new HashSet<string>();
+            var user = _users[userName];
+            var partners = user.GetPartners();
+            return partners.ToHashSet();
         }
     }
 }

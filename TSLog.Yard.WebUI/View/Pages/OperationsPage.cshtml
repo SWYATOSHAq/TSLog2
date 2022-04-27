@@ -1,0 +1,27 @@
+﻿@page "/OperationsPage"
+@using TSLog.Yard.WebUI.Models
+
+@model OperationsPageModel
+@{
+    ViewData["Title"] = "Панель администратора";
+
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var operationsBlockModel = new OperationsBlockModel(rightsChecker, storage, true, Request);    
+}
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@{
+    var viewOperationsPage = !useAuthentication || 
+        rightsChecker.CheckRight("USE_YARD", User) && (rightsChecker.CheckRight("VIEW_OPERATIONS", User) 
+            || rightsChecker.CheckRight("VIEW_OPERATIONS_FOR_PARTNER", User));
+    if (!viewOperationsPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
+}
+
+<partial name="Blocks/_OperationsBlock" model="operationsBlockModel" />

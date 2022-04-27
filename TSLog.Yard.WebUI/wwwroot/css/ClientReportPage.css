@@ -39,3 +39,17 @@
     padding: 0px;
     width: 120px;
 }
+
+.dropdown-div {
+    padding: 0px !important;
+    margin: 0px !important;
+    width: 240px !important;
+}
+
+.dropdown-select {    
+    padding: 0px !important;
+    padding-left: 4px !important;
+    margin: 0px !important;
+    border-radius: 4px !important;
+    align-items: center;
+}

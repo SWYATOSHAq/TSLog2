@@ -1,0 +1,59 @@
+﻿.filters-div {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.dates-div {
+    margin: 0px !important;
+    padding: 4px !important;
+    padding-left: 0px !important;
+}
+
+.filter-div {
+    padding: 4px !important;
+    padding-left: 0px !important;
+    padding-right: 8px !important;
+    width: 320px !important;
+}
+
+.filter-select {
+    padding: 0px !important;
+    padding-left: 8px !important;
+    margin: 0px !important;
+    align-items: center;
+}
+
+.filter-input {
+    padding: 0px !important;
+    padding-left: 8px !important;
+    margin: 0px !important;
+}
+
+.guard-operations-table {
+    margin-top: 4px;
+}
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: right;
+    background-color: rgb(122, 122, 122);
+}
+
+.color-orange {
+    background-color: rgb(255, 222, 161) !important;
+}
+
+.color-green {
+    background-color: rgb(158, 255, 158) !important;
+}
+
+.color-yellow {
+    background-color: rgb(255, 255, 158) !important;
+}
+
+.container {
+    max-width: 100% !important;
+}

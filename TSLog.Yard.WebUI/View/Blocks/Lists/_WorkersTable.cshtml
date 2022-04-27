@@ -1,0 +1,117 @@
+﻿@using TSLog.Staff.BO
+@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
+@model WorkersModel
+@{
+    var allocatedWorkers = Model.AllocatedWorkers;
+    var planWorkersCounts = Model.PlanWorkersCounts;
+    var laborCost = Model.LaborCost;
+    var isEnabled = Model.IsEnabled;
+
+    var i = 1;
+    var posCount = 0;
+    var defaultRows = 5;
+    var onClick = "onClick";
+}
+
+@if (isEnabled)
+{
+    <table class="table table-light p-3 show-table-on-print">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Должность</th>
+                <th class="d-none">Стоимость</th>
+                <th>ФИО ответственного</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (planWorkersCounts.Count > 0)
+            {
+                @foreach (var key in planWorkersCounts.Keys)
+                {
+                    @if (key.IsLinear)
+                    {
+                        posCount = 1;
+                        if (allocatedWorkers.ContainsKey(key))
+                            @foreach (var employee in allocatedWorkers[key])
+                            {
+                                <tr class="@key.Code">
+                                    <td class="table-row-index">@i</td>
+                                    <td>
+                                        <p>
+                                            @key.DisplayName
+                                            <button class="btn btn-outline-success hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
+                                            <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
+                                        </p>
+                                        <p class="cell-info-text">[@(new TimeSpan(0, 0, laborCost[key]/planWorkersCounts[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@planWorkersCounts[key])</p>
+                                    </td>
+                                    <td class="d-none">
+                                        <p>@(employee.Cost > 0 ? employee.Cost : key.LaborHourCost)</p>
+                                        @(employee.Cost > 0 ? employee.CostMeasureUnit.ShortName : @key.LaborHourCostCurrency.ShortName) / час
+                                    </td>
+                                    <td class="name">
+                                        <div class="dropdown rem-outline-on-print">
+                                            <div class="input-group">
+                                                <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="@employee.FullName">
+                                                <input type="hidden" name="position_code" class="position-code" value="@key.Code">
+                                                <input type="hidden" name="selected_worker_id" class="selected-worker-id" value="@employee.Id">
+                                                <ul class="dropdown-menu" aria-labelledby="список сотрудников" style="max-height: 10em; overflow: auto;">
+                                                    <li class="dropdown-item"></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                                i++;
+                                posCount++;
+                            }
+                        @for (var j = 0; j < planWorkersCounts[key] - ((allocatedWorkers.ContainsKey(key) ? allocatedWorkers[key].Count : 0)); j++)
+                        {
+                            <tr class="@key.Code">
+                                <td class="table-row-index">@i</td>
+                                <td>
+                                    <p>
+                                        @key.DisplayName
+                                        <button class="btn btn-outline-success m-1 hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
+                                        <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
+                                    </p>
+                                    <p class="cell-info-text">[@(new TimeSpan(0, 0, laborCost[key]/planWorkersCounts[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@planWorkersCounts[key])</p>
+                                </td>
+                                <td class="d-none"><p>@key.LaborHourCost</p> @key.LaborHourCostCurrency.ShortName / час</td>
+                                <td class="name">
+                                    <div class="dropdown rem-outline-on-print">
+                                        <div class="input-group">
+                                            <input class="form-control dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false" value="">
+                                            <input type="hidden" name="position_code" class="position-code" value="@key.Code">
+                                            <input type="hidden" name="selected_worker_id" class="selected-worker-id" value="">
+                                            <ul class="dropdown-menu" aria-labelledby="список сотрудников" style="max-height: 10em; overflow: auto;">
+                                                <li class="dropdown-item"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            i++;
+                            posCount++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                @for (var j = 0; j < defaultRows; j++)
+                {
+                    <tr>
+                        <td>@i</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    i++;
+                }
+            }
+        </tbody>
+    </table>
+}

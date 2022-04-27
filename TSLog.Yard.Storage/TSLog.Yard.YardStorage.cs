@@ -25,7 +25,9 @@ namespace TSLog.Yard
             {
                 GetEmployeeById = _oracleStorage.GetEmployee,
                 GetPartnerById = _oracleStorage.GetPartner,
-                GetPositionById = _oracleStorage.GetPosition
+                GetPositionById = _oracleStorage.GetPosition,
+                GetEmployeesByShift = _oracleStorage.GetShiftEmployees,
+                GetEmployees = _oracleStorage.GetEmployees
             };
         }
         public void ConnectOracle(string userName, string password)
@@ -77,6 +79,10 @@ namespace TSLog.Yard
         public Employee GetEmployee(int id)
         {
             return _oracleStorage.GetEmployee(id);
+        }
+        public Employee GetEmployeeByAdLogin(string login)
+        {
+            return _oracleStorage.GetEmployeeByAdLogin(login);
         }
         public Employee[] GetEmployees()
         {
@@ -217,9 +223,13 @@ namespace TSLog.Yard
         #endregion
 
         #region Operations
-        public short GetTime(OperationType operationType, VehicleKind vehicleKind)
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
         {
-            return _pgsqlStorage.GetTime(operationType, vehicleKind);
+            return _pgsqlStorage.GetDuration(operationType, vehicleKind);
+        }
+        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            return _pgsqlStorage.GetLaborCost(operationType, vehicleKind);
         }
         public Interval[] GetAllIntervals(DateTime from, DateTime to)
         {
@@ -261,17 +271,18 @@ namespace TSLog.Yard
             Partner? partner,
             string? vehicleBrand,
             string? vehicleNumber,
-            string? driverName)
+            string? driverName,
+            string? partnerActionId)
         {
-            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, vehicleBrand, vehicleNumber, driverName);
+            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, vehicleBrand, vehicleNumber, driverName, partnerActionId);
         }
         public Operation[] GetActiveOperations()
         {
             return _pgsqlStorage.GetActiveOperations();
         }
-        public Operation[] GetOperationsForGuard()
+        public Operation[] GetGuardOperations()
         {
-            return _pgsqlStorage.GetOperationsForGuard();
+            return _pgsqlStorage.GetGuardOperations();
         }
         public Partner[] GetOperationsPartners(DateTime from, DateTime to)
         {
@@ -304,6 +315,10 @@ namespace TSLog.Yard
         public void FinishOperationWork(Operation operation, string user = "")
         {
             _pgsqlStorage.FinishOperationWork(operation, user);
+        }
+        public void SetOperationNote(Operation operation, string user = "")
+        {
+            _pgsqlStorage.SetOperationNote(operation, user);
         }
         public void FinishOperation(Operation operation, string user = "")
         {
@@ -363,6 +378,23 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.RemoveEmployee(operation, employee, position);
         }
+        #endregion
+
+        #region Reporting
+
+        public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            return _pgsqlStorage.GetYardStandardLabocCosts(fromDate, toDate);
+        }
+        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate) 
+        {
+            return _pgsqlStorage.GetYardAllocatedLabocCosts(fromDate, toDate);
+        }
+        public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
+        {
+            return _oracleStorage.GetBcLabocCosts(fromDate, toDate);
+        }
+
         #endregion
 
         public void Dispose()

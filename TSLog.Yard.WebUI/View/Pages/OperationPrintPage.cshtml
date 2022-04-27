@@ -1,0 +1,21 @@
+﻿@page "/OperationPrintPage"
+@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+@model OperationPrintPageModel
+
+@{
+    ViewData["Title"] = "Активные машины";
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+
+    string stringId = Request.Query["id"];
+    var operation = Operation.Empty;
+    long id = 0;
+    operation = long.TryParse(stringId, out id) ? storage.GetOperation(id) : Operation.Empty;
+    var operationModel = new OperationModel(rightsChecker, storage, operation, true);
+}
+@if (id != 0 && operation != Operation.Empty)
+{
+    <partial name="Blocks/_OperationBlock" model="operationModel" />
+}
+<input id="force-print" type="hidden" name="force-print" value="true">

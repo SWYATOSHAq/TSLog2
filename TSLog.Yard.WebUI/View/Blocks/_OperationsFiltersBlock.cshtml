@@ -1,0 +1,83 @@
+﻿@using TSLog.Yard.BO
+@using TSLog.Partners.BO
+@using TSLog.Authorization
+@using TSLog.Yard.WebUI.Models
+
+@model OperationsFiltersBlockModel
+@{
+    var filteByDates = Model.FilterByDates;
+    var operationTypesModel = Model.OperationTypesModel;
+    var vehicleKindsModel = Model.VehicleKindsModel;
+    var logistsModel = Model.LogistsModel;
+    var gatesModel = Model.GatesModel;
+    var operationStatesModel = Model.OperationStatesModel;
+    var partnersModel = Model.PartnersModel;
+    var filterByVehicleNumber = Model.FilterByVehicleNumber;
+    var filterByDriveName = Model.FilterByDriveName;
+    var filterByPartnerActionId = Model.FilterByPartnerActionId;
+}
+<div id="filters" class="row filters-div">
+    @if (filteByDates)
+    {
+        <div class="row dates-div">
+            <label class="datepicker2-label"
+                for="from-date-picker">Дата с:</label>
+            <input type="text"
+                id="from-date-input"
+                class="datepicker border border-secondary datepicker2"
+                placeholder="Выберете дату"
+                ne="date"
+                readonly />
+            <label class="datepicker2-label"
+                for="to-date-picker">Дата по:</label>
+            <input type="text"
+                id="to-date-input"
+                class="datepicker border border-secondary datepicker2"
+                placeholder="Выберете дату"
+                ne="date"
+                readonly />
+        </div>   
+    }    
+    @if (operationTypesModel != null)
+    {
+        <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />
+    }
+    @if (vehicleKindsModel != null)
+    {
+        <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />        
+    }
+    @if (logistsModel != null)
+    {
+        <partial name="Blocks/Lists/_LogistsDropdown" model="logistsModel" />   
+    }
+    @if (gatesModel != null)
+    {
+        <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />        
+    }
+    @if (operationStatesModel != null)
+    {
+        <partial name="Blocks/Lists/_OperationStatesDropdown" model="operationStatesModel" />
+    }
+    @if (partnersModel != null)
+    {
+        <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+    }
+    @if (filterByVehicleNumber)
+    {
+        <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">                        
+            <input class="form-control filter-input" id="vehicle-number-input" placeholder="Номер машины">
+        </div>
+    }
+    @if (filterByDriveName)
+    {
+        <div id="vehicle-number-div" class="col-md-3 col-6 filter-div"> 
+            <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">
+        </div>
+    }
+    @if (filterByPartnerActionId)
+    {
+        <div id="action-div" class="col-md-3 col-6 filter-div"> 
+            <input class="form-control filter-input" id="partner-action-id-input" placeholder="Заказ/приход">
+        </div>        
+    }
+</div>

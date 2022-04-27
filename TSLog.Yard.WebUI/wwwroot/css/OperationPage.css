@@ -1,0 +1,69 @@
+﻿.dropdowm-div {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.dropdown-select {
+    /*
+    padding: 0px !important;
+    padding-left: 4px !important;
+    margin: 0px !important;
+    border-radius: 4px !important;
+    display: flex;
+    align-items: center;
+    */
+}
+
+.input-div {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.textarea-div {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.selected-block-button {
+    background-color: #0dcaf0 !important;
+}
+
+/* The Modal (background) */
+.operation-type-note {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 9999; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.operation-type-note-content {
+    background-color: #fefefe;
+    margin-left: 54% !important;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 32%;
+}
+
+/* The Close Button */
+.operation-type-note-close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.operation-type-note-close:hover,
+.operation-type-note-close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}

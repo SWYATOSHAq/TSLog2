@@ -8,6 +8,7 @@ namespace TSLog.Yard.BO
     public class OperationType : Entity
     {
         public const short DefaultTime = 60;
+        public const int DefaultLaborCost = 60;
         /// <summary>
         /// Приход, расход
         /// </summary>

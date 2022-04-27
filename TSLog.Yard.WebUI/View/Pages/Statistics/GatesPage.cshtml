@@ -62,10 +62,10 @@
 <div class="row row2">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3 gates-plan-button" 
         type="button" 
-        onclick="ShowGatesPage()">Применить</button>
+        onclick="gatesPage.showGatesPage()">Применить</button>
     <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3 gates-plan-button" 
         type="button" 
-        onclick="PrintTable()">Печать</button>
+        onclick="gatesPage.printTable()">Печать</button>
 </div>
 <div class="my-5 statistics-table">
     <table class="table table-light table-bordered table-striped">
@@ -95,7 +95,7 @@
             @foreach (var item in intervals)
             {
                 <tr>
-                    <th class="gates-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto gates-plan-table-cell-button" type="button" onclick="PrintBlock(@i)">Печать</button></th>
+                    <th class="gates-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto gates-plan-table-cell-button" type="button" onclick="gatesPage.printBlock(@i)">Печать</button></th>
                     <td class="h5 gates-plan-table-cell">@(item.OperationsCount > 0 ? item.OperationsCount : string.Empty)</td>
                     <td class="gates-plan-table-cell">
                         @{
@@ -172,9 +172,9 @@
                 {
                     pageBreakClass = "page-break-after";
                 }
-                var operationModel = new OperationModel(rightsChecker, storage, operation, false, true);
+                var operationModel = new OperationModel(rightsChecker, storage, operation, false);
                 <div class="operation @pageBreakClass">
-                    <partial name="Partials/_OperationPartial" model="operationModel" />
+                    <partial name="Blocks/_OperationBlock" model="operationModel" />
                 </div>
                 j++;
             }

@@ -9,7 +9,7 @@ namespace TSLog.Yard.BO
     /// <summary>
     /// Интерфейс хранилища данных для модуля упраления двором
     /// </summary>
-    public interface IYardStorage : IYardCommonStorage, IYardWmsStorage { }
+    public interface IYardStorage : IYardCommonStorage, IYardReportingStorage, IYardWmsStorage, IBcReportingStorage { }
     public interface IYardCommonStorage
     {
         public OperationType GetOperationType(short id);
@@ -31,7 +31,8 @@ namespace TSLog.Yard.BO
         public Logist GetLogist(int id);
         public Logist GetLogist(string code);
         public Logist[] GetLogists();
-        public short GetTime(OperationType operationType, VehicleKind vehicleKind);
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind);
+        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
         public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
         public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);
@@ -48,9 +49,10 @@ namespace TSLog.Yard.BO
             Partner? partner,
             string? vehicleBrand,
             string? vehicleNumber,
-            string? driverName);
+            string? driverName,
+            string? partnerActionId);
         public Operation[] GetActiveOperations();
-        public Operation[] GetOperationsForGuard();
+        public Operation[] GetGuardOperations();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
         public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "");
         public void CancelOperationGate(Operation operation, string user = "");
@@ -59,6 +61,7 @@ namespace TSLog.Yard.BO
         public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "");
         public void StartOperationWork(Operation operation, string user = "");
         public void FinishOperationWork(Operation operation, string user = "");
+        public void SetOperationNote(Operation operation, string user = "");
         public void FinishOperation(Operation operation, string user = "");
         public void CancelOperation(Operation operation, string user = "");
         public void DeleteOperation(Operation operation, string user = "");
@@ -82,6 +85,7 @@ namespace TSLog.Yard.BO
         public Employee[] GetPartnerManagers(Partner partner);
         public Partner[] GetPartners(bool getOnlyActive = true);
         public Employee GetEmployee(int id);
+        public Employee GetEmployeeByAdLogin(string login);
         public Employee[] FindEmployees(string pattern);
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "");
         public Employee[] GetEmployees();
@@ -93,5 +97,14 @@ namespace TSLog.Yard.BO
         public Position GetPosition(short id);
         public Position GetPosition(string code);
         public Position[] GetPositions();
+    }
+    public interface IYardReportingStorage
+    {
+        public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate);
+        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate);
+    }
+    public interface IBcReportingStorage
+    {
+        public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate);
     }
 }

@@ -1,0 +1,77 @@
+﻿@page "/OperationPage"
+@using TSLog.Authorization
+@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model OperationPageModel
+@{    
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+
+    string stringId = Request.Query["id"];
+    var operation = Operation.Empty;
+    if (string.IsNullOrWhiteSpace(stringId))
+    {
+        // Создание
+        ViewData["Title"] = "Создать заявку";
+        var createOperation = !useAuthentication 
+            || rightsChecker.CheckRight("CREATE_OPERATION", User)
+            || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+        if (!createOperation)
+        {        
+            Response.StatusCode = 403;
+            throw new UnauthorizedAccessException();
+        }
+    }
+    else
+    {
+        // Просмотр или редактирование
+        ViewData["Title"] = "Карточка заявки";
+        var editOperation = !useAuthentication
+            || rightsChecker.CheckRight("VIEW_OPERATION", User)
+            || rightsChecker.CheckRight("EDIT_OPERATION", User)
+            || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
+            || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+        if (!editOperation)
+        {
+            Response.StatusCode = 403;
+            throw new UnauthorizedAccessException();
+        }
+        if (long.TryParse(stringId, out long operationId))
+            operation = storage.GetOperation(operationId);
+        else
+        {
+            Response.StatusCode = 500;
+            throw new Exception($"Wrong operation id {stringId}");
+        }
+    }
+    var operationModel = new OperationModel(rightsChecker, storage, operation, true);
+}
+
+<div class="row">
+    <div class="col-4 time-table hide-on-print overflow-auto" id="time-div">
+        <div id="time-header-div">
+            <div class="row row3" id="work-start-date-div" disable>
+                <label for="work-start-date-picker" class="datepicker2-label">Выберете дату:</label>
+                <input type="text" 
+                    id="work-start-date-picker" 
+                    class="datepicker border border-secondary datepicker2" 
+                    placeholder="Выберете дату" 
+                    ne="date" 
+                    readonly=""/>
+            </div>
+            <p id="error-p"></p>
+            <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="error-div">
+                <strong>Ошибка!</strong>
+                <p>Врямя уже занято, выберите другой промежуток времени!</p>
+            </div>
+        </div>
+        <div id="time-table-div">
+        </div>
+    </div>
+    <partial name="Blocks/_OperationBlock" model="operationModel" />
+</div>

@@ -1,6 +1,18 @@
 ﻿class GatesPage {
-    Show() {
-        var operationDatePicker = $("#operation-date-picker");
+    shortUrl;
+
+    constructor() {
+        this.shortUrl = location.href.split('?')[0];
+    }
+
+    onChangeDate() {
+        const operationDatePicker = document.getElementById("operation-date-picker");
+        const url = this.shortUrl + "?date=" + operationDatePicker.value;
+        history.pushState({}, null, url);
+    }
+
+    show() {
+        const operationDatePicker = $("#operation-date-picker");
         operationDatePicker.datepicker({
             format: "dd.mm.yyyy",
             autoclose: true,
@@ -9,32 +21,42 @@
             todayHighlight: true,
         });
 
-        var date = GetUrlParameter("date");
+        let date = utils.getUrlParameter("date");
         if (date == "") {
-            date = (new Date()).toLocaleString("ru-RU", { year: 'numeric', month: 'numeric', day: 'numeric' });
-            var url = window.location.href.split('?')[0] + "?date=" + date;
+            date = utils.getNowDate();
+            const url = this.shortUrl + "?date=" + date;
             history.pushState({}, null, url);
         }
-        operationDatePicker.val(date);
+        operationDatePicker.datepicker("setDate", date);
+        operationDatePicker.on("changeDate", this.onChangeDate.bind(this));
     }
 
-    ShowGatesPage() {
-        var operationDatePicker = document.getElementById("operation-date-picker");
-        location.href = "/GatesPage?date=" + operationDatePicker.value;
+    showGatesPage() {
+        const operationDatePicker = document.getElementById("operation-date-picker");
+        location.href = this.shortUrl + "?date=" + operationDatePicker.value;
     }
 
-    PrintTable() {
-        var intervals = document.getElementById("intervals");
+    printBlock(cellId) {
+        // Hide tables
+        $(".statistics-table").addClass("d-none");
+        // Hide all intervals but selected
+        $(".interval-print").addClass("d-none");
+        $(".interval-print-" + cellId).removeClass("d-none");
+
+        window.print();
+        // Unhide all
+        $(".statistics-table").removeClass("d-none");
+        $(".interval-print").removeClass("d-none");
+    }
+
+    printTable() {
+        const intervals = document.getElementById("intervals");
         intervals.classList.add("d-none");
         window.print();
         intervals.classList.remove("d-none");
     }
 }
 
-var gatesPage = new GatesPage();
+const gatesPage = new GatesPage();
 
-function ShowPage() {
-    gatesPage.Show();
-}
-
-$(document).ready(ShowPage);
+$(document).ready(gatesPage.show.bind(gatesPage));
