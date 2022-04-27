@@ -1,0 +1,5 @@
+.status-string {
+    display: flex;
+    Justify-content: space-between;
+    margin-top: 3rem;
+}

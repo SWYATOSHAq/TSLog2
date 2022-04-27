@@ -6,6 +6,7 @@ import { DepartmentTable } from './components/Toolkit/Tables/DepartmentTable';
 import { PositionTable } from './components/Toolkit/Tables/PositionTable';
 import { ShiftTable } from './components/Toolkit/Tables/ShiftTable';
 import { EmployeesTable } from './components/Toolkit/Tables/EmployeesTable';
+import { JobTable } from './components/Toolkit/Tables/JobTable/JobTable';
 
 import './custom.css'
 
@@ -19,6 +20,7 @@ export default class App extends Component {
                 <Route path='/employees' component={EmployeesTable} />
                 <Route path='/positions' component={PositionTable} />
                 <Route path='/departments' component={DepartmentTable} />
+                <Route path='/jobs' component={JobTable} />
             </Layout>
         );
     }

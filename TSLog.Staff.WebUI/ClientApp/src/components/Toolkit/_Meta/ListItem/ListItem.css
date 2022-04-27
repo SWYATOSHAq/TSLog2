@@ -1,0 +1,17 @@
+.change-button {
+    display: flex;
+    justify-content: space-between;
+}
+.profession {
+    padding-top: 7px;
+}
+.button-icons {
+    margin-right: 15px;
+}
+.inSearch {
+    text-decoration: line-through;
+}
+.important {
+    font-weight: bold;
+    color: steelblue;
+}
