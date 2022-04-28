@@ -12,32 +12,31 @@
         tbody.replaceChildren();
     }
 
+    createEnter(workerId) {
+        return async function () {
+            alert("Не реализовано!");
+        }
+    }
+
     showSiteWorker(siteWorker) {
         const tr = document.createElement("tr");
 
-        const workerTd = document.createElement("td");
-        workerTd.classList.add("table-cell");
-        workerTd.textContent = siteWorker.worker.surname + " " + siteWorker.worker.firstName;
-        tr.appendChild(workerTd);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.surname + " " + siteWorker.worker.firstName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.site.name]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.partner.name]);
 
-        const siteTd = document.createElement("td");
-        siteTd.classList.add("table-cell");
-        siteTd.textContent = siteWorker.site.name;
-        tr.appendChild(siteTd);
-
-        const partnerTd = document.createElement("td");
-        partnerTd.classList.add("table-cell");
-        partnerTd.textContent = siteWorker.partner.name;
-        tr.appendChild(partnerTd);
-
-        const startDateTd = document.createElement("td");
-        startDateTd.classList.add("table-cell");
         const startDateTdBold = document.createElement("b");
         startDateTdBold.textContent = siteWorker.startTime;
-        startDateTd.appendChild(startDateTdBold);
-        const text = document.createTextNode(" (" + siteWorker.startDay + ")");
-        startDateTd.appendChild(text);
-        tr.appendChild(startDateTd);
+        viewUtils.createCell(tr, ["table-cell"], [startDateTdBold, " (" + siteWorker.startDay + ")"]);
+
+        const enterButton = document.createElement("button");
+        enterButton.classList.add("btn");
+        enterButton.classList.add("btn-outline-info");
+        enterButton.classList.add("m-3");
+        enterButton.classList.add("table-cell-button");
+        enterButton.textContent = "Назначить на уч.";
+        enterButton.onclick = this.createEnter(siteWorker.worker.id);
+        viewUtils.createCell(tr, ["table-cell"], [enterButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.appendChild(tr);

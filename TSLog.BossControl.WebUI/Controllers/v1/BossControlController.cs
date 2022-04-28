@@ -16,7 +16,18 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
         {
             _storage = storage;
         }
-        private dynamic WorkerToDynamic(Employee worker)
+
+        private static async Task<dynamic?> GetInputData(HttpRequest request)
+        {
+            request.EnableBuffering();
+            var body = request.Body;
+            body.Seek(0, SeekOrigin.Begin);
+            var reader = new StreamReader(body);
+            string json = await reader.ReadToEndAsync();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+        }
+
+        private static dynamic WorkerToDynamic(Employee worker)
         {
             if (worker == null)
                 throw new ArgumentNullException(nameof(worker));
@@ -25,9 +36,13 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.surname = worker.Surname;
             result.firstName = worker.FirstName;
             result.patronymic = worker.Patronymic;
+            result.majorPosition = worker.MajorPosition.Name;
+            result.companyId = worker.Company.Id;
+            result.companyName = worker.Company.Name;
+            result.wmsLogin = worker.WmsLogin;
             return result;
         }
-        private dynamic SiteToDynamic(Site site)
+        private static dynamic SiteToDynamic(Site site)
         {
             if (site == null)
                 throw new ArgumentNullException(nameof(site));
@@ -38,7 +53,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.name = site.Name;
             return result;
         }
-        private dynamic PartnerToDynamic(Partner partner)
+        private static dynamic PartnerToDynamic(Partner partner)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -47,36 +62,84 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.name = partner.Name;
             return result;
         }
-        private dynamic SiteWorkerToDynamic(SiteWorker siteWorker)
+        private static dynamic SiteWorkerToDynamic(SiteWorker siteWorker)
         {
             if (siteWorker == null)
                 throw new ArgumentNullException(nameof(siteWorker));
             dynamic result = new ExpandoObject();
-            result.site = SiteToDynamic(siteWorker.Site);
-            result.partner = PartnerToDynamic(siteWorker.Partner);
-            result.worker = WorkerToDynamic(siteWorker.Worker);
+            result.site = BossControlController.SiteToDynamic(siteWorker.Site);
+            result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
+            result.worker = BossControlController.WorkerToDynamic(siteWorker.Worker);
             result.startDate = siteWorker.StartDate.ToString("HH:mm:ss (yyyy.MM.dd)");
             result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy"); ;
             result.startTime = siteWorker.StartDate.ToString("HH:mm:ss"); ;
 
             return result;
         }
-        private dynamic[] SiteWorkersToDynamic(SiteWorker[] siteWorkers)
+        private static dynamic[] SiteWorkersToDynamic(SiteWorker[] siteWorkers)
         {
             var result = new List<dynamic>();
             foreach (var siteWorker in siteWorkers)
                 if (siteWorker != null)
-                    result.Add(SiteWorkerToDynamic(siteWorker));
+                    result.Add(BossControlController.SiteWorkerToDynamic(siteWorker));
             return result.ToArray();
         }
-        private dynamic[] WorkersToDynamic(Employee[] workers)
+        private static dynamic[] WorkersToDynamic(Employee[] workers)
         {
             var result = new List<dynamic>();
             foreach (var worker in workers)
                 if (worker != null)
-                    result.Add(WorkerToDynamic(worker));
+                    result.Add(BossControlController.WorkerToDynamic(worker));
             return result.ToArray();
         }
+
+        [HttpPatch("EnterSite")]
+        async public Task<string> EmployeeEnterSite() 
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                Response.StatusCode = 200;
+                return "";
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPatch("LeaveSite")]
+        async public Task<string> EmployeeLeaveSite()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string temp = data.workerId;
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Worker is is empty";
+                if (!int.TryParse(temp, out int workerId))
+                    return $"Wrong worker id ({temp})";
+
+                var worker = _storage.GetEmployee(workerId);
+                _storage.LeaveSite(worker);
+                var result = WorkerToDynamic(worker);
+                var text = JsonSerializer.Serialize(result);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
         [HttpGet("BusyWorkers")]
         public string GetBusyWorkers()
         {

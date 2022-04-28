@@ -16,3 +16,25 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.main-div {
+    margin-left: 80px !important;
+    margin-right: 80px !important;
+}
+
+.table-cell-button {
+    padding: 0px !important;
+    margin: 0px !important;
+    vertical-align: middle !important;
+    width: 100%;
+    display: inline-block;
+}
+
+.common-footer {
+    position: relative !important;
+}
+
+.footer-div {
+    height: 36px !important;
+    margin-left: 80px !important;
+}

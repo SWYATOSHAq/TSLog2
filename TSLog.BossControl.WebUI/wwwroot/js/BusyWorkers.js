@@ -12,32 +12,42 @@
         tbody.replaceChildren();
     }
 
+    createLeave(workerId, workerFullName) {
+        return async function () {
+            if (!window.confirm("Снять сотрудника (" + workerFullName + ") с участка?")) {
+                return;
+            }
+
+            await api.leaveSite(workerId);
+            busyWorkersPage.clearBusyWorkers();
+            await busyWorkersPage.getBusyWorkers();
+            busyWorkersPage.showBusyWorkers();
+        }
+    }
+
     showSiteWorker(siteWorker) {
         const tr = document.createElement("tr");
 
-        const workerTd = document.createElement("td");
-        workerTd.classList.add("table-cell");
-        workerTd.textContent = siteWorker.worker.surname + " " + siteWorker.worker.firstName;
-        tr.appendChild(workerTd);
+        const workerFullName = siteWorker.worker.surname + " " + siteWorker.worker.firstName;
+        viewUtils.createCell(tr, ["table-cell"], [workerFullName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.majorPosition]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.companyName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.wmsLogin]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.site.name]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.partner.name]);
 
-        const siteTd = document.createElement("td");
-        siteTd.classList.add("table-cell");
-        siteTd.textContent = siteWorker.site.name;
-        tr.appendChild(siteTd);
+        const startTimeB = document.createElement("b");
+        startTimeB.textContent = siteWorker.startTime;
+        viewUtils.createCell(tr, ["table-cell"], [startTimeB, " (" + siteWorker.startDay + ")"]);
 
-        const partnerTd = document.createElement("td");
-        partnerTd.classList.add("table-cell");
-        partnerTd.textContent = siteWorker.partner.name;
-        tr.appendChild(partnerTd);
-
-        const startDateTd = document.createElement("td");
-        startDateTd.classList.add("table-cell");
-        const startDateTdBold = document.createElement("b");
-        startDateTdBold.textContent = siteWorker.startTime;
-        startDateTd.appendChild(startDateTdBold);
-        const text = document.createTextNode(" (" + siteWorker.startDay + ")");
-        startDateTd.appendChild(text);
-        tr.appendChild(startDateTd);
+        const leaveButton = document.createElement("button");        
+        leaveButton.classList.add("btn");
+        leaveButton.classList.add("btn-outline-info");
+        leaveButton.classList.add("m-3");
+        leaveButton.classList.add("table-cell-button");
+        leaveButton.textContent = "Снять с участка";
+        leaveButton.onclick = this.createLeave(siteWorker.worker.id, workerFullName);
+        viewUtils.createCell(tr, ["table-cell"], [leaveButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.appendChild(tr);

@@ -12,13 +12,28 @@
         tbody.replaceChildren();
     }
 
+    createEnter(workerId) {
+        return async function () {
+            alert("Не реализовано!");
+        }
+    }
+
     showWorker(worker) {
         const tr = document.createElement("tr");
 
-        const workerTd = document.createElement("td");
-        workerTd.classList.add("table-cell");
-        workerTd.textContent = worker.surname + " " + worker.firstName;
-        tr.appendChild(workerTd);
+        viewUtils.createCell(tr, ["table-cell"], [worker.surname + " " + worker.firstName]);
+        viewUtils.createCell(tr, ["table-cell"], [worker.majorPosition]);
+        viewUtils.createCell(tr, ["table-cell"], [worker.companyName]);
+        viewUtils.createCell(tr, ["table-cell"], [worker.wmsLogin]);
+
+        const enterButton = document.createElement("button");
+        enterButton.classList.add("btn");
+        enterButton.classList.add("btn-outline-info");
+        enterButton.classList.add("m-3");
+        enterButton.classList.add("table-cell-button");
+        enterButton.textContent = "Назначить на уч.";
+        enterButton.onclick = this.createEnter(worker.id);
+        viewUtils.createCell(tr, ["table-cell"], [enterButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.appendChild(tr);

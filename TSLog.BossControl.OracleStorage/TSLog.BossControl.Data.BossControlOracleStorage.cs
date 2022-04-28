@@ -1,4 +1,5 @@
 ﻿using Oracle.ManagedDataAccess.Client;
+using System.Data;
 using System.Data.Common;
 using TSLog.BossControl.BO;
 using TSLog.Common;
@@ -44,6 +45,7 @@ namespace TSLog.BossControl.Data
             PartnersSchema = partnersSchema;
         }
 
+        #region Sites
         private readonly Catalog<Site> _sites = new("SITES", "Участки");
         private static Site CreateSite(DbDataReader reader)
         {
@@ -103,6 +105,9 @@ namespace TSLog.BossControl.Data
                 return site;
             throw new SiteNotFoundException(id);
         }
+        #endregion
+
+        #region Partners
         private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");
         private static Partner CreatePartner(DbDataReader reader)
         {
@@ -149,6 +154,9 @@ namespace TSLog.BossControl.Data
                 return partner;
             throw new PartnerNotFoundException(id);
         }
+        #endregion
+
+        #region Legal entities
         private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
         private static LegalEntity CreateLegalEntity(DbDataReader reader)
         {
@@ -202,6 +210,134 @@ namespace TSLog.BossControl.Data
                 return legalEntity;
             throw new LegalEntityNotFoundException(id);
         }
+        #endregion
+
+        #region Positions
+        private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
+        private Position CreatePosition(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Convert.ToInt16(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var isLinear = Utils.DbValueToShort(reader["is_linear"]) == 1;
+            var note = Utils.DbValueToString(reader["note"]);
+            var position = new Position(id,
+                code,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                isLinear,
+                note)
+            {
+                LaborHourCost = Utils.DbValueToDouble(reader["cost"])
+            };
+            var costCurrencyCode = Utils.DbValueToString(reader["cost_currency_code"]);
+            position.LaborHourCostCurrency = GetMeasureUnit(costCurrencyCode);
+            return position;
+        }
+        public Position GetPosition(short id)
+        {
+            id = id > 0 ? id : (short)-1;
+            var position = _positions[id];
+            if (position != null && position != Position.Null && position != Position.Empty)
+                return position;
+
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPositionByIdSql =
+                    $"select p.id, p.code," +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
+                    $"       p.is_active, p.display_order, " +
+                    $"       p.is_linear," +
+                    $"       p.cost, p.cost_currency_code," +
+                    $"       p.note " +
+                    $"  from {StaffSchema}.stf_position#v p " +
+                    $" where p.id = :id";
+                command.CommandText = SelectPositionByIdSql;
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    position = CreatePosition(reader);
+                    _positions.Add(position);
+                }
+                reader.Close();
+            }
+            if (position != null && position != Position.Null && position != Position.Empty)
+                return position;
+            throw new PositionNotFoundException(id);
+        }
+        public Position GetPosition(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("code is empty");
+            code = code.Trim().ToUpper();
+            var position = _positions[code];
+            if (position != null && position != Position.Null && position != Position.Empty)
+                return position;
+
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPositionByCodeSql =
+                    $"select p.id, p.code, " +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
+                    $"       p.is_active, p.display_order," +
+                    $"       p.is_linear," +
+                    $"       p.cost, p.cost_currency_code," +
+                    $"       p.note " +
+                    $"  from {StaffSchema}.stf_position#v p " +
+                    $" where p.code = :code";
+                command.CommandText = SelectPositionByCodeSql;
+                command.Parameters.Add(new OracleParameter("code", code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    position = CreatePosition(reader);
+                    _positions.Add(position);
+                }
+                reader.Close();
+            }
+            if (position != null && position != Position.Null && position != Position.Empty)
+                return position;
+            throw new PositionNotFoundException(code);
+        }
+        public Position[] GetPositions()
+        {
+            var positions = new List<Position>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPositionsSql =
+                    $"select p.id, p.code, " +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
+                    $"       p.is_active, p.display_order, " +
+                    $"       p.is_linear, " +
+                    $"       p.note " +
+                    $"  from {StaffSchema}.stf_position#v p";
+                command.CommandText = SelectPositionsSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var position = CreatePosition(reader);
+                    positions.Add(position);
+                }
+                reader.Close();
+            }
+            positions.Sort();
+            return positions.ToArray();
+        }
+        #endregion
+
+        #region Employees
         private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");
         private Employee CreateEmployee(DbDataReader reader)
         {
@@ -243,6 +379,9 @@ namespace TSLog.BossControl.Data
             //var departmentId = Utils.DbValueToInt(reader["department_id"]);
             //employee.Department = GetDepartment(departmentId);
 
+            var majorPositionId = Utils.DbValueToShort(reader["major_position_id"]);
+            employee.MajorPosition = majorPositionId > 0 ? GetPosition(majorPositionId) : Position.Null;
+
             employee.Cost = Utils.DbValueToDouble(reader["cost"]);
             var costCurrencyCode = Utils.DbValueToString(reader["cost_currency_code"]);
             employee.CostMeasureUnit = GetMeasureUnit(costCurrencyCode);
@@ -258,21 +397,23 @@ namespace TSLog.BossControl.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeeById =
-                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
-                    $"       e.surname, e.first_name, e.patronymic,\n" +
-                    $"       e.sex, e.birth_date,\n" +
-                    $"       e.nationality,\n" +
-                    $"       e.phone_number, e.email,\n" +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
-                    $"       e.employment_date, e.dismissal_date,\n" +
-                    $"       e.company_id,\n" +
-                    $"       e.department_id,\n" +
-                    $"       e.cost,\n" +
-                    $"       e.cost_currency_code,\n" +
-                    $"       e.is_active,\n" +
-                    $"       e.display_order,\n" +
-                    $"       e.note\n" +
-                    $"  from {StaffSchema}.stf_employee#v e\n" +
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active," +
+                    $"          mp.position_id major_position_id,\n" +
+                    $"          e.display_order,\n" +
+                    $"          e.note\n" +
+                    $"     from {StaffSchema}.stf_employee#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v mp on e.id = mp.employee_id\n" +
                     $" where e.id = :id";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -288,6 +429,8 @@ namespace TSLog.BossControl.Data
                 return employee;
             throw new EmployeeNotFoundException(id);
         }
+        #endregion
+
         private SiteWorker CreateSiteWorker(DbDataReader reader)
         {
             if (reader == null)
@@ -378,9 +521,45 @@ namespace TSLog.BossControl.Data
             siteWorkers.Sort();
             return siteWorkers.ToArray();
         }
-        public void EnterSite(Employee worker, Site site, Partner partner)
-        { }
+        public void EnterSite(Employee worker, Site site, Partner partner, string note = "")
+        {
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+            if (site == null)
+                throw new ArgumentNullException(nameof(site));
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+
+            using var command = _connection.CreateCommand();
+            command.BindByName = true;
+            var sql =
+                $"begin" +
+                $"    :l_id := {StaffSchema}.api_staff.enter_site(p_worker_id => :worker_id," +
+                $"        p_site_id => :site_id," +
+                $"        p_partner_id => :partner_id," +
+                $"        p_note => :note);" +
+                $"end;";
+            command.CommandText = sql;
+            command.Parameters.Add(new OracleParameter("worker_id", worker.Id));
+            command.Parameters.Add(new OracleParameter("site_id", site.Id));
+            command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+            command.Parameters.Add(new OracleParameter("note", string.IsNullOrWhiteSpace(note) ? DBNull.Value : note.Trim()));
+            command.ExecuteScalar();
+        }
         public void LeaveSite(Employee worker)
-        { }
+        {
+            if (worker == null)
+                throw new ArgumentNullException(nameof(worker));
+            using var command = _connection.CreateCommand();
+            command.BindByName = true;
+            var sql =
+                $"begin" +
+                $"    :l_id := {StaffSchema}.api_staff.leave_site(p_worker_id => :worker_id);" +
+                $"end;";
+            command.CommandText = sql;
+            command.Parameters.Add(new OracleParameter("worker_id", worker.Id));
+            command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int32, ParameterDirection.Output));
+            command.ExecuteNonQuery();
+        }
     }
 }

@@ -529,7 +529,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 _storage.SetOperationGate(operation, null, user);                
                 _storage.SetResponsibleOfficer(operation, employee, user);
                 var text = JsonSerializer.Serialize(operation);
-                Response.StatusCode = 200;
+                Response.StatusCode = 201;
                 return text;
             }
             catch (Exception exception)
@@ -637,7 +637,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 
                 _storage.AddOperation(operation, user);
                 var text = JsonSerializer.Serialize(operation);
-                Response.StatusCode = 200;
+                Response.StatusCode = 201;
                 return text;
             }
             catch (Exception exception)
