@@ -122,17 +122,18 @@
         else if (action == "FINISH_OPERATION") {
             api.finishOperation(id);
         }
+        this.showGuardPage();
     }
 
     createLetVehicleIn(id) {
         return function () {
-            this.passVehicle(id, "START_OPERATION");
+            guardPage.passVehicle(id, "START_OPERATION");
         }        
     }
 
     createReleaseVehicle(id) {
         return function () {
-            this.passVehicle(id, "FINISH_OPERATION");
+            guardPage.passVehicle(id, "FINISH_OPERATION");
         }        
     }
 
@@ -150,7 +151,7 @@
     }
 
     showGuardPage() {
-        location.href = this.shortUrl;
+        location.href = this.shortUrl + this.createParameters();
     }
 }
 

@@ -5,6 +5,8 @@
 
 @inject IConfiguration Configuration
 @{
+    var release = Configuration.GetValue<string>("Release");
+
     var rightsChecker = Model.RightsChecker;
 
     var isDebug = Configuration.GetValue<bool>("IsDebug");
@@ -155,6 +157,9 @@
         </main>
     </div>
     <footer class="border-top footer text-muted hide-on-print">
+        <div class="container">
+            Версия <b>@release</b>
+        </div>
         <div class="container">
             &copy; 2021-2022 - ТСЛ - <a asp-area="" asp-page="/Privacy">Приватность</a>
         </div>

@@ -1444,7 +1444,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
 
 
-        private dynamic LaborReportElementToDynamic(LaborReport.Element element)
+        private static dynamic LaborReportElementToDynamic(LaborReport.Element element)
         {
             dynamic result = new ExpandoObject();
             result.partnerId = element.Partner.Id;
@@ -1464,11 +1464,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             return result;
         }
-        private dynamic[] LaborReportElementsToDynamic(LaborReport.Element[] elements)
+        private static dynamic[] LaborReportElementsToDynamic(LaborReport.Element[] elements)
         {
             var objects = new List<dynamic>();
             foreach (var element in elements)
-                objects.Add(LaborReportElementToDynamic(element));
+                objects.Add(YardController.LaborReportElementToDynamic(element));
             return objects.ToArray();
         }
         [HttpGet("LaborReport")]

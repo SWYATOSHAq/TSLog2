@@ -293,7 +293,7 @@ namespace TSLog.Yard.Data
 
         #region Shifts
         private const string DefaultShift = "5/2-40";
-        private Shift CreateShift(DbDataReader reader)
+        private static Shift CreateShift(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
