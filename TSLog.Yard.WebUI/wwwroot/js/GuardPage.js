@@ -106,12 +106,46 @@
         }
     }
 
+    sortCompare (operation1, operation2, operation_type) {
+        return operation1.operation_type.localeCompare(operation2.operation_type);
+    }
+
+    sortCompareReverse (operation1, operation2, operation_type) {
+        let delta = operation1.operation_type.localeCompare(operation2.operation_type);
+        if (delta < 0) {
+            return 1;
+        } else if (delta > 0) {
+            return -1;
+        } else {
+            return 0;}
+    }
+
     driverNameComparer(operation1, operation2) {
         return operation1.driverName.localeCompare(operation2.driverName);
     }
 
+    driverNameComparerReverse(operation1, operation2) {
+        let delta = operation1.driverName.localeCompare(operation2.driverName);
+        if (delta < 0) {
+            return 1;
+        } else if (delta > 0) {
+            return -1;
+        } else {
+            return 0;}
+    }
+
     partnerComparer(operation1, operation2) {
         return operation1.partnerId.localeCompare(operation2.partnerId);
+    }
+
+    partnerComparerReverse(operation1, operation2) {
+        let delta = operation1.partnerId.localeCompare(operation2.partnerId);
+        if (delta < 0) {
+            return 1;
+        } else if (delta > 0) {
+            return -1;
+        } else {
+            return 0;}
     }
 
     vehicleNumberComparer(operation1, operation2) {
