@@ -1,9 +1,9 @@
 ﻿class GuardPage {
     shortUrl;
-
     operations = [];
     filteredOperations = [];
     sortedOperations = [];
+    sortField = "";
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -106,8 +106,30 @@
         }
     }
 
-    sortCompare (operation1, operation2, operation_type) {
-        return operation1.operation_type.localeCompare(operation2.operation_type);
+    //selectHandler() {
+    //    const selectElement = document.querySelector(".select_sort").options[selectElement.selectedIndex].value;
+    //    const selectedOption = selectElement.options[selectElement.selectedIndex].value;
+    //    console.log("selectedOption", selectedOption);
+    //    let selectValue = selectElement.addEventListener("change", (event) => {
+    //        console.log('event.target.value=', event.target.value);
+    //        return event.target.value;
+    //    });
+    //    let activeSelect = selectValue ? selectValue : selectedOption;
+    //    console.log("activeSelect=", activeSelect);
+    //    return activeSelect;
+    //}
+
+    sortCompare(operation1, operation2) {
+        switch (this.sortField) {
+            case "driverName":
+                return operation1.driverName.localeCompare(operation2.driverName);
+            case "partnerId":
+                return operation1.partnerId.localeCompare(operation2.partnerId);
+            case "vehicleBrand":
+                return operation1.vehicleBrand.localeCompare(operation2.vehicleBrand);
+            case "vehicleNumber":
+                return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
+        }
     }
 
     sortCompareReverse (operation1, operation2, operation_type) {
@@ -138,23 +160,13 @@
         return operation1.partnerId.localeCompare(operation2.partnerId);
     }
 
-    partnerComparerReverse(operation1, operation2) {
-        let delta = operation1.partnerId.localeCompare(operation2.partnerId);
-        if (delta < 0) {
-            return 1;
-        } else if (delta > 0) {
-            return -1;
-        } else {
-            return 0;}
-    }
-
     vehicleNumberComparer(operation1, operation2) {
         return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
     }
 
-    sortOperations(comparer) {
+    sortOperations(compare) {
         this.sortedOperations = [...this.filteredOperations];
-        this.sortedOperations.sort(comparer);
+        this.sortedOperations.sort(compare);
     }
 
     showOperations() {
@@ -168,21 +180,21 @@
         }
     }
 
+    // обработчик события при смене фильтрации
     onChangeFilter() {
         this.clearOperations();
-
         this.filterOperations();
-        this.sortOperations(this.driverNameComparer.bind(this));
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
-
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
 
-    onChangeSort() {
+    // обработчик события при смене сортировки
+     onChangeSort() {
+        this.sortField = document.querySelector(".select_sort").value;
         this.clearOperations();
-
-        this.sortOperations(this.driverNameComparer.bind(this));
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
     }
 
@@ -215,9 +227,10 @@
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
-
+        document.querySelector(".select_sort").addEventListener("change", this.onChangeSort.bind(this));
+        this.sortField = document.querySelector(".select_sort").value;
         this.filterOperations();
-        this.sortOperations(this.driverNameComparer.bind(this));
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
