@@ -37,6 +37,11 @@
         return hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
     }
 
+    stringToDate(stringDate) {
+        var pattern = /(\d{2})\.(\d{2})\.(\d{4})/;
+        return new Date(stringDate.replace(pattern, '$3-$2-$1'));
+    }
+
     addParameter(parameters, parameterName, elementName) {
         const element = document.getElementById(elementName);
         if (element != undefined && element.value != "") {

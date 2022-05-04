@@ -12,23 +12,13 @@
     }
 
     show() {
-        const operationDatePicker = $("#operation-date-picker");
-        operationDatePicker.datepicker({
-            format: "dd.mm.yyyy",
-            autoclose: true,
-            language: "ru",
-            todayBtn: true,
-            todayHighlight: true,
-        });
-
         let date = utils.getUrlParameter("date");
         if (date == "") {
             date = utils.getNowDate();
-            const url = this.shortUrl + "?date=" + date;
-            history.pushState({}, null, url);
         }
-        operationDatePicker.datepicker("setDate", date);
-        operationDatePicker.on("changeDate", this.onChangeDate.bind(this));
+        viewUtils.initDatePicker("operation-date-picker", date, this.onChangeDate.bind(this));
+        const url = this.shortUrl + "?date=" + date;
+        history.pushState({}, null, url);
     }
 
     showStaffPage() {

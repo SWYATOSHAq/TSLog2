@@ -57,8 +57,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.factDuration = (operation.FactWorkFinishDate - operation.FactWorkStartDate).TotalSeconds;
             result.planLaborCost = operation.PlanLaborCost;
             result.factLaborCost = operation.FactLaborCost;
-            result.gateCode = operation.Gate.Code;
-            result.gateShortName = operation.Gate.ShortName;
+            result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
+                operation.Gate.Code : 
+                string.Empty;
+            result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
+                operation.Gate.ShortName : 
+                string.Empty;
             result.vehicleBrand = operation.VehicleBrand;
             result.vehicleModel = operation.VehicleModel;
             result.vehicleNumber = operation.VehicleNumber;
@@ -1443,7 +1447,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
         }
 
-
+        #region Reporting
         private static dynamic LaborReportElementToDynamic(LaborReport.Element element)
         {
             dynamic result = new ExpandoObject();
@@ -1478,8 +1482,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperations = _rightsChecker.CheckRight("GET_LABOR_REPORT", User);
-                if (_useAuthentication && !useYard && !getOperations)
+                var getData = _rightsChecker.CheckRight("GET_LABOR_REPORT", User);
+                if (_useAuthentication && !useYard && !getData)
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1518,5 +1522,90 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+
+        private static dynamic ShiftLaborReportElementToDynamic(ShiftLaborReport.Element element)
+        {
+            dynamic result = new ExpandoObject();
+            result.positionId = element.Position.Id;
+            result.positionName = element.Position.Name;
+
+            result.bcLaborCost = element.BcLaborCost;
+            result.bcStandardLaborCost = element.BcStandardLaborCost;
+            result.bcEfficiency = element.BcEfficiency;
+
+            result.yardLaborCost = element.YLaborCost;
+            result.yardG01LaborCost = element.YG01LaborCost;
+            result.yardG02LaborCost = element.YG02LaborCost;
+            result.yardG03LaborCost = element.YG03LaborCost;
+            result.yardG04LaborCost = element.YG04LaborCost;
+            result.yardG05LaborCost = element.YG05LaborCost;
+            result.yardG06LaborCost = element.YG06LaborCost;
+            result.yardG07LaborCost = element.YG07LaborCost;
+            result.yardG08LaborCost = element.YG08LaborCost;
+            result.yardG09LaborCost = element.YG09LaborCost;
+            result.yardG10LaborCost = element.YG10LaborCost;
+            result.yardG11LaborCost = element.YG11LaborCost;
+            result.yardG12LaborCost = element.YG12LaborCost;
+            result.yardG13LaborCost = element.YG13LaborCost;
+            result.yardG14LaborCost = element.YG14LaborCost;
+            result.yardG15LaborCost = element.YG15LaborCost;
+            result.yardG16LaborCost = element.YG16LaborCost;
+
+            return result;
+        }
+        private static dynamic[] ShiftLaborReportElementsToDynamic(ShiftLaborReport.Element[] elements)
+        {
+            var objects = new List<dynamic>();
+            foreach (var element in elements)
+                objects.Add(YardController.ShiftLaborReportElementToDynamic(element));
+            return objects.ToArray();
+        }
+        [HttpGet("ShiftLaborReport")]
+        public string GetShiftLaborReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
+                if (_useAuthentication && !useYard && !getData)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string stringDate = Request.Query["date"];
+                var date = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(stringDate))
+                {
+                    stringDate = stringDate.Trim();
+                    if (!DateTime.TryParse(stringDate, out date))
+                        return $"Wrong to date {stringDate}";
+                }
+                string shift = Request.Query["shift"];
+                if (string.IsNullOrWhiteSpace(shift))
+                    shift = "day";
+                shift = shift.Trim().ToLower();
+                if (shift != "day" && shift != "night")
+                    return $"Unknown shift {shift}";
+
+                var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
+                var toDate = fromDate.AddHours(12);
+
+                var report = new ShiftLaborReport(fromDate, toDate);
+                report.Create(_storage);
+                var elements = report.Elements;
+                var result = ShiftLaborReportElementsToDynamic(elements);
+
+                var text = JsonSerializer.Serialize(result);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        #endregion
     }
 }

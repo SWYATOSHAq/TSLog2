@@ -710,9 +710,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select otvkt.operation_time " +
-                        $"  from {YardSchema}.v_ot_vk_time otvkt " +
-                        $" where otvkt.operation_type_id = :operation_type_id " +
+                        $"select otvkt.operation_time\n" +
+                        $"  from {YardSchema}.v_ot_vk_time otvkt\n" +
+                        $" where otvkt.operation_type_id = :operation_type_id\n" +
                         $"   and otvkt.vehicle_kind_id = :vehicle_kind_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
@@ -740,9 +740,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select otvkw.time, otvkw.workers_count" +
-                        $"  from {YardSchema}.v_ot_vk_work otvkw " +
-                        $" where otvkw.operation_type_id = :operation_type_id " +
+                        $"select otvkw.time, otvkw.workers_count\n" +
+                        $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
+                        $" where otvkw.operation_type_id = :operation_type_id\n" +
                         $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
@@ -802,10 +802,10 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select (yard.get_avalible_windows(:p_start_date," +
-                        $"                                 :p_finish_date," +
-                        $"                                 :p_operation_type_code," +
-                        $"                                 :p_vehicle_kind_code)).*;";
+                        $"select (yard.get_avalible_windows(:p_start_date,\n" +
+                        $"    :p_finish_date,\n" +
+                        $"    :p_operation_type_code,\n" +
+                        $"    :p_vehicle_kind_code)).*;";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
@@ -858,23 +858,23 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = $"select {YardSchema}.add_operation(:p_type_code," +
-                        ":p_plan_work_start_date," +
-                        ":p_plan_work_finish_date," +
-                        ":p_vehicle_kind_code," +
-                        ":p_vehicle_brand," +
-                        ":p_vehicle_model," +
-                        ":p_vehicle_number," +
-                        ":p_trailer_number," +
-                        ":p_driver_name," +
-                        ":p_driver_phone_number," +
-                        ":p_logist_id," +
-                        ":p_priority," +
-                        ":p_partner_manager_name," +
-                        ":p_partner_manager_phone_number," +
-                        ":p_partner_manager_email," +
-                        ":p_manager_id," +
-                        ":p_note," +
+                    var sql = $"select {YardSchema}.add_operation(:p_type_code,\n" +
+                        ":p_plan_work_start_date,\n" +
+                        ":p_plan_work_finish_date,\n" +
+                        ":p_vehicle_kind_code,\n" +
+                        ":p_vehicle_brand,\n" +
+                        ":p_vehicle_model,\n" +
+                        ":p_vehicle_number,\n" +
+                        ":p_trailer_number,\n" +
+                        ":p_driver_name,\n" +
+                        ":p_driver_phone_number,\n" +
+                        ":p_logist_id,\n" +
+                        ":p_priority,\n" +
+                        ":p_partner_manager_name,\n" +
+                        ":p_partner_manager_phone_number,\n" +
+                        ":p_partner_manager_email,\n" +
+                        ":p_manager_id,\n" +
+                        ":p_note,\n" +
                         ":p_user);";
                     command.CommandText = sql;
 
@@ -983,25 +983,25 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select o.id, " +
-                        $"       o.type_id,  o.type_code, o.type_name, " +
-                        $"       o.start_date, " +
-                        $"       o.plan_work_start_date, o.plan_work_finish_date, " +
-                        $"       o.fact_work_start_date, o.fact_work_finish_date, " +
-                        $"       o.start_date, o.finish_date, " +
-                        $"       o.finish_date, " +
-                        $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
-                        $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, o.trailer_number, " +
-                        $"       o.driver_name, o.driver_phone_number, " +
-                        $"       o.logist_id, o.logist_code, o.logist_name, " +
-                        $"       o.gate_id, o.gate_code, o.gate_name, " +
-                        $"       o.state_id, o.state_code, o.state_name, " +
-                        $"       o.priority, " +
-                        $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email, " +
-                        $"       o.manager_id, " +
-                        $"       o.responsible_officer_id, o.note," +
-                        $"       o.created, o.creator, o.edited, o.editor" +
-                        $"  from {YardSchema}.v_operation o " +
+                        $"select o.id,\n" +
+                        $"       o.type_id,  o.type_code, o.type_name,\n" +
+                        $"       o.start_date,\n" +
+                        $"       o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                        $"       o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                        $"       o.start_date, o.finish_date,\n" +
+                        $"       o.finish_date,\n" +
+                        $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                        $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, o.trailer_number,\n" +
+                        $"       o.driver_name, o.driver_phone_number,\n" +
+                        $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                        $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                        $"       o.state_id, o.state_code, o.state_name,\n" +
+                        $"       o.priority,\n" +
+                        $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email,\n" +
+                        $"       o.manager_id,\n" +
+                        $"       o.responsible_officer_id, o.note,\n" +
+                        $"       o.created, o.creator, o.edited, o.editor\n" +
+                        $"  from {YardSchema}.v_operation o\n" +
                         $" where o.id = :id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Bigint, id));
@@ -1030,9 +1030,9 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select otvkw.work_id, otvkw.position_id, otvkw.time, otvkw.workers_count " +
-                        $"  from {YardSchema}.v_ot_vk_work otvkw " +
-                        $" where otvkw.operation_type_id = :operation_type_id " +
+                        $"select otvkw.work_id, otvkw.position_id, otvkw.time, otvkw.workers_count\n" +
+                        $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
+                        $" where otvkw.operation_type_id = :operation_type_id\n" +
                         $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
@@ -1068,45 +1068,45 @@ namespace TSLog.Yard.Data
                 if (partners != null && partners.Length > 0)
                 {
                     var sql =
-                        $"select distinct po.id, " +
-                        $"       po.type_id, " +
-                        $"       po.type_code, " +
-                        $"       po.type_name, " +
-                        $"       po.start_date, " +
-                        $"       po.plan_work_start_date, " +
-                        $"       po.fact_work_start_date, " +
-                        $"       po.plan_work_finish_date, " +
-                        $"       po.fact_work_finish_date, " +
-                        $"       po.finish_date, " +
-                        $"       po.vehicle_kind_id, " +
-                        $"       po.vehicle_kind_code, " +
-                        $"       po.vehicle_kind_name, " +
-                        $"       po.vehicle_brand, " +
-                        $"       po.vehicle_model, " +
-                        $"       po.vehicle_number, " +
-                        $"       po.trailer_number, " +
-                        $"       po.driver_name, " +
-                        $"       po.driver_phone_number, " +
-                        $"       po.logist_id, " +
-                        $"       po.logist_code, " +
-                        $"       po.logist_name, " +
-                        $"       po.gate_id, " +
-                        $"       po.gate_code, " +
-                        $"       po.gate_name, " +
-                        $"       po.state_id, " +
-                        $"       po.state_code, " +
-                        $"       po.state_name, " +
-                        $"       po.priority, " +
-                        $"       po.partner_manager_name, " +
-                        $"       po.partner_manager_phone_number, " +
-                        $"       po.partner_manager_email, " +
-                        $"       po.manager_id, " +
-                        $"       po.responsible_officer_id, " +
-                        $"       po.note," +
-                        $"       po.created, po.creator, po.edited, po.editor" +
-                        $"  from {YardSchema}.v_partner_operation po " +
-                        $" where not (po.plan_work_start_date > :to_date " +
-                        $"    or po.plan_work_finish_date < :from_date) " +
+                        $"select distinct po.id,\n" +
+                        $"       po.type_id,\n" +
+                        $"       po.type_code,\n" +
+                        $"       po.type_name,\n" +
+                        $"       po.start_date,\n" +
+                        $"       po.plan_work_start_date,\n" +
+                        $"       po.fact_work_start_date,\n" +
+                        $"       po.plan_work_finish_date,\n" +
+                        $"       po.fact_work_finish_date,\n" +
+                        $"       po.finish_date,\n" +
+                        $"       po.vehicle_kind_id,\n" +
+                        $"       po.vehicle_kind_code,\n" +
+                        $"       po.vehicle_kind_name,\n" +
+                        $"       po.vehicle_brand,\n" +
+                        $"       po.vehicle_model,\n" +
+                        $"       po.vehicle_number,\n" +
+                        $"       po.trailer_number,\n" +
+                        $"       po.driver_name,\n" +
+                        $"       po.driver_phone_number,\n" +
+                        $"       po.logist_id,\n" +
+                        $"       po.logist_code,\n" +
+                        $"       po.logist_name,\n" +
+                        $"       po.gate_id,\n" +
+                        $"       po.gate_code,\n" +
+                        $"       po.gate_name,\n" +
+                        $"       po.state_id,\n" +
+                        $"       po.state_code,\n" +
+                        $"       po.state_name,\n" +
+                        $"       po.priority,\n" +
+                        $"       po.partner_manager_name,\n" +
+                        $"       po.partner_manager_phone_number,\n" +
+                        $"       po.partner_manager_email,\n" +
+                        $"       po.manager_id,\n" +
+                        $"       po.responsible_officer_id,\n" +
+                        $"       po.note,\n" +
+                        $"       po.created, po.creator, po.edited, po.editor\n" +
+                        $"  from {YardSchema}.v_partner_operation po\n" +
+                        $" where not (po.plan_work_start_date > :to_date\n" +
+                        $"    or po.plan_work_finish_date < :from_date)\n" +
                         $"   and po.partner_id = :partner_id order by po.plan_work_start_date";
                     foreach (var partner in partners)
                     {
@@ -1127,44 +1127,44 @@ namespace TSLog.Yard.Data
                 else
                 {
                     var sql =
-                        $"select distinct o.id, " +
-                        $"       o.type_id, " +
-                        $"       o.type_code, " +
-                        $"       o.type_name, " +
-                        $"       o.plan_work_start_date, " +
-                        $"       o.fact_work_start_date, " +
-                        $"       o.plan_work_finish_date, " +
-                        $"       o.fact_work_finish_date, " +
-                        $"       o.start_date, " +
-                        $"       o.finish_date, " +
-                        $"       o.vehicle_kind_id, " +
-                        $"       o.vehicle_kind_code, " +
-                        $"       o.vehicle_kind_name, " +
-                        $"       o.vehicle_brand, " +
-                        $"       o.vehicle_model, " +
-                        $"       o.vehicle_number, " +
-                        $"       o.trailer_number, " +
-                        $"       o.driver_name, " +
-                        $"       o.driver_phone_number, " +
-                        $"       o.logist_id, " +
-                        $"       o.logist_code, " +
-                        $"       o.logist_name, " +
-                        $"       o.gate_id, " +
-                        $"       o.gate_code, " +
-                        $"       o.gate_name, " +
-                        $"       o.state_id, " +
-                        $"       o.state_code, " +
-                        $"       o.state_name, " +
-                        $"       o.priority, " +
-                        $"       o.partner_manager_name, " +
-                        $"       o.partner_manager_phone_number, " +
-                        $"       o.partner_manager_email, " +
-                        $"       o.manager_id, " +
-                        $"       o.responsible_officer_id, " +
-                        $"       o.note," +
-                        $"       o.created, o.creator, o.edited, o.editor" +
-                        $"  from {YardSchema}.v_operation o " +
-                        $" where not (o.plan_work_start_date > :to_date " +
+                        $"select distinct o.id,\n" +
+                        $"       o.type_id,\n" +
+                        $"       o.type_code,\n" +
+                        $"       o.type_name,\n" +
+                        $"       o.plan_work_start_date,\n" +
+                        $"       o.fact_work_start_date,\n" +
+                        $"       o.plan_work_finish_date,\n" +
+                        $"       o.fact_work_finish_date,\n" +
+                        $"       o.start_date,\n" +
+                        $"       o.finish_date,\n" +
+                        $"       o.vehicle_kind_id,\n" +
+                        $"       o.vehicle_kind_code,\n" +
+                        $"       o.vehicle_kind_name,\n" +
+                        $"       o.vehicle_brand,\n" +
+                        $"       o.vehicle_model,\n" +
+                        $"       o.vehicle_number,\n" +
+                        $"       o.trailer_number,\n" +
+                        $"       o.driver_name,\n" +
+                        $"       o.driver_phone_number,\n" +
+                        $"       o.logist_id,\n" +
+                        $"       o.logist_code,\n" +
+                        $"       o.logist_name,\n" +
+                        $"       o.gate_id,\n" +
+                        $"       o.gate_code,\n" +
+                        $"       o.gate_name,\n" +
+                        $"       o.state_id,\n" +
+                        $"       o.state_code,\n" +
+                        $"       o.state_name,\n" +
+                        $"       o.priority,\n" +
+                        $"       o.partner_manager_name,\n" +
+                        $"       o.partner_manager_phone_number,\n" +
+                        $"       o.partner_manager_email,\n" +
+                        $"       o.manager_id,\n" +
+                        $"       o.responsible_officer_id,\n" +
+                        $"       o.note,\n" +
+                        $"       o.created, o.creator, o.edited, o.editor\n" +
+                        $"  from {YardSchema}.v_operation o\n" +
+                        $" where not (o.plan_work_start_date > :to_date\n" +
                         $"    or o.plan_work_finish_date < :from_date)";
                     using var command = connection.CreateCommand();
                     command.CommandText = sql;
@@ -1276,29 +1276,30 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectActiveOperationsSql =
-                       $"select distinct ao.id, " +
-                       $"       ao.type_id, ao.type_code, ao.type_name, " +
-                       $"       ao.plan_work_start_date, ao.fact_work_start_date, " +
-                       $"       ao.plan_work_finish_date, ao.fact_work_finish_date, " +
-                       $"       ao.start_date, ao.finish_date, " +
-                       $"       ao.vehicle_kind_id, ao.vehicle_kind_code, ao.vehicle_kind_name, " +
-                       $"       ao.vehicle_brand, " +
-                       $"       ao.vehicle_model, " +
-                       $"       ao.vehicle_number, " +
-                       $"       ao.trailer_number, " +
-                       $"       ao.driver_name, ao.driver_phone_number, " +
-                       $"       ao.logist_id, ao.logist_code, ao.logist_name, " +
-                       $"       ao.gate_id, ao.gate_code, ao.gate_name, " +
-                       $"       ao.state_id, ao.state_code, ao.state_name, " +
-                       $"       ao.priority, " +
-                       $"       ao.partner_manager_name, " +
-                       $"       ao.partner_manager_phone_number, " +
-                       $"       ao.partner_manager_email, " +
-                       $"       ao.manager_id, " +
-                       $"       ao.responsible_officer_id, " +
-                       $"       ao.note," +
-                       $"       ao.created, ao.creator, ao.edited, ao.editor" +
-                       $"  from {YardSchema}.v_active_operation ao";
+                       $"  select distinct ao.id,\n" +
+                       $"         ao.type_id, ao.type_code, ao.type_name,\n" +
+                       $"         ao.plan_work_start_date, ao.fact_work_start_date,\n" +
+                       $"         ao.plan_work_finish_date, ao.fact_work_finish_date,\n" +
+                       $"         ao.start_date, ao.finish_date,\n" +
+                       $"         ao.vehicle_kind_id, ao.vehicle_kind_code, ao.vehicle_kind_name,\n" +
+                       $"         ao.vehicle_brand,\n" +
+                       $"         ao.vehicle_model,\n" +
+                       $"         ao.vehicle_number,\n" +
+                       $"         ao.trailer_number,\n" +
+                       $"         ao.driver_name, ao.driver_phone_number,\n" +
+                       $"         ao.logist_id, ao.logist_code, ao.logist_name,\n" +
+                       $"         ao.gate_id, ao.gate_code, ao.gate_name,\n" +
+                       $"         ao.state_id, ao.state_code, ao.state_name,\n" +
+                       $"         ao.priority,\n" +
+                       $"         ao.partner_manager_name,\n" +
+                       $"         ao.partner_manager_phone_number,\n" +
+                       $"         ao.partner_manager_email,\n" +
+                       $"         ao.manager_id,\n" +
+                       $"         ao.responsible_officer_id,\n" +
+                       $"         ao.note,\n" +
+                       $"         ao.created, ao.creator, ao.edited, ao.editor\n" +
+                       $"    from {YardSchema}.v_active_operation ao\n" +
+                       $"order by ao.plan_work_start_date, ao.plan_work_finish_date, ao.fact_work_start_date, ao.fact_work_finish_date";
                     command.CommandText = SelectActiveOperationsSql;
 
                     using var reader = command.ExecuteReader();
@@ -1321,28 +1322,28 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectOperationsForGuardSql =
-                       $"  select distinct o.id, " +
-                       $"         o.type_id, o.type_code, o.type_name, " +
-                       $"         o.plan_work_start_date, o.fact_work_start_date, " +
-                       $"         o.plan_work_finish_date, o.fact_work_finish_date, " +
-                       $"         o.start_date, o.finish_date, " +
-                       $"         o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name, " +
-                       $"         o.vehicle_brand, " +
-                       $"         o.vehicle_model, " +
-                       $"         o.vehicle_number, " +
-                       $"         o.trailer_number, " +
-                       $"         o.driver_name, o.driver_phone_number, " +
-                       $"         o.logist_id, o.logist_code, o.logist_name, " +
-                       $"         o.gate_id, o.gate_code, o.gate_name, " +
-                       $"         o.state_id, o.state_code, o.state_name, " +
-                       $"         o.priority, " +
-                       $"         o.partner_manager_name, " +
-                       $"         o.partner_manager_phone_number, " +
-                       $"         o.partner_manager_email, " +
-                       $"         o.manager_id, " +
-                       $"         o.responsible_officer_id, " +
-                       $"         o.note," +
-                       $"         o.created, o.creator, o.edited, o.editor" +
+                       $"  select distinct o.id,\n" +
+                       $"         o.type_id, o.type_code, o.type_name,\n" +
+                       $"         o.plan_work_start_date, o.fact_work_start_date,\n" +
+                       $"         o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                       $"         o.start_date, o.finish_date,\n" +
+                       $"         o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                       $"         o.vehicle_brand,\n" +
+                       $"         o.vehicle_model,\n" +
+                       $"         o.vehicle_number,\n" +
+                       $"         o.trailer_number,\n" +
+                       $"         o.driver_name, o.driver_phone_number,\n" +
+                       $"         o.logist_id, o.logist_code, o.logist_name,\n" +
+                       $"         o.gate_id, o.gate_code, o.gate_name,\n" +
+                       $"         o.state_id, o.state_code, o.state_name,\n" +
+                       $"         o.priority,\n" +
+                       $"         o.partner_manager_name,\n" +
+                       $"         o.partner_manager_phone_number,\n" +
+                       $"         o.partner_manager_email,\n" +
+                       $"         o.manager_id,\n" +
+                       $"         o.responsible_officer_id,\n" +
+                       $"         o.note,\n" +
+                       $"         o.created, o.creator, o.edited, o.editor\n" +
                        $"    from {YardSchema}.v_operation_for_guard o\n" +
                        $"order by o.vehicle_number";
                     command.CommandText = SelectOperationsForGuardSql;
@@ -1367,8 +1368,8 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select distinct partner_id, op.plan_work_start_date, op.plan_work_finish_date " +
-                        $"  from {YardSchema}.v_operation_partner op " +
+                        $"select distinct partner_id, op.plan_work_start_date, op.plan_work_finish_date\n" +
+                        $"  from {YardSchema}.v_operation_partner op\n" +
                         $" where not (op.plan_work_start_date > :finish_date or op.plan_work_finish_date < :start_date)";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, from));
@@ -1394,9 +1395,10 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = $"select {YardSchema}.set_operation_gate(:p_id," +
-                        $":p_gate_code," +
-                        $":p_user);";
+                    var sql = 
+                        $"select {YardSchema}.set_operation_gate(:p_id,\n" +
+                        $"   :p_gate_code,\n" +
+                        $"   :p_user);";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
                     command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate != null ? gate.Code : DBNull.Value));
@@ -1432,25 +1434,26 @@ namespace TSLog.Yard.Data
             using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
-                var sql = $"select {YardSchema}.edit_operation(:p_id," +
-                    $":p_type_code," +
-                    $":p_plan_work_start_date," +
-                    $":p_plan_work_finish_date," +
-                    $":p_vehicle_kind_code," +
-                    $":p_vehicle_brand," +
-                    $":p_vehicle_model," +
-                    $":p_vehicle_number," +
-                    $":p_vehicle_trailer_number," +
-                    $":p_driver_name," +
-                    $":p_driver_phone_number," +
-                    $":p_logist_id," +
-                    $":p_priority," +
-                    $":p_partner_manager_name," +
-                    $":p_partner_manager_phone_number," +
-                    $":p_partner_manager_email," +
-                    $":p_manager_id," +
-                    $":p_note," +
-                    $":p_user);";
+                var sql = 
+                    $"select {YardSchema}.edit_operation(:p_id,\n" +
+                    $"    :p_type_code,\n" +
+                    $"    :p_plan_work_start_date,\n" +
+                    $"    :p_plan_work_finish_date,\n" +
+                    $"    :p_vehicle_kind_code,\n" +
+                    $"    :p_vehicle_brand,\n" +
+                    $"    :p_vehicle_model,\n" +
+                    $"    :p_vehicle_number,\n" +
+                    $"    :p_vehicle_trailer_number,\n" +
+                    $"    :p_driver_name,\n" +
+                    $"    :p_driver_phone_number,\n" +
+                    $"    :p_logist_id,\n" +
+                    $"    :p_priority,\n" +
+                    $"    :p_partner_manager_name,\n" +
+                    $"    :p_partner_manager_phone_number,\n" +
+                    $"    :p_partner_manager_email,\n" +
+                    $"    :p_manager_id,\n" +
+                    $"    :p_note,\n" +
+                    $"    :p_user);";
                 command.CommandText = sql;
 
                 command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
@@ -1674,11 +1677,12 @@ namespace TSLog.Yard.Data
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.add_action(:p_operation_id, " +
-                $":p_action_kind, " +
-                $":p_action_id, " +
-                $":p_partner_id, " +
-                $":p_partner_action_id);";
+            var sql = 
+                $"select {YardSchema}.add_action(:p_operation_id,\n" +
+                $"    :p_action_kind,\n" +
+                $"    :p_action_id,\n" +
+                $"    :p_partner_id,\n" +
+                $"    :p_partner_action_id);";
             command.CommandText = sql;
             var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
@@ -1718,8 +1722,8 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select oa.operation_id, oa.action_kind, oa.action_id, oa.partner_id, oa.partner_action_id " +
-                        $"  from {YardSchema}.v_operation_action oa " +
+                        $"select oa.operation_id, oa.action_kind, oa.action_id, oa.partner_id, oa.partner_action_id\n" +
+                        $"  from {YardSchema}.v_operation_action oa\n" +
                         $" where oa.operation_id = :operation_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
@@ -1744,9 +1748,10 @@ namespace TSLog.Yard.Data
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.remove_action(:p_operation_id," +
-                $":p_action_kind," +
-                $":p_action_id);";
+            var sql = 
+                $"select {YardSchema}.remove_action(:p_operation_id,\n" +
+                $"    :p_action_kind,\n" +
+                $"    :p_action_id);";
             command.CommandText = sql;
             var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
@@ -1770,11 +1775,12 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(costCurrency));
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.add_operation_worker(:p_operation_id, " +
-                $":p_worker_id, " +
-                $":p_position_id, " +
-                $":p_cost, " +
-                $":p_cost_currency);";
+            var sql = 
+                $"select {YardSchema}.add_operation_worker(:p_operation_id,\n" +
+                $"    :p_worker_id,\n" +
+                $"    :p_position_id,\n" +
+                $"    :p_cost,\n" +
+                $"    :p_cost_currency);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
@@ -1794,8 +1800,8 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select ow.worker_id, ow.position_id " +
-                        $"  from {YardSchema}.v_operation_worker ow " +
+                        $"select ow.worker_id, ow.position_id\n" +
+                        $"  from {YardSchema}.v_operation_worker ow\n" +
                         $" where ow.operation_id = :operation_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
@@ -1825,11 +1831,11 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectBisyIntervals =
-                        "select wbi.employee_id," + 
-                        "       wbi.plan_work_start_date," + 
-                        "       wbi.plan_work_finish_date" +
-                        "  from yard.v_worker_busy_intervals wbi" +
-                        " where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)" +
+                        "select wbi.employee_id,\n" +
+                        "       wbi.plan_work_start_date,\n" +
+                        "       wbi.plan_work_finish_date\n" +
+                        "  from yard.v_worker_busy_intervals wbi\n" +
+                        " where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)\n" +
                         "   and wbi.employee_id = :employee_id";
                     command.CommandText = SelectBisyIntervals;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
@@ -1931,9 +1937,10 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(position));
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.remove_operation_worker(:p_operation_id, " +
-                $":p_worker_id, " +
-                $":p_position_id);";
+            var sql = 
+                $"select {YardSchema}.remove_operation_worker(:p_operation_id,\n" +
+                $"    :p_worker_id,\n" +
+                $"    :p_position_id);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
             command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
@@ -2091,6 +2098,122 @@ namespace TSLog.Yard.Data
                         line.WorkersCount = Utils.DbValueToInt(reader["workers_count"]);
                         line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
                         line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                        lines.Add(line);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return lines.ToArray();
+        }
+        public dynamic[] GetYardShiftLabocCosts(DateTime date)
+        {
+            var lines = new List<dynamic>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        "with tempdate as (\n" +
+                        "    select yard.get_shift_start(:date::timestamp, 0::int2) start_date, yard.get_shift_finish(:date::timestamp, 0::int2) finish_date\n" +
+                        "),\n" +
+                        "plan_data as (\n" +
+                        "   select --o.id,\n" +
+                        "          --o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                        "          --least(o.plan_work_finish_date, td.finish_date) - greatest(o.plan_work_start_date, td.start_date) plan_duration,\n" +
+                        "          nw.position_id,\n" +
+                        "          o.gate_id,\n" +
+                        "          sum(nw.\"time\" * nw.workers_count) plan_lc\n" +
+                        "     from yard.v_ot_vk_work nw\n" +
+                        "left join yard.v_operation o on nw.operation_type_id = o.type_id and nw.vehicle_kind_id = o.vehicle_kind_id\n" +
+                        "left join tempdate td on true\n" +
+                        "    where o.fact_work_start_date is not null\n" +
+                        "      and o.fact_work_finish_date is not null\n" +
+                        "      and not (o.plan_work_start_date >= td.finish_date or o.plan_work_finish_date <= td.start_date)\n" +
+                        " group by nw.position_id, o.gate_id\n" +
+                        "),\n" +
+                        "fact_data as (\n" +
+                        "   select --o.id,\n" +
+                        "          --o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                        "          --least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date) fact_duration,\n" +
+                        "          ow.position_id,\n" +
+                        "          o.gate_id,\n" +
+                        "          sum(extract('epoch' from(least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date)))) fact_lc\n" +
+                        "    from yard.v_operation_worker ow\n" +
+                        "left join yard.v_operation o on ow.operation_id = o.id\n" +
+                        "left join tempdate td on true\n" +
+                        "    where o.fact_work_start_date is not null\n" +
+                        "      and o.fact_work_finish_date is not null\n" +
+                        "      and not (o.fact_work_start_date >= td.finish_date or o.fact_work_finish_date <= td.start_date)\n" +
+                        " group by ow.position_id, o.gate_id\n" +
+                        "),\n" +
+                        "gate_data as (\n" +
+                        "   select coalesce(pd.position_id, fd.position_id) position_id, p.name position_name,\n" +
+                        "          coalesce(pd.gate_id, fd.gate_id) gate_id, g.name gate_name,\n" +
+                        "          round(coalesce(pd.plan_lc::numeric / 3600::numeric, 0)::numeric, 2) plan_lc,\n" +
+                        "          round(coalesce(fd.fact_lc::numeric / 3600::numeric, 0)::numeric, 2) fact_lc,\n" +
+                        "          case\n" +
+                        "              when coalesce(fd.fact_lc, 0) <> 0 then coalesce(pd.plan_lc, 0) / coalesce(fd.fact_lc, 0) * 100\n" +
+                        "              else 0\n" +
+                        "          end perfomance\n" +
+                        "     from plan_data pd\n" +
+                        "full join fact_data fd on pd.position_id = fd.position_id and pd.gate_id = fd.gate_id\n" +
+                        "left join yard.v_position p on coalesce(pd.position_id, fd.position_id) = p.id\n" +
+                        "left join yard.v_gate g on coalesce(pd.gate_id, fd.gate_id) = g.id\n" +
+                        "    where p.is_linear = 1\n" +
+                        " order by coalesce(pd.position_id, fd.position_id),\n" +
+                        "          coalesce(pd.gate_id, fd.gate_id)\n" +
+                        ")\n" +
+                        "  select gd.position_id, gd.position_name,\n" +
+                        "         round(case\n" +
+                        "             when sum(coalesce(gd.fact_lc, 0)) <> 0 then sum(coalesce(gd.plan_lc, 0)) / sum(coalesce(gd.fact_lc, 0)) * 100\n" +
+                        "             else 0\n" +
+                        "         end::numeric, 2) total,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1001 then gd.perfomance::numeric end), 2), 0.0) pg1,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1002 then gd.perfomance::numeric end), 2), 0.0) pg2,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1003 then gd.perfomance::numeric end), 2), 0.0) pg3,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1004 then gd.perfomance::numeric end), 2), 0.0) pg4,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1005 then gd.perfomance::numeric end), 2), 0.0) pg5,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1006 then gd.perfomance::numeric end), 2), 0.0) pg6,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1007 then gd.perfomance::numeric end), 2), 0.0) pg7,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1008 then gd.perfomance::numeric end), 2), 0.0) pg8,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1009 then gd.perfomance::numeric end), 2), 0.0) pg9,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1010 then gd.perfomance::numeric end), 2), 0.0) pg10,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1011 then gd.perfomance::numeric end), 2), 0.0) pg11,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1012 then gd.perfomance::numeric end), 2), 0.0) pg12,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1013 then gd.perfomance::numeric end), 2), 0.0) pg13,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1014 then gd.perfomance::numeric end), 2), 0.0) pg14,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1015 then gd.perfomance::numeric end), 2), 0.0) pg15,\n" +
+                        "         coalesce(round(avg(case when gd.gate_id = 1016 then gd.perfomance::numeric end), 2), 0.0) pg16\n" +
+                        "    from gate_data gd\n" +
+                        "group by gd.position_id, gd.position_name";
+
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("date", NpgsqlDbType.Timestamp, date));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        dynamic line = new ExpandoObject();
+                        line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                        line.LaborCost = Utils.DbValueToDouble(reader["total"]);
+
+                        line.G01LaborCost = Utils.DbValueToDouble(reader["pg1"]);
+                        line.G02LaborCost = Utils.DbValueToDouble(reader["pg2"]);
+                        line.G03LaborCost = Utils.DbValueToDouble(reader["pg3"]);
+                        line.G04LaborCost = Utils.DbValueToDouble(reader["pg4"]);
+                        line.G05LaborCost = Utils.DbValueToDouble(reader["pg5"]);
+                        line.G06LaborCost = Utils.DbValueToDouble(reader["pg6"]);
+                        line.G07LaborCost = Utils.DbValueToDouble(reader["pg7"]);
+                        line.G08LaborCost = Utils.DbValueToDouble(reader["pg8"]);
+                        line.G09LaborCost = Utils.DbValueToDouble(reader["pg9"]);
+                        line.G10LaborCost = Utils.DbValueToDouble(reader["pg10"]);
+                        line.G11LaborCost = Utils.DbValueToDouble(reader["pg11"]);
+                        line.G12LaborCost = Utils.DbValueToDouble(reader["pg12"]);
+                        line.G13LaborCost = Utils.DbValueToDouble(reader["pg13"]);
+                        line.G14LaborCost = Utils.DbValueToDouble(reader["pg14"]);
+                        line.G15LaborCost = Utils.DbValueToDouble(reader["pg15"]);
+                        line.G16LaborCost = Utils.DbValueToDouble(reader["pg16"]);
+
                         lines.Add(line);
                     }
                     reader.Close();

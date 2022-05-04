@@ -394,6 +394,14 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetBcLabocCosts(fromDate, toDate);
         }
+        public dynamic[] GetBcShiftLabocCosts(DateTime date)
+        {
+            return _oracleStorage.GetBcShiftLabocCosts(date);
+        }
+        public dynamic[] GetYardShiftLabocCosts(DateTime date)
+        {
+            return _pgsqlStorage.GetYardShiftLabocCosts(date);
+        }
 
         #endregion
 

@@ -19,9 +19,6 @@
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
     }
-
-    var operations = storage.GetGuardOperations();
-    var operationsModel = new OperationsModel(rightsChecker, storage, operations, false, Request);
 }
 <h2 id="header2">Отчёт по трудозатратам</h2>
 <div class="row dates-div">

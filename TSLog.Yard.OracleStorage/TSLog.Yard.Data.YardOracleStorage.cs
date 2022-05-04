@@ -510,22 +510,23 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeeById =
-                    $"select ep.employee_id" +
-                    $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
-                    $" where ep.position_id = :position_id" +
-                    $"   and (:work_mode is null or upper(trim(ep.work_mode)) = :work_mode) " +
-                    $"   and (upper(trim(ep.employee_surname)) like :pattern" +
-                    $"     or upper(trim(ep.employee_first_name)) like :pattern" +
-                    $"     or upper(trim(ep.employee_patronymic)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name2)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name3)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name4)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name2)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name3)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name4)) like :pattern" +
-                    $"     or upper(trim(ep.employee_full_name)) like :pattern" +
+                    $"select ep.employee_id\n" +
+                    $"  from {StaffSchema}.stf_employee_position_ext#v ep\n" +
+                    $" where ep.position_id = :position_id\n" +
+                    $"   and ep.dismissal_date is null\n" +
+                    $"   and (:work_mode is null or upper(trim(ep.work_mode)) = :work_mode)\n" +
+                    $"   and (upper(trim(ep.employee_surname)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_first_name)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_patronymic)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name2)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name3)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name4)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name2)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name3)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name4)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_full_name)) like :pattern\n" +
                     $"     or upper(trim(ep.employee_full_name2)) like :pattern)";
                 command.BindByName = true;
                 command.CommandText = SelectEmployeeById;
@@ -925,6 +926,58 @@ namespace TSLog.Yard.Data
                     line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
                     line.PositionId = Utils.DbValueToShort(reader["position_id"]);
                     line.WorkersCount = Utils.DbValueToInt(reader["workers_count"]);
+                    line.LaborCost = Utils.DbValueToDouble(reader["labor_cost"]);
+                    lines.Add(line);
+                }
+                reader.Close();
+            }
+            return lines.ToArray();
+        }
+        public dynamic[] GetBcShiftLabocCosts(DateTime date)
+        {
+            var lines = new List<dynamic>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    "with data2 as (\n" +
+                    "   select ecco.get_shift_start(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
+                    "          ecco.get_shift_finish(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish,\n" +
+                    "          d.worker_id, e.full_name worker_full_name,\n" +
+                    "          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
+                    "          e.work_mode worker_work_mode,\n" +
+                    "          case \n" +
+                    "              when e.work_mode = '5/2-40' then 8.0\n" +
+                    "              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
+                    "              else 8.0\n" +
+                    "          end worker_standard,\n" +
+                    "          sum((d.finish_date - d.start_date) * 24) worker_labor_cost\n" +
+                    "     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
+                    "                                       ecco.get_shift_finish(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
+                    "left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    "left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
+                    "left join ecco.par_partner#v p on d.partner_id = p.id\n" +
+                    "left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                    "    where d.finish_date - d.start_date > 0\n" +
+                    "      and d.site_id in (select id from ecco.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
+                    " group by d.worker_id, e.full_name, e.work_mode, emp.position_id, emp.position_name)\n" +
+                    "   select d.worker_position_id, d.worker_position_name,\n" +
+                    "          round(sum(d.worker_labor_cost / d.worker_standard), 4) labor_cost, --Человекосмены\n" +
+                    "          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) efficiency,\n" +
+                    "          count(distinct d.worker_id) standard_labor_cost-- Человекосмены\n" +
+                    "    from data2 d\n" +
+                    "left join ecco.stf_position#v p on d.worker_position_id = p.id\n" +
+                    "    where p.is_linear = 1\n" +
+                    " group by d.worker_position_id, d.worker_position_name";
+
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("shift_date", date.ToString()));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic line = new ExpandoObject();
+                    line.PositionId = Utils.DbValueToShort(reader["worker_position_id"]);
+                    line.StandardLaborCost = Utils.DbValueToDouble(reader["standard_labor_cost"]);
                     line.LaborCost = Utils.DbValueToDouble(reader["labor_cost"]);
                     lines.Add(line);
                 }

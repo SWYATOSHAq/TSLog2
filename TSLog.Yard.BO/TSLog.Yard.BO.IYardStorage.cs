@@ -102,9 +102,11 @@ namespace TSLog.Yard.BO
     {
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate);
         public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate);
+        public dynamic[] GetYardShiftLabocCosts(DateTime date);
     }
     public interface IBcReportingStorage
     {
         public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate);
+        public dynamic[] GetBcShiftLabocCosts(DateTime date);
     }
 }

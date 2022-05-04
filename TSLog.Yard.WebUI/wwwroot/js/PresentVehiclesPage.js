@@ -32,6 +32,7 @@
 
     createOpenOperationFunction(id) {
         return function () {
+            sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
             location.href = "/OperationPage?id=" + id;
         }
     }

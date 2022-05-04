@@ -23,6 +23,7 @@
     var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
     var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
     var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
+    var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
 
     var date = DateTime.Today.ToString("dd.MM.yyyy");
 
@@ -80,6 +81,10 @@
     else if (page == "LaborReportPage")
     {
         <link rel="stylesheet" href="~/css/LaborReportPage.css" asp-append-version="true" />
+    } 
+    else if (page == "ShiftLaborReportPage")
+    {
+        <link rel="stylesheet" href="~/css/ShiftLaborReportPage.css" asp-append-version="true" />
     } 
 </head>
 
@@ -144,6 +149,12 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="/LaborReportPage">Отчёт о трудозатратах</a>
+                            </li>
+                        }
+                        @if (canViewShiftLaborReportPage)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/ShiftLaborReportPage">Отчёт о трудозатратах (за смену)</a>
                             </li>
                         }
                     </ul>
@@ -216,6 +227,10 @@
         else if (page == "LaborReportPage")
         {        
             <script type="text/javascript" src="~/js/LaborReportPage.js"></script>
+        }
+        else if (page == "ShiftLaborReportPage")
+        {        
+            <script type="text/javascript" src="~/js/ShiftLaborReportPage.js"></script>
         }
     }
 
