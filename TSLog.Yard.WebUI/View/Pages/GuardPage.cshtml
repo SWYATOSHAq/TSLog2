@@ -34,7 +34,16 @@
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
         true, true, false, false);
 
-    OperationsSortBlockModel? sortModel = null;
+    var sortFields = new Dictionary<string, string>();
+    sortFields.Add("driverName", "Водитель (Ф. И. О.)");
+    sortFields.Add("partnerId", "Клиент");
+    sortFields.Add("vehicleBrand", "Марка Т/С");
+    sortFields.Add("vehicleNumber", "Номер Т/С");
+    sortFields.Add("startDate", "Прибытие на КПП");
+    sortFields.Add("planWorkStartDate", "Начало работ (план)");
+    sortFields.Add("factWorkStartDate", "Начало работ (факт)");
+    sortFields.Add("responsibleOfficerName", "Инициатор допуска ТС");
+    var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
 }
 <meta http-equiv="refresh" content="60">  
 <h2 id="header2">Машины на въезд и на выезд</h2>
@@ -46,7 +55,7 @@
             <th class="color-yellow table-header">Марка Т/С</th>
             <th class="color-yellow table-header">№ Т/С (прицепа)</th>                
             <th class="color-yellow table-header">Водитель<br />(Ф. И. О.)</th>
-            <th class="color-yellow table-header">Поклажедатель</th>
+            <th class="color-yellow table-header">Клиент</th>
             <th class="color-yellow table-header">Цель приезда</th>
             <th class="color-yellow table-header">Прибытие на КПП</th>
             <th class="color-yellow table-header">Начало работы план (факт)</th>

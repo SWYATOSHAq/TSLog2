@@ -3,7 +3,7 @@
     operations = [];
     filteredOperations = [];
     sortedOperations = [];
-    sortField = "";
+    sortField = "driverName";
     sortDirection = "forward";
 
     constructor() {
@@ -17,6 +17,8 @@
         result = utils.addParameter(result, "partner_id", "partners-select");
         result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
         result = utils.addParameter(result, "driver_name", "driver-name-input");
+        result = utils.addParameter(result, "sort_field", "sort-field-select");
+        result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
         return result != "" ? "?" + result : "";
     }
@@ -40,16 +42,16 @@
         viewUtils.createCell(operationTr, ["table-cell"], [operation.directionName]);
 
         let date = new Date(operation.startDate);
-        const startDate = date > utils.nullDate ? date.toLocaleTimeString() + " - " + date.toLocaleDateString(): "Ожидается";
+        const startDate = date > utils.nullDate ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString(): "Ожидается";
         viewUtils.createCell(operationTr, ["table-cell"], [startDate]);
 
         date = new Date(operation.planWorkStartDate);
-        let contents = [date.toLocaleTimeString() + " - " + date.toLocaleDateString()];
+        let contents = [date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString()];
         date = new Date(operation.factWorkStartDate);
         if (date > utils.nullDate) {
             contents.push(document.createElement("br"));
             const startTimeB = document.createElement("b");
-            startTimeB.textContent = "(" + date.toLocaleTimeString() + " - " + date.toLocaleDateString() + ")";
+            startTimeB.textContent = "(" + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString() + ")";
             contents.push(startTimeB)
         }
         viewUtils.createCell(operationTr, ["table-cell"], contents);
@@ -107,23 +109,6 @@
         }
     }
 
-    radioSortHandler() {
-        const radioButtons = document.querySelectorAll("input[name='btnradio']")
-        for (const radioButton of radioButtons) {
-            radioButton.addEventListener("change", callback.bind(this));
-        }
-        function callback() {
-            const radioButtonChecked = document.querySelectorAll("input[name='btnradio']:checked")
-            if (radioButtonChecked[0].id === "btnradio1") {
-                this.sortDirection = "forward";
-            } else if (radioButtonChecked[0].id === "btnradio2") {
-                this.sortDirection = "reverse";
-            }
-            this.clearOperations();
-            this.showOperations();
-        }
-    }
-
     sortCompare(operation1, operation2) {
         switch (this.sortField) {
             case "driverName":
@@ -134,6 +119,14 @@
                 return operation1.vehicleBrand.localeCompare(operation2.vehicleBrand);
             case "vehicleNumber":
                 return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
+            case "startDate":
+                return (new Date(operation1.startDate)) - (new Date(operation2.startDate));
+            case "planWorkStartDate":
+                return (new Date(operation1.planWorkStartDate)) - (new Date(operation2.planWorkStartDate));
+            case "factWorkStartDate":
+                return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
+            case "responsibleOfficerName":
+                return operation1.responsibleOfficer.localeCompare(operation2.responsibleOfficer);
         }
     }
 
@@ -166,16 +159,35 @@
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
 
-    // обработчик события при смене сортировки
-     onChangeSort() {
+    // обработчик события при смене поля сортировки
+    onChangeSortField() {
         this.sortField = document.querySelector(".select_sort").value;
         this.clearOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
+
+    // обработчик события при смене "направления" сортировки
+    onChangeSortDirection() {
+        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']:checked")
+        if (sortDirectionInputs[0].id === "forward-sort-input") {
+            this.sortDirection = "forward";
+        } else if (sortDirectionInputs[0].id === "reverse-sort-input") {
+            this.sortDirection = "reverse";
+        }
+        this.clearOperations();
+        this.showOperations();
+
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
     }
 
     passVehicle(id, action) {
@@ -207,12 +219,29 @@
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
-        document.querySelector(".select_sort").addEventListener("change", this.onChangeSort.bind(this));
-        this.sortField = document.querySelector(".select_sort").value;
+
+        this.sortField = utils.getUrlParameter("sort_field");
+        if (this.sortField === "")
+            this.sortField = "driverName";
+        viewUtils.initSelect("sort-field-select", this.sortField, this.onChangeSortField.bind(this));
+
+        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']")
+        for (const sortDirectionInput of sortDirectionInputs) {
+            sortDirectionInput.onchange = this.onChangeSortDirection.bind(this);
+        }
+
+        this.sortDirection = utils.getUrlParameter("sort_direction");
+        if (this.sortDirection != "reverse")
+            this.sortDirection = "forward";
+        if (this.sortDirection === "forward")
+            document.getElementById("forward-sort-input").checked = true;
+        else
+            document.getElementById("reverse-sort-input").checked = true;
+
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
-        this.radioSortHandler();
+        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
