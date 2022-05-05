@@ -7,11 +7,37 @@
 @{
     //
 }
-<!--
-<div id="sorts" class="row sorts-div">
-    <h3>Сотрировка</h3>
-    <label></label>
-    <select></select>
-    <select></select>
+<div id="sorts" class="sorts-div">
+    <div class="sort_header">
+        <h6>Сортировать по:</h6>
+    </div>
+    <div class="sort_select">
+        <select class="form-select filter-select select_sort">
+          <option value="driverName">Водитель (Ф.И.О.)</option>
+          <option value="partnerId">Партнер</option>
+          <option value="vehicleBrand">Марка Т/С</option>
+          <option value="vehicleNumber">Номер Т/С</option>
+        </select>
+    </div>
+
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+        <label class="btn btn-outline-secondary" for="btnradio1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-sort-up-alt"
+        viewBox="0 2 16 16">
+        <path d="M3.5 13.5a.5.5 0 0 1-1 0V4.707L1.354 5.854a.5.5 0 1 1-.708-.708l2-1.999.007-.007a.498.498 0 0 1 .7.006l2
+        2a.5.5 0 1 1-.707.708L3.5 4.707V13.5zm4-9.5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0
+        1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"/>
+        </svg></label>
+        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+        <label class="btn btn-outline-secondary" for="btnradio2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-sort-up"
+          viewBox="0 2 16 16">
+          <path d="M3.5 12.5a.5.5 0 0 1-1 0V3.707L1.354 4.854a.5.5 0 1 1-.708-.708l2-1.999.007-.007a.498.498 0 0 1 .7.006l2
+          2a.5.5 0 1 1-.707.708L3.5 3.707V12.5zm3.5-9a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM7.5 6a.5.5 0 0
+           0 0 1h5a.5.5 0 0 0 0-1h-5zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z"/>
+        </svg></label>
+    </div>
 </div>
--->
+
+
