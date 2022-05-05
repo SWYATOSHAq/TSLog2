@@ -1,8 +1,13 @@
 ﻿class OperationPage {
     shortUrl;
 
-    startHour = 2;
-    finishHour = 23;
+    /*
+        Выбор с начала суток по 8 часов утра след. суток.
+        Всего промежуток 32 часа.
+        Блоков в часе - 4.
+    */
+    startHour = 0;
+    finishHour = 32;
     hourBlocksCount = 4;
     blockDuration = 0;
 
@@ -243,11 +248,13 @@
                 button.classList.add("btn");
                 button.classList.add("col");
                 button.classList.add("m-1");
-                button.textContent = hour.toString().padStart(2, "0") + ":" + (blockIndex * this.blockDuration / 60).toString().padStart(2, "0");
+                button.textContent = (hour % 24).toString().padStart(2, "0") + ":" + (blockIndex * this.blockDuration / 60).toString().padStart(2, "0");
 
                 const blockStartTime = hour * 60 * 60 + blockIndex * this.blockDuration;
-                const blockStart = date.setHours(0, 0, blockStartTime, 0);
-                const blockFinish = blockStart + this.blockDuration;
+                const blockStart = new Date(date);
+                blockStart.setSeconds(date.getSeconds() + blockStartTime);
+                const blockFinish = new Date(date);
+                blockFinish.setSeconds(date.getSeconds() + blockStartTime + this.blockDuration);
 
                 let isFree = false;
                 for (let interval of this.avalibleIntervals) {
@@ -900,4 +907,4 @@ async function dropdownToggleHandler() {
     }
 }
 
-$(document).ready(operationPage.showPage.bind(operationPage));
+document.addEventListener('DOMContentLoaded', operationPage.showPage.bind(operationPage));

@@ -76,4 +76,4 @@
 
 const clientReportPage = new ClientReportPage();
 
-$(document).ready(clientReportPage.show.bind(clientReportPage));
+document.addEventListener('DOMContentLoaded', clientReportPage.show.bind(clientReportPage));

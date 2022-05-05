@@ -89,4 +89,4 @@
 
 const laborReportPage = new LaborReportPage();
 
-$(document).ready(laborReportPage.show.bind(laborReportPage));
+document.addEventListener('DOMContentLoaded', laborReportPage.show.bind(laborReportPage));

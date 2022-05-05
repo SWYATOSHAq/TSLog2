@@ -49,4 +49,4 @@
 
 const gatesPage = new GatesPage();
 
-$(document).ready(gatesPage.show.bind(gatesPage));
+document.addEventListener('DOMContentLoaded', gatesPage.show.bind(gatesPage));

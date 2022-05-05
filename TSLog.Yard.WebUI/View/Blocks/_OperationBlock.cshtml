@@ -192,6 +192,26 @@
             <textarea rows="5" id="note-textarea" class="form-control"></textarea>
         </div>
     </div>
+
+    @{
+        var tableVisClass = string.Empty;
+        var workersTableDisabled = string.Empty;
+        if (stateCode == "STARTED")
+            tableVisClass = "table-visible";
+        else if (stateCode == "WORK_STARTED" || stateCode == "WORK_FINISHED" || stateCode == "FINISHED")
+        {
+            tableVisClass = "table-visible";
+            workersTableDisabled = "disabled";           
+        }
+    }
+    @if (!isPartnerUser && canViewOperationWorkers)
+    {
+        <fieldset @workersTableDisabled>
+            <div class="@tableVisClass">
+                <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
+            </div>    
+        </fieldset>
+    }    
     
     <div class="row p-2 m-2 d-flex justify-content-center page-break-after hide-on-print">
 
@@ -265,15 +285,4 @@
             </div>
         }
     </div>
-    @{
-        var tableVisClass = string.Empty;
-        if (stateCode == "STARTED")
-            tableVisClass = "table-vis";
-    }
-    @if (!isPartnerUser && canViewOperationWorkers)
-    {
-        <div class="@tableVisClass">
-            <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
-        </div>    
-    }    
 </div>

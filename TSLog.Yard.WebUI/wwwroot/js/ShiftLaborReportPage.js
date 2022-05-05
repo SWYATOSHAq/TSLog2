@@ -111,4 +111,4 @@
 
 const shiftLaborReportPage = new ShiftLaborReportPage();
 
-$(document).ready(shiftLaborReportPage.show.bind(shiftLaborReportPage));
+document.addEventListener('DOMContentLoaded', shiftLaborReportPage.show.bind(shiftLaborReportPage));

@@ -1,6 +1,8 @@
 ﻿class OperationsPage {
     shortUrl;
 
+    operations = [];
+
     constructor() {
         this.shortUrl = location.href.split('?')[0];
     }
@@ -29,21 +31,71 @@
         }        
     }
 
-    showOperation(operation) {
-        const operationOuterDiv = document.createElement("div");
+    createOpenOperationFunction(id) {
+        return function () {
+            sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
+            location.href = "/OperationPage?id=" + id;
+        }
+    }
 
-        const container = document.getElementById("operations-container");
-        container.appendChild(operationOuterDiv);
+    showOperation(operation, operationTr) {
+        operation.startDate = new Date(operation.startDate);
+        operation.planWorkStartDate = new Date(operation.planWorkStartDate);
+        operation.factWorkStartDate = new Date(operation.factWorkStartDate);
+        operation.planWorkFinishDate = new Date(operation.planWorkFinishDate);
+        operation.factWorkFinishDate = new Date(operation.factWorkFinishDate);
+        operation.finishDate = new Date(operation.finishDate);
+        let contents = [];
 
-        const tableBody = document.getElementById("operations-table-body");
-        tableBody.appendChild(row);
+        const openP = document.createElement("p");
+        openP.classList.add("text-center");
+        openP.classList.add("p-margin-0");
+        openP.textContent = operation.id;
+        contents = [openP];
+
+        const openButton = document.createElement("button");
+        openButton.classList.add("btn");
+        openButton.classList.add("btn-outline-info");
+        openButton.classList.add("m-3");
+        openButton.classList.add("table-cell-button");
+        openButton.style.cssText = "width: 100px !important";
+        openButton.onclick = this.createOpenOperationFunction(operation.id);
+        openButton.textContent = "Открыть";
+        contents.push(openButton);
+
+        viewUtils.createCell(operationTr, ["table-cell"], contents, "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.typeName], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleKindShortName], "width: 10% !important; box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.stateName], "box-shadow: none; background-color: " + operation.displayColor);
+
+        let text = operation.startDate > utils.nullDate ?
+            operation.startDate.toLocaleTimeString() + " - " + operation.startDate.toLocaleDateString() :
+            "Ожидается";
+        viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
+
+        contents = [operation.planWorkStartDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.planWorkStartDate.toLocaleDateString()];
+        if (operation.factWorkStartDate > utils.nullDate) {
+            contents.push(document.createElement("br"));
+            contents.push("(" + operation.factWorkStartDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.factWorkStartDate.toLocaleDateString() + ")");
+        }
+        viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
+
+        contents = [operation.planWorkFinishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.planWorkFinishDate.toLocaleDateString()];
+        if (operation.factWorkFinishDate > utils.nullDate) {
+            contents.push(document.createElement("br"));
+            contents.push("(" + operation.factWorkFinishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.factWorkFinishDate.toLocaleDateString() + ")");
+        }
+        viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
+
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName], "box-shadow: none; background-color: " + operation.displayColor);
     }
 
     createParameters() {
-        const fromDatePicker = document.getElementById("from-date-picker");
+        const fromDatePicker = document.getElementById("from-date-input");
         let result = "?from_date=" + fromDatePicker.value;
 
-        const toDatePicker = document.getElementById("to-date-picker");
+        const toDatePicker = document.getElementById("to-date-input");
         result = result + "&to_date=" + toDatePicker.value;
 
         const gatesSelect = document.getElementById("gates-select");
@@ -71,45 +123,50 @@
             result = result + "&state_code=" + operationStatesSelect.value;
         }
 
-        const vehicleNumberInput = filters.querySelector("#vehicle-number-input");
+        const vehicleNumberInput = document.getElementById("vehicle-number-input");
         if (vehicleNumberInput != undefined && vehicleNumberInput.value != "") {
             result = result + "&vehicle_number=" + vehicleNumberInput.value;
         }
 
-        const driverNameInput = filters.querySelector("#driver-name-input");
+        const driverNameInput = document.getElementById("driver-name-input");
         if (driverNameInput != undefined && driverNameInput.value != "") {
             result = result + "&driver_name=" + driverNameInput.value;
+        }
+
+        const workerNameInput = document.getElementById("worker-input");
+        if (workerNameInput != undefined && workerNameInput.value != "") {
+            result = result + "&worker=" + workerNameInput.value;
         }
 
         return result;
     }
 
-    async getOperations() {
+    async getOperations() {        
         const parameters = this.createParameters();
-        let url = "./api/v1/yard/Operations" + parameters;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            const operations = await response.json();
-            this.clearOperations();
-            for (let operation of operations) {
-                this.showOperation(operation);
-            }
-        }
-        else {
-            const message = await response.text();
-            console.log(message);
-        }
-        url = this.shortUrl + parameters;
+        this.operations = await api.getOperations(parameters);
+        const url = this.shortUrl + parameters;
         history.pushState({}, null, url);
     }
 
     clearOperations() {
-        const container = document.getElementById("operations-container");
+        this.operations = [];
+        const container = document.getElementById("operations-table-body");
         container.replaceChildren();
     }
 
+    showOperations() {
+        const operationsTBody = document.getElementById("operations-table-body");
+        for (let operation of this.operations) {
+            const operationTr = document.createElement("tr");
+            this.showOperation(operation, operationTr);
+            operationsTBody.appendChild(operationTr);
+        }
+    }
+
     async onChangeFilter() {
+        this.clearOperations();
         await this.getOperations();
+        this.showOperations();
     }
 
     getOperationTypeHint() {
@@ -120,75 +177,36 @@
     }
 
     async onChangeOperationType() {
-        await this.getOperations();
+        await this.onChangeFilter();
         this.getOperationTypeHint();        
     }
 
-    show() {
-        const fromDatePicker = $("#from-date-picker");
-        if (fromDatePicker != undefined) {
-            fromDatePicker.datepicker({
-                format: "dd.mm.yyyy",
-                autoclose: true,
-                language: "ru",
-                todayBtn: true,
-                todayHighlight: true,
-            });
-            let fromDate = utils.getUrlParameter("from_date");
-            if (fromDate == "")
-                fromDate = utils.getNowDate();
-            fromDatePicker.datepicker("setDate", fromDate);
-            fromDatePicker.on("changeDate", this.onChangeFilter.bind(this));
-        }
-        const toDatePicker = $("#to-date-picker");
-        if (toDatePicker != undefined) {
-            toDatePicker.datepicker({
-                format: "dd.mm.yyyy",
-                autoclose: true,
-                language: "ru",
-                todayBtn: true,
-                todayHighlight: true,
-            });
-            let toDate = utils.getUrlParameter("to_date");
-            if (toDate == "")
-                toDate = utils.getNowDate();
-            toDatePicker.datepicker("setDate", toDate);
-            toDatePicker.on("changeDate", this.onChangeFilter.bind(this));
-        }
+    async show() {
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = fromDate;
+        viewUtils.initDatePicker("from-date-input", fromDate, this.onChangeFilter.bind(this));
+        viewUtils.initDatePicker("to-date-input", toDate, this.onChangeFilter.bind(this));
 
-        const gatesSelect = document.getElementById("gates-select");
-        if (gatesSelect != undefined)
-            gatesSelect.onchange = this.onChangeFilter.bind(this);
+        viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeOperationType.bind(this));
+        viewUtils.initSelect("vehicle-kinds-select", utils.getUrlParameter("vehicle_kind_code"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
 
-        const partnersSelect = document.getElementById("partners-select");
-        if (partnersSelect != undefined)
-            partnersSelect.onchange = this.onChangeFilter.bind(this);
-
-        const operationTypesSelect = document.getElementById("operation-types-select");
-        if (operationTypesSelect != undefined)
-            operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
-
-        const vehicleKindsSelect = document.getElementById("vehicle-kinds-select");
-        if (vehicleKindsSelect != undefined)
-            vehicleKindsSelect.onchange = this.onChangeFilter.bind(this);
-
-        const operationStatesSelect = document.getElementById("operation-states-select");
-        if (operationStatesSelect != undefined)
-            operationStatesSelect.onchange = this.onChangeFilter.bind(this);
-
-        const vehicleNumberInput = document.getElementById("vehicle-number-input");
-        if (vehicleNumberInput != undefined)
-            vehicleNumberInput.onchange = this.onChangeFilter.bind(this);
-
-        const driverNameInput = document.getElementById("driver-name-input");
-        if (driverNameInput != undefined)
-            driverNameInput.onchange = this.onChangeFilter.bind(this);
+        viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
 
-        // TODO: set filters
         await this.getOperations();
+        this.showOperations();
 
         this.getOperationTypeHint();
     }
@@ -196,4 +214,4 @@
 
 const operationsPage = new OperationsPage();
 
-$(document).ready(operationsPage.show.bind(operationsPage));
+document.addEventListener('DOMContentLoaded', operationsPage.show.bind(operationsPage));

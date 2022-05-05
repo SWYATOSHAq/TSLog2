@@ -11,6 +11,19 @@
         }
     }
 
+    async getOperations(parameters) {
+        let url = "./api/v1/yard/Operations" + parameters;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return await response.json();
+        }
+        else {            
+            const message = await response.text();
+            console.log(message);
+            return [];
+        }
+    }
+
     async getActiveOperations() {
         let url = "./api/v1/yard/ActiveOperations";
         const response = await fetch(url);

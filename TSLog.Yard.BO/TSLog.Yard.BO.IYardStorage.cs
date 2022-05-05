@@ -50,7 +50,8 @@ namespace TSLog.Yard.BO
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName,
-            string? partnerActionId);
+            string? partnerActionId,
+            Employee[] workers);
         public Operation[] GetActiveOperations();
         public Operation[] GetGuardOperations();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);

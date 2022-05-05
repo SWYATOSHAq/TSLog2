@@ -1191,7 +1191,8 @@ namespace TSLog.Yard.Data
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName,
-            string? partnerActionId)
+            string? partnerActionId,
+            Employee[] workers)
         {
             var operations = new List<Operation>();
             using (var connection = CloneConnection())
@@ -1235,6 +1236,8 @@ namespace TSLog.Yard.Data
                        $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
                     command.CommandText = sql;
 
+                    // TODO: add filter by employees
+
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
                     command.Parameters.Add(CreateParameter("type_id", NpgsqlDbType.Smallint,
@@ -1244,7 +1247,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("state_id", NpgsqlDbType.Smallint,
                         state == null || state == Entity.Null ? DBNull.Value : state.Id));
                     command.Parameters.Add(CreateParameter("gate_id", NpgsqlDbType.Smallint,
-                        gate == null || gate == Entity.Null ? DBNull.Value : gate.Id));
+                        gate == null || gate == Gate.Null ? DBNull.Value : gate.Id));
                     command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar,
                         partner == null || partner == Partner.Null ? DBNull.Value : partner.Id));
                     command.Parameters.Add(CreateParameter("vehicle_brand", NpgsqlDbType.Varchar,

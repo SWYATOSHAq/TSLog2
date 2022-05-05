@@ -7,4 +7,4 @@
 
 const operationPrintPage = new OperationPrintPage();
 
-$(document).ready(operationPrintPage.show.bind(operationPrintPage));
+document.addEventListener('DOMContentLoaded', operationPrintPage.show.bind(operationPrintPage));

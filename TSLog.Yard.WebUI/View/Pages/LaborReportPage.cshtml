@@ -10,7 +10,6 @@
 @{
     ViewData["Title"] = "Отчёт по трудозатратам";
     var rightsChecker = Model.RightsChecker;
-    var storage = Model.Storage;
 
     var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) 
         && rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User));

@@ -179,4 +179,4 @@
 
 const operationsPage = new OperationsPage();
 
-$(document).ready(operationsPage.show.bind(operationsPage));
+document.addEventListener('DOMContentLoaded', operationsPage.show.bind(operationsPage));

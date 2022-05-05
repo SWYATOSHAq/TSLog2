@@ -272,9 +272,15 @@ namespace TSLog.Yard
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName,
-            string? partnerActionId)
+            string? partnerActionId,
+            Employee[] workers)
         {
-            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, vehicleBrand, vehicleNumber, driverName, partnerActionId);
+            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, 
+                vehicleBrand, 
+                vehicleNumber, 
+                driverName, 
+                partnerActionId,
+                workers);
         }
         public Operation[] GetActiveOperations()
         {

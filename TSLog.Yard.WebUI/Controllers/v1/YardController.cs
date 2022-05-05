@@ -42,11 +42,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             dynamic result = new ExpandoObject();
             result.id = operation.Id;
             result.stateCode = operation.State.Code;
+            result.stateName = operation.State.Name;
             result.stateDisplayName = operation.State.DisplayName;
             result.typeCode = operation.Type.Code;
+            result.typeName = operation.Type.Name;
             result.typeDisplayName = operation.Type.DisplayName;
             result.directionName = operation.Type.DirectionName;
             result.vehicleKindCode = operation.VehicleKind.Code;
+            result.vehicleKindName = operation.VehicleKind.Name;
+            result.vehicleKindShortName = operation.VehicleKind.ShortName;
             result.startDate = operation.StartDate;
             result.planWorkStartDate = operation.PlanWorkStartDate;
             result.factWorkStartDate = operation.FactWorkStartDate;
@@ -335,6 +339,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string stringVehicleNumber = Request.Query["vehicle_number"];
                 string stringDriverName = Request.Query["driver_name"];
                 string stringPartnerActionId = Request.Query["partner_action_id"];
+                string stringWorker = Request.Query["worker"];
 
                 var partner = !string.IsNullOrWhiteSpace(stringPartnerId) ? _storage.GetPartner(stringPartnerId) : Partner.Null;
                 var gate = !string.IsNullOrWhiteSpace(stringGateCode) ? _storage.GetGate(stringGateCode) : Gate.Null;
@@ -357,8 +362,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {stringToDate}";
                 }
 
+                // TODO: get workers
+                var workers = Array.Empty<Employee>();
+                
                 var span = 1;
-                var operations = _storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1), Array.Empty<Partner>());
+                var operations = _storage.GetOperations(fromDate.Date, 
+                    toDate.AddDays(span).AddTicks(-1),
+                    operationType,
+                    vehicleKind,
+                    state,
+                    gate,
+                    partner,
+                    string.Empty,
+                    stringVehicleNumber,
+                    stringDriverName,
+                    stringPartnerActionId,
+                    workers);
                 operations = Operation.Filter(operations, partner, operationType, vehicleKind, gate, state,
                     stringVehicleNumber, stringDriverName, stringPartnerActionId);
 
@@ -368,7 +387,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     if (operation.Partners.Length > 0 && partnersIds.Contains(operation.Partners[0].Id) || partnersIds.Count <= 0)
                         list.Add(operation);
 
-                var text = JsonSerializer.Serialize(list.ToArray());
+                var text = OperationsToJson(list.ToArray());
                 Response.StatusCode = 200;
                 return text;
             }

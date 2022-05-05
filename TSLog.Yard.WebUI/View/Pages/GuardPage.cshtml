@@ -13,7 +13,7 @@
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_GUARD_PAGE", User));
+    var viewGuardPage = !useAuthentication || rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
     if (!viewGuardPage)
     {        
         Response.StatusCode = 403;
@@ -32,9 +32,9 @@
 
     var filtersModel = new OperationsFiltersBlockModel(false, 
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
-        true, true, false);
+        true, true, false, false);
 
-    OperationsSortBlockModel sortModel = null;
+    OperationsSortBlockModel? sortModel = null;
 }
 <meta http-equiv="refresh" content="60">  
 <h2 id="header2">Машины на въезд и на выезд</h2>

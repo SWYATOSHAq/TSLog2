@@ -179,4 +179,4 @@
 
 const presentVehiclesPage = new PresentVehiclesPage();
 
-$(document).ready(presentVehiclesPage.show.bind(presentVehiclesPage));
+document.addEventListener('DOMContentLoaded', presentVehiclesPage.show.bind(presentVehiclesPage));

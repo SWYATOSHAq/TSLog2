@@ -49,4 +49,4 @@
 
 const staffPage = new StaffPage();
 
-$(document).ready(staffPage.show.bind(staffPage));
+document.addEventListener('DOMContentLoaded', staffPage.show.bind(staffPage));

@@ -15,6 +15,7 @@
     var filterByVehicleNumber = Model.FilterByVehicleNumber;
     var filterByDriveName = Model.FilterByDriveName;
     var filterByPartnerActionId = Model.FilterByPartnerActionId;
+    var filterByEmployee = Model.FilterByEmployee;
 }
 <div id="filters" class="row filters-div">
     @if (filteByDates)
@@ -78,6 +79,12 @@
     {
         <div id="action-div" class="col-md-3 col-6 filter-div"> 
             <input class="form-control filter-input" id="partner-action-id-input" placeholder="Заказ/приход">
+        </div>        
+    }
+    @if (filterByEmployee)
+    {
+        <div id="action-div" class="col-md-3 col-6 filter-div"> 
+            <input class="form-control filter-input" id="worker-input" placeholder="Работник">
         </div>        
     }
 </div>

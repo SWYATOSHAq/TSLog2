@@ -4,6 +4,7 @@
     operations = [];
     filteredOperations = [];
     sortedOperations = [];
+    sortDirection = "A";
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -127,10 +128,15 @@
         const operationsTbody = document.getElementById("guard-operations-tbody");
         let operationTr = null;
 
-        for (let operation of this.sortedOperations) {
-            operationTr = document.createElement("tr");
-            this.showOperation(operation, operationTr);
-            operationsTbody.append(operationTr);
+        if (this.sortDirection == "A") {
+            for (let operation of this.sortedOperations) {
+                operationTr = document.createElement("tr");
+                this.showOperation(operation, operationTr);
+                operationsTbody.append(operationTr);
+            }
+        }
+        else {
+            //
         }
     }
 
@@ -196,4 +202,4 @@
 
 const guardPage = new GuardPage();
 
-$(document).ready(guardPage.show.bind(guardPage));
+document.addEventListener('DOMContentLoaded', guardPage.show.bind(guardPage));

@@ -1,4 +1,5 @@
-﻿@using TSLog.Yard.BO
+﻿@using TSLog.Staff.BO
+@using TSLog.Yard.BO
 @using TSLog.Partners.BO
 @using TSLog.Authorization
 @using TSLog.Yard.WebUI.Models
@@ -59,7 +60,8 @@
         null,
         selectedVehicleNumber,
         selectedDriverName,
-        selectedPartnerActionId);
+        selectedPartnerActionId,
+        Array.Empty<Employee>());
 
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
     if (isPartnerUser)

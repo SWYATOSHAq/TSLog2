@@ -12,6 +12,7 @@
         public bool FilterByVehicleNumber { get; private set; }
         public bool FilterByDriveName { get; private set; }
         public bool FilterByPartnerActionId { get; private set; }
+        public bool FilterByEmployee { get; private set; }
 
         public OperationsFiltersBlockModel(bool filterByDates,
             OperationTypesModel? operationTypesModel, 
@@ -22,7 +23,8 @@
             PartnersModel? partnersModel,
             bool filterByVehicleNumber,
             bool filterByDriveName,
-            bool filterByPartnerActionId)
+            bool filterByPartnerActionId,
+            bool filterByEmployee)
         {
             FilterByDates = filterByDates;
             OperationTypesModel = operationTypesModel;
@@ -34,6 +36,7 @@
             FilterByVehicleNumber = filterByVehicleNumber;
             FilterByDriveName = filterByDriveName;
             FilterByPartnerActionId = filterByPartnerActionId;
+            FilterByEmployee = filterByEmployee;
         }
     }
 }
