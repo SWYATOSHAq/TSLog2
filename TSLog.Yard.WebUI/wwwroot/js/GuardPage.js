@@ -4,6 +4,7 @@
     filteredOperations = [];
     sortedOperations = [];
     sortField = "";
+    sortDirection = "forward";
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -106,18 +107,22 @@
         }
     }
 
-    //selectHandler() {
-    //    const selectElement = document.querySelector(".select_sort").options[selectElement.selectedIndex].value;
-    //    const selectedOption = selectElement.options[selectElement.selectedIndex].value;
-    //    console.log("selectedOption", selectedOption);
-    //    let selectValue = selectElement.addEventListener("change", (event) => {
-    //        console.log('event.target.value=', event.target.value);
-    //        return event.target.value;
-    //    });
-    //    let activeSelect = selectValue ? selectValue : selectedOption;
-    //    console.log("activeSelect=", activeSelect);
-    //    return activeSelect;
-    //}
+    radioSortHandler() {
+        const radioButtons = document.querySelectorAll("input[name='btnradio']")
+        for (const radioButton of radioButtons) {
+            radioButton.addEventListener("change", callback.bind(this));
+        }
+        function callback() {
+            const radioButtonChecked = document.querySelectorAll("input[name='btnradio']:checked")
+            if (radioButtonChecked[0].id === "btnradio1") {
+                this.sortDirection = "forward";
+            } else if (radioButtonChecked[0].id === "btnradio2") {
+                this.sortDirection = "reverse";
+            }
+            this.clearOperations();
+            this.showOperations();
+        }
+    }
 
     sortCompare(operation1, operation2) {
         switch (this.sortField) {
@@ -132,38 +137,6 @@
         }
     }
 
-    sortCompareReverse (operation1, operation2, operation_type) {
-        let delta = operation1.operation_type.localeCompare(operation2.operation_type);
-        if (delta < 0) {
-            return 1;
-        } else if (delta > 0) {
-            return -1;
-        } else {
-            return 0;}
-    }
-
-    driverNameComparer(operation1, operation2) {
-        return operation1.driverName.localeCompare(operation2.driverName);
-    }
-
-    driverNameComparerReverse(operation1, operation2) {
-        let delta = operation1.driverName.localeCompare(operation2.driverName);
-        if (delta < 0) {
-            return 1;
-        } else if (delta > 0) {
-            return -1;
-        } else {
-            return 0;}
-    }
-
-    partnerComparer(operation1, operation2) {
-        return operation1.partnerId.localeCompare(operation2.partnerId);
-    }
-
-    vehicleNumberComparer(operation1, operation2) {
-        return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
-    }
-
     sortOperations(compare) {
         this.sortedOperations = [...this.filteredOperations];
         this.sortedOperations.sort(compare);
@@ -172,11 +145,18 @@
     showOperations() {
         const operationsTbody = document.getElementById("guard-operations-tbody");
         let operationTr = null;
-
-        for (let operation of this.sortedOperations) {
-            operationTr = document.createElement("tr");
-            this.showOperation(operation, operationTr);
-            operationsTbody.append(operationTr);
+        if (this.sortDirection === "forward") {
+            for (let operation of this.sortedOperations) {
+                operationTr = document.createElement("tr");
+                this.showOperation(operation, operationTr);
+                operationsTbody.append(operationTr);
+            }
+        } else if (this.sortDirection === "reverse") {
+            for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
+                operationTr = document.createElement("tr");
+                this.showOperation(this.sortedOperations[i], operationTr);
+                operationsTbody.append(operationTr);
+            }
         }
     }
 
@@ -232,6 +212,7 @@
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+        this.radioSortHandler();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
