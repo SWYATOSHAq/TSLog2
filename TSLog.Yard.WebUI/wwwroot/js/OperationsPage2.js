@@ -69,7 +69,7 @@
         viewUtils.createCell(operationTr, ["table-cell"], [operation.stateName], "box-shadow: none; background-color: " + operation.displayColor);
 
         let text = operation.startDate > utils.nullDate ?
-            operation.startDate.toLocaleTimeString() + " - " + operation.startDate.toLocaleDateString() :
+            operation.startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.startDate.toLocaleDateString() :
             "Ожидается";
         viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
 

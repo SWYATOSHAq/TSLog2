@@ -6,11 +6,7 @@
     }
 
     getPartnersNames(operation) {
-        let result = "";
-        for (let partner of operation.Partners) {
-            result += ((result.Length > 0) ? ", " : "") + partner.Name;
-        }
-        return result;
+        return operation.partnersNames;
     }
 
     showOperationPage(id) {
@@ -38,8 +34,8 @@
 
         const cardHeader = document.createElement("div");
         $(cardHeader).addClass("card-header");
-        $(cardHeader).css("background-color", block.DisplayColor);
-        $(cardHeader).text(utils.convertTime(block.PlanWorkStartDate) + " - " + utils.convertTime(block.PlanWorkFinishDate) + " (" + utils.convertDate(block.PlanWorkFinishDate) + ")");
+        $(cardHeader).css("background-color", block.displayColor);
+        $(cardHeader).text(utils.convertTime(block.planWorkStartDate) + " - " + utils.convertTime(block.planWorkFinishDate) + " (" + utils.convertDate(block.PlanWorkFinishDate) + ")");
 
         const cardBody = document.createElement("div");
         $(cardBody).addClass("card-body");
@@ -50,27 +46,27 @@
 
         const cardBodyInputType = document.createElement("p");
         $(cardBodyInputType).addClass("card-text block-size-2");
-        $(cardBodyInputType).text(block.Type.DisplayName);
+        $(cardBodyInputType).text(block.typeDisplayName);
 
         const cardBodyGate = document.createElement("p");
         $(cardBodyGate).addClass("card-text  text-primary font-1-3");
-        $(cardBodyGate).text((block.Gate.DisplayName == "NULL" ? "не проставлены" : block.Gate.DisplayName));
+        $(cardBodyGate).text((block.gateDisplayName == "NULL" ? "не проставлены" : block.gateDisplayName));
 
         const cardBodyState = document.createElement("p");
         $(cardBodyState).addClass("card-text");
-        $(cardBodyState).text(block.State.DisplayName);
+        $(cardBodyState).text(block.stateDisplayName);
 
         const cardBodyVehicleKind = document.createElement("p");
         $(cardBodyVehicleKind).addClass("card-text block-size-2");
-        $(cardBodyVehicleKind).text(block.VehicleKind.DisplayName);
+        $(cardBodyVehicleKind).text(block.vehicleKindDisplayName);
 
         const cardBodyVehicleNumber = document.createElement("p");
         $(cardBodyVehicleNumber).addClass("card-text");
-        $(cardBodyVehicleNumber).text(block.VehicleNumber);
+        $(cardBodyVehicleNumber).text(block.vehicleNumber);
 
         const cardBodyDriverName = document.createElement("p");
         $(cardBodyDriverName).addClass("card-text block-size-2");
-        $(cardBodyDriverName).text(block.DriverName);
+        $(cardBodyDriverName).text(block.driverName);
 
         cardBody.append(cardBodyMndnr);
         cardBody.append(cardBodyInputType);

@@ -253,4 +253,4 @@
 
 const guardPage = new GuardPage();
 
-$(document).ready(guardPage.show.bind(guardPage));
+document.addEventListener('DOMContentLoaded', guardPage.show.bind(guardPage));

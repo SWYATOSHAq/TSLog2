@@ -65,9 +65,9 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number " +
-                    $"  from {CommonSchema}.act_warehouse_action#v a " +
-                    $" where a.id = :id " +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number\n" +
+                    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
+                    $" where a.id = :id\n" +
                     $"   and a.action_kind = :action_kind";
                 command.CommandText = SelectWarehouseActionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -90,10 +90,10 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByPartnerActionIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number " +
-                    $"  from {CommonSchema}.act_warehouse_action#v a " +
-                    $" where a.partner_number = :partner_number " +
-                    $"   and a.partner_id = :partner_id" +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number\n" +
+                    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
+                    $" where a.partner_number = :partner_number\n" +
+                    $"   and a.partner_id = :partner_id\n" +
                     $"   and a.kind = :kind";
                 command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("partner_number", partnerActionId));
@@ -175,11 +175,11 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerByIdSql =
-                    $"select le.id," +
-                    $"       le.name, le.short_name, le.alt_name, le.display_name," +
-                    $"       le.is_active, le.display_order," +
-                    $"       le.note" +
-                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le " +
+                    $"select le.id,\n" +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name,\n" +
+                    $"       le.is_active, le.display_order,\n" +
+                    $"       le.note\n" +
+                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le\n" +
                     $" where upper(trim(le.id)) = :id";
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -226,8 +226,8 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerByIdSql =
-                    $"select p.id, p.name, p.display_order " +
-                    $"  from {PartnersSchema}.par_partner#v p " +
+                    $"select p.id, p.name, p.display_order\n" +
+                    $"  from {PartnersSchema}.par_partner#v p\n" +
                     $" where upper(trim(p.id)) = :id";
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -252,8 +252,8 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerManagersSql =
-                    $"select pm.manager_id " +
-                    $"  from {StaffSchema}.stf_partner_manager#v pm " +
+                    $"select pm.manager_id\n" +
+                    $"  from {StaffSchema}.stf_partner_manager#v pm\n" +
                     $" where pm.partner_id = :partner_id";
                 command.CommandText = SelectPartnerManagersSql;
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
@@ -274,7 +274,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnersSql =
-                    $"select p.id, p.name, p.display_order " +
+                    $"select p.id, p.name, p.display_order\n" +
                     $"  from {PartnersSchema}.par_partner#v p";
                 command.CommandText = SelectPartnersSql;
                 using var reader = command.ExecuteReader();
@@ -461,33 +461,33 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var FindEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee_ext#v e " +
-                    $" where upper(trim(e.surname)) like :pattern" +
-                    $"    or upper(trim(e.first_name)) like :pattern" +
-                    $"    or upper(trim(e.patronymic)) like :pattern" +
-                    $"    or upper(trim(e.short_name)) like :pattern" +
-                    $"    or upper(trim(e.short_name2)) like :pattern" +
-                    $"    or upper(trim(e.short_name3)) like :pattern" +
-                    $"    or upper(trim(e.short_name4)) like :pattern" +
-                    $"    or upper(trim(e.alt_name)) like :pattern" +
-                    $"    or upper(trim(e.alt_name2)) like :pattern" +
-                    $"    or upper(trim(e.alt_name3)) like :pattern" +
-                    $"    or upper(trim(e.alt_name4)) like :pattern" +
-                    $"    or upper(trim(e.full_name)) like :pattern" +
+                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
+                    $"       e.note\n" +
+                    $"  from {StaffSchema}.stf_employee_ext#v e\n" +
+                    $" where upper(trim(e.surname)) like :pattern\n" +
+                    $"    or upper(trim(e.first_name)) like :pattern\n" +
+                    $"    or upper(trim(e.patronymic)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name2)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name3)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name4)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name2)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name3)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name4)) like :pattern\n" +
+                    $"    or upper(trim(e.full_name)) like :pattern\n" +
                     $"    or upper(trim(e.full_name2)) like :pattern";
                 command.CommandText = FindEmployeesSql;
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
@@ -559,19 +559,19 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
+                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
                     $"       e.note" +
                     $"  from {StaffSchema}.stf_employee#v e";
                 command.CommandText = SelectEmployeesSql;
@@ -592,21 +592,21 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e" +
+                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
+                    $"       e.note\n" +
+                    $"  from {StaffSchema}.stf_employee#v e\n" +
                     $" where upper(trim(e.work_mode)) = :shift";
                 command.CommandText = SelectEmployeesSql;
                 command.Parameters.Add(new OracleParameter("shift", shift));
@@ -628,8 +628,8 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectShiftEmployeesSql =
-                    $"select se.id employee_id " +
-                    $"  from ecco.stf_shift_employee#v se " +
+                    $"select se.id employee_id\n" +
+                    $"  from ecco.stf_shift_employee#v se\n" +
                     $" where se.shift_id = :shift_id";
                 command.CommandText = SelectShiftEmployeesSql;
                 command.Parameters.Add(new OracleParameter("shift_id", shift.Id));
@@ -683,12 +683,12 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectDepartmentByIdSql =
-                    $"select d.id, d.code, " +
-                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
-                    $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
-                    $"       d.note " +
-                    $"  from {StaffSchema}.stf_department#v d " +
+                    $"select d.id, d.code,\n" +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name,\n" +
+                    $"       d.is_active, d.display_order,\n" +
+                    $"       d.parent_id, d.company_id, d.gead_id,\n" +
+                    $"       d.note\n" +
+                    $"  from {StaffSchema}.stf_department#v d\n" +
                     $" where d.id = :id";
                 command.CommandText = SelectDepartmentByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -716,12 +716,12 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectDepartmentByCodeSql =
-                    $"select d.id, d.code, " +
-                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
-                    $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
-                    $"       d.note " +
-                    $"  from {StaffSchema}.stf_department#v d " +
+                    $"select d.id, d.code,\n" +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name,\n" +
+                    $"       d.is_active, d.display_order,\n" +
+                    $"       d.parent_id, d.company_id, d.gead_id,\n" +
+                    $"       d.note\n" +
+                    $"  from {StaffSchema}.stf_department#v d\n" +
                     $" where d.code = :code";
                 command.CommandText = SelectDepartmentByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
@@ -743,11 +743,11 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectDepartmentsSql =
-                   $"select d.id, d.code, " +
-                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
-                    $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.gead_id," +
-                    $"       d.note " +
+                    $"select d.id, d.code,\n" +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name,\n" +
+                    $"       d.is_active, d.display_order,\n" +
+                    $"       d.parent_id, d.company_id, d.gead_id,\n" +
+                    $"       d.note\n" +
                     $"  from {StaffSchema}.stf_department#v d";
                 command.CommandText = SelectDepartmentsSql;
                 using var reader = command.ExecuteReader();
@@ -806,13 +806,13 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByIdSql =
-                    $"select p.id, p.code," +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
-                    $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear," +
-                    $"       p.cost, p.cost_currency_code," +
-                    $"       p.note " +
-                    $"  from {StaffSchema}.stf_position#v p " +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
+                    $"  from {StaffSchema}.stf_position#v p\n" +
                     $" where p.id = :id";
                 command.CommandText = SelectPositionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -840,13 +840,13 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionByCodeSql =
-                    $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
-                    $"       p.is_active, p.display_order," +
-                    $"       p.is_linear," +
-                    $"       p.cost, p.cost_currency_code," +
-                    $"       p.note " +
-                    $"  from {StaffSchema}.stf_position#v p " +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
+                    $"  from {StaffSchema}.stf_position#v p\n" +
                     $" where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
@@ -868,11 +868,11 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionsSql =
-                    $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
-                    $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear, " +
-                    $"       p.note " +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.note\n" +
                     $"  from {StaffSchema}.stf_position#v p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
@@ -889,7 +889,6 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Reporting
-
         public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
         {
             var lines = new List<dynamic>();
@@ -985,7 +984,6 @@ namespace TSLog.Yard.Data
             }
             return lines.ToArray();
         }
-
         #endregion
     }
 }

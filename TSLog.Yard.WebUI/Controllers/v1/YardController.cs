@@ -41,16 +41,24 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             dynamic result = new ExpandoObject();
             result.id = operation.Id;
+            
             result.stateCode = operation.State.Code;
             result.stateName = operation.State.Name;
+            result.stateShortName = operation.State.ShortName;
             result.stateDisplayName = operation.State.DisplayName;
+
             result.typeCode = operation.Type.Code;
             result.typeName = operation.Type.Name;
+            result.typeShortName = operation.Type.ShortName;
             result.typeDisplayName = operation.Type.DisplayName;
+            
             result.directionName = operation.Type.DirectionName;
+            
             result.vehicleKindCode = operation.VehicleKind.Code;
             result.vehicleKindName = operation.VehicleKind.Name;
             result.vehicleKindShortName = operation.VehicleKind.ShortName;
+            result.vehicleKindDisplayName = operation.VehicleKind.DisplayName;
+
             result.startDate = operation.StartDate;
             result.planWorkStartDate = operation.PlanWorkStartDate;
             result.factWorkStartDate = operation.FactWorkStartDate;
@@ -61,12 +69,20 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.factDuration = (operation.FactWorkFinishDate - operation.FactWorkStartDate).TotalSeconds;
             result.planLaborCost = operation.PlanLaborCost;
             result.factLaborCost = operation.FactLaborCost;
+
             result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
                 operation.Gate.Code : 
                 string.Empty;
             result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
                 operation.Gate.ShortName : 
                 string.Empty;
+            result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.ShortName :
+                string.Empty;
+            result.gateDiaplayName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.DisplayName :
+                string.Empty;
+
             result.vehicleBrand = operation.VehicleBrand;
             result.vehicleModel = operation.VehicleModel;
             result.vehicleNumber = operation.VehicleNumber;
@@ -362,8 +378,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {stringToDate}";
                 }
 
-                // TODO: get workers
                 var workers = Array.Empty<Employee>();
+                if (!string.IsNullOrWhiteSpace(stringWorker))
+                    workers = _storage.FindEmployees(stringWorker.Trim());
                 
                 var span = 1;
                 var operations = _storage.GetOperations(fromDate.Date, 

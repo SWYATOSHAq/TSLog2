@@ -12,10 +12,10 @@ namespace TSLog.Yard.WebUI.Models
     {
         public string? RequestId { get; set; }
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-        private readonly ILogger<ErrorModel> _logger;
+        private readonly ILogger<Error403Model> _logger;
         public RightsChecker RightsChecker { get; private set; }
         public IYardStorage Storage { get; private set; }
-        public ErrorModel(ILogger<ErrorModel> logger, RightsChecker rightsChecker, IYardStorage storage)
+        public ErrorModel(ILogger<Error403Model> logger, RightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
             RightsChecker = rightsChecker;
