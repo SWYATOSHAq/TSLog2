@@ -108,7 +108,7 @@
     }
 
     radioSortHandler() {
-        const radioButtons = document.querySelectorAll("input[name='btnradio']")
+        const radioButtons = document.querySelectorAll("input[name='btnradio']");
         for (const radioButton of radioButtons) {
             radioButton.addEventListener("change", callback.bind(this));
         }
