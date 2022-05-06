@@ -38,10 +38,22 @@
     var filtersModel = new OperationsFiltersBlockModel(false, 
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
         true, true, true, false);
+
+    var sortFields = new Dictionary<string, string>();
+    sortFields.Add("driverName", "Водитель (Ф. И. О.)");
+    sortFields.Add("partnerId", "Клиент");
+    sortFields.Add("vehicleBrand", "Марка Т/С");
+    sortFields.Add("vehicleNumber", "Номер Т/С");
+    sortFields.Add("startDate", "Прибытие на КПП");
+    sortFields.Add("planWorkStartDate", "Начало работ (план)");
+    sortFields.Add("factWorkStartDate", "Начало работ (факт)");
+    sortFields.Add("responsibleOfficerName", "Инициатор допуска ТС");
+    var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
 }
 <meta http-equiv="refresh" content="60">  
 <h1 id="header1">Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1>
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
+<partial name="Blocks/_OperationsSortBlock" model="sortModel" />
 <table class="table table-light table-bordered table-striped operations-table">
     <thead class="thead-light">
         <tr>
@@ -53,7 +65,7 @@
                 <br />
                 (Ф. И. О.)
             </th>
-            <th class="color-yellow table-header">Поклажедатель</th>
+            <th class="color-yellow table-header">Клиент</th>
             <th class="color-yellow table-header">Цель приезда</th>
             <th class="color-yellow table-header">№ заказа</th>
             <th class="color-yellow table-header">Примечание</th>

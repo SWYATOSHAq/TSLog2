@@ -59,3 +59,26 @@ td {
 .container {
     max-width: 100% !important;
 }
+
+.sorts-div {
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.sort_header {
+    margin-right: 15px;
+}
+
+.sort_select {
+    width: 20%;
+    margin-right: 30px;
+}
+
+.btn-group {
+    height: 26px;
+}
+
+.btn-outline-secondary {
+    padding-top: 0px;
+}

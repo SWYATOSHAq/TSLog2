@@ -2,6 +2,9 @@
     shortUrl;
 
     operations = [];
+    sortedOperations = [];
+    sortField = "driverName";
+    sortDirection = "forward";
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
