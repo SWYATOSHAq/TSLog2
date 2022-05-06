@@ -42,8 +42,8 @@
                                     <td>
                                         <p>
                                             @key.DisplayName
-                                            <button class="btn btn-outline-success hide-on-print" type="button" @onClick="addNewPosition(this)">+</button>
-                                            <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="removePosition(this)"> - </button>
+                                            <button class="btn btn-outline-success hide-on-print" type="button" @onClick="operationPage.addPosition(this)">+</button>
+                                            <button class="btn btn-outline-danger m-1 hide-on-print" type="button" @onClick="operationPage.createRemovePosition.bind(operationPage)"> - </button>
                                         </p>
                                         <p class="cell-info-text">[@(new TimeSpan(0, 0, laborCost[key]/planWorkersCounts[key]).ToString(@"hh\:mm\:ss")) чел.]  (@posCount/@planWorkersCounts[key])</p>
                                     </td>

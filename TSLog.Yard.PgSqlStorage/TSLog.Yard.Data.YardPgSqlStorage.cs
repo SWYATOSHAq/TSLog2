@@ -1234,9 +1234,19 @@ namespace TSLog.Yard.Data
                        $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%')\n" +
                        $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%')\n" +
                        $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
-                    command.CommandText = sql;
 
-                    // TODO: add filter by employees
+                    if (workers.Length > 0) 
+                    {
+                        var ids = string.Empty;
+                        foreach (var worker in workers) 
+                        {
+                            if (ids.Length > 0)
+                                ids += ", ";
+                            ids += worker.Id.ToString();
+                        }
+                        sql += $"   and (po.worker_id in ({ids}))\n";
+                    }
+                    command.CommandText = sql;
 
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));

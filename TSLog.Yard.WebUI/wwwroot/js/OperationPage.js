@@ -530,6 +530,12 @@
         }
     }
 
+    createRemovePosition() {
+        return function () {
+            operationPage.removePosition(this);
+        }
+    }
+
     removePosition(rowButton) {
         const row = $(rowButton).parent().parent().parent();
         const positionCode = row.attr('class');
@@ -539,13 +545,11 @@
 
         const positionRows = $("." + positionCode);
         console.log(positionRows);
-        if (positionRows.length > 1) {
-            const curSize = positionRows.length;
-            row.remove();
-            recalculateAdditionalTableInfo(positionCode, row.find(".cell-info-text").text(), curSize);
-        } else {
-            setRowEmpty(row);
-        }
+
+        const curSize = positionRows.length;
+        row.remove();
+        recalculateAdditionalTableInfo(positionCode, row.find(".cell-info-text").text(), curSize);
+        
         this.rerenderWorkerTableIndexes();
     }
     
