@@ -202,6 +202,25 @@
         }
     }
 
+    async getOperationWorkers(operationId) {
+        const url = "./api/v1/yard/OperationWorkers?operation_id=" + operationId;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return {
+                code: 0,
+                message: "Ok",
+                data: await response.json()
+            };
+        }
+        else {
+            const message = await response.text();
+            return {
+                code: 9999,
+                message: message
+            };
+        }
+    }
+
     async addOperationWorker(operationId, workerId, positionCode) {
         const url = "./api/v1/yard/AddOperationWorker";
         const data = {
@@ -217,7 +236,6 @@
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
-            console.log(operation);
             console.log("Added.");
         }
         else {
@@ -242,13 +260,38 @@
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             const operation = await response.json();
-            console.log(operation);
             console.log("Removed.");
         }
         else {
             const message = await response.text();
             console.log(message);
             alert(message);
+        }
+    }
+
+    async allocateOperationWorkers(id) {
+        const url = "./api/v1/yard/AllocateOperationEmployees";
+        const data = {
+            id: id
+        }
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return {
+                code: 0,
+                message: "Ok"
+            };
+        }
+        else {
+            const message = await response.text();
+            return {
+                code: 9999,
+                message: message
+            };
         }
     }
 

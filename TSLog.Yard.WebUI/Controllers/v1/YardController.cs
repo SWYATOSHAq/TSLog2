@@ -1321,6 +1321,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
         }
         [HttpDelete("DeleteOperation")]
+
+        #region Operation workers
         async public Task<string> DeleteOperation()
         {
             try
@@ -1378,6 +1380,55 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var position = _storage.GetPosition(stringPositionCode);
                 var workers = _storage.FindEmployees(position, stringNamePattern);
                 var text = JsonSerializer.Serialize(workers);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        private static dynamic OperationWorkerToDynamic(Operation.OperationEmployee operationWorker)
+        {
+            dynamic result = new ExpandoObject();
+            result.positionId = operationWorker.Position.Id;
+            result.positionCode = operationWorker.Position.Code;
+            result.positionName = operationWorker.Position.Name;
+            result.workerId = operationWorker.Employee.Id;
+            result.workerFullName = operationWorker.Employee.FullName;
+            return result;
+        }
+        private static dynamic[] OperationWorkersToDynamic(Operation.OperationEmployee[] operationWorkers)
+        {
+            var result = new List<dynamic>();
+            foreach (var operationWorker in operationWorkers)
+                result.Add(YardController.OperationWorkerToDynamic(operationWorker));
+            return result.ToArray();
+        }
+        [HttpGet("OperationWorkers")]
+        public string GetOperationWorkers() 
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getWorkers = _rightsChecker.CheckRight("GET_OPERATION_WORKERS", User);
+                if (_useAuthentication && !useYard && !getWorkers)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["operation_id"];
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Operation id is empty";
+                if (!long.TryParse(temp, out long id))
+                    return $"Wrong operation id {temp}";
+
+                var operation = _storage.GetOperation(id);
+                var operationWorkers = _storage.GetOperationEmployees(operation);
+                var objects = OperationWorkersToDynamic(operationWorkers);
+                var text = JsonSerializer.Serialize(objects);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1482,6 +1533,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+        #endregion
 
         #region Reporting
         private static dynamic LaborReportElementToDynamic(LaborReport.Element element)
@@ -1558,7 +1610,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-
         private static dynamic ShiftLaborReportElementToDynamic(ShiftLaborReport.Element element)
         {
             dynamic result = new ExpandoObject();

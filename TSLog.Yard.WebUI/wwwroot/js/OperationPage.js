@@ -26,6 +26,8 @@
     blocks = [];
     doDisplay = false;
 
+    operationWorkers = [];
+
     constructor() {
         this.shortUrl = location.href.split('?')[0];
         this.blockDuration = 60 * 60 / this.hourBlocksCount;
@@ -595,6 +597,30 @@
         });
     }
 
+    async getOperationWorkers() {
+        const response = api.getOperationWorkers(this.getOperationId())
+        if (response.code === 0) {
+            this.operationWorkers = response.data;
+        }
+        else {
+            console.log(response.message);
+        }
+    }
+
+    showOperationWorker(operationWorker, operationWorkerTr) {
+        viewUtils.createCell(operationWorkerTr, ["table-cell"], [operationWorker.positionName]);
+        viewUtils.createCell(operationWorkerTr, ["table-cell"], [operationWorker.workerFullName]);
+    }
+
+    async showOperationWorkers() {
+        const operationWorkerTbody = document.getElementById("workers-tbody");
+        for (let operationWorker of this.operationWorkers) {
+            const operationWorkerTr = document.createElement("tr");
+            this.showOperationWorker(operationWorker, operationWorkerTr);
+            operationWorkerTbody.append(operationWorkerTr);
+        }
+    }
+
     async addOperationWorker(inputGroup) {
         api.addOperationWorker(document.getElementById("id-input").value,
             inputGroup.querySelector(".selected-worker-id").value,
@@ -607,26 +633,12 @@
             inputGroup.querySelector(".position-code").value);
     }
 
-    async allocateOperationEmployees() {
-        const url = "./api/v1/yard/AllocateOperationEmployees";
-        const data = {
-            id: this.getOperationId()
-        }
-        const options = {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
+    async allocateOperationWorkers() {
+        const response = await api.allocateOperationWorkers(this.getOperationId());
+        if (response.code === 0) {
             window.location.reload();
-        }
-        else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+        } else {
+            console.log(response.message);
         }
     }
     // #endregion

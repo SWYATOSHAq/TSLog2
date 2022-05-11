@@ -43,8 +43,11 @@
 		<right code="FINISH_OPERATION_WORK" name="Окончание работ по операции"></right>
 		<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 		<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
-		<right code="GET_WORKERS" name="" note=""></right>
-		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
+
+		<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+		<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>				
+		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
+		
 		<right code="VIEW_STAFF_PLAN" name="Просмотр плана по персоналу"></right>
 		<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
 		<right code="VIEW_PARTNERS_REPORT" name="Формирование отчёта по партнёрам"></right>
@@ -171,7 +174,11 @@
 			<right code="START_OPERATION_WORK" name="Начало работ по операции"></right>
 			<right code="FINISH_OPERATION_WORK" name="Окончание работ по операции"></right>
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
+
+			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
+			
 			<right code="DELETE_OPERATION" name="Удаление операции"></right>
 			<right code="VIEW_STAFF_PLAN" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>
@@ -206,7 +213,11 @@
 			<right code="START_OPERATION_WORK" name="Начало работ по операции"></right>
 			<right code="FINISH_OPERATION_WORK" name="Окончание работ по операции"></right>
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
+
+			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
+
 			<right code="DELETE_OPERATION" name="Удаление операции"></right>
 			<right code="VIEW_STAFF_PLAN" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN" name="Просмотр плана по Воротам"></right>

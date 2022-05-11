@@ -60,10 +60,7 @@
 
     var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
 
-    var allocatedWorkers = operation.GetEmployeesByPositions();
-    var planWorkersCounts = operation.PositionsWorkersCount();
-    var _laborCost = operation.PositionsLaborCosts();
-    var workersModel = new WorkersModel(allocatedWorkers, planWorkersCounts, _laborCost, true);
+    var workersModel = new WorkersModel(true);
 
     var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
     var createOperationOnclick = !isPartnerUser ? "operationPage.createOperation()" : "operationPage.createOperationByPartner()";
@@ -127,7 +124,7 @@
     <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
     <div class="row rem-outline-on-print input-group input-div">
         <span class="input-group-text col-4">
-            <b>№ заказа клиена*</b>
+            <b>№ заказа клиента*</b>
         </span>
         <input id="partner-action-id-input" class="form-control" value="" @disabledString />
     </div>

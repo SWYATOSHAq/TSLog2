@@ -116,16 +116,16 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByPartnerActionIdSql =
-                    $"select a.kind, " +
-                    $" a.id, a.action_number, " +
-                    $" a.partner_id, " +
-                    $" a.partner_number " +
-                    $"  from {CommonSchema}.act_warehouse_action#v a " +
-                    $" where (upper(trim(a.id)) like :pattern" +
-                    $"     or upper(trim(a.action_number)) like :pattern)" +
-                    $"     or upper(trim(a.partner_number)) like :pattern)" +
-                    $"   and (:partner_id is null or a.partner_id = :partner_id)" +
-                    $"   and a.kind = :kind" +
+                    $"select a.kind,\n" +
+                    $" a.id, a.action_number,\n" +
+                    $" a.partner_id,\n" +
+                    $" a.partner_number\n" +
+                    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
+                    $" where (upper(trim(a.id)) like :pattern\n" +
+                    $"     or upper(trim(a.action_number)) like :pattern)\n" +
+                    $"     or upper(trim(a.partner_number)) like :pattern)\n" +
+                    $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
+                    $"   and a.kind = :kind\n" +
                     $"   and rownum < 16";
                 command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
