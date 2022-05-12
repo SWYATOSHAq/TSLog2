@@ -1,7 +1,10 @@
 ﻿class PresentVehiclesPage {
     shortUrl;
-
     operations = [];
+    filteredOperations = [];
+    sortedOperations = [];
+    sortField = "driverName";
+    sortDirection = "forward";
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -92,18 +95,17 @@
             "background-color: " + operation.displayColor + " !important; box-shadow:none");
     }
 
-    showOperations() {
-        const operationsTbody = document.getElementById("active-operations-tbody");
-        let operationTr = null;
-        let index = 0;
-
+    filterOperations() {
         const vehicleNumberInput = document.getElementById("vehicle-number-input");
         const vehicleNumber = vehicleNumberInput != undefined ? vehicleNumberInput.value.toUpperCase() : "";
+
         const driverNameInput = document.getElementById("driver-name-input");
         const driverName = driverNameInput != undefined ? driverNameInput.value.toUpperCase() : "";
+
         const actionSelect = document.getElementById("partner-action-id-input");
         const actionNumber = actionSelect != undefined ? actionSelect.value.toUpperCase() : "";
 
+        this.filteredOperations = [];
         for (let operation of this.operations) {
             const operationTypeSelect = document.getElementById("operation-types-select");
             if (operationTypeSelect != undefined && operationTypeSelect.value != "" && operation.typeCode != operationTypeSelect.value) {
@@ -132,16 +134,94 @@
                 continue;
             }
 
-            operationTr = document.createElement("tr");
-            index++;
-            this.showOperation(index, operation, operationTr);
-            operationsTbody.append(operationTr);
-        }        
+            this.filteredOperations.push(operation);
+
+            //   operationTr = document.createElement("tr");
+            //index++;
+            //this.showOperation(index, operation, operationTr);
+            //   operationsTbody.append(operationTr);
+        }
+    }
+
+    sortCompare(operation1, operation2) {
+        switch (this.sortField) {
+            case "driverName":
+                return operation1.driverName.localeCompare(operation2.driverName);
+            case "partnerId":
+                return operation1.partnerId.localeCompare(operation2.partnerId);
+            case "vehicleBrand":
+                return operation1.vehicleBrand.localeCompare(operation2.vehicleBrand);
+            case "vehicleNumber":
+                return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
+            case "startDate":
+                return (new Date(operation1.startDate)) - (new Date(operation2.startDate));
+            case "planWorkStartDate":
+                return (new Date(operation1.planWorkStartDate)) - (new Date(operation2.planWorkStartDate));
+            case "factWorkStartDate":
+                return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
+            case "responsibleOfficerName":
+                return operation1.responsibleOfficer.localeCompare(operation2.responsibleOfficer);
+        }
+    }
+
+    sortOperations(compare) {
+        this.sortedOperations = [...this.filteredOperations];
+        this.sortedOperations.sort(compare);
+    }
+
+    showOperations() {
+        const operationsTbody = document.getElementById("active-operations-tbody");
+        let operationTr = null;
+        let index = 0;
+        if (this.sortDirection === "forward") {
+            for (let operation of this.sortedOperations) {
+                operationTr = document.createElement("tr");
+                index++;
+                this.showOperation(index, operation, operationTr);
+                operationsTbody.append(operationTr);
+            }
+        } else if (this.sortDirection === "reverse") {
+            for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
+                operationTr = document.createElement("tr");
+                index++;
+                this.showOperation(index, this.sortedOperations[i], operationTr);
+                operationsTbody.append(operationTr);
+            }
+        }
     }
 
     onChangeFilter() {
-        this.clearOperations();        
+        this.clearOperations();
+        this.filterOperations();
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
+
+
+    // обработчик события при смене поля сортировки
+    onChangeSortField() {
+        this.sortField = document.querySelector(".select_sort").value;
+        this.clearOperations();
+        this.sortOperations(this.sortCompare.bind(this));
+        this.showOperations();
+
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
+
+    // обработчик события при смене "направления" сортировки
+    onChangeSortDirection() {
+        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']:checked")
+        if (sortDirectionInputs[0].id === "forward-sort-input") {
+            this.sortDirection = "forward";
+        } else if (sortDirectionInputs[0].id === "reverse-sort-input") {
+            this.sortDirection = "reverse";
+        }
+        this.clearOperations();
+        this.showOperations();
+
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
@@ -159,7 +239,7 @@
     }
 
     async show() {
-        await this.getOperations();        
+        await this.getOperations();
 
         viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeOperationType.bind(this));
         viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
@@ -169,6 +249,27 @@
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
         viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
 
+        this.sortField = utils.getUrlParameter("sort_field");
+        if (this.sortField === "")
+            this.sortField = "driverName";
+        viewUtils.initSelect("sort-field-select", this.sortField, this.onChangeSortField.bind(this));
+
+        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']")
+        for (const sortDirectionInput of sortDirectionInputs) {
+            sortDirectionInput.onchange = this.onChangeSortDirection.bind(this);
+        }
+
+        this.sortDirection = utils.getUrlParameter("sort_direction");
+        if (this.sortDirection != "reverse")
+            this.sortDirection = "forward";
+        if (this.sortDirection === "forward")
+            document.getElementById("forward-sort-input").checked = true;
+        else
+            document.getElementById("reverse-sort-input").checked = true;
+
+
+        this.filterOperations();
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
         const header = document.getElementById("header1");
         header.textContent = header.textContent + " (всего машин - " + this.operations.length + ")";
