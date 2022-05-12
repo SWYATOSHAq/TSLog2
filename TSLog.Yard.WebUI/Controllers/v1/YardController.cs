@@ -41,19 +41,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             dynamic result = new ExpandoObject();
             result.id = operation.Id;
-            
+
+            result.stateId = operation.State.Id;
             result.stateCode = operation.State.Code;
             result.stateName = operation.State.Name;
             result.stateShortName = operation.State.ShortName;
             result.stateDisplayName = operation.State.DisplayName;
 
+            result.typeId = operation.Type.Id;
             result.typeCode = operation.Type.Code;
             result.typeName = operation.Type.Name;
             result.typeShortName = operation.Type.ShortName;
             result.typeDisplayName = operation.Type.DisplayName;
             
             result.directionName = operation.Type.DirectionName;
-            
+
+            result.vehicleKindId = operation.VehicleKind.Id;
             result.vehicleKindCode = operation.VehicleKind.Code;
             result.vehicleKindName = operation.VehicleKind.Name;
             result.vehicleKindShortName = operation.VehicleKind.ShortName;
@@ -70,6 +73,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.planLaborCost = operation.PlanLaborCost;
             result.factLaborCost = operation.FactLaborCost;
 
+            result.gateId = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.Code :
+                string.Empty;
             result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
                 operation.Gate.Code : 
                 string.Empty;
