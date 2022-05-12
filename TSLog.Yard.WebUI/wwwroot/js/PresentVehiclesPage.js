@@ -47,6 +47,7 @@
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.typeDisplayName]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId]);
@@ -161,6 +162,8 @@
                 return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
             case "responsibleOfficerName":
                 return operation1.responsibleOfficer.localeCompare(operation2.responsibleOfficer);
+            case "stateId":
+                return operation1.stateId - operation2.stateId;
         }
     }
 
