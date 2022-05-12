@@ -47,6 +47,7 @@
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.typeDisplayName]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId]);
