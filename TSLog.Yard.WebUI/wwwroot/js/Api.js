@@ -202,6 +202,43 @@
         }
     }
 
+    async getPositionWorkers(positionCode, pattern) {
+        const url = "./api/v1/yard/PositionWorkers?name_pattern=" + pattern + "&position_code=" + positionCode;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            const workers = await response.json();
+            return {
+                code: 0,
+                data: workers
+            }
+        }
+        else {
+            return {
+                code: 9999,
+                message: await response.text()
+            }
+        }
+    }
+
+    async getAllWorkers() {
+        const url = "./api/v1/yard/AllWorkers";
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return {
+                code: 0,
+                message: "Ok",
+                data: await response.json()
+            };
+        }
+        else {
+            const message = await response.text();
+            return {
+                code: 9999,
+                message: message
+            };
+        }
+    }
+
     async getOperationWorkers(operationId) {
         const url = "./api/v1/yard/OperationWorkers?operation_id=" + operationId;
         const response = await fetch(url);
@@ -235,13 +272,15 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log("Added.");
+            return {
+                code: 0
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -259,13 +298,15 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log("Removed.");
+            return {
+                code: 0
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 

@@ -60,7 +60,7 @@
 
     var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
 
-    var workersModel = new WorkersModel(true);
+    var workersModel = new WorkersModel(true, storage.GetLinePositions());
 
     var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
     var createOperationOnclick = !isPartnerUser ? "operationPage.createOperation()" : "operationPage.createOperationByPartner()";
@@ -200,13 +200,12 @@
             tableVisClass = "table-visible";
             workersTableDisabled = "disabled";           
         }
+        workersTableDisabled = "";
     }
     @if (!isPartnerUser && canViewOperationWorkers)
     {
-        <fieldset @workersTableDisabled>
-            <div class="@tableVisClass">
-                <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
-            </div>    
+        <fieldset id="workers-fieldset" @workersTableDisabled>
+            <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
         </fieldset>
     }    
     

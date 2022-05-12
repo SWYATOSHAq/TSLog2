@@ -27,7 +27,7 @@
 		<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
 		<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 		<right code="FILTER_OPERATIONS_BY_WORKER" name="Фильтр операции по назначенному работнику"></right>
-		<right code="FILTER_OPERATIONS" name="Фильтр операции по любым полям"></right>
+		
 		<right code="VIEW_OPERATION" name="Просмотр карточки операции"></right>
 		<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
 		<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
@@ -45,6 +45,7 @@
 		<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 
 		<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+		<right code="GET_ALL_WORKERS" name="Получение всех сотрудников" note=""></right>
 		<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>				
 		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
 		
@@ -56,10 +57,10 @@
 		<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 		<right code="GET_GUARD_OPERATIONS" name="Получение операций для сотрудника охраны (которые должны заехать и которые готовы к выезду)"></right>
 		<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
-		<right code="GET_LABOR_REPORT" name=""></right>
+		<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>
 		<right code="VIEW_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам"></right>		
-		<right code="GET_SHIFT_LABOR_REPORT" name=""></right>
-		<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name=""></right>
+		<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
+		<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
 	</rights>
 	<roles code="ROLES" name="Список ролей">
 		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="YardPartnerOperators">
@@ -176,6 +177,7 @@
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+			<right code="GET_ALL_WORKERS" name="Получение всех сотрудников" note=""></right>
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
 			
@@ -186,10 +188,10 @@
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
-			<right code="GET_LABOR_REPORT" name=""></right>
+			<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>
 			<right code="VIEW_LABOR_REPORT_PAGE" name="отчёта по трудозатратам"></right>
-			<right code="GET_SHIFT_LABOR_REPORT" name=""></right>
-			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name=""></right>
+			<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
+			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -215,6 +217,7 @@
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+			<right code="GET_ALL_WORKERS" name="Получение всех сотрудников" note=""></right>
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
 
@@ -225,10 +228,10 @@
 			<right code="VIEW_ACTIVE_OPERATIONS" name="Просмотр активных операций"></right>
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
-			<right code="GET_LABOR_REPORT" name=""></right>
+			<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>
 			<right code="VIEW_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам"></right>
-			<right code="GET_SHIFT_LABOR_REPORT" name=""></right>
-			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name=""></right>
+			<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
+			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
 		</role>
 	</roles>
 </data>

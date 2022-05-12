@@ -98,6 +98,7 @@ namespace TSLog.Yard.BO
         public Position GetPosition(short id);
         public Position GetPosition(string code);
         public Position[] GetPositions();
+        public Position[] GetLinePositions();
     }
     public interface IYardReportingStorage
     {
