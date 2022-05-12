@@ -11,6 +11,7 @@
     hourBlocksCount = 4;
     blockDuration = 0;
 
+    stateCode = "";
     startDate = utils.nullDate;
     planWorkStartDate = utils.nullDate;
     factWorkStartDate = utils.nullDate;
@@ -26,7 +27,9 @@
     blocks = [];
     doDisplay = false;
 
-    operationWorkers = [];
+    allWorkers = [];
+    selectedWorkers = [];
+    selectedWorkersIds = new Set([]);
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -57,7 +60,7 @@
                     return this.blocks[i].id;
                 }
             }
-        }        
+        }
         return "";
     }
 
@@ -117,7 +120,7 @@
             block.classList.add("selected-block-button");
         }
 
-        if (hasError) {            
+        if (hasError) {
             $("#error-div").removeClass("d-none");
             $("#error-p").text("Время недоступно из за типа операции, выберите другой промежуток времени или тип операции");
             this.planWorkStartDate = utils.nullDate;
@@ -132,7 +135,7 @@
 
     selectPlanStartDate(blockId) {
         this.setPlanStartDate(blockId);
-        
+
         this.showSelectedBlocks(blockId);
     }
 
@@ -206,7 +209,7 @@
         let response = await fetch("./api/v1/yard/AvalibleIntervals?date=" + workStartDate +
             "&operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode);
         if (response.status >= 200 && response.status < 300) {
-            this.avalibleIntervals = await response.json();            
+            this.avalibleIntervals = await response.json();
         }
         else {
             const text = await response.text();
@@ -236,7 +239,7 @@
         const timeDiv = document.getElementById("time-div");
         let timeTable = document.getElementById("time-table-div");
         timeTable.replaceChildren();
-        this.blocks = [];        
+        this.blocks = [];
         timeDiv.classList.remove("d-none");
 
         const date = this.getSelectedDate();
@@ -289,7 +292,7 @@
                 };
                 this.blocks.push(block);
             }
-        }       
+        }
     }
 
     getOperationTypeHint() {
@@ -320,7 +323,7 @@
             this.doDisplay = true;
             this.showSelectedBlocks(blockId);
             this.doDisplay = false;
-        }        
+        }
     }
 
     async onChangePlanWorkStartDate() {
@@ -335,7 +338,7 @@
                 this.showSelectedBlocks(blockId);
                 this.doDisplay = false;
             }
-        }        
+        }
     }
 
     async showManager() {
@@ -362,10 +365,9 @@
     async createOperation() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
-            document.getElementById("vehicle-kinds-select").value == "" ||            
+            document.getElementById("vehicle-kinds-select").value == "" ||
             document.getElementById("partners-select").value == "" ||
-            document.getElementById("partner-action-id-input").value == "")            
-        {
+            document.getElementById("partner-action-id-input").value == "") {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -432,8 +434,7 @@
             document.getElementById("vehicle-number-input").value == "" ||
             document.getElementById("driver-name-input").value == "" ||
             document.getElementById("partners-select").value == "" ||
-            document.getElementById("partner-action-id-input").value == "")
-        {
+            document.getElementById("partner-action-id-input").value == "") {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -468,8 +469,7 @@
             document.getElementById("vehicle-model-input").value == "" ||
             document.getElementById("vehicle-number-input").value == "" ||
             document.getElementById("driver-name-input").value == "" ||
-            document.getElementById("partner-action-id-input").value == "")
-        {
+            document.getElementById("partner-action-id-input").value == "") {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -551,10 +551,10 @@
         const curSize = positionRows.length;
         row.remove();
         recalculateAdditionalTableInfo(positionCode, row.find(".cell-info-text").text(), curSize);
-        
+
         this.rerenderWorkerTableIndexes();
     }
-    
+
     setRowEmpty(row) {
         row.find(".selected-worker-id").val("");
         const dropdownToggle = row.find(".dropdown-toggle");
@@ -597,40 +597,169 @@
         });
     }
 
-    async getOperationWorkers() {
-        const response = api.getOperationWorkers(this.getOperationId())
+    async getAllWorkers() {
+        const response = await api.getAllWorkers()
         if (response.code === 0) {
-            this.operationWorkers = response.data;
+            this.allWorkers = response.data;
         }
         else {
             console.log(response.message);
         }
     }
 
-    showOperationWorker(operationWorker, operationWorkerTr) {
-        viewUtils.createCell(operationWorkerTr, ["table-cell"], [operationWorker.positionName]);
-        viewUtils.createCell(operationWorkerTr, ["table-cell"], [operationWorker.workerFullName]);
+    onChangeWorkersFilter() {
+        this.showAllWorkers();
     }
 
-    async showOperationWorkers() {
-        const operationWorkerTbody = document.getElementById("workers-tbody");
-        for (let operationWorker of this.operationWorkers) {
-            const operationWorkerTr = document.createElement("tr");
-            this.showOperationWorker(operationWorker, operationWorkerTr);
-            operationWorkerTbody.append(operationWorkerTr);
+    async onWorkerClick(button) {
+        const operationId = document.getElementById("id-input").value;
+        const workerId = button.dataset.workerId;
+        const positionCode = button.dataset.positionCode;
+        await api.addOperationWorker(operationId, workerId, positionCode);
+                
+        await this.getSelectedWorkers();
+        this.showSelectedWorkers();
+        this.showAllWorkers();
+    }
+
+    showWorker(worker, button) {
+        button.type = "button";
+        button.classList.add("list-group-item");
+        button.style.cssText = "text-align: left !important";
+        button.dataset.workerId = worker.id;
+        button.dataset.positionCode = "EXT_LOADER";
+        button.textContent = worker.fullName;
+        button.onclick = () => {
+            this.onWorkerClick(button);
+        } 
+    }
+
+    showAllWorkers() {
+        const allWorkersDiv = document.getElementById("all-workers-div");
+        allWorkersDiv.replaceChildren();
+        const namePattern = document.getElementById("worker-filter-input").value.trim().toLowerCase();
+        for (let worker of this.allWorkers) {
+            if (namePattern != "" && !worker.fullName.toLowerCase().includes(namePattern)) {
+                continue;
+            }
+            if (this.selectedWorkersIds.has(worker.id)) {
+                continue;
+            }
+
+            const button = document.createElement("button");
+            this.showWorker(worker, button);
+            allWorkersDiv.append(button);
         }
     }
 
-    async addOperationWorker(inputGroup) {
-        api.addOperationWorker(document.getElementById("id-input").value,
-            inputGroup.querySelector(".selected-worker-id").value,
-            inputGroup.querySelector(".position-code").value);
+    async getSelectedWorkers() {
+        const response = await api.getOperationWorkers(this.getOperationId())
+        if (response.code === 0) {
+            this.selectedWorkers = response.data;
+            for (let worker of this.selectedWorkers) {
+                this.selectedWorkersIds.add(worker.id);
+            }
+        }
+        else {
+            this.selectedWorkers = [];
+            this.selectedWorkersIds.clear();
+            console.log(response.message);
+        }
     }
 
-    async removeOperationWorker(inputGroup) {
-        api.removeOperationWorker(document.getElementById("id-input").value,
-            inputGroup.querySelector(".selected-worker-id").value,
-            inputGroup.querySelector(".position-code").value);
+    createRemoveWorkerFunction(operationId, workerId, positionCode) {
+        return async function () {
+            const response = await api.removeOperationWorker(operationId, workerId, positionCode);
+            if (response.code != 0) {
+                console.log(response.message);
+            }
+        }
+    }
+
+    async onSelectedWorkerClick(button) {
+        const operationId = document.getElementById("id-input").value;
+        const workerId = button.dataset.workerId;
+        const positionCode = button.dataset.positionCode;
+        await api.removeOperationWorker(operationId, workerId, positionCode);
+
+        await this.getSelectedWorkers();
+        this.showSelectedWorkers();
+        this.showAllWorkers();
+    }
+
+    showSelectedWorker(worker, button) {
+        button.type = "button";
+        button.classList.add("list-group-item");
+        button.cssText = "text-align: left";
+        button.dataset.workerId = worker.id;
+        button.dataset.positionCode = worker.positionCode;
+        button.textContent = worker.fullName;
+        button.onclick = () => {
+            this.onSelectedWorkerClick(button);
+        }
+    }
+
+    showSelectedWorkers() {
+        const selectedWorkersDiv = document.getElementById("selected-workers-div");
+        selectedWorkersDiv.replaceChildren();
+        for (let operationWorker of this.selectedWorkers) {
+            const operationWorkerButton = document.createElement("button");
+            this.showSelectedWorker(operationWorker, operationWorkerButton);
+            selectedWorkersDiv.append(operationWorkerButton);
+        }
+    }
+
+    createSelectWorker(workerId, workerFullName) {
+        return function () {
+            this.selectedWorkerId = workerId;
+            document.getElementById("worker-input").value = workerFullName;
+
+            const workerNameUl = document.getElementById("workers-names-ul");
+            workerNameUl.classList.add("d-none");
+        }
+    }
+
+    showWorkers(workers) {
+        const workerNameUl = document.getElementById("workers-names-ul");
+        workerNameUl.classList.remove("d-none");
+
+        workerNameUl.replaceChildren();
+        workers.forEach(worker => {
+            const workerLi = document.createElement("li");
+            workerLi.classList.add("dropdown-item");
+
+            workerLi.value = worker.Id;
+            workerLi.textContent = worker.FullName;
+            workerLi.onclick = this.createSelectWorker(worker.Id, worker.FullName).bind(this);
+            workerNameUl.append(workerLi);
+        });
+    }
+
+    async dropdownToggleHandler() {
+        const positionCode = document.getElementById("position-select").value;
+        const namePattern = document.getElementById("worker-input").value;
+        const response = await api.getPositionWorkers(positionCode, namePattern);
+        if (response.code === 0) {
+            const workers = response.data;
+            this.showWorkers(workers);
+        } else {
+            console.log(response.message);
+        }
+    }
+
+    workerInputLeave() {
+        const workerNameUl = document.getElementById("workers-names-ul");
+        workerNameUl.classList.add("d-none");
+    }
+
+    async addOperationWorker() {
+        const operationId = document.getElementById("id-input").value;
+        const workerId = -1;
+        const positionCode = document.getElementById("worker-input").value;
+        const response = await api.addOperationWorker(operationId, workerId, positionCode);
+        if (response.code != 0) {
+            console.log(response.message);
+        }
     }
 
     async allocateOperationWorkers() {
@@ -749,7 +878,7 @@
         }
     }
 
-    async showPage() {
+    async show() {
         const workStartDatePicker = $("#work-start-date-picker");
         workStartDatePicker.datepicker({
             format: "dd.mm.yyyy",
@@ -766,6 +895,7 @@
         }
 
         if (operation != null) {
+            this.stateCode = operation.stateCode;
             this.startDate = new Date(operation.startDate);
             this.planWorkStartDate = new Date(operation.planWorkStartDate);
             this.factWorkStartDate = new Date(operation.factWorkStartDate);
@@ -822,6 +952,25 @@
                 this.doDisplay = false;
             }
             await this.showManager();
+
+            //const workersTable = document.getElementById("workers-table");
+            const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
+            if (states.includes(this.stateCode)) {
+                //workersTable.classList.remove("d-none");
+
+                const workersFilterInput = document.getElementById("worker-filter-input");
+                workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
+
+                await this.getSelectedWorkers();
+                this.showSelectedWorkers();
+                await this.getAllWorkers();
+                this.showAllWorkers();                
+
+                //const workersFieldset = document.getElementById("workers-fieldset");
+                //workersFieldset.disabled = false && (this.stateCode != "STARTED");
+            } else {
+                //workersTable.classList.add("d-none");
+            }
         } else {
             this.planWorkStartDate = utils.nullDate;
             this.planWorkFinishDate = utils.nullDate;
@@ -852,8 +1001,11 @@
         // also on change if nearest selected-worker-id is not empty delete data from it and post to api
         // also change list of items in #card-operation.dropdown-menu
 
-        $('.dropdown-toggle').bind("keyup", dropdownToggleHandler);
-        $('.dropdown-toggle').bind("click", dropdownToggleHandler);
+        //const workerInput = document.getElementById("worker-input");
+
+        //workerInput.onkeyup = this.dropdownToggleHandler.bind(this);
+        //workerInput.onclick = this.dropdownToggleHandler.bind(this);
+        //workerInput.onblur = this.workerInputLeave.bind(this);
 
         const showOperationTypeNoteButton = document.getElementById("operation-type-note-button");
         const closeOperationTypeNoteSpan = document.getElementById("operation-type-note-close-span");
@@ -863,64 +1015,15 @@
 
         window.onclick = this.windowClick.bind(this);
     }
+
+    addWorkerClick(element) {
+        alert(element.textContent);
+    }
+
+    removeWorkerClick() {
+    }
 }
 
 const operationPage = new OperationPage();
 
-function showWorkers(parent, workers) {
-    parent.replaceChildren();
-    workers.forEach(worker => {
-        const workerItem = document.createElement("li");
-        workerItem.classList.add("dropdown-item");
-
-        workerItem.textContent = worker.FullName;
-        workerItem.value = worker.Id;
-        workerItem.onclick = onItemClick;
-        parent.append(workerItem);
-    });
-}
-
-async function onItemClick() {
-    const selectedWorker = this;
-    const inputGroup = selectedWorker.parentElement.parentElement;
-    inputGroup.querySelector(".dropdown-toggle").value = selectedWorker.textContent;
-    const selectedWorkerIdInput = inputGroup.querySelector(".selected-worker-id");
-
-    const workerId = selectedWorkerIdInput.value;
-    if (workerId == "") {
-        selectedWorkerIdInput.value = selectedWorker.value;
-        await operationPage.addOperationWorker(inputGroup);
-
-    } else if (workerId != selectedWorker.value) {
-        await operationPage.removeOperationWorker(inputGroup);
-        selectedWorkerIdInput.value = selectedWorker.value;
-        await operationPage.addOperationWorker(inputGroup);
-    }
-    return false;
-}
-
-async function dropdownToggleHandler() {
-    const inputField = this;
-    const inputGroup = inputField.parentElement;
-
-    const workerId = inputGroup.querySelector(".selected-worker-id").value;
-    if (workerId != "") {
-        await operationPage.removeOperationWorker(inputGroup);
-        inputGroup.querySelector(".selected-worker-id").value = "";
-    }
-
-    const url = "./api/v1/yard/GetWorkers?name_pattern=" + inputField.value + "&position_code=" + inputGroup.querySelector(".position-code").value;
-    const response = await fetch(url);
-    if (response.status >= 200 && response.status < 300) {
-        const workers = await response.json();
-        const dropdown = inputGroup.querySelector(".dropdown-menu");
-        showWorkers(dropdown, workers);
-    }
-    else {
-        const message = await response.text();
-        console.log(message);
-        alert(message);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', operationPage.showPage.bind(operationPage));
+document.addEventListener('DOMContentLoaded', operationPage.show.bind(operationPage));

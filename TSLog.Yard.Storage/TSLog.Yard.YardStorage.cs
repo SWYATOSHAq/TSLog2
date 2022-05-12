@@ -128,6 +128,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetPositions();
         }
+        public Position[] GetLinePositions()
+        {
+            return _oracleStorage.GetLinePositions();
+        }
         public Gate GetGate(short id)
         {
             return _pgsqlStorage.GetGate(id);

@@ -1329,6 +1329,54 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpDelete("DeleteOperation")]
 
         #region Operation workers
+        private static dynamic EmployeeToDynamic(Employee employee) 
+        {
+            dynamic result = new ExpandoObject();
+            result.id = employee.Id;
+            result.surname = employee.Surname;
+            result.firstName = employee.FirstName;
+            result.patronymic = employee.Patronymic;
+            result.shortName = employee.ShortName;
+            result.fullName = employee.FullName;
+            result.positionId = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
+                employee.MajorPosition.Id : 
+                -1;
+            result.positionCode = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ? 
+                employee.MajorPosition.Code : 
+                string.Empty;
+            result.positionName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ? 
+                employee.MajorPosition.Name : 
+                string.Empty;
+            return result;
+        }
+        private static dynamic[] EmployeesToDynamic(Employee[] employees)
+        {
+            var result = new List<dynamic>();
+            foreach (var employee in employees)
+                result.Add(EmployeeToDynamic(employee));
+            return result.ToArray();
+        }
+        private static dynamic OperationWorkerToDynamic(Operation.OperationEmployee operationWorker)
+        {
+            dynamic result = new ExpandoObject();            
+            result.id = operationWorker.Employee.Id;
+            result.surname = operationWorker.Employee.Surname;
+            result.firstName = operationWorker.Employee.FirstName;
+            result.patronymic = operationWorker.Employee.Patronymic;
+            result.shortName = operationWorker.Employee.ShortName;
+            result.fullName = operationWorker.Employee.FullName;
+            result.positionId = operationWorker.Position.Id;
+            result.positionCode = operationWorker.Position.Code;
+            result.positionName = operationWorker.Position.Name;
+            return result;
+        }
+        private static dynamic[] OperationWorkersToDynamic(Operation.OperationEmployee[] operationWorkers)
+        {
+            var result = new List<dynamic>();
+            foreach (var operationWorker in operationWorkers)
+                result.Add(YardController.OperationWorkerToDynamic(operationWorker));
+            return result.ToArray();
+        }
         async public Task<string> DeleteOperation()
         {
             try
@@ -1364,8 +1412,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("GetWorkers")]
-        public string GetWorkers()
+        [HttpGet("PositionWorkers")]
+        public string GetPositionWorkers()
         {
             try
             {
@@ -1385,7 +1433,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var position = _storage.GetPosition(stringPositionCode);
                 var workers = _storage.FindEmployees(position, stringNamePattern);
-                var text = JsonSerializer.Serialize(workers);
+                var objects = EmployeesToDynamic(workers);
+                var text = JsonSerializer.Serialize(objects);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1394,25 +1443,33 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        private static dynamic OperationWorkerToDynamic(Operation.OperationEmployee operationWorker)
+        [HttpGet("AllWorkers")]
+        public string GetAllWorkers()
         {
-            dynamic result = new ExpandoObject();
-            result.positionId = operationWorker.Position.Id;
-            result.positionCode = operationWorker.Position.Code;
-            result.positionName = operationWorker.Position.Name;
-            result.workerId = operationWorker.Employee.Id;
-            result.workerFullName = operationWorker.Employee.FullName;
-            return result;
-        }
-        private static dynamic[] OperationWorkersToDynamic(Operation.OperationEmployee[] operationWorkers)
-        {
-            var result = new List<dynamic>();
-            foreach (var operationWorker in operationWorkers)
-                result.Add(YardController.OperationWorkerToDynamic(operationWorker));
-            return result.ToArray();
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getWorkers = _rightsChecker.CheckRight("GET_ALL_WORKERS", User);
+                if (_useAuthentication && !useYard && !getWorkers)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var workers = _storage.GetEmployees();
+                var objects = EmployeesToDynamic(workers);
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
         }
         [HttpGet("OperationWorkers")]
-        public string GetOperationWorkers() 
+        public string GetOperationWorkers()
         {
             try
             {

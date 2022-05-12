@@ -886,6 +886,30 @@ namespace TSLog.Yard.Data
             positions.Sort();
             return positions.ToArray();
         }
+        public Position[] GetLinePositions()
+        {
+            var positions = new List<Position>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
+                    $"  from {StaffSchema}.stf_line_staff#v p";
+                command.CommandText = sql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var position = CreatePosition(reader);
+                    positions.Add(position);
+                }
+                reader.Close();
+            }
+            return positions.ToArray();
+        }
         #endregion
 
         #region Reporting

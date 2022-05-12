@@ -136,11 +136,6 @@
             }
 
             this.filteredOperations.push(operation);
-
-            //   operationTr = document.createElement("tr");
-            //index++;
-            //this.showOperation(index, operation, operationTr);
-            //   operationsTbody.append(operationTr);
         }
     }
 
@@ -201,7 +196,6 @@
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
-
 
     // обработчик события при смене поля сортировки
     onChangeSortField() {
@@ -269,7 +263,6 @@
             document.getElementById("forward-sort-input").checked = true;
         else
             document.getElementById("reverse-sort-input").checked = true;
-
 
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
