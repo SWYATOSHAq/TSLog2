@@ -73,6 +73,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.planLaborCost = operation.PlanLaborCost;
             result.factLaborCost = operation.FactLaborCost;
 
+            result.gateId = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.Code :
+                string.Empty;
             result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
                 operation.Gate.Code : 
                 string.Empty;
