@@ -15,6 +15,7 @@
 
         result = utils.addParameter(result, "state_code", "operation-states-select");
         result = utils.addParameter(result, "partner_id", "partners-select");
+        result = utils.addParameter(result, "id_number", "id-number-input");
         result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
         result = utils.addParameter(result, "driver_name", "driver-name-input");
         result = utils.addParameter(result, "sort_field", "sort-field-select");
@@ -35,6 +36,7 @@
     showOperation(operation, operationTr) {
         operationTr.classList.add("table-row");
 
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.id]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
@@ -89,6 +91,9 @@
         const partnersSelect = document.getElementById("partners-select");
         const partner = partnersSelect != undefined ? partnersSelect.value : "";
 
+        const idNumberInput = document.getElementById("id-number-input");
+        const idNumber = idNumberInput != undefined ? idNumberInput.value.toUpperCase() : "";
+
         const vehicleNumberInput = document.getElementById("vehicle-number-input");
         const vehicleNumber = vehicleNumberInput != undefined ? vehicleNumberInput.value.toUpperCase() : "";
 
@@ -100,6 +105,7 @@
 
             if (state != "" && operation.stateCode != state ||
                 partner != "" && operation.partnerId != partner ||
+                !operation.id.toString().includes(idNumber) ||
                 !operation.vehicleNumber.toUpperCase().includes(vehicleNumber) ||
                 !operation.driverName.toUpperCase().includes(driverName))
             {
@@ -217,6 +223,7 @@
 
         viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("id-number-input", utils.getUrlParameter("id_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
 

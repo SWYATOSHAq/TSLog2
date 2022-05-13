@@ -66,8 +66,8 @@
     }
      @if (filterById)
      {
-        <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">
-            <input class="form-control filter-input" id="id-number-input" placeholder="ID">
+        <div id="id-number-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="id-number-input" placeholder="№">
         </div>
      }
     @if (filterByVehicleNumber)
@@ -78,19 +78,19 @@
     }
     @if (filterByDriveName)
     {
-        <div id="vehicle-number-div" class="col-md-3 col-6 filter-div"> 
+        <div id="driver-name-div" class="col-md-3 col-6 filter-div">
             <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">
         </div>
     }
     @if (filterByPartnerActionId)
     {
-        <div id="action-div" class="col-md-3 col-6 filter-div"> 
+        <div id="partner-action-id-div" class="col-md-3 col-6 filter-div">
             <input class="form-control filter-input" id="partner-action-id-input" placeholder="Заказ/приход">
         </div>        
     }
     @if (filterByEmployee)
     {
-        <div id="action-div" class="col-md-3 col-6 filter-div"> 
+        <div id="worker-div" class="col-md-3 col-6 filter-div">
             <input class="form-control filter-input" id="worker-input" placeholder="Работник">
         </div>        
     }
