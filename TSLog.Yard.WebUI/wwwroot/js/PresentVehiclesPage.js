@@ -45,7 +45,7 @@
     showOperation(index, operation, operationTr) {
         operationTr.classList.add("table-row");
 
-        viewUtils.createRowHeader(operationTr, ["table-cell"], [index.toString()]);
+        viewUtils.createRowHeader(operationTr, ["table-cell"], [operation.id]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
