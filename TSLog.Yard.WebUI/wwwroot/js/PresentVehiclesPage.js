@@ -20,6 +20,8 @@
         result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
         result = utils.addParameter(result, "driver_name", "driver-name-input");
         result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
+        result = utils.addParameter(result, "sort_field", "sort-field-select");
+        result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
         return result != "" ? "?" + result : "";
     }
