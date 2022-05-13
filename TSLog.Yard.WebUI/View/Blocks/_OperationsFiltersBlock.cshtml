@@ -12,6 +12,7 @@
     var gatesModel = Model.GatesModel;
     var operationStatesModel = Model.OperationStatesModel;
     var partnersModel = Model.PartnersModel;
+    var filterById = Model.FilterById;
     var filterByVehicleNumber = Model.FilterByVehicleNumber;
     var filterByDriveName = Model.FilterByDriveName;
     var filterByPartnerActionId = Model.FilterByPartnerActionId;
@@ -63,6 +64,12 @@
     {
         <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
     }
+     @if (filterById)
+     {
+        <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="id-number-input" placeholder="ID">
+        </div>
+     }
     @if (filterByVehicleNumber)
     {
         <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">                        

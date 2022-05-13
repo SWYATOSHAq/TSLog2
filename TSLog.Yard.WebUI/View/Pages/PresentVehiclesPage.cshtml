@@ -37,7 +37,7 @@
 
     var filtersModel = new OperationsFiltersBlockModel(false, 
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
-        true, true, true, false);
+        true, true, true, true, false);
 
     var sortFields = new Dictionary<string, string>();
     sortFields.Add("driverName", "Водитель (Ф. И. О.)");
@@ -58,7 +58,7 @@
 <table class="table table-light table-bordered table-striped operations-table">
     <thead class="thead-light">
         <tr>
-            <th class="color-yellow table-header">№</th>
+            <th class="color-yellow table-header">ID</th>
             <th class="color-yellow table-header">№ Т/С (прицепа)</th>
             <th class="color-yellow table-header">Марка<br />Т/С</th>
             <th class="color-yellow table-header">
