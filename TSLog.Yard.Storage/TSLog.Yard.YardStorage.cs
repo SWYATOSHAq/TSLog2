@@ -376,6 +376,10 @@ namespace TSLog.Yard
         #endregion
 
         #region Workers
+        public bool IsWorkerBusy(Employee employee)
+        {
+            return _pgsqlStorage.IsWorkerBusy(employee);
+        }
         public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
         {
             _pgsqlStorage.AddEmployee(operation, employee, position, cost, costCurrency);

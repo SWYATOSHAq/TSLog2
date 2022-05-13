@@ -527,8 +527,8 @@
         }
     }
 
-    async getLinearWorkers() {
-        const response = await api.getLinearWorkers();
+    async getLinearFreeWorkers() {
+        const response = await api.getLinearFreeWorkers();
         if (response.code === 0) {
             this.liearWorkers = response.data;
         }
@@ -538,7 +538,7 @@
     }
 
     onChangeWorkersFilter() {
-        this.showLinearWorkers();
+        this.showLinearFreeWorkers();
     }
 
     async onLinearWorkerClick(button) {
@@ -549,12 +549,12 @@
                 
         await this.getSelectedWorkers();
         this.showSelectedWorkers();
-        this.showLinearWorkers();
+        this.showLinearFreeWorkers();
 
         this.showWorkersDivs();
     }
 
-    showLinearWorker(worker, button) {
+    showLinearFreeWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important";
@@ -563,6 +563,7 @@
         button.dataset.positionName = worker.positionName;
         button.dataset.positionShortName = worker.positionShortName;
         button.append("[" + worker.positionShortName + "] ");
+        
         const workerFullNameB = document.createElement("b");
         workerFullNameB.textContent = worker.fullName;
         button.append(workerFullNameB);
@@ -571,7 +572,7 @@
         } 
     }
 
-    showLinearWorkers() {
+    showLinearFreeWorkers() {
         const allWorkersDiv = document.getElementById("linear-workers-div");
         allWorkersDiv.replaceChildren();
         const namePattern = document.getElementById("worker-filter-input").value.trim().toLowerCase();
@@ -587,7 +588,7 @@
             }
 
             const button = document.createElement("button");
-            this.showLinearWorker(worker, button);
+            this.showLinearFreeWorker(worker, button);
             allWorkersDiv.append(button);
         }
     }
@@ -615,7 +616,7 @@
 
         await this.getSelectedWorkers();
         this.showSelectedWorkers();
-        this.showLinearWorkers();
+        this.showLinearFreeWorkers();
 
         this.showWorkersDivs();
     }
@@ -645,7 +646,7 @@
         }
     }
 
-    async allocateOperationWorkers() {
+    async allocateWorkers() {
         const response = await api.allocateOperationWorkers(this.getOperationId());
         if (response.code === 0) {
             window.location.reload();
@@ -850,8 +851,8 @@
                 const workersFilterDiv = document.getElementById("workers-filter-div");
                 const allWorkersDiv = document.getElementById("linear-workers-div");
                 if (this.stateCode === "STARTED") {
-                    await this.getLinearWorkers();
-                    this.showLinearWorkers();
+                    await this.getLinearFreeWorkers();
+                    this.showLinearFreeWorkers();
                     workersFieldset.disabled = false;
                     workersFilterDiv.classList.remove("d-none");
                     allWorkersDiv.classList.remove("d-none")

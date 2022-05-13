@@ -90,10 +90,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string.Empty;
 
             result.vehicleBrand = operation.VehicleBrand;
+            result.lowerVehicleBrand = operation.VehicleBrand.ToLower();
             result.vehicleModel = operation.VehicleModel;
+            result.lowerVehicleModel = operation.VehicleModel.ToLower();
             result.vehicleNumber = operation.VehicleNumber;
+            result.lowerVehicleNumber = operation.VehicleNumber.ToLower();
             result.trailerNumber = operation.TrailerNumber;
+            result.lowerTrailerNumber = operation.TrailerNumber.ToLower();
             result.driverName = operation.DriverName;
+            result.lowerDriverName = operation.DriverName.ToLower();
             result.driverPhoneNumber = operation.DriverPhoneNumber;
             result.partnerManagerName = operation.PartnerManagerName;
             result.partnerManagerPhoneNumber = operation.PartnerManagerPhoneNumber;
@@ -104,6 +109,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             result.partnerId = operation.Partners.Length > 0 ? operation.Partners[0].Id : string.Empty;
             result.partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
+            result.lowerPartnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId.ToLower() : string.Empty;
 
             result.partnersNames = Partner.Serialize(operation.GetPartners());
 
@@ -1329,7 +1335,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpDelete("DeleteOperation")]
 
         #region Operation workers
-        private static dynamic EmployeeToDynamic(Employee employee) 
+        private static dynamic EmployeeToDynamic(Employee employee, bool isBusy) 
         {
             dynamic result = new ExpandoObject();
             result.id = employee.Id;
@@ -1338,6 +1344,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.patronymic = employee.Patronymic;
             result.shortName = employee.ShortName;
             result.fullName = employee.FullName;
+            result.lowerFullName = employee.FullName.ToLower();
             result.positionId = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
                 employee.MajorPosition.Id : 
                 -1;
@@ -1350,13 +1357,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.positionShortName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
                 employee.MajorPosition.ShortName :
                 string.Empty;
+            result.isBusy = isBusy;
             return result;
         }
         private static dynamic[] EmployeesToDynamic(Employee[] employees)
         {
             var result = new List<dynamic>();
             foreach (var employee in employees)
-                result.Add(EmployeeToDynamic(employee));
+                result.Add(EmployeeToDynamic(employee, false));
             return result.ToArray();
         }
         private static dynamic OperationWorkerToDynamic(Operation.OperationEmployee operationWorker)
@@ -1462,7 +1470,40 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var workers = _storage.GetLinearEmployees();
-                var objects = EmployeesToDynamic(workers);
+
+                var objects = new List<dynamic>();
+                foreach (var worker in workers)
+                    objects.Add(EmployeeToDynamic(worker, _storage.IsWorkerBusy(worker)));
+
+                var text = JsonSerializer.Serialize(objects.ToArray());
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("LinearFreeWorkers")]
+        public string GetLinearFreeWorkers()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getWorkers = _rightsChecker.CheckRight("GET_LINEAR_FREE_WORKERS", User);
+                if (_useAuthentication && !useYard && !getWorkers)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var workers = _storage.GetLinearEmployees();
+                var temp = new List<Employee>();
+                foreach (var worker in workers)
+                    if (!_storage.IsWorkerBusy(worker))
+                        temp.Add(worker);
+                var objects = EmployeesToDynamic(temp.ToArray());
                 var text = JsonSerializer.Serialize(objects);
                 Response.StatusCode = 200;
                 return text;
@@ -1487,8 +1528,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var workers = _storage.GetEmployees();
-                var objects = EmployeesToDynamic(workers);
-                var text = JsonSerializer.Serialize(objects);
+                
+                var objects = new List<dynamic>();
+                foreach (var worker in workers)
+                    objects.Add(EmployeeToDynamic(worker, _storage.IsWorkerBusy(worker)));
+
+                var text = JsonSerializer.Serialize(objects.ToArray());
                 Response.StatusCode = 200;
                 return text;
             }

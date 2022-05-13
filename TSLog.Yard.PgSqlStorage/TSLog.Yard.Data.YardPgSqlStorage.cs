@@ -1776,6 +1776,50 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Workers
+        public bool IsWorkerBusy(Employee employee)
+        {
+            if (employee == null)
+                throw new ArgumentNullException(nameof(employee));
+            using var connection = CloneConnection();
+            using var command = connection.CreateCommand();
+            /*
+                   select ow.worker_id,
+                          ow.operation_id,
+                          o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
+                          o.fact_work_start_date, o.fact_work_finish_date,          
+                          o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date         
+                     from yard.v_operation_worker ow
+                left join yard.scheduler o on ow.operation_id = o.id
+                    where ow.worker_id = :worker_id
+                      and o.fact_work_finish_date is null
+                      and not (o.fact_work_start_date is null and (o.plan_work_start_date >= :finish_date or o.plan_work_finish_date <= :start_date)
+                            or o.fact_work_start_date is not null and (o.fact_work_start_date >= :finish_date or greatest(o.plan_work_finish_date, now() + interval'15 minutes') <= :start_date))
+            */
+            // По результатм обсуждений был приянто решене считать занятыми тех работников,
+            // которые привязаны к операциям, которые находятся на данный момент в работе.
+            var sql = 
+                $"   select ow.worker_id,\n" +
+                $"          ow.operation_id,\n" +
+                $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                $"          o.fact_work_start_date, o.fact_work_finish_date\n" +
+                $"     from {YardSchema}.v_operation_worker ow\n" +
+                $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                $"    where ow.worker_id = :worker_id\n" +
+                $"      and o.fact_work_finish_date is null\n" +
+                $"      and o.fact_work_start_date is not null";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("worker_id", NpgsqlDbType.Integer, employee.Id));
+
+            var result = false;
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                    result = true;
+                reader.Close();
+            }
+            connection.Close();
+            return result;
+        }
         public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
         {
             if (operation == null)
