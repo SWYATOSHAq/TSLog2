@@ -44,7 +44,8 @@
 		<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 		<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 
-		<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+		<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>		
+		<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>		
 		<right code="GET_ALL_WORKERS" name="Получение всех сотрудников" note=""></right>
 		<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>				
 		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
@@ -177,6 +178,7 @@
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+			<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>
 			<right code="GET_ALL_WORKERS" name="Получение всех сотрудников" note=""></right>
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>
@@ -217,6 +219,7 @@
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
 
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
+			<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>
 			<right code="GET_ALL_WORKERS" name="Получение всех сотрудников" note=""></right>
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию"></right>

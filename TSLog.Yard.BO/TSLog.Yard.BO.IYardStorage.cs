@@ -89,6 +89,7 @@ namespace TSLog.Yard.BO
         public Employee GetEmployeeByAdLogin(string login);
         public Employee[] FindEmployees(string pattern);
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "");
+        public Employee[] GetLinearEmployees();
         public Employee[] GetEmployees();
         public Employee[] GetPlanShiftEmployees(DateTime? date = null);
         public Employee[] GetShiftEmployees(DateTime date);

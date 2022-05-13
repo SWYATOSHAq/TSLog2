@@ -84,6 +84,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEmployeeByAdLogin(login);
         }
+        public Employee[] GetLinearEmployees()
+        {
+            return _oracleStorage.GetLinearEmployees();
+        }
         public Employee[] GetEmployees()
         {
             return _oracleStorage.GetEmployees();

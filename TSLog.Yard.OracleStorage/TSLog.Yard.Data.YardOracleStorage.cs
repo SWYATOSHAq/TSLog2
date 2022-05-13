@@ -366,6 +366,9 @@ namespace TSLog.Yard.Data
             //var departmentId = Utils.DbValueToInt(reader["department_id"]);
             //employee.Department = GetDepartment(departmentId);
 
+            var positionId = Utils.DbValueToShort(reader["position_id"]);
+            employee.MajorPosition = positionId > 0 ? GetPosition(positionId) : Position.Null;
+
             employee.Cost = Utils.DbValueToDouble(reader["cost"]);
             var costCurrencyCode = Utils.DbValueToString(reader["cost_currency_code"]);
             employee.CostMeasureUnit = GetMeasureUnit(costCurrencyCode);
@@ -381,22 +384,24 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeeById =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e " +
-                    $" where e.id = :id";
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active,\n" +
+                    $"          e.display_order,\n" +
+                    $"          emp.position_id,\n" +
+                    $"          e.note\n" +
+                    $"     from {StaffSchema}.stf_employee#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id\n" +
+                    $"    where e.id = :id";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
@@ -424,22 +429,24 @@ namespace TSLog.Yard.Data
             {
                 command.BindByName = true;
                 var SelectEmployeeById =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e " +
-                    $" where e.ad_login = :ad_login";
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active,\n" +
+                    $"          e.display_order,\n" +
+                    $"          emp.position_id,\n" +
+                    $"          e.note\n" +
+                    $"     from {StaffSchema}.stf_employee#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id\n" +
+                    $"    where e.ad_login = :ad_login";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("ad_login", login));
                 using var reader = command.ExecuteReader();
@@ -461,34 +468,36 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var FindEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
-                    $"       e.surname, e.first_name, e.patronymic,\n" +
-                    $"       e.sex, e.birth_date,\n" +
-                    $"       e.nationality,\n" +
-                    $"       e.phone_number, e.email,\n" +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
-                    $"       e.employment_date, e.dismissal_date,\n" +
-                    $"       e.company_id,\n" +
-                    $"       e.department_id,\n" +
-                    $"       e.cost,\n" +
-                    $"       e.cost_currency_code,\n" +
-                    $"       e.is_active,\n" +
-                    $"       e.display_order,\n" +
-                    $"       e.note\n" +
-                    $"  from {StaffSchema}.stf_employee_ext#v e\n" +
-                    $" where upper(trim(e.surname)) like :pattern\n" +
-                    $"    or upper(trim(e.first_name)) like :pattern\n" +
-                    $"    or upper(trim(e.patronymic)) like :pattern\n" +
-                    $"    or upper(trim(e.short_name)) like :pattern\n" +
-                    $"    or upper(trim(e.short_name2)) like :pattern\n" +
-                    $"    or upper(trim(e.short_name3)) like :pattern\n" +
-                    $"    or upper(trim(e.short_name4)) like :pattern\n" +
-                    $"    or upper(trim(e.alt_name)) like :pattern\n" +
-                    $"    or upper(trim(e.alt_name2)) like :pattern\n" +
-                    $"    or upper(trim(e.alt_name3)) like :pattern\n" +
-                    $"    or upper(trim(e.alt_name4)) like :pattern\n" +
-                    $"    or upper(trim(e.full_name)) like :pattern\n" +
-                    $"    or upper(trim(e.full_name2)) like :pattern";
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active,\n" +
+                    $"          e.display_order,\n" +
+                    $"          emp.position_id,\n" +
+                    $"          e.note\n" +
+                    $"     from {StaffSchema}.stf_employee_ext#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id\n" +
+                    $"    where upper(trim(e.surname)) like :pattern\n" +
+                    $"       or upper(trim(e.first_name)) like :pattern\n" +
+                    $"       or upper(trim(e.patronymic)) like :pattern\n" +
+                    $"       or upper(trim(e.short_name)) like :pattern\n" +
+                    $"       or upper(trim(e.short_name2)) like :pattern\n" +
+                    $"       or upper(trim(e.short_name3)) like :pattern\n" +
+                    $"       or upper(trim(e.short_name4)) like :pattern\n" +
+                    $"       or upper(trim(e.alt_name)) like :pattern\n" +
+                    $"       or upper(trim(e.alt_name2)) like :pattern\n" +
+                    $"       or upper(trim(e.alt_name3)) like :pattern\n" +
+                    $"       or upper(trim(e.alt_name4)) like :pattern\n" +
+                    $"       or upper(trim(e.full_name)) like :pattern\n" +
+                    $"       or upper(trim(e.full_name2)) like :pattern";
                 command.CommandText = FindEmployeesSql;
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
                 using var reader = command.ExecuteReader();
@@ -553,27 +562,64 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        public Employee[] GetLinearEmployees()
+        {
+            var employees = new List<Employee>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectEmployeesSql =
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active,\n" +
+                    $"          e.display_order,\n" +
+                    $"          emp.position_id,\n" +
+                    $"          e.note" +
+                    $"     from {StaffSchema}.stf_employee#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id" +
+                    $"    where emp.is_linear = 1";
+                command.CommandText = SelectEmployeesSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var employee = CreateEmployee(reader);
+                    employees.Add(employee);
+                }
+                reader.Close();
+            }
+            return employees.ToArray();
+        }
         public Employee[] GetEmployees()
         {
             var employees = new List<Employee>();
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
-                    $"       e.surname, e.first_name, e.patronymic,\n" +
-                    $"       e.sex, e.birth_date,\n" +
-                    $"       e.nationality,\n" +
-                    $"       e.phone_number, e.email,\n" +
-                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
-                    $"       e.employment_date, e.dismissal_date,\n" +
-                    $"       e.company_id,\n" +
-                    $"       e.department_id,\n" +
-                    $"       e.cost,\n" +
-                    $"       e.cost_currency_code,\n" +
-                    $"       e.is_active,\n" +
-                    $"       e.display_order,\n" +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e";
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active,\n" +
+                    $"          e.display_order,\n" +
+                    $"          emp.position_id,\n" +
+                    $"          e.note" +
+                    $"     from {StaffSchema}.stf_employee#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id";
                 command.CommandText = SelectEmployeesSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -592,22 +638,24 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
-                    $"       e.surname, e.first_name, e.patronymic,\n" +
-                    $"       e.sex, e.birth_date,\n" +
-                    $"       e.nationality,\n" +
-                    $"       e.phone_number, e.email,\n" +
-                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
-                    $"       e.employment_date, e.dismissal_date,\n" +
-                    $"       e.company_id,\n" +
-                    $"       e.department_id,\n" +
-                    $"       e.cost,\n" +
-                    $"       e.cost_currency_code,\n" +
-                    $"       e.is_active,\n" +
-                    $"       e.display_order,\n" +
-                    $"       e.note\n" +
-                    $"  from {StaffSchema}.stf_employee#v e\n" +
-                    $" where upper(trim(e.work_mode)) = :shift";
+                    $"   select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"          e.surname, e.first_name, e.patronymic,\n" +
+                    $"          e.sex, e.birth_date,\n" +
+                    $"          e.nationality,\n" +
+                    $"          e.phone_number, e.email,\n" +
+                    $"          e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
+                    $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.company_id,\n" +
+                    $"          e.department_id,\n" +
+                    $"          e.cost,\n" +
+                    $"          e.cost_currency_code,\n" +
+                    $"          e.is_active,\n" +
+                    $"          e.display_order,\n" +
+                    $"          emp.position_id,\n" +
+                    $"          e.note\n" +
+                    $"     from {StaffSchema}.stf_employee#v e\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id\n" +
+                    $"    where upper(trim(e.work_mode)) = :shift";
                 command.CommandText = SelectEmployeesSql;
                 command.Parameters.Add(new OracleParameter("shift", shift));
                 using var reader = command.ExecuteReader();
