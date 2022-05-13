@@ -511,92 +511,6 @@
     }
 
     // #region Workers
-    maxPositionWorkers = 4;
-
-    addPosition(rowButton) {
-        const row = $(rowButton).parent().parent().parent();
-        const positionCode = row.attr("class");
-        console.log($("." + positionCode));
-
-        const positionRows = $("." + positionCode);
-        console.log(positionRows);
-        if (positionRows.length < maxPositionWorkers) {
-            const newRow = row.clone();
-            setRowEmpty(newRow);
-
-            const curSize = positionRows.length;
-            row.after(newRow);
-
-            this.rerenderWorkerTableIndexes();
-            this.recalculateAdditionalTableInfo(positionCode, row.find(".cell-info-text").text(), curSize);
-        }
-    }
-
-    createRemovePosition() {
-        return function () {
-            operationPage.removePosition(this);
-        }
-    }
-
-    removePosition(rowButton) {
-        const row = $(rowButton).parent().parent().parent();
-        const positionCode = row.attr('class');
-        console.log($("." + positionCode));
-
-        removeOperationWorker(row.find(".input-group"));
-
-        const positionRows = $("." + positionCode);
-        console.log(positionRows);
-
-        const curSize = positionRows.length;
-        row.remove();
-        recalculateAdditionalTableInfo(positionCode, row.find(".cell-info-text").text(), curSize);
-
-        this.rerenderWorkerTableIndexes();
-    }
-
-    setRowEmpty(row) {
-        row.find(".selected-worker-id").val("");
-        const dropdownToggle = row.find(".dropdown-toggle");
-
-        dropdownToggle.val("");
-        dropdownToggle.bind("keyup", dropdownToggleHandler);
-        dropdownToggle.bind("click", dropdownToggleHandler);
-    }
-
-    rerenderWorkerTableIndexes() {
-        $(".table-row-index").each(function (index) {
-            $(this).text(index + 1);
-        });
-    }
-
-    multiplyTextTimeSpan(stringTime, multiplier) {
-        let timeArr = stringTime.split(':'); // split it at the colons
-
-        // Minutes are worth 60 seconds. Hours are worth 60 minutes.
-        let seconds = (+timeArr[0]) * 60 * 60 + (+timeArr[1]) * 60 + (+timeArr[2]);
-        let newSeconds = seconds * multiplier;
-
-        let t = new Date();
-        t.setHours(0, 0, newSeconds, 0);
-        return t;
-    }
-
-    recalculateAdditionalTableInfo(rowGroupName, exampleText, previousSize) {
-        const rowGroupRows = $("." + rowGroupName);
-        const strTime = exampleText.split("[")[1].split(" ")[0];
-        const neededPersonal = exampleText.split("/")[1].split(")")[0];
-        const newTime = multiplyTextTimeSpan(strTime, (previousSize / neededPersonal) / (rowGroupRows.length / neededPersonal));
-
-        const outStr = "[" + newTime.toLocaleTimeString() + " чел.] (" + rowGroupRows.length + "/" + neededPersonal + ")";
-        console.log(outStr);
-        rowGroupRows.each(function (index) {
-            $(this).find(".cell-info-text").each(function (index) {
-                $(this).text(outStr);
-            });
-        });
-    }
-
     async getAllWorkers() {
         const response = await api.getAllWorkers()
         if (response.code === 0) {
@@ -667,15 +581,6 @@
         }
     }
 
-    createRemoveWorkerFunction(operationId, workerId, positionCode) {
-        return async function () {
-            const response = await api.removeOperationWorker(operationId, workerId, positionCode);
-            if (response.code != 0) {
-                console.log(response.message);
-            }
-        }
-    }
-
     async onSelectedWorkerClick(button) {
         const operationId = document.getElementById("id-input").value;
         const workerId = button.dataset.workerId;
@@ -690,7 +595,7 @@
     showSelectedWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
-        button.cssText = "text-align: left";
+        button.style.cssText = "text-align: left";
         button.dataset.workerId = worker.id;
         button.dataset.positionCode = worker.positionCode;
         button.textContent = worker.fullName;
@@ -706,59 +611,6 @@
             const operationWorkerButton = document.createElement("button");
             this.showSelectedWorker(operationWorker, operationWorkerButton);
             selectedWorkersDiv.append(operationWorkerButton);
-        }
-    }
-
-    createSelectWorker(workerId, workerFullName) {
-        return function () {
-            this.selectedWorkerId = workerId;
-            document.getElementById("worker-input").value = workerFullName;
-
-            const workerNameUl = document.getElementById("workers-names-ul");
-            workerNameUl.classList.add("d-none");
-        }
-    }
-
-    showWorkers(workers) {
-        const workerNameUl = document.getElementById("workers-names-ul");
-        workerNameUl.classList.remove("d-none");
-
-        workerNameUl.replaceChildren();
-        workers.forEach(worker => {
-            const workerLi = document.createElement("li");
-            workerLi.classList.add("dropdown-item");
-
-            workerLi.value = worker.Id;
-            workerLi.textContent = worker.FullName;
-            workerLi.onclick = this.createSelectWorker(worker.Id, worker.FullName).bind(this);
-            workerNameUl.append(workerLi);
-        });
-    }
-
-    async dropdownToggleHandler() {
-        const positionCode = document.getElementById("position-select").value;
-        const namePattern = document.getElementById("worker-input").value;
-        const response = await api.getPositionWorkers(positionCode, namePattern);
-        if (response.code === 0) {
-            const workers = response.data;
-            this.showWorkers(workers);
-        } else {
-            console.log(response.message);
-        }
-    }
-
-    workerInputLeave() {
-        const workerNameUl = document.getElementById("workers-names-ul");
-        workerNameUl.classList.add("d-none");
-    }
-
-    async addOperationWorker() {
-        const operationId = document.getElementById("id-input").value;
-        const workerId = -1;
-        const positionCode = document.getElementById("worker-input").value;
-        const response = await api.addOperationWorker(operationId, workerId, positionCode);
-        if (response.code != 0) {
-            console.log(response.message);
         }
     }
 
@@ -894,6 +746,7 @@
             operation = await api.getOperation(Number(id));            
         }
 
+        const workersDiv = document.getElementById("workers-div");
         if (operation != null) {
             this.stateCode = operation.stateCode;
             this.startDate = new Date(operation.startDate);
@@ -953,23 +806,31 @@
             }
             await this.showManager();
 
-            //const workersTable = document.getElementById("workers-table");
             const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
             if (states.includes(this.stateCode)) {
-                //workersTable.classList.remove("d-none");
+                workersDiv.classList.remove("d-none");
 
                 const workersFilterInput = document.getElementById("worker-filter-input");
                 workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
 
                 await this.getSelectedWorkers();
                 this.showSelectedWorkers();
-                await this.getAllWorkers();
-                this.showAllWorkers();                
-
-                //const workersFieldset = document.getElementById("workers-fieldset");
-                //workersFieldset.disabled = false && (this.stateCode != "STARTED");
+                const workersFieldset = document.getElementById("workers-fieldset");
+                const workersFilterDiv = document.getElementById("workers-filter-div");
+                const allWorkersDiv = document.getElementById("all-workers-div");
+                if (this.stateCode === "STARTED") {
+                    await this.getAllWorkers();
+                    this.showAllWorkers();
+                    workersFieldset.disabled = false;
+                    workersFilterDiv.classList.remove("d-none");
+                    allWorkersDiv.classList.remove("d-none")
+                } else {
+                    workersFieldset.disabled = true;
+                    workersFilterDiv.classList.add("d-none");
+                    allWorkersDiv.classList.add("d-none")
+                }
             } else {
-                //workersTable.classList.add("d-none");
+                workersDiv.classList.add("d-none");
             }
         } else {
             this.planWorkStartDate = utils.nullDate;
@@ -981,6 +842,7 @@
             workStartDatePicker.datepicker("setDate", tempDate);            
             this.hideTimeTable();
             await this.showManager();
+            workersDiv.classList.add("d-none");
         }
         this.showDuration();
         this.showLaborCost();
@@ -997,16 +859,6 @@
         this.setControlsState();
         this.getOperationTypeHint();
 
-        // Make search on every letter change in #card-operation.dropdown-toggle
-        // also on change if nearest selected-worker-id is not empty delete data from it and post to api
-        // also change list of items in #card-operation.dropdown-menu
-
-        //const workerInput = document.getElementById("worker-input");
-
-        //workerInput.onkeyup = this.dropdownToggleHandler.bind(this);
-        //workerInput.onclick = this.dropdownToggleHandler.bind(this);
-        //workerInput.onblur = this.workerInputLeave.bind(this);
-
         const showOperationTypeNoteButton = document.getElementById("operation-type-note-button");
         const closeOperationTypeNoteSpan = document.getElementById("operation-type-note-close-span");
 
@@ -1014,13 +866,6 @@
         closeOperationTypeNoteSpan.onclick = this.hideOperationTypeNote.bind(this);
 
         window.onclick = this.windowClick.bind(this);
-    }
-
-    addWorkerClick(element) {
-        alert(element.textContent);
-    }
-
-    removeWorkerClick() {
     }
 }
 

@@ -5,11 +5,9 @@ namespace TSLog.Yard.WebUI.Models
     public class WorkersModel
     {
         public bool IsEnabled { get; private set; }
-        public Position[] Positions { get; private set; }
-        public WorkersModel(bool isEnabled, Position[] positions)
+        public WorkersModel(bool isEnabled)
         {
             IsEnabled = isEnabled;
-            Positions = positions ?? throw new ArgumentNullException(nameof(positions));
         }
     }
 }

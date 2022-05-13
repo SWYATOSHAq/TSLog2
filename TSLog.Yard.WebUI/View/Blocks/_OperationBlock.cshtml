@@ -60,7 +60,7 @@
 
     var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
 
-    var workersModel = new WorkersModel(true, storage.GetLinePositions());
+    var workersModel = new WorkersModel(true);
 
     var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
     var createOperationOnclick = !isPartnerUser ? "operationPage.createOperation()" : "operationPage.createOperationByPartner()";
@@ -82,7 +82,7 @@
         else
         {
             <h1 class="text-info hide-on-print">
-                @Partner.Serialize(operation.GetPartners())
+                №@operation.Id (@Partner.Serialize(operation.GetPartners()))
                 <br />
                 @operation.State?.DisplayName
                 <br />

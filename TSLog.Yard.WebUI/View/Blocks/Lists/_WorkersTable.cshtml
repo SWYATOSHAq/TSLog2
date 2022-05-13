@@ -5,103 +5,17 @@
 @model WorkersModel
 @{
     var isEnabled = Model.IsEnabled;
-    var positions = Model.Positions;
 }
 
-<div id="workers-div" style="margin-top: 16px; margin-bottom: 16px">
-    <div class="row" style="padding: 0; margin: 0; justify-content: center">
-        <button id="remove-worker-button" class="btn btn-outline-success" style="width: 48px; padding: 0; margin: 0; margin-right: 4px">&#x27F8;</button>
-        <button id="add-worker-button" class="btn btn-outline-success" style="width: 48px; padding: 0; margin: 0; margin-left: 4px">&#x27F9;</button>
-    </div>
-    <div if="workers-filter-div" class="row" style="padding: 0; margin: 0; margin-top: 8px">
+<div id="workers-div" style="margin-top: 16px; margin-bottom: 16px">    
+    <div id="workers-filter-div" class="row" style="padding: 0; margin: 0; margin-top: 8px">
         <label for="worker-filter-input" style="width: auto; margin: 0; margin-right: 8px; padding: 0">Фильтр:</label>
         <input id="worker-filter-input" placeholder="Работник" class="form-control" style="width: 320px; padding: 0; margin: 0; text-align: center">
     </div>
     <div class="row" style="margin: 0; margin-top: 8px">            
-        <div id="all-workers-div" class="list-group" style="width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 1%">            
-            <!--
-            <button onclick="operationPage.addWorkerClick(this)"
-                type="button" class="list-group-item" style="text-align: left">Cras justo odio</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            -->
+        <div id="all-workers-div" class="list-group" style="width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%">            
         </div>
-        <div id="selected-workers-div" class="list-group" style="width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-left: 1%">
-            <!--
-            <button type="button" class="list-group-item" style="text-align: left">Cras justo odio</button>
-            <button type="button" class="list-group-item" style="text-align: left">Dapibus ac facilisis in</button>
-            <button type="button" class="list-group-item" style="text-align: left">Morbi leo risus</button>
-            <button type="button" class="list-group-item" style="text-align: left">Porta ac consectetur ac</button>
-            <button type="button" class="list-group-item" style="text-align: left">Vestibulum at eros</button>
-            -->
+        <div id="selected-workers-div" class="list-group" style="width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0">
         </div>
     </div>
 </div>
-
-<!--
-<table id="workers-table" class="table table-light" style="margin-top: 4px !important">
-    <thead>
-        <tr>
-            <th>Должность</th>
-            <th>ФИО ответственного</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody id="workers-tbody">
-        <tr>            
-            <td class="table-cell">
-                <select id="position-select" style="width: 100%">
-                    @foreach (var position in positions)
-                    {
-                        @: <option value="@position.Code">@position.DisplayName</option>                        
-                    }
-                </select>                
-            </td>
-            <td id="worker-name-td" class="table-cell">
-                <input id="worker-input" style="width: 100%">
-                <ul id="workers-names-ul" 
-                    class="dropdown-menu; d-none" 
-                    aria-labelledby="список сотрудников" 
-                    style="max-height: 10em; overflow: auto; position:absolute; background-color: white; display: block">
-                    <li class="dropdown-item"></li>
-                </ul>
-            </td>
-            <td class="table-cell">
-                <button class="btn btn-outline-info m-3 table-cell-button" 
-                    type="button" 
-                    onclick="">+</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
--->
