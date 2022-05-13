@@ -17,6 +17,7 @@
         result = utils.addParameter(result, "gate_code", "gates-select");
         result = utils.addParameter(result, "state_code", "operation-states-select");
         result = utils.addParameter(result, "partner_id", "partners-select");
+        result = utils.addParameter(result, "id_number", "id-number-input");
         result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
         result = utils.addParameter(result, "driver_name", "driver-name-input");
         result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
@@ -99,6 +100,9 @@
     }
 
     filterOperations() {
+        const idNumberInput = document.getElementById("id-number-input");
+        const idNumber = idNumberInput != undefined ? idNumberInput.value.toUpperCase() : "";
+
         const vehicleNumberInput = document.getElementById("vehicle-number-input");
         const vehicleNumber = vehicleNumberInput != undefined ? vehicleNumberInput.value.toUpperCase() : "";
 
@@ -124,6 +128,10 @@
             }
             const partnersSelect = document.getElementById("partners-select");
             if (partnersSelect != undefined && partnersSelect.value != "" && operation.partnerId != partnersSelect.value) {
+                continue;
+            }
+
+            if (!operation.id.toString().includes(idNumber)) {
                 continue;
             }
 
@@ -244,6 +252,7 @@
         viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("id-number-input", utils.getUrlParameter("id_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
         viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));

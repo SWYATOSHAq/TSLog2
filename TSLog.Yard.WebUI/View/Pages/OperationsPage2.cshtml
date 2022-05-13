@@ -52,7 +52,7 @@
 
     var operarationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
     var filtersModel = new OperationsFiltersBlockModel(canFilterOperationsByDate, 
-        operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, 
+        operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, true, 
         canFilterOperationsByVehicle, canFilterOperationsByDriver, canFilterOperationsByPartnerActionId, true);
 }
 
