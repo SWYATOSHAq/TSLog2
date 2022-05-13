@@ -27,7 +27,7 @@
     blocks = [];
     doDisplay = false;
 
-    allWorkers = [];
+    liearWorkers = [];
     selectedWorkers = [];
     selectedWorkersIds = new Set([]);
 
@@ -511,10 +511,26 @@
     }
 
     // #region Workers
-    async getAllWorkers() {
-        const response = await api.getAllWorkers()
+    showWorkersDivs() {
+        let workersDiv = document.getElementById("linear-workers-div");
+        if (workersDiv.childElementCount < 8) {
+            workersDiv.style.cssText = "width: 49%; height: 320px; padding: 0; margin: 0; margin-right: 2%";
+        } else {
+            workersDiv.style.cssText = "width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+        }
+
+        workersDiv = document.getElementById("selected-workers-div");
+        if (workersDiv.childElementCount < 8) {
+            workersDiv.style.cssText = "width: 49%; height: 320px; padding: 0; margin: 0";
+        } else {
+            workersDiv.style.cssText = "width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0";
+        }
+    }
+
+    async getLinearWorkers() {
+        const response = await api.getLinearWorkers();
         if (response.code === 0) {
-            this.allWorkers = response.data;
+            this.liearWorkers = response.data;
         }
         else {
             console.log(response.message);
@@ -522,10 +538,10 @@
     }
 
     onChangeWorkersFilter() {
-        this.showAllWorkers();
+        this.showLinearWorkers();
     }
 
-    async onWorkerClick(button) {
+    async onLinearWorkerClick(button) {
         const operationId = document.getElementById("id-input").value;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
@@ -533,27 +549,37 @@
                 
         await this.getSelectedWorkers();
         this.showSelectedWorkers();
-        this.showAllWorkers();
+        this.showLinearWorkers();
+
+        this.showWorkersDivs();
     }
 
-    showWorker(worker, button) {
+    showLinearWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important";
         button.dataset.workerId = worker.id;
-        button.dataset.positionCode = "EXT_LOADER";
-        button.textContent = worker.fullName;
+        button.dataset.positionCode = worker.positionCode;
+        button.dataset.positionName = worker.positionName;
+        button.dataset.positionShortName = worker.positionShortName;
+        button.append("[" + worker.positionShortName + "] ");
+        const workerFullNameB = document.createElement("b");
+        workerFullNameB.textContent = worker.fullName;
+        button.append(workerFullNameB);
         button.onclick = () => {
-            this.onWorkerClick(button);
+            this.onLinearWorkerClick(button);
         } 
     }
 
-    showAllWorkers() {
-        const allWorkersDiv = document.getElementById("all-workers-div");
+    showLinearWorkers() {
+        const allWorkersDiv = document.getElementById("linear-workers-div");
         allWorkersDiv.replaceChildren();
         const namePattern = document.getElementById("worker-filter-input").value.trim().toLowerCase();
-        for (let worker of this.allWorkers) {
-            if (namePattern != "" && !worker.fullName.toLowerCase().includes(namePattern)) {
+        for (let worker of this.liearWorkers) {
+            if (namePattern != ""
+                && !worker.fullName.toLowerCase().includes(namePattern)
+                && !worker.positionName.toLowerCase().includes(namePattern)
+                && !worker.positionShortName.toLowerCase().includes(namePattern)) {
                 continue;
             }
             if (this.selectedWorkersIds.has(worker.id)) {
@@ -561,13 +587,14 @@
             }
 
             const button = document.createElement("button");
-            this.showWorker(worker, button);
+            this.showLinearWorker(worker, button);
             allWorkersDiv.append(button);
         }
     }
 
     async getSelectedWorkers() {
-        const response = await api.getOperationWorkers(this.getOperationId())
+        const response = await api.getOperationWorkers(this.getOperationId());
+        this.selectedWorkersIds.clear();
         if (response.code === 0) {
             this.selectedWorkers = response.data;
             for (let worker of this.selectedWorkers) {
@@ -576,7 +603,6 @@
         }
         else {
             this.selectedWorkers = [];
-            this.selectedWorkersIds.clear();
             console.log(response.message);
         }
     }
@@ -589,7 +615,9 @@
 
         await this.getSelectedWorkers();
         this.showSelectedWorkers();
-        this.showAllWorkers();
+        this.showLinearWorkers();
+
+        this.showWorkersDivs();
     }
 
     showSelectedWorker(worker, button) {
@@ -598,10 +626,13 @@
         button.style.cssText = "text-align: left";
         button.dataset.workerId = worker.id;
         button.dataset.positionCode = worker.positionCode;
-        button.textContent = worker.fullName;
+        button.append("[" + worker.positionShortName + "] ");
+        const workerFullNameB = document.createElement("b");
+        workerFullNameB.textContent = worker.fullName;
+        button.append(workerFullNameB);
         button.onclick = () => {
             this.onSelectedWorkerClick(button);
-        }
+        }       
     }
 
     showSelectedWorkers() {
@@ -817,10 +848,10 @@
                 this.showSelectedWorkers();
                 const workersFieldset = document.getElementById("workers-fieldset");
                 const workersFilterDiv = document.getElementById("workers-filter-div");
-                const allWorkersDiv = document.getElementById("all-workers-div");
+                const allWorkersDiv = document.getElementById("linear-workers-div");
                 if (this.stateCode === "STARTED") {
-                    await this.getAllWorkers();
-                    this.showAllWorkers();
+                    await this.getLinearWorkers();
+                    this.showLinearWorkers();
                     workersFieldset.disabled = false;
                     workersFilterDiv.classList.remove("d-none");
                     allWorkersDiv.classList.remove("d-none")
@@ -829,6 +860,7 @@
                     workersFilterDiv.classList.add("d-none");
                     allWorkersDiv.classList.add("d-none")
                 }
+                this.showWorkersDivs();
             } else {
                 workersDiv.classList.add("d-none");
             }

@@ -220,6 +220,24 @@
         }
     }
 
+    async getLinearWorkers() {
+        const url = "./api/v1/yard/LinearWorkers";
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return {
+                code: 0,
+                data: await response.json()
+            };
+        }
+        else {
+            const message = await response.text();
+            return {
+                code: 9999,
+                message: message
+            };
+        }
+    }
+
     async getAllWorkers() {
         const url = "./api/v1/yard/AllWorkers";
         const response = await fetch(url);

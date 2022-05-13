@@ -1347,6 +1347,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.positionName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ? 
                 employee.MajorPosition.Name : 
                 string.Empty;
+            result.positionShortName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
+                employee.MajorPosition.ShortName :
+                string.Empty;
             return result;
         }
         private static dynamic[] EmployeesToDynamic(Employee[] employees)
@@ -1368,6 +1371,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.positionId = operationWorker.Position.Id;
             result.positionCode = operationWorker.Position.Code;
             result.positionName = operationWorker.Position.Name;
+            result.positionShortName = operationWorker.Position.ShortName;
             return result;
         }
         private static dynamic[] OperationWorkersToDynamic(Operation.OperationEmployee[] operationWorkers)
@@ -1433,6 +1437,31 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var position = _storage.GetPosition(stringPositionCode);
                 var workers = _storage.FindEmployees(position, stringNamePattern);
+                var objects = EmployeesToDynamic(workers);
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("LinearWorkers")]
+        public string GetLinearWorkers()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getWorkers = _rightsChecker.CheckRight("GET_LINEAR_WORKERS", User);
+                if (_useAuthentication && !useYard && !getWorkers)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var workers = _storage.GetLinearEmployees();
                 var objects = EmployeesToDynamic(workers);
                 var text = JsonSerializer.Serialize(objects);
                 Response.StatusCode = 200;
