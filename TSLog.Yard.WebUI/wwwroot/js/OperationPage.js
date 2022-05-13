@@ -560,6 +560,8 @@
         button.style.cssText = "text-align: left !important";
         button.dataset.workerId = worker.id;
         button.dataset.positionCode = worker.positionCode;
+        button.dataset.positionName = worker.positionName;
+        button.dataset.positionShortName = worker.positionShortName;
         button.append("[" + worker.positionShortName + "] ");
         const workerFullNameB = document.createElement("b");
         workerFullNameB.textContent = worker.fullName;
@@ -574,7 +576,10 @@
         allWorkersDiv.replaceChildren();
         const namePattern = document.getElementById("worker-filter-input").value.trim().toLowerCase();
         for (let worker of this.liearWorkers) {
-            if (namePattern != "" && !worker.fullName.toLowerCase().includes(namePattern)) {
+            if (namePattern != ""
+                && !worker.fullName.toLowerCase().includes(namePattern)
+                && !worker.positionName.toLowerCase().includes(namePattern)
+                && !worker.positionShortName.toLowerCase().includes(namePattern)) {
                 continue;
             }
             if (this.selectedWorkersIds.has(worker.id)) {
