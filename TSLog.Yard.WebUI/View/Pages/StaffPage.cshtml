@@ -2,11 +2,22 @@
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
 @model StaffPageModel
 @{
     ViewData["Title"] = "Распределение людей";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
+
+    var viewGatesPage = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN_PAGE", User);
+    if (!viewGatesPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
     
     var displayCollumns = new List<string>();
     int startTime = 9;
@@ -181,10 +192,10 @@
                 {
                     pageBreakClass = "page-break-after";
                 }
-                var operationModel = new OperationModel(rightsChecker, storage, operation, false);
-                <div class="operation @pageBreakClass">
-                    <partial name="Blocks/_OperationBlock" model="operationModel" />
-                </div>
+                //var operationModel = new OperationModel(rightsChecker, storage, operation, false);
+                //<div class="operation @pageBreakClass">
+                //    <partial name="Blocks/_OperationBlock" model="null" />
+                //</div>
                 j++;
             }
         </div>

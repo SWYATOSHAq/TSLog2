@@ -17,10 +17,10 @@
     var canCreateOperation = !useAuthentication 
         || rightsChecker.CheckRight("CREATE_OPERATION", User)
         || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
-    var canViewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN", User);
-    var canViewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN", User);
-    var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User);
-    var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+    var canViewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN_PAGE", User);
+    var canViewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN_PAGE", User);
+    var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT_PAGE", User);
+    var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_PRESENT_VEHICLES_PAGE", User);
     var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
     var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);

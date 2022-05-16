@@ -248,6 +248,7 @@
             let row = document.createElement("div");
             row.classList.add("row");
             row.classList.add("table-1hr-row");
+            row.style.cssText = "padding: 0; margin: 0";
             for (let blockIndex = 0; blockIndex < this.hourBlocksCount; blockIndex++) {
                 const button = document.createElement("button");
                 button.classList.add("btn");

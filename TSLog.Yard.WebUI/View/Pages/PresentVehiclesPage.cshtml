@@ -16,7 +16,7 @@
     var storage = Model.Storage;
 
     var viewPresentVehiclesPage = !useAuthentication || 
-        rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_ACTIVE_OPERATIONS", User);
+        rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_PRESENT_VEHICLES_PAGE", User);
     if (!viewPresentVehiclesPage)
     {        
         Response.StatusCode = 403;
