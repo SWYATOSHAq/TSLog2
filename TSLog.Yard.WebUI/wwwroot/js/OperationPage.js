@@ -839,32 +839,34 @@
             }
             await this.showManager();
 
-            const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
-            if (states.includes(this.stateCode)) {
-                workersDiv.classList.remove("d-none");
+            if (workersDiv != null && workersDiv != undefined) {
+                const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
+                if (states.includes(this.stateCode)) {
+                    workersDiv.classList.remove("d-none");
 
-                const workersFilterInput = document.getElementById("worker-filter-input");
-                workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
+                    const workersFilterInput = document.getElementById("worker-filter-input");
+                    workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
 
-                await this.getSelectedWorkers();
-                this.showSelectedWorkers();
-                const workersFieldset = document.getElementById("workers-fieldset");
-                const workersFilterDiv = document.getElementById("workers-filter-div");
-                const allWorkersDiv = document.getElementById("linear-workers-div");
-                if (this.stateCode === "STARTED") {
-                    await this.getLinearFreeWorkers();
-                    this.showLinearFreeWorkers();
-                    workersFieldset.disabled = false;
-                    workersFilterDiv.classList.remove("d-none");
-                    allWorkersDiv.classList.remove("d-none")
+                    await this.getSelectedWorkers();
+                    this.showSelectedWorkers();
+                    const workersFieldset = document.getElementById("workers-fieldset");
+                    const workersFilterDiv = document.getElementById("workers-filter-div");
+                    const allWorkersDiv = document.getElementById("linear-workers-div");
+                    if (this.stateCode === "STARTED") {
+                        await this.getLinearFreeWorkers();
+                        this.showLinearFreeWorkers();
+                        workersFieldset.disabled = false;
+                        workersFilterDiv.classList.remove("d-none");
+                        allWorkersDiv.classList.remove("d-none")
+                    } else {
+                        workersFieldset.disabled = true;
+                        workersFilterDiv.classList.add("d-none");
+                        allWorkersDiv.classList.add("d-none")
+                    }
+                    this.showWorkersDivs();
                 } else {
-                    workersFieldset.disabled = true;
-                    workersFilterDiv.classList.add("d-none");
-                    allWorkersDiv.classList.add("d-none")
+                    workersDiv.classList.add("d-none");
                 }
-                this.showWorkersDivs();
-            } else {
-                workersDiv.classList.add("d-none");
             }
         } else {
             this.planWorkStartDate = utils.nullDate;
@@ -876,7 +878,9 @@
             workStartDatePicker.datepicker("setDate", tempDate);            
             this.hideTimeTable();
             await this.showManager();
-            workersDiv.classList.add("d-none");
+            if (workersDiv != null && workersDiv != undefined) {
+                workersDiv.classList.add("d-none");
+            }
         }
         this.showDuration();
         this.showLaborCost();
