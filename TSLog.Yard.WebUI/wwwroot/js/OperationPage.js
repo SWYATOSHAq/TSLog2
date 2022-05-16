@@ -678,7 +678,7 @@
     showOperationsPage() {
         let operationsPageUrl = sessionStorage.getItem("OPERATIONS_PAGE_URL");
         if (operationsPageUrl == null || operationsPageUrl == "")
-            operationsPageUrl = "/OperationsPage"
+            operationsPageUrl = "/OperationsPage2"
         location.href = operationsPageUrl;
     }
 

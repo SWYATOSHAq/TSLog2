@@ -180,19 +180,16 @@
     showOperations() {
         const operationsTbody = document.getElementById("active-operations-tbody");
         let operationTr = null;
-        let index = 0;
         if (this.sortDirection === "forward") {
             for (let operation of this.sortedOperations) {
                 operationTr = document.createElement("tr");
-                index++;
-                this.showOperation(index, operation, operationTr);
+                this.showOperation(operation, operationTr);
                 operationsTbody.append(operationTr);
             }
         } else if (this.sortDirection === "reverse") {
             for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
                 operationTr = document.createElement("tr");
-                index++;
-                this.showOperation(index, this.sortedOperations[i], operationTr);
+                this.showOperation(this.sortedOperations[i], operationTr);
                 operationsTbody.append(operationTr);
             }
         }
