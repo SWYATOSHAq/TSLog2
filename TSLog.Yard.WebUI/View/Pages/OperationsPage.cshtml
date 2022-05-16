@@ -15,7 +15,7 @@
 }
 @{
     var viewOperationsPage = !useAuthentication || 
-        rightsChecker.CheckRight("USE_YARD", User) && (rightsChecker.CheckRight("VIEW_OPERATIONS", User) 
+        rightsChecker.CheckRight("USE_YARD", User) && (rightsChecker.CheckRight("VIEW_OPERATIONS_PAGE", User) 
             || rightsChecker.CheckRight("VIEW_OPERATIONS_FOR_PARTNER", User));
     if (!viewOperationsPage)
     {        

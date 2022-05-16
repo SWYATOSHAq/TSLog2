@@ -13,7 +13,18 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
 @{
-    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var viewOperationsPage = !useAuthentication || 
+        rightsChecker.CheckRight("USE_YARD", User) && (rightsChecker.CheckRight("VIEW_OPERATIONS_PAGE", User));
+    if (!viewOperationsPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
+
+    var createOperation = !useAuthentication 
+        || rightsChecker.CheckRight("CREATE_OPERATION", User) 
+        || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+    var canFilterOperationsById = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_ID", User);
     var canFilterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
     var canFilterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
     var canFilterOperationsByVehicleKind = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_KIND", User);
@@ -52,15 +63,18 @@
 
     var operarationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
     var filtersModel = new OperationsFiltersBlockModel(canFilterOperationsByDate, 
-        operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, true, 
+        operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, canFilterOperationsById, 
         canFilterOperationsByVehicle, canFilterOperationsByDriver, canFilterOperationsByPartnerActionId, true);
 }
 
-<div class="row create-operation-div">
-    <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-        type="button" 
-        title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
-        onclick="location.href = '/OperationPage'">Создать заявку</button>
-</div>    
+@if (createOperation)
+{
+    <div class="row create-operation-div">
+        <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
+            type="button" 
+            title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
+            onclick="location.href = '/OperationPage'">Создать заявку</button>
+    </div>        
+}
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
 <partial name="Blocks/Lists/_OperationsTable" model="operarationsModel" />

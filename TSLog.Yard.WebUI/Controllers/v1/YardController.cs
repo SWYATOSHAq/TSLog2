@@ -1335,7 +1335,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpDelete("DeleteOperation")]
 
         #region Operation workers
-        private static dynamic EmployeeToDynamic(Employee employee, bool isBusy) 
+        private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false) 
         {
             dynamic result = new ExpandoObject();
             result.id = employee.Id;
@@ -1364,7 +1364,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             var result = new List<dynamic>();
             foreach (var employee in employees)
-                result.Add(EmployeeToDynamic(employee, false));
+                result.Add(EmployeeToDynamic(employee));
             return result.ToArray();
         }
         private static dynamic OperationWorkerToDynamic(Operation.OperationEmployee operationWorker)

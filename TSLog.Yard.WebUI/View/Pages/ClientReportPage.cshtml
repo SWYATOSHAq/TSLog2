@@ -16,7 +16,7 @@
     var rightsChecker = Model.RightsChecker;
 
     var viewClientReportPage = !useAuthentication 
-        || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_PARTNERS_REPORT", User));
+        || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_PARTNERS_REPORT_PAGE", User));
     if (!viewClientReportPage)
     {        
         Response.StatusCode = 403;

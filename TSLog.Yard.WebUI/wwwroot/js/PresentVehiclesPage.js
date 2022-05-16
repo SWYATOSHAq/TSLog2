@@ -43,7 +43,7 @@
         }
     }
 
-    showOperation(index, operation, operationTr) {
+    showOperation(operation, operationTr) {
         operationTr.classList.add("table-row");
 
         viewUtils.createRowHeader(operationTr, ["table-cell"], [operation.id]);
