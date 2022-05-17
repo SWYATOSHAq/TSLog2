@@ -164,5 +164,30 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             var text = JsonSerializer.Serialize(objects);
             return text;
         }
+        [HttpGet("PositionsShiftReport")]
+        public string PositionsShiftReport()
+        {
+            string stringDate = Request.Query["date"];
+            var date = DateTime.Now;
+            if (!string.IsNullOrWhiteSpace(stringDate))
+            {
+                stringDate = stringDate.Trim();
+                if (!DateTime.TryParse(stringDate, out date))
+                    return $"Wrong to date {stringDate}";
+            }
+            string shift = Request.Query["shift"];
+            if (string.IsNullOrWhiteSpace(shift))
+                shift = "day";
+            shift = shift.Trim().ToLower();
+            if (shift != "day" && shift != "night")
+                return $"Unknown shift {shift}";
+
+            date = shift == "day" ? date.Date.AddHours(15) : date.Date.AddHours(27);
+
+            var data = _storage.CreatePositionsShiftReport(date);
+            var text = JsonSerializer.Serialize(data);
+            Response.StatusCode = 200;
+            return text;
+        }
     }
 }

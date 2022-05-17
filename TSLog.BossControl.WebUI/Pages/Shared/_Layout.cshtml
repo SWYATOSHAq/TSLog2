@@ -1,8 +1,6 @@
-﻿@{
-    var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
-}
-@inject IConfiguration Configuration
+﻿@inject IConfiguration Configuration
 @{
+    var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
     var release = Configuration.GetValue<string>("Release");
     var userName = User.Identity?.Name;
     if (string.IsNullOrWhiteSpace(userName))
@@ -15,7 +13,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TSLog.BossControl.WebUI</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css" />    
     <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TSLog.BossControl.WebUI.styles.css" asp-append-version="true" />
     @if (page == "BusyWorkers")
@@ -50,7 +49,7 @@
                     <a class="nav-link text-dark" asp-area="" asp-page="/FreeShiftWorkers">Свободные на смене</a>
                     <a class="nav-link text-dark" asp-area="" asp-page="/PositionsShiftReport">Отчёт за смену</a>
                 </div>
-                <div>Вы вошли как @userName</div> <!--  class="nav navbar-text" -->
+                <div>Вы вошли как @userName</div>
             </div>
         </div>
     </div>
@@ -69,16 +68,22 @@
                 Версия&nbsp;<b>@release</b>
             </div>
             <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
-                &copy;&nbsp;2022&nbsp;-&nbsp;БоссКонтроль&nbsp;-&nbsp;<a asp-area="" asp-page="/Privacy">Privacy</a>
+                &copy;&nbsp;2022&nbsp;-&nbsp;БоссКонтроль&nbsp;-&nbsp;<a asp-area="" asp-page="/Privacy">Конфиденциальность</a>
             </div>
         </div>
     </div>
 
+    <!-- External libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/Common.js" asp-append-version="true"></script>
-    <script src="~/js/CommonView.js" asp-append-version="true"></script>
-    <script src="~/js/Api.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/datepicker/bootstrap-datepicker.js"></script>
+    <script src="~/lib/datepicker/bootstrap-datepicker.ru.min.js"></script>
+
+    <!-- Common scriprs -->
+    <script type="text/javascript" src="~/js/Common.js"></script>
+    <script type="text/javascript" src="~/js/CommonView.js"></script>
+    <script type="text/javascript" src="~/js/Api.js"></script>
+
     @if (page == "BusyWorkers")
     {
         <script src="~/js/BusyWorkers.js" asp-append-version="true"></script>    
@@ -90,6 +95,10 @@
     else if (page == "FreeShiftWorkers")
     {
         <script src="~/js/FreeShiftWorkers.js" asp-append-version="true"></script>    
+    }
+    else if (page == "PositionsShiftReport")
+    {
+        <script src="~/js/PositionsShiftReport.js" asp-append-version="true"></script>    
     }
 
     @await RenderSectionAsync("Scripts", required: false)

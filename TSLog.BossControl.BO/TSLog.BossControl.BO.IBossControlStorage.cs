@@ -13,5 +13,7 @@ namespace TSLog.BossControl.BO
 
         public void EnterSite(Employee worker, Site site, Partner partner, string note = "");
         public void LeaveSite(Employee worker);
+
+        public dynamic[] CreatePositionsShiftReport(DateTime date);
     }
 }
