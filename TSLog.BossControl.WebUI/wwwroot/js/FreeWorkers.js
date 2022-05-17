@@ -32,6 +32,7 @@
         enterButton.classList.add("m-3");
         enterButton.classList.add("table-cell-button");
         enterButton.textContent = "Назначить на уч.";
+        enterButton.style.cssText = "width: 160px";
         enterButton.onclick = this.createEnter(worker.id);
         viewUtils.createCell(tr, ["table-cell"], [enterButton]);
 

@@ -4,6 +4,9 @@
 @inject IConfiguration Configuration
 @{
     var release = Configuration.GetValue<string>("Release");
+    var userName = User.Identity?.Name;
+    if (string.IsNullOrWhiteSpace(userName))
+        userName = "<Разработчик>";
 }
 
 <!DOCTYPE html>
@@ -27,54 +30,49 @@
     {
         <link rel="stylesheet" href="~/css/FreeShiftWorkers.css" asp-append-version="true" />
     }
+    else if (page == "PositionsShiftReport")
+    {
+        <link rel="stylesheet" href="~/css/PositionsShiftReport.css" asp-append-version="true" />
+    }
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
+    <div style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
+        <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+            <div style="margin: 0; padding: 0">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">
                     <img src="/img/logo-min.png" alt="TSL">
                 </a>
-                <button class="navbar-toggler" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target=".navbar-collapse" 
-                    aria-controls="navbarSupportedContent" 
-                    aria-expanded="false" 
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/BusyWorkers">Занятые работники</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/FreeWorkers">Свободные работники</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/FreeShiftWorkers">Свободные работники (на смене)</a>
-                        </li>
-                    </ul>
-                    <p class="nav navbar-text">Вы вошли как @User.Identity?.Name</p>
-                </div>
             </div>
-        </nav>
-    </header>
-    <div class="container main-div">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <div style="display: flex; align-items: center">
+                <div style="margin-right: 48px; display: flex">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/BusyWorkers">Занятые</a>
+                    <a class="nav-link text-dark" asp-area="" asp-page="/FreeWorkers">Свободные</a>
+                    <a class="nav-link text-dark" asp-area="" asp-page="/FreeShiftWorkers">Свободные на смене</a>
+                    <a class="nav-link text-dark" asp-area="" asp-page="/PositionsShiftReport">Отчёт за смену</a>
+                </div>
+                <div>Вы вошли как @userName</div> <!--  class="nav navbar-text" -->
+            </div>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted common-footer">
-        <div class="container footer-div">
-            Версия <b>@release</b>
+    <div style="margin: 0; padding: 0.5% 1%">
+        <div class="container" style="margin: auto; padding: 0; width: fit-content; max-width:100%">
+            <main role="main">
+                @RenderBody()
+            </main>
         </div>
-        <div class="container footer-div">
-            &copy; 2022 - БоссКонтроль - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    </div>
+
+    <div style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
+        <div style="margin: auto; padding: 0; width: fit-content">
+            <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+                Версия&nbsp;<b>@release</b>
+            </div>
+            <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+                &copy;&nbsp;2022&nbsp;-&nbsp;БоссКонтроль&nbsp;-&nbsp;<a asp-area="" asp-page="/Privacy">Privacy</a>
+            </div>
         </div>
-    </footer>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

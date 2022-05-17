@@ -1,0 +1,27 @@
+﻿@page "/PositionsShiftReport"
+@model TSLog.BossControl.WebUI.Pages.PositionsShiftReportModel
+@{
+    ViewData["Title"] = "Отчёт за смену по должностям";
+}
+
+<div class="table-div"> 
+    <b>Отчёт за смену по должностям</b>
+    <table class="table table-light table-bordered table-striped" style="margin: 0; padding: 0">
+        <thead>
+            <tr>
+                <th class="table-column-header" rowspan="2">Должность</th>
+                <th class="table-column-header" colspan="4">Босс контроль</th>
+            </tr>
+            <tr>
+                <th class="table-column-header">Факт. (ч. * см.)</th>
+                <th class="table-column-header">Норм. (ч. * см.)</th>
+                <th class="table-column-header">Эффективность</th>
+                <th class="table-column-header">Потери</th>                
+            </tr>
+        </thead>
+        <tbody id="report-tbody">
+        </tbody>
+    </table>
+</div>
+
+				

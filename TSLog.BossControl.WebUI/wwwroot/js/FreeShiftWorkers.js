@@ -34,6 +34,7 @@
         enterButton.classList.add("btn-outline-info");
         enterButton.classList.add("m-3");
         enterButton.classList.add("table-cell-button");
+        enterButton.style.cssText = "width: 160px";
         enterButton.textContent = "Назначить на уч.";
         enterButton.onclick = this.createEnter(siteWorker.worker.id);
         viewUtils.createCell(tr, ["table-cell"], [enterButton]);

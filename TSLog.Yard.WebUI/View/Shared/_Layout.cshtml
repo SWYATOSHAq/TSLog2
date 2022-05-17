@@ -108,10 +108,10 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="/OperationsPage2?from_date=@date&to_date=@date">ЛК ТСЛ</a>
                         </li>
-                        @if (canCreateOperation && page != "OperationsPage2")
+                        @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="/OperationPage2">Cоздать заявку</a>
+                                <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
                             </li>
                         }                        
                         @if (canViewStaffPlan)

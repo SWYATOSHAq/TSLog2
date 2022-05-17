@@ -45,6 +45,7 @@
         leaveButton.classList.add("btn-outline-info");
         leaveButton.classList.add("m-3");
         leaveButton.classList.add("table-cell-button");
+        leaveButton.style.cssText = "width: 160px";
         leaveButton.textContent = "Снять с участка";
         leaveButton.onclick = this.createLeave(siteWorker.worker.id, workerFullName);
         viewUtils.createCell(tr, ["table-cell"], [leaveButton]);
