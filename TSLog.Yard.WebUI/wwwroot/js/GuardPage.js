@@ -33,10 +33,34 @@
         operationsTbody.replaceChildren();
     }
 
+    createOpenOperationFunction(id) {
+        return function () {
+            sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
+            location.href = "/OperationPage?id=" + id;
+        }
+    }
+
     showOperation(operation, operationTr) {
         operationTr.classList.add("table-row");
 
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.id]);
+        let contents = [];
+        const openP = document.createElement("p");
+        openP.classList.add("text-center");
+        openP.classList.add("p-margin-0");
+        openP.textContent = operation.id;
+        contents = [openP];
+
+        const openButton = document.createElement("button");
+        openButton.classList.add("btn");
+        openButton.classList.add("btn-outline-info");
+        openButton.classList.add("m-3");
+        openButton.classList.add("table-cell-button");
+        openButton.style.cssText = "width: 100px !important";
+        openButton.onclick = this.createOpenOperationFunction(operation.id);
+        openButton.textContent = "Открыть";
+        contents.push(openButton);
+
+        viewUtils.createCell(operationTr, ["table-cell"], contents);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
@@ -49,7 +73,7 @@
         viewUtils.createCell(operationTr, ["table-cell"], [startDate]);
 
         date = new Date(operation.planWorkStartDate);
-        let contents = [date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString()];
+        contents = [date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString()];
         date = new Date(operation.factWorkStartDate);
         if (date > utils.nullDate) {
             contents.push(document.createElement("br"));
@@ -71,6 +95,7 @@
         passVehicleButton.classList.add("btn-outline-info");
         passVehicleButton.classList.add("m-3");
         passVehicleButton.classList.add("table-cell-button");
+
         if (operation.stateCode == "CONFIRMED") {
             passVehicleButton.onclick = this.createLetVehicleIn(operation.id);
             passVehicleButton.textContent = "Впустить";
@@ -249,6 +274,8 @@
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+        const header = document.getElementById("header2");
+        header.textContent = header.textContent + " (всего машин - " + this.operations.length + ")";
         
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
