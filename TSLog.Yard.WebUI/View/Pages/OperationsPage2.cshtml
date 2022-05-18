@@ -61,10 +61,21 @@
         var partnerId = rightsChecker.GetPartnerIdByUser(userName);
     }
 
-    var operarationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
+    var operationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
     var filtersModel = new OperationsFiltersBlockModel(canFilterOperationsByDate, 
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, canFilterOperationsById, 
         canFilterOperationsByVehicle, canFilterOperationsByDriver, canFilterOperationsByPartnerActionId, true);
+    var sortFields = new Dictionary<string, string>();
+    sortFields.Add("driverName", "Водитель (Ф. И. О.)");
+    sortFields.Add("partnerId", "Клиент");
+    sortFields.Add("vehicleBrand", "Марка Т/С");
+    sortFields.Add("vehicleNumber", "Номер Т/С");
+    sortFields.Add("startDate", "Прибытие на КПП");
+    sortFields.Add("planWorkStartDate", "Начало работ (план)");
+    sortFields.Add("factWorkStartDate", "Начало работ (факт)");
+    sortFields.Add("responsibleOfficerName", "Инициатор допуска ТС");
+    sortFields.Add("stateId", "Состояние");
+    var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
 }
 
 @if (createOperation)
@@ -77,4 +88,5 @@
     </div>        
 }
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
-<partial name="Blocks/Lists/_OperationsTable" model="operarationsModel" />
+<partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+<partial name="Blocks/Lists/_OperationsTable" model="operationsModel" />

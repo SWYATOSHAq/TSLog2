@@ -159,6 +159,8 @@
                 return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
             case "responsibleOfficerName":
                 return operation1.responsibleOfficer.localeCompare(operation2.responsibleOfficer);
+            case "stateId":
+                return operation1.stateDisplayName.localeCompare(operation2.stateDisplayName);
         }
     }
 
