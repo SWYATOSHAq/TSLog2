@@ -153,6 +153,8 @@
                 return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
             case "startDate":
                 return (new Date(operation1.startDate)) - (new Date(operation2.startDate));
+            case "directionName":
+                return operation1.directionName.localeCompare(operation2.directionName);
             case "planWorkStartDate":
                 return (new Date(operation1.planWorkStartDate)) - (new Date(operation2.planWorkStartDate));
             case "factWorkStartDate":
