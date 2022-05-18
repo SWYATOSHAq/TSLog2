@@ -1333,6 +1333,41 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
         }
         [HttpDelete("DeleteOperation")]
+        async public Task<string> DeleteOperation()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var deleteOperation = _rightsChecker.CheckRight("DELETE_OPERATION", User);
+                if (_useAuthentication && !useYard && !deleteOperation)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringId = data.id;
+                if (string.IsNullOrWhiteSpace(stringId))
+                    return "Operation id is empty";
+
+                if (!long.TryParse(stringId, out long id))
+                    return $"Wrong operation id {stringId}";
+
+                var operation = _storage.GetOperation(id);
+                _storage.DeleteOperation(operation, _rightsChecker.GetUserName(User));
+                var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
 
         #region Operation workers
         private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false) 
@@ -1388,42 +1423,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             foreach (var operationWorker in operationWorkers)
                 result.Add(YardController.OperationWorkerToDynamic(operationWorker));
             return result.ToArray();
-        }
-        async public Task<string> DeleteOperation()
-        {
-            try
-            {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var deleteOperation = _rightsChecker.CheckRight("DELETE_OPERATION", User);
-                if (_useAuthentication && !useYard && !deleteOperation)
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string stringId = data.id;
-                if (string.IsNullOrWhiteSpace(stringId))
-                    return "Operation id is empty";
-
-                if (!long.TryParse(stringId, out long id))
-                    return $"Wrong operation id {stringId}";
-
-                var operation = _storage.GetOperation(id);
-                _storage.DeleteOperation(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
-        }
+        }        
         [HttpGet("PositionWorkers")]
         public string GetPositionWorkers()
         {

@@ -2,9 +2,10 @@
 @{
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
     var release = Configuration.GetValue<string>("Release");
-    var userName = User.Identity?.Name;
-    if (string.IsNullOrWhiteSpace(userName))
-        userName = "<Разработчик>";
+
+    var userName = "<Разработчик>";
+    if (User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
+        userName = User.Identity.Name.Split("\\").Last();
 }
 
 <!DOCTYPE html>
@@ -49,7 +50,7 @@
                     <a class="nav-link text-dark" asp-area="" asp-page="/FreeShiftWorkers">Свободные на смене</a>
                     <a class="nav-link text-dark" asp-area="" asp-page="/PositionsShiftReport">Отчёт за смену</a>
                 </div>
-                <div>Вы вошли как @userName</div>
+                <div>Вы вошли как: <b>@userName</b></div>
             </div>
         </div>
     </div>
