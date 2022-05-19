@@ -1,35 +1,19 @@
 ﻿class OperationsPage {
     shortUrl;
-
     operations = [];
+    sortedOperations = [];
+    sortField = "driverName";
+    sortDirection = "forward";
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
     }
-
-    // getPartnersNames(operation) {
-    //     let result = "";
-    //     for (let partner of operation.Partners) {
-    //         result += ((result.Length > 0) ? ", " : "") + partner.Name;
-    //     }
-    //     return result;
-    // }
-    //
-    // showOperationPage(id) {
-    //     location.href = "OperationPage?id=" + id;
-    // }
 
     openOperation(id) {
         sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
         const url = "OperationPage?id=" + id;
         location.href = url;
     }
-
-    // createOpenOperation(id) {
-    //     return function () {
-    //         this.openOperation(id);
-    //     }
-    // }
 
     createOpenOperationFunction(id) {
         return function () {
@@ -92,6 +76,7 @@
         viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.finishDate.toLocaleDateString()], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.gateShortName], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleKindShortName], "width: 10% !important; box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.note], "box-shadow: none; background-color: " + operation.displayColor);
     }
@@ -100,10 +85,12 @@
         switch (this.sortField) {
             case "driverName":
                 return operation1.driverName.localeCompare(operation2.driverName);
+            case "id":
+                return operation1.id - operation2.id;
             case "partnerId":
                 return operation1.partnerId.localeCompare(operation2.partnerId);
-            case "vehicleBrand":
-                return operation1.vehicleBrand.localeCompare(operation2.vehicleBrand);
+            case "gateCode":
+                return operation1.gateCode.localeCompare(operation2.gateCode);
             case "vehicleNumber":
                 return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
             case "startDate":
@@ -114,11 +101,16 @@
                 return (new Date(operation1.planWorkStartDate)) - (new Date(operation2.planWorkStartDate));
             case "factWorkStartDate":
                 return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
-            case "responsibleOfficerName":
-                return operation1.responsibleOfficer.localeCompare(operation2.responsibleOfficer);
+            case "finishDate":
+                return (new Date(operation1.finishDate)) - (new Date(operation2.finishDate));
             case "stateId":
                 return operation1.stateDisplayName.localeCompare(operation2.stateDisplayName);
         }
+    }
+
+    sortOperations(compare) {
+        this.sortedOperations = [...this.operations];
+        this.sortedOperations.sort(compare);
     }
 
     createParameters() {
@@ -167,10 +159,10 @@
         if (workerNameInput != undefined && workerNameInput.value != "") {
             result = result + "&worker=" + workerNameInput.value;
         }
-        //result += utils.addParameter(result, "sort_field", "sort-field-select");
-        //result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
+        result = utils.addParameter(result, "sort_field", "sort-field-select");
+        result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
-        return result;
+        return result
     }
 
     async getOperations() {        
@@ -181,24 +173,56 @@
     }
 
     clearOperations() {
-        this.operations = [];
         const container = document.getElementById("operations-table-body");
         container.replaceChildren();
     }
 
     showOperations() {
-        const operationsTBody = document.getElementById("operations-table-body");
-        for (let operation of this.operations) {
-            const operationTr = document.createElement("tr");
-            this.showOperation(operation, operationTr);
-            operationsTBody.appendChild(operationTr);
+        const operationsTbody = document.getElementById("operations-table-body");
+        let operationTr = null;
+        if (this.sortDirection === "forward") {
+            for (let operation of this.sortedOperations) {
+                operationTr = document.createElement("tr");
+                this.showOperation(operation, operationTr);
+                operationsTbody.append(operationTr);
+            }
+        } else if (this.sortDirection === "reverse") {
+            for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
+                operationTr = document.createElement("tr");
+                this.showOperation(this.sortedOperations[i], operationTr);
+                operationsTbody.append(operationTr);
+            }
         }
     }
 
     async onChangeFilter() {
         this.clearOperations();
         await this.getOperations();
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+    }
+
+    onChangeSortField() {
+        this.sortField = document.querySelector(".select_sort").value;
+        this.clearOperations();
+        this.sortOperations(this.sortCompare.bind(this));
+        this.showOperations();
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
+
+    onChangeSortDirection() {
+        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']:checked")
+        if (sortDirectionInputs[0].id === "forward-sort-input") {
+            this.sortDirection = "forward";
+        } else if (sortDirectionInputs[0].id === "reverse-sort-input") {
+            this.sortDirection = "reverse";
+        }
+        this.clearOperations();
+        this.showOperations();
+
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
     }
 
     getOperationTypeHint() {
@@ -231,16 +255,34 @@
 
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+
+        this.sortField = utils.getUrlParameter("sort_field");
+        if (this.sortField === "")
+            this.sortField = "driverName";
+        viewUtils.initSelect("sort-field-select", this.sortField, this.onChangeSortField.bind(this));
+
+        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']")
+        for (const sortDirectionInput of sortDirectionInputs) {
+            sortDirectionInput.onchange = this.onChangeSortDirection.bind(this);
+        }
+
+        this.sortDirection = utils.getUrlParameter("sort_direction");
+        if (this.sortDirection != "reverse")
+            this.sortDirection = "forward";
+        if (this.sortDirection === "forward")
+            document.getElementById("forward-sort-input").checked = true;
+        else
+            document.getElementById("reverse-sort-input").checked = true;
+
         viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
         viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
-
-        const url = this.shortUrl + this.createParameters();
-        history.pushState({}, null, url);
-
         await this.getOperations();
+        this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
 
         this.getOperationTypeHint();
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
     }
 }
 

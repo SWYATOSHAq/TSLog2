@@ -153,6 +153,8 @@
         switch (this.sortField) {
             case "driverName":
                 return operation1.driverName.localeCompare(operation2.driverName);
+            case "id":
+                return operation1.id - operation2.id;
             case "partnerId":
                 return operation1.partnerId.localeCompare(operation2.partnerId);
             case "vehicleBrand":

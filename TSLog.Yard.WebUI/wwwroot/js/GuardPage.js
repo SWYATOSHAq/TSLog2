@@ -145,6 +145,8 @@
         switch (this.sortField) {
             case "driverName":
                 return operation1.driverName.localeCompare(operation2.driverName);
+            case "id":
+                return operation1.id - operation2.id;
             case "partnerId":
                 return operation1.partnerId.localeCompare(operation2.partnerId);
             case "vehicleBrand":
@@ -195,7 +197,6 @@
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
-
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
@@ -206,7 +207,6 @@
         this.clearOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
-
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }

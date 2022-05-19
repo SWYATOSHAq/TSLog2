@@ -67,13 +67,14 @@
         canFilterOperationsByVehicle, canFilterOperationsByDriver, canFilterOperationsByPartnerActionId, true);
     var sortFields = new Dictionary<string, string>();
     sortFields.Add("driverName", "Водитель (Ф. И. О.)");
+    sortFields.Add("id", "№ заявки");
     sortFields.Add("partnerId", "Клиент");
-    sortFields.Add("vehicleBrand", "Марка Т/С");
+    sortFields.Add("gateCode", "№ ворот");
     sortFields.Add("vehicleNumber", "Номер Т/С");
     sortFields.Add("startDate", "Прибытие на КПП");
     sortFields.Add("planWorkStartDate", "Начало работ (план)");
     sortFields.Add("factWorkStartDate", "Начало работ (факт)");
-    sortFields.Add("responsibleOfficerName", "Инициатор допуска ТС");
+    sortFields.Add("finishDate", "Время убытия");
     sortFields.Add("stateId", "Состояние");
     var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
 }
