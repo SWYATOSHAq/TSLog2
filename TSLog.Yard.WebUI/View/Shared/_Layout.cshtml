@@ -11,7 +11,9 @@
 
     var isDebug = Configuration.GetValue<bool>("IsDebug");
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
-    var userName = User.Identity != null ? User.Identity.Name : string.Empty;
+    var userName = "<Разработчик>";
+    if (User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
+        userName = User.Identity.Name.Split("\\").Last();
     var debugText = $"(DEBUG {userName})";    
 
     var canCreateOperation = !useAuthentication 
@@ -88,92 +90,73 @@
 </head>
 
 <body>
-    <header class="hide-on-print">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
+    <div style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
+        <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+            <div style="margin: 0; padding: 0">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">
                     <img src="/img/logo-min.png" alt="TSL">
                 </a>
-                <button class="navbar-toggler" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target=".navbar-collapse" 
-                    aria-controls="navbarSupportedContent" 
-                    aria-expanded="false" 
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/OperationsPage2?from_date=@date&to_date=@date">ЛК ТСЛ</a>
-                        </li>
+            </div>
+            <div style="display: flex; align-items: center">
+                <div style="margin-right: 48px; display: flex">
+                        <a class="nav-link text-dark" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
                         @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
-                            </li>
-                        }                        
+                            <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
+                        }
                         @if (canViewStaffPlan)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/StaffPage?date=@date">План персонала</a>
-                            </li>
+                            <a class="nav-link text-dark" href="/StaffPage?date=@date">План персонала</a>
                         }
                         @if (canViewGatesPlan)
                         {
-                            <li class="nav-item">                            
-                                <a class="nav-link text-dark" href="/GatesPage?date=@date">План ворот</a>                            
-                            </li>
+                            <a class="nav-link text-dark" href="/GatesPage?date=@date">План ворот</a>                            
                         }
                         @if (canViewPartnersReport)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/ClientReportPage">Статистика затрат по клиентам</a>
-                            </li>
+                            <a class="nav-link text-dark" href="/ClientReportPage">Затраты по клиентам</a>
                         }
                         @if (canViewActiveOperations)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/PresentVehiclesPage">Машины во дворе</a>
-                            </li>
+                            <a class="nav-link text-dark" href="/PresentVehiclesPage">Машины во дворе</a>
                         }
                         @if (canViewGuardPage)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/GuardPage">Управление въездом/выездом</a>
-                            </li>
+                            <a class="nav-link text-dark" href="/GuardPage">Въезд/выезд</a>
                         }
                         @if (canViewLaborReportPage)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/LaborReportPage">Отчёт по трудозатратам</a>
-                            </li>
+                            <a class="nav-link text-dark" href="/LaborReportPage">Трудозатраты</a>
                         }
                         @if (canViewShiftLaborReportPage)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="/ShiftLaborReportPage">Отчёт по трудозатратам (за смену)</a>
-                            </li>
+                            <a class="nav-link text-dark" href="/ShiftLaborReportPage">Трудозатраты (за смену)</a>
                         }
-                    </ul>
                 </div>
+                <div>Вы вошли как: <b>@userName</b></div>
             </div>
-        </nav>
-    </header>
-    <div class="container rem-outline-on-print">
-        <main role="main" class="pb-3 rem-outline-on-print">
-            @RenderBody()
-        </main>
+        </div>
     </div>
-    <footer class="border-top footer text-muted hide-on-print">
-        <div class="container">
-            Версия <b>@release</b>
+
+    <div style="margin: 0; padding: 0.5% 1%">
+        <div class="container" style="margin: auto; padding: 0; width: fit-content; max-width:100%">
+            <main role="main" class="pb-3 rem-outline-on-print">
+                @RenderBody()
+            </main>
         </div>
-        <div class="container">
-            &copy; 2021-2022 - ТСЛ - <a asp-area="" asp-page="/Privacy">Приватность</a>
+    </div>
+
+    <div style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
+        <div style="margin: auto; padding: 0; width: fit-content">
+            <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+                Версия&nbsp;<b>@release</b>
+            </div>
+            <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+                &copy; 2021-2022 - ТСЛ - <a asp-area="" asp-page="/Privacy">Приватность</a>
+            </div>
         </div>
-    </footer>
+    </div>
+
     <!-- External libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
