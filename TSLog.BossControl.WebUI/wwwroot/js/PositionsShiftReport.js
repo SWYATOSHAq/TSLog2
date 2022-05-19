@@ -23,23 +23,81 @@
         elementsTbody.replaceChildren();
     }
 
-    showElement(element, elementTr) {
-        elementTr.classList.add("table-row");
+    hideWorkersRows() {
+        var workersRows = document.getElementsByClassName("worker-table-row");
+        for (let workerRow of workersRows) {
+            workerRow.classList.add("d-none");
+        }
+    }
 
-        viewUtils.createCell(elementTr, ["table-cell"], [element.positionName]);
-        viewUtils.createCell(elementTr, ["table-cell"], [element.factLaborCost]);
-        viewUtils.createCell(elementTr, ["table-cell"], [element.normLaborCost]);
-        viewUtils.createCell(elementTr, ["table-cell"], [element.efficiency]);
-        viewUtils.createCell(elementTr, ["table-cell"], [element.losses]);        
+    hidePositionsRows() {
+        var positionsRows = document.getElementsByClassName("position-table-row");
+        for (let positionRow of positionsRows) {
+            positionRow.dataset.state = "C";
+        }
+    }
+
+    onPositionRowClick(trId) {
+        const tr = document.getElementById("position-tr-" + trId);
+        const positionId = tr.dataset.positionId;
+        const state = tr.dataset.state;
+        this.hideWorkersRows();        
+        this.hidePositionsRows();
+        if (state === "C") {
+            const elementsTbody = document.getElementsByClassName("table-row");
+            for (var workerTr of elementsTbody) {
+                if (workerTr.dataset.positionId == positionId) {
+                    workerTr.classList.remove("d-none");
+                }
+            }
+            tr.dataset.state = "E";
+        }
+    }
+
+    showElement(element, elementsTbody) {
+        const positionTr = document.createElement("tr");
+        positionTr.classList.add("table-row");
+        positionTr.classList.add("position-table-row");
+
+        positionTr.id = "position-tr-" + element.positionId;
+        positionTr.dataset.positionId = element.positionId;
+        positionTr.dataset.positionName = element.positionName;
+        positionTr.dataset.state = "C";
+        viewUtils.createCell(positionTr, ["table-cell"], [element.positionName], "text-align: left; font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [element.factLaborCost], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [element.normLaborCost], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [element.efficiency], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [element.losses], "font-weight: bold");        
+        positionTr.onclick = () => {
+            this.onPositionRowClick(element.positionId);
+        }    
+        elementsTbody.append(positionTr);        
+
+        for (let worker of element.workers) {
+            let workerTr = document.createElement("tr");
+            workerTr.classList.add("table-row");
+            workerTr.classList.add("worker-table-row");
+
+            workerTr.dataset.positionId = worker.positionId;
+            const restWork = worker.restWork === 1;
+            viewUtils.createCell(workerTr, ["table-cell"], [worker.workerFullName],
+                !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
+            viewUtils.createCell(workerTr, ["table-cell"], [worker.factLaborCost], !restWork ? "" : "color: red");
+            viewUtils.createCell(workerTr, ["table-cell"], [worker.normLaborCost], !restWork ? "" : "color: red");
+            viewUtils.createCell(workerTr, ["table-cell"], [worker.efficiency], !restWork ? "" : "color: red");
+            viewUtils.createCell(workerTr, ["table-cell"], [worker.losses], !restWork ? "" : "color: red");
+
+            elementsTbody.append(workerTr);
+        }
     }
 
     showReport() {
         const elementsTbody = document.getElementById("report-tbody");
         for (let element of this.data) {
-            let elementTr = document.createElement("tr");
-            this.showElement(element, elementTr);
-            elementsTbody.append(elementTr);
-        }                
+            this.showElement(element, elementsTbody);
+        }    
+        this.hidePositionsRows();
+        this.hideWorkersRows();
     }
 
     showShiftInfo() {
@@ -82,7 +140,7 @@
         viewUtils.initDatePicker("date-input", date, this.onChangeParameters.bind(this));
         viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
 
-        this.showReport();
+        this.showReport();        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         this.showShiftInfo();

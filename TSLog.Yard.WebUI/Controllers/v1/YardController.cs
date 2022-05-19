@@ -100,6 +100,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.driverName = operation.DriverName;
             result.lowerDriverName = operation.DriverName.ToLower();
             result.driverPhoneNumber = operation.DriverPhoneNumber;
+
+            result.normalizedDriverPhoneNumber = operation.DriverPhoneNumber;
+            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace(" ", "");
+            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("-", "");
+            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("+", "");
+            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("(", "");
+            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace(")", "");
+
             result.partnerManagerName = operation.PartnerManagerName;
             result.partnerManagerPhoneNumber = operation.PartnerManagerPhoneNumber;
             result.partnerManagerEmail = operation.PartnerManagerEmail;

@@ -566,7 +566,7 @@ namespace TSLog.BossControl.Data
         #region Reporting
         public dynamic[] CreatePositionsShiftReport(DateTime date)
         {
-            var data = new List<dynamic>();
+            var data = new Dictionary<short, dynamic>();
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
@@ -594,10 +594,10 @@ namespace TSLog.BossControl.Data
                     $"   select d.worker_position_id, d.worker_position_name,\n" +
                     $"          round(sum(d.worker_labor_cost / d.worker_standard), 2) fact_labor_cost, --Человекосмены\n" +
                     $"          count(distinct d.worker_id) norm_labor_cost, --Человекосмены\n" +
-                    $"          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) efficiency,\n" +
+                    $"          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100) efficiency,\n" +
                     $"          case\n" +
                     $"              when round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) >= 100.0 then 0.0\n" +
-                    $"              else 100.0 - round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2)\n" +
+                    $"              else 100.0 - round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100)\n" +
                     $"          end losses\n" +
                     $"     from data2 d\n" +
                     $"left join ecco.stf_position#v p on d.worker_position_id = p.id\n" +
@@ -610,18 +610,94 @@ namespace TSLog.BossControl.Data
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    dynamic element = new ExpandoObject();
-                    element.positionName = Utils.DbValueToString(reader["worker_position_name"]);
-                    element.factLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
-                    element.normLaborCost = Utils.DbValueToDouble(reader["norm_labor_cost"]);
-                    element.efficiency = Utils.DbValueToDouble(reader["efficiency"]);
-                    element.losses = Utils.DbValueToDouble(reader["losses"]);
+                    dynamic positionElement = new ExpandoObject();
+                    var positionId = Utils.DbValueToShort(reader["worker_position_id"]);
+                    positionElement.positionId = positionId;
+                    positionElement.positionName = Utils.DbValueToString(reader["worker_position_name"]);
+                    positionElement.factLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                    positionElement.normLaborCost = Utils.DbValueToDouble(reader["norm_labor_cost"]);
+                    positionElement.efficiency = Utils.DbValueToDouble(reader["efficiency"]);
+                    positionElement.losses = Utils.DbValueToDouble(reader["losses"]);
+                    positionElement.workers = new List<dynamic>();
 
-                    data.Add(element);
+                    data.Add(positionId, positionElement);
                 }
                 reader.Close();
-            }
-            return data.ToArray();
+
+                sql = 
+                    $"with data2 as (\n" +
+                    $"   select sh.shift_start, sh.shift_finish,\n" +
+                    $"          d.worker_id, e.full_name worker_full_name,\n" +
+                    $"          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
+                    $"          e.work_mode worker_work_mode,\n" +
+                    $"          case\n" +
+                    $"              when e.work_mode = '5/2-40' then 8.0\n" +
+                    $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
+                    $"              else 8.0\n" +
+                    $"          end worker_standard,\n" +
+                    $"          sum((d.finish_date - d.start_date) * 24) worker_labor_cost,\n" +
+                    $"          case\n" +
+                    $"              when sum(case\n" +
+                    $"                           when sh.shift_start + 2/24 >= d.finish_date or sh.shift_finish + 2/24 + 10/60/24 <= d.start_date then 1 -- 11:00 - 11:10\n" +
+                    $"                           when sh.shift_start + 4/24 >= d.finish_date or sh.shift_finish + 5/24 <= d.start_date then 1 -- 13:00 - 14:00\n" +
+                    $"                           when sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_finish + 7/24 + 40/60/24 <= d.start_date then 1 -- 16:30 - 16:40\n" +
+                    $"                           when sh.shift_start + 9/24 >= d.finish_date or sh.shift_finish + 9/24 + 35/60/24 <= d.start_date then 1 -- 18:00 - 18:35\n" +
+                    $"                           else 0\n" +
+                    $"                       end) > 0 then 1\n" +
+                    $"              else 0\n" +
+                    $"          end rest_work\n" +
+                    $"     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
+                    $"                                       ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
+                    $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
+                    $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
+                    $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                    $"left join (select ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
+                    $"                  ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
+                    $"           from dual) sh on 1 = 1\n" +
+                    $"    where d.finish_date - d.start_date > 0\n" +
+                    $" group by d.worker_id, e.full_name, e.work_mode, emp.position_id, emp.position_name, sh.shift_start, sh.shift_finish)\n" +
+                    $"   select d.worker_position_id, d.worker_position_name,\n" +
+                    $"          d.worker_id, d.worker_full_name,\n" +
+                    $"          round(sum(d.worker_labor_cost / d.worker_standard), 2) fact_labor_cost, -- Человекосмены\n" +
+                    $"          round(count(distinct d.worker_id), 2) norm_labor_cost, -- Человекосмены\n" +
+                    $"          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100) efficiency,\n" +
+                    $"          case\n" +
+                    $"              when round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) >= 100.0 then 0.0\n" +
+                    $"              else 100.0 - round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100)\n" +
+                    $"          end losses,\n" +
+                    $"          d.rest_work\n" +
+                    $"     from data2 d\n" +
+                    $"left join ecco.stf_position#v p on d.worker_position_id = p.id\n" +
+                    $"    where p.is_linear = 1\n" +
+                    $" group by d.worker_id, d.worker_full_name, d.worker_position_id, d.worker_position_name, d.rest_work\n" +
+                    $" order by d.worker_position_id, d.worker_full_name";
+
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("report_date", stringDate));
+                using var reader2 = command.ExecuteReader();
+                while (reader2.Read())
+                {
+                    var efficiency = Utils.DbValueToDouble(reader2["efficiency"]);
+                    if (efficiency <= 2.56)
+                        continue;
+
+                    dynamic workerElement = new ExpandoObject();
+                    var positionId = Utils.DbValueToShort(reader2["worker_position_id"]);
+                    
+                    workerElement.positionId = positionId;
+                    workerElement.workerFullName = Utils.DbValueToString(reader2["worker_full_name"]);
+                    workerElement.factLaborCost = Utils.DbValueToDouble(reader2["fact_labor_cost"]);
+                    workerElement.normLaborCost = Utils.DbValueToDouble(reader2["norm_labor_cost"]);
+                    workerElement.efficiency = Utils.DbValueToDouble(reader2["efficiency"]);
+                    workerElement.losses = Utils.DbValueToDouble(reader2["losses"]);
+                    workerElement.restWork = Utils.DbValueToShort(reader2["rest_work"]);
+
+                    var positionElement = data[positionId];
+                    positionElement.workers.Add(workerElement);
+                }
+            } 
+            return data.Values.ToArray();
         }
         #endregion
     }
