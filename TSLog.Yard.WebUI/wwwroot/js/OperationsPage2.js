@@ -7,17 +7,17 @@
         this.shortUrl = location.href.split('?')[0];
     }
 
-    getPartnersNames(operation) {
-        let result = "";
-        for (let partner of operation.Partners) {
-            result += ((result.Length > 0) ? ", " : "") + partner.Name;
-        }
-        return result;
-    }
-
-    showOperationPage(id) {
-        location.href = "OperationPage?id=" + id;
-    }
+    // getPartnersNames(operation) {
+    //     let result = "";
+    //     for (let partner of operation.Partners) {
+    //         result += ((result.Length > 0) ? ", " : "") + partner.Name;
+    //     }
+    //     return result;
+    // }
+    //
+    // showOperationPage(id) {
+    //     location.href = "OperationPage?id=" + id;
+    // }
 
     openOperation(id) {
         sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
@@ -25,11 +25,11 @@
         location.href = url;
     }
 
-    createOpenOperation(id) {
-        return function () {
-            this.openOperation(id);
-        }        
-    }
+    // createOpenOperation(id) {
+    //     return function () {
+    //         this.openOperation(id);
+    //     }
+    // }
 
     createOpenOperationFunction(id) {
         return function () {
@@ -96,6 +96,31 @@
         viewUtils.createCell(operationTr, ["table-cell"], [operation.note], "box-shadow: none; background-color: " + operation.displayColor);
     }
 
+    sortCompare(operation1, operation2) {
+        switch (this.sortField) {
+            case "driverName":
+                return operation1.driverName.localeCompare(operation2.driverName);
+            case "partnerId":
+                return operation1.partnerId.localeCompare(operation2.partnerId);
+            case "vehicleBrand":
+                return operation1.vehicleBrand.localeCompare(operation2.vehicleBrand);
+            case "vehicleNumber":
+                return operation1.vehicleNumber.localeCompare(operation2.vehicleNumber);
+            case "startDate":
+                return (new Date(operation1.startDate)) - (new Date(operation2.startDate));
+            case "directionName":
+                return operation1.directionName.localeCompare(operation2.directionName);
+            case "planWorkStartDate":
+                return (new Date(operation1.planWorkStartDate)) - (new Date(operation2.planWorkStartDate));
+            case "factWorkStartDate":
+                return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
+            case "responsibleOfficerName":
+                return operation1.responsibleOfficer.localeCompare(operation2.responsibleOfficer);
+            case "stateId":
+                return operation1.stateDisplayName.localeCompare(operation2.stateDisplayName);
+        }
+    }
+
     createParameters() {
         const fromDatePicker = document.getElementById("from-date-input");
         let result = "?from_date=" + fromDatePicker.value;
@@ -142,6 +167,8 @@
         if (workerNameInput != undefined && workerNameInput.value != "") {
             result = result + "&worker=" + workerNameInput.value;
         }
+        //result += utils.addParameter(result, "sort_field", "sort-field-select");
+        //result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
         return result;
     }
