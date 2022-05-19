@@ -49,3 +49,25 @@
     margin-top: 0px !important;
     width: -webkit-fill-available;
 }
+.sorts-div {
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.sort_header {
+    margin-right: 15px;
+}
+
+.sort_select {
+    width: 20%;
+    margin-right: 30px;
+}
+
+.btn-group {
+    height: 26px;
+}
+
+.btn-outline-secondary {
+    padding-top: 0px;
+}
