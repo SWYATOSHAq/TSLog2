@@ -686,12 +686,69 @@ namespace TSLog.BossControl.Data
                     var positionId = Utils.DbValueToShort(reader2["worker_position_id"]);
                     
                     workerElement.positionId = positionId;
+                    var workerId = Utils.DbValueToInt(reader2["worker_id"]);
+                    workerElement.workerId = workerId;
                     workerElement.workerFullName = Utils.DbValueToString(reader2["worker_full_name"]);
                     workerElement.factLaborCost = Utils.DbValueToDouble(reader2["fact_labor_cost"]);
                     workerElement.normLaborCost = Utils.DbValueToDouble(reader2["norm_labor_cost"]);
                     workerElement.efficiency = Utils.DbValueToDouble(reader2["efficiency"]);
                     workerElement.losses = Utils.DbValueToDouble(reader2["losses"]);
                     workerElement.restWork = Utils.DbValueToShort(reader2["rest_work"]);
+
+                    workerElement.works = new List<dynamic>();
+                    using var command2 = _connection.CreateCommand();
+                    command2.BindByName = true;
+
+                    var sql2 = 
+                        $"with data2 as (\n" +
+                        $"   select sh.shift_start, sh.shift_finish,\n" +
+                        $"          d.worker_id, e.full_name worker_full_name,\n" +
+                        $"          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
+                        $"          e.work_mode worker_work_mode,\n" +
+                        $"          case\n" +
+                        $"              when e.work_mode = '5/2-40' then 8.0\n" +
+                        $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
+                        $"              else 8.0\n" +
+                        $"          end worker_standard,\n" +
+                        $"          d.start_date, d.finish_date,\n" +
+                        $"          round(d.finish_date - d.start_date, 8) duration, -- Продолжительность\n" +
+                        $"          case\n" +
+                        $"              when not(sh.shift_start + 2/24 >= d.finish_date or sh.shift_finish + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
+                        $"              when not(sh.shift_start + 4/24 >= d.finish_date or sh.shift_finish + 5/24 <= d.start_date) then 1 -- 13:00 - 14:00\n" +
+                        $"              when not(sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_finish + 7/24 + 40/60/24 <= d.start_date) then 1 -- 16:30 - 16:40\n" +
+                        $"              when not(sh.shift_start + 9/24 >= d.finish_date or sh.shift_finish + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
+                        $"              else 0\n" +
+                        $"          end rest_work\n" +
+                        $"     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
+                        $"                                       ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
+                        $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                        $"left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
+                        $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
+                        $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                        $"left join(select ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
+                        $"                  ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
+                        $"             from dual) sh on 1 = 1\n" +
+                        $"    where d.finish_date - d.start_date > 0\n" +
+                        $" )\n" +
+                        $"   select *\n" +
+                        $"     from data2 d\n" +
+                        $"    where d.worker_id = :worker_id\n" +
+                        $" order by d.worker_position_id, d.worker_id, d.worker_full_name, d.start_date, d.finish_date";
+                    
+                    command2.CommandText = sql2;
+                    command2.Parameters.Add(new OracleParameter("worker_id", workerId));
+                    command2.Parameters.Add(new OracleParameter("report_date", stringDate));
+                    var reader3 = command2.ExecuteReader();
+                    while (reader3.Read())
+                    {
+                        dynamic workElement = new ExpandoObject();
+                        workElement.workerId = Utils.DbValueToInt(reader3["worker_id"]); ;
+                        workElement.startDate = Utils.DbValueToDateTime(reader3["start_date"]); ;
+                        workElement.finishDate = Utils.DbValueToDateTime(reader3["finish_date"]); ;
+                        workElement.duration = Math.Round(Utils.DbValueToDouble(reader3["duration"]) * 24 * 60);
+                        workerElement.works.Add(workElement);
+                    }
+                    reader3.Close();
 
                     var positionElement = data[positionId];
                     positionElement.workers.Add(workerElement);

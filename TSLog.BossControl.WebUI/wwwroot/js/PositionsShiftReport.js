@@ -54,6 +54,10 @@
         }
     }
 
+    onWorkerRowClick(trId) {
+        //
+    }
+
     showElement(element, elementsTbody) {
         const positionTr = document.createElement("tr");
         positionTr.classList.add("table-row");
@@ -79,6 +83,11 @@
             workerTr.classList.add("worker-table-row");
 
             workerTr.dataset.positionId = worker.positionId;
+            workerTr.id = "worker-tr-" + worker.workerId;
+            workerTr.dataset.workerId = worker.workerId;
+            workerTr.dataset.workerFullName = worker.workerFullName;
+            workerTr.dataset.state = "C";
+
             const restWork = worker.restWork === 1;
             viewUtils.createCell(workerTr, ["table-cell"], [worker.workerFullName],
                 !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
@@ -87,7 +96,27 @@
             viewUtils.createCell(workerTr, ["table-cell"], [worker.efficiency], !restWork ? "" : "color: red");
             viewUtils.createCell(workerTr, ["table-cell"], [worker.losses], !restWork ? "" : "color: red");
 
+            workerTr.onclick = () => {
+                this.onWorkerRowClick(worker.workerId);
+            }  
+
             elementsTbody.append(workerTr);
+
+            for (let work of worker.works) {
+                let workTr = document.createElement("tr");
+                workTr.classList.add("table-row");
+                workTr.classList.add("work-table-row");
+
+                workTr.dataset.workerId = worker.workerId;
+
+                work.startDate = utils.convertDate(work.startDate) + " " + utils.convertTime(work.startDate);
+                work.finishDate = utils.convertDate(work.finishDate) + " " + utils.convertTime(work.finishDate);
+                viewUtils.createCell(workTr, ["table-cell"],
+                    [work.startDate + " - " + work.finishDate + " (" + work.duration + ")"],
+                    "text-align: left; padding-left: 8% !important");
+
+                elementsTbody.append(workTr);
+            }            
         }
     }
 
