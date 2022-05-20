@@ -48,7 +48,7 @@
         contents.push(openButton);
 
         viewUtils.createCell(operationTr, ["table-cell"], contents, "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.typeName], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.typeShortName], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber], "box-shadow: none; background-color: " + operation.displayColor);
@@ -114,55 +114,24 @@
     }
 
     createParameters() {
-        const fromDatePicker = document.getElementById("from-date-input");
-        let result = "?from_date=" + fromDatePicker.value;
+        let result = "";
 
-        const toDatePicker = document.getElementById("to-date-input");
-        result = result + "&to_date=" + toDatePicker.value;
-
-        const gatesSelect = document.getElementById("gates-select");
-        if (gatesSelect != undefined && gatesSelect.value != "") {
-            result = result + "&gate_code=" + gatesSelect.value;
-        }
-
-        const partnersSelect = document.getElementById("partners-select");
-        if (partnersSelect != undefined && partnersSelect.value != "") {
-            result = result + "&partner_id=" + partnersSelect.value;
-        }
-
-        const operationTypesSelect = document.getElementById("operation-types-select");
-        if (operationTypesSelect != undefined && operationTypesSelect.value != "") {
-            result = result + "&operation_type_code=" + operationTypesSelect.value;
-        }
-
-        const vehicleKindsSelect = document.getElementById("vehicle-kinds-select");
-        if (vehicleKindsSelect != undefined && vehicleKindsSelect.value != "") {
-            result = result + "&vehicle_kind_code=" + vehicleKindsSelect.value;
-        }
-
-        const operationStatesSelect = document.getElementById("operation-states-select");
-        if (operationStatesSelect != undefined && operationStatesSelect.value != "") {
-            result = result + "&state_code=" + operationStatesSelect.value;
-        }
-
-        const vehicleNumberInput = document.getElementById("vehicle-number-input");
-        if (vehicleNumberInput != undefined && vehicleNumberInput.value != "") {
-            result = result + "&vehicle_number=" + vehicleNumberInput.value;
-        }
-
-        const driverNameInput = document.getElementById("driver-name-input");
-        if (driverNameInput != undefined && driverNameInput.value != "") {
-            result = result + "&driver_name=" + driverNameInput.value;
-        }
-
-        const workerNameInput = document.getElementById("worker-input");
-        if (workerNameInput != undefined && workerNameInput.value != "") {
-            result = result + "&worker=" + workerNameInput.value;
-        }
+        result = utils.addParameter(result, "from_date", "from-date-input");
+        result = utils.addParameter(result, "to_date", "to-date-input");
+        result = utils.addParameter(result, "gate_code", "gates-select");
+        result = utils.addParameter(result, "partner_id", "partners-select");
+        result = utils.addParameter(result, "operation_type_code", "operation-types-select");
+        result = utils.addParameter(result, "vehicle_kind_code", "vehicle-kinds-select");
+        result = utils.addParameter(result, "state_code", "operation-states-select");
+        result = utils.addParameter(result, "id", "id-number-input");
+        result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
+        result = utils.addParameter(result, "driver_name", "driver-name-input");
+        result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
+        result = utils.addParameter(result, "worker", "worker-input");
         result = utils.addParameter(result, "sort_field", "sort-field-select");
         result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
-        return result
+        return result != "" ? "?" + result : "";
     }
 
     async getOperations() {        
@@ -252,9 +221,11 @@
         viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeOperationType.bind(this));
         viewUtils.initSelect("vehicle-kinds-select", utils.getUrlParameter("vehicle_kind_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
-
+        viewUtils.initInput("id-number-input", utils.getUrlParameter("id"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
 
         this.sortField = utils.getUrlParameter("sort_field");
         if (this.sortField === "")
@@ -273,9 +244,7 @@
             document.getElementById("forward-sort-input").checked = true;
         else
             document.getElementById("reverse-sort-input").checked = true;
-
-        viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
+        
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();

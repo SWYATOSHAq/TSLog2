@@ -638,10 +638,10 @@ namespace TSLog.BossControl.Data
                     $"          sum((d.finish_date - d.start_date) * 24) worker_labor_cost,\n" +
                     $"          case\n" +
                     $"              when sum(case\n" +
-                    $"                           when sh.shift_start + 2/24 >= d.finish_date or sh.shift_finish + 2/24 + 10/60/24 <= d.start_date then 1 -- 11:00 - 11:10\n" +
-                    $"                           when sh.shift_start + 4/24 >= d.finish_date or sh.shift_finish + 5/24 <= d.start_date then 1 -- 13:00 - 14:00\n" +
-                    $"                           when sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_finish + 7/24 + 40/60/24 <= d.start_date then 1 -- 16:30 - 16:40\n" +
-                    $"                           when sh.shift_start + 9/24 >= d.finish_date or sh.shift_finish + 9/24 + 35/60/24 <= d.start_date then 1 -- 18:00 - 18:35\n" +
+                    $"                           when not (sh.shift_start + 2/24 >= d.finish_date or sh.shift_finish + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
+                    $"                           when not (sh.shift_start + 4/24 >= d.finish_date or sh.shift_finish + 5/24 <= d.start_date) then 1 -- 13:00 - 14:00\n" +
+                    $"                           when not (sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_finish + 7/24 + 40/60/24 <= d.start_date) then 1 -- 16:30 - 16:40\n" +
+                    $"                           when not (sh.shift_start + 9/24 >= d.finish_date or sh.shift_finish + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
                     $"                           else 0\n" +
                     $"                       end) > 0 then 1\n" +
                     $"              else 0\n" +

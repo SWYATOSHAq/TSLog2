@@ -372,6 +372,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string stringOperationTypeCode = Request.Query["operation_type_code"];
                 string stringVehicleKindCode = Request.Query["vehicle_kind_code"];
                 string stringStateCode = Request.Query["state_code"];
+                string stringId = Request.Query["id"];
                 string stringVehicleNumber = Request.Query["vehicle_number"];
                 string stringDriverName = Request.Query["driver_name"];
                 string stringPartnerActionId = Request.Query["partner_action_id"];

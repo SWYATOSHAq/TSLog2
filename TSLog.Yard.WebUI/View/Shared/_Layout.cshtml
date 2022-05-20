@@ -83,9 +83,13 @@
     {
         <link rel="stylesheet" href="~/css/LaborReportPage.css" asp-append-version="true" />
     } 
-    else if (page == "ShiftLaborReportPage")
+    //else if (page == "ShiftLaborReportPage")
+    //{
+    //    <link rel="stylesheet" href="~/css/ShiftLaborReportPage.css" asp-append-version="true" />
+    //} 
+    else if (page == "ShiftLaborReportPage2")
     {
-        <link rel="stylesheet" href="~/css/ShiftLaborReportPage.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/ShiftLaborReportPage2.css" asp-append-version="true" />
     } 
 </head>
 
@@ -130,7 +134,13 @@
                         }
                         @if (canViewShiftLaborReportPage)
                         {
+                            <!--
                             <a class="nav-link text-dark" href="/ShiftLaborReportPage">Трудозатраты (за смену)</a>
+                            -->
+                        }
+                        @if (canViewShiftLaborReportPage)
+                        {
+                            <a class="nav-link text-dark" href="/ShiftLaborReportPage2">Трудозатраты 2</a>
                         }
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
