@@ -590,10 +590,11 @@ namespace TSLog.BossControl.Data
                     $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
                     $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
                     $"    where d.finish_date - d.start_date > 0\n" +
+                    $"      and s.code <> 'AUXILIARY'\n" +
                     $" group by d.worker_id, e.full_name, e.work_mode, emp.position_id, emp.position_name)\n" +
                     $"   select d.worker_position_id, d.worker_position_name,\n" +
-                    $"          round(sum(d.worker_labor_cost / d.worker_standard), 2) fact_labor_cost, --Человекосмены\n" +
-                    $"          count(distinct d.worker_id) norm_labor_cost, --Человекосмены\n" +
+                    $"          round(sum(d.worker_labor_cost / d.worker_standard), 2) fact_labor_cost, -- Человекосмены\n" +
+                    $"          count(distinct d.worker_id) norm_labor_cost, -- Человекосмены\n" +
                     $"          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100) efficiency,\n" +
                     $"          case\n" +
                     $"              when round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) >= 100.0 then 0.0\n" +
@@ -614,10 +615,16 @@ namespace TSLog.BossControl.Data
                     var positionId = Utils.DbValueToShort(reader["worker_position_id"]);
                     positionElement.positionId = positionId;
                     positionElement.positionName = Utils.DbValueToString(reader["worker_position_name"]);
-                    positionElement.factLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
-                    positionElement.normLaborCost = Utils.DbValueToDouble(reader["norm_labor_cost"]);
-                    positionElement.efficiency = Utils.DbValueToDouble(reader["efficiency"]);
-                    positionElement.losses = Utils.DbValueToDouble(reader["losses"]);
+                    //positionElement.factLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                    //positionElement.normLaborCost = Utils.DbValueToDouble(reader["norm_labor_cost"]);
+                    //positionElement.efficiency = Utils.DbValueToDouble(reader["efficiency"]);
+                    //positionElement.losses = Utils.DbValueToDouble(reader["losses"]);
+
+                    positionElement.factLaborCost = 0.0;
+                    positionElement.normLaborCost = 0.0;
+                    positionElement.efficiency = 0.0;
+                    positionElement.losses = 0.0;
+
                     positionElement.workers = new List<dynamic>();
 
                     data.Add(positionId, positionElement);
@@ -638,10 +645,10 @@ namespace TSLog.BossControl.Data
                     $"          sum((d.finish_date - d.start_date) * 24) worker_labor_cost,\n" +
                     $"          case\n" +
                     $"              when sum(case\n" +
-                    $"                           when not (sh.shift_start + 2/24 >= d.finish_date or sh.shift_finish + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
-                    $"                           when not (sh.shift_start + 4/24 >= d.finish_date or sh.shift_finish + 5/24 <= d.start_date) then 1 -- 13:00 - 14:00\n" +
-                    $"                           when not (sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_finish + 7/24 + 40/60/24 <= d.start_date) then 1 -- 16:30 - 16:40\n" +
-                    $"                           when not (sh.shift_start + 9/24 >= d.finish_date or sh.shift_finish + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
+                    $"                           when not (sh.shift_start + 2/24 >= d.finish_date or sh.shift_start + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
+                    $"                           when not (sh.shift_start + 4/24 >= d.finish_date or sh.shift_start + 5/24 <= d.start_date) then 1 -- 13:00 - 14:00\n" +
+                    $"                           when not (sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_start + 7/24 + 40/60/24 <= d.start_date) then 1 -- 16:30 - 16:40\n" +
+                    $"                           when not (sh.shift_start + 9/24 >= d.finish_date or sh.shift_start + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
                     $"                           else 0\n" +
                     $"                       end) > 0 then 1\n" +
                     $"              else 0\n" +
@@ -656,6 +663,7 @@ namespace TSLog.BossControl.Data
                     $"                  ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
                     $"           from dual) sh on 1 = 1\n" +
                     $"    where d.finish_date - d.start_date > 0\n" +
+                    $"      and s.code <> 'AUXILIARY'\n" +
                     $" group by d.worker_id, e.full_name, e.work_mode, emp.position_id, emp.position_name, sh.shift_start, sh.shift_finish)\n" +
                     $"   select d.worker_position_id, d.worker_position_name,\n" +
                     $"          d.worker_id, d.worker_full_name,\n" +
@@ -695,6 +703,10 @@ namespace TSLog.BossControl.Data
                     workerElement.losses = Utils.DbValueToDouble(reader2["losses"]);
                     workerElement.restWork = Utils.DbValueToShort(reader2["rest_work"]);
 
+                    var positionElement = data[positionId];
+                    positionElement.factLaborCost += Utils.DbValueToDouble(reader2["fact_labor_cost"]);
+                    positionElement.normLaborCost += Utils.DbValueToDouble(reader2["norm_labor_cost"]);
+
                     workerElement.works = new List<dynamic>();
                     using var command2 = _connection.CreateCommand();
                     command2.BindByName = true;
@@ -711,12 +723,14 @@ namespace TSLog.BossControl.Data
                         $"              else 8.0\n" +
                         $"          end worker_standard,\n" +
                         $"          d.start_date, d.finish_date,\n" +
+                        $"          d.site_id, -- Идентификатор участка\n" +
+                        $"          s.name site_name, -- Название участка\n" +
                         $"          round(d.finish_date - d.start_date, 8) duration, -- Продолжительность\n" +
                         $"          case\n" +
-                        $"              when not(sh.shift_start + 2/24 >= d.finish_date or sh.shift_finish + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
-                        $"              when not(sh.shift_start + 4/24 >= d.finish_date or sh.shift_finish + 5/24 <= d.start_date) then 1 -- 13:00 - 14:00\n" +
-                        $"              when not(sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_finish + 7/24 + 40/60/24 <= d.start_date) then 1 -- 16:30 - 16:40\n" +
-                        $"              when not(sh.shift_start + 9/24 >= d.finish_date or sh.shift_finish + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
+                        $"              when not (sh.shift_start + 2/24 >= d.finish_date or sh.shift_start + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
+                        $"              when not (sh.shift_start + 4/24 >= d.finish_date or sh.shift_start + 5/24 <= d.start_date) then 1 -- 13:00 - 14:00\n" +
+                        $"              when not (sh.shift_start + 7/24 + 30/60/24 >= d.finish_date or sh.shift_start + 7/24 + 40/60/24 <= d.start_date) then 1 -- 16:30 - 16:40\n" +
+                        $"              when not (sh.shift_start + 9/24 >= d.finish_date or sh.shift_start + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
                         $"              else 0\n" +
                         $"          end rest_work\n" +
                         $"     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
@@ -729,6 +743,7 @@ namespace TSLog.BossControl.Data
                         $"                  ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
                         $"             from dual) sh on 1 = 1\n" +
                         $"    where d.finish_date - d.start_date > 0\n" +
+                        $"      and s.code <> 'AUXILIARY'\n" +
                         $" )\n" +
                         $"   select *\n" +
                         $"     from data2 d\n" +
@@ -742,18 +757,32 @@ namespace TSLog.BossControl.Data
                     while (reader3.Read())
                     {
                         dynamic workElement = new ExpandoObject();
-                        workElement.workerId = Utils.DbValueToInt(reader3["worker_id"]); ;
-                        workElement.startDate = Utils.DbValueToDateTime(reader3["start_date"]); ;
-                        workElement.finishDate = Utils.DbValueToDateTime(reader3["finish_date"]); ;
+                        workElement.workerId = Utils.DbValueToInt(reader3["worker_id"]);
+                        workElement.startDate = Utils.DbValueToDateTime(reader3["start_date"]);
+                        workElement.finishDate = Utils.DbValueToDateTime(reader3["finish_date"]);
                         workElement.duration = Math.Round(Utils.DbValueToDouble(reader3["duration"]) * 24 * 60);
+                        workElement.siteId = Utils.DbValueToShort(reader3["site_id"]);
+                        workElement.siteName = Utils.DbValueToString(reader3["site_name"]);
+                        workElement.restWork = Utils.DbValueToShort(reader3["rest_work"]);
                         workerElement.works.Add(workElement);
                     }
                     reader3.Close();
-
-                    var positionElement = data[positionId];
+                    
                     positionElement.workers.Add(workerElement);
                 }
-            } 
+            }
+
+            foreach (var positionElement in data.Values)
+            {                
+                positionElement.efficiency = positionElement.normLaborCost > 0 ? 
+                    Math.Round(100 * positionElement.factLaborCost / positionElement.normLaborCost) : 
+                    0;
+                positionElement.losses = positionElement.efficiency <= 100.0 ? 100.0 - positionElement.efficiency : 0.0;
+
+                positionElement.factLaborCost = Math.Round(positionElement.factLaborCost, 2);
+                positionElement.normLaborCost = Math.Round(positionElement.normLaborCost, 2);
+            }
+
             return data.Values.ToArray();
         }
         #endregion

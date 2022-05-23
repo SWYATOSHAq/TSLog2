@@ -23,28 +23,43 @@
         elementsTbody.replaceChildren();
     }
 
-    hideWorkersRows() {
-        var workersRows = document.getElementsByClassName("worker-table-row");
-        for (let workerRow of workersRows) {
-            workerRow.classList.add("d-none");
-        }
-    }
-
-    hidePositionsRows() {
+    collapsePositionsRows() {
         var positionsRows = document.getElementsByClassName("position-table-row");
         for (let positionRow of positionsRows) {
             positionRow.dataset.state = "C";
         }
     }
 
-    onPositionRowClick(trId) {
-        const tr = document.getElementById("position-tr-" + trId);
-        const positionId = tr.dataset.positionId;
+    collapseWorkersRows() {
+        var workersRows = document.getElementsByClassName("worker-table-row");
+        for (let workerRow of workersRows) {
+            workerRow.dataset.state = "C";
+        }
+    }
+
+    hideWorkersRows() {
+        var workersRows = document.getElementsByClassName("worker-table-row");
+        for (let workerRow of workersRows) {
+            workerRow.classList.add("d-none");
+        }
+    }    
+
+    hideWorksRows() {
+        var worksRows = document.getElementsByClassName("work-table-row");
+        for (let workRow of worksRows) {
+            workRow.classList.add("d-none");
+        }
+    }
+
+    onPositionRowClick(positionId) {
+        const tr = document.getElementById("position-tr-" + positionId);
         const state = tr.dataset.state;
+        this.hideWorksRows();
+        this.collapseWorkersRows();
         this.hideWorkersRows();        
-        this.hidePositionsRows();
+        this.collapsePositionsRows();
         if (state === "C") {
-            const elementsTbody = document.getElementsByClassName("table-row");
+            const elementsTbody = document.getElementsByClassName("worker-table-row");
             for (var workerTr of elementsTbody) {
                 if (workerTr.dataset.positionId == positionId) {
                     workerTr.classList.remove("d-none");
@@ -54,8 +69,20 @@
         }
     }
 
-    onWorkerRowClick(trId) {
-        //
+    onWorkerRowClick(workerId) {
+        const tr = document.getElementById("worker-tr-" + workerId);
+        const state = tr.dataset.state;
+        this.hideWorksRows();
+        this.collapseWorkersRows();
+        if (state === "C") {
+            const elementsTbody = document.getElementsByClassName("work-table-row");
+            for (var workTr of elementsTbody) {
+                if (workTr.dataset.workerId == workerId) {
+                    workTr.classList.remove("d-none");
+                }
+            }
+            tr.dataset.state = "E";
+        }
     }
 
     showElement(element, elementsTbody) {
@@ -90,7 +117,7 @@
 
             const restWork = worker.restWork === 1;
             viewUtils.createCell(workerTr, ["table-cell"], [worker.workerFullName],
-                !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
+                !restWork ? "text-align: left; padding-left: 2% !important" : "text-align: left; padding-left: 2% !important; color: red");
             viewUtils.createCell(workerTr, ["table-cell"], [worker.factLaborCost], !restWork ? "" : "color: red");
             viewUtils.createCell(workerTr, ["table-cell"], [worker.normLaborCost], !restWork ? "" : "color: red");
             viewUtils.createCell(workerTr, ["table-cell"], [worker.efficiency], !restWork ? "" : "color: red");
@@ -109,11 +136,20 @@
 
                 workTr.dataset.workerId = worker.workerId;
 
-                work.startDate = utils.convertDate(work.startDate) + " " + utils.convertTime(work.startDate);
-                work.finishDate = utils.convertDate(work.finishDate) + " " + utils.convertTime(work.finishDate);
+                //work.startDate = utils.convertDate(work.startDate) + " " + utils.convertTime(work.startDate);
+                //work.finishDate = utils.convertDate(work.finishDate) + " " + utils.convertTime(work.finishDate);
+                work.startDate = utils.convertTimeHHMM(work.startDate);
+                work.finishDate = utils.convertTimeHHMM(work.finishDate);
+
+                const restWork = work.restWork === 1;
                 viewUtils.createCell(workTr, ["table-cell"],
-                    [work.startDate + " - " + work.finishDate + " (" + work.duration + ")"],
-                    "text-align: left; padding-left: 8% !important");
+                    [work.startDate + " - " + work.finishDate + " (" + work.duration + " мин.) " + work.siteName],
+                    !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
+
+                viewUtils.createCell(workTr, ["table-cell"], "");
+                viewUtils.createCell(workTr, ["table-cell"], "");
+                viewUtils.createCell(workTr, ["table-cell"], "");
+                viewUtils.createCell(workTr, ["table-cell"], "");
 
                 elementsTbody.append(workTr);
             }            
@@ -125,21 +161,22 @@
         for (let element of this.data) {
             this.showElement(element, elementsTbody);
         }    
-        this.hidePositionsRows();
+        this.collapsePositionsRows();
         this.hideWorkersRows();
+        this.hideWorksRows();
     }
 
     showShiftInfo() {
         const shiftDiv = document.getElementById("shift-info");
         if (document.getElementById("shift-select").value == "day") {
             const date = utils.getUrlParameter("date");
-            shiftDiv.textContent = "Дневная смена с " + date + " 9:00 по " + date + " 21:00";
+            shiftDiv.innerHTML = "Дневная смена с <b>9:00</b> (" + date + ") по <b>21:00</b> (" + date + ")";
         }
         else if (document.getElementById("shift-select").value == "night") {
             const fromDate = utils.stringToDate(utils.getUrlParameter("date"));
             let toDate = utils.stringToDate(utils.getUrlParameter("date"));
             toDate.setDate(toDate.getDate() + 1);
-            shiftDiv.textContent = "Ночная смена с " + fromDate.toLocaleDateString() + " 21:00 по " + toDate.toLocaleDateString() + " 9:00";
+            shiftDiv.innerHTML = "Ночная смена с <b>21:00</b> (" + fromDate.toLocaleDateString() + ") по <b>9:00</b> (" + toDate.toLocaleDateString() + ")";
         }
         else {
             shiftDiv.textContent = "Смена не определена!";

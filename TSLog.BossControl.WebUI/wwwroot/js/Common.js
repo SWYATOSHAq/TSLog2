@@ -15,6 +15,10 @@
         return new Date(stringTime).toLocaleTimeString();
     }
 
+    convertTimeHHMM(stringTime) {
+        return new Date(stringTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
     convertDate(stringDate) {
         return new Date(stringDate).toLocaleDateString();
     }
@@ -35,6 +39,11 @@
         const hours = Math.trunc(seconds / 3600);
         const minutes = Math.trunc((seconds - hours * 3600) / 60);
         return hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
+    }
+
+    stringToDate(stringDate) {
+        var pattern = /(\d{2})\.(\d{2})\.(\d{4})/;
+        return new Date(stringDate.replace(pattern, '$3-$2-$1'));
     }
 
     addParameter(parameters, parameterName, elementName) {
