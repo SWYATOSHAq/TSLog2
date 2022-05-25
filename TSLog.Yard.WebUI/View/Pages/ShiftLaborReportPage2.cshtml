@@ -23,7 +23,7 @@
 <div class="row dates-div">
     <label class="date-label" for="date-input">Дата:</label>
     <input id="date-input" 
-        class="datepicker border border-secondary date-input" 
+        class="datepicker border border-secondary date-input2" 
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />    
@@ -40,27 +40,17 @@
 <div class="row button-div">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
         type="button" 
-        onclick="shiftLaborReportPage.createReport()">Применить</button>
+        onclick="shiftLaborReportPage2.createReport()">Применить</button>
+</div>
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
+    Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Эффективность равна отношению плановогоо времени работ по ПРР к фактическому.</b>
 </div>
 <table class="table table-light table-bordered table-striped data-table">
     <thead class="thead-light">
-        <tr>
+        <tr id="header-row">
+            <!--
             <th class="table-header">В. 1</th>
-            <th class="table-header">В. 2</th>
-            <th class="table-header">В. 3</th>
-            <th class="table-header">В. 4</th>
-            <th class="table-header">В. 5</th>
-            <th class="table-header">В. 6</th>
-            <th class="table-header">В. 7</th>
-            <th class="table-header">В. 8</th>
-            <th class="table-header">В. 9</th>
-            <th class="table-header">В. 10</th>
-            <th class="table-header">В. 11</th>
-            <th class="table-header">В. 12</th>
-            <th class="table-header">В. 13</th>
-            <th class="table-header">В. 14</th>
-            <th class="table-header">В. 15</th>
-            <th class="table-header">В. 16</th>
+            -->
         </tr>
     </thead>
     <tbody id="elements-tbody">

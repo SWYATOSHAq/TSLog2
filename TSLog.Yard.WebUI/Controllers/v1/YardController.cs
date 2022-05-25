@@ -97,10 +97,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.lowerVehicleNumber = operation.VehicleNumber.ToLower();
             result.trailerNumber = operation.TrailerNumber;
             result.lowerTrailerNumber = operation.TrailerNumber.ToLower();
+
             result.driverName = operation.DriverName;
             result.lowerDriverName = operation.DriverName.ToLower();
+            
             result.driverPhoneNumber = operation.DriverPhoneNumber;
-
             result.normalizedDriverPhoneNumber = operation.DriverPhoneNumber;
             result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace(" ", "");
             result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("-", "");
@@ -1831,6 +1832,79 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var result = ShiftLaborReportElementsToDynamic(elements);
 
                 var text = JsonSerializer.Serialize(result);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("ShiftLaborReport2")]
+        public string GetShiftLaborReport2()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
+                if (_useAuthentication && !useYard && !getData)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string stringDate = Request.Query["date"];
+                var date = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(stringDate))
+                {
+                    stringDate = stringDate.Trim();
+                    if (!DateTime.TryParse(stringDate, out date))
+                        return $"Wrong to date {stringDate}";
+                }
+                string shift = Request.Query["shift"];
+                if (string.IsNullOrWhiteSpace(shift))
+                    shift = "day";
+                shift = shift.Trim().ToLower();
+                if (shift != "day" && shift != "night")
+                    return $"Unknown shift {shift}";
+
+                var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
+                var toDate = fromDate.AddHours(12);
+
+                var siteCodes = new Dictionary<string, string>();
+                siteCodes.Add("EIN01", "GATE_1");
+                siteCodes.Add("EIN02", "GATE_2");
+                siteCodes.Add("EIN03", "GATE_3");
+                siteCodes.Add("EIN04", "GATE_4");
+                siteCodes.Add("EIN05", "GATE_5");
+                siteCodes.Add("EIN06", "GATE_6");
+                siteCodes.Add("EIN07", "GATE_7");
+                siteCodes.Add("EIN08", "GATE_8");
+                siteCodes.Add("EIN09", "GATE_9");
+                siteCodes.Add("EIN10", "GATE_10");
+                siteCodes.Add("EIN11", "GATE_11");
+                siteCodes.Add("EIN12", "GATE_12");
+                siteCodes.Add("EIN13", "GATE_13");
+                siteCodes.Add("EIN14", "GATE_14");
+                siteCodes.Add("EIN15", "GATE_15");
+                siteCodes.Add("EIN16", "GATE_16");
+
+                var operations = _storage.GetYardData(fromDate, toDate);
+                foreach (dynamic operation in operations)
+                {
+                    var siteCode = siteCodes[operation.gateCode];
+                    operation.works = _storage.GetBcData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
+                    operation.factLaborCost = 0.0;
+                    foreach (var work in operation.works) 
+                    {
+                        operation.factLaborCost += work.duration;
+                    }
+                    operation.planLaborCost = Math.Round(operation.planLaborCost / 60);
+                    operation.factLaborCost = Math.Round(operation.factLaborCost / 60);
+                }
+
+                var text = JsonSerializer.Serialize(operations);
                 Response.StatusCode = 200;
                 return text;
             }

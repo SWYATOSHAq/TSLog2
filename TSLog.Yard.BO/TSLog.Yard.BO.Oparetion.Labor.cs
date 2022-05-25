@@ -94,7 +94,9 @@ namespace TSLog.Yard.BO
         {
             get 
             {
-                return FactWorkFinishDate != DateTime.MinValue ? PlanLaborCost : 0;
+                return FactWorkFinishDate != DateTime.MinValue && FactWorkStartDate != DateTime.MinValue ?
+                    (int)Math.Round((FactWorkFinishDate - FactWorkStartDate).TotalSeconds) * OperationEmployeesCount : 
+                    0;
             }
         }
     }

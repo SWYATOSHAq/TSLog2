@@ -1056,6 +1056,64 @@ namespace TSLog.Yard.Data
             }
             return lines.ToArray();
         }
+        public dynamic[] GetBcData(DateTime fromDate, DateTime toDate, string siteCode)
+        {
+            var works = new List<dynamic>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =                                         
+                    $"with dates as (\n" +
+                    $"  select :start_date fact_work_start_date,\n" +
+                    $"         :finish_date fact_work_finish_date\n" +
+                    $"    from dual\n" +
+                    $"),\n" +
+                    $"data2 as (\n" +
+                    $"    select emp.position_id, emp.position_name,\n" +
+                    $"           d.worker_id, e.full_name worker_full_name,\n" +
+                    $"           greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
+                    $"           least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
+                    $"           round((least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date)) * 24 * 60 * 60) duration, -- Продолжительность\n" +
+                    $"           d.site_id, s.name site_name\n" +
+                    $"      from dates dt\n" +
+                    $"cross join table(ecco.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $" left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $" left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
+                    $" left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                    $"     where d.finish_date - d.start_date > 0\n" +
+                    $"       and s.code <> 'AUXILIARY'\n" +
+                    $"       and s.code = :site_code\n" +
+                    $"       and s.kind = 'GATE' -- Только ворота\n" +
+                    $" )\n" +
+                    $"   select *\n" +
+                    $"     from data2 d\n" +
+                    $" order by d.position_id, d.worker_id, d.worker_full_name, d.start_date, d.finish_date";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("start_date", fromDate));
+                command.Parameters.Add(new OracleParameter("finish_date", toDate));
+                command.Parameters.Add(new OracleParameter("site_code", siteCode));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var duration = Utils.DbValueToInt(reader["duration"]);
+                    if (duration <= 0)
+                        continue;
+
+                    dynamic work = new ExpandoObject();
+                    work.workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    work.workerFullName = Utils.DbValueToString(reader["worker_full_name"]);
+                    work.positionId = Utils.DbValueToShort(reader["position_id"]);
+                    work.positionName = Utils.DbValueToString(reader["position_name"]);
+                    work.startDate = Utils.DbValueToDateTime(reader["start_date"]);
+                    work.finishDate = Utils.DbValueToDateTime(reader["finish_date"]);
+                    work.duration = duration;
+                    works.Add(work);
+                }
+                reader.Close();
+            }
+            return works.ToArray();
+        }
         #endregion
     }
 }

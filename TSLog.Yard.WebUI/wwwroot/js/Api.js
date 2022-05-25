@@ -511,6 +511,20 @@
             return [];
         }
     }
+
+    async createShiftLaborReport2(date, shift) {
+        let url = "./api/v1/yard/ShiftLaborReport2?date=" + date + "&shift=" + shift;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            const data = await response.json();
+            return data;
+        }
+        else {
+            const message = await response.text();
+            console.log(message);
+            return [];
+        }
+    }
 }
 
 const api = new Api();

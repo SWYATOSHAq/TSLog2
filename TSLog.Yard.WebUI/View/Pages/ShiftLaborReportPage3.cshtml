@@ -1,0 +1,105 @@
+﻿@page "/ShiftLaborReportPage3"
+@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model ShiftLaborReportPageModel
+@{
+    ViewData["Title"] = "Отчёт по трудозатратам (за смену)";
+    var rightsChecker = Model.RightsChecker;
+
+    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) 
+        && rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User));
+    if (!viewGuardPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
+}
+<h2 id="header2">Отчёт по трудозатратам (за смену)</h2>
+<div class="row dates-div">
+    <label class="date-label" for="date-input">Дата:</label>
+    <input id="date-input" 
+        class="datepicker border border-secondary date-input2" 
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />    
+
+    <label class="date-label" for="shift-select">Смена:</label>
+    <select id="shift-select" 
+        class="form-select border-secondary" 
+        style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
+        <option value="day" selected>Дневная</option>
+        <option value="night">Ночная</option>
+    </select>
+    <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
+</div>
+<div class="row button-div">
+    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
+        type="button" 
+        onclick="shiftLaborReportPage2.createReport()">Применить</button>
+</div>
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
+    Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Эффективность равна отношению плановогоо времени работ по ПРР к фактическому.</b>
+</div>
+<table class="table table-light table-bordered table-striped data-table">
+    <thead class="thead-light">
+        <tr id="header-row">   
+            <!--
+            <th class="table-header">Интервал</th>
+            <th class="table-header">Ворота 1</th>
+            <th class="table-header">Ворота 2</th>
+            <th class="table-header">Ворота 3</th>            
+            -->
+        </tr>
+    </thead>
+    <tbody id="elements-tbody">
+        <!--
+        <tr style="height: 120px">
+            <td id="block-1" class="table-cell">9:00-10:00</td>
+            <td class="table-cell" style="width: 180px">
+                <div id="block-11" style="height: 333px; width: 180px; background-color: coral; opacity: 50%; position: absolute"></div>                
+                <div style="height: 81px; width: 180px; background-color: coral; opacity: 50%; position: absolute; margin-top: 431px"></div>
+                <div style="height: 98px; width: 180px; background-color: coral; opacity: 50%; position: absolute; margin-top: 541px"></div>
+            </td>
+            <td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">10:00-11:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">11:00-12:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">12:00-13:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">13:00-14:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">14:00-15:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">15:00-16:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">16:00-17:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">17:00-18:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">18:00-19:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">19:00-20:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        <tr style="height: 120px">
+            <td class="table-cell">20:00-21:00</td><td class="table-cell"></td><td class="table-cell"></td><td class="table-cell"></td>
+        </tr>
+        -->
+    </tbody>
+</table>

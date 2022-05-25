@@ -399,7 +399,6 @@ namespace TSLog.Yard
         #endregion
 
         #region Reporting
-
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
         {
             return _pgsqlStorage.GetYardStandardLabocCosts(fromDate, toDate);
@@ -420,7 +419,14 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetYardShiftLabocCosts(date);
         }
-
+        public dynamic[] GetYardData(DateTime fromDate, DateTime toDate)
+        {
+            return _pgsqlStorage.GetYardData(fromDate, toDate);
+        }
+        public dynamic[] GetBcData(DateTime fromDate, DateTime toDate, string siteCode)
+        {
+            return _oracleStorage.GetBcData(fromDate, toDate, siteCode);
+        }
         #endregion
 
         public void Dispose()

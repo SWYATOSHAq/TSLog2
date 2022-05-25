@@ -90,6 +90,10 @@
     else if (page == "ShiftLaborReportPage2")
     {
         <link rel="stylesheet" href="~/css/ShiftLaborReportPage2.css" asp-append-version="true" />
+    }
+    else if (page == "ShiftLaborReportPage3")
+    {
+        <link rel="stylesheet" href="~/css/ShiftLaborReportPage3.css" asp-append-version="true" />
     } 
 </head>
 
@@ -141,6 +145,7 @@
                         @if (canViewShiftLaborReportPage)
                         {
                             <a class="nav-link text-dark" href="/ShiftLaborReportPage2">Трудозатраты 2</a>
+                            <a class="nav-link text-dark" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
                         }
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
@@ -222,7 +227,17 @@
         }
         else if (page == "ShiftLaborReportPage")
         {        
+            <!--
             <script type="text/javascript" src="~/js/ShiftLaborReportPage.js"></script>
+            -->
+        }
+        else if (page == "ShiftLaborReportPage2")
+        {        
+            <script type="text/javascript" src="~/js/ShiftLaborReportPage2.js"></script>
+        }
+        else if (page == "ShiftLaborReportPage3")
+        {        
+            <script type="text/javascript" src="~/js/ShiftLaborReportPage3.js"></script>
         }
     }
 

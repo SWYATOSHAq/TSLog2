@@ -2008,7 +2008,6 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Reporting
-
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
         {
             var lines = new List<dynamic>();
@@ -2278,6 +2277,55 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             return lines.ToArray();
+        }
+
+        public dynamic[] GetYardData(DateTime fromDate, DateTime toDate)
+        {
+            var data = new List<dynamic>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = 
+                        $"   select o.id,\n" +
+                        $"          o.vehicle_number,\n" +
+                        $"          greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +
+                        $"          least(o.fact_work_finish_date, :finish_date) fact_work_finish_date,\n" +
+                        $"          o.gate_code, o.gate_name,\n" +
+                        $"          otvkt.linear_labor_cost\n" +
+                        $"     from {YardSchema}.v_operation o\n" +
+                        $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
+                        $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
+                        $"    where o.fact_work_start_date is not null\n" +
+                        $"      and o.fact_work_finish_date is not null\n" +
+                        $"      and (o.state_code = 'WORK_FINISHED' or o.state_code = 'FINISHED')\n" +
+                        $"      and not (o.fact_work_start_date > :finish_date or o.fact_work_finish_date < :start_date)" +
+                        $" order by o.fact_work_start_date, o.fact_work_finish_date";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
+                    command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, toDate));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        dynamic operation = new ExpandoObject();
+                        operation.id = Utils.DbValueToLong(reader["id"]);
+                        operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+                        operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
+                        operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
+                                                
+                        operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
+                        operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
+
+                        operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
+                        operation.gateName = Utils.DbValueToString(reader["gate_name"]);
+                        operation.planLaborCost = Utils.DbValueToDouble(reader["linear_labor_cost"]);
+                        data.Add(operation);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return data.ToArray();
         }
 
         #endregion

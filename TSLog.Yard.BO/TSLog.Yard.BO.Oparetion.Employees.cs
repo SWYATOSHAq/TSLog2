@@ -60,6 +60,13 @@ namespace TSLog.Yard.BO
                 return _operationWorkers.ToArray();
             }
         }
+        public short OperationEmployeesCount
+        {
+            get 
+            {
+                return (short)_operationWorkers.Count;
+            }
+        }
         public IDictionary<Position, IList<Employee>> GetEmployeesByPositions()
         {
             var result = new Dictionary<Position, IList<Employee>>();
