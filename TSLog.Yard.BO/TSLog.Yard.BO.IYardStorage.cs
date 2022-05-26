@@ -33,6 +33,7 @@ namespace TSLog.Yard.BO
         public Logist[] GetLogists();
         public short GetDuration(OperationType operationType, VehicleKind vehicleKind);
         public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind);
+        public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
         public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
         public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);

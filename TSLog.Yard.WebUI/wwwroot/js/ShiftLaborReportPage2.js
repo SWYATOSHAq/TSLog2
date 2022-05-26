@@ -23,10 +23,6 @@
         elementsTbody.replaceChildren();
     }
 
-    showElement(operation, reportTbody) {
-        
-    }
-
     createOpenOperationFunction(id) {
         return function () {
             sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
@@ -50,8 +46,6 @@
         gatesCodes.sort();
 
         // Готовим шаблон заголовка
-        //<th class="table-header">В. 1</th>
-
         const gates = { };
         gates["EIN01"] = "Ворота 1";
         gates["EIN02"] = "Ворота 2";

@@ -81,3 +81,11 @@ td {
 .table-cell-w5p {
     width: 5% !important;
 }
+
+.plan-selected-block {
+    background-color: darkred !important;
+}
+
+.fact-selected-block {
+    background-color: darkblue !important;
+}

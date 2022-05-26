@@ -239,6 +239,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetLaborCost(operationType, vehicleKind);
         }
+        public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            return _pgsqlStorage.GetLinearLaborCost(operationType, vehicleKind);
+        }
         public Interval[] GetAllIntervals(DateTime from, DateTime to)
         {
             return _pgsqlStorage.GetAllIntervals(from, to);

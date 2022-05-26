@@ -20,6 +20,7 @@
     planDuration = 0;
     factDuration = 0;
     planLaborCost = 0;
+    planLinearLaborCost = 0;
     factLaborCost = 0;
     finishDate = utils.nullDate;
     avalibleIntervals = [];
@@ -174,9 +175,12 @@
         if (this.planLaborCost <= 0)
             laborCostInput.value = "<Не определено>";
         else {
-            laborCostInput.value = (this.planLaborCost / 3600).toFixed(2);
+            laborCostInput.value = "План - " + (this.planLaborCost / 60).toFixed();
+            if (this.planLinearLaborCost > 0) {
+                laborCostInput.value = laborCostInput.value + ", только линейные - " + (this.planLinearLaborCost / 60).toFixed();
+            }
             if (this.factLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + " (факт. " + (this.factLaborCost / 3600).toFixed(2) + ")"
+                laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
             }
         }
     }
@@ -185,11 +189,14 @@
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
         this.planLaborCost = 0;
+        this.planLinearLaborCos = 0;
         if (operationTypeCode != "" && vehicleKindCode != "") {
             let response = await fetch("./api/v1/yard/OperationLaborCost" +
                 "?operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode);
             if (response.status >= 200 && response.status < 300) {
-                this.planLaborCost = await response.json();
+                const result = await response.json();
+                this.planLaborCost = result.laborCost;
+                this.planLinearLaborCost = result.linearLaborCost;
                 this.countOperationBlocks();
             }
             else {
@@ -790,6 +797,7 @@
             this.planDuration = Number(operation.planDuration);
             this.factDuration = Number(operation.factDuration);
             this.planLaborCost = Number(operation.planLaborCost);
+            this.planLinearLaborCost = Number(operation.planLinearLaborCost);
             this.factLaborCost = Number(operation.factLaborCost);
             this.finishDate = new Date(operation.finishDate);
             this.countOperationBlocks();

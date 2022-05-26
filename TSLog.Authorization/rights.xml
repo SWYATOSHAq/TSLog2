@@ -205,10 +205,18 @@
 			<right code="VIEW_OPERATION_GATE" name="Просмотр ворот операции"></right>
 			<right code="SET_OPERATION_GATE" name="Установка ворот операции"></right>
 			<right code="CANCEL_OPERATION_GATE" name="Сброс ворот операции"></right>
+
+			<!-- Право убрано по задаче руководителя службы безопасности (право впустить и выпустить машину есть только у охраны). -->
+			<!--
 			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
+			-->
 			<right code="START_OPERATION_WORK" name="Начало работ по операции"></right>
 			<right code="FINISH_OPERATION_WORK" name="Окончание работ по операции"></right>
+
+			<!-- Право убрано по задаче руководителя службы безопасности (право впустить и выпустить машину есть только у охраны). -->
+			<!--
 			<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>
+			-->
 			<right code="CANCEL_OPERATION" name="Отмена операции"></right>
 			<right code="DELETE_OPERATION" name="Удаление операции"></right>
 

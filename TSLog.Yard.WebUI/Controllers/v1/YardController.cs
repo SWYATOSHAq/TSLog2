@@ -71,6 +71,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.planDuration = (operation.PlanWorkFinishDate - operation.PlanWorkStartDate).TotalSeconds;
             result.factDuration = (operation.FactWorkFinishDate - operation.FactWorkStartDate).TotalSeconds;
             result.planLaborCost = operation.PlanLaborCost;
+            result.planLinearLaborCost = operation.PlanLinearLaborCost;
             result.factLaborCost = operation.FactLaborCost;
 
             result.gateId = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
@@ -212,8 +213,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operationType = _storage.GetOperationType(stringOperationType);
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                var timeSpan = _storage.GetLaborCost(operationType, vehicleKind);
-                var text = JsonSerializer.Serialize(timeSpan);
+                var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
+                var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
+
+                dynamic result = new ExpandoObject();
+                result.laborCost = laborCost;
+                result.linearLaborCost = linearLaborCost;
+
+                var text = JsonSerializer.Serialize(result);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1794,8 +1801,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 objects.Add(YardController.ShiftLaborReportElementToDynamic(element));
             return objects.ToArray();
         }
-        [HttpGet("ShiftLaborReport")]
-        public string GetShiftLaborReport()
+        [HttpGet("ShiftLaborReport2")]
+        public string GetShiftLaborReport2()
         {
             try
             {
@@ -1840,8 +1847,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("ShiftLaborReport2")]
-        public string GetShiftLaborReport2()
+        [HttpGet("ShiftLaborReport3")]
+        public string GetShiftLaborReport3()
         {
             try
             {

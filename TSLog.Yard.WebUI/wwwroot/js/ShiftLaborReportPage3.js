@@ -15,7 +15,7 @@
     }
 
     async getData(date, shift) {
-        this.data = await api.createShiftLaborReport2(date, shift);
+        this.data = await api.createShiftLaborReport3(date, shift);
     }
 
     clearReport() {
@@ -27,10 +27,25 @@
         
     }
 
-    createOpenOperationFunction(id) {
+    createBlockClick(id) {
         return function () {
-            sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-            location.href = "/OperationPage?id=" + id;
+            let blocks = document.getElementsByClassName("plan-selected-block");
+            while (blocks.length > 0) {
+                blocks[0].classList.remove("plan-selected-block");
+            }
+            blocks = document.getElementsByClassName("fact-selected-block");
+            while (blocks.length > 0) {
+                blocks[0].classList.remove("fact-selected-block");
+            }
+
+            let block = document.getElementById("plan-" + id);
+            if (block != undefined) {
+                block.classList.add("plan-selected-block");
+            }            
+            block = document.getElementById("fact-" + id);
+            if (block != undefined) {
+                block.classList.add("fact-selected-block");
+            }
         }
     }
 
@@ -64,7 +79,6 @@
         gates["EIN14"] = "Ворота 14";
         gates["EIN15"] = "Ворота 15";
         gates["EIN16"] = "Ворота 16";
-
         const headerRow = document.getElementById("header-row");
         headerRow.replaceChildren();
         let columnHeader = document.createElement("th");
@@ -82,14 +96,21 @@
         const tbody = document.getElementById("elements-tbody");
         tbody.replaceChildren();
         const gatesCount = gatesCodes.length;
+        const shift = document.getElementById("shift-select").value;         
         let startHour = 9;
         let finishHour = 10;
+        if (shift === "night") {
+            startHour = 21;
+            finishHour = 22;
+        }
         for (let rowIndex = 0; rowIndex < intervalsCount; rowIndex++) {
             const row = document.createElement("tr");
             row.style.cssText = "height: 120px";
 
             const cell = document.createElement("td");
             cell.classList.add("row-header");
+            startHour = startHour > 24 ? startHour - 24 : startHour;
+            finishHour = finishHour > 24 ? finishHour - 24 : finishHour;
             cell.textContent = startHour.toString() + ":00-" + finishHour.toString() + ":00";
             startHour++;
             finishHour++;
@@ -126,14 +147,33 @@
             const cell = document.getElementById(id);
 
             for (let operation of operations[gateCode]) {
-                const block = document.createElement("div");
-                block.style.cssText = "height: " + Math.round(operation.factDuration * 2).toString() + "px; " +
-                    "width: 100px; " +
-                    "background-color: dodgerblue; " +
-                    "opacity: 50%; " +
-                    "position: absolute; " +
-                    "margin-top: " + Math.round(operation.factStart * 2).toString() + "px";
-                cell.append(block);
+                if (Number(operation.factDuration) > 0) {
+                    const factBlock = document.createElement("div");
+                    factBlock.id = "fact-" + operation.id;
+                    factBlock.onclick = this.createBlockClick(operation.id);
+                    factBlock.style.cssText = "height: " + Math.round(operation.factDuration * 2).toString() + "px; " +
+                        "width: 100px; " +
+                        "background-color: dodgerblue; " +
+                        "opacity: 50%; " +
+                        "position: absolute; " +
+                        "margin-top: " + Math.round(operation.factStart * 2).toString() + "px; " + 
+                        "border: 2px solid";
+                    cell.append(factBlock);
+                }                
+
+                if (Number(operation.planDuration) > 0) {
+                    const planBlock = document.createElement("div");
+                    planBlock.id = "plan-" + operation.id;
+                    planBlock.onclick = this.createBlockClick(operation.id);
+                    planBlock.style.cssText = "height: " + Math.round(operation.planDuration * 2).toString() + "px; " +
+                        "width: 100px; " +
+                        "background-color: coral; " +
+                        "opacity: 50%; " +
+                        "position: absolute; " +
+                        "margin-top: " + Math.round(operation.planStart * 2).toString() + "px; " +
+                        "border: 2px solid";
+                    cell.append(planBlock);
+                }                
             }
 
             // Выводим среднее значение по воротам

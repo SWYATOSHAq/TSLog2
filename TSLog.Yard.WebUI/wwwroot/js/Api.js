@@ -498,8 +498,8 @@
         }
     }
 
-    async createShiftLaborReport(date, shift) {
-        let url = "./api/v1/yard/ShiftLaborReport?date=" + date + "&shift=" + shift;
+    async createShiftLaborReport2(date, shift) {
+        let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             const data = await response.json();
@@ -512,8 +512,8 @@
         }
     }
 
-    async createShiftLaborReport2(date, shift) {
-        let url = "./api/v1/yard/ShiftLaborReport2?date=" + date + "&shift=" + shift;
+    async createShiftLaborReport3(date, shift) {
+        let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             const data = await response.json();

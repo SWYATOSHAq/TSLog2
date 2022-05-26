@@ -87,6 +87,16 @@ namespace TSLog.Yard.BO
                 return result;
             }
         }
+        public int PlanLinearLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operationWork in _operationWorks)
+                    result += operationWork.Position.IsLinear ? operationWork.Time * operationWork.WorkersCount : 0;
+                return result;
+            }
+        }
         /// <summary>
         /// Общие ФАКТИЧЕСКИЕ трудозатраты в человекосекундах
         /// </summary>

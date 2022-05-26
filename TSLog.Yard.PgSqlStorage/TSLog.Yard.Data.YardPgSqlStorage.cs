@@ -757,6 +757,38 @@ namespace TSLog.Yard.Data
             }
             return laborCost;
         }
+        public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var laborCost = OperationType.DefaultLaborCost;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"   select otvkw.time, otvkw.workers_count\n" +
+                        $"     from {YardSchema}.v_ot_vk_work otvkw\n" +
+                        $"left join {YardSchema}.v_position p on otvkw.position_id = p.id\n" +
+                        $"    where otvkw.operation_type_id = :operation_type_id\n" +
+                        $"      and otvkw.vehicle_kind_id = :vehicle_kind_id\n" +
+                        $"      and p.is_linear = 1";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return laborCost;
+        }
         private Interval CreateInterval(DbDataReader reader)
         {
             if (reader == null)
@@ -2289,6 +2321,8 @@ namespace TSLog.Yard.Data
                     var sql = 
                         $"   select o.id,\n" +
                         $"          o.vehicle_number,\n" +
+                        $"          greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
+                        $"          least(o.plan_work_finish_date, :finish_date) plan_work_finish_date,\n" +
                         $"          greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +
                         $"          least(o.fact_work_finish_date, :finish_date) fact_work_finish_date,\n" +
                         $"          o.gate_code, o.gate_name,\n" +
@@ -2310,9 +2344,13 @@ namespace TSLog.Yard.Data
                         dynamic operation = new ExpandoObject();
                         operation.id = Utils.DbValueToLong(reader["id"]);
                         operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+                        operation.planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+                        operation.planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
                         operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
                         operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
-                                                
+
+                        operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
+                        operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
                         operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
                         operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
 
