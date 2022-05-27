@@ -51,6 +51,7 @@
         }
     }
 
+    var canCopy = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION", User);
     var setGate = !useAuthentication || rightsChecker.CheckRight("SET_OPERATION_GATE", User);
     var canEditAttributes = !useAuthentication
         || rightsChecker.CheckRight("EDIT_OPERATION", User)
@@ -275,6 +276,7 @@
             {
                 <div class="d-grid gap-2 col-4">
                     <button class="btn btn-outline-success hide-on-print" 
+                        title="Создать карточку операции двора"
                         type="button" 
                         onclick="@createOperationOnclick">Создать</button>
                 </div>
@@ -282,62 +284,104 @@
             else
             {
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="operationPage.printOperation()">Печать</button>
+                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" 
+                        title="Печать карточки операции двора"
+                        type="button" 
+                        onclick="operationPage.printOperation()">Печать</button>
                 </div>
                 @if (canEditAttributes || canEditNote)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="@editOperationOnclick">Сохранить изменения</button>
+                        <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" 
+                            title="Сохранить изменения в карточке операции двора"
+                            type="button" 
+                            onclick="@editOperationOnclick">Сохранить изменения</button>
                     </div>   
                 }            
+                @if (canCopy)
+                {
+                    <div class="d-grid m-2 row">
+                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
+                            title="Копировать карточку операции двора"
+                            type="button" 
+                            onclick="operationPage.copyOperation()">Копировать</button>
+                    </div>       
+                }
                 @if (stateCode == "CREATED" && setGate)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
+                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
+                            title="Автоматически назначить ворота для операции двора"
+                            type="button" 
+                            onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
                     </div>
                 }
                 @if (stateCode == "CONFIRMED" &&  canStart)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.startOperation()">Принять машину</button>
+                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
+                            title="Запустить автомашину на территории складского комплекса"
+                            type="button" 
+                            onclick="operationPage.startOperation()">Принять машину</button>
                     </div>
                 }      
                 @if (stateCode == "STARTED" && canStartWork)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.startOperationWork()">Поставить на ворота</button>
+                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
+                            title="Поставить автомашину на ворота (начать работу по погрузке или разгрузке)"
+                            type="button" 
+                            onclick="operationPage.startOperationWork()">Поставить на ворота</button>
                     </div>
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.allocateWorkers()">(Авто) Назначить сотрудников</button>
+                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
+                            title="Автоматически назначить работников на операцию двора (в зависимости от плановых должностей)"
+                            type="button" 
+                            onclick="operationPage.allocateWorkers()">(Авто) Назначить сотрудников</button>
                     </div>
                 }
                 @if (stateCode == "WORK_STARTED" && canFinishWork)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" type="button" onclick="operationPage.finishOperationWork()">Завершить работу</button>
+                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
+                            title="Завершить погрузочно-разгрузочные работы по операции двора (снять автомашину с ворот)"
+                            type="button" 
+                            onclick="operationPage.finishOperationWork()">Завершить работу</button>
                     </div>
                 }
                 @if (stateCode == "WORK_FINISHED" && canFinish)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" type="button" onclick="operationPage.finishOperation()">Отпустить машину</button>
+                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
+                            title="Отпустить автомашину с териитории складского комплекса"
+                            type="button" 
+                            onclick="operationPage.finishOperation()">Отпустить машину</button>
                     </div>
                 }
                 <div class="mt-5"></div>
                 @if (canDelete)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.deleteOperation()">Удалить</button>
+                        <button class="btn btn-danger hide-on-print col-4 mx-auto" 
+                            title="Удалить операцию двора"
+                            type="button" 
+                            onclick="operationPage.deleteOperation()">Удалить</button>
                     </div>
                 }
                 @if (canCancel)
                 {
                     <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.cancelOperation()">Отменить</button>
+                        <button class="btn btn-danger hide-on-print col-4 mx-auto" 
+                            title="Отменить операцию двора"
+                            type="button" 
+                            onclick="operationPage.cancelOperation()">Отменить</button>
                     </div>
                 }
                 <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="operationPage.closeOperation()">Закрыть</button>
+                    <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" 
+                        title="Закрыть карточку операции двора"
+                        type="button" 
+                        onclick="operationPage.closeOperation()">Закрыть</button>
                 </div>
             }
         </div>

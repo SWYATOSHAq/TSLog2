@@ -107,7 +107,7 @@ namespace TSLog.Authorization
 
         public string GetUserName(ClaimsPrincipal user)
         {
-            var userName = "a.ilenkova"; // Для теста!
+            var userName = "m.burov"; // Для теста!
             if (user != null && user.Identity != null && !string.IsNullOrWhiteSpace(user.Identity.Name))
                 userName = user.Identity.Name.Split('\\').Last();
             return userName;

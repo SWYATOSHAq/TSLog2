@@ -484,6 +484,10 @@
         }
     }
 
+    copyOperation() {
+        alert("Не раализовано!");
+    }
+
     async editOperationByPartner() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||

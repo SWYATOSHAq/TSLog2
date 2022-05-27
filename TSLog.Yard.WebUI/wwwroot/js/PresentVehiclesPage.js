@@ -93,6 +93,7 @@
         openButton.classList.add("table-cell-button");
         openButton.onclick = this.createOpenOperationFunction(operation.id);
         openButton.textContent = "Открыть";
+        openButton.title = "Открыть карточку операции двора";
         contents = [openButton];
 
         const openP = document.createElement("p");

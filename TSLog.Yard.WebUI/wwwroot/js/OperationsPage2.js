@@ -45,6 +45,7 @@
         openButton.style.cssText = "width: 100px !important";
         openButton.onclick = this.createOpenOperationFunction(operation.id);
         openButton.textContent = "Открыть";
+        openButton.title = "Открыть карточку операции двора";
         contents.push(openButton);
 
         viewUtils.createCell(operationTr, ["table-cell"], contents, "box-shadow: none; background-color: " + operation.displayColor);
@@ -53,8 +54,6 @@
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.stateName], "box-shadow: none; background-color: " + operation.displayColor);
-
-
 
         let text = operation.startDate > utils.nullDate ?
             operation.startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.startDate.toLocaleDateString() :

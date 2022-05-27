@@ -28,6 +28,7 @@
 
 		<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 		<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
+		<right code="COPY_OPERATION" name="Копирование операции двора"></right>
 		<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
 		<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
 		<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
@@ -76,6 +77,7 @@
 
 			<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром"></right>
 			<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
+			<right code="COPY_OPERATION" name="Копирование операции двора"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="CANCEL_OPERATION" name="Отмена операции"></right>
 			
@@ -200,6 +202,7 @@
 
 			<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 			<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
+			<right code="COPY_OPERATION" name="Копирование операции двора"></right>
 			<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="VIEW_OPERATION_GATE" name="Просмотр ворот операции"></right>
@@ -270,6 +273,7 @@
 
 			<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра)"></right>
 			<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
+			<right code="COPY_OPERATION" name="Копирование операции двора"></right>
 			<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
 			<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>

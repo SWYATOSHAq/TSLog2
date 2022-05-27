@@ -56,7 +56,7 @@
         openP.textContent = operation.id;
         contents = [openP];
 
-        const openButton = document.createElement("button");
+        const openButton = document.createElement("button");        
         openButton.classList.add("btn");
         openButton.classList.add("btn-outline-info");
         openButton.classList.add("m-3");
@@ -64,6 +64,7 @@
         openButton.style.cssText = "width: 100px !important";
         openButton.onclick = this.createOpenOperationFunction(operation.id);
         openButton.textContent = "Открыть";
+        openButton.title = "Открыть карточку операции двора";
         contents.push(openButton);
 
         viewUtils.createCell(operationTr, ["table-cell"], contents);
@@ -96,7 +97,7 @@
         passVehicleP.classList.add("p-margin-0");
         passVehicleP.textContent = operation.stateDisplayName;
 
-        const passVehicleButton = document.createElement("button");
+        const passVehicleButton = document.createElement("button");        
         passVehicleButton.classList.add("btn");
         passVehicleButton.classList.add("btn-outline-info");
         passVehicleButton.classList.add("m-3");
@@ -105,9 +106,11 @@
         if (operation.stateCode == "CONFIRMED") {
             passVehicleButton.onclick = this.createLetVehicleIn(operation.id);
             passVehicleButton.textContent = "Впустить";
+            passVehicleButton.title = "Запустить автомашину на территории складского комплекса";
         } else if (operation.stateCode = "WORK_FINISHED") {
             passVehicleButton.onclick = this.createReleaseVehicle(operation.id);
             passVehicleButton.textContent = "Выпустить";
+            passVehicleButton.title = "Отпустить автомашину с териитории складского комплекса";
         } else {
             passVehicleButton.onclick = null;
             passVehicleButton.textContent = "?";
