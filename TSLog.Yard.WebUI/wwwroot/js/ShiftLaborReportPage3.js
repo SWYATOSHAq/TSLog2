@@ -15,7 +15,12 @@
     }
 
     async getData(date, shift) {
-        this.data = await api.createShiftLaborReport3(date, shift);
+        const result = await api.createShiftLaborReport3(date, shift);
+        if (result.code === 0) {
+            this.data = result.data;
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     clearReport() {

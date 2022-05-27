@@ -3,23 +3,29 @@
     Автор - Буров Михаил.
 */
 
+// Класс для доступа к внешним программным интерфейсам по протоколу http
 class Api {
+    async getPlanDuration(operationTypeCode, vehicleKindCode) {
+        let response = await fetch("./api/v1/yard/OperationDuration" +
+            "?operation_type=" + operationTypeCode +
+            "&vehicle_kind=" + vehicleKindCode);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("planDuration", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
     async getPlanLaborCost(operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/OperationLaborCost?" +
             "operation_type=" + operationTypeCode +
             "&vehicle_kind=" + vehicleKindCode);
         if (response.status >= 200 && response.status < 300) {
-            const result = await response.json();
-            result.code = 0;
-            result.message = "Ok";
-            return result;
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            return {
-                code: 9999,
-                message: message
-            };
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -29,34 +35,31 @@ class Api {
             "&operation_type=" + operationTypeCode +
             "&vehicle_kind=" + vehicleKindCode);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                avalibleIntervals: await response.json()
-            }
+            return utils.createCorrectObject("avalibleIntervals", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            };
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    async getPartnerManager(partnerId) {
+        let response = await fetch("./api/v1/yard/PartnerManager" +
+            "?partner_id=" + partnerId);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("manager", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
         }
     }
 
     async getOperation(id) {
         let response = await fetch("./api/v1/yard/Operation?id=" + id);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -64,17 +67,10 @@ class Api {
         let url = "./api/v1/yard/Operations" + parameters;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operations: await response.json()
-            }
+            return utils.createCorrectObject("operations", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -82,17 +78,10 @@ class Api {
         let url = "./api/v1/yard/ActiveOperations";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operations: await response.json()
-            }
+            return utils.createCorrectObject("operations", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -100,17 +89,10 @@ class Api {
         let url = "./api/v1/yard/GuardOperations";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operations: await response.json()
-            }
+            return utils.createCorrectObject("operations", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -123,17 +105,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -146,17 +121,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -169,17 +137,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -192,17 +153,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -219,17 +173,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -248,17 +195,10 @@ class Api {
 
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -274,17 +214,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -294,17 +227,10 @@ class Api {
             "&position_code=" + positionCode;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            const workers = await response.json();
-            return {
-                code: 0,
-                data: workers
-            }
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -312,17 +238,10 @@ class Api {
         const url = "./api/v1/yard/LinearWorkers";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                data: await response.json()
-            };
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            return {
-                code: 9999,
-                message: message
-            };
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -330,17 +249,10 @@ class Api {
         const url = "./api/v1/yard/LinearFreeWorkers";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                data: await response.json()
-            };
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            return {
-                code: 9999,
-                message: message
-            };
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -348,18 +260,10 @@ class Api {
         const url = "./api/v1/yard/AllWorkers";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                data: await response.json()
-            };
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            return {
-                code: 9999,
-                message: message
-            };
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -367,18 +271,10 @@ class Api {
         const url = "./api/v1/yard/OperationWorkers?operation_id=" + operationId;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                data: await response.json()
-            };
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            return {
-                code: 9999,
-                message: message
-            };
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -396,16 +292,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok"
-            }
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -423,16 +313,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok"
-            }
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -448,17 +332,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok"
-            };
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            return {
-                code: 9999,
-                message: message
-            };
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -474,17 +351,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -500,17 +370,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0, 
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -526,17 +389,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -552,17 +408,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -578,17 +427,10 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return {
-                code: 0,
-                message: "Ok",
-                operation: await response.json()
-            }
+            return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return {
-                code: 9999,
-                message: await response.text()
-            }
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -596,13 +438,10 @@ class Api {
         let url = "./api/v1/yard/LaborReport?from_date=" + fromDate + "&to_date=" + toDate;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            const data = await response.json();
-            return data;
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            return [];
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -610,13 +449,10 @@ class Api {
         let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            const data = await response.json();
-            return data;
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            return [];
+            return utils.createErrorObject(await response.text());
         }
     }
 
@@ -624,13 +460,10 @@ class Api {
         let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            const data = await response.json();
-            return data;
+            return utils.createCorrectObject("data", await response.json());
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            return [];
+            return utils.createErrorObject(await response.text());
         }
     }
 }

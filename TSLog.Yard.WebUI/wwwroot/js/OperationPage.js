@@ -156,17 +156,17 @@
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
         this.planDuration = 0;
-        if (operationTypeCode != "" && vehicleKindCode != "") {
-            let response = await fetch("./api/v1/yard/OperationDuration" +
-                "?operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode);
-            if (response.status >= 200 && response.status < 300) {
-                this.planDuration = await response.json();
-                this.countOperationBlocks();
-            }
-            else {
-                const text = await response.text();
-                console.log(text);
-            }
+
+        if (operationTypeCode === "" || vehicleKindCode === "") {
+            return;
+        }
+
+        const result = await api.getPlanDuration(operationTypeCode, vehicleKindCode);
+        if (result.code === 0) {
+            this.planDuration = result.planDuration;
+            this.countOperationBlocks();
+        } else {
+            viewUtils.showError(result.message);
         }
     }
 
@@ -191,13 +191,17 @@
         this.planLaborCost = 0;
         this.planLinearLaborCos = 0;
 
-        const result = api.getPlanLaborCost(operationTypeCode, vehicleKindCode);
+        if (operationTypeCode === "" || vehicleKindCode === "") {
+            return;
+        }
+
+        const result = await api.getPlanLaborCost(operationTypeCode, vehicleKindCode);
         if (result.code === 0) {
-            this.planLaborCost = result.laborCost;
-            this.planLinearLaborCost = result.linearLaborCost;
+            this.planLaborCost = result.data.laborCost;
+            this.planLinearLaborCost = result.data.linearLaborCost;
             this.countOperationBlocks();
         } else {
-            console.log(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -208,11 +212,11 @@
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
 
-        const result = api.getAvalibleIntervals(workStartDate, operationTypeCode, vehicleKindCode);
+        const result = await api.getAvalibleIntervals(workStartDate, operationTypeCode, vehicleKindCode);
         if (result.code === 0) {
             this.avalibleIntervals = result.avalibleIntervals;
         } else {
-            console.log((await result).message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -342,19 +346,18 @@
     }
 
     async showManager() {
-        const partnersSelect = document.getElementById("partners-select");
-        const managerInput = document.getElementById("manager-input");
+        const managerInput = document.getElementById("manager-input");        
         managerInput.value = "<Не определено>"
-        if (partnersSelect.value == "")
+        const partnersSelect = document.getElementById("partners-select");
+        const partnerId = partnersSelect.value;
+        if (partnerId === "")
             return;
-        let response = await fetch("./api/v1/yard/PartnerManager?partner_id=" + partnersSelect.value);
-        if (response.status >= 200 && response.status < 300) {
-            const manager = await response.json();
-            managerInput.value = manager.FullName;
-        }
-        else {
-            const text = await response.text();
-            console.log(text);
+
+        const result = await api.getPartnerManager(partnerId);
+        if (result.code === 0) {
+            managerInput.value = result.manager.FullName;
+        } else {
+            viewUtils.showError(result.message);
         }
     }
 
@@ -393,10 +396,9 @@
         const result = await api.createOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
-            location.href = shortUrl + "?id=" + operation.id;
+            location.href = this.shortUrl + "?id=" + operation.id;
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -431,8 +433,7 @@
             const operation = result.operation;
             location.href = shortUrl + "?id=" + operation.id;
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -479,8 +480,7 @@
         if (result.code === 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -519,8 +519,7 @@
         if (result.code === 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -531,8 +530,7 @@
         if (result.code === 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -541,8 +539,7 @@
         if (result.code === 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -552,8 +549,7 @@
         if (result.code == 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -580,8 +576,7 @@
             this.liearWorkers = result.data;
         }
         else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -593,13 +588,16 @@
         const operationId = document.getElementById("id-input").value;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
-        await api.addOperationWorker(operationId, workerId, positionCode);
 
-        await this.getSelectedWorkers();
-        this.showSelectedWorkers();
-        this.showLinearFreeWorkers();
-
-        this.showWorkersDivs();
+        const result = await api.addOperationWorker(operationId, workerId, positionCode);
+        if (result.code === 0) {
+            await this.getSelectedWorkers();
+            this.showSelectedWorkers();
+            this.showLinearFreeWorkers();
+            this.showWorkersDivs();
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     showLinearFreeWorker(worker, button) {
@@ -650,10 +648,9 @@
                 this.selectedWorkersIds.add(worker.id);
             }
         }
-        else {
+        else {            
             this.selectedWorkers = [];
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -661,13 +658,16 @@
         const operationId = document.getElementById("id-input").value;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
-        await api.removeOperationWorker(operationId, workerId, positionCode);
 
-        await this.getSelectedWorkers();
-        this.showSelectedWorkers();
-        this.showLinearFreeWorkers();
-
-        this.showWorkersDivs();
+        const result = await api.removeOperationWorker(operationId, workerId, positionCode);
+        if (result.code === 0) {
+            await this.getSelectedWorkers();
+            this.showSelectedWorkers();
+            this.showLinearFreeWorkers();
+            this.showWorkersDivs();
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     showSelectedWorker(worker, button) {
@@ -698,10 +698,9 @@
     async allocateWorkers() {
         const result = await api.allocateOperationWorkers(this.getOperationId());
         if (result.code === 0) {
-            window.location.reload();
+            location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
     // #endregion
@@ -722,8 +721,7 @@
         if (result.code === 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -733,8 +731,7 @@
         if (result.code === 0) {
             location.reload();
         } else {
-            console.log(result.message);
-            alert(result.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -751,8 +748,7 @@
         if (result.code === 0) {
             this.showOperationsPage();
         } else {
-            console.log(response.message);
-            alert(response.message);
+            viewUtils.showError(result.message);
         }        
     }
 
@@ -765,8 +761,7 @@
         if (result.code === 0) {
             this.showOperationsPage();
         } else {
-            console.log(response.message);
-            alert(response.message);
+            viewUtils.showError(result.message);
         }   
     }
 
@@ -779,8 +774,7 @@
         if (result.code === 0) {
             this.showOperationsPage();
         } else {
-            console.log(response.message);
-            alert(response.message);
+            viewUtils.showError(result.message);
         }
     }
 
@@ -859,6 +853,8 @@
             const result = await api.getOperation(Number(id));
             if (result.code === 0) {
                 operation = result.operation;
+            } else {
+                viewUtils.showError(result.message);
             }
         }
 

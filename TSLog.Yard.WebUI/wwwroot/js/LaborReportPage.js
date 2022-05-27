@@ -17,7 +17,13 @@
     }
 
     async getData(fromDate, toDate) {
-        this.data = await api.createLaborReport(fromDate, toDate);
+
+        const result = await api.createLaborReport(fromDate, toDate);
+        if (result.code === 0) {
+            this.data = result.data;
+        } else {
+            viewUtils.showError(result.message);
+        }        
     }
 
     clearReport() {
