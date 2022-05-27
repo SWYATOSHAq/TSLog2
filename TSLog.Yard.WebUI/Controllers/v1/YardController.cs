@@ -1907,8 +1907,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     {
                         operation.factLaborCost += work.duration;
                     }
-                    operation.planLaborCost = Math.Round(operation.planLaborCost / 60);
-                    operation.factLaborCost = Math.Round(operation.factLaborCost / 60);
+                    operation.planLaborCost = operation.planLaborCost;
+                    operation.factLaborCost = operation.factLaborCost;
                 }
 
                 var text = JsonSerializer.Serialize(operations);

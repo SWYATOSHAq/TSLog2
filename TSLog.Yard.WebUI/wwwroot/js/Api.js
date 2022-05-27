@@ -1,13 +1,62 @@
-﻿class Api {
+﻿/*
+    Функционал для доступа к другим программным интерфейсам по http протоколу.
+    Автор - Буров Михаил.
+*/
+
+class Api {
+    async getPlanLaborCost(operationTypeCode, vehicleKindCode) {
+        let response = await fetch("./api/v1/yard/OperationLaborCost?" +
+            "operation_type=" + operationTypeCode +
+            "&vehicle_kind=" + vehicleKindCode);
+        if (response.status >= 200 && response.status < 300) {
+            const result = await response.json();
+            result.code = 0;
+            result.message = "Ok";
+            return result;
+        }
+        else {
+            const message = await response.text();
+            return {
+                code: 9999,
+                message: message
+            };
+        }
+    }
+
+    async getAvalibleIntervals(date, operationTypeCode, vehicleKindCode) {
+        let response = await fetch("./api/v1/yard/AvalibleIntervals?" +
+            "date=" + date +
+            "&operation_type=" + operationTypeCode +
+            "&vehicle_kind=" + vehicleKindCode);
+        if (response.status >= 200 && response.status < 300) {
+            return {
+                code: 0,
+                message: "Ok",
+                avalibleIntervals: await response.json()
+            }
+        }
+        else {
+            return {
+                code: 9999,
+                message: await response.text()
+            };
+        }
+    }
+
     async getOperation(id) {
         let response = await fetch("./api/v1/yard/Operation?id=" + id);
         if (response.status >= 200 && response.status < 300) {
-            return await response.json();            
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
-        else {            
-            const text = await response.text();
-            console.log(text);
-            return null;
+        else {
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -15,12 +64,17 @@
         let url = "./api/v1/yard/Operations" + parameters;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            return await response.json();
+            return {
+                code: 0,
+                message: "Ok",
+                operations: await response.json()
+            }
         }
-        else {            
-            const message = await response.text();
-            console.log(message);
-            return [];
+        else {
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -28,13 +82,17 @@
         let url = "./api/v1/yard/ActiveOperations";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            const operations = await response.json();            
-            return operations;
+            return {
+                code: 0,
+                message: "Ok",
+                operations: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            return [];
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -42,13 +100,17 @@
         let url = "./api/v1/yard/GuardOperations";
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
-            const operations = await response.json();
-            return operations;
+            return {
+                code: 0,
+                message: "Ok",
+                operations: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            return [];
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -61,14 +123,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            location.href = location.href + "?id=" + operation.Id;
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -81,14 +146,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            location.href = location.href + "?id=" + operation.Id;
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -101,14 +169,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            location.reload();
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -121,18 +192,25 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            location.reload();
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
-    async editOperationNote(data) {
+    async editOperationNote(id, note) {
+        const data = {
+            id: id,
+            note: note
+        };
         const url = "./api/v1/yard/SetOperationNote";
         const options = {
             method: "PATCH",
@@ -141,14 +219,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            location.reload();
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -159,7 +240,6 @@
         }
         if (gateCode != "")
             data.gateCode = gateCode;
-
         const options = {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -168,14 +248,17 @@
 
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            window.location.reload();
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -191,19 +274,24 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            window.location.reload();
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
     async getPositionWorkers(positionCode, pattern) {
-        const url = "./api/v1/yard/PositionWorkers?name_pattern=" + pattern + "&position_code=" + positionCode;
+        const url = "./api/v1/yard/PositionWorkers?" +
+            "name_pattern=" + pattern +
+            "&position_code=" + positionCode;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             const workers = await response.json();
@@ -309,7 +397,8 @@
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             return {
-                code: 0
+                code: 0,
+                message: "Ok"
             }
         }
         else {
@@ -335,7 +424,8 @@
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             return {
-                code: 0
+                code: 0,
+                message: "Ok"
             }
         }
         else {
@@ -384,14 +474,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            window.location.reload();
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -407,14 +500,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
-            window.location.reload();
+            return {
+                code: 0, 
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -430,13 +526,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -452,13 +552,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 
@@ -474,13 +578,17 @@
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            const operation = await response.json();
-            console.log(operation);            
+            return {
+                code: 0,
+                message: "Ok",
+                operation: await response.json()
+            }
         }
         else {
-            const message = await response.text();
-            console.log(message);
-            alert(message);
+            return {
+                code: 9999,
+                message: await response.text()
+            }
         }
     }
 

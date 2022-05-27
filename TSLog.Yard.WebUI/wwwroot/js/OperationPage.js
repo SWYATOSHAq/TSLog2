@@ -190,19 +190,14 @@
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
         this.planLaborCost = 0;
         this.planLinearLaborCos = 0;
-        if (operationTypeCode != "" && vehicleKindCode != "") {
-            let response = await fetch("./api/v1/yard/OperationLaborCost" +
-                "?operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode);
-            if (response.status >= 200 && response.status < 300) {
-                const result = await response.json();
-                this.planLaborCost = result.laborCost;
-                this.planLinearLaborCost = result.linearLaborCost;
-                this.countOperationBlocks();
-            }
-            else {
-                const text = await response.text();
-                console.log(text);
-            }
+
+        const result = api.getPlanLaborCost(operationTypeCode, vehicleKindCode);
+        if (result.code === 0) {
+            this.planLaborCost = result.laborCost;
+            this.planLinearLaborCost = result.linearLaborCost;
+            this.countOperationBlocks();
+        } else {
+            console.log(result.message);
         }
     }
 
@@ -212,15 +207,12 @@
         const workStartDate = workStartDatePicker.value;
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
-        this.avalibleIntervals = [];
-        let response = await fetch("./api/v1/yard/AvalibleIntervals?date=" + workStartDate +
-            "&operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode);
-        if (response.status >= 200 && response.status < 300) {
-            this.avalibleIntervals = await response.json();
-        }
-        else {
-            const text = await response.text();
-            console.log(text);
+
+        const result = api.getAvalibleIntervals(workStartDate, operationTypeCode, vehicleKindCode);
+        if (result.code === 0) {
+            this.avalibleIntervals = result.avalibleIntervals;
+        } else {
+            console.log((await result).message);
         }
     }
 
@@ -397,7 +389,15 @@
             partnerId: document.getElementById("partners-select").value,
             partnerActionId: document.getElementById("partner-action-id-input").value
         };
-        api.createOperation(data);
+
+        const result = await api.createOperation(data);
+        if (result.code === 0) {
+            const operation = result.operation;
+            location.href = shortUrl + "?id=" + operation.id;
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     async createOperationByPartner() {
@@ -425,7 +425,15 @@
             note: document.getElementById("note-textarea").value,
             partnerActionId: document.getElementById("partner-action-id-input").value
         };
-        await api.createOperationByPartner(data);
+
+        const result = await api.createOperationByPartner(data);
+        if (result.code === 0) {
+            const operation = result.operation;
+            location.href = shortUrl + "?id=" + operation.id;
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     getOperationId() {
@@ -466,7 +474,14 @@
             partnerId: document.getElementById("partners-select").value,
             partnerActionId: document.getElementById("partner-action-id-input").value
         };
-        api.editOperation(data);
+
+        const result = await api.editOperation(data);
+        if (result.code === 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     async editOperationByPartner() {
@@ -499,23 +514,47 @@
             note: document.getElementById("note-textarea").value,
             partnerActionId: document.getElementById("partner-action-id-input").value
         };
-        api.editOperationByPartner(data);
+
+        const result = await api.editOperationByPartner(data);
+        if (result.code === 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     async editOperationNote() {
-        const data = {
-            id: this.getOperationId(),
-            note: document.getElementById("note-textarea").value
-        };
-        api.editOperationNote(data);
+        const id = this.getOperationId();
+        const note = document.getElementById("note-textarea").value;
+        const result = await api.editOperationNote(id, note);
+        if (result.code === 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     async setOperationGate() {
-        api.setOperationGate(this.getOperationId(), "");
+        const result = await api.setOperationGate(this.getOperationId(), "");
+        if (result.code === 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     async startOperation() {
-        api.startOperation(this.getOperationId());
+        const id = this.getOperationId();
+        const result = await api.startOperation(id);
+        if (result.code == 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     // #region Workers
@@ -536,12 +575,13 @@
     }
 
     async getLinearFreeWorkers() {
-        const response = await api.getLinearFreeWorkers();
-        if (response.code === 0) {
-            this.liearWorkers = response.data;
+        const result = await api.getLinearFreeWorkers();
+        if (result.code === 0) {
+            this.liearWorkers = result.data;
         }
         else {
-            console.log(response.message);
+            console.log(result.message);
+            alert(result.message);
         }
     }
 
@@ -554,7 +594,7 @@
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
         await api.addOperationWorker(operationId, workerId, positionCode);
-                
+
         await this.getSelectedWorkers();
         this.showSelectedWorkers();
         this.showLinearFreeWorkers();
@@ -571,13 +611,13 @@
         button.dataset.positionName = worker.positionName;
         button.dataset.positionShortName = worker.positionShortName;
         button.append("[" + worker.positionShortName + "] ");
-        
+
         const workerFullNameB = document.createElement("b");
         workerFullNameB.textContent = worker.fullName;
         button.append(workerFullNameB);
         button.onclick = () => {
             this.onLinearWorkerClick(button);
-        } 
+        }
     }
 
     showLinearFreeWorkers() {
@@ -602,17 +642,18 @@
     }
 
     async getSelectedWorkers() {
-        const response = await api.getOperationWorkers(this.getOperationId());
+        const result = await api.getOperationWorkers(this.getOperationId());
         this.selectedWorkersIds.clear();
-        if (response.code === 0) {
-            this.selectedWorkers = response.data;
+        if (result.code === 0) {
+            this.selectedWorkers = result.data;
             for (let worker of this.selectedWorkers) {
                 this.selectedWorkersIds.add(worker.id);
             }
         }
         else {
             this.selectedWorkers = [];
-            console.log(response.message);
+            console.log(result.message);
+            alert(result.message);
         }
     }
 
@@ -641,7 +682,7 @@
         button.append(workerFullNameB);
         button.onclick = () => {
             this.onSelectedWorkerClick(button);
-        }       
+        }
     }
 
     showSelectedWorkers() {
@@ -655,11 +696,12 @@
     }
 
     async allocateWorkers() {
-        const response = await api.allocateOperationWorkers(this.getOperationId());
-        if (response.code === 0) {
+        const result = await api.allocateOperationWorkers(this.getOperationId());
+        if (result.code === 0) {
             window.location.reload();
         } else {
-            console.log(response.message);
+            console.log(result.message);
+            alert(result.message);
         }
     }
     // #endregion
@@ -675,11 +717,25 @@
             alert("Не все сотрудники были заполнены!");
             return;
         }
-        api.startOperationWork(this.getOperationId());
+        const id = this.getOperationId();
+        const result = await api.startOperationWork(id);
+        if (result.code === 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     async finishOperationWork() {
-        api.finishOperationWork(this.getOperationId());
+        const id = this.getOperationId();
+        const result = await api.finishOperationWork(id);
+        if (result.code === 0) {
+            location.reload();
+        } else {
+            console.log(result.message);
+            alert(result.message);
+        }
     }
 
     showOperationsPage() {
@@ -690,24 +746,42 @@
     }
 
     async finishOperation() {
-        api.finishOperation(this.getOperationId());
-        this.showOperationsPage();
+        const id = this.getOperationId();
+        const result = await api.finishOperation(id);
+        if (result.code === 0) {
+            this.showOperationsPage();
+        } else {
+            console.log(response.message);
+            alert(response.message);
+        }        
     }
 
     async cancelOperation() {
         if (!window.confirm("Отменить операцию двора?")) {
             return;
         }
-        api.cancelOperation(this.getOperationId());
-        this.showOperationsPage();
+        const id = this.getOperationId();
+        const result = await api.cancelOperation(id);
+        if (result.code === 0) {
+            this.showOperationsPage();
+        } else {
+            console.log(response.message);
+            alert(response.message);
+        }   
     }
 
     async deleteOperation() {
         if (!window.confirm("Удалить операцию двора?")) {
             return;
         }
-        api.deleteOperation(this.getOperationId());
-        this.showOperationsPage();
+        const id = this.getOperationId();
+        const result = await api.deleteOperation(id);
+        if (result.code === 0) {
+            this.showOperationsPage();
+        } else {
+            console.log(response.message);
+            alert(response.message);
+        }
     }
 
     closeOperation() {
@@ -720,7 +794,6 @@
     }
 
     setControlsState() {
-
         if (this.factWorkStartDate > utils.nullDate) {
             document.getElementById("time-div").setAttribute("disabled", "");
             document.getElementById("work-start-date-picker").setAttribute("disabled", "");
@@ -783,7 +856,10 @@
         const id = utils.getUrlParameter("id");
         let operation = null;
         if (id != "") {
-            operation = await api.getOperation(Number(id));            
+            const result = await api.getOperation(Number(id));
+            if (result.code === 0) {
+                operation = result.operation;
+            }
         }
 
         const workersDiv = document.getElementById("workers-div");

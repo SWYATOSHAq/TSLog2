@@ -58,11 +58,11 @@ namespace TSLog.Staff.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerByIdSql =
-                    $"select le.id," +
-                    $"       le.name, le.short_name, le.alt_name, le.display_name," +
-                    $"       le.is_active, le.display_order," +
-                    $"       le.note" +
-                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le " +
+                    $"select le.id,\n" +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name,\n" +
+                    $"       le.is_active, le.display_order,\n" +
+                    $"       le.note\n" +
+                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le\n" +
                     $" where upper(trim(le.id)) = :id";
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -85,10 +85,10 @@ namespace TSLog.Staff.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerByIdSql =
-                    $"select le.id," +
-                    $"       le.name, le.short_name, le.alt_name, le.display_name," +
-                    $"       le.is_active, le.display_order," +
-                    $"       le.note" +
+                    $"select le.id,\n" +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name,\n" +
+                    $"       le.is_active, le.display_order,\n" +
+                    $"       le.note\n" +
                     $"  from {LegalEntitiesSchema}.le_legal_entity_employer#v le";
                 command.CommandText = SelectPartnerByIdSql;
                 using var reader = command.ExecuteReader();
@@ -146,13 +146,13 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectPositionByIdSql =
-                    $"select p.id, p.code," +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
-                    $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear," +
-                    $"       p.cost, p.cost_currency_code," +
-                    $"       p.note " +
-                    $"  from {StaffSchema}.stf_position#v p " +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
+                    $"  from {StaffSchema}.stf_position#v p\n" +
                     $" where p.id = :id";
                 command.CommandText = SelectPositionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -181,13 +181,13 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectPositionByCodeSql =
-                    $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name," +
-                    $"       p.is_active, p.display_order," +
-                    $"       p.is_linear," +
-                    $"       p.cost, p.cost_currency_code," +
-                    $"       p.note " +
-                    $"  from {StaffSchema}.stf_position#v p " +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
+                    $"  from {StaffSchema}.stf_position#v p\n" +
                     $" where p.code = :code";
                 command.CommandText = SelectPositionByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
@@ -210,12 +210,12 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectPositionsSql =
-                    $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
-                    $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear, " +
-                    $"       p.cost, p.cost_currency_code," +
-                    $"       p.note" +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
                     $"  from {StaffSchema}.stf_position#v p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
@@ -237,12 +237,12 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var AddPositionSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.create_position(:p_code," +
-                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
-                    $"        :p_is_active, :p_display_order," +
-                    $"        :p_cost, :p_cost_currency," +
-                    $"        :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.create_position(:p_code,\n" +
+                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name,\n" +
+                    $"        :p_is_active, :p_display_order,\n" +
+                    $"        :p_cost, :p_cost_currency,\n" +
+                    $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = AddPositionSql;
                 command.Parameters.Add(new OracleParameter("p_code", position.Code));
@@ -271,12 +271,12 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var EditPositionSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.edit_position(:p_id, :p_code," +
-                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
-                    $"        :p_is_active, :p_display_order," +
-                    $"        :p_cost, :p_cost_currency," +
-                    $"        :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_position(:p_id, :p_code,\n" +
+                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name,\n" +
+                    $"        :p_is_active, :p_display_order,\n" +
+                    $"        :p_cost, :p_cost_currency,\n" +
+                    $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = EditPositionSql;
                 command.Parameters.Add(new OracleParameter("p_id", position.Id));
@@ -302,9 +302,9 @@ namespace TSLog.Staff.Data
             using var command = _connection.CreateCommand();
             command.BindByName = true;
             var DeletePositionSql =
-                $"begin" +
-                $"    :l_state := {StaffSchema}.api_staff.delete_position(:p_id);" +
-                $"end;";
+                $"begin\n" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_position(:p_id);\n" +
+                $"end;\n";
             command.CommandText = DeletePositionSql;
             command.Parameters.Add(new OracleParameter("p_id", position.Id));
             command.Parameters.Add(new OracleParameter("l_state", OracleDbType.Int16, ParameterDirection.Output));
@@ -344,12 +344,12 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectDepartmentByIdSql =
-                    $"select d.id, d.code, " +
-                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
-                    $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.head_id," +
-                    $"       d.note " +
-                    $"  from {StaffSchema}.stf_department#v d " +
+                    $"select d.id, d.code,\n" +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name,\n" +
+                    $"       d.is_active, d.display_order,\n" +
+                    $"       d.parent_id, d.company_id, d.head_id,\n" +
+                    $"       d.note\n" +
+                    $"  from {StaffSchema}.stf_department#v d\n" +
                     $" where d.id = :id";
                 command.CommandText = SelectDepartmentByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -378,12 +378,12 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectDepartmentByCodeSql =
-                    $"select d.id, d.code, " +
-                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
-                    $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.head_id," +
-                    $"       d.note " +
-                    $"  from {StaffSchema}.stf_department#v d " +
+                    $"select d.id, d.code,\n" +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name,\n" +
+                    $"       d.is_active, d.display_order,\n" +
+                    $"       d.parent_id, d.company_id, d.head_id,\n" +
+                    $"       d.note\n" +
+                    $"  from {StaffSchema}.stf_department#v d\n" +
                     $" where d.code = :code";
                 command.CommandText = SelectDepartmentByCodeSql;
                 command.Parameters.Add(new OracleParameter("code", code));
@@ -406,11 +406,11 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectDepartmentsSql =
-                   $"select d.id, d.code, " +
-                    $"       d.name, d.short_name, d.alt_name, d.display_name," +
-                    $"       d.is_active, d.display_order," +
-                    $"       d.parent_id, d.company_id, d.head_id," +
-                    $"       d.note " +
+                   $"select d.id, d.code,\n" +
+                    $"       d.name, d.short_name, d.alt_name, d.display_name,\n" +
+                    $"       d.is_active, d.display_order,\n" +
+                    $"       d.parent_id, d.company_id, d.head_id,\n" +
+                    $"       d.note\n" +
                     $"  from {StaffSchema}.stf_department#v d";
                 command.CommandText = SelectDepartmentsSql;
                 using var reader = command.ExecuteReader();
@@ -432,14 +432,14 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var AddDepartmentSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.create_department(:p_code," +
-                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
-                    $"        :p_is_active, :p_display_order," +
-                    $"        :p_parent_id," +
-                    $"        :p_company_id," +
-                    $"        :p_head_id," +
-                    $"        :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.create_department(:p_code,\n" +
+                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name,\n" +
+                    $"        :p_is_active, :p_display_order,\n" +
+                    $"        :p_parent_id,\n" +
+                    $"        :p_company_id,\n" +
+                    $"        :p_head_id,\n" +
+                    $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = AddDepartmentSql;
                 command.Parameters.Add(new OracleParameter("p_code", department.Code));
@@ -473,13 +473,13 @@ namespace TSLog.Staff.Data
                 command.BindByName = true;
                 var EditDepartmentSql =
                     $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.edit_department(:p_id, :p_code," +
-                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name," +
-                    $"        :p_is_active, :p_display_order," +
-                    $"        :p_parent_id," +
-                    $"        :p_company_id," +
-                    $"        :p_head_id," +
-                    $"        :p_note);" +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_department(:p_id, :p_code,\n" +
+                    $"        :p_name, :p_short_name, :p_alt_name, :p_display_name,\n" +
+                    $"        :p_is_active, :p_display_order,\n" +
+                    $"        :p_parent_id,\n" +
+                    $"        :p_company_id,\n" +
+                    $"        :p_head_id,\n" +
+                    $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = EditDepartmentSql;
                 command.Parameters.Add(new OracleParameter("p_id", department.Id));
@@ -512,8 +512,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SetDepartmentHeadSqlSql =
-                    $"begin" +
-                    $"    :l_department_id := {StaffSchema}.api_staff.set_department_head(:p_department_id, :p_head_id);" +
+                    $"begin\n" +
+                    $"    :l_department_id := {StaffSchema}.api_staff.set_department_head(:p_department_id, :p_head_id);\n" +
                     $"end;";
                 command.CommandText = SetDepartmentHeadSqlSql;
                 command.Parameters.Add(new OracleParameter("p_department_id", department.Id));
@@ -530,8 +530,8 @@ namespace TSLog.Staff.Data
             using var command = _connection.CreateCommand();
             command.BindByName = true;
             var DeleteDepartmentSql =
-                $"begin" +
-                $"    :l_state := {StaffSchema}.api_staff.delete_department(:p_id);" +
+                $"begin\n" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_department(:p_id);\n" +
                 $"end;";
             command.CommandText = DeleteDepartmentSql;
             command.Parameters.Add(new OracleParameter("p_id", department.Id));
@@ -599,33 +599,33 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var FindEmployeesSql =
-                    $"select e.id, e.code, wms_login, ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee_ext#v e " +
-                    $" where upper(trim(e.surname)) like :pattern" +
-                    $"    or upper(trim(e.first_name)) like :pattern" +
-                    $"    or upper(trim(e.patronymic)) like :pattern" +
-                    $"    or upper(trim(e.short_name)) like :pattern" +
-                    $"    or upper(trim(e.short_name2)) like :pattern" +
-                    $"    or upper(trim(e.short_name3)) like :pattern" +
-                    $"    or upper(trim(e.short_name4)) like :pattern" +
-                    $"    or upper(trim(e.alt_name)) like :pattern" +
-                    $"    or upper(trim(e.alt_name2)) like :pattern" +
-                    $"    or upper(trim(e.alt_name3)) like :pattern" +
-                    $"    or upper(trim(e.alt_name4)) like :pattern" +
-                    $"    or upper(trim(e.full_name)) like :pattern" +
+                    $"select e.id, e.code, wms_login, ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
+                    $"       e.note\n" +
+                    $"  from {StaffSchema}.stf_employee_ext#v e\n" +
+                    $" where upper(trim(e.surname)) like :pattern\n" +
+                    $"    or upper(trim(e.first_name)) like :pattern\n" +
+                    $"    or upper(trim(e.patronymic)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name2)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name3)) like :pattern\n" +
+                    $"    or upper(trim(e.short_name4)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name2)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name3)) like :pattern\n" +
+                    $"    or upper(trim(e.alt_name4)) like :pattern\n" +
+                    $"    or upper(trim(e.full_name)) like :pattern\n" +
                     $"    or upper(trim(e.full_name2)) like :pattern";
                 command.CommandText = FindEmployeesSql;
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
@@ -649,22 +649,22 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectEmployeeById =
-                    $"select ep.employee_id" +
-                    $"  from {StaffSchema}.stf_employee_position_ext#v ep " +
-                    $" where ep.position_id = :position_id" +
-                    $"   and (:work_mode is null or upper(trim(ep.work_mode)) = :work_mode) " +
-                    $"   and (upper(trim(ep.employee_surname)) like :pattern" +
-                    $"     or upper(trim(ep.employee_first_name)) like :pattern" +
-                    $"     or upper(trim(ep.employee_patronymic)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name2)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name3)) like :pattern" +
-                    $"     or upper(trim(ep.employee_short_name4)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name2)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name3)) like :pattern" +
-                    $"     or upper(trim(ep.employee_alt_name4)) like :pattern" +
-                    $"     or upper(trim(ep.employee_full_name)) like :pattern" +
+                    $"select ep.employee_id\n" +
+                    $"  from {StaffSchema}.stf_employee_position_ext#v ep\n" +
+                    $" where ep.position_id = :position_id\n" +
+                    $"   and (:work_mode is null or upper(trim(ep.work_mode)) = :work_mode)\n" +
+                    $"   and (upper(trim(ep.employee_surname)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_first_name)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_patronymic)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name2)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name3)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_short_name4)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name2)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name3)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_alt_name4)) like :pattern\n" +
+                    $"     or upper(trim(ep.employee_full_name)) like :pattern\n" +
                     $"     or upper(trim(ep.employee_full_name2)) like :pattern)";
                 command.BindByName = true;
                 command.CommandText = SelectEmployeeById;
@@ -698,20 +698,20 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectEmployeesSql =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
+                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
+                    $"       e.note\n" +
                     $"  from {StaffSchema}.stf_employee#v e";
                 command.CommandText = SelectEmployeesSql;
                 using var reader = command.ExecuteReader();
@@ -734,21 +734,21 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectEmployeeById =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e " +
+                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
+                    $"       e.note\n" +
+                    $"  from {StaffSchema}.stf_employee#v e\n" +
                     $" where e.id = :id";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -777,21 +777,21 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectEmployeeById =
-                    $"select e.id, e.code, e.wms_login, e.ad_login," +
-                    $"       e.surname, e.first_name, e.patronymic," +
-                    $"       e.sex, e.birth_date," +
-                    $"       e.nationality," +
-                    $"       e.phone_number, e.email," +
-                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization," +
-                    $"       e.employment_date, e.dismissal_date," +
-                    $"       e.company_id," +
-                    $"       e.department_id," +
-                    $"       e.cost," +
-                    $"       e.cost_currency_code," +
-                    $"       e.is_active," +
-                    $"       e.display_order," +
-                    $"       e.note" +
-                    $"  from {StaffSchema}.stf_employee#v e " +
+                    $"select e.id, e.code, e.wms_login, e.ad_login,\n" +
+                    $"       e.surname, e.first_name, e.patronymic,\n" +
+                    $"       e.sex, e.birth_date,\n" +
+                    $"       e.nationality,\n" +
+                    $"       e.phone_number, e.email,\n" +
+                    $"       e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
+                    $"       e.employment_date, e.dismissal_date,\n" +
+                    $"       e.company_id,\n" +
+                    $"       e.department_id,\n" +
+                    $"       e.cost,\n" +
+                    $"       e.cost_currency_code,\n" +
+                    $"       e.is_active,\n" +
+                    $"       e.display_order,\n" +
+                    $"       e.note\n" +
+                    $"  from {StaffSchema}.stf_employee#v e\n" +
                     $" where e.ad_login = :ad_login";
                 command.CommandText = SelectEmployeeById;
                 command.Parameters.Add(new OracleParameter("ad_login", login));
@@ -815,28 +815,28 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var AddEmployeeSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.create_employee(:p_sex," +
-                    $"        :p_surname," +
-                    $"        :p_first_name," +
-                    $"        :p_patronymic," +
-                    $"        :p_birth_date," +
-                    $"        :p_nationality," +
-                    $"        :p_phone_number," +
-                    $"        :p_email," +
-                    $"        :p_document_name," +
-                    $"        :p_document_series," +
-                    $"        :p_document_number," +
-                    $"        :p_document_issue_date," +
-                    $"        :p_document_issue_organization," +
-                    $"        :p_employment_date," +
-                    $"        :p_dismissal_date," +
-                    $"        :p_company_id," +
-                    $"        :p_department_id," +
-                    $"        :p_cost," +
-                    $"        :p_cost_currency," +
-                    $"        :p_work_mode," +
-                    $"        :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.create_employee(:p_sex,\n" +
+                    $"        :p_surname,\n" +
+                    $"        :p_first_name,\n" +
+                    $"        :p_patronymic,\n" +
+                    $"        :p_birth_date,\n" +
+                    $"        :p_nationality,\n" +
+                    $"        :p_phone_number,\n" +
+                    $"        :p_email,\n" +
+                    $"        :p_document_name,\n" +
+                    $"        :p_document_series,\n" +
+                    $"        :p_document_number,\n" +
+                    $"        :p_document_issue_date,\n" +
+                    $"        :p_document_issue_organization,\n" +
+                    $"        :p_employment_date,\n" +
+                    $"        :p_dismissal_date,\n" +
+                    $"        :p_company_id,\n" +
+                    $"        :p_department_id,\n" +
+                    $"        :p_cost,\n" +
+                    $"        :p_cost_currency,\n" +
+                    $"        :p_work_mode,\n" +
+                    $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = AddEmployeeSql;
                 command.Parameters.Add(new OracleParameter("p_sex", employee.Sex));
@@ -889,20 +889,20 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var EditEmployeeSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.edit_employee(:p_id," +
-                    $"        :p_sex," +
-                    $"        :p_surname, :p_first_name, :p_patronymic," +
-                    $"        :p_birth_date," +
-                    $"        :p_nationality," +
-                    $"        :p_phone_number, :p_email," +
-                    $"        :p_document_name, :p_document_series, :p_document_number, :p_document_issue_date, :p_document_issue_organization," +
-                    $"        :p_employment_date, :p_dismissal_date," +
-                    $"        :p_company_id," +
-                    $"        :p_department_id," +
-                    $"        :p_cost, :p_cost_currency," +
-                    $"        :p_work_mode," +
-                    $"        :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_employee(:p_id,\n" +
+                    $"        :p_sex,\n" +
+                    $"        :p_surname, :p_first_name, :p_patronymic,\n" +
+                    $"        :p_birth_date,\n" +
+                    $"        :p_nationality,\n" +
+                    $"        :p_phone_number, :p_email,\n" +
+                    $"        :p_document_name, :p_document_series, :p_document_number, :p_document_issue_date, :p_document_issue_organization,\n" +
+                    $"        :p_employment_date, :p_dismissal_date,\n" +
+                    $"        :p_company_id,\n" +
+                    $"        :p_department_id,\n" +
+                    $"        :p_cost, :p_cost_currency,\n" +
+                    $"        :p_work_mode,\n" +
+                    $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = EditEmployeeSql;
                 command.Parameters.Add(new OracleParameter("p_id", employee.Id));
@@ -956,8 +956,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SetEmployeeDepartmentSql =
-                    $"begin" +
-                    $"    :l_employee_id := {StaffSchema}.api_staff.set_employee_department(:p_employee_id, :p_department_id);" +
+                    $"begin\n" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.set_employee_department(:p_employee_id, :p_department_id);\n" +
                     $"end;";
                 command.CommandText = SetEmployeeDepartmentSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -975,8 +975,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SetEmployeeDepartmentSql =
-                    $"begin" +
-                    $"    :l_employee_id := {StaffSchema}.api_staff.set_employee_department(:p_id, :p_department_id);" +
+                    $"begin\n" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.set_employee_department(:p_id, :p_department_id);\n" +
                     $"end;";
                 command.CommandText = SetEmployeeDepartmentSql;
                 command.Parameters.Add(new OracleParameter("p_id", employee.Id));
@@ -996,8 +996,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var AddEmployeePositionSql =
-                    $"begin" +
-                    $"    :l_employee_id := {StaffSchema}.api_staff.add_employee_position(:p_employee_id, :p_position_id);" +
+                    $"begin\n" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.add_employee_position(:p_employee_id, :p_position_id);\n" +
                     $"end;";
                 command.CommandText = AddEmployeePositionSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -1015,8 +1015,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var RemoveEmployeePositionSql =
-                    $"begin" +
-                    $"    :l_employee_id := {StaffSchema}.api_staff.remove_employee_position(:p_employee_id, :p_position_id);" +
+                    $"begin\n" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.remove_employee_position(:p_employee_id, :p_position_id);\n" +
                     $"end;";
                 command.CommandText = RemoveEmployeePositionSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -1034,8 +1034,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var AddPartnerManagerSql =
-                    $"begin" +
-                    $"    :l_employee_id := {StaffSchema}.api_staff.add_partner_manager(:p_employee_id, :p_partner_id);" +
+                    $"begin\n" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.add_partner_manager(:p_employee_id, :p_partner_id);\n" +
                     $"end;";
                 command.CommandText = AddPartnerManagerSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -1053,8 +1053,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var RemovePartnerManagerSql =
-                    $"begin" +
-                    $"    :l_employee_id := {StaffSchema}.api_staff.remove_partner_manager(:p_employee_id, :p_partner_id);" +
+                    $"begin\n" +
+                    $"    :l_employee_id := {StaffSchema}.api_staff.remove_partner_manager(:p_employee_id, :p_partner_id);\n" +
                     $"end;";
                 command.CommandText = RemovePartnerManagerSql;
                 command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -1071,8 +1071,8 @@ namespace TSLog.Staff.Data
             using var command = _connection.CreateCommand();
             command.BindByName = true;
             var DeleteEmployeeSql =
-                $"begin" +
-                $"    :l_state := {StaffSchema}.api_staff.delete_employee(:p_id);" +
+                $"begin\n" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_employee(:p_id);\n" +
                 $"end;";
             command.CommandText = DeleteEmployeeSql;
             command.Parameters.Add(new OracleParameter("id", employee.Id));
@@ -1101,11 +1101,11 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectShiftById =
-                    $"select s.id," +
-                    $"       s.from_date, s.to_date," +
-                    $"       s.work_mode," +
-                    $"       s.note" +
-                    $"  from {StaffSchema}.stf_shift#v s" +
+                    $"select s.id,\n" +
+                    $"       s.from_date, s.to_date,\n" +
+                    $"       s.work_mode,\n" +
+                    $"       s.note\n" +
+                    $"  from {StaffSchema}.stf_shift#v s\n" +
                     $" where s.id = :id";
                 command.CommandText = SelectShiftById;
                 command.Parameters.Add(new OracleParameter("id", id));
@@ -1125,11 +1125,11 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var SelectShiftsSql =
-                    $"select s.id," +
-                    $"       s.start_date, s.finish_date," +
-                    $"       s.work_mode," +
-                    $"       s.note" +
-                    $"  from {StaffSchema}.stf_shift#v s" +
+                    $"select s.id,\n" +
+                    $"       s.start_date, s.finish_date,\n" +
+                    $"       s.work_mode,\n" +
+                    $"       s.note\n" +
+                    $"  from {StaffSchema}.stf_shift#v s\n" +
                     $" where not (s.start_date > :finish_date or s.finish_date < :start_date)";
                 command.CommandText = SelectShiftsSql;
                 command.Parameters.Add(new OracleParameter(":start_date", from));
@@ -1152,8 +1152,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var AddShiftSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.create_shift(:p_from_date, :p_to_date, :p_work_mode, :p_note);\n" +
                     $"end;";
                 command.CommandText = AddShiftSql;
                 command.Parameters.Add(new OracleParameter("p_from_date", shift.From));
@@ -1176,8 +1176,8 @@ namespace TSLog.Staff.Data
             {
                 command.BindByName = true;
                 var EditShiftSql =
-                    $"begin" +
-                    $"    :l_id := {StaffSchema}.api_staff.edit_shift(:p_id, :p_from_date, :p_to_date, :p_work_mode, :p_note);" +
+                    $"begin\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.edit_shift(:p_id, :p_from_date, :p_to_date, :p_work_mode, :p_note);\n" +
                     $"end;";
                 command.CommandText = EditShiftSql;
                 command.Parameters.Add(new OracleParameter("p_id", shift.Id));
@@ -1201,8 +1201,8 @@ namespace TSLog.Staff.Data
             using var command = _connection.CreateCommand();
             command.BindByName = true;
             var AddEmployeeToShiftSql =
-                $"begin" +
-                $"    :l_employee_id := {StaffSchema}.api_staff.add_employee_to_shift(:p_employee_id, :p_shift_id);" +
+                $"begin\n" +
+                $"    :l_employee_id := {StaffSchema}.api_staff.add_employee_to_shift(:p_employee_id, :p_shift_id);\n" +
                 $"end;";
             command.CommandText = AddEmployeeToShiftSql;
             command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -1219,8 +1219,8 @@ namespace TSLog.Staff.Data
             using var command = _connection.CreateCommand();
             command.BindByName = true;
             var RemoveEmployeeFromShiftSql =
-                $"begin" +
-                $"    :l_employee_id := {StaffSchema}.api_staff.remove_employee_from_shift(:p_employee_id, :p_shift_id);" +
+                $"begin\n" +
+                $"    :l_employee_id := {StaffSchema}.api_staff.remove_employee_from_shift(:p_employee_id, :p_shift_id);\n" +
                 $"end;";
             command.CommandText = RemoveEmployeeFromShiftSql;
             command.Parameters.Add(new OracleParameter("p_employee_id", employee.Id));
@@ -1235,8 +1235,8 @@ namespace TSLog.Staff.Data
             using var command = _connection.CreateCommand();
             command.BindByName = true;
             var DeleteShiftSql =
-                $"begin" +
-                $"    :l_state := {StaffSchema}.api_staff.delete_shift(:p_id);" +
+                $"begin\n" +
+                $"    :l_state := {StaffSchema}.api_staff.delete_shift(:p_id);\n" +
                 $"end;";
             command.CommandText = DeleteShiftSql;
             command.Parameters.Add(new OracleParameter("p_id", shift.Id));

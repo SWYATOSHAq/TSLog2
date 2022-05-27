@@ -1,4 +1,9 @@
-﻿class Utils {
+﻿/*
+    Общий функционал.
+    Автор - Буров Михаил.
+*/
+
+class Utils {
     getUrlParameter(name) {
         const parameters = new URLSearchParams(location.search);
         const value = parameters.get(name);
@@ -13,6 +18,10 @@
 
     convertTime(stringTime) {
         return new Date(stringTime).toLocaleTimeString();
+    }
+
+    convertTimeHHMM(stringTime) {
+        return new Date(stringTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     convertDate(stringDate) {
@@ -56,6 +65,21 @@
         }
         parameters = parameters + parameterName + "=" + value;
         return parameters;
+    }
+    
+    createCorrectObject(fieldName, data, message = "Ok", code = 0) {
+        return {
+            code: code,
+            message: message,
+            [fieldName]: data
+        }
+    }
+
+    createErrorObject(message, code = 9999) {
+        return {
+            code: code,
+            message: message
+        }
     }
 }
 

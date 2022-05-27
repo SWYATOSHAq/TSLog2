@@ -1,4 +1,9 @@
-﻿class ViewUtils {
+﻿/*
+    Общий функционал для отображения.
+    Автор - Буров Михаил.
+*/
+
+class ViewUtils {
     initDatePicker(id, date, onChangeFunction) {
         const dateInput = $("#" + id);
         if (dateInput == undefined || dateInput == null) {
@@ -49,6 +54,15 @@
 
     createCell(row, styles, contents, cssText = "") {
         this.createCellContent("td", row, styles, contents, cssText);
+    }
+
+    showError(message, showLog = true, showAlert = true) {
+        if (showLog) {
+            console.log(message);
+        }
+        if (showAlert) {
+            alert(message);
+        }
     }
 }
 

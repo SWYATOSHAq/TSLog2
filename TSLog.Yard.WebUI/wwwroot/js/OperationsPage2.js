@@ -136,7 +136,15 @@
 
     async getOperations() {        
         const parameters = this.createParameters();
-        this.operations = await api.getOperations(parameters);
+
+        this.operations = [];
+        const result = await api.getOperations(parameters);        
+        if (result.code === 0) {
+            this.operations = result.operations;
+        } else {
+            console.log(result.message);
+        }
+
         const url = this.shortUrl + parameters;
         history.pushState({}, null, url);
     }

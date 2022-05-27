@@ -1,4 +1,9 @@
-﻿class BusyWorkersPage {
+﻿/*
+    Страница занятых сотрудников.
+    Автор - Буров Михаил.
+*/
+
+class BusyWorkersPage {
     shortUrl;
 
     sitesWorkers = [];
@@ -18,10 +23,14 @@
                 return;
             }
 
-            await api.leaveSite(workerId);
-            busyWorkersPage.clearBusyWorkers();
-            await busyWorkersPage.getBusyWorkers();
-            busyWorkersPage.showBusyWorkers();
+            const result = await api.leaveSite(workerId);
+            if (result.code === 0) {
+                busyWorkersPage.clearBusyWorkers();
+                await busyWorkersPage.getBusyWorkers();
+                busyWorkersPage.showBusyWorkers();
+            } else {
+                viewUtils.showError(result.message);
+            }
         }
     }
 
@@ -61,7 +70,12 @@
     }
 
     async getBusyWorkers() {
-        this.sitesWorkers = await api.getBusyWorkers();
+        const result = await api.getBusyWorkers();
+        if (result.code === 0) {
+            this.sitesWorkers = result.sitesWorkers;
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     async show() {

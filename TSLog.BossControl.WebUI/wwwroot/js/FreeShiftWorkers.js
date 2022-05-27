@@ -1,4 +1,9 @@
-﻿class FreeShiftWorkersPage {
+﻿/*
+    Страница свободных сотрудников (тех, которые в данный момент находятся в текущей смене).
+    Автор - Буров Михаил.
+*/
+
+class FreeShiftWorkersPage {
     shortUrl;
 
     workers = [];
@@ -50,7 +55,12 @@
     }
 
     async getFreehiftWorkers() {
-        this.workers = await api.getFreeShiftWorkers();
+        const result = await api.getFreeShiftWorkers();
+        if (result.code === 0) {
+            this.workers = result.sitesWorkers;
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     async show() {

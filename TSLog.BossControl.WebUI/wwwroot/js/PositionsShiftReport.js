@@ -1,4 +1,9 @@
-﻿class PositionsShiftReport {
+﻿/*
+    Страница отчёта о трудозатратах за смену.
+    Автор - Буров Михаил.
+*/
+
+class PositionsShiftReport {
     shortUrl;
 
     data = [];
@@ -15,7 +20,12 @@
     }
 
     async getData(date, shift) {
-        this.data = await api.createPositionsShiftReport(date, shift);
+        const result = await api.createPositionsShiftReport(date, shift);
+        if (result.code === 0) {
+            this.data = result.data;
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     clearReport() {
@@ -142,8 +152,10 @@
                 work.finishDate = utils.convertTimeHHMM(work.finishDate);
 
                 const restWork = work.restWork === 1;
+                const siteB = document.createElement("b");
+                siteB.textContent = work.siteName;
                 viewUtils.createCell(workTr, ["table-cell"],
-                    [work.startDate + " - " + work.finishDate + " (" + work.duration + " мин.) " + work.siteName],
+                    [work.startDate + " - " + work.finishDate + " (" + work.duration + " мин.) ", siteB],
                     !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
 
                 viewUtils.createCell(workTr, ["table-cell"], "");

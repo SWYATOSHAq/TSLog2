@@ -25,7 +25,13 @@
     }
 
     async getOperations() {
-        this.operations = await api.getGuardOperations();
+        this.operations = [];
+        const result = await api.getGuardOperations();
+        if (result.code === 0) {
+            this.operations = result.operations;
+        } else {
+            console.log(result.message);
+        }
     }
 
     clearOperations() {

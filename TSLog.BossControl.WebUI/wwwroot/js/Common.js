@@ -1,4 +1,9 @@
-﻿class Utils {
+﻿/*
+    Общий функционал.
+    Автор - Буров Михаил.
+*/
+
+class Utils {
     getUrlParameter(name) {
         const parameters = new URLSearchParams(location.search);
         const value = parameters.get(name);
@@ -49,12 +54,32 @@
     addParameter(parameters, parameterName, elementName) {
         const element = document.getElementById(elementName);
         if (element != undefined && element.value != "") {
-            if (parameters != "") {
-                parameters = parameters + "&";
-            }
-            parameters = parameters + parameterName + "=" + element.value;
+            parameters = this.addParameterValue(parameters, parameterName, element.value);
         }
         return parameters;
+    }
+
+    addParameterValue(parameters, parameterName, value) {
+        if (parameters != "") {
+            parameters = parameters + "&";
+        }
+        parameters = parameters + parameterName + "=" + value;
+        return parameters;
+    }
+    
+    createCorrectObject(fieldName, data, message = "Ok", code = 0) {
+        return {
+            code: code,
+            message: message,
+            [fieldName]: data
+        }
+    }
+
+    createErrorObject(message, code = 9999) {
+        return {
+            code: code,
+            message: message
+        }
     }
 }
 

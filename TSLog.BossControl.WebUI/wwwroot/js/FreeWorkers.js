@@ -1,4 +1,9 @@
-﻿class FreeWorkersPage {
+﻿/*
+    Страница свободных сотрудников (всех).
+    Автор - Буров Михаил.
+*/
+
+class FreeWorkersPage {
     shortUrl;
 
     workers = [];
@@ -47,7 +52,12 @@
     }
 
     async getFreeWorkers() {
-        this.workers = await api.getFreeWorkers();
+        const result = await api.getFreeWorkers();
+        if (result.code === 0) {
+            this.workers = result.workers;
+        } else {
+            viewUtils.showError(result.message);
+        }
     }
 
     async show() {

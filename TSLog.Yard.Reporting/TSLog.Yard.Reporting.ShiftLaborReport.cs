@@ -82,7 +82,7 @@ namespace TSLog.Yard.Reporting
             {
                 var position = line.PositionId > 0 ? storage.GetPosition(line.PositionId) : Position.Null;
 
-                Element? element = null;
+                Element element;
                 if (_elements.ContainsKey(position))
                     element = _elements[position];
                 else
