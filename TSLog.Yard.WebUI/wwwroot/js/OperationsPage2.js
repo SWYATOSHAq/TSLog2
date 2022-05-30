@@ -73,7 +73,12 @@
             contents.push("(" + operation.factWorkFinishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.factWorkFinishDate.toLocaleDateString() + ")");
         }
         viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.finishDate.toLocaleDateString()], "box-shadow: none; background-color: " + operation.displayColor);
+
+        text = operation.finishDate > utils.nullDate ?
+            operation.finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.finishDate.toLocaleDateString() :
+            "";
+        viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
+
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.gateShortName], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleKindShortName], "width: 10% !important; box-shadow: none; background-color: " + operation.displayColor);

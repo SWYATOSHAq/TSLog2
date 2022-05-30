@@ -457,8 +457,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var operations = _storage.GetActiveOperations();
-                var list = OperationsToDynamic(operations);
-                var text = JsonSerializer.Serialize(list);
+                var text = OperationsToJson(operations);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -482,8 +481,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var operations = _storage.GetGuardOperations();
-                var list = OperationsToDynamic(operations);
-                var text = JsonSerializer.Serialize(list);
+                var text = OperationsToJson(operations);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -597,8 +595,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var employee = _storage.GetEmployeeByAdLogin(user);
                 _storage.SetOperationGate(operation, null, user);                
                 _storage.SetResponsibleOfficer(operation, employee, user);
-                var result = OperationToDynamic(operation);
-                var text = JsonSerializer.Serialize(result);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 201;
                 return text;
             }
@@ -706,8 +703,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.AddAction(action);
                 
                 _storage.AddOperation(operation, user);
-                var result = OperationToDynamic(operation);
-                var text = JsonSerializer.Serialize(result);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 201;
                 return text;
             }
@@ -868,8 +864,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
 
-                var result = OperationToDynamic(operation);
-                var text = JsonSerializer.Serialize(result);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1000,8 +995,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.PlanWorkStartDate = planWorkStartDate;
                 operation.PlanWorkFinishDate = planWorkFinishDate;
                 _storage.EditOperation(operation, user);
-                var result = OperationToDynamic(operation);
-                var text = JsonSerializer.Serialize(result);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1039,7 +1033,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.Note = data.note;
                 
                 _storage.SetOperationNote(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1092,7 +1086,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetOperationGate(operation, gate, userName);                
                 _storage.SetResponsibleOfficer(operation, employee);
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1128,7 +1122,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.CancelOperationGate(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1164,7 +1158,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.StartOperation(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1200,7 +1194,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.AllocateEmployees(operation);
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1236,7 +1230,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.StartOperationWork(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1272,7 +1266,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.FinishOperationWork(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1308,7 +1302,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.FinishOperation(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1344,7 +1338,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.CancelOperation(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -1380,7 +1374,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.DeleteOperation(operation, _rightsChecker.GetUserName(User));
-                var text = JsonSerializer.Serialize(operation);
+                var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
             }

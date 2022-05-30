@@ -59,9 +59,11 @@
 </div>
 <div class="row p-2 m-1 row2">
     <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-3 positions-plan-button"
+        title="Сформировать отчёт"
         type="button" 
         onclick="staffPage.showStaffPage()">Применить</button>
     <button class="btn btn-outline-info hide-on-print col-4 mx-auto my-3 positions-plan-button" 
+        title="Печать отчёта"
         type="button" 
         onclick="staffPage.printTable()">Печать</button>
 </div>
@@ -93,7 +95,7 @@
             @foreach (var item in intervals)
             {
                 <tr>
-                    <th class="positions-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto positions-plan-table-cell-button" type="button" onclick="PrintBlock(@i)">Печать</button></th>
+                    <th class="positions-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto positions-plan-table-cell-button" title="Печать интервала" type="button" onclick="PrintBlock(@i)">Печать</button></th>
                     <td class="h5 positions-plan-table-cell">@(item.OperationsCount > 0 ? item.OperationsCount : string.Empty)</td>
                     <td class="positions-plan-table-cell">
                         @{

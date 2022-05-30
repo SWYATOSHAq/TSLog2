@@ -10,7 +10,9 @@
 }
 <div id="sorts" class="sorts-div">
     <div class="row" style="width: 100%; padding: 0; margin: 0">
-        <label for="sort-field-select" style="width: auto !important; margin: 0; padding: 0; margin-right: 8px"><b>Сортировать по:</b></label>
+        <label for="sort-field-select" style="width: auto !important; margin: 0; padding: 0; margin-right: 8px">
+            <b>Сортировать по:</b>
+        </label>
         <select class="form-select filter-select select_sort" id="sort-field-select" style="width: 220px !important">
             @foreach (var value in elements.Keys)
             {
@@ -19,8 +21,8 @@
         </select>
         <div class="btn-group" role="group" aria-label="Basic radio toggle button group" style="width: auto; padding: 0; margin: 0; margin-left: 8px">
             <input type="radio" class="btn-check" name="sort-input" id="forward-sort-input" autocomplete="off" checked>
-            <label class="btn btn-outline-secondary" for="forward-sort-input">
-                <svg xmlns="http://www.w3.org/2000/svg" 
+            <label class="btn btn-outline-secondary" title="Сортировать по возрастанию" for="forward-sort-input">
+                <svg xmlns="http://www.w3.org/2000/svg"                     
                     width="18" 
                     height="18" 
                     fill="currentColor" 
@@ -32,7 +34,7 @@
                 </svg>
             </label>
             <input type="radio" class="btn-check" name="sort-input" id="reverse-sort-input" autocomplete="off">
-            <label class="btn btn-outline-secondary" for="reverse-sort-input">
+            <label class="btn btn-outline-secondary" title="Сортировать по убыванию" for="reverse-sort-input">
                 <svg xmlns="http://www.w3.org/2000/svg" 
                     width="18" 
                     height="18" 
