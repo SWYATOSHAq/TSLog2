@@ -1,4 +1,8 @@
-﻿class ShiftLaborReportPage {
+﻿/*
+    Страница отчёта по трудозатратам за смену
+    Автор - Буров Михаил.
+*/
+class ShiftLaborReportPage {
     shortUrl;
 
     data = [];

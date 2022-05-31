@@ -1,4 +1,9 @@
-﻿class ClientReportPage {
+﻿/*
+    Страница отчёта по клиентам.
+    Автор - Буров Михаил.
+*/
+
+class ClientReportPage {
     shortUrl;
 
     constructor() {

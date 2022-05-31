@@ -5,6 +5,7 @@
 
 // Класс для доступа к внешним программным интерфейсам по протоколу http
 class Api {
+    // Возвращает плановою продолжительность операции двора типу операции и виду автомашины
     async getPlanDuration(operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/OperationDuration" +
             "?operation_type=" + operationTypeCode +
@@ -17,6 +18,7 @@ class Api {
         }
     }
 
+    // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
     async getPlanLaborCost(operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/OperationLaborCost?" +
             "operation_type=" + operationTypeCode +
@@ -29,6 +31,7 @@ class Api {
         }
     }
 
+    // Возвращает допустимые интервалы по дате, типу операции двора, виду автомашины
     async getAvalibleIntervals(date, operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/AvalibleIntervals?" +
             "date=" + date +
@@ -42,6 +45,7 @@ class Api {
         }
     }
 
+    // Возвращает клиентского менеджера (основного)
     async getPartnerManager(partnerId) {
         let response = await fetch("./api/v1/yard/PartnerManager" +
             "?partner_id=" + partnerId);
@@ -53,6 +57,7 @@ class Api {
         }
     }
 
+    // Возвращает операцию двора по идентификатору
     async getOperation(id) {
         let response = await fetch("./api/v1/yard/Operation?id=" + id);
         if (response.status >= 200 && response.status < 300) {
@@ -63,6 +68,7 @@ class Api {
         }
     }
 
+    // Возвращает массив операций двора по заданным параметрам поиска
     async getOperations(parameters) {
         let url = "./api/v1/yard/Operations" + parameters;
         const response = await fetch(url);
@@ -74,6 +80,7 @@ class Api {
         }
     }
 
+    // Возвращает активные (машины на территории складского комплекса) операции двора
     async getActiveOperations() {
         let url = "./api/v1/yard/ActiveOperations";
         const response = await fetch(url);
@@ -85,6 +92,7 @@ class Api {
         }
     }
 
+    // Возвращает массив операций двора для охраны (которые должны приехать или могут уехать)
     async getGuardOperations() {
         let url = "./api/v1/yard/GuardOperations";
         const response = await fetch(url);
@@ -96,6 +104,7 @@ class Api {
         }
     }
 
+    // Создайт операцию двора и возвращает созданную (для сотрудника ТСЛ)
     async createOperation(data) {
         const url = "./api/v1/yard/CreateOperation";
         const options = {
@@ -112,6 +121,7 @@ class Api {
         }
     }
 
+    // Создайт операцию двора и возвращает созданную (для сотрудника партнёра)
     async createOperationByPartner(data) {
         const url = "./api/v1/yard/CreateOperationByPartner";
         const options = {
@@ -128,6 +138,7 @@ class Api {
         }
     }
 
+    // Правит операцию двора и возвращает исправленную (для сотрудника ТСЛ)
     async editOperation(data) {
         const url = "./api/v1/yard/EditOperation";
         const options = {
@@ -144,6 +155,7 @@ class Api {
         }
     }
 
+    // Правит операцию двора и возвращает исправленную (для сотрудника партнёра)
     async editOperationByPartner(data) {
         const url = "./api/v1/yard/EditOperationByPartner";
         const options = {
@@ -160,6 +172,7 @@ class Api {
         }
     }
 
+    // Правит примечание  операции двора
     async editOperationNote(id, note) {
         const data = {
             id: id,
@@ -180,6 +193,7 @@ class Api {
         }
     }
 
+    // Устанавливает ворота для операции двора
     async setOperationGate(id, gateCode) {
         const url = "./api/v1/yard/SetOperationGate";
         const data = {
@@ -202,6 +216,7 @@ class Api {
         }
     }
 
+    // Стартует операцию двора (автомашина заезжает на территорию складского комплекса)
     async startOperation(id) {
         const url = "./api/v1/yard/StartOperation";
         const data = {
@@ -221,6 +236,7 @@ class Api {
         }
     }
 
+    // // Возвращает массив работников, которые могут быть назначены на данную должность, по шаблону поиска
     async getPositionWorkers(positionCode, pattern) {
         const url = "./api/v1/yard/PositionWorkers?" +
             "name_pattern=" + pattern +
@@ -234,6 +250,7 @@ class Api {
         }
     }
 
+    // Возвращает массов линейных сотрудников (всех)
     async getLinearWorkers() {
         const url = "./api/v1/yard/LinearWorkers";
         const response = await fetch(url);
@@ -245,6 +262,7 @@ class Api {
         }
     }
 
+    // Возвращает массов линейных сотрудников (только свободных)
     async getLinearFreeWorkers() {
         const url = "./api/v1/yard/LinearFreeWorkers";
         const response = await fetch(url);
@@ -256,6 +274,7 @@ class Api {
         }
     }
 
+    // Возвращает массов всех работников
     async getAllWorkers() {
         const url = "./api/v1/yard/AllWorkers";
         const response = await fetch(url);
@@ -267,6 +286,7 @@ class Api {
         }
     }
 
+    // Возвращает массив работников, назначенных на операцию двора
     async getOperationWorkers(operationId) {
         const url = "./api/v1/yard/OperationWorkers?operation_id=" + operationId;
         const response = await fetch(url);
@@ -278,6 +298,7 @@ class Api {
         }
     }
 
+    // Назначает работника на операцию двора
     async addOperationWorker(operationId, workerId, positionCode) {
         const url = "./api/v1/yard/AddOperationWorker";
         const data = {
@@ -299,6 +320,7 @@ class Api {
         }
     }
 
+    // Снимает назначенного работника с операции двора
     async removeOperationWorker(operationId, workerId, positionCode) {
         const url = "./api/v1/yard/RemoveOperationWorker";
         const data = {
@@ -320,6 +342,7 @@ class Api {
         }
     }
 
+    // Автоматически распределяет работников на операцию двора в зависимости от нормативов (потребностей в персонале)
     async allocateOperationWorkers(id) {
         const url = "./api/v1/yard/AllocateOperationEmployees";
         const data = {
@@ -339,6 +362,21 @@ class Api {
         }
     }
 
+    // Возвращает массив промежутков работ сотрудников из систем БоссКонтролль
+    async getBossControlWorks(operationId) {
+        const url = "./api/v1/yard/BossControlWorks?" +
+            "operation_id=" + operationId
+        let response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("works", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+
+    }
+
+    // Начинает работы по операции двора (ставит машину на ворота)
     async startOperationWork(id) {
         const url = "./api/v1/yard/StartOperationWork";
         const data = {
@@ -358,6 +396,7 @@ class Api {
         }
     }
 
+    // Заканчивает работы по операции двора (снимает машину с ворот)
     async finishOperationWork(id) {
         const url = "./api/v1/yard/FinishOperationWork";
         const data = {
@@ -377,6 +416,7 @@ class Api {
         }
     }
 
+    // Завершает операцию двора (выпускает машину за территорию)
     async finishOperation(id) {
         const url = "./api/v1/yard/FinishOperation";
         const data = {
@@ -396,6 +436,7 @@ class Api {
         }
     }
 
+    // Отменяет операуию двора
     async cancelOperation(id) {
         const url = "./api/v1/yard/CancelOperation";
         const data = {
@@ -415,6 +456,7 @@ class Api {
         }
     }
 
+    // Удаляет операию двора
     async deleteOperation(id) {
         const url = "./api/v1/yard/DeleteOperation";
         const data = {
@@ -434,6 +476,7 @@ class Api {
         }
     }
 
+    // Формирует отчёт по трудозатратам
     async createLaborReport(fromDate, toDate) {
         let url = "./api/v1/yard/LaborReport?from_date=" + fromDate + "&to_date=" + toDate;
         const response = await fetch(url);
@@ -445,6 +488,7 @@ class Api {
         }
     }
 
+    // Формирует отчёт по трудозатратам за смену 2
     async createShiftLaborReport2(date, shift) {
         let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
         const response = await fetch(url);
@@ -456,6 +500,7 @@ class Api {
         }
     }
 
+    // Формирует отчёт по трудозатратам за смену 3
     async createShiftLaborReport3(date, shift) {
         let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
         const response = await fetch(url);

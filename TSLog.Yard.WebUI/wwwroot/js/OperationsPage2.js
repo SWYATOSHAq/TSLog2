@@ -1,4 +1,8 @@
-﻿class OperationsPage {
+﻿/*
+    Страница списка операций двора.
+    Автор - Буров Михаил.
+*/
+class OperationsPage {
     shortUrl;
     operations = [];
     sortedOperations = [];

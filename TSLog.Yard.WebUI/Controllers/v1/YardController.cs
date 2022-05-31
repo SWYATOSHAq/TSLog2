@@ -149,6 +149,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var userName = _rightsChecker.GetUserName(User);
             return _rightsChecker.GetPartnersIdsByUser(userName);
         }
+
+        #region Reference data
         private bool CheckPartner(string partnerId)
         {
             var userName = _rightsChecker.GetUserName(User);
@@ -322,6 +324,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+        #endregion
+
+        #region Operations
         [HttpGet("Operation")]
         public string GetOperation()
         {
@@ -590,11 +595,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var user = _rightsChecker.GetUserName(User);
                 _storage.AddOperation(operation, user);
-                // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
-                // неьзя было присвоить ворота
+                
+                // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
+                // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
                 _storage.SetOperationGate(operation, null, user);                
                 _storage.SetResponsibleOfficer(operation, employee, user);
+
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
                 return text;
@@ -1081,11 +1088,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 var userName = _rightsChecker.GetUserName(User);
+
                 // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
                 // неьзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetOperationGate(operation, gate, userName);                
                 _storage.SetResponsibleOfficer(operation, employee);
+                
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1383,6 +1392,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+        #endregion
 
         #region Operation workers
         private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false) 
@@ -1685,6 +1695,40 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+        [HttpGet("BossControlWorks")]
+        public string GetBossControlWorks()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var manageOperationWorkers = _rightsChecker.CheckRight("GET_BOSSCONTROL_WORKERS", User);
+                if (_useAuthentication && !useYard && !manageOperationWorkers)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["operation_id"];
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Operation id is empty!";
+
+                if (!long.TryParse(temp, out long operationId))
+                    return $"Wrong operation id {temp}!";
+
+                var operation = _storage.GetOperation(operationId);
+                var siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
+                var works = _storage.GetBossControlWorks(operation.FactWorkStartDate, operation.FactWorkFinishDate, siteCode);
+
+                var text = JsonSerializer.Serialize(works);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
         #endregion
 
         #region Reporting
@@ -1877,28 +1921,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
                 var toDate = fromDate.AddHours(12);
 
-                var siteCodes = new Dictionary<string, string>();
-                siteCodes.Add("EIN01", "GATE_1");
-                siteCodes.Add("EIN02", "GATE_2");
-                siteCodes.Add("EIN03", "GATE_3");
-                siteCodes.Add("EIN04", "GATE_4");
-                siteCodes.Add("EIN05", "GATE_5");
-                siteCodes.Add("EIN06", "GATE_6");
-                siteCodes.Add("EIN07", "GATE_7");
-                siteCodes.Add("EIN08", "GATE_8");
-                siteCodes.Add("EIN09", "GATE_9");
-                siteCodes.Add("EIN10", "GATE_10");
-                siteCodes.Add("EIN11", "GATE_11");
-                siteCodes.Add("EIN12", "GATE_12");
-                siteCodes.Add("EIN13", "GATE_13");
-                siteCodes.Add("EIN14", "GATE_14");
-                siteCodes.Add("EIN15", "GATE_15");
-                siteCodes.Add("EIN16", "GATE_16");
-
                 var operations = _storage.GetYardData(fromDate, toDate);
                 foreach (dynamic operation in operations)
                 {
-                    var siteCode = siteCodes[operation.gateCode];
+                    var siteCode = _storage.GetSiteCodeByGateCode(operation.gateCode);
                     operation.works = _storage.GetBcData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
                     operation.factLaborCost = 0.0;
                     foreach (var work in operation.works) 

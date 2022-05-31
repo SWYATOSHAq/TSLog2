@@ -1,4 +1,8 @@
-﻿class LaborReportPage {
+﻿/*
+    Страница отчёта по трудозатратам
+    Автор - Буров Михаил.
+*/
+class LaborReportPage {
     shortUrl;
 
     data = [];

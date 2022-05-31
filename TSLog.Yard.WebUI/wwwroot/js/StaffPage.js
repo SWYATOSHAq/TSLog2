@@ -1,4 +1,5 @@
-﻿class StaffPage {
+﻿// Страница отчёта по персоналу
+class StaffPage {
     shortUrl;
 
     constructor() {

@@ -3,17 +3,21 @@
     Автор - Буров Михаил.
 */
 
+// Класс, реализующий дополнительный и вспомогательный функционал
 class Utils {
+    // Получает значение параметра адресной строки по имени параметра
     getUrlParameter(name) {
         const parameters = new URLSearchParams(location.search);
         const value = parameters.get(name);
         return value != null ? value : "";
     }
 
+    // Возвращает текущую дату и время
     getNowDate() {
         return (new Date()).toLocaleString("ru-RU", { year: 'numeric', month: 'numeric', day: 'numeric' });
     }
 
+    // Нулевая дата
     nullDate = new Date(0);
 
     convertTime(stringTime) {
@@ -28,14 +32,22 @@ class Utils {
         return new Date(stringDate).toLocaleDateString();
     }
 
+    // Преобразует дату в строку (только дату)
     dateToString(date) {
         return date.toLocaleDateString();
     }
 
+    // Преобразует время в строку (только время)
     timeToString(date) {
         return date.toLocaleTimeString();
     }
 
+    // Преобразует время в строку (только время) в формате HH:ММ
+    timeToStringHHMM(date) {
+        return new date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Преобразует дату и время в строку
     dateTimeToString(date) {
         return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     }
@@ -46,11 +58,13 @@ class Utils {
         return hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
     }
 
+    // Преобразует строку в дату
     stringToDate(stringDate) {
         var pattern = /(\d{2})\.(\d{2})\.(\d{4})/;
         return new Date(stringDate.replace(pattern, '$3-$2-$1'));
     }
 
+    // Добавляет значение параметра к строке (значение берёт из элемента управления)
     addParameter(parameters, parameterName, elementName) {
         const element = document.getElementById(elementName);
         if (element != undefined && element.value != "") {
@@ -58,7 +72,8 @@ class Utils {
         }
         return parameters;
     }
-
+    
+    // Добавляет значение параметра к строке
     addParameterValue(parameters, parameterName, value) {
         if (parameters != "") {
             parameters = parameters + "&";
@@ -66,7 +81,8 @@ class Utils {
         parameters = parameters + parameterName + "=" + value;
         return parameters;
     }
-    
+
+    // Создаёт объект, возвращаемый Api функциями в случае нормальной работы функции
     createCorrectObject(fieldName, data, message = "Ok", code = 0) {
         return {
             code: code,
@@ -75,6 +91,7 @@ class Utils {
         }
     }
 
+    // Создаёт объект, возвращаемый Api функциями в случае ошибки
     createErrorObject(message, code = 9999) {
         return {
             code: code,

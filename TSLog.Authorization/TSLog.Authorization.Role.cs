@@ -30,6 +30,9 @@
             GroupName = groupName;
             Note = note;
         }
+        /// <summary>
+        /// Набор прав (кодов прав) данной роли
+        /// </summary>
         public HashSet<string> Rights { get; private set; } = new HashSet<string>();
     }
 }

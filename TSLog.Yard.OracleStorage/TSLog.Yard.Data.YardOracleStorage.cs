@@ -195,6 +195,29 @@ namespace TSLog.Yard.Data
                 return legalEntity;
             throw new LegalEntityNotFoundException(id);
         }
+        private readonly IDictionary<string, string> _siteCodes = new Dictionary<string, string>
+        {
+            { "EIN01", "GATE_1" },
+            { "EIN02", "GATE_2" },
+            { "EIN03", "GATE_3" },
+            { "EIN04", "GATE_4" },
+            { "EIN05", "GATE_5" },
+            { "EIN06", "GATE_6" },
+            { "EIN07", "GATE_7" },
+            { "EIN08", "GATE_8" },
+            { "EIN09", "GATE_9" },
+            { "EIN10", "GATE_10" },
+            { "EIN11", "GATE_11" },
+            { "EIN12", "GATE_12" },
+            { "EIN13", "GATE_13" },
+            { "EIN14", "GATE_14" },
+            { "EIN15", "GATE_15" },
+            { "EIN16", "GATE_16" }
+        };
+        public string GetSiteCodeByGateCode(string gateCode) 
+        {
+            return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
+        }
 
         #region Partners
         private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");
@@ -305,7 +328,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectShiftSql =
-                    $"select ecco.api_staff.get_shift(:p_date) shift from dual";
+                    $"select {StaffSchema}.api_staff.get_shift(:p_date) shift from dual";
                 command.CommandText = SelectShiftSql;
                 command.Parameters.Add(new OracleParameter("p_date", date != null && date != DateTime.MinValue
                     ? date : DBNull.Value));
@@ -677,7 +700,7 @@ namespace TSLog.Yard.Data
             {
                 var SelectShiftEmployeesSql =
                     $"select se.id employee_id\n" +
-                    $"  from ecco.stf_shift_employee#v se\n" +
+                    $"  from {StaffSchema}.stf_shift_employee#v se\n" +
                     $" where se.shift_id = :shift_id";
                 command.CommandText = SelectShiftEmployeesSql;
                 command.Parameters.Add(new OracleParameter("shift_id", shift.Id));
@@ -696,6 +719,63 @@ namespace TSLog.Yard.Data
         {
             var shift = GetShift(date);
             return GetShiftEmployees(shift);
+        }
+        public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
+        {
+            var works = new List<dynamic>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"with dates as (\n" +
+                    $"   select :start_date fact_work_start_date,\n" +
+                    $"          :finish_date fact_work_finish_date\n" +
+                    $"     from dual\n" +
+                    $"),\n" +
+                    $"data2 as (\n" +
+                    $"    select emp.position_id, emp.position_name,\n" +
+                    $"           d.worker_id, e.full_name worker_full_name,\n" +
+                    $"           greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
+                    $"           least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
+                    $"           least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) duration, -- Продолжительность\n" +
+                    $"           d.site_id, s.name site_name\n" +
+                    $"      from dates dt\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $" left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $" left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"     where d.finish_date - d.start_date > 0\n" +
+                    $"       and s.code <> 'AUXILIARY'\n" +
+                    $"       and s.code = :site_code\n" +
+                    $"       and s.kind = 'GATE' -- Только ворота\n" +
+                    $"       and e.id is not null\n" +
+                    $" )\n" +
+                    $"    select d.position_id, d.position_name,\n" +
+                    $"           d.worker_id, d.worker_full_name, \n" +
+                    $"           d.site_id, d.site_name,\n" +
+                    $"           d.start_date, d.finish_date,\n" +
+                    $"           round(d.duration * 24 * 60 * 60) duration\n" +
+                    $"      from data2 d\n" +
+                    $"  order by d.position_id, d.worker_id, d.worker_full_name";
+
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("start_date", startDate));
+                command.Parameters.Add(new OracleParameter("finish_date", finishDate));
+                command.Parameters.Add(new OracleParameter("site_code", siteCode));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic work = new ExpandoObject();
+                    work.workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    work.workerFullName = Utils.DbValueToString(reader["worker_full_name"]);
+                    work.positionName = Utils.DbValueToString(reader["position_name"]);
+                    work.startDate = Utils.DbValueToDateTime(reader["start_date"]);
+                    work.finishDate = Utils.DbValueToDateTime(reader["finish_date"]);
+                    work.duration = Utils.DbValueToDouble(reader["duration"]);
+                    works.Add(work);
+                }
+                reader.Close();
+            }
+            return works.ToArray();
         }
         #endregion
 
@@ -967,25 +1047,26 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPartnerByIdSql =
-                    "   select--d.worker_id employee_id,\n" +
-                    "          --emp.employee_surname, emp.employee_first_name, emp.employee_patronymic,\n" +
-                    "          d.partner_id, p.name partner_name,\n" +
-                    "          emp.position_id, emp.position_name,\n" +
-                    "          --Количество работников(различных)\n" +
-                    "          count(distinct d.worker_id) workers_count,\n" +
-                    "          --d.start_date, d.finish_date,\n" +
-                    "          --Трудозатраты в человекочасах\n" +
-                    "          round(sum((d.finish_date - d.start_date) * 24), 2) labor_cost,\n" +
-                    "          --Нормализованные трудозатраты(суммарные / количество работников) в человекочасах\n" +
-                    "          round(sum((d.finish_date - d.start_date) * 24) / count(distinct d.worker_id), 2) norm_labor_cost\n" +
-                    "          --d.site_id\n" +
-                    "     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +                    
-                    "left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                    "left join ecco.par_partner#v p on d.partner_id = p.id\n" +
-                    "    where d.site_id in (select id from ecco.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
-                    " group by emp.position_id, emp.position_name,\n" +
-                    "          d.partner_id, p.name\n" +
-                    " order by d.partner_id, emp.position_id";
+                    $"   select--d.worker_id employee_id,\n" +
+                    $"          --emp.employee_surname, emp.employee_first_name, emp.employee_patronymic,\n" +
+                    $"          d.partner_id, p.name partner_name,\n" +
+                    $"          emp.position_id, emp.position_name,\n" +
+                    $"          --Количество работников(различных)\n" +
+                    $"          count(distinct d.worker_id) workers_count,\n" +
+                    $"          --d.start_date, d.finish_date,\n" +
+                    $"          --Трудозатраты в человекочасах\n" +
+                    $"          round(sum((d.finish_date - d.start_date) * 24), 2) labor_cost,\n" +
+                    $"          --Нормализованные трудозатраты(суммарные / количество работников) в человекочасах\n" +
+                    $"          round(sum((d.finish_date - d.start_date) * 24) / count(distinct d.worker_id), 2) norm_labor_cost\n" +
+                    $"          --d.site_id\n" +
+                    $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +                    
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
+                    $"    where d.site_id in (select id from {StaffSchema}.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
+                    $"      and emp.employee_id is not null\n" +
+                    $" group by emp.position_id, emp.position_name,\n" +
+                    $"          d.partner_id, p.name\n" +
+                    $" order by d.partner_id, emp.position_id";
 
                 command.CommandText = SelectPartnerByIdSql;
                 command.Parameters.Add(new OracleParameter("from_date", fromDate));
@@ -1011,35 +1092,36 @@ namespace TSLog.Yard.Data
             {
                 command.BindByName = true;
                 var sql =
-                    "with data2 as (\n" +
-                    "   select ecco.get_shift_start(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
-                    "          ecco.get_shift_finish(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish,\n" +
-                    "          d.worker_id, e.full_name worker_full_name,\n" +
-                    "          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
-                    "          e.work_mode worker_work_mode,\n" +
-                    "          case \n" +
-                    "              when e.work_mode = '5/2-40' then 8.0\n" +
-                    "              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
-                    "              else 8.0\n" +
-                    "          end worker_standard,\n" +
-                    "          sum((d.finish_date - d.start_date) * 24) worker_labor_cost\n" +
-                    "     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
-                    "                                       ecco.get_shift_finish(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
-                    "left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                    "left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
-                    "left join ecco.par_partner#v p on d.partner_id = p.id\n" +
-                    "left join ecco.stf_site#v s on d.site_id = s.id\n" +
-                    "    where d.finish_date - d.start_date > 0\n" +
-                    "      and d.site_id in (select id from ecco.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
-                    " group by d.worker_id, e.full_name, e.work_mode, emp.position_id, emp.position_name)\n" +
-                    "   select d.worker_position_id, d.worker_position_name,\n" +
-                    "          round(sum(d.worker_labor_cost / d.worker_standard), 4) labor_cost, --Человекосмены\n" +
-                    "          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) efficiency,\n" +
-                    "          count(distinct d.worker_id) standard_labor_cost-- Человекосмены\n" +
-                    "    from data2 d\n" +
-                    "left join ecco.stf_position#v p on d.worker_position_id = p.id\n" +
-                    "    where p.is_linear = 1\n" +
-                    " group by d.worker_position_id, d.worker_position_name";
+                    $"with data2 as (\n" +
+                    $"   select {StaffSchema}.get_shift_start(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
+                    $"          {StaffSchema}.get_shift_finish(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish,\n" +
+                    $"          d.worker_id, e.full_name worker_full_name,\n" +
+                    $"          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
+                    $"          e.work_mode worker_work_mode,\n" +
+                    $"          case \n" +
+                    $"              when e.work_mode = '5/2-40' then 8.0\n" +
+                    $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
+                    $"              else 8.0\n" +
+                    $"          end worker_standard,\n" +
+                    $"          sum((d.finish_date - d.start_date) * 24) worker_labor_cost\n" +
+                    $"     from table({StaffSchema}.stf_get_all_works({StaffSchema}.get_shift_start(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
+                    $"                                       {StaffSchema}.get_shift_finish(0, to_date(:shift_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
+                    $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"    where d.finish_date - d.start_date > 0\n" +
+                    $"          and e.id is not null\n" +
+                    $"      and d.site_id in (select id from {StaffSchema}.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
+                    $" group by d.worker_id, e.full_name, e.work_mode, emp.position_id, emp.position_name)\n" +
+                    $"   select d.worker_position_id, d.worker_position_name,\n" +
+                    $"          round(sum(d.worker_labor_cost / d.worker_standard), 4) labor_cost, --Человекосмены\n" +
+                    $"          round(sum(d.worker_labor_cost) / sum(d.worker_standard) * 100, 2) efficiency,\n" +
+                    $"          count(distinct d.worker_id) standard_labor_cost-- Человекосмены\n" +
+                    $"    from data2 d\n" +
+                    $"left join {StaffSchema}.stf_position#v p on d.worker_position_id = p.id\n" +
+                    $"    where p.is_linear = 1\n" +
+                    $" group by d.worker_position_id, d.worker_position_name";
 
                 command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("shift_date", date.ToString()));
@@ -1076,14 +1158,15 @@ namespace TSLog.Yard.Data
                     $"           round((least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date)) * 24 * 60 * 60) duration, -- Продолжительность\n" +
                     $"           d.site_id, s.name site_name\n" +
                     $"      from dates dt\n" +
-                    $"cross join table(ecco.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
-                    $" left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                    $" left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
-                    $" left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $" left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $" left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
                     $"     where d.finish_date - d.start_date > 0\n" +
                     $"       and s.code <> 'AUXILIARY'\n" +
                     $"       and s.code = :site_code\n" +
                     $"       and s.kind = 'GATE' -- Только ворота\n" +
+                    $"       and e.id is not null\n" +
                     $" )\n" +
                     $"   select *\n" +
                     $"     from data2 d\n" +

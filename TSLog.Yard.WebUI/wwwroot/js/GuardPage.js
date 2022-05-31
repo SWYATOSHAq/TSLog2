@@ -1,4 +1,8 @@
-﻿class GuardPage {
+﻿/*    
+    Страница для сотрудников охраны.
+    Автор - Буров Михаил.
+*/
+class GuardPage {
     shortUrl;
     operations = [];
     filteredOperations = [];

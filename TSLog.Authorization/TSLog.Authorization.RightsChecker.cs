@@ -112,8 +112,17 @@ namespace TSLog.Authorization
                 userName = user.Identity.Name.Split('\\').Last();
             return userName;
         }
+        /// <summary>
+        /// Проверяет доступность указанного права (по коду) пользователю
+        /// </summary>
+        /// <param name="right">Код права</param>
+        /// <param name="user">Пользователь</param>
+        /// <returns>Индикатор доступности права пользователю</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public bool CheckRight(string right, ClaimsPrincipal user)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
             if (string.IsNullOrWhiteSpace(right))
                 return false;
             right = right.Trim().ToUpper();
@@ -123,6 +132,24 @@ namespace TSLog.Authorization
                     rights.UnionWith(role.Rights);                        
 
             return rights.Contains(right);
+        }
+        /// <summary>
+        /// Проверяет доступность нескольких прав (по кодам прав) пользователю
+        /// </summary>
+        /// <param name="rights">Массив кодов прав</param>
+        /// <param name="user">Пользователь</param>
+        /// <returns>Индикатор доступности ХОТЯ БЫ ОДНОГО права (из массива) пользователю</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool CheckRights(string[] rights, ClaimsPrincipal user)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+            if (rights == null)
+                throw new ArgumentNullException(nameof(rights));
+            foreach (var right in rights)
+                if (CheckRight(right, user))
+                    return true;
+            return false;
         }
         /// <summary>
         /// Возвращает идентификатор партнёра (клиента) по имени пользователя

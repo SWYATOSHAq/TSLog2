@@ -28,6 +28,7 @@ namespace TSLog.Yard.BO
         public Gate GetGate(short id);
         public Gate GetGate(string code);
         public Gate[] GetGates();
+        public string GetGateCodeBySiteCode(string siteCode);
         public Logist GetLogist(int id);
         public Logist GetLogist(string code);
         public Logist[] GetLogists();
@@ -78,6 +79,7 @@ namespace TSLog.Yard.BO
     }
     public interface IYardWmsStorage
     {
+        public string GetSiteCodeByGateCode(string gateCode);
         public MeasureUnit GetMeasureUnit(string code);
         public MeasureUnit[] GetMeasureUnits();
         public WarehouseAction GetAction(ActionKind actionKind, string id);
@@ -102,6 +104,7 @@ namespace TSLog.Yard.BO
         public Position GetPosition(string code);
         public Position[] GetPositions();
         public Position[] GetLinePositions();
+        public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode);
     }
     public interface IYardReportingStorage
     {

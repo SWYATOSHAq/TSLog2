@@ -1,4 +1,8 @@
-﻿class PresentVehiclesPage {
+﻿/*
+    Страница со списком машин, которые сейчас находятся на территории комплекса.
+    Автор - Буров Михаил.
+*/
+class PresentVehiclesPage {
     shortUrl;
     operations = [];
     filteredOperations = [];

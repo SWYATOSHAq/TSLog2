@@ -82,10 +82,18 @@
 @if (createOperation)
 {
     <div class="row create-operation-div">
-        <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-            type="button" 
-            title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
-            onclick="location.href = '/OperationPage'">Создать заявку</button>
+        <div style="flex-wrap: nowrap; width: auto; margin: auto; padding: 0">
+            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
+                style="width: 400px"
+                type="button" 
+                title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
+                onclick="location.href = '/OperationPage'">Создать заявку</button>
+            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
+                style="width: 400px"
+                type="button" 
+                title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
+                onclick="location.href = '/OperationPage'">Создать заявку без подтверждения</button>
+        </div>
     </div>        
 }
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />

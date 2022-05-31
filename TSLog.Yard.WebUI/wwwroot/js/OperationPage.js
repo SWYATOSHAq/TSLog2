@@ -1,4 +1,8 @@
-﻿class OperationPage {
+﻿/*
+    Страница - карточка операции двора.
+    Автор - Буров Михаил.
+*/
+class OperationPage {
     shortUrl;
 
     /*
@@ -20,8 +24,9 @@
     planDuration = 0;
     factDuration = 0;
     planLaborCost = 0;
-    planLinearLaborCost = 0;
+    planLinearLaborCost = 0;    
     factLaborCost = 0;
+    factBcLaborCost = 0;
     finishDate = utils.nullDate;
     avalibleIntervals = [];
     operationBlocksCount = 0;
@@ -31,6 +36,7 @@
     liearWorkers = [];
     selectedWorkers = [];
     selectedWorkersIds = new Set([]);
+    bcWorks = [];
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -181,6 +187,9 @@
             }
             if (this.factLaborCost > 0) {
                 laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
+            }
+            if (this.factBcLaborCost > 0) {
+                laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
             }
         }
     }
@@ -834,10 +843,40 @@
         noteDiv.style.display = "none";
     }
 
+    showBCWorks() {
+        const bcWorksTBody = document.getElementById("bc-works-tbody");
+        bcWorksTBody.replaceChildren();
+
+        this.factBcLaborCost = 0;
+        for (let work of this.bcWorks) {
+            this.factBcLaborCost += work.duration;
+            const workTr = document.createElement("tr");
+            viewUtils.createCell(workTr, ["table-cell"], [work.workerFullName]);
+            viewUtils.createCell(workTr, ["table-cell"], [work.positionName]);
+            viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.startDate)]);
+            viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.finishDate)]);
+            viewUtils.createCell(workTr, ["table-cell"], [Math.round(work.duration / 60)]);
+            bcWorksTBody.append(workTr);
+        }
+    }
+
+    displayBCWorks() {
+        const noteDiv = document.getElementById("bc-works-div");
+        noteDiv.style.display = "block";
+    }
+
+    hideBCWorks() {
+        const noteDiv = document.getElementById("bc-works-div");
+        noteDiv.style.display = "none";
+    }
+
     windowClick(event) {
         const noteDiv = document.getElementById("operation-type-note-div");
+        const bcWorksDiv = document.getElementById("bc-works-div");
         if (event.target == noteDiv) {
             this.hideOperationTypeNote();
+        } else if (event.target == bcWorksDiv) {
+            this.hideBCWorks();
         }
     }
 
@@ -966,6 +1005,26 @@
                 workersDiv.classList.add("d-none");
             }
         }
+
+        if (operation != null
+            && this.factWorkStartDate > utils.nullDate
+            && this.factWorkFinishDate > utils.nullDate
+            && operation.stateCode != "CANCELED") {
+            const result = await api.getBossControlWorks(operation.id)
+            if (result.code === 0) {
+                this.bcWorks = result.works;
+                this.showBCWorks();
+
+                const showBCWorksButton = document.getElementById("show-bc-works-button");
+                const closeBCWorksSpan = document.getElementById("close-bc-works-span");
+
+                showBCWorksButton.onclick = this.displayBCWorks.bind(this);
+                closeBCWorksSpan.onclick = this.hideBCWorks.bind(this);
+            } else {
+                viewUtils.showError(result.message);
+            }
+        }
+
         this.showDuration();
         this.showLaborCost();
         this.showWorkStartFinish();        

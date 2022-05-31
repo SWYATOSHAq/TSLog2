@@ -1,4 +1,8 @@
-﻿class ShiftLaborReportPage2 {
+﻿/*
+    Страница отчёта по трудозатратам за смену 2.
+    Автор - Буров Михаил.
+*/
+class ShiftLaborReportPage2 {
     shortUrl;
 
     data = [];
@@ -103,7 +107,8 @@
                 const id = gateCode + "-" + index.toString();
                 const cell = document.getElementById(id);
 
-                cell.append(operation.vehicleNumber);
+                //cell.append(operation.vehicleNumber);
+                cell.append(operation.partnerIds);
                 cell.append(document.createElement("br"));
 
                 //cell.append(operation.planLaborCost + " / " + operation.factLaborCost + " (ч. * м.)");

@@ -1,4 +1,8 @@
-﻿class GatesPage {
+﻿/*
+    Страница отчёта по воротам
+    Автор - Буров Михаил.
+*/
+class GatesPage {
     shortUrl;
 
     constructor() {

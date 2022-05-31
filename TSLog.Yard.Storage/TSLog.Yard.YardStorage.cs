@@ -228,6 +228,14 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetWorks();
         }
+        public string GetGateCodeBySiteCode(string siteCode)
+        {
+            return _pgsqlStorage.GetGateCodeBySiteCode(siteCode);
+        }
+        public string GetSiteCodeByGateCode(string gateCode)
+        {
+            return _oracleStorage.GetSiteCodeByGateCode(gateCode);
+        }
         #endregion
 
         #region Operations
@@ -399,6 +407,10 @@ namespace TSLog.Yard
         public void RemoveEmployee(Operation operation, Employee employee, Position position)
         {
             _pgsqlStorage.RemoveEmployee(operation, employee, position);
+        }
+        public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
+        {
+            return _oracleStorage.GetBossControlWorks(startDate, finishDate, siteCode);
         }
         #endregion
 
