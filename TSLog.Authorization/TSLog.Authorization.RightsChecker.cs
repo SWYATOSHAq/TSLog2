@@ -105,6 +105,11 @@ namespace TSLog.Authorization
             reader.Close();
         }
 
+        /// <summary>
+        /// Возвращает имя текущего пользователя Active directory
+        /// </summary>
+        /// <param name="user">Пользователь AD</param>
+        /// <returns>Имя пользователя AD</returns>
         public string GetUserName(ClaimsPrincipal user)
         {
             var userName = "m.burov"; // Для теста!
@@ -169,6 +174,12 @@ namespace TSLog.Authorization
             var partners = user.GetPartners();
             return partners[0];
         }
+        /// <summary>
+        /// Возвращает идентификаторы партнёров (мандантов) по имени пользователя (тех мандантов, с которыми может работать указанный пользователь)
+        /// </summary>
+        /// <param name="userName">Имя пользователя</param>
+        /// <returns>Идентификаторы мандантов</returns>
+        /// <exception cref="ArgumentException"></exception>
         public HashSet<string> GetPartnersIdsByUser(string userName)
         {
             if (string.IsNullOrWhiteSpace(userName))

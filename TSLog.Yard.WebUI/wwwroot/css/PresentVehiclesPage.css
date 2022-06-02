@@ -33,17 +33,6 @@
     margin-top: 4px !important;
 }
 
-th {
-    text-align: center;
-    /*font-size: 1.2em;*/
-}
-
-td {
-    text-align: right;
-    background-color: rgb(122, 122, 122);
-    /*font-size: 1.1em;*/
-}
-
 .color-orange {
     background-color: rgb(255, 222, 161) !important;
 }

@@ -1,0 +1,89 @@
+﻿@page "/ECReportPage"
+@using TSLog.Partners.BO
+@using TSLog.Yard.BO
+@using TSLog.Yard.Reporting
+@using TSLog.Yard.WebUI.Models
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model ECReportPageModel
+@{
+    ViewData["Title"] = "Отчет по затратам по клиентам";
+
+    var storage = Model.Storage;
+    var rightsChecker = Model.RightsChecker;
+
+    var viewClientReportPage = !useAuthentication 
+        || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User));
+    if (!viewClientReportPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }    
+    var divClasses = "input-group dropdown-div";
+    var selectClasses = "form-select dropdown-select";
+    var partnersModel = new PartnersModel(storage.GetPartners(), string.Empty, true, true, "Все клиенты", divClasses, selectClasses);
+}
+
+<div style="display: flex; padding: 0; margin: 0">
+    <label style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;" 
+        for="from-date-picker">Начальная дата:</label>
+    <input id="from-date-input" 
+        type="text" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+    <label style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;"
+        for="to-date-picker">Конечная дата:</label>
+    <input id="to-date-input" 
+        type="text" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+    <label class="d-none"
+        style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;"
+        for="partners-filter-container">Клиент:</label>
+    <div class="d-none">
+        <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+    </div>    
+</div>
+<div style="padding: 0; margin: 0; margin-top: 8px">
+    <button class="btn btn-outline-success"
+        style="padding: 0; margin: 0; width: 120px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="ecReportPage.createReport()">Применить</button>
+</div>
+<h3 id="report-header"
+    style="padding: 0; margin: 0; margin-top: 8px">Отчёт по зтратам на персонал из БоссКонтроля</h3>
+<div style="padding: 0; margin-top: 8px;">
+    <table class="table table-light table-bordered table-striped"
+        style="padding: 0; margin: 0">
+        <thead class="thead-light">
+            <tr>
+                <!--
+                <th class="table-header">Id манданта</th>
+                -->
+                <th class="table-header">Период с по</th>
+                <th class="table-header">Мандант</th>
+                <th class="table-header">Время по БК (час.)</th>
+                <th class="table-header">Трудозатраты с налогами (руб.)</th>
+                <th class="table-header">Выручка Биллинг без НДС итого (руб.)</th>
+                <th class="table-header">Выручка хранение</th>
+                <th class="table-header">Выручка обработка</th>
+                <th class="table-header">Маржинальный доход обработка</th>
+                <th class="table-header">Маржинальный доход итого (руб.)</th>
+                <th class="table-header">Маржа обработка (%)</th>
+                <th class="table-header">Маржа (%)</th>
+            </tr>
+        </thead>
+        <tbody id="report-tbody">
+        </tbody>
+    </table>
+</div>

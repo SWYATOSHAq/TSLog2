@@ -441,6 +441,8 @@ namespace TSLog.Yard.Data
         }
         public Employee GetEmployeeByAdLogin(string login)
         {
+            throw new Exception("Text exception");
+
             if (string.IsNullOrWhiteSpace(login))
                 throw new ArgumentException("Login is empty!");
             login = login.Trim().ToLower();
@@ -1192,6 +1194,98 @@ namespace TSLog.Yard.Data
                     work.finishDate = Utils.DbValueToDateTime(reader["finish_date"]);
                     work.duration = duration;
                     works.Add(work);
+                }
+                reader.Close();
+            }
+            return works.ToArray();
+        }
+        public dynamic[] GetEcData(DateTime fromDate, DateTime toDate)
+        {
+            var works = new List<dynamic>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    $"with dates as (\n" +
+                    $"  select :start_date fact_work_start_date,\n" +
+                    $"         :finish_date fact_work_finish_date\n" +
+                    $"    from dual\n" +
+                    $"),\n" +
+                    $"billind_data as (\n" +
+                    $"    -- 1.2 складывается результат умножения всех начисленных услуг на их стоимость по данному клиенту за указанный период -\n" +
+                    $"    -- это есть вся выручка по клиенту за период.\n" +
+                    $"  select bsl.bl_mndnr partner_id,\n" +
+                    $"         sum(bsl.bl_qty * bp.bp_price) total_income\n" +
+                    $"    from ecco.bl_service_log bsl\n" +
+                    $"    join ecco.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
+                    $"   where bsl.adddate between :start_date and :finish_date\n" +
+                    $"	     --and bsl.bl_mndnr = :partner_id\n" +
+                    $"group by bsl.bl_mndnr\n" +
+                    $"order by partner_id\n" +
+                    $"),\n" +
+                    $"data2 as (\n" +
+                    $"   select emp.position_id, emp.position_name,\n" +
+                    $"          emp.cost position_cost, emp.cost_currency_code position_cost_currency_code,\n" +
+                    $"          d.worker_id, e.full_name worker_full_name,\n" +
+                    $"          greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
+                    $"          least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
+                    $"          least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) duration, -- Продолжительность\n" +
+                    $"          d.site_id, s.name site_name,\n" +
+                    $"          d.partner_id, par.name partner_name\n" +
+                    $"     from dates dt\n" +
+                    $"cross join table(ecco.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
+                    $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                    $"left join ecco.par_partner#v par on d.partner_id = par.id\n" +
+                    $"    where d.finish_date - d.start_date > 0\n" +
+                    $"      and s.code <> 'AUXILIARY'\n" +
+                    $"      and e.id is not null\n" +
+                    $" ),\n" +
+                    $"data3 as (\n" +
+                    $"   select\n" +
+                    $"          --d.worker_id, d.worker_full_name, -- по людям\n" +
+                    $"          d.partner_id, d.partner_name,\n" +
+                    $"          sum(duration * 24) total_duration,\n" +
+                    $"          sum(d.position_cost * d.duration * 24) * 1.305 total_cost, 'RUR' total_cost_currency\n" +
+                    $"     from data2 d\n" +
+                    $" group by\n" +
+                    $"          d.partner_id, d.partner_name\n" +
+                    $"          --d.worker_id, d.worker_full_name\n" +
+                    $" --order by d.position_id, d.worker_id, d.worker_full_name, d.start_date, d.finish_date\n" +
+                    $")\n" +
+                    $"   select nvl(d.partner_id, bd.partner_id) partner_id, par.name partner_name,\n" +
+                    $"          round(nvl(d.total_duration, 0.0), 8) bc_duration, -- В часах\n" +
+                    $"          round(nvl(d.total_cost, 0.0), 8) bc_cost,\n" +
+                    $"          round(nvl(bd.total_income, 0.0), 8) billing_income,\n" +
+                    $"          round(nvl(bd.total_income, 0.0) - nvl(d.total_cost, 0.0), 8) profit,\n" +
+                    $"          case\n" +
+                    $"              when nvl(bd.total_income, 0.0) <> 0\n" +
+                    $"                  then round((nvl(bd.total_income, 0.0) - nvl(d.total_cost, 0.0)) / nvl(bd.total_income, 0.0), 8) * 100.0\n" +
+                    $"              else 0.0\n" +
+                    $"          end margin,\n" +
+                    $"          'RUR' currency_code\n" +
+                    $"     from data3 d\n" +
+                    $"full join billind_data bd on d.partner_id = bd.partner_id\n" +
+                    $"left join ecco.par_partner#v par on nvl(d.partner_id, bd.partner_id) = par.id\n" +
+                    $"order by partner_id";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("start_date", fromDate));
+                command.Parameters.Add(new OracleParameter("finish_date", toDate));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic element = new ExpandoObject();
+                    element.partnerId = Utils.DbValueToString(reader["partner_id"]);
+                    element.partnerName = Utils.DbValueToString(reader["partner_name"]);
+                    element.bcDuration = Utils.DbValueToDouble(reader["bc_duration"]);
+                    element.bcCost = Utils.DbValueToDouble(reader["bc_cost"]);
+                    element.billingIncome = Utils.DbValueToDouble(reader["billing_income"]);
+                    element.profit = Utils.DbValueToDouble(reader["profit"]);
+                    element.margin = Utils.DbValueToString(reader["margin"]);
+                    element.currencyCode = Utils.DbValueToString(reader["currency_code"]);                    
+                    works.Add(element);
                 }
                 reader.Close();
             }

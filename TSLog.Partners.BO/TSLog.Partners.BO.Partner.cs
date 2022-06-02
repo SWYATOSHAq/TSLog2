@@ -44,6 +44,8 @@ namespace TSLog.Partners.BO
 
         public static string Serialize(Partner[] partners)
         {
+            if (partners == null || partners.Length <= 0)
+                return string.Empty;
             var result = string.Empty;
             foreach (var partner in partners)
                 result += ((result.Length > 0) ? ", " : "") + partner.Name;

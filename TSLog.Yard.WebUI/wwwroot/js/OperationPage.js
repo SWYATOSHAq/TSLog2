@@ -411,6 +411,43 @@ class OperationPage {
         }
     }
 
+    async createConfirmOperation() {
+        if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
+            document.getElementById("operation-types-select").value == "" ||
+            document.getElementById("vehicle-kinds-select").value == "" ||
+            document.getElementById("partners-select").value == "" ||
+            document.getElementById("partner-action-id-input").value == "") {
+            alert("Не все обязательные поля заполнены!");
+            return;
+        }
+
+        const data = {
+            startDate: utils.dateTimeToString(this.planWorkStartDate),
+            operationTypeCode: document.getElementById("operation-types-select").value,
+            vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
+            vehicleBrand: document.getElementById("vehicle-brand-input").value,
+            vehicleModel: document.getElementById("vehicle-model-input").value,
+            vehicleNumber: document.getElementById("vehicle-number-input").value,
+            trailerNumber: document.getElementById("trailer-number-input").value,
+            driverName: document.getElementById("driver-name-input").value,
+            driverPhoneNumber: document.getElementById("driver-phone-number-input").value,
+            partnerManagerName: document.getElementById("partner-manager-name-input").value,
+            partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
+            partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
+            note: document.getElementById("note-textarea").value,
+            partnerId: document.getElementById("partners-select").value,
+            partnerActionId: document.getElementById("partner-action-id-input").value
+        };
+
+        const result = await api.createConfirmOperation(data);
+        if (result.code === 0) {
+            const operation = result.operation;
+            location.href = this.shortUrl + "?id=" + operation.id;
+        } else {
+            viewUtils.showError(result.message);
+        }
+    }
+
     async createOperationByPartner() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||

@@ -72,6 +72,11 @@ class ViewUtils {
             alert(message);
         }
     }
+
+    // Отображение числового значения с учётом его величины
+    showNumeric(value) {
+        return value.toString();
+    }
 }
 
 const viewUtils = new ViewUtils();

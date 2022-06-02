@@ -21,9 +21,7 @@
         throw new UnauthorizedAccessException();
     }
 
-    var createOperation = !useAuthentication 
-        || rightsChecker.CheckRight("CREATE_OPERATION", User) 
-        || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+    var createOperation = !useAuthentication || rightsChecker.CheckRights(new string[] { "CREATE_OPERATION", "CREATE_OPERATION_BY_PARTNER" }, User);
     var canFilterOperationsById = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_ID", User);
     var canFilterOperationsByDate = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DATE", User);
     var canFilterOperationsByType = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_TYPE", User);
@@ -84,15 +82,15 @@
     <div class="row create-operation-div">
         <div style="flex-wrap: nowrap; width: auto; margin: auto; padding: 0">
             <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                style="width: 400px"
+                style="width: 180px"
                 type="button" 
-                title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
-                onclick="location.href = '/OperationPage'">Создать заявку</button>
+                title="Создать новую заявку на операцию двора (разгрузку или погрузку) без подтверждения"
+                onclick="location.href = '/OperationPage?need_confirm=N'">Создать</button>
             <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                style="width: 400px"
+                style="width: 180px"
                 type="button" 
-                title="Создать новую заявку на операцию двора (разгрузку или погрузку)"
-                onclick="location.href = '/OperationPage'">Создать заявку без подтверждения</button>
+                title="Создать новую заявку на операцию двора (разгрузку или погрузку) с подтверждением"
+                onclick="location.href = '/OperationPage?need_confirm=Y'">Создать и подтвердить</button>
         </div>
     </div>        
 }

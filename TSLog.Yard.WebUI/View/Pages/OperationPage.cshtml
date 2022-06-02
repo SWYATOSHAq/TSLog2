@@ -9,34 +9,30 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
 @model OperationPageModel
-@{    
+@{
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
     string stringId = Request.Query["id"];
-    var operation = Operation.Empty;
-    if (string.IsNullOrWhiteSpace(stringId))
-    {
-        // Создание
+    string needConfirm = (Request.Query["need_confirm"]);
+    needConfirm = !string.IsNullOrWhiteSpace(needConfirm) ? needConfirm.Trim().ToUpper() : string.Empty;
+    var operation = Operation.Empty;    
+    if (string.IsNullOrWhiteSpace(stringId)) // Создание
+    {        
         ViewData["Title"] = "Создать заявку";
         var createOperation = !useAuthentication 
-            || rightsChecker.CheckRight("CREATE_OPERATION", User)
-            || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+            || rightsChecker.CheckRights(new string[] { "CREATE_OPERATION", "CREATE_CONFIRM_OPERATION", "CREATE_OPERATION_BY_PARTNER"}, User);
         if (!createOperation)
         {        
             Response.StatusCode = 403;
             throw new UnauthorizedAccessException();
         }
     }
-    else
-    {
-        // Просмотр или редактирование
+    else // Просмотр или редактирование
+    {        
         ViewData["Title"] = "Карточка заявки";
         var editOperation = !useAuthentication
-            || rightsChecker.CheckRight("VIEW_OPERATION_PAGE", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+            || rightsChecker.CheckRights(new string[] { "VIEW_OPERATION_PAGE", "EDIT_OPERATION", "EDIT_OPERATION_BY_PARTNER", "EDIT_OPERATION_NOTE" }, User);
         if (!editOperation)
         {
             Response.StatusCode = 403;
@@ -101,7 +97,10 @@
     var workersModel = new WorkersModel(true);
 
     var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
-    var createOperationOnclick = !isPartnerUser ? "operationPage.createOperation()" : "operationPage.createOperationByPartner()";
+
+    var createOperationOnclick = !isPartnerUser ? 
+        (needConfirm != "Y" ? "operationPage.createOperation()" : "operationPage.createConfirmOperation()") : 
+        "operationPage.createOperationByPartner()";
     var editOperationOnclick = "";
     if (canEditAttributes)
         editOperationOnclick = !isPartnerUser ? "operationPage.editOperation()" : "operationPage.editOperationByPartner()";
@@ -344,7 +343,7 @@
                             onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
                     </div>
                 }
-                @if (stateCode == "CONFIRMED" &&  canStart)
+                @if (stateCode == "CONFIRMED" && canStart)
                 {
                     <div class="d-grid m-2 row">
                         <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 

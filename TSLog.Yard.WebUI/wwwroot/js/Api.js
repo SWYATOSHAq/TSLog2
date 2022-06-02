@@ -104,9 +104,26 @@ class Api {
         }
     }
 
-    // Создайт операцию двора и возвращает созданную (для сотрудника ТСЛ)
+    // Создайт операцию двора и возвращает созданную (для сотрудника ТСЛ) без подтверждения
     async createOperation(data) {
         const url = "./api/v1/yard/CreateOperation";
+        const options = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("operation", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Создайт операцию двора и возвращает созданную (для сотрудника ТСЛ) с подтверждением
+    async createConfirmOperation(data) {
+        const url = "./api/v1/yard/CreateConfirmOperation";
         const options = {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -503,6 +520,18 @@ class Api {
     // Формирует отчёт по трудозатратам за смену 3
     async createShiftLaborReport3(date, shift) {
         let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Формирует отчёт по расходам по БоссКоннтролю
+    async createECReport(fromDate, toDate) {
+        let url = "./api/v1/yard/ECReport?from_date=" + fromDate + "&to_date=" + toDate;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());

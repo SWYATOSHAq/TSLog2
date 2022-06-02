@@ -95,6 +95,10 @@
     {
         <link rel="stylesheet" href="~/css/ShiftLaborReportPage3.css" asp-append-version="true" />
     } 
+    else if (page == "ECReportPage")
+    {
+        <link rel="stylesheet" href="~/css/ECReportPage.css" asp-append-version="true" />
+    } 
 </head>
 
 <body>
@@ -150,6 +154,9 @@
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
             </div>
+        </div>
+        <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+            <a class="nav-link text-dark" href="/ECReportPage">Затраты/Выручка</a>
         </div>
     </div>
 
@@ -238,6 +245,10 @@
         else if (page == "ShiftLaborReportPage3")
         {        
             <script type="text/javascript" src="~/js/ShiftLaborReportPage3.js"></script>
+        }
+        else if (page == "ECReportPage")
+        {        
+            <script type="text/javascript" src="~/js/ECReportPage.js"></script>
         }
     }
 

@@ -38,15 +38,6 @@
     margin-top: 8px;    
 }
 
-th {
-    text-align: center;
-}
-
-td {
-    text-align: right;
-    background-color: rgb(122, 122, 122);
-}
-
 .correct-values {
     background-color: lightgreen !important;
     box-shadow: none !important;

@@ -1610,8 +1610,9 @@ namespace TSLog.Yard.Data
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = $"select {YardSchema}.set_operation_responsible_officer(:p_id, " +
-                $":p_responsible_officer_id," +
+            var sql = 
+                $"select {YardSchema}.set_operation_responsible_officer(:p_id, \n" +
+                $":p_responsible_officer_id,\n" +
                 $":p_user);";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));

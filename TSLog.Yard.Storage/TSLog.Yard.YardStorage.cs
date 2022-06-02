@@ -443,6 +443,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetBcData(fromDate, toDate, siteCode);
         }
+        public dynamic[] GetEcData(DateTime fromDate, DateTime toDate)
+        {
+            return _oracleStorage.GetEcData(fromDate, toDate);
+        }
         #endregion
 
         public void Dispose()

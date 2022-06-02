@@ -104,12 +104,33 @@ namespace TSLog.Yard.BO
         /// Приоритет
         /// </summary>
         public short Priority { get; set; }
+        /// <summary>
+        /// Ф. И. О. менеджера со стороны партнёра (клиента, манданта)
+        /// </summary>
         public string PartnerManagerName { get; set; }
+        /// <summary>
+        /// Контактный телефон менеджера со стороны партнёра (клиента, манданта)
+        /// </summary>
         public string PartnerManagerPhoneNumber { get; set; }
+        /// <summary>
+        /// Адрес эл. почты менеджера со стороны партнёра (клиента, манданта)
+        /// </summary>
         public string PartnerManagerEmail { get; set; }
+        /// <summary>
+        /// Дата (и время) создания
+        /// </summary>
         public DateTime CreateDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Кто создал (имя пользователя)
+        /// </summary>
         public string Creator { get; set; } = string.Empty;
+        /// <summary>
+        ///  Дата (и время) последних изменений
+        /// </summary>
         public DateTime EditDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Кто внёс последние изменения (имя пользователя)
+        /// </summary>
         public string Editor { get; set; } = string.Empty;
         
         public Operation(long id, string? code, OperationType type,
@@ -274,6 +295,8 @@ namespace TSLog.Yard.BO
             {
                 var result = State.Code switch
                 {
+                    "CREATED" => "#ffffff",// white
+                    "CONFIRMED" => "#e5e5e5",// gray
                     "STARTED" => "#b8ffc7",// green
                     "WORK_STARTED" => "#ff8282",// red
                     "WORK_FINISHED" => "#e9ff91",// yellow
@@ -283,6 +306,12 @@ namespace TSLog.Yard.BO
                 return result;
             }
         }
+        /// <summary>
+        /// Сравнение  операций двора плановой дате начала работ
+        /// </summary>
+        /// <param name="operation1">Первая операция двора</param>
+        /// <param name="operation2">Вторая операция двора</param>
+        /// <returns></returns>
         public static int CompareByPlanWorkStartDate(Operation operation1, Operation operation2)
         {
             return operation2.PlanWorkStartDate.CompareTo(operation1.PlanWorkStartDate);

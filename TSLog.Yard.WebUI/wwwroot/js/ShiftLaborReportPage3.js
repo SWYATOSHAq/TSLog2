@@ -32,10 +32,6 @@ class ShiftLaborReportPage2 {
         elementsTbody.replaceChildren();
     }
 
-    showElement(operation, reportTbody) {
-        
-    }
-
     createBlockClick(id) {
         return function () {
             let blocks = document.getElementsByClassName("plan-selected-block");
@@ -184,12 +180,6 @@ class ShiftLaborReportPage2 {
                     cell.append(planBlock);
                 }                
             }
-
-            // Выводим среднее значение по воротам
-            //const average = Math.round(total / operations[gateCode].length);
-            //const id = gateCode + "-" + (maxOperationCount + 1).toString();
-            //const cell = document.getElementById(id);
-            //cell.textContent = average.toString() + " %"
         }
     }
 
