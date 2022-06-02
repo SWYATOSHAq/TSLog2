@@ -28,12 +28,12 @@ class OperationPage {
     factLaborCost = 0;
     factBcLaborCost = 0;
     finishDate = utils.nullDate;
-    avalibleIntervals = [];
+    availableIntervals = [];
     operationBlocksCount = 0;
     blocks = [];
     doDisplay = false;
 
-    liearWorkers = [];
+    linearWorkers = [];
     selectedWorkers = [];
     selectedWorkersIds = new Set([]);
     bcWorks = [];
@@ -215,7 +215,7 @@ class OperationPage {
     }
 
     async getAvalibleIntervals() {
-        this.avalibleIntervals = [];
+        this.availableIntervals = [];
         const workStartDatePicker = document.getElementById("work-start-date-picker");
         const workStartDate = workStartDatePicker.value;
         const operationTypeCode = document.getElementById("operation-types-select").value;
@@ -223,7 +223,7 @@ class OperationPage {
 
         const result = await api.getAvalibleIntervals(workStartDate, operationTypeCode, vehicleKindCode);
         if (result.code === 0) {
-            this.avalibleIntervals = result.avalibleIntervals;
+            this.availableIntervals = result.avalibleIntervals;
         } else {
             viewUtils.showError(result.message);
         }
@@ -275,7 +275,7 @@ class OperationPage {
                 blockFinish.setSeconds(date.getSeconds() + blockStartTime + this.blockDuration);
 
                 let isFree = false;
-                for (let interval of this.avalibleIntervals) {
+                for (let interval of this.availableIntervals) {
                     const periodFrom = new Date(interval.From);
                     const periodTo = new Date(interval.To);
                     if (periodFrom <= blockStart && periodTo >= blockFinish && blockStart >= Date.now()) {
@@ -623,7 +623,7 @@ class OperationPage {
     async getLinearFreeWorkers() {
         const result = await api.getLinearFreeWorkers();
         if (result.code === 0) {
-            this.liearWorkers = result.data;
+            this.linearWorkers = result.data;
         }
         else {
             viewUtils.showError(result.message);
@@ -672,7 +672,7 @@ class OperationPage {
         const allWorkersDiv = document.getElementById("linear-workers-div");
         allWorkersDiv.replaceChildren();
         const namePattern = document.getElementById("worker-filter-input").value.trim().toLowerCase();
-        for (let worker of this.liearWorkers) {
+        for (let worker of this.linearWorkers) {
             if (namePattern != ""
                 && !worker.fullName.toLowerCase().includes(namePattern)
                 && !worker.positionName.toLowerCase().includes(namePattern)
@@ -1065,6 +1065,8 @@ class OperationPage {
         this.showDuration();
         this.showLaborCost();
         this.showWorkStartFinish();        
+
+        viewUtils.normalizePhoneNumber();
 
         const operationTypesSelect = document.getElementById("operation-types-select");
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
