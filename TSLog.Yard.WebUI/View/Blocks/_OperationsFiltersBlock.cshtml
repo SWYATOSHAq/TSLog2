@@ -5,7 +5,7 @@
 
 @model OperationsFiltersBlockModel
 @{
-    var filteByDates = Model.FilterByDates;
+    var filterByDates = Model.FilterByDates;
     var operationTypesModel = Model.OperationTypesModel;
     var vehicleKindsModel = Model.VehicleKindsModel;
     var logistsModel = Model.LogistsModel;
@@ -17,9 +17,10 @@
     var filterByDriveName = Model.FilterByDriveName;
     var filterByPartnerActionId = Model.FilterByPartnerActionId;
     var filterByEmployee = Model.FilterByEmployee;
+    var filterByPhoneNumber = Model.FilterByPhoneNumber;
 }
 <div id="filters" class="row filters-div">
-    @if (filteByDates)
+    @if (filterByDates)
     {
         <div class="row dates-div">
             <label class="datepicker2-label"
@@ -93,5 +94,11 @@
         <div id="worker-div" class="col-md-3 col-6 filter-div">
             <input class="form-control filter-input" id="worker-input" placeholder="Работник">
         </div>        
+    }
+    @if (filterByPhoneNumber)
+    {
+        <div id="phone-number-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="phone-number-input" placeholder="Номер телефона">
+        </div>
     }
 </div>
