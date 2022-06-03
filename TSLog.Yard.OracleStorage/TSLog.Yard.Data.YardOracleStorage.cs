@@ -214,7 +214,7 @@ namespace TSLog.Yard.Data
             { "EIN15", "GATE_15" },
             { "EIN16", "GATE_16" }
         };
-        public string GetSiteCodeByGateCode(string gateCode) 
+        public string GetSiteCodeByGateCode(string gateCode)
         {
             return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
         }
@@ -653,7 +653,7 @@ namespace TSLog.Yard.Data
                 reader.Close();
             }
             return employees.ToArray();
-        }        
+        }
         public Employee[] GetPlanShiftEmployees(DateTime? date = null)
         {
             var employees = new List<Employee>();
@@ -794,10 +794,10 @@ namespace TSLog.Yard.Data
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
             var note = Utils.DbValueToString(reader["note"]);
-            var position = new Department(id, code, 
+            var position = new Department(id, code,
                 name, shortName, altName, displayName,
                 isActive, displayOrder,
-                LegalEntity.Null, Employee.Null, 
+                LegalEntity.Null, Employee.Null,
                 note);
             return position;
         }
@@ -1059,7 +1059,7 @@ namespace TSLog.Yard.Data
                     $"          --Нормализованные трудозатраты(суммарные / количество работников) в человекочасах\n" +
                     $"          round(sum((d.finish_date - d.start_date) * 24) / count(distinct d.worker_id), 2) norm_labor_cost\n" +
                     $"          --d.site_id\n" +
-                    $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +                    
+                    $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
                     $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
                     $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
                     $"    where d.site_id in (select id from {StaffSchema}.stf_site#v connect by prior id = parent_id start with code = 'GROUND_FLOOR')\n" +
@@ -1144,7 +1144,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
-                var sql =                                         
+                var sql =
                     $"with dates as (\n" +
                     $"  select :start_date fact_work_start_date,\n" +
                     $"         :finish_date fact_work_finish_date\n" +
@@ -1213,12 +1213,13 @@ namespace TSLog.Yard.Data
                     $"    -- 1.2 складывается результат умножения всех начисленных услуг на их стоимость по данному клиенту за указанный период -\n" +
                     $"    -- это есть вся выручка по клиенту за период.\n" +
                     $"  select bsl.bl_mndnr partner_id,\n" +
-                    $"         sum(case when substr(bsd.bsd_bst_code, 1, 3) = 'STG' then bsl.bl_qty * bp.bp_price end) as store_income,\n" +
-                    $"         sum(case when substr(bsd.bsd_bst_code, 1, 3) != 'STG' then bsl.bl_qty * bp.bp_price end) as handling_income," +
+                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' then bsl.bl_qty * bp.bp_price end) as store_income,\n" +
+                    $"         sum(case when bst.bst_doc_type != 'SYSTEM' then bsl.bl_qty * bp.bp_price end) as handling_income," +
                     $"         sum(bsl.bl_qty * bp.bp_price) total_income\n" +
                     $"    from ecco.bl_service_log bsl\n" +
                     $"    join ecco.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
                     $"    join ecco.bl_services_def bsd on bsd.bsd_id = bp.bp_bsd_id\n" +
+                    $"    join ecco.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
                     $"   where bsl.adddate between :start_date and :finish_date\n" +
                     $"	     --and bsl.bl_mndnr = :partner_id\n" +
                     $"group by bsl.bl_mndnr\n" +
@@ -1295,9 +1296,9 @@ namespace TSLog.Yard.Data
                     element.billingTotalIncome = Utils.DbValueToDouble(reader["billing_total_income"]);
                     element.handlingProfit = Utils.DbValueToDouble(reader["handling_profit"]);
                     element.totalProfit = Utils.DbValueToDouble(reader["total_profit"]);
-                    element.handlingMargin = Utils.DbValueToString(reader["handling_margin"]);
-                    element.totalMargin = Utils.DbValueToString(reader["total_margin"]);
-                    element.currencyCode = Utils.DbValueToString(reader["currency_code"]);                    
+                    element.handlingMargin = Utils.DbValueToDouble(reader["handling_margin"]);
+                    element.totalMargin = Utils.DbValueToDouble(reader["total_margin"]);
+                    element.currencyCode = Utils.DbValueToString(reader["currency_code"]);
                     works.Add(element);
                 }
                 reader.Close();
