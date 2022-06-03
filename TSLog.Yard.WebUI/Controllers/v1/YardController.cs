@@ -2098,6 +2098,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     temp = temp.Trim();
                     if (!DateTime.TryParse(temp, out toDate))
                         return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1).AddTicks(-1);
                 }
                 var elements = _storage.GetEcData(fromDate, toDate);
                 var text = JsonSerializer.Serialize(elements);

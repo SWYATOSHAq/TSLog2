@@ -26,6 +26,7 @@
     var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
     var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
+    var canViewEcReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User);
 
     var date = DateTime.Today.ToString("dd.MM.yyyy");
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -156,7 +157,10 @@
             </div>
         </div>
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
-            <a class="nav-link text-dark" href="/ECReportPage">Затраты/Выручка</a>
+            @if (canViewEcReportPage)
+            {
+                <a class="nav-link text-dark" href="/ECReportPage">Затраты/Выручка</a>
+            }            
         </div>
     </div>
 
@@ -251,7 +255,6 @@
             <script type="text/javascript" src="~/js/ECReportPage.js"></script>
         }
     }
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

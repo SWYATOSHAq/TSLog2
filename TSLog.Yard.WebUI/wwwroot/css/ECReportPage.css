@@ -11,3 +11,9 @@
     border-radius: 4px !important;
     align-items: center;
 }
+
+.table-cell {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 4px !important;
+}

@@ -42,9 +42,13 @@ class ECReportPage {
 
         let totalBcDuration = 0.0;
         let totalBcCost = 0.0;
-        let totalBillingIncome = 0.0;
-        let totalProfit = 0.0;
-        let avgMargin = 0.0;
+        let totalBillingTotalIncome = 0.0;
+        let totalBillingStoreIncome = 0.0;
+        let totalBillingHandlingIncome = 0.0;
+        let totalHandlingProfit = 0.0;
+        let totalTotalProfit = 0.0;
+        let avgHandlingMargin = 0.0;
+        let avgTotalMargin = 0.0;
 
         const tbody = document.getElementById("report-tbody");
         for (let element of this.data) {
@@ -52,37 +56,41 @@ class ECReportPage {
             //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
             viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")]);
             viewUtils.createCell(tr, ["table-cell"], [element.partnerName]);
-            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.bcDuration).toFixed(2)]);
-            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.bcCost).toFixed(2)]);
-            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.billingIncome).toFixed(2)]);
-            viewUtils.createCell(tr, ["table-cell"], [""]);
-            viewUtils.createCell(tr, ["table-cell"], [""]);
-            viewUtils.createCell(tr, ["table-cell"], [""]);            
-            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.profit).toFixed(2)]);
-            viewUtils.createCell(tr, ["table-cell"], [""]);
-            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.margin).toFixed(2)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcDuration, 2)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcCost, 2)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingTotalIncome, 2)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingStoreIncome, 2)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingHandlingIncome, 2)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.handlingProfit, 2)]);            
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.totalProfit, 2)]);
+            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.handlingMargin).toFixed(2)]);
+            viewUtils.createCell(tr, ["table-cell"], [parseFloat(element.totalMargin).toFixed(2)]);
             tbody.append(tr);
 
             totalBcDuration += element.bcDuration;
             totalBcCost += element.bcCost;
-            totalBillingIncome += element.billingIncome;
+            totalBillingTotalIncome += element.billingTotalIncome;
+            totalBillingStoreIncome += element.billingStoreIncome;
+            totalBillingHandlingIncome += element.billingHandlingIncome;            
         }
+        totalHandlingProfit = totalBillingHandlingIncome - totalBcCost;
+        totalTotalProfit = totalBillingTotalIncome - totalBcCost;
+        avgHandlingMargin = totalBillingHandlingIncome != 0.0 ? totalHandlingProfit / totalBillingHandlingIncome * 100.0 : 0.0;
+        avgTotalMargin = totalBillingTotalIncome != 0.0 ? totalTotalProfit / totalBillingTotalIncome * 100.0 : 0.0;
 
-        totalProfit = totalBillingIncome - totalBcCost;
-        avgMargin = totalBillingIncome != 0.0 ? totalProfit / totalBillingIncome * 100.0 : 0.0;
         const tr = document.createElement("tr");
         //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
         viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")], "font-weight: bold");
         viewUtils.createCell(tr, ["table-cell"], ["Итого:"], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [parseFloat(totalBcDuration).toFixed(2)], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [parseFloat(totalBcCost).toFixed(2)], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [parseFloat(totalBillingIncome).toFixed(2)], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [""], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [""], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [""], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [parseFloat(totalProfit).toFixed(2)], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [""], "font-weight: bold");
-        viewUtils.createCell(tr, ["table-cell"], [parseFloat(avgMargin).toFixed(2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcDuration, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcCost, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingTotalIncome, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingStoreIncome, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingHandlingIncome, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalHandlingProfit, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalTotalProfit, 2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [parseFloat(avgHandlingMargin).toFixed(2)], "font-weight: bold");
+        viewUtils.createCell(tr, ["table-cell"], [parseFloat(avgTotalMargin).toFixed(2)], "font-weight: bold");
         tbody.append(tr);
     }
 
