@@ -136,7 +136,7 @@ class OperationsPage {
         result = utils.addParameter(result, "driver_name", "driver-name-input");
         result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
         result = utils.addParameter(result, "worker", "worker-input");
-        result = utils.addParameter(result, "driver_phone_number", "phone-number-input");
+        result = utils.addParameter(result, "driver_phone_number", "driver-phone-number-input");
         result = utils.addParameter(result, "sort_field", "sort-field-select");
         result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
@@ -243,7 +243,7 @@ class OperationsPage {
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
         viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
         viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("phone-number-input", utils.getUrlParameter("driver_phone_number"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("driver-phone-number-input", utils.getUrlParameter("driver_phone_number"), this.onChangeFilter.bind(this));
 
         this.sortField = utils.getUrlParameter("sort_field");
         if (this.sortField === "")

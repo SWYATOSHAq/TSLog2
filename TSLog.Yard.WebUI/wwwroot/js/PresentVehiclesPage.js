@@ -24,6 +24,7 @@ class PresentVehiclesPage {
         result = utils.addParameter(result, "id_number", "id-number-input");
         result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
         result = utils.addParameter(result, "driver_name", "driver-name-input");
+        result = utils.addParameter(result, "driver_phone_number", "driver-phone-number-input");
         result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
         result = utils.addParameter(result, "sort_field", "sort-field-select");
         result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
@@ -120,6 +121,9 @@ class PresentVehiclesPage {
         const driverNameInput = document.getElementById("driver-name-input");
         const driverName = driverNameInput != undefined ? driverNameInput.value.toUpperCase() : "";
 
+        const driverPhoneNumberInput = document.getElementById("driver-phone-number-input");
+        const driverPhoneNumber = driverPhoneNumberInput != undefined ? driverPhoneNumberInput.value.toUpperCase() : "";
+
         const actionSelect = document.getElementById("partner-action-id-input");
         const actionNumber = actionSelect != undefined ? actionSelect.value.toUpperCase() : "";
 
@@ -150,6 +154,9 @@ class PresentVehiclesPage {
                 continue;
             }
             if (!operation.driverName.toUpperCase().includes(driverName)) {
+                continue;
+            }
+            if (!operation.normalizedDriverPhoneNumber.toUpperCase().includes(driverPhoneNumber)) {
                 continue;
             }
             if (!operation.partnerActionId.toUpperCase().includes(actionNumber)) {
@@ -265,6 +272,7 @@ class PresentVehiclesPage {
         viewUtils.initInput("id-number-input", utils.getUrlParameter("id_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("driver-phone-number-input", utils.getUrlParameter("driver_phone_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
 
         this.sortField = utils.getUrlParameter("sort_field");

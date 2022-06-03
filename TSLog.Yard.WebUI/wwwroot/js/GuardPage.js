@@ -22,6 +22,7 @@ class GuardPage {
         result = utils.addParameter(result, "id_number", "id-number-input");
         result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
         result = utils.addParameter(result, "driver_name", "driver-name-input");
+        result = utils.addParameter(result, "driver_phone_number", "driver-phone-number-input");
         result = utils.addParameter(result, "sort_field", "sort-field-select");
         result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
@@ -139,6 +140,9 @@ class GuardPage {
         const driverNameInput = document.getElementById("driver-name-input");
         const driverName = driverNameInput != undefined ? driverNameInput.value.toUpperCase() : "";
 
+        const driverPhoneNumberInput = document.getElementById("driver-phone-number-input");
+        const driverPhoneNumber = driverPhoneNumberInput != undefined ? driverPhoneNumberInput.value.toUpperCase() : "";
+
         this.filteredOperations = [];
         for (let operation of this.operations) {
 
@@ -146,8 +150,9 @@ class GuardPage {
                 partner != "" && operation.partnerId != partner ||
                 !operation.id.toString().includes(idNumber) ||
                 !operation.vehicleNumber.toUpperCase().includes(vehicleNumber) ||
-                !operation.driverName.toUpperCase().includes(driverName))
-            {
+                !operation.driverName.toUpperCase().includes(driverName) ||
+                !operation.normalizedDriverPhoneNumber.toUpperCase().includes(driverPhoneNumber)
+            ) {
                 continue;
             }            
             this.filteredOperations.push(operation);
@@ -269,6 +274,7 @@ class GuardPage {
         viewUtils.initInput("id-number-input", utils.getUrlParameter("id_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
         viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("driver-phone-number-input", utils.getUrlParameter("driver_phone_number"), this.onChangeFilter.bind(this));
 
         this.sortField = utils.getUrlParameter("sort_field");
         if (this.sortField === "")
