@@ -51,7 +51,7 @@
     var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния", divClasses, selectClasses);
 
     var span = 1;
-    var operations = storage.GetOperations(fromDate.Date, toDate.AddDays(span).AddTicks(-1),
+    var operations = storage.GetOperations(string.Empty, fromDate.Date, toDate.AddDays(span).AddTicks(-1),
         !string.IsNullOrWhiteSpace(selectedType) ? storage.GetOperationType(selectedType) : null,
         !string.IsNullOrWhiteSpace(selectedVehicleKind) ? storage.GetVehicleKind(selectedVehicleKind) : null,
         !string.IsNullOrWhiteSpace(selectedState) ? storage.GetOperationState(selectedState) : null,
@@ -60,6 +60,7 @@
         null,
         selectedVehicleNumber,
         selectedDriverName,
+        string.Empty,
         selectedPartnerActionId,
         Array.Empty<Employee>());
 

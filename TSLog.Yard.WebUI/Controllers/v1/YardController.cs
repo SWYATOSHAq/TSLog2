@@ -388,6 +388,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string stringId = Request.Query["id"];
                 string stringVehicleNumber = Request.Query["vehicle_number"];
                 string stringDriverName = Request.Query["driver_name"];
+                string stringDriverPhoneNumber = Request.Query["driver_phone_number"];
                 string stringPartnerActionId = Request.Query["partner_action_id"];
                 string stringWorker = Request.Query["worker"];
 
@@ -417,8 +418,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     workers = _storage.FindEmployees(stringWorker.Trim());
                 
                 var span = 1;
-                var operations = _storage.GetOperations(fromDate.Date, 
-                    toDate.AddDays(span).AddTicks(-1),
+                var operations = _storage.GetOperations(stringId, 
+                    fromDate.Date, toDate.AddDays(span).AddTicks(-1),
                     operationType,
                     vehicleKind,
                     state,
@@ -427,6 +428,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     string.Empty,
                     stringVehicleNumber,
                     stringDriverName,
+                    stringDriverPhoneNumber,
                     stringPartnerActionId,
                     workers);
                 operations = Operation.Filter(operations, partner, operationType, vehicleKind, gate, state,

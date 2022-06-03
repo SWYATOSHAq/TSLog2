@@ -43,7 +43,8 @@ namespace TSLog.Yard.BO
         public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind);
         public Operation.OperationWork[] GetOperationWorks(Operation operation);
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners);
-        public Operation[] GetOperations(DateTime? from, DateTime? to,
+        public Operation[] GetOperations(string? id,
+            DateTime? from, DateTime? to,
             OperationType? type,
             VehicleKind? vehicleKind,
             Entity? state,
@@ -52,6 +53,7 @@ namespace TSLog.Yard.BO
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName,
+            string? driverPhoneNumber,
             string? partnerActionId,
             Employee[] workers);
         public Operation[] GetActiveOperations();

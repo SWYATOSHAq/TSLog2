@@ -1237,7 +1237,8 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
-        public Operation[] GetOperations(DateTime? from, DateTime? to,
+        public Operation[] GetOperations(string? id,
+            DateTime? from, DateTime? to,
             OperationType? type,
             VehicleKind? vehicleKind,
             Entity? state,
@@ -1246,6 +1247,7 @@ namespace TSLog.Yard.Data
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName,
+            string? driverPhoneNumber,
             string? partnerActionId,
             Employee[] workers)
         {
@@ -1280,6 +1282,7 @@ namespace TSLog.Yard.Data
                        $"  from {YardSchema}.v_partner_operation po\n" +
                        $" where not (:to_date is not null and po.plan_work_start_date > :to_date\n" +
                        $"         or :from_date is not null and po.plan_work_finish_date < :from_date)\n" +
+                       $"   and (trim(coalesce(:id, '')) = '' or cast(po.id as varchar) like '%' || :id || '%')\n" +
                        $"   and (:type_id is null or :type_id = po.type_id)\n" +
                        $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id)\n" +
                        $"   and (:state_id is null or :state_id = po.state_id)\n" +
@@ -1288,6 +1291,7 @@ namespace TSLog.Yard.Data
                        $"   and (trim(coalesce(:vehicle_brand, '')) = '' or upper(po.vehicle_brand) like '%' || upper(:vehicle_brand) || '%')\n" +
                        $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%')\n" +
                        $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%')\n" +
+                       $"   and (trim(coalesce(:driver_phone_number, '')) = '' or upper(replace(replace(replace(replace(replace(po.driver_phone_number, '(', ''), ')', ''), ' ', ''), '+', ''), '-', '')) like '%' || upper(:driver_phone_number) || '%')\n" +
                        $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
 
                     if (workers.Length > 0) 
@@ -1303,6 +1307,7 @@ namespace TSLog.Yard.Data
                     }
                     command.CommandText = sql;
 
+                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Varchar, string.IsNullOrWhiteSpace(id) ? DBNull.Value : id));
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
                     command.Parameters.Add(CreateParameter("type_id", NpgsqlDbType.Smallint,
@@ -1321,6 +1326,8 @@ namespace TSLog.Yard.Data
                         string.IsNullOrWhiteSpace(vehicleNumber) ? DBNull.Value : vehicleNumber.ToUpper()));
                     command.Parameters.Add(CreateParameter("driver_name", NpgsqlDbType.Varchar,
                         string.IsNullOrWhiteSpace(driverName) ? DBNull.Value : driverName.ToUpper()));
+                    command.Parameters.Add(CreateParameter("driver_phone_number", NpgsqlDbType.Varchar,
+                        string.IsNullOrWhiteSpace(driverPhoneNumber) ? DBNull.Value : driverPhoneNumber.ToUpper().Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "").Replace("+", "")));
                     command.Parameters.Add(CreateParameter("partner_action_id", NpgsqlDbType.Varchar,
                         string.IsNullOrWhiteSpace(partnerActionId) ? DBNull.Value : partnerActionId.ToUpper()));
 

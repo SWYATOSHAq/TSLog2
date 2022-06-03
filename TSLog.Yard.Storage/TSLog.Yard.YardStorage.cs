@@ -283,7 +283,8 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperations(from, to, partners);
         }
-        public Operation[] GetOperations(DateTime? from, DateTime? to,
+        public Operation[] GetOperations(string? id,
+            DateTime? from, DateTime? to,
             OperationType? type,
             VehicleKind? vehicleKind,
             Entity? state,
@@ -292,13 +293,15 @@ namespace TSLog.Yard
             string? vehicleBrand,
             string? vehicleNumber,
             string? driverName,
+            string? driverPhoneNumber,
             string? partnerActionId,
             Employee[] workers)
         {
-            return _pgsqlStorage.GetOperations(from, to, type, vehicleKind, state, gate, partner, 
+            return _pgsqlStorage.GetOperations(id, from, to, type, vehicleKind, state, gate, partner, 
                 vehicleBrand, 
                 vehicleNumber, 
-                driverName, 
+                driverName,
+                driverPhoneNumber,
                 partnerActionId,
                 workers);
         }
