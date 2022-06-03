@@ -137,26 +137,26 @@
                         {
                             <a class="nav-link text-dark" href="/GuardPage">Въезд/выезд</a>
                         }
-                        @if (canViewLaborReportPage)
-                        {
-                            <a class="nav-link text-dark" href="/LaborReportPage">Трудозатраты</a>
-                        }
-                        @if (canViewShiftLaborReportPage)
-                        {
-                            <!--
-                            <a class="nav-link text-dark" href="/ShiftLaborReportPage">Трудозатраты (за смену)</a>
-                            -->
-                        }
-                        @if (canViewShiftLaborReportPage)
-                        {
-                            <a class="nav-link text-dark" href="/ShiftLaborReportPage2">Трудозатраты 2</a>
-                            <a class="nav-link text-dark" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
-                        }
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
             </div>
         </div>
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+            @if (canViewLaborReportPage)
+            {
+                <a class="nav-link text-dark" href="/LaborReportPage">Трудозатраты</a>
+            }
+            @if (canViewShiftLaborReportPage)
+            {
+                <!--
+                <a class="nav-link text-dark" href="/ShiftLaborReportPage">Трудозатраты (за смену)</a>
+                -->
+            }
+            @if (canViewShiftLaborReportPage)
+            {
+                <a class="nav-link text-dark" href="/ShiftLaborReportPage2">Трудозатраты 2</a>
+                <a class="nav-link text-dark" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
+            }
             @if (canViewEcReportPage)
             {
                 <a class="nav-link text-dark" href="/ECReportPage">Затраты/Выручка</a>

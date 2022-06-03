@@ -100,7 +100,7 @@ class Utils {
     }
 
     // Отображает корректно дродное число (с округлением, с разделением разрядов)
-    displayFloat(value, decimalPoints) {
+    displayFloat(value, decimalPoints = 0) {
         const w = value.toFixed(decimalPoints);
         const k = w | 0;
         const b = value < 0 ? 1 : 0;
