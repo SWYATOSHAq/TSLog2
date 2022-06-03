@@ -32,6 +32,7 @@
     var canFilterOperationsByVehicle = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_VEHICLE_NUMBER", User);
     var canFilterOperationsByDriver = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_DRIVER", User);
     var canFilterOperationsByPartnerActionId = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER_ACTION_ID", User);
+    var canFilterOperationsByPhone = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PHONE_NUMBER", User);
 
     string requestFromDate = request.Query["from_date"];
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
@@ -62,7 +63,7 @@
     var operationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
     var filtersModel = new OperationsFiltersBlockModel(canFilterOperationsByDate, 
         operationTypesModel, vehicleKindsModel, logistsModel, gatesModel, operationStatesModel, partnersModel, canFilterOperationsById, 
-        canFilterOperationsByVehicle, canFilterOperationsByDriver, canFilterOperationsByPartnerActionId, true);
+        canFilterOperationsByVehicle, canFilterOperationsByDriver, canFilterOperationsByPartnerActionId, canFilterOperationsByPhone, true);
     var sortFields = new Dictionary<string, string>();
     sortFields.Add("driverName", "Водитель (Ф. И. О.)");
     sortFields.Add("id", "№ заявки");
