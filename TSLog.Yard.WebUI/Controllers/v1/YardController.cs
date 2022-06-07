@@ -2033,7 +2033,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
                 var toDate = fromDate.AddHours(12);
 
-                var operations = _storage.GetYardData(fromDate, toDate);
+                var operations = _storage.GetYardPerfomanceData(fromDate, toDate);
                 foreach (dynamic operation in operations)
                 {
                     string partnerIds = operation.partnerIds;
@@ -2052,7 +2052,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.partnerNames = partnerNames;
 
                     var siteCode = _storage.GetSiteCodeByGateCode(operation.gateCode);
-                    operation.works = _storage.GetBcData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
+                    operation.works = _storage.GetBcPerfomanceData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
                     operation.factLaborCost = 0.0;
                     foreach (var work in operation.works) 
                     {

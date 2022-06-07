@@ -890,9 +890,9 @@ class OperationPage {
             const workTr = document.createElement("tr");
             viewUtils.createCell(workTr, ["table-cell"], [work.workerFullName]);
             viewUtils.createCell(workTr, ["table-cell"], [work.positionName]);
-            viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.startDate)]);
-            viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.finishDate)]);
-            viewUtils.createCell(workTr, ["table-cell"], [Math.round(work.duration / 60)]);
+            viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.startDate) + " (" + utils.convertTimeHHMM(work.clippedStartDate) + ")"]);
+            viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.finishDate) + " (" + utils.convertTimeHHMM(work.clippedFinishDate) + ")"]);
+            viewUtils.createCell(workTr, ["table-cell"], [Math.round(work.duration / 60) + " (" + Math.round(work.clippedDuration / 60) + ")"]);
             bcWorksTBody.append(workTr);
         }
     }

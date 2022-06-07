@@ -251,8 +251,10 @@
 			<right code="VIEW_LABOR_REPORT_PAGE" name="отчёта по трудозатратам"></right>
 			<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
 			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
+			<!--
 			<right code="GET_EC_REPORT" name="Формирование отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
+			-->
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>

@@ -734,17 +734,23 @@ namespace TSLog.Yard.Data
                     $"data2 as (\n" +
                     $"    select emp.position_id, emp.position_name,\n" +
                     $"           d.worker_id, e.full_name worker_full_name,\n" +
-                    $"           greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
-                    $"           least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
-                    $"           least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) duration, -- Продолжительность\n" +
+                    $"           --greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
+                    $"           d.start_date,\n" +
+                    $"           greatest(d.start_date, dt.fact_work_start_date) clipped_start_date,\n" +
+                    $"           --least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
+                    $"           d.finish_date,\n" +
+                    $"           least(d.finish_date, dt.fact_work_finish_date) clipped_finish_date,\n" +
+                    $"           --least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) duration, -- Продолжительность\n" +
+                    $"           d.finish_date - d.start_date duration, -- Продолжительность\n" +
+                    $"           least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) clipped_duration, -- Продолжительность\n" +
                     $"           d.site_id, s.name site_name\n" +
                     $"      from dates dt\n" +
-                    $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works_wi(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
                     $" left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
                     $" left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
                     $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
                     $"     where d.finish_date - d.start_date > 0\n" +
-                    $"       and s.code <> 'AUXILIARY'\n" +
+                    $"       and s.kind <> 'AUXILIARY'\n" +
                     $"       and s.code = :site_code\n" +
                     $"       and s.kind = 'GATE' -- Только ворота\n" +
                     $"       and e.id is not null\n" +
@@ -753,7 +759,9 @@ namespace TSLog.Yard.Data
                     $"           d.worker_id, d.worker_full_name, \n" +
                     $"           d.site_id, d.site_name,\n" +
                     $"           d.start_date, d.finish_date,\n" +
-                    $"           round(d.duration * 24 * 60 * 60) duration\n" +
+                    $"           d.clipped_start_date, d.clipped_finish_date,\n" +
+                    $"           round(d.duration * 24 * 60 * 60) duration,\n" +
+                    $"           round(d.duration * 24 * 60 * 60) clipped_duration\n" +
                     $"      from data2 d\n" +
                     $"  order by d.position_id, d.worker_id, d.worker_full_name";
 
@@ -769,8 +777,11 @@ namespace TSLog.Yard.Data
                     work.workerFullName = Utils.DbValueToString(reader["worker_full_name"]);
                     work.positionName = Utils.DbValueToString(reader["position_name"]);
                     work.startDate = Utils.DbValueToDateTime(reader["start_date"]);
+                    work.clippedStartDate = Utils.DbValueToDateTime(reader["clipped_start_date"]);
                     work.finishDate = Utils.DbValueToDateTime(reader["finish_date"]);
+                    work.clippedFinishDate = Utils.DbValueToDateTime(reader["clipped_finish_date"]);
                     work.duration = Utils.DbValueToDouble(reader["duration"]);
+                    work.clippedDuration = Utils.DbValueToDouble(reader["clipped_duration"]);
                     works.Add(work);
                 }
                 reader.Close();
@@ -1138,7 +1149,7 @@ namespace TSLog.Yard.Data
             }
             return lines.ToArray();
         }
-        public dynamic[] GetBcData(DateTime fromDate, DateTime toDate, string siteCode)
+        public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode)
         {
             var works = new List<dynamic>();
             using (var command = _connection.CreateCommand())
@@ -1153,17 +1164,20 @@ namespace TSLog.Yard.Data
                     $"data2 as (\n" +
                     $"    select emp.position_id, emp.position_name,\n" +
                     $"           d.worker_id, e.full_name worker_full_name,\n" +
-                    $"           greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
-                    $"           least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
-                    $"           round((least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date)) * 24 * 60 * 60) duration, -- Продолжительность\n" +
+                    $"           --greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
+                    $"           d.start_date,\n" +
+                    $"           --least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
+                    $"           d.finish_date,\n" +
+                    $"           --round((least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date)) * 24 * 60 * 60) duration, -- Продолжительность\n" +
+                    $"           round((d.finish_date - d.start_date) * 24 * 60 * 60) duration, -- Продолжительность\n" +
                     $"           d.site_id, s.name site_name\n" +
                     $"      from dates dt\n" +
-                    $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works_wi(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
                     $" left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
                     $" left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
                     $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
                     $"     where d.finish_date - d.start_date > 0\n" +
-                    $"       and s.code <> 'AUXILIARY'\n" +
+                    $"       and s.kind <> 'AUXILIARY'\n" +
                     $"       and s.code = :site_code\n" +
                     $"       and s.kind = 'GATE' -- Только ворота\n" +
                     $"       and e.id is not null\n" +
@@ -1213,13 +1227,13 @@ namespace TSLog.Yard.Data
                     $"    -- 1.2 складывается результат умножения всех начисленных услуг на их стоимость по данному клиенту за указанный период -\n" +
                     $"    -- это есть вся выручка по клиенту за период.\n" +
                     $"  select bsl.bl_mndnr partner_id,\n" +
-                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' then bsl.bl_qty * bp.bp_price end) as store_income,\n" +
-                    $"         sum(case when bst.bst_doc_type != 'SYSTEM' then bsl.bl_qty * bp.bp_price end) as handling_income," +
-                    $"         sum(bsl.bl_qty * bp.bp_price) total_income\n" +
+                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' then bsl.bl_qty * bsl.bl_price end) as store_income,\n" +
+                    $"         sum(case when bst.bst_doc_type != 'SYSTEM' then bsl.bl_qty * bsl.bl_price end) as handling_income," +
+                    $"         sum(bsl.bl_qty * bsl.bl_price) total_income\n" +
                     $"    from ecco.bl_service_log bsl\n" +
-                    $"    join ecco.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
-                    $"    join ecco.bl_services_def bsd on bsd.bsd_id = bp.bp_bsd_id\n" +
-                    $"    join ecco.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
+                    $"    --left join ecco.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
+                    $"    left join ecco.bl_services_def bsd on bsd.bsd_id = bsl.bl_bsd_id\n" +
+                    $"    left join ecco.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
                     $"   where bsl.adddate between :start_date and :finish_date\n" +
                     $"	     --and bsl.bl_mndnr = :partner_id\n" +
                     $"group by bsl.bl_mndnr\n" +
@@ -1241,7 +1255,7 @@ namespace TSLog.Yard.Data
                     $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
                     $"left join ecco.par_partner#v par on d.partner_id = par.id\n" +
                     $"    where d.finish_date - d.start_date > 0\n" +
-                    $"      and s.code <> 'AUXILIARY'\n" +
+                    $"      and s.kind <> 'AUXILIARY'\n" +
                     $"      and e.id is not null\n" +
                     $" ),\n" +
                     $"data3 as (\n" +

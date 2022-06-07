@@ -2341,7 +2341,7 @@ namespace TSLog.Yard.Data
             }
             return lines.ToArray();
         }
-        public dynamic[] GetYardData(DateTime fromDate, DateTime toDate)
+        public dynamic[] GetYardPerfomanceData(DateTime fromDate, DateTime toDate)
         {
             var data = new List<dynamic>();
             using (var connection = CloneConnection())

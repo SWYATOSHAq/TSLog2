@@ -113,13 +113,13 @@ namespace TSLog.Yard.BO
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate);
         public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate);
         public dynamic[] GetYardShiftLabocCosts(DateTime date);
-        public dynamic[] GetYardData(DateTime fromDate, DateTime toDate);
+        public dynamic[] GetYardPerfomanceData(DateTime fromDate, DateTime toDate);
     }
     public interface IBcReportingStorage
     {
         public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate);
         public dynamic[] GetBcShiftLabocCosts(DateTime date);
-        public dynamic[] GetBcData(DateTime fromDate, DateTime toDate, string siteCode);
+        public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode);
         public dynamic[] GetEcData(DateTime fromDate, DateTime toDate);
     }
 }

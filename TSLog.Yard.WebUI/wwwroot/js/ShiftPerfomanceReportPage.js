@@ -1,9 +1,10 @@
 ﻿/*
-    Страница отчёта по трудозатратам за смену 2.
+    Страница отчёта по производительности за смену.
     Автор - Буров Михаил.
 */
 
-class ShiftLaborReportPage2 {
+// Страница отчёта по производительности за смену
+class ShiftPerfomanceReportPage {
     shortUrl;
 
     data = [];
@@ -40,8 +41,7 @@ class ShiftLaborReportPage2 {
         }
     }
 
-    showReport() {
-        let operations = { };
+    prepareData(operations) {
         let maxOperationCount = 0;
         for (let operation of this.data) {
             if (operations[operation.gateCode] == undefined) {
@@ -52,38 +52,45 @@ class ShiftLaborReportPage2 {
                 maxOperationCount = operations[operation.gateCode].length;
             }
         }
+        return maxOperationCount;
+    }
+
+    createGatesCodes(operations) {
         const gatesCodes = Object.keys(operations);
         gatesCodes.sort();
+        return gatesCodes;
+    }
 
-        // Готовим шаблон заголовка
-        const gates = { };
-        gates["EIN01"] = "Ворота 1";
-        gates["EIN02"] = "Ворота 2";
-        gates["EIN03"] = "Ворота 3";
-        gates["EIN04"] = "Ворота 4";
-        gates["EIN05"] = "Ворота 5";
-        gates["EIN06"] = "Ворота 6";
-        gates["EIN07"] = "Ворота 7";
-        gates["EIN08"] = "Ворота 8";
-        gates["EIN09"] = "Ворота 9";
-        gates["EIN10"] = "Ворота 10";
-        gates["EIN11"] = "Ворота 11";
-        gates["EIN12"] = "Ворота 12";
-        gates["EIN13"] = "Ворота 13";
-        gates["EIN14"] = "Ворота 14";
-        gates["EIN15"] = "Ворота 15";
-        gates["EIN16"] = "Ворота 16";
+    createTableHeaderTemplate(gatesCodes) {
+        const gatesNames = {};
+        gatesNames["EIN01"] = "Ворота 1";
+        gatesNames["EIN02"] = "Ворота 2";
+        gatesNames["EIN03"] = "Ворота 3";
+        gatesNames["EIN04"] = "Ворота 4";
+        gatesNames["EIN05"] = "Ворота 5";
+        gatesNames["EIN06"] = "Ворота 6";
+        gatesNames["EIN07"] = "Ворота 7";
+        gatesNames["EIN08"] = "Ворота 8";
+        gatesNames["EIN09"] = "Ворота 9";
+        gatesNames["EIN10"] = "Ворота 10";
+        gatesNames["EIN11"] = "Ворота 11";
+        gatesNames["EIN12"] = "Ворота 12";
+        gatesNames["EIN13"] = "Ворота 13";
+        gatesNames["EIN14"] = "Ворота 14";
+        gatesNames["EIN15"] = "Ворота 15";
+        gatesNames["EIN16"] = "Ворота 16";
 
         const headerRow = document.getElementById("header-row");
         headerRow.replaceChildren();
         for (let gateCode of gatesCodes) {
             const columnHeader = document.createElement("th");
             columnHeader.classList.add("table-header");
-            columnHeader.textContent = gates[gateCode];
+            columnHeader.textContent = gatesNames[gateCode];
             headerRow.append(columnHeader);
-        }        
+        }  
+    }
 
-        // Готовим шалон самой таблицы
+    createTableBobyTemplate(maxOperationCount, gatesCodes) {
         const tbody = document.getElementById("elements-tbody");
         tbody.replaceChildren();
         const gatesCount = gatesCodes.length;
@@ -98,8 +105,9 @@ class ShiftLaborReportPage2 {
             }
             tbody.append(row);
         }
+    }
 
-        // Выводим непосредствено данные
+    displayData(operations, maxOperationCount) {
         for (let gateCode in operations) {
             let index = 0;
             let total = 0.0;
@@ -107,33 +115,29 @@ class ShiftLaborReportPage2 {
                 index++;
                 const id = gateCode + "-" + index.toString();
                 const cell = document.getElementById(id);
-                
+
                 cell.append(operation.partnerNames);
                 cell.append(document.createElement("br"));
 
                 cell.append(operation.vehicleNumber);
                 cell.append(document.createElement("br"));
 
-                //cell.append(operation.planLaborCost + " / " + operation.factLaborCost + " (ч. * м.)");
-                //cell.append(document.createElement("br"));
-
-                const e = operation.factLaborCost != 0 ? Math.round(100 * operation.planLaborCost / operation.factLaborCost) : 0.0;
-                total += e;
-                cell.append(e + " %");
+                const perfomance = operation.factLaborCost != 0 ? Math.round(100 * operation.planLaborCost / operation.factLaborCost) : 0.0;
+                total += perfomance;
+                cell.append(perfomance + " %");
                 cell.append(document.createElement("br"));
 
                 const openButton = document.createElement("button");
                 openButton.classList.add("btn");
                 openButton.classList.add("btn-outline-info");
-                openButton.classList.add("m-3");
                 openButton.classList.add("table-cell-button");
+                openButton.title = "Открыть карточку операции двора";
                 openButton.style.cssText = "width: 100px";
                 openButton.onclick = this.createOpenOperationFunction(operation.id);
-                //openButton.textContent = operation.id;
                 openButton.textContent = "Открыть";
-                cell.append(openButton);     
+                cell.append(openButton);
 
-                cell.style.cssText = e >= 100 ? "box-shadow: none; background-color: palegreen" : "box-shadow: none; background-color: #ffcccc"
+                cell.style.cssText = perfomance >= 100 ? "box-shadow: none; background-color: palegreen" : "box-shadow: none; background-color: #ffcccc"
             }
 
             // Выводим среднее значение по воротам
@@ -142,6 +146,22 @@ class ShiftLaborReportPage2 {
             const cell = document.getElementById(id);
             cell.textContent = average.toString() + " %"
         }
+    }
+
+    showReport() {
+        // Готовим данные
+        let operations = {};
+        const maxOperationCount = this.prepareData(operations);
+        const gatesCodes = this.createGatesCodes(operations);        
+
+        // Готовим шаблон заголовка
+        this.createTableHeaderTemplate(gatesCodes);
+
+        // Готовим шалон самой таблицы
+        this.createTableBobyTemplate(maxOperationCount, gatesCodes);
+
+        // Выводим непосредствено данные
+        this.displayData(operations, maxOperationCount);
     }
 
     showShiftInfo() {
@@ -191,6 +211,6 @@ class ShiftLaborReportPage2 {
     }
 }
 
-const shiftLaborReportPage2 = new ShiftLaborReportPage2();
+const shiftPerfomanceReportPage = new ShiftPerfomanceReportPage();
 
-document.addEventListener('DOMContentLoaded', shiftLaborReportPage2.show.bind(shiftLaborReportPage2));
+document.addEventListener('DOMContentLoaded', shiftPerfomanceReportPage.show.bind(shiftPerfomanceReportPage));

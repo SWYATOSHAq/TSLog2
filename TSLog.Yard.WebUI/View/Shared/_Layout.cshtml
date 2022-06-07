@@ -88,9 +88,9 @@
     //{
     //    <link rel="stylesheet" href="~/css/ShiftLaborReportPage.css" asp-append-version="true" />
     //} 
-    else if (page == "ShiftLaborReportPage2")
+    else if (page == "ShiftPerfomanceReportPage")
     {
-        <link rel="stylesheet" href="~/css/ShiftLaborReportPage2.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/ShiftPerfomanceReportPage.css" asp-append-version="true" />
     }
     else if (page == "ShiftLaborReportPage3")
     {
@@ -144,7 +144,9 @@
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
             @if (canViewLaborReportPage)
             {
+                <!--
                 <a class="nav-link text-dark" href="/LaborReportPage">Трудозатраты</a>
+                -->
             }
             @if (canViewShiftLaborReportPage)
             {
@@ -154,7 +156,7 @@
             }
             @if (canViewShiftLaborReportPage)
             {
-                <a class="nav-link text-dark" href="/ShiftLaborReportPage2">Трудозатраты 2</a>
+                <a class="nav-link text-dark" href="/ShiftPerfomanceReportPage">Производительность</a>
                 <a class="nav-link text-dark" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
             }
             @if (canViewEcReportPage)
@@ -242,9 +244,9 @@
             <script type="text/javascript" src="~/js/ShiftLaborReportPage.js"></script>
             -->
         }
-        else if (page == "ShiftLaborReportPage2")
+        else if (page == "ShiftPerfomanceReportPage")
         {        
-            <script type="text/javascript" src="~/js/ShiftLaborReportPage2.js"></script>
+            <script type="text/javascript" src="~/js/ShiftPerfomanceReportPage.js"></script>
         }
         else if (page == "ShiftLaborReportPage3")
         {        

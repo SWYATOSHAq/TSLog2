@@ -438,13 +438,13 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetYardShiftLabocCosts(date);
         }
-        public dynamic[] GetYardData(DateTime fromDate, DateTime toDate)
+        public dynamic[] GetYardPerfomanceData(DateTime fromDate, DateTime toDate)
         {
-            return _pgsqlStorage.GetYardData(fromDate, toDate);
+            return _pgsqlStorage.GetYardPerfomanceData(fromDate, toDate);
         }
-        public dynamic[] GetBcData(DateTime fromDate, DateTime toDate, string siteCode)
+        public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode)
         {
-            return _oracleStorage.GetBcData(fromDate, toDate, siteCode);
+            return _oracleStorage.GetBcPerfomanceData(fromDate, toDate, siteCode);
         }
         public dynamic[] GetEcData(DateTime fromDate, DateTime toDate)
         {
