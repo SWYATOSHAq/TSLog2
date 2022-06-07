@@ -4,6 +4,7 @@
 
 @model OperationsPage2Model
 @{
+    ViewData["Title"] = "Заявки и операции двора";
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
     var request = Model.Request;
@@ -97,4 +98,5 @@
 }
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
 <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+<h5 id="header3">Всего заявок</h5>
 <partial name="Blocks/Lists/_OperationsTable" model="operationsModel" />

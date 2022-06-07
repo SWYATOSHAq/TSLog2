@@ -8,6 +8,7 @@ class OperationsPage {
     sortedOperations = [];
     sortField = "driverName";
     sortDirection = "forward";
+    header = document.getElementById("header3");
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -161,6 +162,7 @@ class OperationsPage {
     clearOperations() {
         const container = document.getElementById("operations-table-body");
         container.replaceChildren();
+        this.header.textContent = "Всего заявок";
     }
 
     showOperations() {
@@ -179,6 +181,7 @@ class OperationsPage {
                 operationsTbody.append(operationTr);
             }
         }
+        this.header.textContent = this.header.textContent + ": " + this.sortedOperations.length;
     }
 
     async onChangeFilter() {
@@ -206,7 +209,6 @@ class OperationsPage {
         }
         this.clearOperations();
         this.showOperations();
-
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
@@ -266,6 +268,9 @@ class OperationsPage {
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+        //const header = document.getElementById("header3");
+        //header.textContent = header.textContent + ": " + this.sortedOperations.length;
+        //console.log('Length ', this.sortedOperations.length);
 
         this.getOperationTypeHint();
         const url = this.shortUrl + this.createParameters();
