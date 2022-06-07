@@ -2001,8 +2001,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("ShiftLaborReport3")]
-        public string GetShiftLaborReport3()
+        [HttpGet("ShiftPerfomanceReport")]
+        public string GetShiftPerfomanceReport()
         {
             try
             {
@@ -2106,6 +2106,89 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var text = JsonSerializer.Serialize(elements);
                 Response.StatusCode = 200;
                 return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("WorkersPerfomanceReport")]
+        public string GetWorkersPerfomanceReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
+                if (_useAuthentication && !useYard && !getData)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["from_date"];
+                var fromDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out fromDate))
+                        return $"Wrong to date {temp}";
+                }
+                temp = Request.Query["to_date"];
+                var toDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out toDate))
+                        return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1).AddTicks(-1);
+                }
+                
+                var operations = _storage.GetOperationsByFactWork(fromDate, toDate);
+                var data = new Dictionary<Employee, IDictionary<Operation, int>>();
+                foreach (var operation in operations)
+                {
+                    if (operation.FactWorkStartDate == DateTime.MinValue || operation.FactWorkFinishDate == DateTime.MinValue)
+                        continue;
+
+                    var siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
+                    var works = _storage.GetBossControlWorks(operation.FactWorkStartDate, operation.FactWorkFinishDate, siteCode);
+
+                    foreach (var work in works)
+                    {
+                        var employee = _storage.GetEmployee(work.workerId);
+                        if (!data.ContainsKey(employee))
+                            data.Add(employee, new Dictionary<Operation, int>());
+                        var workerOperations = data[employee];
+                        if (!workerOperations.ContainsKey(operation))
+                            workerOperations.Add(operation, 0);
+                        workerOperations[operation] += work.duration;
+                    }
+                }
+
+                var elements = new List<dynamic>();
+                foreach (var employee in data.Keys)
+                {
+                    var workerOperations = data[employee];
+                    var perfomance = 0.0;
+                    var totalNormDuration = 0.0;
+                    foreach (var operation in workerOperations.Keys)
+                    {
+                        perfomance += operation.PlanDuration * operation.PlanDuration / workerOperations[operation];
+                        totalNormDuration += operation.PlanDuration;
+                    }
+                    dynamic element = new ExpandoObject();
+                    element.workerId = employee.Id;
+                    element.workerFullName = employee.FullName;
+                    element.workerPositionId = employee.MajorPosition.Id;
+                    element.workerPositionName = employee.MajorPosition.Name;
+                    element.perfomance = totalNormDuration != 0.0 ? 100.0 * perfomance / totalNormDuration : 0.0;
+                    elements.Add(element);
+                }
+
+                var text = JsonSerializer.Serialize(elements.ToArray());
+                Response.StatusCode = 200;
+                return text; 
             }
             catch (Exception exception)
             {

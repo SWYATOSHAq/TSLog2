@@ -305,6 +305,10 @@ namespace TSLog.Yard
                 partnerActionId,
                 workers);
         }
+        public Operation[] GetOperationsByFactWork(DateTime? from, DateTime? to)
+        {
+            return _pgsqlStorage.GetOperationsByFactWork(from, to);
+        }
         public Operation[] GetActiveOperations()
         {
             return _pgsqlStorage.GetActiveOperations();

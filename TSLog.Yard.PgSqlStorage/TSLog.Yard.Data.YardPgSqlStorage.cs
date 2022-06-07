@@ -1280,8 +1280,26 @@ namespace TSLog.Yard.Data
                        $"       po.note,\n" +
                        $"       po.created, po.creator, po.edited, po.editor\n" +
                        $"  from {YardSchema}.v_partner_operation po\n" +
-                       $" where not (:to_date is not null and po.plan_work_start_date > :to_date\n" +
+                       $"    /*\n" +
+                       $"    Важное пояснение по фильтру по датам.\n" +
+                       $"    Мы смотрим пересечение целевого временнОго окна с плановым и с фактическим окном операции двора.\n" +
+                       $"    Если плановое окно операции двора пересекается с целевым то всё хорошо - такая операция нам подходит.\n" +
+                       $"    Если плановое окно операции двора не песекается с целевым, то смотрим фактическое окно операции двора.\n" +
+                       $"    Фактическое окно операции двора существует если фактическая дата (+ время) начала работ по операции двора не пустое.\n" +
+                       $"    Фактическая дата окончания работ по операции двора определяется след. образом: если она заполнена (поле fact_work_finish_date), то берём её,\n" +
+                       $"    это говорит о том что работы по операции двора закончены; если она не заполнена, то значит сейчас операция двора в работе,\n" +
+                       $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительости операции двора),\n" +
+                       $"    если операция двора не просрочена, то к фактической дате (+ время) начала работ добавляем плановую продолжительность,\n" +
+                       $"    и берём эту дату (+ время) как фактическую дату окончания работ (по сути это план с учётом корректировки по фактическому началу работ),\n" +
+                       $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
+                       $"    и эту дату (+ время) считаем фактичской датой окончания работ по операции двора.\n" +
+                       $"    */\n" +
+                       $" where (not (:to_date is not null and po.plan_work_start_date > :to_date\n" +
                        $"         or :from_date is not null and po.plan_work_finish_date < :from_date)\n" +
+                       $"       or\n" +
+                       $"       po.fact_work_start_date is not null\n" +
+                       $"           and not (:to_date is not null and po.fact_work_start_date > :to_date\n" +
+                       $"                 or :from_date is not null and coalesce(po.fact_work_finish_date, greatest(po.fact_work_start_date + (po.plan_work_finish_date - po.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))\n" +
                        $"   and (trim(coalesce(:id, '')) = '' or cast(po.id as varchar) like '%' || :id || '%')\n" +
                        $"   and (:type_id is null or :type_id = po.type_id)\n" +
                        $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id)\n" +
@@ -1330,6 +1348,56 @@ namespace TSLog.Yard.Data
                         string.IsNullOrWhiteSpace(driverPhoneNumber) ? DBNull.Value : driverPhoneNumber.ToUpper().Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "").Replace("+", "")));
                     command.Parameters.Add(CreateParameter("partner_action_id", NpgsqlDbType.Varchar,
                         string.IsNullOrWhiteSpace(partnerActionId) ? DBNull.Value : partnerActionId.ToUpper()));
+
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return operations.ToArray();
+        }
+        public Operation[] GetOperationsByFactWork(DateTime? from, DateTime? to)
+        {
+            var operations = new List<Operation>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                       $"select o.id,\n" +
+                       $"       o.type_id, o.type_code, o.type_name,\n" +
+                       $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
+                       $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                       $"       o.start_date, o.finish_date,\n" +
+                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                       $"       o.vehicle_brand,\n" +
+                       $"       o.vehicle_model,\n" +
+                       $"       o.vehicle_number,\n" +
+                       $"       o.trailer_number,\n" +
+                       $"       o.driver_name, o.driver_phone_number,\n" +
+                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                       $"       o.state_id, o.state_code, o.state_name,\n" +
+                       $"       o.priority,\n" +
+                       $"       o.partner_manager_name,\n" +
+                       $"       o.partner_manager_phone_number,\n" +
+                       $"       o.partner_manager_email,\n" +
+                       $"       o.manager_id,\n" +
+                       $"       o.responsible_officer_id,\n" +
+                       $"       o.note,\n" +
+                       $"       o.created, o.creator, o.edited, o.editor\n" +
+                       $"  from {YardSchema}.v_operation o\n" +
+                       $" where not (:to_date is not null and o.fact_work_start_date > :to_date\n" +
+                       $"         or :from_date is not null and o.fact_work_finish_date < :from_date);";
+
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())

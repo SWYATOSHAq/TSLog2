@@ -505,9 +505,9 @@ class Api {
         }
     }
 
-    // Формирует отчёт по трудозатратам за смену 2
-    async createShiftLaborReport2(date, shift) {
-        let url = "./api/v1/yard/ShiftLaborReport3?date=" + date + "&shift=" + shift;
+    // Формирует отчёт по производительности за смену
+    async createShiftPerfomanceReport(date, shift) {
+        let url = "./api/v1/yard/ShiftPerfomanceReport?date=" + date + "&shift=" + shift;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());
@@ -529,9 +529,21 @@ class Api {
         }
     }
 
-    // Формирует отчёт по расходам по БоссКоннтролю
+    // Формирует отчёт по выручке/расходам (БоссКоннтроль + Биллинг)
     async createECReport(fromDate, toDate) {
         let url = "./api/v1/yard/ECReport?from_date=" + fromDate + "&to_date=" + toDate;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Формирует отчёт производительности по работникам (за период)
+    async createWorkersPerfomanceReport(fromDate, toDate) {
+        let url = "./api/v1/yard/WorkersPerfomanceReport?from_date=" + fromDate + "&to_date=" + toDate;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());

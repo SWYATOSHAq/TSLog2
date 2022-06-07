@@ -1,0 +1,75 @@
+﻿@page "/WorkersPerfomanceReportPage"
+@using TSLog.Yard.BO
+@using TSLog.Yard.WebUI.Models
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model ShiftLaborReportPageModel
+@{
+    ViewData["Title"] = "Отчёт по производительности по работникам (за смену)";
+    var rightsChecker = Model.RightsChecker;
+
+    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) 
+        && rightsChecker.CheckRight("VIEW_WORKERS_PERFOMANCE_REPORT_PAGE", User));
+    if (!viewGuardPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
+}
+<h3 id="report-header"
+    style="padding: 0; margin: 0; margin-top: 8px">Отчёт по производительности по работникам за период</h3>
+<div style="display: flex; padding: 0; margin: 0;margin-top: 8px">
+    <label style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;" 
+        for="from-date-picker">Начальная дата:</label>
+    <input id="from-date-input" 
+        type="text" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+    <label style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;"
+        for="to-date-picker">Конечная дата <b>(включая!)</b>:</label>
+    <input id="to-date-input" 
+        type="text" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+</div>
+<div style="padding: 0; margin: 0; margin-top: 8px">
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="workersPerfomanceReportPage.createReport()">Применить</button>
+</div>
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
+    Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Производительность равна отношению плановогоо времени работ по ПРР к фактическому.</b>
+</div>
+<table class="table table-light table-bordered table-striped" 
+    style="width: fit-content; margin: auto">
+    <thead class="thead-light">
+        <tr id="header-row">
+            <th class="table-header">Работник (Ф. И. О.)</th>
+            <th class="table-header">Должность</th>
+            <th class="table-header">Производительность (%)</th>
+        </tr>
+    </thead>
+    <tbody id="report-tbody">
+        <tr>
+            <td class="table-cell">Буров</td>
+            <td class="table-cell">Face trader</td>
+            <td class="table-cell">30</td>
+        </tr>
+        <tr>
+            <td class="table-cell">Иванов</td>
+            <td class="table-cell">Bull fucker</td>
+            <td class="table-cell">50</td>
+        </tr>
+    </tbody>
+</table>

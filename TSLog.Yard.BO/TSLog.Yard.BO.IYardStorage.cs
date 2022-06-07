@@ -56,6 +56,7 @@ namespace TSLog.Yard.BO
             string? driverPhoneNumber,
             string? partnerActionId,
             Employee[] workers);
+        public Operation[] GetOperationsByFactWork(DateTime? from, DateTime? to);
         public Operation[] GetActiveOperations();
         public Operation[] GetGuardOperations();
         public Partner[] GetOperationsPartners(DateTime from, DateTime to);
