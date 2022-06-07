@@ -66,7 +66,9 @@
 		<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
 		<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
 		<right code="GET_EC_REPORT" name="Формирование отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
-		<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
+		<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>	
+		<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
+		<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
 	</rights>
 	<roles code="ROLES" name="Список ролей">
 		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="YardPartnerOperators">
@@ -150,6 +152,8 @@
 			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name=""></right>
 			<right code="GET_EC_REPORT" name="Формирование отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
+			<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
+			<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
 		</role>	
 		<role code="GUARD" name="Сотрудник охраны на КПП" groupName="Guards" note="Сотрудники охраны">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -255,6 +259,8 @@
 			<right code="GET_EC_REPORT" name="Формирование отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			-->
+			<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
+			<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -317,6 +323,8 @@
 			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
 			<right code="GET_EC_REPORT" name="Формирование отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
+			<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
+			<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
 		</role>
 	</roles>
 </data>

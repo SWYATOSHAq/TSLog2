@@ -21,7 +21,7 @@ class ShiftPerfomanceReportPage {
     }
 
     async getData(date, shift) {
-        const result = await api.createShiftLaborReport2(date, shift);
+        const result = await api.createShiftPerfomanceReport(date, shift);
         if (result.code === 0) {
             this.data = result.data;
         } else {

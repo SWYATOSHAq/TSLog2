@@ -27,6 +27,7 @@
     var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
     var canViewEcReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User);
+    var canViewWorkersPerfomanceReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_WORKERS_PERFOMANCE_REPORT_PAGE", User);
 
     var date = DateTime.Today.ToString("dd.MM.yyyy");
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -100,6 +101,10 @@
     {
         <link rel="stylesheet" href="~/css/ECReportPage.css" asp-append-version="true" />
     } 
+    else if (page == "WorkersPerfomanceReportPage")
+    {
+        <link rel="stylesheet" href="~/css/WorkersPerfomanceReportPage.css" asp-append-version="true" />
+    } 
 </head>
 
 <body>
@@ -162,7 +167,11 @@
             @if (canViewEcReportPage)
             {
                 <a class="nav-link text-dark" href="/ECReportPage">Затраты/Выручка</a>
-            }            
+            }
+            @if (canViewWorkersPerfomanceReportPage)
+            {
+                <a class="nav-link text-dark" href="/WorkersPerfomanceReportPage">Производительность работников</a>
+            }
         </div>
     </div>
 
@@ -255,6 +264,10 @@
         else if (page == "ECReportPage")
         {        
             <script type="text/javascript" src="~/js/ECReportPage.js"></script>
+        }
+        else if (page == "WorkersPerfomanceReportPage")
+        {        
+            <script type="text/javascript" src="~/js/WorkersPerfomanceReportPage.js"></script>
         }
     }
     @await RenderSectionAsync("Scripts", required: false)

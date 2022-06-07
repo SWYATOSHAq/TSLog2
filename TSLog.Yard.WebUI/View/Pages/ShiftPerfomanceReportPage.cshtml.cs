@@ -6,7 +6,7 @@ namespace TSLog.Yard.WebUI.Models
 {
     public class ShiftPerfomanceReportPageModel : PageModel
     {
-        private readonly ILogger<ShiftLaborReportPageModel> _logger;
+        private readonly ILogger<ShiftPerfomanceReportPageModel> _logger;
         /// <summary>
         /// Хранилище объектов
         /// </summary>
@@ -15,7 +15,7 @@ namespace TSLog.Yard.WebUI.Models
         /// Объект для проверки прав
         /// </summary>
         public RightsChecker RightsChecker { get; private set; }
-        public ShiftPerfomanceReportPageModel(ILogger<ShiftLaborReportPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public ShiftPerfomanceReportPageModel(ILogger<ShiftPerfomanceReportPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

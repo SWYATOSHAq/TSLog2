@@ -1,5 +1,5 @@
 ﻿/*
-    Страница по расходам по БоссКоннтролю.
+    Страница по приходам/расходам (БоссКоннтроль + Биллинг).
     Автор - Буров Михаил.
 */
 
@@ -36,7 +36,7 @@ class ECReportPage {
 
     showReport() {
         const h3 = document.getElementById("report-header")
-        h3.textContent = "Отчёт по зтратам на персонал из БоссКонтроля" +
+        h3.textContent = "Отчёт по затратам на персонал из БоссКонтроля" +
             " с " + utils.getUrlParameter("from_date") +
             " по " + utils.getUrlParameter("to_date") + 
             " (включая!)";

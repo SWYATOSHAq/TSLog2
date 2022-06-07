@@ -49,6 +49,26 @@ namespace TSLog.Yard.BO
         /// </summary>
         public DateTime FactWorkFinishDate { get; set; }
         /// <summary>
+        /// Плановая продолжительность
+        /// </summary>
+        public double PlanDuration
+        {
+            get
+            {
+                return (PlanWorkFinishDate - PlanWorkStartDate).TotalSeconds;
+            }
+        }
+        /// <summary>
+        /// Фактическая продолжительность
+        /// </summary>
+        public double FactDuration
+        {
+            get
+            {
+                return (FactWorkFinishDate - FactWorkStartDate).TotalSeconds;
+            }
+        }
+        /// <summary>
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
