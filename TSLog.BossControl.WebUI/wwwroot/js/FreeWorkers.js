@@ -64,6 +64,7 @@ class FreeWorkersPage {
         this.clearFreeWorkers();
         await this.getFreeWorkers();
         this.showFreeWorkers();
+        viewUtils.sortTable ();
     }
 }
 

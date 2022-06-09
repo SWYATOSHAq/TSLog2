@@ -67,6 +67,7 @@ class FreeShiftWorkersPage {
         this.clearFreeShiftWorkers();
         await this.getFreehiftWorkers();
         this.showFreeShiftWorkers();
+        viewUtils.sortTable ();
     }
 }
 
