@@ -14,16 +14,10 @@ class OperationsPage {
         this.shortUrl = location.href.split('?')[0];
     }
 
-    openOperation(id) {
-        sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-        const url = "OperationPage?id=" + id;
-        location.href = url;
-    }
-
     createOpenOperationFunction(id) {
         return function () {
             sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-            location.href = "/OperationPage?id=" + id;
+            location.href = "/OperationPage?id=" + id + "&action=EDIT";
         }
     }
 

@@ -15,8 +15,19 @@ namespace TSLog.Yard
     /// </summary>
     public class YardStorage : IDisposable, IYardStorage
     {
+        private const int DefaultMaxRowsCount = 16;
         private readonly YardOracleStorage _oracleStorage;
         private readonly YardPgSqlStorage _pgsqlStorage;
+        /// <summary>
+        /// Максимальное количество строк для вывода
+        /// </summary>
+        public int MaxRowsCount 
+        {
+            set 
+            {
+                _oracleStorage.MaxRowsCount = value > 0 ? value : DefaultMaxRowsCount;
+            }
+        }
 
         public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase)
         {
