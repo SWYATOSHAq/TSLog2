@@ -74,10 +74,10 @@ namespace TSLog.Yard.Data
                     $"select a.kind, a.id, a.partner_id, a.partner_number\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
-                    $"   and a.action_kind = :action_kind";
+                    $"   and a.kind = :kind";
                 command.CommandText = SelectWarehouseActionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
-                command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
                     action = CreateAction(reader);

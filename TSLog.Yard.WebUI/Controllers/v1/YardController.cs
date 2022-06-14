@@ -920,13 +920,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.note;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.Note = temp;
-
-                var actions = operation.GetActions();
-                var partner = actions.Length > 0 ? actions[0].Partner : Partner.Null;
+                temp = data.partnerId;
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Partner id is empty";
+                                
                 var manager = operation.Manager;
                 temp = data.partnerId;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
+                    var partner = _storage.GetPartner(temp);
                     var managers = _storage.GetPartnerManagers(partner);
                     if (managers.Length <= 0)
                         return "Partner has not managers!";
@@ -1581,7 +1583,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("AddOperationWarehouseAction")]
+        [HttpPatch("AddOperationWarehouseAction")]
         async public Task<string> AddOperationWarehouseAction()
         {
             try
@@ -1602,12 +1604,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string stringOperationId = data.operationId;
                 string stringActionKind = data.actionKind;
                 string stringActionId = data.actionId;
-                
 
                 if (string.IsNullOrWhiteSpace(stringOperationId))
                     return "Operation id is empty!";
-                if (string.IsNullOrWhiteSpace(stringActionKind))
-                    return "Action kind is empty!";
+                if (stringActionKind != "I" && stringActionKind != "O")
+                    return $"Wrong action kind {stringActionKind}!";
                 if (string.IsNullOrWhiteSpace(stringActionId))
                     return "Action id is empty!";
 
@@ -1615,6 +1616,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringOperationId}!";
                 
                 var operation = _storage.GetOperation(operationId);
+                var action = _storage.GetAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+                _storage.AddAction(operation, action);
 
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
@@ -1625,7 +1628,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("RemoveOperationWarehouseAction")]
+        [HttpPatch("RemoveOperationWarehouseAction")]
         async public Task<string> RemoveOperationWarehouseAction()
         {
             try
@@ -1660,6 +1663,43 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(operationId);
 
+                var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPatch("RemoveOperationWarehouseActions")]
+        async public Task<string> RemoveOperationWarehouseActions()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
+                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationId = data.operationId;
+
+                if (string.IsNullOrWhiteSpace(stringOperationId))
+                    return "Operation id is empty!";
+                
+                if (!long.TryParse(stringOperationId, out long operationId))
+                    return $"Wrong operation id {stringOperationId}!";
+
+                var operation = _storage.GetOperation(operationId);
+                _storage.RemoveActions(operation);
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;

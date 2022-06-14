@@ -29,7 +29,10 @@
 		<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра) без подтверждения"></right>
 		<right code="CREATE_CONFIRM_OPERATION" name="Создание операции (для любого партнёра) с подтверждением"></right>
 		<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
-		<right code="COPY_OPERATION" name="Копирование операции двора"></right>
+
+		<right code="COPY_OPERATION" name="Копирование операции двора без подтверждения"></right>
+		<right code="COPY_OPERATION_CONFIRM" name="Копирование операции двора с подтверждением"></right>
+		
 		<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра без подтверждения"></right>
 		<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
 		<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>

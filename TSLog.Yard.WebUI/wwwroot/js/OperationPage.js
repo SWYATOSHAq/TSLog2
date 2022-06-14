@@ -230,7 +230,7 @@ class OperationPage {
                 laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
             }
             if (this.factWorkStartDate > utils.nullDate && this.factWorkFinishDate > utils.nullDate && this.stateCode != "CANCELED") {
-                const result = await api.getBossControlWorks(operation.id)
+                const result = await api.getBossControlWorks(this.id)
                 if (result.code === 0) {
                     this.bcWorks = result.works;
                     this.showBCWorks();
@@ -382,9 +382,10 @@ class OperationPage {
 
         const kind = this.getKind();
         if (this.kind != kind) {
+            this.clearSelectedWarehouseActions();
             await this.displayWarehouseActions();
             this.kind = kind;
-        }         
+        }
     }
 
     async onChangePlanWorkStartDate() {
@@ -420,6 +421,7 @@ class OperationPage {
 
     async onChangePartner() {
         await this.showManager();
+        this.clearSelectedWarehouseActions();
         await this.displayWarehouseActions();
     }
 
@@ -427,8 +429,9 @@ class OperationPage {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
             document.getElementById("vehicle-kinds-select").value == "" ||
-            document.getElementById("partners-select").value == "")
-        { 
+            document.getElementById("partners-select").value == "" ||
+            Object.keys(this.selectedWarehouseActions).length <= 0)
+        {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -447,19 +450,19 @@ class OperationPage {
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
             note: document.getElementById("note-textarea").value,
-            partnerId: "0003", //partnerId: document.getElementById("partners-select").value,
-            partnerActionId: "ВБ00-008867"//partnerActionId: document.getElementById("partner-action-id-input").value
+            partnerId: document.getElementById("partners-select").value
         };
 
         const result = await api.createOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
-            location.href = this.shortUrl + "?id=" + operation.id;
+            for (let warehouseActionId in this.selectedWarehouseActions) {
+                api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+            }
+            location.href = this.shortUrl + "?id=" + operation.id + "&action=EDIT";
         } else {
             viewUtils.showError(result.message);
-        }
-
-        // TODO: link operation warehouse actions
+        }       
     }
 
     async createConfirmOperation() {
@@ -467,7 +470,9 @@ class OperationPage {
             document.getElementById("operation-types-select").value == "" ||
             document.getElementById("vehicle-kinds-select").value == "" ||
             document.getElementById("partners-select").value == "" ||
-            document.getElementById("partner-action-id-input").value == "") {
+            document.getElementById("partner-action-id-input").value == "" ||
+            Object.keys(this.selectedWarehouseActions).length <= 0)
+        {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -486,25 +491,27 @@ class OperationPage {
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
             note: document.getElementById("note-textarea").value,
-            partnerId: document.getElementById("partners-select").value,
-            partnerActionId: document.getElementById("partner-action-id-input").value
+            partnerId: document.getElementById("partners-select").value
         };
 
         const result = await api.createConfirmOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
-            location.href = this.shortUrl + "?id=" + operation.id;
+            for (let warehouseActionId in this.selectedWarehouseActions) {
+                api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+            }
+            location.href = this.shortUrl + "?id=" + operation.id + "&action=EDIT";
         } else {
             viewUtils.showError(result.message);
         }
-
-        // TODO: link operation warehouse actions
     }
 
     async createOperationByPartner() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
-            document.getElementById("vehicle-kinds-select").value == "") {
+            document.getElementById("vehicle-kinds-select").value == "" || 
+            Object.keys(this.selectedWarehouseActions).length <= 0)
+        {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -528,15 +535,13 @@ class OperationPage {
         const result = await api.createOperationByPartner(data);
         if (result.code === 0) {
             const operation = result.operation;
-            location.href = shortUrl + "?id=" + operation.id;
+            for (let warehouseActionId in this.selectedWarehouseActions) {
+                api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+            }
+            location.href = shortUrl + "?id=" + operation.id + "&action=EDIT_BY_PARTNER";
         } else {
             viewUtils.showError(result.message);
         }
-    }
-
-    getOperationId() {
-        const idInput = document.getElementById("id-input");
-        return idInput.value;
     }
 
     async editOperation() {
@@ -546,14 +551,16 @@ class OperationPage {
             document.getElementById("vehicle-brand-input").value == "" ||
             document.getElementById("vehicle-model-input").value == "" ||
             document.getElementById("vehicle-number-input").value == "" ||
-            document.getElementById("driver-name-input").value == "") {
             document.getElementById("partners-select").value == "" ||
+            document.getElementById("driver-name-input").value == "" ||
+            Object.keys(this.selectedWarehouseActions).length <= 0)
+        {            
                 alert("Не все обязательные поля заполнены!");
             return;
         }
 
         const data = {
-            id: this.getOperationId(),
+            id: this.id,
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
@@ -573,12 +580,18 @@ class OperationPage {
 
         const result = await api.editOperation(data);
         if (result.code === 0) {
-            location.reload();
+            const result2 = await api.removeOperationWarehouseActions(this.id);
+            if (result2.code === 0) {
+                for (let warehouseActionId in this.selectedWarehouseActions) {
+                    api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
+                }
+                location.reload();
+            } else {
+                viewUtils.showError(result2.message);
+            }            
         } else {
             viewUtils.showError(result.message);
         }
-
-        // TODO: link operation warehouse actions
     }
 
     async editOperationByPartner() {
@@ -588,13 +601,15 @@ class OperationPage {
             document.getElementById("vehicle-brand-input").value == "" ||
             document.getElementById("vehicle-model-input").value == "" ||
             document.getElementById("vehicle-number-input").value == "" ||
-            document.getElementById("driver-name-input").value == "") {
+            document.getElementById("driver-name-input").value == "" ||
+            Object.keys(this.selectedWarehouseActions).length <= 0)
+        {
             alert("Не все обязательные поля заполнены!");
             return;
         }
 
         const data = {
-            id: this.getOperationId(),
+            id: this.id,
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
@@ -612,12 +627,18 @@ class OperationPage {
 
         const result = await api.editOperationByPartner(data);
         if (result.code === 0) {
-            location.reload();
+            const result2 = api.removeOperationWarehouseActions(this.id);
+            if (result2.code === 0) {
+                for (let warehouseActionId in this.selectedWarehouseActions) {
+                    api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
+                }
+                location.reload();
+            } else {
+                viewUtils.showError(result.message);
+            }            
         } else {
             viewUtils.showError(result.message);
         }
-
-        // TODO: link operation warehouse actions
     }
 
     copyOperation() {
@@ -629,9 +650,8 @@ class OperationPage {
     }
 
     async editOperationNote() {
-        const id = this.getOperationId();
         const note = document.getElementById("note-textarea").value;
-        const result = await api.editOperationNote(id, note);
+        const result = await api.editOperationNote(this.id, note);
         if (result.code === 0) {
             location.reload();
         } else {
@@ -640,7 +660,7 @@ class OperationPage {
     }
 
     async setOperationGate() {
-        const result = await api.setOperationGate(this.getOperationId(), "");
+        const result = await api.setOperationGate(this.id, "");
         if (result.code === 0) {
             location.reload();
         } else {
@@ -649,8 +669,7 @@ class OperationPage {
     }
 
     async startOperation() {
-        const id = this.getOperationId();
-        const result = await api.startOperation(id);
+        const result = await api.startOperation(this.id);
         if (result.code == 0) {
             location.reload();
         } else {
@@ -686,10 +705,16 @@ class OperationPage {
     }
 
     async getSelectedWarehouseActions() {
-        const result = await api.getSelectedWarehouseActions(this.getOperationId());
+        const partnersSelect = document.getElementById("partners-select");
+        partnersSelect.onchange = this.onChangePartner.bind(this);
+        partnersSelect.value = "";
+        const result = await api.getSelectedWarehouseActions(this.id);
         if (result.code === 0) {
             for (let action of result.data) {
                 this.selectedWarehouseActions[action.id] = action;
+                if (partnersSelect.value === "") {
+                    partnersSelect.value = action.partnerId;
+                }
             }
         }
         else {
@@ -755,10 +780,7 @@ class OperationPage {
         }
     }
 
-    async displayWarehouseActions() {
-        this.selectedWarehouseActions = {};
-        const selectedActionsDiv = document.getElementById("selected-actions-div");
-        selectedActionsDiv.replaceChildren();
+    async displayWarehouseActions() {        
         const operationTypesSelect = document.getElementById("operation-types-select");
         const partnersSelect = document.getElementById("partners-select");
         if (partnersSelect.value != "" && operationTypesSelect.value != "") {
@@ -770,6 +792,12 @@ class OperationPage {
             document.getElementById("action-filter-div").classList.add("d-none");
             document.getElementById("actions-div").classList.add("d-none");
         }
+    }
+
+    clearSelectedWarehouseActions() {
+        this.selectedWarehouseActions = {};
+        const selectedActionsDiv = document.getElementById("selected-actions-div");
+        selectedActionsDiv.replaceChildren();
     }
 
     showSelectedWarehouseActions() {
@@ -875,7 +903,7 @@ class OperationPage {
     }
 
     async getSelectedWorkers() {
-        const result = await api.getOperationWorkers(this.getOperationId());
+        const result = await api.getOperationWorkers(this.id);
         this.selectedWorkersIds.clear();
         if (result.code === 0) {
             this.selectedWorkers = result.data;
@@ -931,7 +959,7 @@ class OperationPage {
     }
 
     async allocateWorkers() {
-        const result = await api.allocateOperationWorkers(this.getOperationId());
+        const result = await api.allocateOperationWorkers(this.id);
         if (result.code === 0) {
             location.reload();
         } else {
@@ -951,8 +979,7 @@ class OperationPage {
             alert("Не все сотрудники были заполнены!");
             return;
         }
-        const id = this.getOperationId();
-        const result = await api.startOperationWork(id);
+        const result = await api.startOperationWork(this.id);
         if (result.code === 0) {
             location.reload();
         } else {
@@ -961,8 +988,7 @@ class OperationPage {
     }
 
     async finishOperationWork() {
-        const id = this.getOperationId();
-        const result = await api.finishOperationWork(id);
+        const result = await api.finishOperationWork(this.id);
         if (result.code === 0) {
             location.reload();
         } else {
@@ -978,8 +1004,7 @@ class OperationPage {
     }
 
     async finishOperation() {
-        const id = this.getOperationId();
-        const result = await api.finishOperation(id);
+        const result = await api.finishOperation(this.id);
         if (result.code === 0) {
             this.showOperationsPage();
         } else {
@@ -991,8 +1016,7 @@ class OperationPage {
         if (!window.confirm("Отменить операцию двора?")) {
             return;
         }
-        const id = this.getOperationId();
-        const result = await api.cancelOperation(id);
+        const result = await api.cancelOperation(this.id);
         if (result.code === 0) {
             this.showOperationsPage();
         } else {
@@ -1004,8 +1028,7 @@ class OperationPage {
         if (!window.confirm("Удалить операцию двора?")) {
             return;
         }
-        const id = this.getOperationId();
-        const result = await api.deleteOperation(id);
+        const result = await api.deleteOperation(this.id);
         if (result.code === 0) {
             this.showOperationsPage();
         } else {
@@ -1142,7 +1165,7 @@ class OperationPage {
         }
 
         // Work start and finish (plan and fact)
-        this.planWorkStartDate = operation != null ? new Date(operation.planWorkStartDate) : utils.nullDate;       
+        this.planWorkStartDate = operation != null ? new Date(operation.planWorkStartDate) : utils.nullDate;
         this.factWorkStartDate = operation != null ? new Date(operation.factWorkStartDate) : utils.nullDate;
         this.planWorkFinishDate = operation != null ? new Date(operation.planWorkFinishDate) : utils.nullDate;
         this.factWorkFinishDate = operation != null ? new Date(operation.factWorkFinishDate) : utils.nullDate;
@@ -1191,32 +1214,29 @@ class OperationPage {
         this.factLaborCost = operation != null ? Number(operation.factLaborCost) : 0;
         await this.showLaborCost();
 
-        // Partner and manager
-        const partnersSelect = document.getElementById("partners-select");
-        partnersSelect.value = operation != null ? operation.partnerId : "";
-        partnersSelect.onchange = this.onChangePartner.bind(this);
+        // Warehouse actions (and partner)        
+        if (this.id > 0) {
+            await this.getSelectedWarehouseActions();            
+            this.showSelectedWarehouseActions();
+        }
+
+        // Manager        
         await this.showManager();
 
-        // Warehouse actions
         // TODO: check        
         const warehouseActionsFieldset = document.getElementById("warehouse-actions-fieldset");
         const actionFiltersDiv = document.getElementById("action-filter-div");
         const allActionsDiv = document.getElementById("all-actions-div");
         if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-            warehouseActionsFieldset.disabled = false;            
+            warehouseActionsFieldset.disabled = false;
             const actionsFilterInput = document.getElementById("action-filter-input");
             actionsFilterInput.onchange = this.onChangeActionsFilter.bind(this);
             await this.getWarehouseActions();
-            this.showWarehouseActions();
-            this.displayWarehouseActions();
+            await this.displayWarehouseActions();
         } else {
             warehouseActionsFieldset.disabled = true;
             actionFiltersDiv.remove();
             allActionsDiv.remove();
-        }        
-        if (this.id > 0) {
-            await this.getSelectedWarehouseActions();
-            this.showSelectedWarehouseActions();            
         }
 
         // Responsible officer
@@ -1279,9 +1299,140 @@ class OperationPage {
         }
 
         // Show button
+        const showBcWorksButton = document.getElementById("show-bc-works-button");
+        if (showBcWorksButton != undefined) {
+            if (this.stateCode != "WORK_FINISHED" && this.stateCode != "FINISHED") {
+                showBcWorksButton.remove();
+            }
+        }
+
+        const createButton = document.getElementById("create-button");
+        if (createButton != undefined) {
+            if (this.stateCode != "") {
+                createButton.remove();
+            } else {
+                if (this.action === "CREATE" || this.action === "COPY") {
+                    createButton.onclick = this.createOperation.bind(this);
+                } else if (this.action === "CREATE_CONFIRM" || this.action === "COPY_CONFIRM") {
+                    createButton.onclick = this.createConfirmOperation.bind(this);
+                } else if (this.action === "CREATE_BY_PARTNER" || this.action === "COPY_BY_PARTNER") {
+                    createButton.onclick = this.createByPartnerOperation.bind(this);
+                }
+            }
+
+            const printButton = document.getElementById("print-button");
+            if (printButton != undefined) {
+                if (this.id <= 0) {
+                    printButton.remove();
+                }
+            }
+
+            const saveButton = document.getElementById("save-button");
+            if (saveButton != undefined) {
+                if (this.stateCode != "CREATED" &&
+                    this.stateCode != "CONFIRMED" &&
+                    this.stateCode != "STARTED" &&
+                    this.stateCode != "WORK_STARTED" &&
+                    this.stateCode != "WORK_FINISHED") {
+                    saveButton.remove();
+                } else {
+                    if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
+                        // TODO: Get flag
+                        const isPartnerUser = true;
+                        if (isPartnerUser) {
+                            saveButton.onclick = this.editOperation.bind(this);
+                        } else {
+                            saveButton.onclick = this.editOperationByPartner.bind(this);
+                        }
+
+                    }
+                    else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
+                        saveButton.onclick = this.editOperationNote.bind(this);
+                    }
+                }
+            }
+
+            const copyButton = document.getElementById("copy-button");
+            if (copyButton != undefined) {
+                if (this.id <= 0) {
+                    copyButton.remove();
+                } else {
+                    const isPartnerUser = true;
+                    if (isPartnerUser) {
+                        copyButton.onclick = this.copyOperation.bind(this);
+                    } else {
+                        copyButton.onclick = this.copyOperationByPartner.bind(this);
+                    }
+                }
+            }
+
+            const copyConfirmButton = document.getElementById("copy-confirm-button");
+            if (copyConfirmButton != undefined) {
+                if (this.id <= 0) {
+                    copyConfirmButton.remove();
+                }
+            }
+
+            const setGateButton = document.getElementById("set-gate-button");
+            if (setGateButton != undefined) {
+                if (this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
+                    setGateButton.remove();
+                }
+            }
+
+            const startButton = document.getElementById("start-button");
+            if (startButton != undefined) {
+                if (this.stateCode != "CONFIRMED") {
+                    startButton.remove();
+                }
+            }
+
+            const startWorkButton = document.getElementById("start-work-button");
+            if (startWorkButton != undefined) {
+                if (this.stateCode != "STARTED") {
+                    startWorkButton.remove();
+                }
+            }
+
+            const allocateWorkersButton = document.getElementById("allocate-workers-button");
+            if (allocateWorkersButton != undefined) {
+                if (this.stateCode != "STARTED") {
+                    allocateWorkersButton.remove();
+                }
+            }
+
+            const finishWorkButton = document.getElementById("finish-work-button");
+            if (finishWorkButton != undefined) {
+                if (this.stateCode != "WORK_STARTED") {
+                    finishWorkButton.remove();
+                }
+            }
+
+            const finishButton = document.getElementById("finish-button");
+            if (finishButton != undefined) {
+                if (this.stateCode != "WORK_FINISHED") {
+                    finishButton.remove();
+                }
+            }
+
+            const cancelButton = document.getElementById("cancel-button");
+            if (cancelButton != undefined) {
+                if (this.stateCode != "CREATED" && this.stateCode != "CONFIRMED")
+                    cancelButton.remove();
+            }
+
+            const deleteButton = document.getElementById("delete-button");
+            if (deleteButton != undefined) {
+                if (this.stateCode === "") {
+                    deleteButton.remove();
+                }
+            }
+
+            const closeButton = document.getElementById("close-button");
 
 
-        window.onclick = this.windowClick.bind(this);
+            window.onclick = this.windowClick.bind(this);
+        }
     }
 }
 

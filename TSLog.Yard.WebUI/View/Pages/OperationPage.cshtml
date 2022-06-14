@@ -33,6 +33,7 @@
     var editOperation = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
     var editOperationByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
     var copyOperation = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION", User);
+    var copyConfirmOperation = !useAuthentication || rightsChecker.CheckRight("COPY_CONFIRM_OPERATION", User);
     var copyOperationBPartner = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION_BY_PARTNER", User);
 
     if (action == "CREATE" && !createOperation
@@ -277,7 +278,7 @@
             @if (save || editNote)
             {
                 <button id="save-button"
-                    class="btn btn-outline-secondary" 
+                    class="btn btn-outline-success" 
                     style="width: 320px; margin: auto; margin-top: 8px"
                     title="Сохранить изменения в карточке операции двора"
                     type="button">Сохранить изменения</button>
@@ -290,6 +291,15 @@
                     title="Копировать карточку операции двора"
                     type="button" 
                     onclick="operationPage.copyOperation()">Копировать</button>
+            }
+            @if (copyConfirmOperation)
+            {
+                <button id="copy-confirm-button"
+                    class="btn btn-outline-warning" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Копировать карточку операции двора с подтверждением"
+                    type="button" 
+                    onclick="operationPage.copyOperation()">Копировать и подтвердить</button>
             }
             @if (setGate)
             {
@@ -317,6 +327,9 @@
                     title="Поставить автомашину на ворота (начать работу по погрузке или разгрузке)"
                     type="button" 
                     onclick="operationPage.startOperationWork()">Поставить на ворота</button>
+            }
+            @if (manageOperationWorkers)
+            {
                 <button id="allocate-workers-button"
                     class="btn btn-outline-success" 
                     style="width: 320px; margin: auto; margin-top: 8px"

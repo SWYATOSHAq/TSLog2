@@ -73,6 +73,7 @@ namespace TSLog.Yard.BO
         public void DeleteOperation(Operation operation, string user = "");
         public void AddAction(Operation operation, WarehouseAction action);       
         public void RemoveAction(Operation operation, WarehouseAction action);
+        public void RemoveActions(Operation operation);
         public bool IsWorkerBusy(Employee employee);
         public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency);
         public Operation.OperationEmployee[] GetOperationEmployees(Operation operation);

@@ -581,10 +581,11 @@ class Api {
     }
 
     // Добавление складского действа (прихода, расхода) в операцию двора
-    async addOperationWarehouseAction(operationId, actionId) {
+    async addOperationWarehouseAction(operationId, actionKind, actionId) {
         const url = "./api/v1/yard/AddOperationWarehouseAction";
         const data = {
             operationId: operationId,
+            actionKind: actionKind,
             actionId: actionId
         };
         const options = {
@@ -602,11 +603,32 @@ class Api {
     }
 
     // Удаление складского действа (прихода, расхода) из операции двора
-    async removeOperationWarehouseAction(operationId, actionId) {
+    async removeOperationWarehouseAction(operationId, actionKind, actionId) {
         const url = "./api/v1/yard/RemoveOperationWarehouseAction";
         const data = {
             operationId: operationId,
+            actionKind: actionKind,
             actionId: actionId
+        };
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Удаление ВСЕХ складских действ (приходов, расходов) из операции двора
+    async removeOperationWarehouseActions(operationId) {
+        const url = "./api/v1/yard/RemoveOperationWarehouseActions";
+        const data = {
+            operationId: operationId
         };
         const options = {
             method: "PATCH",

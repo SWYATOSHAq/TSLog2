@@ -403,6 +403,10 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.RemoveAction(operation, action);
         }
+        public void RemoveActions(Operation operation)
+        {
+            _pgsqlStorage.RemoveActions(operation);
+        }
         #endregion
 
         #region Workers

@@ -959,10 +959,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
 
                     operation.Id = Convert.ToInt64(command.ExecuteScalar());
-                }
-                var actions = operation.GetActions();
-                foreach (var action in actions)
-                    AddAction(operation, action);
+                }                
                 connection.Close();
             }
             return operation;
@@ -1627,44 +1624,6 @@ namespace TSLog.Yard.Data
 
                 command.ExecuteScalar();
             }
-
-            // Синхронизация складских действ (добавляем новые, удаляем удалённые)
-            // TODO: ПЕРЕПИСАТЬ! ГОВНОКОД!
-            var actions = new Dictionary<string, WarehouseAction>();
-            var indicators = new Dictionary<string, short>();
-            var temp = GetActions(operation);
-            foreach (var action in temp)
-            {
-                var key = action.Key;
-                if (!actions.ContainsKey(key))
-                {
-                    actions.Add(key, action);
-                    indicators.Add(key, -1);
-                }
-                else
-                    indicators[key]--;
-            }
-            temp = operation.GetActions();
-            foreach (var action in temp)
-            {
-                var key = action.Key;
-                if (!actions.ContainsKey(key))
-                {
-                    actions.Add(key, action);
-                    indicators.Add(key, 1);
-                }
-                else
-                    indicators[key]++;
-            }
-            foreach (var action in actions)
-            {
-                var key = action.Key;
-                if (indicators[key] < 0)
-                    RemoveAction(operation, actions[key]);
-                else if (indicators[key] > 0)
-                    AddAction(operation, actions[key]);
-            }
-
             connection.Close();
         }
         public void StartOperation(Operation operation, string user = "")
@@ -1908,6 +1867,14 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
             command.ExecuteScalar();
             connection.Close();
+        }
+        public void RemoveActions(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            var actions = operation.GetActions();
+            foreach (var action in actions)
+                this.RemoveAction(operation, action);
         }
         #endregion
 
