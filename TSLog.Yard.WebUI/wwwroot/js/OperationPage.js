@@ -469,8 +469,7 @@ class OperationPage {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
             document.getElementById("vehicle-kinds-select").value == "" ||
-            document.getElementById("partners-select").value == "" ||
-            document.getElementById("partner-action-id-input").value == "" ||
+            document.getElementById("partners-select").value == "" ||            
             Object.keys(this.selectedWarehouseActions).length <= 0)
         {
             alert("Не все обязательные поля заполнены!");
@@ -642,11 +641,15 @@ class OperationPage {
     }
 
     copyOperation() {
-        alert("Не раализовано!");
+        location.href = "/OperationPage?id=" + this.id + "&action=COPY";
+    }
+
+    copyConfirmOperation() {
+        location.href = "/OperationPage?id=" + this.id + "&action=COPY_CONFIRM";
     }
 
     copyOperationByPartner() {
-        alert("Не раализовано!");
+        location.href = "/OperationPage?id=" + this.id + "&action=COPY_BY_PARTNER";
     }
 
     async editOperationNote() {
@@ -705,8 +708,7 @@ class OperationPage {
     }
 
     async getSelectedWarehouseActions() {
-        const partnersSelect = document.getElementById("partners-select");
-        partnersSelect.onchange = this.onChangePartner.bind(this);
+        const partnersSelect = document.getElementById("partners-select");        
         partnersSelect.value = "";
         const result = await api.getSelectedWarehouseActions(this.id);
         if (result.code === 0) {
@@ -969,13 +971,7 @@ class OperationPage {
     // #endregion
 
     async startOperationWork() {
-        let isAllHumanFieldsFull = true;
-        $(".dropdown .form-control").each(function () {
-            const inputGroup = $(this).parent();
-            const info = inputGroup.children(".selected-worker-id").val();
-            isAllHumanFieldsFull = isAllHumanFieldsFull && info != "";
-        });
-        if (!isAllHumanFieldsFull) {
+        if (this.selectedWorkersIds.length <= 0) {
             alert("Не все сотрудники были заполнены!");
             return;
         }
@@ -1102,6 +1098,15 @@ class OperationPage {
     async show() {
         // CREATE, CREATE_CONFIRM, CREATE_BY_PARTNER, EDIT, EDIT_BY_PARTNER, COPY, COPY_BY_PARTNER
         this.action = utils.getUrlParameter("action");
+        const copy = this.action === "COPY" || this.action === "COPY_CONFIRM" || this.action === "COPY_BY_PARTNER";
+
+        const response2 = await api.getIsPartnerUser();
+        let isPartnerUser = false;
+        if (response2.code === 0) {
+            isPartnerUser = response2.isPartnerUser;
+        } else {
+            viewUtils.showError(response2.message);
+        }          
 
         const id = utils.getUrlParameter("id");
         let operation = null;
@@ -1119,8 +1124,8 @@ class OperationPage {
         document.getElementById("id-input").value = operation != null ? operation.id : "";
 
         // State
-        this.stateCode = operation != null ? operation.stateCode : "";
-        this.stateName = operation != null ? operation.stateName : "";
+        this.stateCode = operation != null && !copy ? operation.stateCode : "";
+        this.stateName = operation != null && !copy ? operation.stateName : "";
 
         // Header
         const h1 = document.getElementById("header");
@@ -1138,7 +1143,7 @@ class OperationPage {
             h1.textContent = "Копирование";
         } else if (this.action == "COPY_BY_PARTNER") {
             h1.textContent = "Копирование (клиентом)";
-        }
+        }        
 
         // Operation type
         const operationTypesSelect = document.getElementById("operation-types-select");
@@ -1164,11 +1169,11 @@ class OperationPage {
             vehiclekindsSelect.setAttribute("disabled", "");
         }
 
-        // Work start and finish (plan and fact)
-        this.planWorkStartDate = operation != null ? new Date(operation.planWorkStartDate) : utils.nullDate;
-        this.factWorkStartDate = operation != null ? new Date(operation.factWorkStartDate) : utils.nullDate;
-        this.planWorkFinishDate = operation != null ? new Date(operation.planWorkFinishDate) : utils.nullDate;
-        this.factWorkFinishDate = operation != null ? new Date(operation.factWorkFinishDate) : utils.nullDate;
+        // Work start and finish (plan and fact)        
+        this.planWorkStartDate = operation != null && !copy ? new Date(operation.planWorkStartDate) : utils.nullDate;
+        this.factWorkStartDate = operation != null && !copy ? new Date(operation.factWorkStartDate) : utils.nullDate;
+        this.planWorkFinishDate = operation != null && !copy ? new Date(operation.planWorkFinishDate) : utils.nullDate;
+        this.factWorkFinishDate = operation != null && !copy ? new Date(operation.factWorkFinishDate) : utils.nullDate;
         if (operation != null) {
             this.countOperationBlocks();
         }
@@ -1176,9 +1181,9 @@ class OperationPage {
 
         // Duration
         this.planDuration = operation != null ? Number(operation.planDuration) : 0;
-        this.factDuration = operation != null ? Number(operation.factDuration) : 0;
+        this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
         this.showDuration();
-        let tempDate = operation != null ? new Date(this.planWorkStartDate) : new Date();
+        let tempDate = operation != null && !copy ? new Date(this.planWorkStartDate) : new Date();
         tempDate.setHours(0, 0, 0, 0);
         const workStartDatePicker = $("#work-start-date-picker");
         workStartDatePicker.datepicker({
@@ -1203,6 +1208,9 @@ class OperationPage {
         } else {
             this.hideTimeTable();
         }
+        const timetableFieldset = document.getElementById("timetable-fieldset");
+        timetableFieldset.disabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
+            this.stateCode === "CANCELED";
 
         // Start and finish
         this.finishDate = operation != null ? new Date(operation.finishDate) : utils.nullDate;
@@ -1215,15 +1223,19 @@ class OperationPage {
         await this.showLaborCost();
 
         // Warehouse actions (and partner)        
+        const partnersSelect = document.getElementById("partners-select");
+        partnersSelect.onchange = this.onChangePartner.bind(this);
         if (this.id > 0) {
             await this.getSelectedWarehouseActions();            
             this.showSelectedWarehouseActions();
+            if (copy) {
+                this.clearSelectedWarehouseActions();
+            }
         }
 
         // Manager        
         await this.showManager();
 
-        // TODO: check        
         const warehouseActionsFieldset = document.getElementById("warehouse-actions-fieldset");
         const actionFiltersDiv = document.getElementById("action-filter-div");
         const allActionsDiv = document.getElementById("all-actions-div");
@@ -1246,8 +1258,8 @@ class OperationPage {
         // Gates
         const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined) {
-            gatesSelect.value = operation != null ? operation.gateCode : "";
-            if (this.stateCode != "" || this.stateCode != "CREATED" || this.stateCode != "CONFIRMED" || this.stateCode != "STARTED") {
+            gatesSelect.value = operation != null && !copy ? operation.gateCode : "";
+            if (!copy && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
                 gatesSelect.disabled = true;
             }
         }
@@ -1265,6 +1277,19 @@ class OperationPage {
         viewUtils.normalizePhoneNumber();
         document.getElementById("partner-manager-email-input").value = operation != null ? operation.partnerManagerEmail : "";
         document.getElementById("note-textarea").value = operation != null ? operation.note : "";
+
+        const disableAdditionalAttributes =
+            this.stateCode != "" && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED";        
+        document.getElementById("vehicle-brand-input").disabled = disableAdditionalAttributes;
+        document.getElementById("vehicle-model-input").disabled = disableAdditionalAttributes;
+        document.getElementById("vehicle-number-input").disabled = disableAdditionalAttributes;
+        document.getElementById("trailer-number-input").disabled = disableAdditionalAttributes;
+        document.getElementById("driver-name-input").disabled = disableAdditionalAttributes;
+        document.getElementById("driver-phone-number-input").disabled = disableAdditionalAttributes;
+        document.getElementById("partner-manager-name-input").disabled = disableAdditionalAttributes;
+        document.getElementById("partner-manager-phone-number-input").disabled = disableAdditionalAttributes;
+        document.getElementById("partner-manager-email-input").disabled = disableAdditionalAttributes;
+        document.getElementById("note-textarea").disabled = this.stateCode === "FINISHED" || this.stateCode === "CANCELED";
 
         // Workers
         const workersDiv = document.getElementById("workers-div");
@@ -1322,7 +1347,7 @@ class OperationPage {
 
             const printButton = document.getElementById("print-button");
             if (printButton != undefined) {
-                if (this.id <= 0) {
+                if (this.id <= 0 || copy) {
                     printButton.remove();
                 }
             }
@@ -1336,9 +1361,7 @@ class OperationPage {
                     this.stateCode != "WORK_FINISHED") {
                     saveButton.remove();
                 } else {
-                    if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-                        // TODO: Get flag
-                        const isPartnerUser = true;
+                    if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {                                      
                         if (isPartnerUser) {
                             saveButton.onclick = this.editOperation.bind(this);
                         } else {
@@ -1354,10 +1377,9 @@ class OperationPage {
 
             const copyButton = document.getElementById("copy-button");
             if (copyButton != undefined) {
-                if (this.id <= 0) {
+                if (this.id <= 0 || copy) {
                     copyButton.remove();
-                } else {
-                    const isPartnerUser = true;
+                } else {                    
                     if (isPartnerUser) {
                         copyButton.onclick = this.copyOperation.bind(this);
                     } else {
@@ -1368,8 +1390,10 @@ class OperationPage {
 
             const copyConfirmButton = document.getElementById("copy-confirm-button");
             if (copyConfirmButton != undefined) {
-                if (this.id <= 0) {
+                if (this.id <= 0 || copy) {
                     copyConfirmButton.remove();
+                } else {
+                    copyConfirmButton.onclick = this.copyConfirmOperation.bind(this);
                 }
             }
 
@@ -1429,7 +1453,6 @@ class OperationPage {
             }
 
             const closeButton = document.getElementById("close-button");
-
 
             window.onclick = this.windowClick.bind(this);
         }

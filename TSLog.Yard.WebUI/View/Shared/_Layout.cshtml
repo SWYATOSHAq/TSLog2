@@ -120,7 +120,7 @@
                         <a class="nav-link text-dark" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
                         @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
-                            <a class="nav-link text-dark" href="/OperationPage">Cоздать заявку</a>
+                            <a class="nav-link text-dark" href="/OperationPage?action=CREATE">Cоздать заявку</a>
                         }
                         @if (canViewStaffPlan)
                         {

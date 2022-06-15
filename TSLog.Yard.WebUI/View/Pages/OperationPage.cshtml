@@ -23,6 +23,7 @@
         && action != "EDIT"
         && action != "EDIT_BY_PARTNER"
         && action != "COPY"
+        && action != "COPY_CONFIRM"
         && action != "COPY_BY_PARTNER"
     )
         throw new Exception($"Unknown action: {action}!");
@@ -77,7 +78,7 @@
     else
         partners = storage.GetPartners();
 
-    var gatesModel = new GatesModel(storage.GetGates(), string.Empty, !isPartnerUser && editAttributes, false, string.Empty, divClasses, selectClasses);
+    var gatesModel = new GatesModel(storage.GetGates(), string.Empty, setGate && !isPartnerUser && editAttributes, false, string.Empty, divClasses, selectClasses);
     var partnersModel = new PartnersModel(partners, partnerId, !isPartnerUser && editAttributes, false, string.Empty, divClasses, selectClasses);    
     var logistsModel = new LogistsModel(storage.GetLogists(), string.Empty, editAttributes, false, string.Empty, divClasses, selectClasses);
     var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), string.Empty, editAttributes, false, string.Empty, divClasses, selectClasses);
@@ -89,7 +90,7 @@
     var disabledNoteString = !editNote ? " disabled" : string.Empty;
 }
 <div class="row" style="width: 1280px">
-    <fieldset style="width: 25%" @disabledString>
+    <fieldset id="timetable-fieldset" style="width: 25%">
         <div class="col-4 time-table hide-on-print overflow-auto" id="time-div" style="width: 100%">
             <div id="time-header-div">
                 <div class="row row3" id="work-start-date-div" disable>
@@ -202,7 +203,7 @@
             <input id="responsible-officer-input" class="form-control" value="" disabled/>
         </div>
 
-        @if (!isPartnerUser)
+        @if (setGate && !isPartnerUser && (action == "EDIT" || action == "EDIT_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
         {
             <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
         }    
@@ -289,8 +290,7 @@
                     class="btn btn-outline-warning" 
                     style="width: 320px; margin: auto; margin-top: 8px"
                     title="Копировать карточку операции двора"
-                    type="button" 
-                    onclick="operationPage.copyOperation()">Копировать</button>
+                    type="button">Копировать</button>
             }
             @if (copyConfirmOperation)
             {
@@ -298,8 +298,7 @@
                     class="btn btn-outline-warning" 
                     style="width: 320px; margin: auto; margin-top: 8px"
                     title="Копировать карточку операции двора с подтверждением"
-                    type="button" 
-                    onclick="operationPage.copyOperation()">Копировать и подтвердить</button>
+                    type="button">Копировать и подтвердить</button>
             }
             @if (setGate)
             {

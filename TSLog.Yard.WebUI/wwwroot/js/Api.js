@@ -5,6 +5,17 @@
 
 // Класс для доступа к внешним программным интерфейсам по протоколу http
 class Api {
+    // Возвращает признак пользователя партнёра (клиента)
+    async getIsPartnerUser() {
+        let response = await fetch("./api/v1/yard/IsPartnerUser");
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("isPartnerUser", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
     // Возвращает плановою продолжительность операции двора типу операции и виду автомашины
     async getPlanDuration(operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/OperationDuration" +

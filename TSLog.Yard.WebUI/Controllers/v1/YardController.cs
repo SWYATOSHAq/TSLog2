@@ -157,6 +157,29 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var partnerIds = _rightsChecker.GetPartnersIdsByUser(userName);
             return partnerIds.Contains(partnerId);
         }
+        [HttpGet("IsPartnerUser")]
+        public string GetIsPartnerIser() 
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                if (_useAuthentication && !useYard)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var isPartnerUser = _rightsChecker.CheckRight("PARTNER_USER", User);
+                var text = JsonSerializer.Serialize(isPartnerUser);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
         [HttpGet("OperationDuration")]
         public string GetOperationDuration()
         {
