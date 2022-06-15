@@ -5,6 +5,17 @@
 
 // Класс для доступа к внешним программным интерфейсам по протоколу http
 class Api {
+    // Возвращает признак пользователя партнёра (клиента)
+    async getIsPartnerUser() {
+        let response = await fetch("./api/v1/yard/IsPartnerUser");
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("isPartnerUser", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
     // Возвращает плановою продолжительность операции двора типу операции и виду автомашины
     async getPlanDuration(operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/OperationDuration" +
@@ -390,7 +401,6 @@ class Api {
         else {
             return utils.createErrorObject(await response.text());
         }
-
     }
 
     // Начинает работы по операции двора (ставит машину на ворота)
@@ -545,6 +555,98 @@ class Api {
     async createWorkersPerfomanceReport(fromDate, toDate) {
         let url = "./api/v1/yard/WorkersPerfomanceReport?from_date=" + fromDate + "&to_date=" + toDate;
         const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Возвращает складские действа (приходы, расходы) по подобию номера
+    async findWarehouseActions(kind, pattern, partnerId = "") {
+        const url = "./api/v1/yard/WarehouseActions?" +
+            "kind=" + kind +
+            "&pattern=" + pattern + 
+            "&partner_id=" + partnerId;
+        let response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Возвращает складские действа (приходы, расходы), которые привязаны к указанной операции двора
+    async getSelectedWarehouseActions(operationId) {
+        const url = "./api/v1/yard/SelectedWarehouseActions?" +
+            "operation_id=" + operationId;
+        let response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Добавление складского действа (прихода, расхода) в операцию двора
+    async addOperationWarehouseAction(operationId, actionKind, actionId) {
+        const url = "./api/v1/yard/AddOperationWarehouseAction";
+        const data = {
+            operationId: operationId,
+            actionKind: actionKind,
+            actionId: actionId
+        };
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Удаление складского действа (прихода, расхода) из операции двора
+    async removeOperationWarehouseAction(operationId, actionKind, actionId) {
+        const url = "./api/v1/yard/RemoveOperationWarehouseAction";
+        const data = {
+            operationId: operationId,
+            actionKind: actionKind,
+            actionId: actionId
+        };
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Удаление ВСЕХ складских действ (приходов, расходов) из операции двора
+    async removeOperationWarehouseActions(operationId) {
+        const url = "./api/v1/yard/RemoveOperationWarehouseActions";
+        const data = {
+            operationId: operationId
+        };
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());
         }

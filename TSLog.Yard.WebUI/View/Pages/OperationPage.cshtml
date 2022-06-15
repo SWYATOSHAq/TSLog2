@@ -13,64 +13,59 @@
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    string stringId = Request.Query["id"];
-    string needConfirm = (Request.Query["need_confirm"]);
-    needConfirm = !string.IsNullOrWhiteSpace(needConfirm) ? needConfirm.Trim().ToUpper() : string.Empty;
-    var operation = Operation.Empty;    
-    if (string.IsNullOrWhiteSpace(stringId)) // Создание
+    string action = Request.Query["action"];
+    if (string.IsNullOrWhiteSpace(action))
+        throw new Exception("Action is empty!");
+    action = action.Trim().ToUpper();
+    if (action != "CREATE"
+        && action != "CREATE_CONFIRM"
+        && action != "CREATE_BY_PARTNER"
+        && action != "EDIT"
+        && action != "EDIT_BY_PARTNER"
+        && action != "COPY"
+        && action != "COPY_CONFIRM"
+        && action != "COPY_BY_PARTNER"
+    )
+        throw new Exception($"Unknown action: {action}!");
+
+    var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
+    var createConfirmOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", User);
+    var createOperationByPartner = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+    var editOperation = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
+    var editOperationByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
+    var copyOperation = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION", User);
+    var copyConfirmOperation = !useAuthentication || rightsChecker.CheckRight("COPY_CONFIRM_OPERATION", User);
+    var copyOperationBPartner = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION_BY_PARTNER", User);
+
+    if (action == "CREATE" && !createOperation
+        || action == "CREATE_CONFIRM" && !createConfirmOperation
+        || action == "CREATE_BY_PARTNER" && !createOperationByPartner
+        || action == "EDIT" && !editOperation
+        || action == "EDIT_BY_PARTNER" && !editOperationByPartner 
+        || action == "COPY" && !copyOperation 
+        || action == "COPY_BY_PARTNER" && !copyOperationBPartner)
     {        
-        ViewData["Title"] = "Создать заявку";
-        var createOperation = !useAuthentication 
-            || rightsChecker.CheckRights(new string[] { "CREATE_OPERATION", "CREATE_CONFIRM_OPERATION", "CREATE_OPERATION_BY_PARTNER"}, User);
-        if (!createOperation)
-        {        
-            Response.StatusCode = 403;
-            throw new UnauthorizedAccessException();
-        }
-    }
-    else // Просмотр или редактирование
-    {        
-        ViewData["Title"] = "Карточка заявки";
-        var editOperation = !useAuthentication
-            || rightsChecker.CheckRights(new string[] { "VIEW_OPERATION_PAGE", "EDIT_OPERATION", "EDIT_OPERATION_BY_PARTNER", "EDIT_OPERATION_NOTE" }, User);
-        if (!editOperation)
-        {
-            Response.StatusCode = 403;
-            throw new UnauthorizedAccessException();
-        }
-        if (long.TryParse(stringId, out long operationId))
-            operation = storage.GetOperation(operationId);
-        else
-        {
-            Response.StatusCode = 500;
-            throw new Exception($"Wrong operation id {stringId}");
-        }
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
     }
 
-    var canCopy = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION", User);
     var setGate = !useAuthentication || rightsChecker.CheckRight("SET_OPERATION_GATE", User);
-    var canEditAttributes = !useAuthentication
-        || rightsChecker.CheckRight("EDIT_OPERATION", User)
-        || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
-    canEditAttributes = canEditAttributes && (operation == Operation.Empty ||
-        operation.State.Code == "CREATED" || 
-        operation.State.Code == "CONFIRMED" ||
-        operation.State.Code == "STARTED");
-
-    var canEditNote = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
-    var canStart = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
-    var canStartWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
-    var canFinishWork = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
-    var canFinish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
-    var canCancel = (!useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User)) 
-        && (operation.State.Code != "FINISHED")
-        && (operation.State.Code != "CANCELED");
-    var canDelete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
-    var canViewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
+    var editNote = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+    var start = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
+    var startWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
+    var finishWork = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
+    var finish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
+    var cancel = !useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User);
+    var delete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
+    var viewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
+    var manageOperationWorkers = !useAuthentication || rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
+    var editAttributes = createOperation || createConfirmOperation || createOperationByPartner
+        || editOperation || editOperationByPartner
+        || copyOperation || copyOperationBPartner;
+    var save = editOperation || editOperationByPartner;
 
     var divClasses = "input-group dropdown-div";
     var selectClasses = "form-select dropdown-select";    
-
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
     var partnerId = string.Empty;
     var partners = Array.Empty<Partner>();
@@ -81,37 +76,21 @@
         partners = new Partner[] { storage.GetPartner(partnerId) };
     }
     else
-    {
-        partnerId = operation.Partners.Length > 0 ? operation.Partners[0].Id : string.Empty;
         partners = storage.GetPartners();
-    }
 
-    var gatesModel = new GatesModel(storage.GetGates(), operation.Gate.Code, !isPartnerUser && canEditAttributes, false, string.Empty, divClasses, selectClasses);
-    var partnersModel = new PartnersModel(partners, partnerId, !isPartnerUser && canEditAttributes, false, string.Empty, divClasses, selectClasses);    
-    var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
+    var gatesModel = new GatesModel(storage.GetGates(), string.Empty, setGate && !isPartnerUser && editAttributes, false, string.Empty, divClasses, selectClasses);
+    var partnersModel = new PartnersModel(partners, partnerId, !isPartnerUser && editAttributes, false, string.Empty, divClasses, selectClasses);    
+    var logistsModel = new LogistsModel(storage.GetLogists(), string.Empty, editAttributes, false, string.Empty, divClasses, selectClasses);
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), string.Empty, editAttributes, false, string.Empty, divClasses, selectClasses);
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), string.Empty, editAttributes, false, string.Empty, divClasses, selectClasses);
 
-    var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
+    var workersModel = new WorkersModel(manageOperationWorkers);
 
-    var workersModel = new WorkersModel(true);
-
-    var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
-
-    var createOperationOnclick = !isPartnerUser ? 
-        (needConfirm != "Y" ? "operationPage.createOperation()" : "operationPage.createConfirmOperation()") : 
-        "operationPage.createOperationByPartner()";
-    var editOperationOnclick = "";
-    if (canEditAttributes)
-        editOperationOnclick = !isPartnerUser ? "operationPage.editOperation()" : "operationPage.editOperationByPartner()";
-    else
-        editOperationOnclick = "operationPage.editOperationNote()";
-
-    var disabledString = !canEditAttributes ? " disabled" : string.Empty;
-    var disabledNoteString = !canEditNote ? " disabled" : string.Empty;
+    var disabledString = !editAttributes ? " disabled" : string.Empty;
+    var disabledNoteString = !editNote ? " disabled" : string.Empty;
 }
 <div class="row" style="width: 1280px">
-    <fieldset style="width: 25%" @disabledString>
+    <fieldset id="timetable-fieldset" style="width: 25%">
         <div class="col-4 time-table hide-on-print overflow-auto" id="time-div" style="width: 100%">
             <div id="time-header-div">
                 <div class="row row3" id="work-start-date-div" disable>
@@ -135,21 +114,7 @@
     </fieldset>
     <div class="col p-2 m-2 rem-outline-on-print" id="card-operation">
         <div class="row p-2 m-2 ">
-            @if (operation == Operation.Empty)
-            {
-                <h1 class="text-info hide-on-print">Создание</h1>
-            }
-            else
-            {
-                <h1 class="text-info hide-on-print">
-                    №@operation.Id (@Partner.Serialize(operation.GetPartners()))
-                    <br />
-                    @operation.State?.DisplayName
-                    <br />
-                    <small>@operation.Type?.DisplayName</small>
-                </h1>
-                <div class="m-1 p-1" style="background-color:@operation.DisplayColor"></div>
-            }
+            <h1 id="header" class="text-info hide-on-print">Создание</h1>            
         </div>    
         <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />    
         <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />
@@ -208,15 +173,25 @@
                     </table>
                 </div>
             </div>
+        </div>        
 
-        </div>
-        <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>№ заказа клиента*</b>
-            </span>
-            <input id="partner-action-id-input" class="form-control" value="" @disabledString />
-        </div>
+        <fieldset id="warehouse-actions-fieldset">
+            <div id="warehouse-actions-div"
+                style="height: fit-content; width: 100%; padding: 0; margin: 0; margin-top: 8px; margin-bottom: 8px">
+                <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+                <div id="action-filter-div" style="display: flex">
+                    <span class="input-group-text">Поиск заказа (прихода):</span>
+                    <input id="action-filter-input" class="form-control" value="" />
+                </div>
+                <div id="actions-div" style="display: flex; margin-top: 8px; margin-bottom: 8px">
+                    <div id="all-actions-div" style="width: 50%; height: 180px; overflow-y: scroll">
+                    </div>
+                    <div id="selected-actions-div" style="width: 50%; height: 180px; overflow-y: scroll">
+                    </div>                
+                </div>
+            </div>
+        </fieldset>
+        
         <div class="row rem-outline-on-print input-group input-div">
             <span class="input-group-text col-4">
                 <b>Менеджер (склад)*</b>
@@ -228,7 +203,7 @@
             <input id="responsible-officer-input" class="form-control" value="" disabled/>
         </div>
 
-        @if (operation != Operation.Empty && !isPartnerUser)
+        @if (setGate && !isPartnerUser && (action == "EDIT" || action == "EDIT_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
         {
             <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
         }    
@@ -279,138 +254,131 @@
             </div>
         </div>
 
-        @{
-            var tableVisClass = string.Empty;
-            var workersTableDisabled = string.Empty;
-            if (stateCode == "STARTED")
-                tableVisClass = "table-visible";
-            else if (stateCode == "WORK_STARTED" || stateCode == "WORK_FINISHED" || stateCode == "FINISHED")
-            {
-                tableVisClass = "table-visible";
-                workersTableDisabled = "disabled";           
-            }
-            workersTableDisabled = "";
-        }
-        @if (!isPartnerUser && canViewOperationWorkers)
+        @if (!isPartnerUser && viewOperationWorkers)
         {
-            <fieldset id="workers-fieldset" @workersTableDisabled>
+            <fieldset id="workers-fieldset">
                 <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
             </fieldset>
         }    
     
-        <div class="row p-2 m-2 d-flex justify-content-center page-break-after hide-on-print">
-            @if (operation == Operation.Empty)
+        <div style="display: flex; flex-direction:column">
+            @if (createOperation || createConfirmOperation || createOperationByPartner || copyOperation || copyOperationBPartner)
             {
-                <div class="d-grid gap-2 col-4">
-                    <button class="btn btn-outline-success hide-on-print" 
-                        title="Создать карточку операции двора"
-                        type="button" 
-                        onclick="@createOperationOnclick">Создать</button>
-                </div>
+                <button id="create-button"
+                    class="btn btn-outline-success" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Создать карточку операции двора"
+                    type="button">Создать</button>
             }
-            else
+            <button id="print-button"
+                class="btn btn-outline-info" 
+                style="width: 320px; margin: auto; margin-top: 8px"
+                title="Печать карточки операции двора"
+                type="button" 
+                onclick="operationPage.printOperation()">Печать</button>
+            @if (save || editNote)
             {
-                <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" 
-                        title="Печать карточки операции двора"
-                        type="button" 
-                        onclick="operationPage.printOperation()">Печать</button>
-                </div>
-                @if (canEditAttributes || canEditNote)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" 
-                            title="Сохранить изменения в карточке операции двора"
-                            type="button" 
-                            onclick="@editOperationOnclick">Сохранить изменения</button>
-                    </div>   
-                }            
-                @if (canCopy)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
-                            title="Копировать карточку операции двора"
-                            type="button" 
-                            onclick="operationPage.copyOperation()">Копировать</button>
-                    </div>       
-                }
-                @if (stateCode == "CREATED" && setGate)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
-                            title="Автоматически назначить ворота для операции двора"
-                            type="button" 
-                            onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
-                    </div>
-                }
-                @if (stateCode == "CONFIRMED" && canStart)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
-                            title="Запустить автомашину на территории складского комплекса"
-                            type="button" 
-                            onclick="operationPage.startOperation()">Принять машину</button>
-                    </div>
-                }      
-                @if (stateCode == "STARTED" && canStartWork)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
-                            title="Поставить автомашину на ворота (начать работу по погрузке или разгрузке)"
-                            type="button" 
-                            onclick="operationPage.startOperationWork()">Поставить на ворота</button>
-                    </div>
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" 
-                            title="Автоматически назначить работников на операцию двора (в зависимости от плановых должностей)"
-                            type="button" 
-                            onclick="operationPage.allocateWorkers()">(Авто) Назначить сотрудников</button>
-                    </div>
-                }
-                @if (stateCode == "WORK_STARTED" && canFinishWork)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
-                            title="Завершить погрузочно-разгрузочные работы по операции двора (снять автомашину с ворот)"
-                            type="button" 
-                            onclick="operationPage.finishOperationWork()">Завершить работу</button>
-                    </div>
-                }
-                @if (stateCode == "WORK_FINISHED" && canFinish)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" 
-                            title="Отпустить автомашину с териитории складского комплекса"
-                            type="button" 
-                            onclick="operationPage.finishOperation()">Отпустить машину</button>
-                    </div>
-                }
-                <div class="mt-5"></div>
-                @if (canDelete)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" 
-                            title="Удалить операцию двора"
-                            type="button" 
-                            onclick="operationPage.deleteOperation()">Удалить</button>
-                    </div>
-                }
-                @if (canCancel)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" 
-                            title="Отменить операцию двора"
-                            type="button" 
-                            onclick="operationPage.cancelOperation()">Отменить</button>
-                    </div>
-                }
-                <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" 
-                        title="Закрыть карточку операции двора"
-                        type="button" 
-                        onclick="operationPage.closeOperation()">Закрыть</button>
-                </div>
+                <button id="save-button"
+                    class="btn btn-outline-success" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Сохранить изменения в карточке операции двора"
+                    type="button">Сохранить изменения</button>
+            }            
+            @if (copyOperation)
+            {
+                <button id="copy-button"
+                    class="btn btn-outline-warning" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Копировать карточку операции двора"
+                    type="button">Копировать</button>
             }
+            @if (copyConfirmOperation)
+            {
+                <button id="copy-confirm-button"
+                    class="btn btn-outline-warning" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Копировать карточку операции двора с подтверждением"
+                    type="button">Копировать и подтвердить</button>
+            }
+            @if (setGate)
+            {
+                <button id="set-gate-button"
+                    class="btn btn-outline-success" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Автоматически назначить ворота для операции двора"
+                    type="button" 
+                    onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
+            }
+            @if (start)
+            {
+                <button id="start-button"
+                    class="btn btn-outline-success" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Запустить автомашину на территории складского комплекса"
+                    type="button" 
+                    onclick="operationPage.startOperation()">Принять машину</button>
+        }      
+            @if (startWork)
+            {
+                <button id="start-work-button"
+                    class="btn btn-outline-success" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Поставить автомашину на ворота (начать работу по погрузке или разгрузке)"
+                    type="button" 
+                    onclick="operationPage.startOperationWork()">Поставить на ворота</button>
+            }
+            @if (manageOperationWorkers)
+            {
+                <button id="allocate-workers-button"
+                    class="btn btn-outline-success" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Автоматически назначить работников на операцию двора (в зависимости от плановых должностей)"
+                    type="button" 
+                    onclick="operationPage.allocateWorkers()">(Авто) Назначить сотрудников</button>
+            }
+            @if (finishWork)
+            {
+                <button id="finish-work-button"
+                    class="btn btn-outline-warning" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Завершить погрузочно-разгрузочные работы по операции двора (снять автомашину с ворот)"
+                    type="button" 
+                    onclick="operationPage.finishOperationWork()">Завершить работу</button>
+            }
+            @if (finish)
+            {
+                <button id="finish-button"
+                    class="btn btn-outline-warning" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Отпустить автомашину с териитории складского комплекса"
+                    type="button" 
+                    onclick="operationPage.finishOperation()">Отпустить машину</button>
+            }
+            <div class="mt-5"></div>
+            @if (cancel)
+            {
+                <button id="cancel-button"
+                    class="btn btn-danger" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Отменить операцию двора"
+                    type="button" 
+                    onclick="operationPage.cancelOperation()">Отменить</button>
+            }
+            @if (delete)
+            {
+                <button id="delete-button"
+                    class="btn btn-danger" 
+                    style="width: 320px; margin: auto; margin-top: 8px"
+                    title="Удалить операцию двора"
+                    type="button" 
+                    onclick="operationPage.deleteOperation()">Удалить</button>
+            }            
+            <button id="close-button"
+                class="btn btn-outline-secondary" 
+                style="width: 320px; margin: auto; margin-top: 8px"
+                title="Закрыть карточку операции двора"
+                type="button" 
+                onclick="operationPage.closeOperation()">Закрыть</button>
         </div>
     </div>
 </div>

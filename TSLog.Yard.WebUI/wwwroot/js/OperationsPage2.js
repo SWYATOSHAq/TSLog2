@@ -14,20 +14,14 @@ class OperationsPage {
         this.shortUrl = location.href.split('?')[0];
     }
 
-    openOperation(id) {
-        sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-        const url = "OperationPage?id=" + id;
-        location.href = url;
-    }
-
-    createOpenOperationFunction(id) {
+    createOpenOperationFunction(id, isPartnerUser) {
         return function () {
             sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-            location.href = "/OperationPage?id=" + id;
+            location.href = "/OperationPage?id=" + id + "&action=" + !isPartnerUser ? "EDIT" : "EDIT_BY_PARTNER";
         }
     }
 
-    showOperation(operation, operationTr) {
+    showOperation(operation, operationTr, isPartnerUser) {
         operation.startDate = new Date(operation.startDate);
         operation.planWorkStartDate = new Date(operation.planWorkStartDate);
         operation.factWorkStartDate = new Date(operation.factWorkStartDate);
@@ -45,10 +39,9 @@ class OperationsPage {
         const openButton = document.createElement("button");
         openButton.classList.add("btn");
         openButton.classList.add("btn-outline-info");
-        openButton.classList.add("m-3");
         openButton.classList.add("table-cell-button");
         openButton.style.cssText = "width: 100px !important";
-        openButton.onclick = this.createOpenOperationFunction(operation.id);
+        openButton.onclick = this.createOpenOperationFunction(operation.id, isPartnerUser);
         openButton.textContent = "Открыть";
         openButton.title = "Открыть карточку операции двора";
         contents.push(openButton);
@@ -166,18 +159,19 @@ class OperationsPage {
     }
 
     showOperations() {
+        const isPartnerUser = false;
         const operationsTbody = document.getElementById("operations-table-body");
         let operationTr = null;
         if (this.sortDirection === "forward") {
             for (let operation of this.sortedOperations) {
                 operationTr = document.createElement("tr");
-                this.showOperation(operation, operationTr);
+                this.showOperation(operation, operationTr, isPartnerUser);
                 operationsTbody.append(operationTr);
             }
         } else if (this.sortDirection === "reverse") {
             for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
                 operationTr = document.createElement("tr");
-                this.showOperation(this.sortedOperations[i], operationTr);
+                this.showOperation(this.sortedOperations[i], operationTr, isPartnerUser);
                 operationsTbody.append(operationTr);
             }
         }

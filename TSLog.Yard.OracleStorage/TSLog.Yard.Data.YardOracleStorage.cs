@@ -18,9 +18,14 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
+        private const int DefaultMaxRowsCount = 16;
         private const string DefaultStaffSchema = "staff";
         private const string DefaultLegalEntitiesSchema = "legal_entities";
         private const string DefaultPartnersSchema = "partners";
+        /// <summary>
+        /// Максимальное количество строк для вывода
+        /// </summary>
+        public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
         /// <summary>
         /// Схема для объектов учёта персонала
         /// </summary>
@@ -33,9 +38,10 @@ namespace TSLog.Yard.Data
         /// Схема для партнёров (покупателей наших складских и логистических услуг)
         /// </summary>
         public string PartnersSchema { protected get; set; } = DefaultPartnersSchema;
-        public YardOracleStorage(string dataSource) : base(dataSource)
+        public YardOracleStorage(string dataSource): base(dataSource)
         { }
 
+        #region Warehouse actions
         private WarehouseAction CreateAction(DbDataReader reader)
         {
             if (reader == null)
@@ -68,10 +74,10 @@ namespace TSLog.Yard.Data
                     $"select a.kind, a.id, a.partner_id, a.partner_number\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
-                    $"   and a.action_kind = :action_kind";
+                    $"   and a.kind = :kind";
                 command.CommandText = SelectWarehouseActionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
-                command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
                     action = CreateAction(reader);
@@ -111,27 +117,29 @@ namespace TSLog.Yard.Data
         public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
         {
             var actions = new List<WarehouseAction>();
-
             pattern = !string.IsNullOrWhiteSpace(pattern) ? $"%{pattern.Trim().ToUpper()}%" : "%";
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectWarehouseActionByPartnerActionIdSql =
                     $"select a.kind,\n" +
-                    $" a.id, a.action_number,\n" +
-                    $" a.partner_id,\n" +
-                    $" a.partner_number\n" +
+                    $"       a.id, a.action_number,\n" +
+                    $"       a.partner_id,\n" +
+                    $"       a.partner_number,\n" +
+                    $"       a.state_code" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where (upper(trim(a.id)) like :pattern\n" +
-                    $"     or upper(trim(a.action_number)) like :pattern)\n" +
+                    $"     or upper(trim(a.action_number)) like :pattern\n" +
                     $"     or upper(trim(a.partner_number)) like :pattern)\n" +
-                    $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
                     $"   and a.kind = :kind\n" +
-                    $"   and rownum < 16";
-                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
-                command.Parameters.Add(new OracleParameter("pattern", pattern));
-                command.Parameters.Add(new OracleParameter("partner_id",
-                    partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
+                    $"   and a.state_code <= 100\n" +
+                    $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
+                    $"   and rownum < {MaxRowsCount}";                    
+                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;                
                 command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
+                command.Parameters.Add(new OracleParameter("pattern", pattern));
+                command.Parameters.Add(new OracleParameter("partner_id", 
+                    partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -142,6 +150,9 @@ namespace TSLog.Yard.Data
             }
             return actions.ToArray();
         }
+        #endregion
+
+        #region Legal entities
         private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
         private static LegalEntity CreateLegalEntity(DbDataReader reader)
         {
@@ -214,10 +225,14 @@ namespace TSLog.Yard.Data
             { "EIN15", "GATE_15" },
             { "EIN16", "GATE_16" }
         };
+        #endregion
+
+        #region Sites
         public string GetSiteCodeByGateCode(string gateCode)
         {
             return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
         }
+        #endregion
 
         #region Partners
         private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");

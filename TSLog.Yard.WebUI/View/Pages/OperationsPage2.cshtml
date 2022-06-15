@@ -53,7 +53,7 @@
     var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота", divClasses, selectClasses);
     var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния", divClasses, selectClasses);
     var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, true, true, "Все партнеры", divClasses, selectClasses);
-    
+
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
     if (isPartnerUser)
     {
@@ -77,6 +77,7 @@
     sortFields.Add("finishDate", "Время убытия");
     sortFields.Add("stateId", "Состояние");
     var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
+    var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";
 }
 
 @if (createOperation)
@@ -84,15 +85,18 @@
     <div class="row create-operation-div">
         <div style="flex-wrap: nowrap; width: auto; margin: auto; padding: 0">
             <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                style="width: 180px"
+                style="width: 200px"
                 type="button" 
                 title="Создать новую заявку на операцию двора (разгрузку или погрузку) без подтверждения"
-                onclick="location.href = '/OperationPage?need_confirm=N'">Создать</button>
-            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                style="width: 180px"
-                type="button" 
-                title="Создать новую заявку на операцию двора (разгрузку или погрузку) с подтверждением"
-                onclick="location.href = '/OperationPage?need_confirm=Y'">Создать и подтвердить</button>
+                onclick="location.href = '/OperationPage?action=@createAction'">Создать</button>
+            @if (!isPartnerUser)
+            {
+                <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
+                    style="width: 200px"
+                    type="button" 
+                    title="Создать новую заявку на операцию двора (разгрузку или погрузку) с подтверждением"
+                    onclick="location.href = '/OperationPage?action=CREATE_CONFIRM'">Создать и подтвердить</button>
+            }            
         </div>
     </div>        
 }

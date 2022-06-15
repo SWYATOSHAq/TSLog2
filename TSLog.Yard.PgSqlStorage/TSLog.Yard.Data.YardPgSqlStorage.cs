@@ -19,7 +19,12 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage
     {
+        private const int DefaultMaxRowsCount = 16;
         private const string DefaultYardSchema = "yard";
+        /// <summary>
+        /// Максимальное количество строк для вывода
+        /// </summary>
+        public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
         /// <summary>
         /// Схема в БД для хранение объектов модуля управления двором
         /// </summary>
@@ -954,10 +959,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
 
                     operation.Id = Convert.ToInt64(command.ExecuteScalar());
-                }
-                var actions = operation.GetActions();
-                foreach (var action in actions)
-                    AddAction(operation, action);
+                }                
                 connection.Close();
             }
             return operation;
@@ -1288,7 +1290,7 @@ namespace TSLog.Yard.Data
                        $"    Фактическое окно операции двора существует если фактическая дата (+ время) начала работ по операции двора не пустое.\n" +
                        $"    Фактическая дата окончания работ по операции двора определяется след. образом: если она заполнена (поле fact_work_finish_date), то берём её,\n" +
                        $"    это говорит о том что работы по операции двора закончены; если она не заполнена, то значит сейчас операция двора в работе,\n" +
-                       $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительости операции двора),\n" +
+                       $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительности операции двора),\n" +
                        $"    если операция двора не просрочена, то к фактической дате (+ время) начала работ добавляем плановую продолжительность,\n" +
                        $"    и берём эту дату (+ время) как фактическую дату окончания работ (по сути это план с учётом корректировки по фактическому началу работ),\n" +
                        $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
@@ -1622,44 +1624,6 @@ namespace TSLog.Yard.Data
 
                 command.ExecuteScalar();
             }
-
-            // Синхронизация складских действ (добавляем новые, удаляем удалённые)
-            // TODO: ПЕРЕПИСАТЬ! ГОВНОКОД!
-            var actions = new Dictionary<string, WarehouseAction>();
-            var indicators = new Dictionary<string, short>();
-            var temp = GetActions(operation);
-            foreach (var action in temp)
-            {
-                var key = action.Key;
-                if (!actions.ContainsKey(key))
-                {
-                    actions.Add(key, action);
-                    indicators.Add(key, -1);
-                }
-                else
-                    indicators[key]--;
-            }
-            temp = operation.GetActions();
-            foreach (var action in temp)
-            {
-                var key = action.Key;
-                if (!actions.ContainsKey(key))
-                {
-                    actions.Add(key, action);
-                    indicators.Add(key, 1);
-                }
-                else
-                    indicators[key]++;
-            }
-            foreach (var action in actions)
-            {
-                var key = action.Key;
-                if (indicators[key] < 0)
-                    RemoveAction(operation, actions[key]);
-                else if (indicators[key] > 0)
-                    AddAction(operation, actions[key]);
-            }
-
             connection.Close();
         }
         public void StartOperation(Operation operation, string user = "")
@@ -1903,6 +1867,14 @@ namespace TSLog.Yard.Data
             command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
             command.ExecuteScalar();
             connection.Close();
+        }
+        public void RemoveActions(Operation operation)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+            var actions = operation.GetActions();
+            foreach (var action in actions)
+                this.RemoveAction(operation, action);
         }
         #endregion
 

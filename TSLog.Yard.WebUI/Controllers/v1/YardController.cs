@@ -157,6 +157,29 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var partnerIds = _rightsChecker.GetPartnersIdsByUser(userName);
             return partnerIds.Contains(partnerId);
         }
+        [HttpGet("IsPartnerUser")]
+        public string GetIsPartnerIser() 
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                if (_useAuthentication && !useYard)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                var isPartnerUser = _rightsChecker.CheckRight("PARTNER_USER", User);
+                var text = JsonSerializer.Serialize(isPartnerUser);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
         [HttpGet("OperationDuration")]
         public string GetOperationDuration()
         {
@@ -574,14 +597,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerId = data.partnerId;
                 if (string.IsNullOrWhiteSpace(partnerId))
                     return "Partner id is empty!";
-                string partnerActionId = data.partnerActionId;
-                if (string.IsNullOrWhiteSpace(partnerActionId))
-                    return "Partner action id is empty!";
 
                 var partner = _storage.GetPartner(partnerId);
                 var manager = _storage.GetPartnerManagers(partner)[0];
                 var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-                var action = _storage.GetAction(actionKind, partner, partnerActionId);
 
                 var operation = new Operation(-1, null, operationType, startDate, finishDate,
                     vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
@@ -593,7 +612,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation.AddAction(action);
 
                 var user = _rightsChecker.GetUserName(User);
                 _storage.AddOperation(operation, user);
@@ -684,14 +702,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerId = data.partnerId;
                 if (string.IsNullOrWhiteSpace(partnerId))
                     return "Partner id is empty!";
-                string partnerActionId = data.partnerActionId;
-                if (string.IsNullOrWhiteSpace(partnerActionId))
-                    return "Partner action id is empty!";
 
                 var partner = _storage.GetPartner(partnerId);
                 var manager = _storage.GetPartnerManagers(partner)[0];
                 var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-                var action = _storage.GetAction(actionKind, partner, partnerActionId);
 
                 var operation = new Operation(-1, null, operationType, startDate, finishDate,
                     vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
@@ -703,7 +717,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation.AddAction(action);
 
                 var user = _rightsChecker.GetUserName(User);
                 operation = _storage.AddOperation(operation, user);
@@ -930,27 +943,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.note;
                 if (!string.IsNullOrWhiteSpace(temp))
                     operation.Note = temp;
-
-                var actions = operation.GetActions();
-                var partner = actions.Length > 0 ? actions[0].Partner : Partner.Null;
+                temp = data.partnerId;
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Partner id is empty";
+                                
                 var manager = operation.Manager;
                 temp = data.partnerId;
-                string temp2 = data.partnerActionId;
-                if (!string.IsNullOrWhiteSpace(temp) && !string.IsNullOrWhiteSpace(temp2))
+                if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    operation.RemoveActions();
-                    var actionKind = operation.Type.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-                    var action = _storage.GetAction(actionKind, partner, temp2);
-                    operation.AddAction(action);
+                    var partner = _storage.GetPartner(temp);
                     var managers = _storage.GetPartnerManagers(partner);
                     if (managers.Length <= 0)
                         return "Partner has not managers!";
                     operation.Manager = managers[0];
                 }
-                else if (string.IsNullOrWhiteSpace(temp) && !string.IsNullOrWhiteSpace(temp2))
-                    return "Partner id is empty, but partner order id is not empty!";
-                else if (!string.IsNullOrWhiteSpace(temp) && string.IsNullOrWhiteSpace(temp2))
-                    return "Partner id is not empty, but partner order id is empty!";
+                else
+                    return "Partner id is empty!";
 
                 // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
                 var changeGate = operation.Type.Code != operation.Type.Code 
@@ -1095,15 +1103,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var user = _rightsChecker.GetUserName(User);
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
-                temp = data.partnerActionId;
-                if (!string.IsNullOrWhiteSpace(temp))
-                {
-                    var actions = operation.GetActions();
-                    operation.RemoveActions();
-                    var actionKind = operation.Type.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-                    var action = _storage.GetAction(actionKind, partner, temp);
-                    operation.AddAction(action);                    
-                }
                 var managers = _storage.GetPartnerManagers(partner);
                 if (managers.Length <= 0)
                     return "Partner has not managers!";
@@ -1496,6 +1495,235 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var operation = _storage.GetOperation(id);
                 _storage.DeleteOperation(operation, _rightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        #endregion
+
+        #region Warehouse actions
+        private static dynamic WarehouseActionToDynamic(WarehouseAction action)
+        {
+            dynamic result = new ExpandoObject();
+            result.id = action.Id;
+            result.partnerActionId = action.PartnerActionId;
+            result.partnerId = action.Partner.Id;
+            result.partnerName = action.Partner.Name;
+
+            return result;
+        }
+        private static dynamic[] WarehouseActionsToDynamic(WarehouseAction[] actions) 
+        {
+            var result = new List<dynamic>();
+            foreach (var action in actions)
+                result.Add(WarehouseActionToDynamic(action));
+            return result.ToArray();
+        }
+        [HttpGet("WarehouseActions")]
+        public string GetWarehouseActions()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getWarehouseActions = _rightsChecker.CheckRight("GET_WAREHOUSE_ACTIONS", User);
+                if (_useAuthentication && !useYard && !getWarehouseActions)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }                                
+                
+                string temp = Request.Query["kind"];
+                ActionKind actionKind;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim().ToUpper();
+                    if (temp == "O")
+                        actionKind = ActionKind.Outgo;
+                    else
+                        actionKind = ActionKind.Income;
+                }
+                else
+                    return "Action kind id is empty!";
+                temp = Request.Query["pattern"];
+                var pattern = temp;
+
+                temp = Request.Query["partner_id"];
+                Partner? partner = null;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim().ToUpper();
+                    if (temp == "AUTO")
+                        temp = _rightsChecker.GetPartnerIdByUser(_rightsChecker.GetUserName(User));
+                    partner = _storage.GetPartner(temp);
+                }
+
+                var actions = _storage.FindActions(actionKind, partner, pattern);
+                var objects = WarehouseActionsToDynamic(actions);
+
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("SelectedWarehouseActions")]
+        public string GetSelectedWarehouseActions()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getWarehouseActions = _rightsChecker.CheckRight("GET_SELECTED_WAREHOUSE_ACTIONS", User);
+                if (_useAuthentication && !useYard && !getWarehouseActions)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["operation_id"];
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "Operation id is empty";
+                if (!long.TryParse(temp, out long id))
+                    return $"Wrong operation id {temp}";
+
+                var actions = _storage.GetOperation(id).GetActions();
+                var objects = WarehouseActionsToDynamic(actions);
+
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPatch("AddOperationWarehouseAction")]
+        async public Task<string> AddOperationWarehouseAction()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
+                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationId = data.operationId;
+                string stringActionKind = data.actionKind;
+                string stringActionId = data.actionId;
+
+                if (string.IsNullOrWhiteSpace(stringOperationId))
+                    return "Operation id is empty!";
+                if (stringActionKind != "I" && stringActionKind != "O")
+                    return $"Wrong action kind {stringActionKind}!";
+                if (string.IsNullOrWhiteSpace(stringActionId))
+                    return "Action id is empty!";
+
+                if (!long.TryParse(stringOperationId, out long operationId))
+                    return $"Wrong operation id {stringOperationId}!";
+                
+                var operation = _storage.GetOperation(operationId);
+                var action = _storage.GetAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+                _storage.AddAction(operation, action);
+
+                var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPatch("RemoveOperationWarehouseAction")]
+        async public Task<string> RemoveOperationWarehouseAction()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
+                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationId = data.operationId;
+                string stringActionKind = data.actionKind;
+                string stringActionId = data.actionId;
+
+
+                if (string.IsNullOrWhiteSpace(stringOperationId))
+                    return "Operation id is empty!";
+                if (string.IsNullOrWhiteSpace(stringActionKind))
+                    return "Action kind is empty!";
+                if (string.IsNullOrWhiteSpace(stringActionId))
+                    return "Action id is empty!";
+
+                if (!long.TryParse(stringOperationId, out long operationId))
+                    return $"Wrong operation id {stringOperationId}!";
+
+                var operation = _storage.GetOperation(operationId);
+
+                var text = JsonSerializer.Serialize(operation);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPatch("RemoveOperationWarehouseActions")]
+        async public Task<string> RemoveOperationWarehouseActions()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
+                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationId = data.operationId;
+
+                if (string.IsNullOrWhiteSpace(stringOperationId))
+                    return "Operation id is empty!";
+                
+                if (!long.TryParse(stringOperationId, out long operationId))
+                    return $"Wrong operation id {stringOperationId}!";
+
+                var operation = _storage.GetOperation(operationId);
+                _storage.RemoveActions(operation);
+                var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;
             }
