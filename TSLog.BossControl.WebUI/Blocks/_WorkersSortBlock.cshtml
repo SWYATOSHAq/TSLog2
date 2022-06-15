@@ -1,0 +1,54 @@
+﻿@using TSLog.BossControl.BO
+@using TSLog.Partners.BO
+@using TSLog.Authorization
+@using TSLog.BossControl.WebUI.Models
+
+
+@model WorkersSortBlockModel
+@{
+    var elements = Model.Elements;
+    var selectedValue = Model.DefaultValue;
+}
+<div id="sorts" class="sorts-div">
+    <div class="row" style="width: 100%; padding: 0; margin: 0">
+        <label for="sort-field-select" style="width: auto !important; margin: 0; padding: 0; margin-right: 8px">
+            <b>Сортировать по:</b>
+        </label>
+        <select class="form-select filter-select select_sort" id="sort-field-select" style="width: 220px !important">
+            @foreach (var value in elements.Keys)
+            {
+                @: <option value="@value"@((value != selectedValue) ? string.Empty : " selected")>@elements[value]</option>
+            }
+        </select>
+        <div class="btn-group" role="group" aria-label="Basic radio toggle button group" style="width: auto; padding: 0; margin: 0; margin-left: 8px">
+            <input type="radio" class="btn-check" name="sort-input" id="forward-sort-input" autocomplete="off" checked>
+            <label class="btn btn-outline-secondary" title="Сортировать по возрастанию" for="forward-sort-input">
+                <svg xmlns="http://www.w3.org/2000/svg"                     
+                    width="18" 
+                    height="18" 
+                    fill="currentColor" 
+                    class="bi bi-sort-up-alt"
+                    viewBox="0 2 16 16">
+                    <path d="M3.5 13.5a.5.5 0 0 1-1 0V4.707L1.354 5.854a.5.5 0 1 1-.708-.708l2-1.999.007-.007a.498.498 0 0 1 .7.006l2
+                    2a.5.5 0 1 1-.707.708L3.5 4.707V13.5zm4-9.5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0
+                    1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"/>
+                </svg>
+            </label>
+            <input type="radio" class="btn-check" name="sort-input" id="reverse-sort-input" autocomplete="off">
+            <label class="btn btn-outline-secondary" title="Сортировать по убыванию" for="reverse-sort-input">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                    width="18" 
+                    height="18" 
+                    fill="currentColor" 
+                    class="bi bi-sort-up"
+                    viewBox="0 2 16 16">
+                    <path d="M3.5 12.5a.5.5 0 0 1-1 0V3.707L1.354 4.854a.5.5 0 1 1-.708-.708l2-1.999.007-.007a.498.498 0 0 1 .7.006l2
+                  2a.5.5 0 1 1-.707.708L3.5 3.707V12.5zm3.5-9a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM7.5 6a.5.5 0 0
+                   0 0 1h5a.5.5 0 0 0 0-1h-5zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z"/>
+                </svg>
+            </label>
+        </div>
+    </div>    
+</div>
+
+
