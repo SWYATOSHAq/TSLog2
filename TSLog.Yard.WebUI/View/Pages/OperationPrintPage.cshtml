@@ -8,73 +8,30 @@
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
 @model OperationPrintPageModel
-@{    
+@{
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
-
     string stringId = Request.Query["id"];
-    var operation = Operation.Empty;
     if (string.IsNullOrWhiteSpace(stringId))
-    {
-        // Создание
-        ViewData["Title"] = "Создать заявку";
-        var createOperation = !useAuthentication 
-            || rightsChecker.CheckRight("CREATE_OPERATION", User)
-            || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
-        if (!createOperation)
-        {        
-            Response.StatusCode = 403;
-            throw new UnauthorizedAccessException();
-        }
-    }
-    else
-    {
-        // Просмотр или редактирование
-        ViewData["Title"] = "Карточка заявки";
-        var editOperation = !useAuthentication
-            || rightsChecker.CheckRight("VIEW_OPERATION_PAGE", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
-            || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
-        if (!editOperation)
-        {
-            Response.StatusCode = 403;
-            throw new UnauthorizedAccessException();
-        }
-        if (long.TryParse(stringId, out long operationId))
-            operation = storage.GetOperation(operationId);
-        else
-        {
-            Response.StatusCode = 500;
-            throw new Exception($"Wrong operation id {stringId}");
-        }
-    }
+        throw new Exception("Operation id is empty!");
 
-    var setGate = !useAuthentication || rightsChecker.CheckRight("SET_OPERATION_GATE", User);
-    var canEditAttributes = !useAuthentication
+    ViewData["Title"] = "Печать заявки";
+    var print = !useAuthentication
+        || rightsChecker.CheckRight("VIEW_OPERATION_PAGE", User)
         || rightsChecker.CheckRight("EDIT_OPERATION", User)
-        || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
-    canEditAttributes = canEditAttributes && (operation == Operation.Empty ||
-        operation.State.Code == "CREATED" || 
-        operation.State.Code == "CONFIRMED" ||
-        operation.State.Code == "STARTED");
-
-    var canEditNote = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
-    var canStart = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
-    var canStartWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
-    var canFinishWork = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
-    var canFinish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
-    var canCancel = (!useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User)) 
-        && (operation.State.Code != "FINISHED")
-        && (operation.State.Code != "CANCELED");
-    var canDelete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
-    var canViewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
+        || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
+        || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+    if (!print)
+    {
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
 
     var divClasses = "input-group dropdown-div";
     var selectClasses = "form-select dropdown-select";    
 
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
-    var partnerId = string.Empty;
+    string partnerId;
     var partners = Array.Empty<Partner>();
     if (isPartnerUser)
     {
@@ -83,243 +40,147 @@
         partners = new Partner[] { storage.GetPartner(partnerId) };
     }
     else
-    {
-        partnerId = operation.Partners.Length > 0 ? operation.Partners[0].Id : string.Empty;
         partners = storage.GetPartners();
-    }
 
-    var gatesModel = new GatesModel(storage.GetGates(), operation.Gate.Code, !isPartnerUser && canEditAttributes, false, string.Empty, divClasses, selectClasses);
-    var partnersModel = new PartnersModel(partners, partnerId, !isPartnerUser && canEditAttributes, false, string.Empty, divClasses, selectClasses);    
-    var logistsModel = new LogistsModel(storage.GetLogists(), operation.Logist.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), operation.VehicleKind.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), operation.Type.Code, canEditAttributes, false, string.Empty, divClasses, selectClasses);
+    var canViewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
 
-    var partnerActionId = operation.GetActions().Length > 0 ? operation.GetActions()[0].PartnerActionId : string.Empty;
+    var gatesModel = new GatesModel(storage.GetGates(), string.Empty, false, false, string.Empty, divClasses, selectClasses);
+    var partnersModel = new PartnersModel(partners, string.Empty, false, false, string.Empty, divClasses, selectClasses);    
+    var logistsModel = new LogistsModel(storage.GetLogists(), string.Empty, false, false, string.Empty, divClasses, selectClasses);
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), string.Empty, false, false, string.Empty, divClasses, selectClasses);
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), string.Empty, false, false, string.Empty, divClasses, selectClasses);
 
     var workersModel = new WorkersModel(true);
-
-    var stateCode = operation != Operation.Empty ? operation.State.Code : string.Empty; 
-    var createOperationOnclick = !isPartnerUser ? "operationPage.createOperation()" : "operationPage.createOperationByPartner()";
-    var editOperationOnclick = "";
-    if (canEditAttributes)
-        editOperationOnclick = !isPartnerUser ? "operationPage.editOperation()" : "operationPage.editOperationByPartner()";
-    else
-        editOperationOnclick = "operationPage.editOperationNote()";
-
-    var disabledString = !canEditAttributes ? " disabled" : string.Empty;
-    var disabledNoteString = !canEditNote ? " disabled" : string.Empty;
 }
 
-@if (operation != null && operation != Operation.Null && operation != Operation.Empty)
-{
-    <div class="col p-2 m-2 rem-outline-on-print" id="card-operation">
-        <div class="row p-2 m-2 ">
-            @if (operation == Operation.Empty)
-            {
-                <h1 class="text-info hide-on-print">Создание</h1>
-            }
-            else
-            {
-                <h1 class="text-info hide-on-print">
-                    №@operation.Id (@Partner.Serialize(operation.GetPartners()))
-                    <br />
-                    @operation.State?.DisplayName
-                    <br />
-                    <small>@operation.Type?.DisplayName</small>
-                </h1>
-                <div class="m-1 p-1" style="background-color:@operation.DisplayColor"></div>
-            }
-        </div>    
-        <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />    
-        <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Начало работ*</b>
-            </span>
-            <input id="work-start-input" class="form-control" disabled value="" />
-        </div>
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Окончание работ*</b>
-            </span>
-            <input id="work-finish-input" class="form-control" disabled value="" />
-        </div>
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Длительность*</b>
-            </span>
-            <input id="duration-input" class="form-control" disabled value="" />
-        </div>
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">Прибытие/убытие</span>
-            <input id="start-finish-input" class="form-control" disabled value="" />
-        </div>
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Трудозатраты (чел. * час)*</b>
-            </span>
-            <input id="labor-cost-input" class="form-control" disabled value="" />
-        </div>
-        <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>№ заказа клиента*</b>
-            </span>
-            <input id="partner-action-id-input" class="form-control" value="" @disabledString />
-        </div>
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Менеджер (склад)*</b>
-            </span>
-            <input id="manager-input" class="form-control" value="" disabled />
-        </div>
-        <div class="row rem-outline-on-print input-group input-div">
-            <span class="input-group-text col-4">Ответственный (склад)</span>
-            <input id="responsible-officer-input" class="form-control" value="" disabled/>
-        </div>
-
-        @if (operation != Operation.Empty && !isPartnerUser)
-        {
-            <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
-        }    
-        <div class="row rem-outline-on-print fields-container">
-            <input type="hidden" id="id-input" name="id-input" value="">
-
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Марка авто</span>
-                <input type="text" id="vehicle-brand-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Модель авто</span>
-                <input type="text" id="vehicle-model-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Номер авто</span>
-                <input type="text" id="vehicle-number-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Номер прицепа</span>
-                <input type="text" id="trailer-number-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Ф. И. О. водителя</span>
-                <input type="text" id="driver-name-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Тел. водителя</span>
-                <input type="text" id="driver-phone-number-input" class="form-control" value="" @disabledString>
-            </div>
-
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Ф. И. О. менеджера (клиент)</span>
-                <input type="text" id="partner-manager-name-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Тел. менеджера (клиент)</span>
-                <input type="text" id="partner-manager-phone-number-input" class="form-control" value="" @disabledString>
-            </div>
-            <div class="row rem-outline-on-print input-group input-div">
-                <span class="input-group-text col-4">Эл. почта менеджера (клиент)</span>
-                <input type="text" id="partner-manager-email-input" class="form-control" value="" @disabledString>
-            </div>
-
-            <div class="row p-2 m-2 rem-outline-on-print input-group textarea-div">
-                <span class="input-group-text col-3">Примечание</span>
-                <textarea rows="5" id="note-textarea" class="form-control" @disabledNoteString></textarea>
-            </div>
-        </div>
-
-        @{
-            var tableVisClass = string.Empty;
-            var workersTableDisabled = string.Empty;
-            if (stateCode == "STARTED")
-                tableVisClass = "table-visible";
-            else if (stateCode == "WORK_STARTED" || stateCode == "WORK_FINISHED" || stateCode == "FINISHED")
-            {
-                tableVisClass = "table-visible";
-                workersTableDisabled = "disabled";           
-            }
-            workersTableDisabled = "";
-        }
-        @if (!isPartnerUser && canViewOperationWorkers)
-        {
-            <fieldset id="workers-fieldset" @workersTableDisabled>
-                <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
-            </fieldset>
-        }    
+<div class="rem-outline-on-print" style="width: 640px">
+    <div class="row">
+        <div>
+            <h1 id="header" class="text-info hide-on-print">Операция #-1</h1>            
+        </div>   
+        <div></div>
+    </div>    
+    <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />    
+    <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text">
+            <b>Начало работ*</b>
+        </span>
+        <input id="work-start-input" class="form-control" disabled value="" />
+    </div>
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text col-4">
+            <b>Окончание работ*</b>
+        </span>
+        <input id="work-finish-input" class="form-control" disabled value="" />
+    </div>
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text col-4">
+            <b>Длительность*</b>
+        </span>
+        <input id="duration-input" class="form-control" disabled value="" />
+    </div>
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text col-4">Прибытие/убытие</span>
+        <input id="start-finish-input" class="form-control" disabled value="" />
+    </div>
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text">
+            <b>Трудозатраты (чел. * час)*</b>
+        </span>
+        <input id="labor-cost-input" class="form-control" disabled value="" />
+    </div>
     
-        <div class="row p-2 m-2 d-flex justify-content-center page-break-after hide-on-print">
+    <fieldset id="warehouse-actions-fieldset">
+        <div id="warehouse-actions-div"
+            style="height: fit-content; width: 100%; padding: 0; margin: 0; margin-top: 8px; margin-bottom: 8px">
+            <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+            <div id="action-filter-div" style="display: flex">
+                <span class="input-group-text">Поиск заказа (прихода):</span>
+                <input id="action-filter-input" class="form-control" value="" />
+            </div>
+            <div id="actions-div" style="display: flex; margin-top: 8px; margin-bottom: 8px">
+                <div id="all-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
+                </div>
+                <div id="selected-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
+                </div>                
+            </div>
+        </div>
+    </fieldset>
 
-            @if (operation == Operation.Empty)
-            {
-                <div class="d-grid gap-2 col-4">
-                    <button class="btn btn-outline-success hide-on-print" 
-                        type="button" 
-                        onclick="@createOperationOnclick">Создать</button>
-                </div>
-            }
-            else
-            {
-                <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-info hide-on-print col-4 mx-auto" type="button" onclick="operationPage.printOperation()">Печать</button>
-                </div>
-                @if (canEditAttributes || canEditNote)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="@editOperationOnclick">Сохранить изменения</button>
-                    </div>   
-                }            
-                @if (stateCode == "CREATED" && setGate)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
-                    </div>
-                }
-                @if (stateCode == "CONFIRMED" &&  canStart)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.startOperation()">Принять машину</button>
-                    </div>
-                }      
-                @if (stateCode == "STARTED" && canStartWork)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.startOperationWork()">Поставить на ворота</button>
-                    </div>
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-success hide-on-print col-4 mx-auto" type="button" onclick="operationPage.allocateWorkers()">(Авто) Назначить сотрудников</button>
-                    </div>
-                }
-                @if (stateCode == "WORK_STARTED" && canFinishWork)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" type="button" onclick="operationPage.finishOperationWork()">Завершить работу</button>
-                    </div>
-                }
-                @if (stateCode == "WORK_FINISHED" && canFinish)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-outline-warning hide-on-print col-4 mx-auto" type="button" onclick="operationPage.finishOperation()">Отпустить машину</button>
-                    </div>
-                }
-                <div class="mt-5"></div>
-                @if (canDelete)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.deleteOperation()">Удалить</button>
-                    </div>
-                }
-                @if (canCancel)
-                {
-                    <div class="d-grid m-2 row">
-                        <button class="btn btn-danger hide-on-print col-4 mx-auto" type="button" onclick="operationPage.cancelOperation()">Отменить</button>
-                    </div>
-                }
-                <div class="d-grid m-2 row">
-                    <button class="btn btn-outline-secondary hide-on-print col-4 mx-auto" type="button" onclick="operationPage.closeOperation()">Закрыть</button>
-                </div>
-            }
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text">
+            <b>Менеджер (склад)*</b>
+        </span>
+        <input id="manager-input" class="form-control" value="" disabled />
+    </div>
+    <div class="rem-outline-on-print input-group input-div">
+        <span class="input-group-text">Ответственный (склад)</span>
+        <input id="responsible-officer-input" class="form-control" value="" disabled/>
+    </div>
+
+    @if (!isPartnerUser)
+    {
+        <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
+    }    
+    <div class="rem-outline-on-print fields-container">
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Марка авто</span>
+            <input type="text" id="vehicle-brand-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Модель авто</span>
+            <input type="text" id="vehicle-model-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Номер авто</span>
+            <input type="text" id="vehicle-number-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Номер прицепа</span>
+            <input type="text" id="trailer-number-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Ф. И. О. водителя</span>
+            <input type="text" id="driver-name-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Тел. водителя</span>
+            <input type="text" id="driver-phone-number-input" class="form-control" value="" disabled>
+        </div>
+
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Ф. И. О. менеджера (клиент)</span>
+            <input type="text" id="partner-manager-name-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Тел. менеджера (клиент)</span>
+            <input type="text" id="partner-manager-phone-number-input" class="form-control" value="" disabled>
+        </div>
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">Эл. почта менеджера (клиент)</span>
+            <input type="text" id="partner-manager-email-input" class="form-control" value="" disabled>
+        </div>
+
+        <div class="rem-outline-on-print input-group textarea-div">
+            <span class="input-group-text">Примечание</span>
+            <textarea rows="5" id="note-textarea" class="form-control" disabled></textarea>
         </div>
     </div>
-}
-<input id="force-print" type="hidden" name="force-print" value="true">
+
+
+    @if (!isPartnerUser && canViewOperationWorkers)
+    {
+        <fieldset id="workers-fieldset" disabled>
+            <partial name="Blocks/Lists/_WorkersTable" model="workersModel" />
+        </fieldset>
+    }    
+    
+    <div class="d-flex justify-content-center hide-on-print">
+        <button id="close-button"
+            class="btn btn-outline-secondary hide-on-print" 
+            style="width: 320px; margin: auto; margin-top: 8px"
+            title="Закрыть карточку операции двора"
+            type="button">Закрыть</button>
+    </div>
+</div>

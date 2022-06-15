@@ -1513,6 +1513,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.partnerActionId = action.PartnerActionId;
             result.partnerId = action.Partner.Id;
             result.partnerName = action.Partner.Name;
+            result.planActionDate = action.PlanActionDate;
 
             return result;
         }

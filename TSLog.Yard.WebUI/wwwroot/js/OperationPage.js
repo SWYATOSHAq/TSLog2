@@ -298,7 +298,7 @@ class OperationPage {
                 const button = document.createElement("button");
                 button.classList.add("btn");
                 button.classList.add("col");
-                button.classList.add("m-1");
+                button.style.cssText = "margin: 2px";
                 button.textContent = (hour % 24).toString().padStart(2, "0") + ":" + (blockIndex * this.blockDuration / 60).toString().padStart(2, "0");
 
                 const blockStartTime = hour * 60 * 60 + blockIndex * this.blockDuration;
@@ -735,6 +735,8 @@ class OperationPage {
         const selectedButton = document.createElement("button");
         this.showWarehouseAction(warehouseAction, selectedButton, "REMOVE");
         selectedWarehouseActionsDiv.append(selectedButton);
+
+        this.showWarehouseActionsDivs();
     }
 
     onSelectedWarehouseActionClick(selectedButton) {
@@ -742,6 +744,8 @@ class OperationPage {
         delete this.selectedWarehouseActions[id];
         selectedButton.remove();
         this.showWarehouseActions();
+
+        this.showWarehouseActionsDivs();
     }
 
     showWarehouseAction(action, button, direction) {
@@ -751,11 +755,14 @@ class OperationPage {
         button.dataset.actionId = action.id;
         button.dataset.actionPartnerId = action.partnerId;
         button.dataset.actionPartnerName = action.partnerName;
-        button.append("[" + action.partnerName + "] ");
+        button.dataset.actionPlanActionDate = action.planActionDate;        
 
         const workerFullNameB = document.createElement("b");
-        workerFullNameB.textContent = action.id + " - " + action.partnerActionId;
+        workerFullNameB.textContent = action.partnerActionId;
         button.append(workerFullNameB);
+
+        button.append(" (" + utils.dateToString(utils.stringToDate(action.planActionDate)) + ") ");
+
         button.onclick = () => {
             if (direction === "ADD") {
                 this.onWarehouseActionClick(button);
@@ -816,22 +823,42 @@ class OperationPage {
         await this.getWarehouseActions();
         this.showWarehouseActions();
     }
+
+    showWarehouseActionsDivs() {
+        let actionsDiv = document.getElementById("all-actions-div");
+        if (actionsDiv != undefined) {
+            if (actionsDiv.childElementCount < 5) {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; padding: 0; margin: 0; margin-right: 2%";
+            } else {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+            }
+        }        
+
+        actionsDiv = document.getElementById("selected-actions-div");
+        if (actionsDiv != undefined) {
+            if (actionsDiv.childElementCount < 5) {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
+            } else {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
+            }
+        }        
+    }
     // #endregion
 
     // #region Workers
     showWorkersDivs() {
         let workersDiv = document.getElementById("linear-workers-div");
         if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: 320px; padding: 0; margin: 0; margin-right: 2%";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0; margin-right: 2%";
         } else {
-            workersDiv.style.cssText = "width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
         }
 
         workersDiv = document.getElementById("selected-workers-div");
         if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: 320px; padding: 0; margin: 0";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0";
         } else {
-            workersDiv.style.cssText = "width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0";
         }
     }
 
@@ -850,7 +877,7 @@ class OperationPage {
     }
 
     async onLinearWorkerClick(button) {
-        const operationId = document.getElementById("id-input").value;
+        const operationId = this.id;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
 
@@ -920,7 +947,7 @@ class OperationPage {
     }
 
     async onSelectedWorkerClick(button) {
-        const operationId = document.getElementById("id-input").value;
+        const operationId = this.id;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
 
@@ -1037,8 +1064,7 @@ class OperationPage {
     }
 
     printOperation() {
-        const idInput = document.getElementById("id-input");
-        window.open("/OperationPrintPage?id=" + idInput.value, "_blank");
+        window.open("/OperationPrintPage?id=" + this.id, "_blank");
     }
 
     showOperationTypeNote() {
@@ -1121,7 +1147,6 @@ class OperationPage {
 
         // Id
         this.id = operation != null ? operation.id : -1;
-        document.getElementById("id-input").value = operation != null ? operation.id : "";
 
         // State
         this.stateCode = operation != null && !copy ? operation.stateCode : "";
@@ -1227,7 +1252,7 @@ class OperationPage {
         partnersSelect.onchange = this.onChangePartner.bind(this);
         if (this.id > 0) {
             await this.getSelectedWarehouseActions();            
-            this.showSelectedWarehouseActions();
+            this.showSelectedWarehouseActions();                        
             if (copy) {
                 this.clearSelectedWarehouseActions();
             }
@@ -1250,6 +1275,7 @@ class OperationPage {
             actionFiltersDiv.remove();
             allActionsDiv.remove();
         }
+        this.showWarehouseActionsDivs();
 
         // Responsible officer
         document.getElementById("responsible-officer-input").value =
@@ -1311,11 +1337,11 @@ class OperationPage {
                     this.showLinearFreeWorkers();
                     workersFieldset.disabled = false;
                     workersFilterDiv.classList.remove("d-none");
-                    allWorkersDiv.classList.remove("d-none")
+                    allWorkersDiv.classList.remove("d-none");
                 } else {
                     workersFieldset.disabled = true;
                     workersFilterDiv.classList.add("d-none");
-                    allWorkersDiv.classList.add("d-none")
+                    allWorkersDiv.classList.add("d-none");
                 }
                 this.showWorkersDivs();
             } else {
@@ -1349,6 +1375,8 @@ class OperationPage {
             if (printButton != undefined) {
                 if (this.id <= 0 || copy) {
                     printButton.remove();
+                } else {
+                    printButton.onclick = this.printOperation.bind(this);
                 }
             }
 
@@ -1362,7 +1390,7 @@ class OperationPage {
                     saveButton.remove();
                 } else {
                     if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {                                      
-                        if (isPartnerUser) {
+                        if (!isPartnerUser) {
                             saveButton.onclick = this.editOperation.bind(this);
                         } else {
                             saveButton.onclick = this.editOperationByPartner.bind(this);
@@ -1453,6 +1481,7 @@ class OperationPage {
             }
 
             const closeButton = document.getElementById("close-button");
+            closeButton.onclick = this.closeOperation.bind(this);
 
             window.onclick = this.windowClick.bind(this);
         }

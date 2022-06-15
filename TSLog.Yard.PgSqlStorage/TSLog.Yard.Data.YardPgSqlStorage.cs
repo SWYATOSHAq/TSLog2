@@ -669,12 +669,14 @@ namespace TSLog.Yard.Data
         public delegate Shift GetShiftByDateDelegate(DateTime date);
         public delegate Employee[] GetEmployeesByShiftDelegate(Shift shift);
         public delegate Employee[] GetEmployeesDelegate();
+        public delegate WarehouseAction GetWarehouseActionDelegate(ActionKind actionKind, string id);
         public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
         public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
         public GetPositionByIdDelegate? GetPositionById { private get; set; }
         public GetShiftByDateDelegate? GetShiftByDate { private get; set; }
         public GetEmployeesByShiftDelegate? GetEmployeesByShift { private get; set; }
         public GetEmployeesDelegate? GetEmployees { private get; set; }
+        public GetWarehouseActionDelegate? GetWarehouseAction { private get; set; }
         public Partner GetPartner(string id)
         {
             return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
@@ -1810,12 +1812,14 @@ namespace TSLog.Yard.Data
             var number = string.Empty;
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var partnerId = Utils.DbValueToString(reader["partner_action_id"]);
+            var planActionDate = DateTime.MinValue;
             var note = string.Empty;
             var action = new WarehouseAction(kind,
                 id,
                 number,
                 partner,
                 partnerId,
+                planActionDate,
                 true,
                 note);
             return action;
@@ -1838,7 +1842,9 @@ namespace TSLog.Yard.Data
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var action = CreateWarehouseAction(reader);
+                        var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+                        var id = Utils.DbValueToString(reader["action_id"]);
+                        var action = GetWarehouseAction(kind, id);
                         actions.Add(action);
                     }
                     reader.Close();

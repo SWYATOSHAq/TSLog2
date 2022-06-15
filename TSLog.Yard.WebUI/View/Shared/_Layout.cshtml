@@ -53,6 +53,10 @@
     {
         <link rel="stylesheet" href="~/css/OperationPage.css" asp-append-version="true" />
     }
+    else if (page == "OperationPrintPage")
+    {
+        <link rel="stylesheet" href="~/css/OperationPrintPage.css" asp-append-version="true" />
+    }
     else if (page == "OperationsPage")
     {
         <link rel="stylesheet" href="~/css/OperationsPage.css" asp-append-version="true" />
@@ -108,42 +112,42 @@
 </head>
 
 <body>
-    <div style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
+    <div class="hide-on-print" style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
             <div style="margin: 0; padding: 0">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">
+                <a class="navbar-brand hide-on-print" asp-area="" asp-page="/Index">
                     <img src="/img/logo-min.png" alt="TSL">
                 </a>
             </div>
             <div style="display: flex; align-items: center">
                 <div style="margin-right: 48px; display: flex">
-                        <a class="nav-link text-dark" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
+                        <a class="nav-link text-dark hide-on-print" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
                         @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
-                            <a class="nav-link text-dark" href="/OperationPage?action=CREATE">Cоздать заявку</a>
+                            <a class="nav-link text-dark hide-on-print" href="/OperationPage?action=CREATE">Cоздать заявку</a>
                         }
                         @if (canViewStaffPlan)
                         {
-                            <a class="nav-link text-dark" href="/StaffPage?date=@date">План персонала</a>
+                            <a class="nav-link text-dark hide-on-print" href="/StaffPage?date=@date">План персонала</a>
                         }
                         @if (canViewGatesPlan)
                         {
-                            <a class="nav-link text-dark" href="/GatesPage?date=@date">План ворот</a>                            
+                            <a class="nav-link text-dark hide-on-print" href="/GatesPage?date=@date">План ворот</a>                            
                         }
                         @if (canViewPartnersReport)
                         {
-                            <a class="nav-link text-dark" href="/ClientReportPage">Затраты по клиентам</a>
+                            <a class="nav-link text-dark hide-on-print" href="/ClientReportPage">Затраты по клиентам</a>
                         }
                         @if (canViewActiveOperations)
                         {
-                            <a class="nav-link text-dark" href="/PresentVehiclesPage">Машины во дворе</a>
+                            <a class="nav-link text-dark hide-on-print" href="/PresentVehiclesPage">Машины во дворе</a>
                         }
                         @if (canViewGuardPage)
                         {
-                            <a class="nav-link text-dark" href="/GuardPage">Въезд/выезд</a>
+                            <a class="nav-link text-dark hide-on-print" href="/GuardPage">Въезд/выезд</a>
                         }
                 </div>
-                <div>Вы вошли как: <b>@userName</b></div>
+                <div class="hide-on-print">Вы вошли как: <b>@userName</b></div>
             </div>
         </div>
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
@@ -161,16 +165,16 @@
             }
             @if (canViewShiftLaborReportPage)
             {
-                <a class="nav-link text-dark" href="/ShiftPerfomanceReportPage">Производительность</a>
-                <a class="nav-link text-dark" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
+                <a class="nav-link text-dark hide-on-print" href="/ShiftPerfomanceReportPage">Производительность</a>
+                <a class="nav-link text-dark hide-on-print" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
             }
             @if (canViewEcReportPage)
             {
-                <a class="nav-link text-dark" href="/ECReportPage">Затраты/Выручка</a>
+                <a class="nav-link text-dark hide-on-print" href="/ECReportPage">Затраты/Выручка</a>
             }
             @if (canViewWorkersPerfomanceReportPage)
             {
-                <a class="nav-link text-dark" href="/WorkersPerfomanceReportPage">Производительность работников</a>
+                <a class="nav-link text-dark hide-on-print" href="/WorkersPerfomanceReportPage">Производительность работников</a>
             }
         </div>
     </div>
@@ -183,7 +187,7 @@
         </div>
     </div>
 
-    <div style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
+    <div class="hide-on-print" style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
         <div style="margin: auto; padding: 0; width: fit-content">
             <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
                 Версия&nbsp;<b>@release</b>
