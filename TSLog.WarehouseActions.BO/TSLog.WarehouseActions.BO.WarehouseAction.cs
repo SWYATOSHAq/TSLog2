@@ -46,7 +46,11 @@ namespace TSLog.WarehouseActions.BO
         /// Идентификатор складского действа в системе партнёра
         /// </summary>
         public string PartnerActionId { get; set; }
-        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, 
+        /// <summary>
+        /// Плановая дата (и время) складского действа
+        /// </summary>
+        public DateTime PlanActionDate { get; set; }
+        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, DateTime planActionDate, 
             bool isActive, string note) 
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
@@ -56,6 +60,7 @@ namespace TSLog.WarehouseActions.BO
             Kind = kind;
             Partner = partner;
             PartnerActionId = partnerActionId;
+            PlanActionDate = planActionDate;
         }
         private WarehouseAction() : base()
         {
@@ -73,7 +78,7 @@ namespace TSLog.WarehouseActions.BO
             get
             {
                 if (_null == null)
-                    _null = new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", true, "NULl");
+                    _null = new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", DateTime.MinValue, true, "NULL");
                 return _null;
             }
         }

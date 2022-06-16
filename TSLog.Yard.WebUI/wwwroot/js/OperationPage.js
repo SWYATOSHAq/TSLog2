@@ -298,7 +298,7 @@ class OperationPage {
                 const button = document.createElement("button");
                 button.classList.add("btn");
                 button.classList.add("col");
-                button.classList.add("m-1");
+                button.style.cssText = "margin: 2px";
                 button.textContent = (hour % 24).toString().padStart(2, "0") + ":" + (blockIndex * this.blockDuration / 60).toString().padStart(2, "0");
 
                 const blockStartTime = hour * 60 * 60 + blockIndex * this.blockDuration;
@@ -384,7 +384,9 @@ class OperationPage {
         if (this.kind != kind) {
             this.clearSelectedWarehouseActions();
             await this.displayWarehouseActions();
-            this.kind = kind;
+            this.kind = kind;            
+            this.changeWarehouseActionsTitle();
+            this.resizeWarehouseActionsDivs();
         }
     }
 
@@ -423,6 +425,7 @@ class OperationPage {
         await this.showManager();
         this.clearSelectedWarehouseActions();
         await this.displayWarehouseActions();
+        this.resizeWarehouseActionsDivs();
     }
 
     async createOperation() {
@@ -681,7 +684,7 @@ class OperationPage {
     }
 
     // #region Warehouse actions
-    async getWarehouseActions() {
+    async getAllWarehouseActions() {
         this.warehouseActions = {};
 
         const kind = this.getKind();
@@ -735,13 +738,17 @@ class OperationPage {
         const selectedButton = document.createElement("button");
         this.showWarehouseAction(warehouseAction, selectedButton, "REMOVE");
         selectedWarehouseActionsDiv.append(selectedButton);
+
+        this.resizeWarehouseActionsDivs();
     }
 
     onSelectedWarehouseActionClick(selectedButton) {
         const id = selectedButton.dataset.actionId;
         delete this.selectedWarehouseActions[id];
         selectedButton.remove();
-        this.showWarehouseActions();
+        this.showAllWarehouseActions();
+
+        this.resizeWarehouseActionsDivs();
     }
 
     showWarehouseAction(action, button, direction) {
@@ -751,11 +758,14 @@ class OperationPage {
         button.dataset.actionId = action.id;
         button.dataset.actionPartnerId = action.partnerId;
         button.dataset.actionPartnerName = action.partnerName;
-        button.append("[" + action.partnerName + "] ");
+        button.dataset.actionPlanActionDate = action.planActionDate;        
 
         const workerFullNameB = document.createElement("b");
-        workerFullNameB.textContent = action.id + " - " + action.partnerActionId;
+        workerFullNameB.textContent = action.partnerActionId;
         button.append(workerFullNameB);
+
+        button.append(" (" + utils.dateToString(utils.stringToDate(action.planActionDate)) + ") ");
+
         button.onclick = () => {
             if (direction === "ADD") {
                 this.onWarehouseActionClick(button);
@@ -767,33 +777,35 @@ class OperationPage {
         }
     }
 
-    showWarehouseActions() {
-        const allActionsDiv = document.getElementById("all-actions-div");
-        allActionsDiv.replaceChildren();
+    showAllWarehouseActions() {
+        const allWarehoiseActionsDiv = document.getElementById("all-actions-div");
+        allWarehoiseActionsDiv.replaceChildren();
         for (let id in this.warehouseActions) {
             if (this.selectedWarehouseActions.hasOwnProperty(id)) {
                 continue;
             }
-
             const warehouseAction = this.warehouseActions[id];
             const button = document.createElement("button");
             this.showWarehouseAction(warehouseAction, button, "ADD");
-            allActionsDiv.append(button);
+            allWarehoiseActionsDiv.append(button);
         }
     }
 
     async displayWarehouseActions() {        
         const operationTypesSelect = document.getElementById("operation-types-select");
         const partnersSelect = document.getElementById("partners-select");
+        const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
         if (partnersSelect.value != "" && operationTypesSelect.value != "") {
+            warehouseActionsTitleDiv.classList.remove("d-none");
             document.getElementById("action-filter-div").classList.remove("d-none");
-            document.getElementById("actions-div").classList.remove("d-none");
-            await this.getWarehouseActions();
-            this.showWarehouseActions();
+            document.getElementById("actions-div").classList.remove("d-none");            
+            await this.getAllWarehouseActions();
+            this.showAllWarehouseActions();
         } else {
+            warehouseActionsTitleDiv.classList.add("d-none");
             document.getElementById("action-filter-div").classList.add("d-none");
             document.getElementById("actions-div").classList.add("d-none");
-        }
+        }        
     }
 
     clearSelectedWarehouseActions() {
@@ -802,19 +814,50 @@ class OperationPage {
         selectedActionsDiv.replaceChildren();
     }
 
-    showSelectedWarehouseActions() {
-        const selectedActionsDiv = document.getElementById("selected-actions-div");
-        selectedActionsDiv.replaceChildren();
+    async displaySelectedWarehouseActions() {
+        await this.getSelectedWarehouseActions();
+        const selectedWarehouseActionsDiv = document.getElementById("selected-actions-div");
+        selectedWarehouseActionsDiv.replaceChildren();
         for (let id in this.selectedWarehouseActions) {
             const button = document.createElement("button");
             this.showWarehouseAction(this.selectedWarehouseActions[id], button, "REMOVE");
-            selectedActionsDiv.append(button);
+            selectedWarehouseActionsDiv.append(button);
         }
     }
 
     async onChangeActionsFilter() {
-        await this.getWarehouseActions();
-        this.showWarehouseActions();
+        await this.getAllWarehouseActions();
+        this.showAllWarehouseActions();
+    }
+
+    changeWarehouseActionsTitle() {
+        const warehouseActionsB = document.getElementById("warehouse-actions-b");
+        if (this.kind === "O") {
+            warehouseActionsB.textContent = "Заказы:";
+        } else if (this.kind === "I") {
+            warehouseActionsB.textContent = "Приходы:";
+        } else {
+            warehouseActionsB.textContent = "Заказы (приходы):";
+        }
+    }
+
+    resizeWarehouseActionsDivs() {
+        let actionsDiv = document.getElementById("all-actions-div");
+        if (actionsDiv != undefined) {
+            if (actionsDiv.childElementCount < 5) {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; padding: 0; margin: 0; margin-right: 2%";
+            } else {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+            }
+        }        
+        actionsDiv = document.getElementById("selected-actions-div");
+        if (actionsDiv != undefined) {
+            if (actionsDiv.childElementCount < 5) {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
+            } else {
+                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
+            }
+        }           
     }
     // #endregion
 
@@ -822,16 +865,16 @@ class OperationPage {
     showWorkersDivs() {
         let workersDiv = document.getElementById("linear-workers-div");
         if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: 320px; padding: 0; margin: 0; margin-right: 2%";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0; margin-right: 2%";
         } else {
-            workersDiv.style.cssText = "width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
         }
 
         workersDiv = document.getElementById("selected-workers-div");
         if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: 320px; padding: 0; margin: 0";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0";
         } else {
-            workersDiv.style.cssText = "width: 49%; height: 320px; overflow-y: scroll; padding: 0; margin: 0";
+            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0";
         }
     }
 
@@ -850,7 +893,7 @@ class OperationPage {
     }
 
     async onLinearWorkerClick(button) {
-        const operationId = document.getElementById("id-input").value;
+        const operationId = this.id;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
 
@@ -920,7 +963,7 @@ class OperationPage {
     }
 
     async onSelectedWorkerClick(button) {
-        const operationId = document.getElementById("id-input").value;
+        const operationId = this.id;
         const workerId = button.dataset.workerId;
         const positionCode = button.dataset.positionCode;
 
@@ -1037,8 +1080,7 @@ class OperationPage {
     }
 
     printOperation() {
-        const idInput = document.getElementById("id-input");
-        window.open("/OperationPrintPage?id=" + idInput.value, "_blank");
+        window.open("/OperationPrintPage?id=" + this.id, "_blank");
     }
 
     showOperationTypeNote() {
@@ -1121,7 +1163,6 @@ class OperationPage {
 
         // Id
         this.id = operation != null ? operation.id : -1;
-        document.getElementById("id-input").value = operation != null ? operation.id : "";
 
         // State
         this.stateCode = operation != null && !copy ? operation.stateCode : "";
@@ -1213,6 +1254,7 @@ class OperationPage {
             this.stateCode === "CANCELED";
 
         // Start and finish
+        this.startDate = operation != null ? new Date(operation.startDate) : utils.nullDate;
         this.finishDate = operation != null ? new Date(operation.finishDate) : utils.nullDate;
         this.showStartFinish();
 
@@ -1226,8 +1268,7 @@ class OperationPage {
         const partnersSelect = document.getElementById("partners-select");
         partnersSelect.onchange = this.onChangePartner.bind(this);
         if (this.id > 0) {
-            await this.getSelectedWarehouseActions();            
-            this.showSelectedWarehouseActions();
+            this.displaySelectedWarehouseActions();                        
             if (copy) {
                 this.clearSelectedWarehouseActions();
             }
@@ -1243,13 +1284,15 @@ class OperationPage {
             warehouseActionsFieldset.disabled = false;
             const actionsFilterInput = document.getElementById("action-filter-input");
             actionsFilterInput.onchange = this.onChangeActionsFilter.bind(this);
-            await this.getWarehouseActions();
-            await this.displayWarehouseActions();
+            await this.getAllWarehouseActions();
+            await this.displayWarehouseActions();            
         } else {
             warehouseActionsFieldset.disabled = true;
             actionFiltersDiv.remove();
             allActionsDiv.remove();
         }
+        this.changeWarehouseActionsTitle();
+        this.resizeWarehouseActionsDivs();
 
         // Responsible officer
         document.getElementById("responsible-officer-input").value =
@@ -1311,11 +1354,11 @@ class OperationPage {
                     this.showLinearFreeWorkers();
                     workersFieldset.disabled = false;
                     workersFilterDiv.classList.remove("d-none");
-                    allWorkersDiv.classList.remove("d-none")
+                    allWorkersDiv.classList.remove("d-none");
                 } else {
                     workersFieldset.disabled = true;
                     workersFilterDiv.classList.add("d-none");
-                    allWorkersDiv.classList.add("d-none")
+                    allWorkersDiv.classList.add("d-none");
                 }
                 this.showWorkersDivs();
             } else {
@@ -1324,12 +1367,7 @@ class OperationPage {
         }
 
         // Show button
-        const showBcWorksButton = document.getElementById("show-bc-works-button");
-        if (showBcWorksButton != undefined) {
-            if (this.stateCode != "WORK_FINISHED" && this.stateCode != "FINISHED") {
-                showBcWorksButton.remove();
-            }
-        }
+        viewUtils.removeElement("show-bc-works-button", this.stateCode != "WORK_FINISHED" && this.stateCode != "FINISHED");
 
         const createButton = document.getElementById("create-button");
         if (createButton != undefined) {
@@ -1341,16 +1379,11 @@ class OperationPage {
                 } else if (this.action === "CREATE_CONFIRM" || this.action === "COPY_CONFIRM") {
                     createButton.onclick = this.createConfirmOperation.bind(this);
                 } else if (this.action === "CREATE_BY_PARTNER" || this.action === "COPY_BY_PARTNER") {
-                    createButton.onclick = this.createByPartnerOperation.bind(this);
+                    createButton.onclick = this.createOperationByPartner.bind(this);
                 }
             }
 
-            const printButton = document.getElementById("print-button");
-            if (printButton != undefined) {
-                if (this.id <= 0 || copy) {
-                    printButton.remove();
-                }
-            }
+            viewUtils.removeElement("print-button", this.id <= 0 || copy, this.printOperation.bind(this));
 
             const saveButton = document.getElementById("save-button");
             if (saveButton != undefined) {
@@ -1362,12 +1395,11 @@ class OperationPage {
                     saveButton.remove();
                 } else {
                     if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {                                      
-                        if (isPartnerUser) {
+                        if (!isPartnerUser) {
                             saveButton.onclick = this.editOperation.bind(this);
                         } else {
                             saveButton.onclick = this.editOperationByPartner.bind(this);
                         }
-
                     }
                     else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
                         saveButton.onclick = this.editOperationNote.bind(this);
@@ -1375,84 +1407,20 @@ class OperationPage {
                 }
             }
 
-            const copyButton = document.getElementById("copy-button");
-            if (copyButton != undefined) {
-                if (this.id <= 0 || copy) {
-                    copyButton.remove();
-                } else {                    
-                    if (isPartnerUser) {
-                        copyButton.onclick = this.copyOperation.bind(this);
-                    } else {
-                        copyButton.onclick = this.copyOperationByPartner.bind(this);
-                    }
-                }
-            }
-
-            const copyConfirmButton = document.getElementById("copy-confirm-button");
-            if (copyConfirmButton != undefined) {
-                if (this.id <= 0 || copy) {
-                    copyConfirmButton.remove();
-                } else {
-                    copyConfirmButton.onclick = this.copyConfirmOperation.bind(this);
-                }
-            }
-
-            const setGateButton = document.getElementById("set-gate-button");
-            if (setGateButton != undefined) {
-                if (this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
-                    setGateButton.remove();
-                }
-            }
-
-            const startButton = document.getElementById("start-button");
-            if (startButton != undefined) {
-                if (this.stateCode != "CONFIRMED") {
-                    startButton.remove();
-                }
-            }
-
-            const startWorkButton = document.getElementById("start-work-button");
-            if (startWorkButton != undefined) {
-                if (this.stateCode != "STARTED") {
-                    startWorkButton.remove();
-                }
-            }
-
-            const allocateWorkersButton = document.getElementById("allocate-workers-button");
-            if (allocateWorkersButton != undefined) {
-                if (this.stateCode != "STARTED") {
-                    allocateWorkersButton.remove();
-                }
-            }
-
-            const finishWorkButton = document.getElementById("finish-work-button");
-            if (finishWorkButton != undefined) {
-                if (this.stateCode != "WORK_STARTED") {
-                    finishWorkButton.remove();
-                }
-            }
-
-            const finishButton = document.getElementById("finish-button");
-            if (finishButton != undefined) {
-                if (this.stateCode != "WORK_FINISHED") {
-                    finishButton.remove();
-                }
-            }
-
-            const cancelButton = document.getElementById("cancel-button");
-            if (cancelButton != undefined) {
-                if (this.stateCode != "CREATED" && this.stateCode != "CONFIRMED")
-                    cancelButton.remove();
-            }
-
-            const deleteButton = document.getElementById("delete-button");
-            if (deleteButton != undefined) {
-                if (this.stateCode === "") {
-                    deleteButton.remove();
-                }
-            }
+            viewUtils.removeElement("copy-button", this.id <= 0 || copy,
+                isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
+            viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
+            viewUtils.removeElement("set-gate-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED");
+            viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
+            viewUtils.removeElement("start-work-button", this.stateCode != "STARTED");
+            viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED");
+            viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
+            viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
+            viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");
+            viewUtils.removeElement("delete-button", this.stateCode === "");
 
             const closeButton = document.getElementById("close-button");
+            closeButton.onclick = this.closeOperation.bind(this);
 
             window.onclick = this.windowClick.bind(this);
         }

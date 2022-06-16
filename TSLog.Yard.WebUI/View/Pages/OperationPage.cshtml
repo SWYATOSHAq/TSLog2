@@ -93,8 +93,9 @@
     <fieldset id="timetable-fieldset" style="width: 25%">
         <div class="col-4 time-table hide-on-print overflow-auto" id="time-div" style="width: 100%">
             <div id="time-header-div">
-                <div class="row row3" id="work-start-date-div" disable>
-                    <label for="work-start-date-picker" class="datepicker2-label">Выберете дату:</label>
+                <div class="row" style="margin: 0; padding: 0" id="work-start-date-div" disable>
+                    <label for="work-start-date-picker" 
+                        style="margin: 0; margin-left: 2px; margin-right: 4px; padding: 0; width: fit-content">Выберете дату:</label>
                     <input type="text" 
                         id="work-start-date-picker" 
                         class="datepicker border border-secondary datepicker2" 
@@ -112,35 +113,35 @@
             </div>
         </div>
     </fieldset>
-    <div class="col p-2 m-2 rem-outline-on-print" id="card-operation">
-        <div class="row p-2 m-2 ">
+    <div class="col">
+        <div class="row">
             <h1 id="header" class="text-info hide-on-print">Создание</h1>            
         </div>    
         <partial name="Blocks/Lists/_OperationTypesDropdown" model="operationTypesModel" />    
         <partial name="Blocks/Lists/_VehicleKindsDropdown" model="vehicleKindsModel" />
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">
                 <b>Начало работ*</b>
             </span>
             <input id="work-start-input" class="form-control" disabled value="" />
         </div>
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">
                 <b>Окончание работ*</b>
             </span>
             <input id="work-finish-input" class="form-control" disabled value="" />
         </div>
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">
                 <b>Длительность*</b>
             </span>
             <input id="duration-input" class="form-control" disabled value="" />
         </div>
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">Прибытие/убытие</span>
             <input id="start-finish-input" class="form-control" disabled value="" />
         </div>
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">
                 <b>Трудозатраты (чел. * мин.)*</b>
             </span>
@@ -179,26 +180,29 @@
             <div id="warehouse-actions-div"
                 style="height: fit-content; width: 100%; padding: 0; margin: 0; margin-top: 8px; margin-bottom: 8px">
                 <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+                <div id="warehouse-actions-title-div" style="width: 100%; margin-top: 8px">
+                    <b id="warehouse-actions-b">Заказы (приходы):</b>
+                </div>
                 <div id="action-filter-div" style="display: flex">
                     <span class="input-group-text">Поиск заказа (прихода):</span>
                     <input id="action-filter-input" class="form-control" value="" />
                 </div>
                 <div id="actions-div" style="display: flex; margin-top: 8px; margin-bottom: 8px">
-                    <div id="all-actions-div" style="width: 50%; height: 180px; overflow-y: scroll">
+                    <div id="all-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
                     </div>
-                    <div id="selected-actions-div" style="width: 50%; height: 180px; overflow-y: scroll">
+                    <div id="selected-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
                     </div>                
                 </div>
             </div>
         </fieldset>
         
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">
                 <b>Менеджер (склад)*</b>
             </span>
             <input id="manager-input" class="form-control" value="" disabled />
         </div>
-        <div class="row rem-outline-on-print input-group input-div">
+        <div class="row input-group input-div">
             <span class="input-group-text col-4">Ответственный (склад)</span>
             <input id="responsible-officer-input" class="form-control" value="" disabled/>
         </div>
@@ -207,48 +211,46 @@
         {
             <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
         }    
-        <div class="row rem-outline-on-print fields-container">
-            <input type="hidden" id="id-input" name="id-input" value="">
-
-            <div class="row rem-outline-on-print input-group input-div">
+        <div class="row fields-container">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Марка авто</span>
                 <input type="text" id="vehicle-brand-input" class="form-control" value="" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Модель авто</span>
                 <input type="text" id="vehicle-model-input" class="form-control" value="" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Номер авто</span>
                 <input type="text" id="vehicle-number-input" class="form-control" value="" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Номер прицепа</span>
                 <input type="text" id="trailer-number-input" class="form-control" value="" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Ф. И. О. водителя</span>
                 <input type="text" id="driver-name-input" class="form-control" value="" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Тел. водителя</span>
                 <input type="text" data-tel-input id="driver-phone-number-input" class="form-control" value="" maxlength="18" @disabledString>
             </div>
 
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Ф. И. О. менеджера (клиент)</span>
                 <input type="text" id="partner-manager-name-input" class="form-control" value="" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Тел. менеджера (клиент)</span>
                 <input type="text" data-tel-input id="partner-manager-phone-number-input" class="form-control" value="" maxlength="18" @disabledString>
             </div>
-            <div class="row rem-outline-on-print input-group input-div">
+            <div class="row input-group input-div">
                 <span class="input-group-text col-4">Эл. почта менеджера (клиент)</span>
                 <input type="text" id="partner-manager-email-input" class="form-control" value="" @disabledString>
             </div>
 
-            <div class="row p-2 m-2 rem-outline-on-print input-group textarea-div">
+            <div class="row input-group textarea-div">
                 <span class="input-group-text col-3">Примечание</span>
                 <textarea rows="5" id="note-textarea" class="form-control" @disabledNoteString></textarea>
             </div>
@@ -274,8 +276,7 @@
                 class="btn btn-outline-info" 
                 style="width: 320px; margin: auto; margin-top: 8px"
                 title="Печать карточки операции двора"
-                type="button" 
-                onclick="operationPage.printOperation()">Печать</button>
+                type="button">Печать</button>
             @if (save || editNote)
             {
                 <button id="save-button"
@@ -377,8 +378,7 @@
                 class="btn btn-outline-secondary" 
                 style="width: 320px; margin: auto; margin-top: 8px"
                 title="Закрыть карточку операции двора"
-                type="button" 
-                onclick="operationPage.closeOperation()">Закрыть</button>
+                type="button">Закрыть</button>
         </div>
     </div>
 </div>

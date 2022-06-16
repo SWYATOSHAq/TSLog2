@@ -38,7 +38,8 @@ namespace TSLog.Yard
                 GetPartnerById = _oracleStorage.GetPartner,
                 GetPositionById = _oracleStorage.GetPosition,
                 GetEmployeesByShift = _oracleStorage.GetShiftEmployees,
-                GetEmployees = _oracleStorage.GetEmployees
+                GetEmployees = _oracleStorage.GetEmployees,
+                GetWarehouseAction = _oracleStorage.GetAction
             };
         }
         public void ConnectOracle(string userName, string password)

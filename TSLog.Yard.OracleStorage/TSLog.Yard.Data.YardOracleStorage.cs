@@ -53,11 +53,13 @@ namespace TSLog.Yard.Data
             var partnerActionId = Utils.DbValueToString(reader["partner_number"]);
             var isActive = true;
             var note = string.Empty;
+            var planActionDate = Utils.DbValueToDateTime(reader["plan_action_date"]);
             var action = new WarehouseAction(kind,
                 id,
                 number,
                 partner,
                 partnerActionId,
+                planActionDate,
                 isActive,
                 note);
             return action;
@@ -71,7 +73,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number\n" +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
                     $"   and a.kind = :kind";
@@ -96,7 +98,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByPartnerActionIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number\n" +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.partner_number = :partner_number\n" +
                     $"   and a.partner_id = :partner_id\n" +
@@ -126,7 +128,8 @@ namespace TSLog.Yard.Data
                     $"       a.id, a.action_number,\n" +
                     $"       a.partner_id,\n" +
                     $"       a.partner_number,\n" +
-                    $"       a.state_code" +
+                    $"       a.state_code,\n" +
+                    $"       a.plan_action_date\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where (upper(trim(a.id)) like :pattern\n" +
                     $"     or upper(trim(a.action_number)) like :pattern\n" +
