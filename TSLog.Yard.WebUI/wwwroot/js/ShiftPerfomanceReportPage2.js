@@ -19,7 +19,7 @@ class ShiftLaborReportPage2 {
     }
 
     async getData(date, shift) {
-        const result = await api.createShiftLaborReport3(date, shift);
+        const result = await api.createShiftPerfomanceReport2(date, shift);
         if (result.code === 0) {
             this.data = result.data;
         } else {

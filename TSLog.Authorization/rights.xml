@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>	
 <data>
 	<!-- Весь список доступных прав и привилегий в модуле управления двором -->
 	<rights code="RIGHTS" name="Список всех доступых действий и привилегий">
@@ -61,6 +61,7 @@
 		<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 		<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
+		<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 		
 		<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>		
 		<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>
@@ -140,6 +141,8 @@
 			<right code="FILTER_OPERATIONS_BY_WORKER" name="Фильтр операции по назначенному работнику"></right>
 
 			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+		
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 		</role>
 		<role code="LEAD" name="Руководитель клиентских менеджеров" groupName="Leads" note="Руководство клиентских менеджеров">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -164,6 +167,8 @@
 			<right code="FILTER_OPERATIONS_BY_WORKER" name="Фильтр операции по назначенному работнику"></right>
 
 			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+			
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 
 			<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>
@@ -274,6 +279,7 @@
 			<right code="GET_WAREHOUSE_ACTIONS" name="" note=""></right>
 			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
 			<right code="MANAGE_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
 			<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>
@@ -361,6 +367,7 @@
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 
 			<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>

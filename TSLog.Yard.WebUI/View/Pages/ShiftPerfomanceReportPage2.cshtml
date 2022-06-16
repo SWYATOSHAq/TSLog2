@@ -1,4 +1,4 @@
-﻿@page "/ShiftLaborReportPage3"
+﻿@page "/ShiftPerfomanceReportPage2"
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
@@ -6,7 +6,7 @@
 @{
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
-@model ShiftLaborReportPageModel
+@model ShiftPerfomanceReportPage2Model
 @{
     ViewData["Title"] = "Отчёт по трудозатратам (за смену)";
     var rightsChecker = Model.RightsChecker;
