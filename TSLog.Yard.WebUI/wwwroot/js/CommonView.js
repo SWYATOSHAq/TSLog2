@@ -73,7 +73,8 @@ class ViewUtils {
         }
     }
 
-    normalizePhoneNumber () {
+    // "Нормализация" телефонного номера
+    normalizePhoneNumber() {
         let phoneInputs = document.querySelectorAll('input[data-tel-input]');
 
         let getInputNumbersValue = function (input) {
@@ -153,6 +154,21 @@ class ViewUtils {
     // Отображение числового значения с учётом его величины
     showNumeric(value) {
         return value.toString();
+    }
+
+    // Удаление элемента, если он существует
+    removeElement(id, removeCondition, onClickEventHandler = null) {
+        if (id === "") {
+            return
+        }
+        const element = document.getElementById(id);
+        if (element != undefined && element != null) {
+            if (removeCondition) {
+                element.remove();
+            } else if (onClickEventHandler != null) {
+                element.onclick = onClickEventHandler;
+            }           
+        }
     }
 }
 

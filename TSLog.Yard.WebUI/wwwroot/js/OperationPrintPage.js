@@ -16,6 +16,7 @@
     finishDate = utils.nullDate;
 
     selectedWarehouseActions = {};
+    selectedWorkersIds = new Set([]);
 
     getKind() {
         const operationTypesSelect = document.getElementById("operation-types-select");
@@ -233,15 +234,23 @@
         }
     }
 
-    async show() {
-        const response2 = await api.getIsPartnerUser();
-        let isPartnerUser = false;
-        if (response2.code === 0) {
-            isPartnerUser = response2.isPartnerUser;
-        } else {
-            viewUtils.showError(response2.message);
-        }
+    async showManager() {
+        const managerInput = document.getElementById("manager-input");
+        managerInput.value = "<Не определено>"
+        const partnersSelect = document.getElementById("partners-select");
+        const partnerId = partnersSelect.value;
+        if (partnerId === "")
+            return;
 
+        const result = await api.getPartnerManager(partnerId);
+        if (result.code === 0) {
+            managerInput.value = result.manager.FullName;
+        } else {
+            viewUtils.showError(result.message);
+        }
+    }
+
+    async show() {
         const id = utils.getUrlParameter("id");
         let operation = null;
         if (id != "") {
@@ -286,6 +295,7 @@
         this.showDuration();        
 
         // Start and finish
+        this.startDate = new Date(operation.startDate);
         this.finishDate = new Date(operation.finishDate);
         this.showStartFinish();
 
@@ -295,26 +305,19 @@
         this.factLaborCost = Number(operation.factLaborCost);
         await this.showLaborCost();
 
-        // Warehouse actions (and partner)        
-        if (this.id > 0) {
-            await this.getSelectedWarehouseActions();
-            this.showSelectedWarehouseActions();
+        // Warehouse actions (and partner)
+        const warehouseActionsB = document.getElementById("warehouse-actions-b");
+        if (this.kind === "O") {
+            warehouseActionsB.textContent = "Заказы:";
+        } else {
+            warehouseActionsB.textContent = "Приходы:";
         }
+
+        await this.getSelectedWarehouseActions();
+        this.showSelectedWarehouseActions();
 
         // Manager        
         await this.showManager();
-
-        const warehouseActionsFieldset = document.getElementById("warehouse-actions-fieldset");
-        const allActionsDiv = document.getElementById("all-actions-div");
-        if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-            warehouseActionsFieldset.disabled = false;
-            await this.getWarehouseActions();
-            await this.displayWarehouseActions();
-        } else {
-            actionFiltersDiv.remove();
-            allActionsDiv.remove();
-        }
-        this.showWarehouseActionsDivs();
 
         // Responsible officer
         document.getElementById("responsible-officer-input").value = operation.responsibleOfficer != "" ? operation.responsibleOfficer : "<Не определено>";
@@ -332,26 +335,20 @@
         document.getElementById("trailer-number-input").value = operation.trailerNumber;
         document.getElementById("driver-name-input").value = operation.driverName;
         document.getElementById("driver-phone-number-input").value = operation.driverPhoneNumber;
-        viewUtils.normalizePhoneNumber();
         document.getElementById("partner-manager-name-input").value = operation.partnerManagerName;
         document.getElementById("partner-manager-phone-number-input").value = operation.partnerManagerPhoneNumber;
-        viewUtils.normalizePhoneNumber();
         document.getElementById("partner-manager-email-input").value = operation.partnerManagerEmail;
         document.getElementById("note-textarea").value = operation.note;
 
         // Workers
         const workersDiv = document.getElementById("workers-div");
         if (workersDiv != null && workersDiv != undefined) {
+            const linearWorkersDiv = document.getElementById("linear-workers-div");
+            linearWorkersDiv.remove();
             await this.getSelectedWorkers();
             this.showSelectedWorkers();
-            const workersFieldset = document.getElementById("workers-fieldset");
-            const workersFilterDiv = document.getElementById("workers-filter-div");
-            const allWorkersDiv = document.getElementById("linear-workers-div");
-            await this.getLinearFreeWorkers();
-            this.showLinearFreeWorkers();
-            workersFieldset.disabled = false;
-            workersFilterDiv.classList.remove("d-none");
-            allWorkersDiv.classList.remove("d-none");
+            const workersFieldset = document.getElementById("workers-fieldset");                                                
+            workersFieldset.disabled = true;
             this.showWorkersDivs();
         } else {
             workersDiv.classList.add("d-none");

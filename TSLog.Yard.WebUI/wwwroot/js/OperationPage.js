@@ -384,7 +384,9 @@ class OperationPage {
         if (this.kind != kind) {
             this.clearSelectedWarehouseActions();
             await this.displayWarehouseActions();
-            this.kind = kind;
+            this.kind = kind;            
+            this.changeWarehouseActionsTitle();
+            this.resizeWarehouseActionsDivs();
         }
     }
 
@@ -423,6 +425,7 @@ class OperationPage {
         await this.showManager();
         this.clearSelectedWarehouseActions();
         await this.displayWarehouseActions();
+        this.resizeWarehouseActionsDivs();
     }
 
     async createOperation() {
@@ -681,7 +684,7 @@ class OperationPage {
     }
 
     // #region Warehouse actions
-    async getWarehouseActions() {
+    async getAllWarehouseActions() {
         this.warehouseActions = {};
 
         const kind = this.getKind();
@@ -736,16 +739,16 @@ class OperationPage {
         this.showWarehouseAction(warehouseAction, selectedButton, "REMOVE");
         selectedWarehouseActionsDiv.append(selectedButton);
 
-        this.showWarehouseActionsDivs();
+        this.resizeWarehouseActionsDivs();
     }
 
     onSelectedWarehouseActionClick(selectedButton) {
         const id = selectedButton.dataset.actionId;
         delete this.selectedWarehouseActions[id];
         selectedButton.remove();
-        this.showWarehouseActions();
+        this.showAllWarehouseActions();
 
-        this.showWarehouseActionsDivs();
+        this.resizeWarehouseActionsDivs();
     }
 
     showWarehouseAction(action, button, direction) {
@@ -774,33 +777,35 @@ class OperationPage {
         }
     }
 
-    showWarehouseActions() {
-        const allActionsDiv = document.getElementById("all-actions-div");
-        allActionsDiv.replaceChildren();
+    showAllWarehouseActions() {
+        const allWarehoiseActionsDiv = document.getElementById("all-actions-div");
+        allWarehoiseActionsDiv.replaceChildren();
         for (let id in this.warehouseActions) {
             if (this.selectedWarehouseActions.hasOwnProperty(id)) {
                 continue;
             }
-
             const warehouseAction = this.warehouseActions[id];
             const button = document.createElement("button");
             this.showWarehouseAction(warehouseAction, button, "ADD");
-            allActionsDiv.append(button);
+            allWarehoiseActionsDiv.append(button);
         }
     }
 
     async displayWarehouseActions() {        
         const operationTypesSelect = document.getElementById("operation-types-select");
         const partnersSelect = document.getElementById("partners-select");
+        const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
         if (partnersSelect.value != "" && operationTypesSelect.value != "") {
+            warehouseActionsTitleDiv.classList.remove("d-none");
             document.getElementById("action-filter-div").classList.remove("d-none");
-            document.getElementById("actions-div").classList.remove("d-none");
-            await this.getWarehouseActions();
-            this.showWarehouseActions();
+            document.getElementById("actions-div").classList.remove("d-none");            
+            await this.getAllWarehouseActions();
+            this.showAllWarehouseActions();
         } else {
+            warehouseActionsTitleDiv.classList.add("d-none");
             document.getElementById("action-filter-div").classList.add("d-none");
             document.getElementById("actions-div").classList.add("d-none");
-        }
+        }        
     }
 
     clearSelectedWarehouseActions() {
@@ -809,22 +814,34 @@ class OperationPage {
         selectedActionsDiv.replaceChildren();
     }
 
-    showSelectedWarehouseActions() {
-        const selectedActionsDiv = document.getElementById("selected-actions-div");
-        selectedActionsDiv.replaceChildren();
+    async displaySelectedWarehouseActions() {
+        await this.getSelectedWarehouseActions();
+        const selectedWarehouseActionsDiv = document.getElementById("selected-actions-div");
+        selectedWarehouseActionsDiv.replaceChildren();
         for (let id in this.selectedWarehouseActions) {
             const button = document.createElement("button");
             this.showWarehouseAction(this.selectedWarehouseActions[id], button, "REMOVE");
-            selectedActionsDiv.append(button);
+            selectedWarehouseActionsDiv.append(button);
         }
     }
 
     async onChangeActionsFilter() {
-        await this.getWarehouseActions();
-        this.showWarehouseActions();
+        await this.getAllWarehouseActions();
+        this.showAllWarehouseActions();
     }
 
-    showWarehouseActionsDivs() {
+    changeWarehouseActionsTitle() {
+        const warehouseActionsB = document.getElementById("warehouse-actions-b");
+        if (this.kind === "O") {
+            warehouseActionsB.textContent = "Заказы:";
+        } else if (this.kind === "I") {
+            warehouseActionsB.textContent = "Приходы:";
+        } else {
+            warehouseActionsB.textContent = "Заказы (приходы):";
+        }
+    }
+
+    resizeWarehouseActionsDivs() {
         let actionsDiv = document.getElementById("all-actions-div");
         if (actionsDiv != undefined) {
             if (actionsDiv.childElementCount < 5) {
@@ -833,7 +850,6 @@ class OperationPage {
                 actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
             }
         }        
-
         actionsDiv = document.getElementById("selected-actions-div");
         if (actionsDiv != undefined) {
             if (actionsDiv.childElementCount < 5) {
@@ -841,7 +857,7 @@ class OperationPage {
             } else {
                 actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
             }
-        }        
+        }           
     }
     // #endregion
 
@@ -1238,6 +1254,7 @@ class OperationPage {
             this.stateCode === "CANCELED";
 
         // Start and finish
+        this.startDate = operation != null ? new Date(operation.startDate) : utils.nullDate;
         this.finishDate = operation != null ? new Date(operation.finishDate) : utils.nullDate;
         this.showStartFinish();
 
@@ -1251,8 +1268,7 @@ class OperationPage {
         const partnersSelect = document.getElementById("partners-select");
         partnersSelect.onchange = this.onChangePartner.bind(this);
         if (this.id > 0) {
-            await this.getSelectedWarehouseActions();            
-            this.showSelectedWarehouseActions();                        
+            this.displaySelectedWarehouseActions();                        
             if (copy) {
                 this.clearSelectedWarehouseActions();
             }
@@ -1268,14 +1284,15 @@ class OperationPage {
             warehouseActionsFieldset.disabled = false;
             const actionsFilterInput = document.getElementById("action-filter-input");
             actionsFilterInput.onchange = this.onChangeActionsFilter.bind(this);
-            await this.getWarehouseActions();
-            await this.displayWarehouseActions();
+            await this.getAllWarehouseActions();
+            await this.displayWarehouseActions();            
         } else {
             warehouseActionsFieldset.disabled = true;
             actionFiltersDiv.remove();
             allActionsDiv.remove();
         }
-        this.showWarehouseActionsDivs();
+        this.changeWarehouseActionsTitle();
+        this.resizeWarehouseActionsDivs();
 
         // Responsible officer
         document.getElementById("responsible-officer-input").value =
@@ -1350,12 +1367,7 @@ class OperationPage {
         }
 
         // Show button
-        const showBcWorksButton = document.getElementById("show-bc-works-button");
-        if (showBcWorksButton != undefined) {
-            if (this.stateCode != "WORK_FINISHED" && this.stateCode != "FINISHED") {
-                showBcWorksButton.remove();
-            }
-        }
+        viewUtils.removeElement("show-bc-works-button", this.stateCode != "WORK_FINISHED" && this.stateCode != "FINISHED");
 
         const createButton = document.getElementById("create-button");
         if (createButton != undefined) {
@@ -1367,18 +1379,11 @@ class OperationPage {
                 } else if (this.action === "CREATE_CONFIRM" || this.action === "COPY_CONFIRM") {
                     createButton.onclick = this.createConfirmOperation.bind(this);
                 } else if (this.action === "CREATE_BY_PARTNER" || this.action === "COPY_BY_PARTNER") {
-                    createButton.onclick = this.createByPartnerOperation.bind(this);
+                    createButton.onclick = this.createOperationByPartner.bind(this);
                 }
             }
 
-            const printButton = document.getElementById("print-button");
-            if (printButton != undefined) {
-                if (this.id <= 0 || copy) {
-                    printButton.remove();
-                } else {
-                    printButton.onclick = this.printOperation.bind(this);
-                }
-            }
+            viewUtils.removeElement("print-button", this.id <= 0 || copy, this.printOperation.bind(this));
 
             const saveButton = document.getElementById("save-button");
             if (saveButton != undefined) {
@@ -1395,7 +1400,6 @@ class OperationPage {
                         } else {
                             saveButton.onclick = this.editOperationByPartner.bind(this);
                         }
-
                     }
                     else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
                         saveButton.onclick = this.editOperationNote.bind(this);
@@ -1403,82 +1407,17 @@ class OperationPage {
                 }
             }
 
-            const copyButton = document.getElementById("copy-button");
-            if (copyButton != undefined) {
-                if (this.id <= 0 || copy) {
-                    copyButton.remove();
-                } else {                    
-                    if (isPartnerUser) {
-                        copyButton.onclick = this.copyOperation.bind(this);
-                    } else {
-                        copyButton.onclick = this.copyOperationByPartner.bind(this);
-                    }
-                }
-            }
-
-            const copyConfirmButton = document.getElementById("copy-confirm-button");
-            if (copyConfirmButton != undefined) {
-                if (this.id <= 0 || copy) {
-                    copyConfirmButton.remove();
-                } else {
-                    copyConfirmButton.onclick = this.copyConfirmOperation.bind(this);
-                }
-            }
-
-            const setGateButton = document.getElementById("set-gate-button");
-            if (setGateButton != undefined) {
-                if (this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
-                    setGateButton.remove();
-                }
-            }
-
-            const startButton = document.getElementById("start-button");
-            if (startButton != undefined) {
-                if (this.stateCode != "CONFIRMED") {
-                    startButton.remove();
-                }
-            }
-
-            const startWorkButton = document.getElementById("start-work-button");
-            if (startWorkButton != undefined) {
-                if (this.stateCode != "STARTED") {
-                    startWorkButton.remove();
-                }
-            }
-
-            const allocateWorkersButton = document.getElementById("allocate-workers-button");
-            if (allocateWorkersButton != undefined) {
-                if (this.stateCode != "STARTED") {
-                    allocateWorkersButton.remove();
-                }
-            }
-
-            const finishWorkButton = document.getElementById("finish-work-button");
-            if (finishWorkButton != undefined) {
-                if (this.stateCode != "WORK_STARTED") {
-                    finishWorkButton.remove();
-                }
-            }
-
-            const finishButton = document.getElementById("finish-button");
-            if (finishButton != undefined) {
-                if (this.stateCode != "WORK_FINISHED") {
-                    finishButton.remove();
-                }
-            }
-
-            const cancelButton = document.getElementById("cancel-button");
-            if (cancelButton != undefined) {
-                if (this.stateCode != "CREATED" && this.stateCode != "CONFIRMED")
-                    cancelButton.remove();
-            }
-
-            const deleteButton = document.getElementById("delete-button");
-            if (deleteButton != undefined) {
-                if (this.stateCode === "") {
-                    deleteButton.remove();
-                }
-            }
+            viewUtils.removeElement("copy-button", this.id <= 0 || copy,
+                isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
+            viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
+            viewUtils.removeElement("set-gate-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED");
+            viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
+            viewUtils.removeElement("start-work-button", this.stateCode != "STARTED");
+            viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED");
+            viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
+            viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
+            viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");
+            viewUtils.removeElement("delete-button", this.stateCode === "");
 
             const closeButton = document.getElementById("close-button");
             closeButton.onclick = this.closeOperation.bind(this);
