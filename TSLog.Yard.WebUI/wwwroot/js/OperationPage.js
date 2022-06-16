@@ -1349,7 +1349,13 @@ class OperationPage {
         document.getElementById("partner-manager-name-input").disabled = disableAdditionalAttributes;
         document.getElementById("partner-manager-phone-number-input").disabled = disableAdditionalAttributes;
         document.getElementById("partner-manager-email-input").disabled = disableAdditionalAttributes;
-        document.getElementById("note-textarea").disabled = this.stateCode === "FINISHED" || this.stateCode === "CANCELED";
+
+        const saveButton = document.getElementById("save-button");
+        if (saveButton != undefined && saveButton != null) {
+            document.getElementById("note-textarea").disabled = this.stateCode === "FINISHED" || this.stateCode === "CANCELED";
+        } else {
+            document.getElementById("note-textarea").disabled = true;
+        }        
 
         // Workers
         const workersDiv = document.getElementById("workers-div");
@@ -1403,7 +1409,6 @@ class OperationPage {
 
         viewUtils.removeElement("print-button", this.id <= 0 || copy, this.printOperation.bind(this));
 
-        const saveButton = document.getElementById("save-button");
         if (saveButton != undefined) {
             if (this.stateCode != "CREATED" &&
                 this.stateCode != "CONFIRMED" &&
