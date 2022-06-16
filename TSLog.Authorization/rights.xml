@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>	
 <data>
 	<!-- Весь список доступных прав и привилегий в модуле управления двором -->
 	<rights code="RIGHTS" name="Список всех доступых действий и привилегий">
@@ -8,11 +8,14 @@
 		
 		<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
 		<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
-				
+		<right code="GET_PARTNER_MANAGER" name="" note=""></right>
+
 		<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>		
 		<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
 		<right code="GET_OPERATION" name="Получение данных об операции двора" note="Получение данных об операции двора"></right>
+		<right code="GET_OPERATION_BY_PARTNER" name="Получение данных об операции двора" note="Получение данных об операции двора (пользователем клиента)"></right>
 		<right code="VIEW_OPERATION_PAGE" name="Просмотр операции"></right>
+		<right code="VIEW_OPERATION_PAGE_BY_PARTNER" name="Просмотр операции"></right>
 
 		<right code="FILTER_OPERATIONS_BY_ID" name="Фильтр операций по идентификатору"></right>
 		<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
@@ -30,8 +33,9 @@
 		<right code="CREATE_CONFIRM_OPERATION" name="Создание операции (для любого партнёра) с подтверждением"></right>
 		<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
 
-		<right code="COPY_OPERATION" name="Копирование операции двора без подтверждения"></right>
-		<right code="COPY_OPERATION_CONFIRM" name="Копирование операции двора с подтверждением"></right>
+		<right code="COPY_OPERATION" name="Копирование операции двора без подтверждения"></right>		
+		<right code="COPY_CONFIRM_OPERATION" name="Копирование операции двора с подтверждением"></right>
+		<right code="COPY_OPERATION_BY_PARTNER" name="Копирование операции двора без подтверждения (пользователем партнёра)"></right>
 		
 		<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра без подтверждения"></right>
 		<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
@@ -45,7 +49,11 @@
 		<right code="FINISH_OPERATION" name="Окончание операции (выезд машины со двора)"></right>				
 		<right code="CANCEL_OPERATION" name="Отмена операции"></right>
 		<right code="DELETE_OPERATION" name="Удаление операции"></right>
-		
+
+		<right code="GET_WAREHOUSE_ACTIONS" name="" note=""></right>
+		<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+		<right code="MANAGE_WAREHOUSE_ACTIONS" name="" note=""></right>
+
 		<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>		
 		<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>
 		<right code="GET_LINEAR_FREE_WORKERS" name="Получение свободных сотрудников линейных должностей" note=""></right>
@@ -53,6 +61,7 @@
 		<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 		<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 		<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
+		<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 		
 		<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>		
 		<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>
@@ -73,22 +82,17 @@
 		<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
 		<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
 	</rights>
+
+	<!-- Список ролей с набором прав по каждой роли -->
 	<roles code="ROLES" name="Список ролей">
 		<role code="PARTNER_OPERATOR" name="Оператор партёра" groupName="YardPartnerOperators">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="IS_PARTNER_USER" name="Использование функционала модуля управления двором пользователем клиента"></right>
 
-			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
-			<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
-			<right code="GET_OPERATION" name="Получение данных об операции двора" note="Получение данных об операции двора"></right>
-			<right code="VIEW_OPERATION_PAGE" name="Просмотр операции"></right>
+			<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
+			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
 
-			<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром без подтверждения"></right>
-			<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
-			<right code="COPY_OPERATION" name="Копирование операции двора"></right>
-			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
-			<right code="CANCEL_OPERATION" name="Отмена операции"></right>
-			
 			<right code="FILTER_OPERATIONS_BY_ID" name="Фильтр операций по идентификатору"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
 			<right code="FILTER_OPERATIONS_BY_TYPE" name="Фильтр операций по типу"></right>
@@ -98,10 +102,27 @@
 			<right code="FILTER_OPERATIONS_BY_VEHICLE_NUMBER" name="Фильтр операций по номеру машины"></right>
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операции по водителю"></right>
 			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
+
+			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
+			<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
+			<right code="GET_OPERATION_BY_PARTNER" name="Получение данных об операции двора" note="Получение данных об операции двора (пользователем клиента)"></right>
+			<right code="VIEW_OPERATION_PAGE_BY_PARTNER" name="Просмотр операции"></right>
+
+			<right code="CREATE_OPERATION_BY_PARTNER" name="Создание операции определённым партнёром без подтверждения"></right>
+			<right code="COPY_OPERATION_BY_PARTNER" name="Копирование операции двора без подтверждения (пользователем партнёра)"></right>
+			<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>			
+			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
+			<right code="CANCEL_OPERATION" name="Отмена операции"></right>
+
+			<right code="GET_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="MANAGE_WAREHOUSE_ACTIONS" name="" note=""></right>
 		</role>
 		<role code="MANAGER" name="Менеджер клиента" groupName="Managers" note="Клиентские менеджеры">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 			<right code="IS_MANAGER" name="Использование функционала модуля управления двором менеджером"></right>
+
+			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
 
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>		
 			<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
@@ -118,9 +139,15 @@
 			<right code="FILTER_OPERATIONS_BY_DRIVER" name="Фильтр операций по Ф. И. О. водителя"></right>
 			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 			<right code="FILTER_OPERATIONS_BY_WORKER" name="Фильтр операции по назначенному работнику"></right>
+
+			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+		
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 		</role>
 		<role code="LEAD" name="Руководитель клиентских менеджеров" groupName="Leads" note="Руководство клиентских менеджеров">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+
+			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
 
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
 			<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
@@ -139,6 +166,10 @@
 			<right code="FILTER_OPERATIONS_BY_PARTNER_ACTION_ID" name="Фильтр операции по идентификатору заказа клиента (партнёра)"></right>
 			<right code="FILTER_OPERATIONS_BY_WORKER" name="Фильтр операции по назначенному работнику"></right>
 
+			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+			
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
+
 			<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>
 			<right code="VIEW_PARTNERS_REPORT_PAGE" name="Формирование отчёта по партнёрам"></right>
@@ -146,9 +177,6 @@
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_PRESENT_VEHICLES_PAGE" name="Просмотр активных операций"></right>
 
-			<right code="GET_GUARD_OPERATIONS" name="Получение операций для сотрудника охраны (которые должны заехать и которые готовы к выезду)"></right>
-			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
-			
 			<right code="GET_LABOR_REPORT" name=""></right>
 			<right code="VIEW_LABOR_REPORT_PAGE" name="отчёта по трудозатратам"></right>
 			<right code="GET_SHIFT_LABOR_REPORT" name=""></right>
@@ -160,6 +188,9 @@
 		</role>	
 		<role code="GUARD" name="Сотрудник охраны на КПП" groupName="Guards" note="Сотрудники охраны">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+
+			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
+			
 			<right code="VIEW_OPERATION_FOR_GUARD" name="Просмотр операций для сотрудника охраны на КПП"></right>
 
 			<right code="START_OPERATION" name="Начало операции (пропуск по двор)"></right>
@@ -182,6 +213,8 @@
 
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 
+			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_PRESENT_VEHICLES_PAGE" name="Просмотр активных операций"></right>
 
@@ -194,11 +227,17 @@
 		</role>
 		<role code="DISPATCHER" name="Диспетчер двора" groupName="YardDispatchers" note="Диспетчеры склада">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
-			
+
+			<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
+			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
+
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
 			<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
 			<right code="GET_OPERATION" name="Получение данных об операции двора" note="Получение данных об операции двора"></right>
+			<right code="GET_OPERATION_BY_PARTNER" name="Получение данных об операции двора" note="Получение данных об операции двора (пользователем клиента)"></right>
 			<right code="VIEW_OPERATION_PAGE" name="Просмотр операции"></right>
+			<right code="VIEW_OPERATION_PAGE_BY_PARTNER" name="Просмотр операции"></right>
 			
 			<right code="FILTER_OPERATIONS_BY_ID" name="Фильтр операций по идентификатору"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
@@ -215,7 +254,8 @@
 			<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра) без подтверждения"></right>
 			<right code="CREATE_CONFIRM_OPERATION" name="Создание операции (для любого партнёра) с подтверждением"></right>
 			<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
-			<right code="COPY_OPERATION" name="Копирование операции двора"></right>
+			<right code="COPY_OPERATION" name="Копирование операции двора без подтверждения"></right>
+			<right code="COPY_CONFIRM_OPERATION" name="Копирование операции двора с подтверждением"></right>
 			<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
 			<right code="VIEW_OPERATION_GATE" name="Просмотр ворот операции"></right>
@@ -235,6 +275,11 @@
 			-->
 			<right code="CANCEL_OPERATION" name="Отмена операции"></right>
 			<right code="DELETE_OPERATION" name="Удаление операции"></right>
+
+			<right code="GET_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="MANAGE_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
 			<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>
@@ -251,8 +296,10 @@
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_PRESENT_VEHICLES_PAGE" name="Просмотр активных операций"></right>
 
+			<!--
 			<right code="GET_GUARD_OPERATIONS" name="Получение операций для сотрудника охраны (которые должны заехать и которые готовы к выезду)"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
+			-->
 			
 			<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>			
 			<right code="VIEW_LABOR_REPORT_PAGE" name="отчёта по трудозатратам"></right>
@@ -267,11 +314,17 @@
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
-			
+
+			<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
+			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
+
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
 			<right code="VIEW_OPERATIONS_PAGE" name="Просмотр операций"></right>
 			<right code="GET_OPERATION" name="Получение данных об операции двора" note="Получение данных об операции двора"></right>
+			<right code="GET_OPERATION_BY_PARTNER" name="Получение данных об операции двора" note="Получение данных об операции двора (пользователем клиента)"></right>
 			<right code="VIEW_OPERATION_PAGE" name="Просмотр операции"></right>
+			<right code="VIEW_OPERATION_PAGE_BY_PARTNER" name="Просмотр операции"></right>
 			
 			<right code="FILTER_OPERATIONS_BY_ID" name="Фильтр операций по идентификатору"></right>
 			<right code="FILTER_OPERATIONS_BY_DATE" name="Фильтр операций по дате"></right>
@@ -288,7 +341,8 @@
 			<right code="CREATE_OPERATION" name="Создание операции (для любого партнёра) без подтверждения"></right>
 			<right code="CREATE_CONFIRM_OPERATION" name="Создание операции (для любого партнёра) с подтверждением"></right>
 			<right code="EDIT_OPERATION" name="Правка операции, всех полей кроме ворот и примечания"></right>
-			<right code="COPY_OPERATION" name="Копирование операции двора"></right>
+			<right code="COPY_OPERATION" name="Копирование операции двора без подтверждения"></right>
+			<right code="COPY_CONFIRM_OPERATION" name="Копирование операции двора с подтверждением"></right>
 			<right code="EDIT_OPERATION_BY_PARTNER" name="Редактирование операции для партнёра"></right>
 			<right code="EDIT_OPERATION_PARTNER" name="Изменение партнёра операции"></right>
 			<right code="EDIT_OPERATION_NOTE" name="Правка примечания операции"></right>
@@ -302,6 +356,10 @@
 			<right code="CANCEL_OPERATION" name="Отмена операции"></right>
 			<right code="DELETE_OPERATION" name="Удаление операции"></right>
 
+			<right code="GET_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
+			<right code="MANAGE_WAREHOUSE_ACTIONS" name="" note=""></right>
+
 			<right code="GET_WORKERS" name="Получение сотрудников по конкретной должности" note=""></right>
 			<right code="GET_LINEAR_WORKERS" name="Получение сотрудников линейных должностей" note=""></right>
 			<right code="GET_LINEAR_FREE_WORKERS" name="Получение свободных сотрудников линейных должностей" note=""></right>
@@ -309,6 +367,7 @@
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 			<right code="MANAGE_OPERATION_WORKERS" name="Правка сотрудников, назнаыенных на операцию" note=""></right>
+			<right code="GET_BOSSCONTROL_WORKERS" name="" note=""></right>
 
 			<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>

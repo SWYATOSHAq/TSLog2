@@ -170,7 +170,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return "Forbidden";
                 }
 
-                var isPartnerUser = _rightsChecker.CheckRight("PARTNER_USER", User);
+                var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
                 var text = JsonSerializer.Serialize(isPartnerUser);
                 Response.StatusCode = 200;
                 return text;
@@ -188,7 +188,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && !useYard && !getOperationDuration) 
+                if (_useAuthentication && (!useYard || !getOperationDuration)) 
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -222,7 +222,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && !useYard && !getOperationDuration)
+                if (_useAuthentication && (!useYard || !getOperationDuration))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -261,8 +261,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getBusyIntervals = _rightsChecker.CheckRight("GET_BUSY_DURATION", User);
-                if (_useAuthentication && !useYard && !getBusyIntervals)
+                var getBusyIntervals = _rightsChecker.CheckRight("GET_BUSY_INTERVALS", User);
+                if (_useAuthentication && (!useYard || !getBusyIntervals))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -304,7 +304,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getPartnermanager = _rightsChecker.CheckRight("GET_PARTNER_MANAGER", User);
-                if (_useAuthentication && !useYard && !getPartnermanager)
+                if (_useAuthentication && (!useYard || !getPartnermanager))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -333,7 +333,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getPartnermanager = _rightsChecker.CheckRight("GET_MANAGER_BY_PARTNER", User);
-                if (_useAuthentication && !useYard && !getPartnermanager)
+                if (_useAuthentication && (!useYard || !getPartnermanager))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -358,7 +358,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperation = _rightsChecker.CheckRight("GET_OPERATION", User);
-                if (_useAuthentication && !useYard && !getOperation)
+                var getOperationByPartner = _rightsChecker.CheckRight("GET_OPERATION_BY_PARTNER", User);
+                if (_useAuthentication && (!useYard || !(getOperation || getOperationByPartner)))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -395,7 +396,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperations = _rightsChecker.CheckRight("GET_OPERATIONS", User);
-                if (_useAuthentication && !useYard && !getOperations)
+                if (_useAuthentication && (!useYard || !getOperations))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -480,7 +481,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperations = _rightsChecker.CheckRight("GET_ACTIVE_OPERATIONS", User);
-                if (_useAuthentication && !useYard && !getOperations)
+                if (_useAuthentication && (!useYard || !getOperations))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -504,7 +505,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperations = _rightsChecker.CheckRight("GET_GUARD_OPERATIONS", User);
-                if (_useAuthentication && !useYard && !getOperations)
+                if (_useAuthentication && (!useYard || !getOperations))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -528,7 +529,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION", User);
-                if (_useAuthentication && !useYard && !createOperation)
+                if (_useAuthentication && (!useYard || !createOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -633,7 +634,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var createOperation = _rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", User);
-                if (_useAuthentication && !useYard && !createOperation)
+                if (_useAuthentication && (!useYard || !createOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -744,7 +745,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
-                if (_useAuthentication && !useYard && !createOperation)
+                if (_useAuthentication && (!useYard || !createOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -811,16 +812,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerManagerEmail = data.partnerManagerEmail;
                 string note = data.note;
 
-                string partnerActioinId = data.partnerActionId;
-                if (string.IsNullOrWhiteSpace(partnerActioinId))
-                    return "Partner action id is empty!";
-
                 var user = _rightsChecker.GetUserName(User);
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
                 var manager = _storage.GetPartnerManagers(partner)[0];
-                var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-                var action = _storage.GetAction(actionKind, partner, partnerActioinId);
 
                 var operation = new Operation(-1, null, operationType, startDate, finishDate,
                     vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
@@ -832,9 +827,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation.AddAction(action);
-                
-                _storage.AddOperation(operation, user);
+                operation = _storage.AddOperation(operation, _rightsChecker.GetUserName(User));
+
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
                 return text;
@@ -852,7 +846,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION", User);
-                if (_useAuthentication && !useYard && !editOperation)
+                if (_useAuthentication && (!useYard || !editOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1008,7 +1002,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
-                if (_useAuthentication && !useYard && !editOperation)
+                if (_useAuthentication && (!useYard || !editOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1130,7 +1124,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var startOperationWork = _rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
-                if (_useAuthentication && !useYard && !startOperationWork)
+                if (_useAuthentication && (!useYard || !startOperationWork))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1168,7 +1162,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var setOperationGate = _rightsChecker.CheckRight("SET_OPERATION_GATE", User);
-                if (_useAuthentication && !useYard && !setOperationGate)
+                if (_useAuthentication && (!useYard || !setOperationGate))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1223,7 +1217,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var cancelOperationGate = _rightsChecker.CheckRight("CANCEL_OPERATION_GATE", User);
-                if (_useAuthentication && !useYard && !cancelOperationGate)
+                if (_useAuthentication && (!useYard || !cancelOperationGate))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1259,7 +1253,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var startOperation = _rightsChecker.CheckRight("START_OPERATION", User);
-                if (_useAuthentication && !useYard && !startOperation)
+                if (_useAuthentication && (!useYard || !startOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1295,7 +1289,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
-                if (_useAuthentication && !useYard && !manageOperationWorkers)
+                if (_useAuthentication && (!useYard || !manageOperationWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1331,7 +1325,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var startOperationWork = _rightsChecker.CheckRight("START_OPERATION_WORK", User);
-                if (_useAuthentication && !useYard && !startOperationWork)
+                if (_useAuthentication && (!useYard || !startOperationWork))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1367,7 +1361,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var startOperationWork = _rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
-                if (_useAuthentication && !useYard && !startOperationWork)
+                if (_useAuthentication && (!useYard || !startOperationWork))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1403,7 +1397,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var startOperation = _rightsChecker.CheckRight("FINISH_OPERATION", User);
-                if (_useAuthentication && !useYard && !startOperation)
+                if (_useAuthentication && (!useYard || !startOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1439,7 +1433,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var cancelOperation = _rightsChecker.CheckRight("CANCEL_OPERATION", User);
-                if (_useAuthentication && !useYard && !cancelOperation)
+                if (_useAuthentication && (!useYard || !cancelOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1475,7 +1469,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var deleteOperation = _rightsChecker.CheckRight("DELETE_OPERATION", User);
-                if (_useAuthentication && !useYard && !deleteOperation)
+                if (_useAuthentication && (!useYard || !deleteOperation))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1532,7 +1526,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWarehouseActions = _rightsChecker.CheckRight("GET_WAREHOUSE_ACTIONS", User);
-                if (_useAuthentication && !useYard && !getWarehouseActions)
+                if (_useAuthentication && (!useYard || !getWarehouseActions))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1583,7 +1577,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWarehouseActions = _rightsChecker.CheckRight("GET_SELECTED_WAREHOUSE_ACTIONS", User);
-                if (_useAuthentication && !useYard && !getWarehouseActions)
+                if (_useAuthentication && (!useYard || !getWarehouseActions))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1615,7 +1609,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
-                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                if (_useAuthentication && (!useYard || !manageWarehouseActions))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1660,7 +1654,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
-                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                if (_useAuthentication && (!useYard || !manageWarehouseActions))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1704,7 +1698,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
-                if (_useAuthentication && !useYard && !manageWarehouseActions)
+                if (_useAuthentication && (!useYard || !manageWarehouseActions))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1798,7 +1792,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWorkers = _rightsChecker.CheckRight("GET_WORKERS", User);
-                if (_useAuthentication && !useYard && !getWorkers)
+                if (_useAuthentication && (!useYard || !getWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1829,7 +1823,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWorkers = _rightsChecker.CheckRight("GET_LINEAR_WORKERS", User);
-                if (_useAuthentication && !useYard && !getWorkers)
+                if (_useAuthentication && (!useYard || !getWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1858,7 +1852,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWorkers = _rightsChecker.CheckRight("GET_LINEAR_FREE_WORKERS", User);
-                if (_useAuthentication && !useYard && !getWorkers)
+                if (_useAuthentication && (!useYard || !getWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1887,7 +1881,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWorkers = _rightsChecker.CheckRight("GET_ALL_WORKERS", User);
-                if (_useAuthentication && !useYard && !getWorkers)
+                if (_useAuthentication && (!useYard || !getWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1916,7 +1910,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getWorkers = _rightsChecker.CheckRight("GET_OPERATION_WORKERS", User);
-                if (_useAuthentication && !useYard && !getWorkers)
+                if (_useAuthentication && (!useYard || !getWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1948,7 +1942,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
-                if (_useAuthentication && !useYard && !manageOperationWorkers)
+                if (_useAuthentication && (!useYard || !manageOperationWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1996,7 +1990,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
-                if (_useAuthentication && !useYard && !manageOperationWorkers)
+                if (_useAuthentication && (!useYard || !manageOperationWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -2044,7 +2038,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var manageOperationWorkers = _rightsChecker.CheckRight("GET_BOSSCONTROL_WORKERS", User);
-                if (_useAuthentication && !useYard && !manageOperationWorkers)
+                if (_useAuthentication && (!useYard || !manageOperationWorkers))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -2108,7 +2102,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getData = _rightsChecker.CheckRight("GET_LABOR_REPORT", User);
-                if (_useAuthentication && !useYard && !getData)
+                if (_useAuthentication && (!useYard || !getData))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -2192,7 +2186,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
-                if (_useAuthentication && !useYard && !getData)
+                if (_useAuthentication && (!useYard || !getData))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -2238,7 +2232,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
-                if (_useAuthentication && !useYard && !getData)
+                if (_useAuthentication && (!useYard || !getData))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -2308,7 +2302,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getData = _rightsChecker.CheckRight("GET_EC_REPORT", User);
-                if (_useAuthentication && !useYard && !getData)
+                if (_useAuthentication && (!useYard || !getData))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -2349,7 +2343,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
-                if (_useAuthentication && !useYard && !getData)
+                if (_useAuthentication && (!useYard || !getData))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";

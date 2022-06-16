@@ -19,6 +19,7 @@
     var canCreateOperation = !useAuthentication 
         || rightsChecker.CheckRight("CREATE_OPERATION", User)
         || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     var canViewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN_PAGE", User);
     var canViewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN_PAGE", User);
     var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT_PAGE", User);
@@ -28,6 +29,8 @@
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
     var canViewEcReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User);
     var canViewWorkersPerfomanceReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_WORKERS_PERFOMANCE_REPORT_PAGE", User);
+
+    var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";
 
     var date = DateTime.Today.ToString("dd.MM.yyyy");
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -97,9 +100,9 @@
     {
         <link rel="stylesheet" href="~/css/ShiftPerfomanceReportPage.css" asp-append-version="true" />
     }
-    else if (page == "ShiftLaborReportPage3")
+    else if (page == "ShiftPerfomanceReportPage2")
     {
-        <link rel="stylesheet" href="~/css/ShiftLaborReportPage3.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/ShiftPerfomanceReportPage2.css" asp-append-version="true" />
     } 
     else if (page == "ECReportPage")
     {
@@ -124,7 +127,7 @@
                         <a class="nav-link text-dark hide-on-print" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
                         @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/OperationPage?action=CREATE">Cоздать заявку</a>
+                            <a class="nav-link text-dark hide-on-print" href="/OperationPage?action=@createAction">Cоздать заявку</a>
                         }
                         @if (canViewStaffPlan)
                         {
@@ -166,7 +169,7 @@
             @if (canViewShiftLaborReportPage)
             {
                 <a class="nav-link text-dark hide-on-print" href="/ShiftPerfomanceReportPage">Производительность</a>
-                <a class="nav-link text-dark hide-on-print" href="/ShiftLaborReportPage3">Трудозатраты 3</a>
+                <a class="nav-link text-dark hide-on-print" href="/ShiftPerfomanceReportPage2">Производительность 2</a>
             }
             @if (canViewEcReportPage)
             {
@@ -261,9 +264,9 @@
         {        
             <script type="text/javascript" src="~/js/ShiftPerfomanceReportPage.js"></script>
         }
-        else if (page == "ShiftLaborReportPage3")
+        else if (page == "ShiftPerfomanceReportPage2")
         {        
-            <script type="text/javascript" src="~/js/ShiftLaborReportPage3.js"></script>
+            <script type="text/javascript" src="~/js/ShiftPerfomanceReportPage2.js"></script>
         }
         else if (page == "ECReportPage")
         {        

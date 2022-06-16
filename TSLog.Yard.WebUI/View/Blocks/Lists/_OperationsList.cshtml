@@ -16,10 +16,7 @@
     var request = Model.Request;
 
     var use = !useAuthentication || rightsChecker.CheckRight("USE_YARD", User);
-    var view = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION", User);
-    var edit = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
-    var editByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
-
+    
     string stringFromDate = request.Query["from_date"];
     string stringToDate = request.Query["to_date"];
     var fromDate = string.IsNullOrWhiteSpace(stringFromDate) ? DateTime.Today : DateTime.Parse(stringFromDate);

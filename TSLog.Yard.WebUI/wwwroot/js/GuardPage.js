@@ -47,7 +47,7 @@ class GuardPage {
     createOpenOperationFunction(id) {
         return function () {
             sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-            location.href = "/OperationPage?id=" + id;
+            location.href = "/OperationPage?id=" + id + "&action=VIEW";
         }
     }
 
@@ -64,7 +64,6 @@ class GuardPage {
         const openButton = document.createElement("button");        
         openButton.classList.add("btn");
         openButton.classList.add("btn-outline-info");
-        openButton.classList.add("m-3");
         openButton.classList.add("table-cell-button");
         openButton.style.cssText = "width: 100px !important";
         openButton.onclick = this.createOpenOperationFunction(operation.id);

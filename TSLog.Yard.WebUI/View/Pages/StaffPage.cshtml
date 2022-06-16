@@ -47,8 +47,8 @@
     var endBracket = "]";
     var minutesText = " ч. мин. ";
 }
-<div class="row row2 row3">
-    <label class="positions-plan-operation-date-picker-label" 
+<div class="row row2 row3 hide-on-print">
+    <label class="positions-plan-operation-date-picker-label hide-on-print" 
         for="operation-date-picker">Выберете дату:</label>
     <input type="text"
         id="operation-date-picker"
@@ -67,7 +67,8 @@
         type="button" 
         onclick="staffPage.printTable()">Печать</button>
 </div>
-<div class="my-5 statistics-table">
+<div class="statistics-table">
+    <h3>План персонала</h3>
     <table class="table table-light table-bordered table-striped">
         <thead class="thead-light">
             <tr>
@@ -95,7 +96,7 @@
             @foreach (var item in intervals)
             {
                 <tr>
-                    <th class="positions-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info hide-on-print mx-auto positions-plan-table-cell-button" title="Печать интервала" type="button" onclick="PrintBlock(@i)">Печать</button></th>
+                    <th class="positions-plan-table-cell">@item.GetFormattedTimeString() <button class="btn btn-outline-info mx-auto positions-plan-table-cell-button hide-on-print" title="Печать интервала" type="button" onclick="staffPage.printBlock(@i)">Печать</button></th>
                     <td class="h5 positions-plan-table-cell">@(item.OperationsCount > 0 ? item.OperationsCount : string.Empty)</td>
                     <td class="positions-plan-table-cell">
                         @{

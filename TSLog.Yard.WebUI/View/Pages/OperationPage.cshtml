@@ -19,31 +19,34 @@
     action = action.Trim().ToUpper();
     if (action != "CREATE"
         && action != "CREATE_CONFIRM"
-        && action != "CREATE_BY_PARTNER"
-        && action != "EDIT"
-        && action != "EDIT_BY_PARTNER"
+        && action != "CREATE_BY_PARTNER"        
         && action != "COPY"
         && action != "COPY_CONFIRM"
         && action != "COPY_BY_PARTNER"
+        && action != "VIEW"
+        && action != "VIEW_BY_PARTNER"
     )
         throw new Exception($"Unknown action: {action}!");
 
     var createOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION", User);
     var createConfirmOperation = !useAuthentication || rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", User);
-    var createOperationByPartner = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
-    var editOperation = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
-    var editOperationByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
+    var createOperationByPartner = !useAuthentication || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);    
     var copyOperation = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION", User);
     var copyConfirmOperation = !useAuthentication || rightsChecker.CheckRight("COPY_CONFIRM_OPERATION", User);
-    var copyOperationBPartner = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION_BY_PARTNER", User);
+    var copyOperationByPartner = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION_BY_PARTNER", User);
+    var editOperation = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION", User);
+    var editOperationByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
+    var viewOperatioPage = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_PAGE", User);
+    var viewOperationPageByPartner = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_PAGE_BY_PARTNER", User);
 
     if (action == "CREATE" && !createOperation
         || action == "CREATE_CONFIRM" && !createConfirmOperation
         || action == "CREATE_BY_PARTNER" && !createOperationByPartner
-        || action == "EDIT" && !editOperation
-        || action == "EDIT_BY_PARTNER" && !editOperationByPartner 
         || action == "COPY" && !copyOperation 
-        || action == "COPY_BY_PARTNER" && !copyOperationBPartner)
+        || action == "COPY_BY_PARTNER" && !copyOperationByPartner
+        || action == "VIEW" && !viewOperatioPage
+        || action == "VIEW_BY_PARTNER" && !viewOperationPageByPartner
+    )
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
@@ -57,16 +60,19 @@
     var finish = !useAuthentication || rightsChecker.CheckRight("FINISH_OPERATION", User);
     var cancel = !useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User);
     var delete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
+
+    var getWarehouseActions = !useAuthentication || rightsChecker.CheckRight("GET_WAREHOUSE_ACTIONS", User);
+
     var viewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
     var manageOperationWorkers = !useAuthentication || rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
     var editAttributes = createOperation || createConfirmOperation || createOperationByPartner
         || editOperation || editOperationByPartner
-        || copyOperation || copyOperationBPartner;
+        || copyOperation || copyOperationByPartner;
     var save = editOperation || editOperationByPartner;
 
     var divClasses = "input-group dropdown-div";
     var selectClasses = "form-select dropdown-select";    
-    var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     var partnerId = string.Empty;
     var partners = Array.Empty<Partner>();
     if (isPartnerUser)
@@ -183,13 +189,19 @@
                 <div id="warehouse-actions-title-div" style="width: 100%; margin-top: 8px">
                     <b id="warehouse-actions-b">Заказы (приходы):</b>
                 </div>
-                <div id="action-filter-div" style="display: flex">
-                    <span class="input-group-text">Поиск заказа (прихода):</span>
-                    <input id="action-filter-input" class="form-control" value="" />
-                </div>
+                @if (getWarehouseActions)
+                {
+                    <div id="action-filter-div" style="display: flex">
+                        <span class="input-group-text">Поиск заказа (прихода):</span>
+                        <input id="action-filter-input" class="form-control" value="" />
+                    </div>    
+                }                
                 <div id="actions-div" style="display: flex; margin-top: 8px; margin-bottom: 8px">
-                    <div id="all-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
-                    </div>
+                    @if (getWarehouseActions)
+                    {
+                        <div id="all-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
+                        </div>
+                    }                    
                     <div id="selected-actions-div" style="width: 50%; height: fit-content; max-height: 180px; overflow-y: scroll">
                     </div>                
                 </div>
@@ -207,7 +219,7 @@
             <input id="responsible-officer-input" class="form-control" value="" disabled/>
         </div>
 
-        @if (setGate && !isPartnerUser && (action == "EDIT" || action == "EDIT_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
+        @if (setGate && !isPartnerUser && (action == "VIEW" || action == "VIEW_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
         {
             <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
         }    
@@ -264,7 +276,7 @@
         }    
     
         <div style="display: flex; flex-direction:column">
-            @if (createOperation || createConfirmOperation || createOperationByPartner || copyOperation || copyOperationBPartner)
+            @if (createOperation || createConfirmOperation || createOperationByPartner || copyOperation || copyOperationByPartner)
             {
                 <button id="create-button"
                     class="btn btn-outline-success" 
@@ -285,7 +297,7 @@
                     title="Сохранить изменения в карточке операции двора"
                     type="button">Сохранить изменения</button>
             }            
-            @if (copyOperation)
+            @if (copyOperation || copyOperationByPartner)
             {
                 <button id="copy-button"
                     class="btn btn-outline-warning" 

@@ -54,7 +54,7 @@
     var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния", divClasses, selectClasses);
     var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, true, true, "Все партнеры", divClasses, selectClasses);
 
-    var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     if (isPartnerUser)
     {
         var userName = rightsChecker.GetUserName(User);

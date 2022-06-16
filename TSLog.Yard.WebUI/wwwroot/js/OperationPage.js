@@ -462,7 +462,7 @@ class OperationPage {
             for (let warehouseActionId in this.selectedWarehouseActions) {
                 api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
             }
-            location.href = this.shortUrl + "?id=" + operation.id + "&action=EDIT";
+            location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
             viewUtils.showError(result.message);
         }       
@@ -502,7 +502,7 @@ class OperationPage {
             for (let warehouseActionId in this.selectedWarehouseActions) {
                 api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
             }
-            location.href = this.shortUrl + "?id=" + operation.id + "&action=EDIT";
+            location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
             viewUtils.showError(result.message);
         }
@@ -540,7 +540,7 @@ class OperationPage {
             for (let warehouseActionId in this.selectedWarehouseActions) {
                 api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
             }
-            location.href = shortUrl + "?id=" + operation.id + "&action=EDIT_BY_PARTNER";
+            location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW_BY_PARTNER";
         } else {
             viewUtils.showError(result.message);
         }
@@ -629,7 +629,7 @@ class OperationPage {
 
         const result = await api.editOperationByPartner(data);
         if (result.code === 0) {
-            const result2 = api.removeOperationWarehouseActions(this.id);
+            const result2 = await api.removeOperationWarehouseActions(this.id);
             if (result2.code === 0) {
                 for (let warehouseActionId in this.selectedWarehouseActions) {
                     api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
@@ -685,29 +685,32 @@ class OperationPage {
 
     // #region Warehouse actions
     async getAllWarehouseActions() {
-        this.warehouseActions = {};
+        const allWarehouseActionDiv = document.getElementById("all-actions-div");
+        if (allWarehouseActionDiv != undefined && allWarehouseActionDiv != null) {
+            this.warehouseActions = {};
 
-        const kind = this.getKind();
-        if (kind != "O" && kind != "I") {
-            return;
-        }
-
-        const partnersSelect = document.getElementById("partners-select");
-        const partnerId = partnersSelect.value;
-        if (partnerId === "") {
-            return;
-        }
-
-        const pattern = document.getElementById("action-filter-input").value.trim().toLowerCase();
-        const result = await api.findWarehouseActions(kind, pattern, partnerId);
-        if (result.code === 0) {
-            for (let warehouseAction of result.data) {
-                this.warehouseActions[warehouseAction.id] = warehouseAction;
+            const kind = this.getKind();
+            if (kind != "O" && kind != "I") {
+                return;
             }
-        }
-        else {
-            viewUtils.showError(result.message);
-        }
+
+            const partnersSelect = document.getElementById("partners-select");
+            const partnerId = partnersSelect.value;
+            if (partnerId === "") {
+                return;
+            }
+
+            const pattern = document.getElementById("action-filter-input").value.trim().toLowerCase();
+            const result = await api.findWarehouseActions(kind, pattern, partnerId);
+            if (result.code === 0) {
+                for (let warehouseAction of result.data) {
+                    this.warehouseActions[warehouseAction.id] = warehouseAction;
+                }
+            }
+            else {
+                viewUtils.showError(result.message);
+            }
+        }        
     }
 
     async getSelectedWarehouseActions() {
@@ -792,19 +795,22 @@ class OperationPage {
     }
 
     async displayWarehouseActions() {        
-        const operationTypesSelect = document.getElementById("operation-types-select");
-        const partnersSelect = document.getElementById("partners-select");
-        const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
-        if (partnersSelect.value != "" && operationTypesSelect.value != "") {
-            warehouseActionsTitleDiv.classList.remove("d-none");
-            document.getElementById("action-filter-div").classList.remove("d-none");
-            document.getElementById("actions-div").classList.remove("d-none");            
-            await this.getAllWarehouseActions();
-            this.showAllWarehouseActions();
-        } else {
-            warehouseActionsTitleDiv.classList.add("d-none");
-            document.getElementById("action-filter-div").classList.add("d-none");
-            document.getElementById("actions-div").classList.add("d-none");
+        const allWarehouseActionDiv = document.getElementById("all-actions-div");
+        if (allWarehouseActionDiv != undefined && allWarehouseActionDiv != null) {
+            const operationTypesSelect = document.getElementById("operation-types-select");
+            const partnersSelect = document.getElementById("partners-select");
+            const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
+            if (partnersSelect.value != "" && operationTypesSelect.value != "") {
+                warehouseActionsTitleDiv.classList.remove("d-none");
+                document.getElementById("action-filter-div").classList.remove("d-none");
+                document.getElementById("actions-div").classList.remove("d-none");
+                await this.getAllWarehouseActions();
+                this.showAllWarehouseActions();
+            } else {
+                warehouseActionsTitleDiv.classList.add("d-none");
+                document.getElementById("action-filter-div").classList.add("d-none");
+                document.getElementById("actions-div").classList.add("d-none");
+            }        
         }        
     }
 
@@ -1138,7 +1144,7 @@ class OperationPage {
     }
 
     async show() {
-        // CREATE, CREATE_CONFIRM, CREATE_BY_PARTNER, EDIT, EDIT_BY_PARTNER, COPY, COPY_BY_PARTNER
+        // CREATE, CREATE_CONFIRM, CREATE_BY_PARTNER, COPY, COPY_BY_PARTNER, VIEW, VIEW_BY_PARTNER
         this.action = utils.getUrlParameter("action");
         const copy = this.action === "COPY" || this.action === "COPY_CONFIRM" || this.action === "COPY_BY_PARTNER";
 
@@ -1148,7 +1154,7 @@ class OperationPage {
             isPartnerUser = response2.isPartnerUser;
         } else {
             viewUtils.showError(response2.message);
-        }          
+        }
 
         const id = utils.getUrlParameter("id");
         let operation = null;
@@ -1176,23 +1182,25 @@ class OperationPage {
             h1.textContent = "Создание (с подтверждением)";
         } else if (this.action == "CREATE_BY_PARTNER") {
             h1.textContent = "Создание (клиентом)";
-        } else if (this.action == "EDIT") {
-            h1.textContent = "#" + this.id + " (" + this.stateName + ")";
-        } else if (this.action == "EDIT_BY_PARTNER") {
-            h1.textContent = "#" + this.id + " (" + this.stateName + ")";
         } else if (this.action == "COPY") {
             h1.textContent = "Копирование";
         } else if (this.action == "COPY_BY_PARTNER") {
             h1.textContent = "Копирование (клиентом)";
-        }        
+        } else if (this.action == "VIEW") {
+            h1.textContent = "#" + this.id + " (" + this.stateName + ")";
+        } else if (this.action == "VIEW_BY_PARTNER") {
+            h1.textContent = "#" + this.id + " (" + this.stateName + ")";
+        }
 
         // Operation type
         const operationTypesSelect = document.getElementById("operation-types-select");
         operationTypesSelect.value = operation != null ? operation.typeCode : "";
         if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-            operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
+            if (!operationTypesSelect.disabled) {
+                operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
+            }
         } else {
-            operationTypesSelect.setAttribute("disabled", "");
+            operationTypesSelect.disabled = true;
         }
         this.kind = this.getKind();
         const showOperationTypeNoteButton = document.getElementById("operation-type-note-button");
@@ -1207,7 +1215,7 @@ class OperationPage {
         if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
             vehiclekindsSelect.onchange = this.onChangeOperationTypeVehicleKind.bind(this);
         } else {
-            vehiclekindsSelect.setAttribute("disabled", "");
+            vehiclekindsSelect.disabled = true;
         }
 
         // Work start and finish (plan and fact)        
@@ -1224,6 +1232,10 @@ class OperationPage {
         this.planDuration = operation != null ? Number(operation.planDuration) : 0;
         this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
         this.showDuration();
+        const timetableFieldset = document.getElementById("timetable-fieldset");
+        const timeTableDisabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
+            this.stateCode === "CANCELED" || operationTypesSelect.disabled;
+        timetableFieldset.disabled = timeTableDisabled;
         let tempDate = operation != null && !copy ? new Date(this.planWorkStartDate) : new Date();
         tempDate.setHours(0, 0, 0, 0);
         const workStartDatePicker = $("#work-start-date-picker");
@@ -1237,7 +1249,9 @@ class OperationPage {
         workStartDatePicker.datepicker("setDate", tempDate);
         workStartDatePicker.on("changeDate", this.onChangePlanWorkStartDate.bind(this));
         if (operation != null) {
-            await this.getAvalibleIntervals();
+            if (!timeTableDisabled) {
+                await this.getAvalibleIntervals();
+            }
             this.countOperationBlocks();
             this.showTimeTable();
             const blockId = this.getBlockId(this.planWorkStartDate);
@@ -1249,9 +1263,6 @@ class OperationPage {
         } else {
             this.hideTimeTable();
         }
-        const timetableFieldset = document.getElementById("timetable-fieldset");
-        timetableFieldset.disabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
-            this.stateCode === "CANCELED";
 
         // Start and finish
         this.startDate = operation != null ? new Date(operation.startDate) : utils.nullDate;
@@ -1268,7 +1279,7 @@ class OperationPage {
         const partnersSelect = document.getElementById("partners-select");
         partnersSelect.onchange = this.onChangePartner.bind(this);
         if (this.id > 0) {
-            this.displaySelectedWarehouseActions();                        
+            await this.displaySelectedWarehouseActions();
             if (copy) {
                 this.clearSelectedWarehouseActions();
             }
@@ -1281,15 +1292,21 @@ class OperationPage {
         const actionFiltersDiv = document.getElementById("action-filter-div");
         const allActionsDiv = document.getElementById("all-actions-div");
         if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-            warehouseActionsFieldset.disabled = false;
+            warehouseActionsFieldset.disabled = operationTypesSelect.disabled;
             const actionsFilterInput = document.getElementById("action-filter-input");
-            actionsFilterInput.onchange = this.onChangeActionsFilter.bind(this);
+            if (actionsFilterInput != undefined && actionsFilterInput != null) {
+                actionsFilterInput.onchange = this.onChangeActionsFilter.bind(this);
+            }
             await this.getAllWarehouseActions();
-            await this.displayWarehouseActions();            
+            await this.displayWarehouseActions();
         } else {
             warehouseActionsFieldset.disabled = true;
-            actionFiltersDiv.remove();
-            allActionsDiv.remove();
+            if (actionFiltersDiv != undefined && actionFiltersDiv != null) {
+                actionFiltersDiv.remove();
+            }
+            if (allActionsDiv != undefined && allActionsDiv != null) {
+                allActionsDiv.remove();
+            }            
         }
         this.changeWarehouseActionsTitle();
         this.resizeWarehouseActionsDivs();
@@ -1321,8 +1338,8 @@ class OperationPage {
         document.getElementById("partner-manager-email-input").value = operation != null ? operation.partnerManagerEmail : "";
         document.getElementById("note-textarea").value = operation != null ? operation.note : "";
 
-        const disableAdditionalAttributes =
-            this.stateCode != "" && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED";        
+        const disableAdditionalAttributes = operationTypesSelect.disabled ||
+            this.stateCode != "" && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED";
         document.getElementById("vehicle-brand-input").disabled = disableAdditionalAttributes;
         document.getElementById("vehicle-model-input").disabled = disableAdditionalAttributes;
         document.getElementById("vehicle-number-input").disabled = disableAdditionalAttributes;
@@ -1332,7 +1349,13 @@ class OperationPage {
         document.getElementById("partner-manager-name-input").disabled = disableAdditionalAttributes;
         document.getElementById("partner-manager-phone-number-input").disabled = disableAdditionalAttributes;
         document.getElementById("partner-manager-email-input").disabled = disableAdditionalAttributes;
-        document.getElementById("note-textarea").disabled = this.stateCode === "FINISHED" || this.stateCode === "CANCELED";
+
+        const saveButton = document.getElementById("save-button");
+        if (saveButton != undefined && saveButton != null) {
+            document.getElementById("note-textarea").disabled = this.stateCode === "FINISHED" || this.stateCode === "CANCELED";
+        } else {
+            document.getElementById("note-textarea").disabled = true;
+        }        
 
         // Workers
         const workersDiv = document.getElementById("workers-div");
@@ -1382,48 +1405,47 @@ class OperationPage {
                     createButton.onclick = this.createOperationByPartner.bind(this);
                 }
             }
+        }
 
-            viewUtils.removeElement("print-button", this.id <= 0 || copy, this.printOperation.bind(this));
+        viewUtils.removeElement("print-button", this.id <= 0 || copy, this.printOperation.bind(this));
 
-            const saveButton = document.getElementById("save-button");
-            if (saveButton != undefined) {
-                if (this.stateCode != "CREATED" &&
-                    this.stateCode != "CONFIRMED" &&
-                    this.stateCode != "STARTED" &&
-                    this.stateCode != "WORK_STARTED" &&
-                    this.stateCode != "WORK_FINISHED") {
-                    saveButton.remove();
-                } else {
-                    if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {                                      
-                        if (!isPartnerUser) {
-                            saveButton.onclick = this.editOperation.bind(this);
-                        } else {
-                            saveButton.onclick = this.editOperationByPartner.bind(this);
-                        }
-                    }
-                    else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
-                        saveButton.onclick = this.editOperationNote.bind(this);
+        if (saveButton != undefined) {
+            if (this.stateCode != "CREATED" &&
+                this.stateCode != "CONFIRMED" &&
+                this.stateCode != "STARTED" &&
+                this.stateCode != "WORK_STARTED" &&
+                this.stateCode != "WORK_FINISHED") {
+                saveButton.remove();
+            } else {
+                if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
+                    if (!isPartnerUser) {
+                        saveButton.onclick = this.editOperation.bind(this);
+                    } else {
+                        saveButton.onclick = this.editOperationByPartner.bind(this);
                     }
                 }
+                else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
+                    saveButton.onclick = this.editOperationNote.bind(this);
+                }
             }
-
-            viewUtils.removeElement("copy-button", this.id <= 0 || copy,
-                isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
-            viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
-            viewUtils.removeElement("set-gate-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED");
-            viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
-            viewUtils.removeElement("start-work-button", this.stateCode != "STARTED");
-            viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED");
-            viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
-            viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
-            viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");
-            viewUtils.removeElement("delete-button", this.stateCode === "");
-
-            const closeButton = document.getElementById("close-button");
-            closeButton.onclick = this.closeOperation.bind(this);
-
-            window.onclick = this.windowClick.bind(this);
         }
+
+        viewUtils.removeElement("copy-button", this.id <= 0 || copy,
+            isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
+        viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
+        viewUtils.removeElement("set-gate-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED");
+        viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
+        viewUtils.removeElement("start-work-button", this.stateCode != "STARTED");
+        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED");
+        viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
+        viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
+        viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");
+        viewUtils.removeElement("delete-button", this.stateCode === "");
+
+        const closeButton = document.getElementById("close-button");
+        closeButton.onclick = this.closeOperation.bind(this);
+
+        window.onclick = this.windowClick.bind(this);
     }
 }
 
