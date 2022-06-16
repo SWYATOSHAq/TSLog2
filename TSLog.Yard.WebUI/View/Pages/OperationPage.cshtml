@@ -35,7 +35,7 @@
     var editOperationByPartner = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
     var copyOperation = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION", User);
     var copyConfirmOperation = !useAuthentication || rightsChecker.CheckRight("COPY_CONFIRM_OPERATION", User);
-    var copyOperationBPartner = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION_BY_PARTNER", User);
+    var copyOperationByPartner = !useAuthentication || rightsChecker.CheckRight("COPY_OPERATION_BY_PARTNER", User);
 
     if (action == "CREATE" && !createOperation
         || action == "CREATE_CONFIRM" && !createConfirmOperation
@@ -43,7 +43,7 @@
         || action == "EDIT" && !editOperation
         || action == "EDIT_BY_PARTNER" && !editOperationByPartner 
         || action == "COPY" && !copyOperation 
-        || action == "COPY_BY_PARTNER" && !copyOperationBPartner)
+        || action == "COPY_BY_PARTNER" && !copyOperationByPartner)
     {        
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
@@ -61,12 +61,12 @@
     var manageOperationWorkers = !useAuthentication || rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
     var editAttributes = createOperation || createConfirmOperation || createOperationByPartner
         || editOperation || editOperationByPartner
-        || copyOperation || copyOperationBPartner;
+        || copyOperation || copyOperationByPartner;
     var save = editOperation || editOperationByPartner;
 
     var divClasses = "input-group dropdown-div";
     var selectClasses = "form-select dropdown-select";    
-    var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     var partnerId = string.Empty;
     var partners = Array.Empty<Partner>();
     if (isPartnerUser)
@@ -264,7 +264,7 @@
         }    
     
         <div style="display: flex; flex-direction:column">
-            @if (createOperation || createConfirmOperation || createOperationByPartner || copyOperation || copyOperationBPartner)
+            @if (createOperation || createConfirmOperation || createOperationByPartner || copyOperation || copyOperationByPartner)
             {
                 <button id="create-button"
                     class="btn btn-outline-success" 
@@ -285,7 +285,7 @@
                     title="Сохранить изменения в карточке операции двора"
                     type="button">Сохранить изменения</button>
             }            
-            @if (copyOperation)
+            @if (copyOperation || copyOperationByPartner)
             {
                 <button id="copy-button"
                     class="btn btn-outline-warning" 

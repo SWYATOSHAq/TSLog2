@@ -170,7 +170,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return "Forbidden";
                 }
 
-                var isPartnerUser = _rightsChecker.CheckRight("PARTNER_USER", User);
+                var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
                 var text = JsonSerializer.Serialize(isPartnerUser);
                 Response.StatusCode = 200;
                 return text;
@@ -811,16 +811,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerManagerEmail = data.partnerManagerEmail;
                 string note = data.note;
 
-                string partnerActioinId = data.partnerActionId;
-                if (string.IsNullOrWhiteSpace(partnerActioinId))
-                    return "Partner action id is empty!";
-
                 var user = _rightsChecker.GetUserName(User);
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
                 var manager = _storage.GetPartnerManagers(partner)[0];
-                var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-                var action = _storage.GetAction(actionKind, partner, partnerActioinId);
 
                 var operation = new Operation(-1, null, operationType, startDate, finishDate,
                     vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
@@ -832,9 +826,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation.AddAction(action);
-                
-                _storage.AddOperation(operation, user);
+                operation = _storage.AddOperation(operation, _rightsChecker.GetUserName(User));
+
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
                 return text;

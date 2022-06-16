@@ -2,7 +2,7 @@
     Имя пользователя - пароль
 
     [Оператор СУС] testwhoperator - Qwerty2
-    [Пользователь клиента (партнёра)] blcoper - Qwerty2
+    [Пользователь клиента (партнёра)] blcoper - Qwerty1
     [Диспетчер двора] testyarddisp - Qwerty2
     [Сотрудник охраны] testguard - Qwerty2
     [Менеджер] manager - Qwerty2

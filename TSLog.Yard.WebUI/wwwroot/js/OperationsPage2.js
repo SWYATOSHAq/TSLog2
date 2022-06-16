@@ -158,8 +158,15 @@ class OperationsPage {
         this.header.textContent = "Всего заявок";
     }
 
-    showOperations() {
-        const isPartnerUser = false;
+    async showOperations() {
+        let isPartnerUser = false;
+        const response = await api.getIsPartnerUser();
+        if (response.code === 0) {
+            isPartnerUser = response.isPartnerUser;
+        } else {
+            viewUtils.showError(response.message);
+        }
+        
         const operationsTbody = document.getElementById("operations-table-body");
         let operationTr = null;
         if (this.sortDirection === "forward") {
@@ -182,19 +189,19 @@ class OperationsPage {
         this.clearOperations();
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
-        this.showOperations();
+        await this.showOperations();
     }
 
-    onChangeSortField() {
+    async onChangeSortField() {
         this.sortField = document.querySelector(".select_sort").value;
         this.clearOperations();
         this.sortOperations(this.sortCompare.bind(this));
-        this.showOperations();
+        await this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
 
-    onChangeSortDirection() {
+    async onChangeSortDirection() {
         const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']:checked")
         if (sortDirectionInputs[0].id === "forward-sort-input") {
             this.sortDirection = "forward";
@@ -202,7 +209,7 @@ class OperationsPage {
             this.sortDirection = "reverse";
         }
         this.clearOperations();
-        this.showOperations();
+        await this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }
@@ -261,7 +268,7 @@ class OperationsPage {
         
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
-        this.showOperations();
+        await this.showOperations();
         //const header = document.getElementById("header3");
         //header.textContent = header.textContent + ": " + this.sortedOperations.length;
         //console.log('Length ', this.sortedOperations.length);

@@ -540,7 +540,7 @@ class OperationPage {
             for (let warehouseActionId in this.selectedWarehouseActions) {
                 api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
             }
-            location.href = shortUrl + "?id=" + operation.id + "&action=EDIT_BY_PARTNER";
+            location.href = this.shortUrl + "?id=" + operation.id + "&action=EDIT_BY_PARTNER";
         } else {
             viewUtils.showError(result.message);
         }
@@ -629,7 +629,7 @@ class OperationPage {
 
         const result = await api.editOperationByPartner(data);
         if (result.code === 0) {
-            const result2 = api.removeOperationWarehouseActions(this.id);
+            const result2 = await api.removeOperationWarehouseActions(this.id);
             if (result2.code === 0) {
                 for (let warehouseActionId in this.selectedWarehouseActions) {
                     api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
@@ -1268,7 +1268,7 @@ class OperationPage {
         const partnersSelect = document.getElementById("partners-select");
         partnersSelect.onchange = this.onChangePartner.bind(this);
         if (this.id > 0) {
-            this.displaySelectedWarehouseActions();                        
+            await this.displaySelectedWarehouseActions();                        
             if (copy) {
                 this.clearSelectedWarehouseActions();
             }

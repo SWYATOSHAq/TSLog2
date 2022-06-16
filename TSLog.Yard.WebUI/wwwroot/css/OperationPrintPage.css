@@ -6,4 +6,10 @@
     body {
         padding: 24px !important;
     }
+
+    .pagebreak {
+        clear: both;
+        page-break-after: always;
+        height: 24px;
+    }
 }

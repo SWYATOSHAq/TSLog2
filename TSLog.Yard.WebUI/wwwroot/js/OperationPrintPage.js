@@ -157,22 +157,6 @@
     // #endregion
 
     // #region Workers
-    showWorkersDivs() {
-        let workersDiv = document.getElementById("linear-workers-div");
-        if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0; margin-right: 2%";
-        } else {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
-        }
-
-        workersDiv = document.getElementById("selected-workers-div");
-        if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0";
-        } else {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0";
-        }
-    }
-
     async getSelectedWorkers() {
         const result = await api.getOperationWorkers(this.id);
         this.selectedWorkersIds.clear();
@@ -206,6 +190,7 @@
     showSelectedWorkers() {
         const selectedWorkersDiv = document.getElementById("selected-workers-div");
         selectedWorkersDiv.replaceChildren();
+        selectedWorkersDiv.style.cssText = "width: 100%; height: fit-content; padding: 0; margin: 0";
         for (let operationWorker of this.selectedWorkers) {
             const operationWorkerButton = document.createElement("button");
             this.showSelectedWorker(operationWorker, operationWorkerButton);
@@ -341,6 +326,10 @@
         document.getElementById("note-textarea").value = operation.note;
 
         // Workers
+        const workersFilterDiv = document.getElementById("workers-filter-div");
+        if (workersFilterDiv != undefined && workersFilterDiv != null) {
+            workersFilterDiv.remove();
+        }        
         const workersDiv = document.getElementById("workers-div");
         if (workersDiv != null && workersDiv != undefined) {
             const linearWorkersDiv = document.getElementById("linear-workers-div");
@@ -349,19 +338,12 @@
             this.showSelectedWorkers();
             const workersFieldset = document.getElementById("workers-fieldset");                                                
             workersFieldset.disabled = true;
-            this.showWorkersDivs();
-        } else {
-            workersDiv.classList.add("d-none");
         }
 
         const operationTypeNoteButton = document.getElementById("operation-type-note-button");
         operationTypeNoteButton.remove();
         const operationTypeNoteDiv = document.getElementById("operation-type-note-div");
         operationTypeNoteDiv.remove();
-
-        const workersFilterDiv = document.getElementById("workers-filter-div");
-        workersFilterDiv.remove();
-        this.showWorkersDivs();
 
         const closeButton = document.getElementById("close-button");
         closeButton.onclick = this.closeOperation.bind(this);
