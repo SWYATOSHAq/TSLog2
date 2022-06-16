@@ -18,9 +18,7 @@
     ViewData["Title"] = "Печать заявки";
     var print = !useAuthentication
         || rightsChecker.CheckRight("VIEW_OPERATION_PAGE", User)
-        || rightsChecker.CheckRight("EDIT_OPERATION", User)
-        || rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User)
-        || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+        || rightsChecker.CheckRight("VIEW_OPERATION_PAGE_BY_PARTNER", User);
     if (!print)
     {
         Response.StatusCode = 403;

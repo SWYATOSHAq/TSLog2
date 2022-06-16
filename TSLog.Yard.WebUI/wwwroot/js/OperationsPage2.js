@@ -17,7 +17,7 @@ class OperationsPage {
     createOpenOperationFunction(id, isPartnerUser) {
         return function () {
             sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-            location.href = "/OperationPage?id=" + id + "&action=" + (!isPartnerUser ? "EDIT" : "EDIT_BY_PARTNER");
+            location.href = "/OperationPage?id=" + id + "&action=" + (!isPartnerUser ? "VIEW" : "VIEW_BY_PARTNER");
         }
     }
 

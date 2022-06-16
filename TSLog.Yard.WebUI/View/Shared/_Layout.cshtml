@@ -19,6 +19,7 @@
     var canCreateOperation = !useAuthentication 
         || rightsChecker.CheckRight("CREATE_OPERATION", User)
         || rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     var canViewStaffPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_STAFF_PLAN_PAGE", User);
     var canViewGatesPlan = !useAuthentication || rightsChecker.CheckRight("VIEW_GATES_PLAN_PAGE", User);
     var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT_PAGE", User);
@@ -28,6 +29,8 @@
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
     var canViewEcReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User);
     var canViewWorkersPerfomanceReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_WORKERS_PERFOMANCE_REPORT_PAGE", User);
+
+    var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";
 
     var date = DateTime.Today.ToString("dd.MM.yyyy");
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
@@ -124,7 +127,7 @@
                         <a class="nav-link text-dark hide-on-print" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
                         @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/OperationPage?action=CREATE">Cоздать заявку</a>
+                            <a class="nav-link text-dark hide-on-print" href="/OperationPage?action=@createAction">Cоздать заявку</a>
                         }
                         @if (canViewStaffPlan)
                         {
