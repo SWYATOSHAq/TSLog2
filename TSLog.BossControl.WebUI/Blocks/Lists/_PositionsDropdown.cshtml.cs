@@ -1,4 +1,5 @@
 ﻿using TSLog.BossControl.BO;
+using TSLog.Staff.BO;
 
 namespace TSLog.BossControl.WebUI.Models
 {
