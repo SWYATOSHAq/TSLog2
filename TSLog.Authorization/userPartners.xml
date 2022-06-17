@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <userPartners>
-	<user name="Оператор АКФА" login="AKFA_OPERATOR">
+	<user name="Оператор АКФА" login="akfaoper">
 		<partner code="0018" name="0018. АКФА"/>
 	</user>
 	<user name="Оператор БЛС" login="blcoper">
-		<partner code="0003" name="0021. БЛС"/>
+		<partner code="0021" name="0021. БЛС"/>
+	</user>
+	<user name="Оператор Аквариус" login="operatorakvarius">
+		<partner code="0011" name="0011. Аквариус"/>
 	</user>
 </userPartners>

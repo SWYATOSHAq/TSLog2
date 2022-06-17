@@ -28,7 +28,7 @@
     var divClasses = "input-group dropdown-div";
     var selectClasses = "form-select dropdown-select";    
 
-    var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     string partnerId;
     var partners = Array.Empty<Partner>();
     if (isPartnerUser)
@@ -79,12 +79,15 @@
         <span class="input-group-text col-4">Прибытие/убытие</span>
         <input id="start-finish-input" class="form-control" disabled value="" />
     </div>
-    <div class="rem-outline-on-print input-group input-div">
-        <span class="input-group-text">
-            <b>Трудозатраты (чел. * час)*</b>
-        </span>
-        <input id="labor-cost-input" class="form-control" disabled value="" />
-    </div>
+    @if (!isPartnerUser)
+    {
+        <div class="rem-outline-on-print input-group input-div">
+            <span class="input-group-text">
+                <b>Трудозатраты (чел. * час)*</b>
+            </span>
+            <input id="labor-cost-input" class="form-control" disabled value="" />
+        </div>   
+    }    
     
     <fieldset id="warehouse-actions-fieldset">
         <div id="warehouse-actions-div"

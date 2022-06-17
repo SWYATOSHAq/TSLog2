@@ -2037,7 +2037,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var manageOperationWorkers = _rightsChecker.CheckRight("GET_BOSSCONTROL_WORKERS", User);
+                var manageOperationWorkers = _rightsChecker.CheckRight("GET_BOSSCONTROL_WORKS", User);
                 if (_useAuthentication && (!useYard || !manageOperationWorkers))
                 {
                     Response.StatusCode = 403;
