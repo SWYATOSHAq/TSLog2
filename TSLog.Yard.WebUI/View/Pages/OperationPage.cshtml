@@ -61,7 +61,8 @@
     var cancel = !useAuthentication || rightsChecker.CheckRight("CANCEL_OPERATION", User);
     var delete = !useAuthentication || rightsChecker.CheckRight("DELETE_OPERATION", User);
 
-    var getWarehouseActions = !useAuthentication || rightsChecker.CheckRight("GET_WAREHOUSE_ACTIONS", User);
+    var getWarehouseActions = !useAuthentication || rightsChecker.CheckRight("GET_WAREHOUSE_ACTIONS", User);    
+    var getBosscontrolWorks = !useAuthentication || rightsChecker.CheckRight("GET_BOSSCONTROL_WORKS", User);
 
     var viewOperationWorkers = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_WORKERS", User);
     var manageOperationWorkers = !useAuthentication || rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
@@ -155,33 +156,36 @@
                 </span>
                 <input id="labor-cost-input" class="form-control" disabled value="" />
 
-                <button id="show-bc-works-button" 
-                    class="btn btn-outline-secondary hide-on-print" 
-                    title="Показать работы по системе БоссКонтроль"
-                    style="width: fit-content">
-                    <b>Работы по БК</b>
-                </button>
-                <div id="bc-works-div" class="bc-works-block">
-                    <div class="bc-works-block-content">
-                        <b>Список работ по системе БоссКонтроль</b>
-                        <span id="close-bc-works-span" 
-                            title="Закрыть окно со списком работ по системе БоссКонтроль"
-                            class="bc-works-block-close">&times;</span>
-                        <table id="bc-works-table" class="table table-light table-bordered table-striped">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th class="table-header">Работник (Ф. И. О.)</th>
-                                    <th class="table-header">Должность</th>
-                                    <th class="table-header">Начало</th>
-                                    <th class="table-header">Окончание</th>
-                                    <th class="table-header">Длительность (мин.)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bc-works-tbody">
-                            </tbody>
-                        </table>
+                @if (getBosscontrolWorks)
+                {
+                    <button id="show-bc-works-button" 
+                        class="btn btn-outline-secondary hide-on-print" 
+                        title="Показать работы по системе БоссКонтроль"
+                        style="width: fit-content">
+                        <b>Работы по БК</b>
+                    </button>
+                    <div id="bc-works-div" class="bc-works-block">
+                        <div class="bc-works-block-content">
+                            <b>Список работ по системе БоссКонтроль</b>
+                            <span id="close-bc-works-span" 
+                                title="Закрыть окно со списком работ по системе БоссКонтроль"
+                                class="bc-works-block-close">&times;</span>
+                            <table id="bc-works-table" class="table table-light table-bordered table-striped">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th class="table-header">Работник (Ф. И. О.)</th>
+                                        <th class="table-header">Должность</th>
+                                        <th class="table-header">Начало</th>
+                                        <th class="table-header">Окончание</th>
+                                        <th class="table-header">Длительность (мин.)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bc-works-tbody">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                }
             </div>     
         }
 

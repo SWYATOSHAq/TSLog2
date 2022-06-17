@@ -230,7 +230,13 @@ class OperationPage {
                 if (this.factBcLaborCost > 0) {
                     laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
                 }
-                if (this.factWorkStartDate > utils.nullDate && this.factWorkFinishDate > utils.nullDate && this.stateCode != "CANCELED") {
+                const bcWorksDiv = document.getElementById("bc-works-div");
+                if (this.factWorkStartDate > utils.nullDate
+                    && this.factWorkFinishDate > utils.nullDate
+                    && this.stateCode != "CANCELED"
+                    && bcWorksDiv != undefined
+                    && bcWorksDiv != null)
+                {
                     const result = await api.getBossControlWorks(this.id)
                     if (result.code === 0) {
                         this.bcWorks = result.works;
