@@ -185,13 +185,13 @@ class OperationPage {
 
     showStartFinish() {
         const startFinishInput = document.getElementById("start-finish-input");
-        startFinishInput.value = "";
+        startFinishInput.value = "<Не указано>";
         if (this.startDate > utils.nullDate) {
             startFinishInput.value = "Прибыла - " + utils.dateTimeToString(this.startDate);
-        }
-        if (this.finishDate > utils.nullDate) {
-            startFinishInput.value = startFinishInput.value + " Убыла - " + utils.dateTimeToString(this.finishDate);
-        }
+            if (this.finishDate > utils.nullDate) {
+                startFinishInput.value = startFinishInput.value + " Убыла - " + utils.dateTimeToString(this.finishDate);
+            }
+        }        
     }
 
     async getPlanLaborCost() {
@@ -1192,6 +1192,8 @@ class OperationPage {
             h1.textContent = "Создание (клиентом)";
         } else if (this.action == "COPY") {
             h1.textContent = "Копирование";
+        } else if (this.action == "COPY_CONFIRM") {
+            h1.textContent = "Копирование (с подтверждением)";
         } else if (this.action == "COPY_BY_PARTNER") {
             h1.textContent = "Копирование (клиентом)";
         } else if (this.action == "VIEW") {
@@ -1273,14 +1275,14 @@ class OperationPage {
         }
 
         // Start and finish
-        this.startDate = operation != null ? new Date(operation.startDate) : utils.nullDate;
-        this.finishDate = operation != null ? new Date(operation.finishDate) : utils.nullDate;
+        this.startDate = operation != null && !copy ? new Date(operation.startDate) : utils.nullDate;
+        this.finishDate = operation != null && !copy ? new Date(operation.finishDate) : utils.nullDate;
         this.showStartFinish();
 
         // Labor cost
         this.planLaborCost = operation != null ? Number(operation.planLaborCost) : 0;
         this.planLinearLaborCost = operation != null ? Number(operation.planLinearLaborCost) : 0;
-        this.factLaborCost = operation != null ? Number(operation.factLaborCost) : 0;
+        this.factLaborCost = operation != null && !copy ? Number(operation.factLaborCost) : 0;
         await this.showLaborCost();
 
         // Warehouse actions (and partner)        

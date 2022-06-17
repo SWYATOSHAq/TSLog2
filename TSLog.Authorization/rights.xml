@@ -296,21 +296,25 @@
 			<right code="GET_ACTIVE_OPERATIONS" name="Получение активных операций"></right>
 			<right code="VIEW_PRESENT_VEHICLES_PAGE" name="Просмотр активных операций"></right>
 
+			<!-- Вся отчётность скрыта по указанию Алексея Охотникова 2022.06.17 -->
 			<!--
 			<right code="GET_GUARD_OPERATIONS" name="Получение операций для сотрудника охраны (которые должны заехать и которые готовы к выезду)"></right>
 			<right code="VIEW_GUARD_PAGE" name="Просмотр операций для сотрудника охраны"></right>
 			-->
-			
+			<!--
 			<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>			
 			<right code="VIEW_LABOR_REPORT_PAGE" name="отчёта по трудозатратам"></right>
 			<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
 			<right code="VIEW_SHIFT_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам за смену"></right>
+			-->
 			<!--
 			<right code="GET_EC_REPORT" name="Формирование отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			-->
+			<!--
 			<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
 			<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
+			-->
 		</role>
 		<role code="ADMINISTRATOR" name="Администратор двора" groupName="YardAdministrators" note="Адмиистраторы модуля управления двором">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
