@@ -147,40 +147,43 @@
             <span class="input-group-text col-4">Прибытие/убытие</span>
             <input id="start-finish-input" class="form-control" disabled value="" />
         </div>
-        <div class="row input-group input-div">
-            <span class="input-group-text col-4">
-                <b>Трудозатраты (чел. * мин.)*</b>
-            </span>
-            <input id="labor-cost-input" class="form-control" disabled value="" />
+        @if (!isPartnerUser)
+        {
+            <div class="row input-group input-div">
+                <span class="input-group-text col-4">
+                    <b>Трудозатраты (чел. * мин.)*</b>
+                </span>
+                <input id="labor-cost-input" class="form-control" disabled value="" />
 
-            <button id="show-bc-works-button" 
-                class="btn btn-outline-secondary hide-on-print" 
-                title="Показать работы по системе БоссКонтроль"
-                style="width: fit-content">
-                <b>Работы по БК</b>
-            </button>
-            <div id="bc-works-div" class="bc-works-block">
-                <div class="bc-works-block-content">
-                    <b>Список работ по системе БоссКонтроль</b>
-                    <span id="close-bc-works-span" 
-                        title="Закрыть окно со списком работ по системе БоссКонтроль"
-                        class="bc-works-block-close">&times;</span>
-                    <table id="bc-works-table" class="table table-light table-bordered table-striped">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="table-header">Работник (Ф. И. О.)</th>
-                                <th class="table-header">Должность</th>
-                                <th class="table-header">Начало</th>
-                                <th class="table-header">Окончание</th>
-                                <th class="table-header">Длительность (мин.)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bc-works-tbody">
-                        </tbody>
-                    </table>
+                <button id="show-bc-works-button" 
+                    class="btn btn-outline-secondary hide-on-print" 
+                    title="Показать работы по системе БоссКонтроль"
+                    style="width: fit-content">
+                    <b>Работы по БК</b>
+                </button>
+                <div id="bc-works-div" class="bc-works-block">
+                    <div class="bc-works-block-content">
+                        <b>Список работ по системе БоссКонтроль</b>
+                        <span id="close-bc-works-span" 
+                            title="Закрыть окно со списком работ по системе БоссКонтроль"
+                            class="bc-works-block-close">&times;</span>
+                        <table id="bc-works-table" class="table table-light table-bordered table-striped">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="table-header">Работник (Ф. И. О.)</th>
+                                    <th class="table-header">Должность</th>
+                                    <th class="table-header">Начало</th>
+                                    <th class="table-header">Окончание</th>
+                                    <th class="table-header">Длительность (мин.)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bc-works-tbody">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </div>        
+            </div>     
+        }
 
         <fieldset id="warehouse-actions-fieldset">
             <div id="warehouse-actions-div"

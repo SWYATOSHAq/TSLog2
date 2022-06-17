@@ -1,4 +1,5 @@
 ﻿@page "/OperationsPage2"
+@using TSLog.Partners.BO
 @using TSLog.Yard.WebUI.Models
 @using TSLog.Yard.BO
 
@@ -45,6 +46,19 @@
     string selectedVehicleKind = request.Query["vehicle_kind_code"];
     string selectedState = request.Query["state_code"];
 
+    Partner[] partners;
+    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
+    if (isPartnerUser)
+    {
+        var userName = rightsChecker.GetUserName(User);
+        var partnerId = rightsChecker.GetPartnerIdByUser(userName);
+        var partner = storage.GetPartner(partnerId);
+        partners = new Partner[] { partner };
+        //selectedPartner = partner.Id;
+    }
+    else
+        partners = storage.GetPartners();
+
     var divClasses = "col-md-3 col-6 filter-div";
     var selectClasses = "form-select filter-select";
     var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций", divClasses, selectClasses);
@@ -52,14 +66,9 @@
     LogistsModel? logistsModel = null;
     var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота", divClasses, selectClasses);
     var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния", divClasses, selectClasses);
-    var partnersModel = new PartnersModel(storage.GetPartners(), selectedPartner, true, true, "Все партнеры", divClasses, selectClasses);
-
-    var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
-    if (isPartnerUser)
-    {
-        var userName = rightsChecker.GetUserName(User);
-        var partnerId = rightsChecker.GetPartnerIdByUser(userName);
-    }
+    PartnersModel? partnersModel = null;
+    if (!isPartnerUser)
+        partnersModel = new PartnersModel(partners, selectedPartner, !isPartnerUser, true, "Все партнеры", divClasses, selectClasses);
 
     var operationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
     var filtersModel = new OperationsFiltersBlockModel(canFilterOperationsByDate, 
@@ -68,7 +77,8 @@
     var sortFields = new Dictionary<string, string>();
     sortFields.Add("driverName", "Водитель (Ф. И. О.)");
     sortFields.Add("id", "№ заявки");
-    sortFields.Add("partnerId", "Клиент");
+    if (!isPartnerUser)
+        sortFields.Add("partnerId", "Клиент");
     sortFields.Add("gateCode", "№ ворот");
     sortFields.Add("vehicleNumber", "Номер Т/С");
     sortFields.Add("startDate", "Прибытие на КПП");

@@ -1,4 +1,10 @@
-﻿class OperationPrintPage {
+﻿/*
+    Страница печати карточки операции двора.
+    Автор - Буров Михаил.
+    Тех. руководитель - Охотников Алексей.
+*/
+
+class OperationPrintPage {
     id = -1;
     stateCode = "";
     stateName = "";

@@ -216,32 +216,34 @@ class OperationPage {
 
     async showLaborCost() {
         const laborCostInput = document.getElementById("labor-cost-input");
-        if (this.planLaborCost <= 0)
-            laborCostInput.value = "<Не определено>";
-        else {
-            laborCostInput.value = "План - " + (this.planLaborCost / 60).toFixed();
-            if (this.planLinearLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + ", только линейные - " + (this.planLinearLaborCost / 60).toFixed();
-            }
-            if (this.factLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
-            }
-            if (this.factBcLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
-            }
-            if (this.factWorkStartDate > utils.nullDate && this.factWorkFinishDate > utils.nullDate && this.stateCode != "CANCELED") {
-                const result = await api.getBossControlWorks(this.id)
-                if (result.code === 0) {
-                    this.bcWorks = result.works;
-                    this.showBCWorks();
+        if (laborCostInput != undefined && laborCostInput != null) {
+            if (this.planLaborCost <= 0)
+                laborCostInput.value = "<Не определено>";
+            else {
+                laborCostInput.value = "План - " + (this.planLaborCost / 60).toFixed();
+                if (this.planLinearLaborCost > 0) {
+                    laborCostInput.value = laborCostInput.value + ", только линейные - " + (this.planLinearLaborCost / 60).toFixed();
+                }
+                if (this.factLaborCost > 0) {
+                    laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
+                }
+                if (this.factBcLaborCost > 0) {
+                    laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
+                }
+                if (this.factWorkStartDate > utils.nullDate && this.factWorkFinishDate > utils.nullDate && this.stateCode != "CANCELED") {
+                    const result = await api.getBossControlWorks(this.id)
+                    if (result.code === 0) {
+                        this.bcWorks = result.works;
+                        this.showBCWorks();
 
-                    const showBCWorksButton = document.getElementById("show-bc-works-button");
-                    const closeBCWorksSpan = document.getElementById("close-bc-works-span");
+                        const showBCWorksButton = document.getElementById("show-bc-works-button");
+                        const closeBCWorksSpan = document.getElementById("close-bc-works-span");
 
-                    showBCWorksButton.onclick = this.displayBCWorks.bind(this);
-                    closeBCWorksSpan.onclick = this.hideBCWorks.bind(this);
-                } else {
-                    viewUtils.showError(result.message);
+                        showBCWorksButton.onclick = this.displayBCWorks.bind(this);
+                        closeBCWorksSpan.onclick = this.hideBCWorks.bind(this);
+                    } else {
+                        viewUtils.showError(result.message);
+                    }
                 }
             }
         }
@@ -1020,8 +1022,8 @@ class OperationPage {
     // #endregion
 
     async startOperationWork() {
-        if (this.selectedWorkersIds.length <= 0) {
-            alert("Не все сотрудники были заполнены!");
+        if (this.selectedWorkersIds.size <= 0) {
+            alert("Работники не назначены!");
             return;
         }
         const result = await api.startOperationWork(this.id);
@@ -1418,10 +1420,14 @@ class OperationPage {
                 saveButton.remove();
             } else {
                 if (this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-                    if (!isPartnerUser) {
-                        saveButton.onclick = this.editOperation.bind(this);
+                    if (operationTypesSelect.disabled) {
+                        saveButton.onclick = this.editOperationNote.bind(this);
                     } else {
-                        saveButton.onclick = this.editOperationByPartner.bind(this);
+                        if (!isPartnerUser) {
+                            saveButton.onclick = this.editOperation.bind(this);
+                        } else {
+                            saveButton.onclick = this.editOperationByPartner.bind(this);
+                        }
                     }
                 }
                 else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
