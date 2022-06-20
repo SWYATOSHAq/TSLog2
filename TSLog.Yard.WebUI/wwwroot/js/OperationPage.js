@@ -745,7 +745,7 @@ class OperationPage {
         button.remove();
         this.selectedWarehouseActions[id] = warehouseAction;
 
-        const selectedWarehouseActionsDiv = document.getElementById("selected-actions-div");
+        const selectedWarehouseActionsDiv = document.getElementById("selected-actions-content-div");
         const selectedButton = document.createElement("button");
         this.showWarehouseAction(warehouseAction, selectedButton, "REMOVE");
         selectedWarehouseActionsDiv.append(selectedButton);
@@ -767,15 +767,19 @@ class OperationPage {
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important; width: 100%";
         button.dataset.actionId = action.id;
+        button.dataset.partnerActionId = action.partnerActionId;
         button.dataset.actionPartnerId = action.partnerId;
         button.dataset.actionPartnerName = action.partnerName;
         button.dataset.actionPlanActionDate = action.planActionDate;        
 
         const workerFullNameB = document.createElement("b");
-        workerFullNameB.textContent = action.partnerActionId;
+        workerFullNameB.textContent = action.partnerActionId != "" ? action.partnerActionId : "Б/Н";
         button.append(workerFullNameB);
 
-        button.append(" (" + utils.dateToString(utils.stringToDate(action.planActionDate)) + ") ");
+        const date = utils.stringToDate(action.planActionDate);
+        if (date > utils.nullDate) {
+            button.append(" (" + utils.dateToString(date) + ") ");
+        }        
 
         button.onclick = () => {
             if (direction === "ADD") {
@@ -789,7 +793,7 @@ class OperationPage {
     }
 
     showAllWarehouseActions() {
-        const allWarehoiseActionsDiv = document.getElementById("all-actions-div");
+        const allWarehoiseActionsDiv = document.getElementById("all-actions-content-div");
         allWarehoiseActionsDiv.replaceChildren();
         for (let id in this.warehouseActions) {
             if (this.selectedWarehouseActions.hasOwnProperty(id)) {
@@ -807,15 +811,15 @@ class OperationPage {
         if (allWarehouseActionDiv != undefined && allWarehouseActionDiv != null) {
             const operationTypesSelect = document.getElementById("operation-types-select");
             const partnersSelect = document.getElementById("partners-select");
-            const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
+            //const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
             if (partnersSelect.value != "" && operationTypesSelect.value != "") {
-                warehouseActionsTitleDiv.classList.remove("d-none");
+                //warehouseActionsTitleDiv.classList.remove("d-none");
                 document.getElementById("action-filter-div").classList.remove("d-none");
                 document.getElementById("actions-div").classList.remove("d-none");
                 await this.getAllWarehouseActions();
                 this.showAllWarehouseActions();
             } else {
-                warehouseActionsTitleDiv.classList.add("d-none");
+                //warehouseActionsTitleDiv.classList.add("d-none");
                 document.getElementById("action-filter-div").classList.add("d-none");
                 document.getElementById("actions-div").classList.add("d-none");
             }        
@@ -824,13 +828,13 @@ class OperationPage {
 
     clearSelectedWarehouseActions() {
         this.selectedWarehouseActions = {};
-        const selectedActionsDiv = document.getElementById("selected-actions-div");
+        const selectedActionsDiv = document.getElementById("selected-actions-content-div");
         selectedActionsDiv.replaceChildren();
     }
 
     async displaySelectedWarehouseActions() {
         await this.getSelectedWarehouseActions();
-        const selectedWarehouseActionsDiv = document.getElementById("selected-actions-div");
+        const selectedWarehouseActionsDiv = document.getElementById("selected-actions-content-div");
         selectedWarehouseActionsDiv.replaceChildren();
         for (let id in this.selectedWarehouseActions) {
             const button = document.createElement("button");
@@ -842,34 +846,60 @@ class OperationPage {
     async onChangeActionsFilter() {
         await this.getAllWarehouseActions();
         this.showAllWarehouseActions();
+        this.resizeWarehouseActionsDivs();
     }
 
     changeWarehouseActionsTitle() {
-        const warehouseActionsB = document.getElementById("warehouse-actions-b");
+        //const warehouseActionsB = document.getElementById("warehouse-actions-b");
+        const allWarehouseActionsTitleB = document.getElementById("all-warehouse-actions-title-b");
+        const selectedWarehouseActionsTitleB = document.getElementById("selected-warehouse-actions-title-b");
+        const actionsFilterSpan = document.getElementById("action-filter-span");
+        //Назначенные заказы (приходы):
         if (this.kind === "O") {
-            warehouseActionsB.textContent = "Заказы:";
+            //warehouseActionsB.textContent = "Заказы:";
+            if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
+                actionsFilterSpan.textContent = "Поиск заказа:";
+            }
+            if (allWarehouseActionsTitleB != undefined && allWarehouseActionsTitleB != null) {
+                allWarehouseActionsTitleB.textContent = "Свободные заказы:";
+            }            
+            selectedWarehouseActionsTitleB.textContent = "Назначенные заказы:";
         } else if (this.kind === "I") {
-            warehouseActionsB.textContent = "Приходы:";
+            //warehouseActionsB.textContent = "Приходы:";
+            if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
+                actionsFilterSpan.textContent = "Поиск прихода:";
+            }
+            if (allWarehouseActionsTitleB != undefined && allWarehouseActionsTitleB != null) {
+                allWarehouseActionsTitleB.textContent = "Свободные приходы:";
+            }
+            selectedWarehouseActionsTitleB.textContent = "Назначенные приходы:";
         } else {
-            warehouseActionsB.textContent = "Заказы (приходы):";
+            //warehouseActionsB.textContent = "Заказы (приходы):";
+            if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
+                actionsFilterSpan.textContent = "Поиск заказа (прихода):";
+            }
+            if (allWarehouseActionsTitleB != undefined && allWarehouseActionsTitleB != null) {
+                allWarehouseActionsTitleB.textContent = "Свободные заказы (приходы):";
+            }
+            selectedWarehouseActionsTitleB.textContent = "Назначенные заказы (приходы):";
         }
     }
 
     resizeWarehouseActionsDivs() {
-        let actionsDiv = document.getElementById("all-actions-div");
-        if (actionsDiv != undefined) {
-            if (actionsDiv.childElementCount < 5) {
-                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; padding: 0; margin: 0; margin-right: 2%";
+        let actionsContentDiv = document.getElementById("all-actions-content-div");
+        if (actionsContentDiv != undefined && actionsContentDiv != null) {
+            if (actionsContentDiv.childElementCount < 5) {
+                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
             } else {
-                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
             }
         }        
-        actionsDiv = document.getElementById("selected-actions-div");
-        if (actionsDiv != undefined) {
-            if (actionsDiv.childElementCount < 5) {
-                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
+        actionsContentDiv = document.getElementById("selected-actions-content-div");
+        if (actionsContentDiv != undefined && actionsContentDiv != null) {
+            if (actionsContentDiv.childElementCount < 5) {
+                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
             } else {
-                actionsDiv.style.cssText = "width: 49%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
+                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
             }
         }           
     }
@@ -877,19 +907,23 @@ class OperationPage {
 
     // #region Workers
     showWorkersDivs() {
-        let workersDiv = document.getElementById("linear-workers-div");
-        if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0; margin-right: 2%";
-        } else {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%";
+        let workersDiv = document.getElementById("linear-workers-content-div");
+        if (workersDiv != undefined && workersDiv != null) {
+            if (workersDiv.childElementCount < 8) {
+                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; padding: 0; margin: 0; border-radius: 0";
+            } else {
+                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0";
+            }
         }
-
-        workersDiv = document.getElementById("selected-workers-div");
-        if (workersDiv.childElementCount < 8) {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; padding: 0; margin: 0";
-        } else {
-            workersDiv.style.cssText = "width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0";
-        }
+        
+        workersDiv = document.getElementById("selected-workers-content-div");
+        if (workersDiv != undefined && workersDiv != null) {
+            if (workersDiv.childElementCount < 8) {
+                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; padding: 0; margin: 0; border-radius: 0";
+            } else {
+                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0";
+            }
+        }        
     }
 
     async getLinearFreeWorkers() {
@@ -904,6 +938,7 @@ class OperationPage {
 
     onChangeWorkersFilter() {
         this.showLinearFreeWorkers();
+        this.showWorkersDivs();
     }
 
     async onLinearWorkerClick(button) {
@@ -925,7 +960,7 @@ class OperationPage {
     showLinearFreeWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
-        button.style.cssText = "text-align: left !important";
+        button.style.cssText = "text-align: left !important; width: 100%";
         button.dataset.workerId = worker.id;
         button.dataset.positionCode = worker.positionCode;
         button.dataset.positionName = worker.positionName;
@@ -941,8 +976,8 @@ class OperationPage {
     }
 
     showLinearFreeWorkers() {
-        const allWorkersDiv = document.getElementById("linear-workers-div");
-        allWorkersDiv.replaceChildren();
+        const allWorkersContentDiv = document.getElementById("linear-workers-content-div");
+        allWorkersContentDiv.replaceChildren();
         const namePattern = document.getElementById("worker-filter-input").value.trim().toLowerCase();
         for (let worker of this.linearWorkers) {
             if (namePattern != ""
@@ -957,7 +992,7 @@ class OperationPage {
 
             const button = document.createElement("button");
             this.showLinearFreeWorker(worker, button);
-            allWorkersDiv.append(button);
+            allWorkersContentDiv.append(button);
         }
     }
 
@@ -995,7 +1030,7 @@ class OperationPage {
     showSelectedWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
-        button.style.cssText = "text-align: left";
+        button.style.cssText = "text-align: left !important; width: 100%";
         button.dataset.workerId = worker.id;
         button.dataset.positionCode = worker.positionCode;
         button.append("[" + worker.positionShortName + "] ");
@@ -1008,12 +1043,12 @@ class OperationPage {
     }
 
     showSelectedWorkers() {
-        const selectedWorkersDiv = document.getElementById("selected-workers-div");
-        selectedWorkersDiv.replaceChildren();
+        const selectedWorkersContentDiv = document.getElementById("selected-workers-content-div");
+        selectedWorkersContentDiv.replaceChildren();
         for (let operationWorker of this.selectedWorkers) {
             const operationWorkerButton = document.createElement("button");
             this.showSelectedWorker(operationWorker, operationWorkerButton);
-            selectedWorkersDiv.append(operationWorkerButton);
+            selectedWorkersContentDiv.append(operationWorkerButton);
         }
     }
 
@@ -1368,34 +1403,41 @@ class OperationPage {
         }        
 
         // Workers
-        const workersDiv = document.getElementById("workers-div");
+        const workersDiv = document.getElementById("workers-div");        
+        const workersFilterDiv = document.getElementById("workers-filter-div");
         if (workersDiv != null && workersDiv != undefined) {
             const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
             if (states.includes(this.stateCode)) {
                 workersDiv.classList.remove("d-none");
 
-                const workersFilterInput = document.getElementById("worker-filter-input");
-                workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
-
                 await this.getSelectedWorkers();
                 this.showSelectedWorkers();
-                const workersFieldset = document.getElementById("workers-fieldset");
-                const workersFilterDiv = document.getElementById("workers-filter-div");
-                const allWorkersDiv = document.getElementById("linear-workers-div");
-                if (this.stateCode === "STARTED") {
+                const workersFieldset = document.getElementById("workers-fieldset");                
+                const linearWorkersDiv = document.getElementById("linear-workers-div");
+                if (this.stateCode === "STARTED"
+                    && workersFilterDiv != undefined && workersFilterDiv != null
+                    && linearWorkersDiv != undefined && linearWorkersDiv != null)
+                {
+                    const workersFilterInput = document.getElementById("worker-filter-input");
+                    workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
+
                     await this.getLinearFreeWorkers();
                     this.showLinearFreeWorkers();
                     workersFieldset.disabled = false;
                     workersFilterDiv.classList.remove("d-none");
-                    allWorkersDiv.classList.remove("d-none");
+                    linearWorkersDiv.classList.remove("d-none");
                 } else {
                     workersFieldset.disabled = true;
-                    workersFilterDiv.classList.add("d-none");
-                    allWorkersDiv.classList.add("d-none");
+                    if (workersFilterDiv != undefined && workersFilterDiv != null) {
+                        workersFilterDiv.remove();
+                    }                    
+                    if (linearWorkersDiv != undefined && linearWorkersDiv != null) {
+                        linearWorkersDiv.remove();
+                    }                    
                 }
                 this.showWorkersDivs();
             } else {
-                workersDiv.classList.add("d-none");
+                workersDiv.remove();
             }
         }
 

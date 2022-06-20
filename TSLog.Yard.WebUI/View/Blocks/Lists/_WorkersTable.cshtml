@@ -1,4 +1,4 @@
-﻿@using TSLog.Staff.BO
+﻿@using TSLog.Staff.BO   
 @using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
@@ -8,20 +8,53 @@
 }
 
 <div id="workers-div" style="margin-top: 16px; margin-bottom: 16px">    
+    <!--
     <div style="width: 100%; margin-top: 8px">
         <b>Работники:</b>
     </div>
+    -->
     <div id="workers-filter-div" class="row" style="padding: 0; margin: 0; margin-top: 8px">
-        <label for="worker-filter-input" style="width: auto; margin: 0; margin-right: 8px; padding: 0">Фильтр:</label>
-        <input id="worker-filter-input" 
-            placeholder="Работник" 
-            class="form-control" 
-            style="width: 320px; padding: 0; margin: 0; text-align: center">
+        @if (isEnabled)
+        { 
+            <div style="margin: 0; padding: 0">
+                <div id="workers-filter-div" class="input-group" style="display: flex">
+                    <span id="action-filter-span" class="input-group-text col-4">Поиск работника:</span>
+                    <input id="worker-filter-input" 
+                        type="text" 
+                        placeholder="Ф. И. О."
+                        class="form-control" 
+                        value="" />
+                </div>  
+            </div>
+
+            <!--
+            <label for="worker-filter-input" style="width: auto; margin: 0; margin-right: 8px; padding: 0">Фильтр:</label>
+            <input id="worker-filter-input" 
+                placeholder="Работник" 
+                class="form-control" 
+                style="width: 320px; padding: 0; margin: 0; text-align: center">
+            -->
+        }
     </div>    
     <div class="row" style="margin: 0; margin-top: 8px">            
-        <div id="linear-workers-div" class="list-group" style="width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; margin-right: 2%">            
-        </div>
-        <div id="selected-workers-div" class="list-group" style="width: 49%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0">
+        @if (isEnabled)
+        {
+            <div id="linear-workers-div"                 
+                style="width: 49%; height: fit-content; padding: 0; margin: 0; margin-right: 2%; border-radius: 0">            
+                <b>Свободные работники:</b>
+                <div id="linear-workers-content-div" 
+                    class="list-group" 
+                    style="width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0">
+                </div>
+            </div>    
+        }        
+        <div id="selected-workers-div"             
+            style="width: 49%; height: fit-content; padding: 0; margin: 0; border-radius: 0">
+            <b>Назначенные работники:</b>
+            <div id="selected-workers-content-div"
+                class="list-group" 
+                style="width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0">
+            </div>
         </div>
     </div>
 </div>

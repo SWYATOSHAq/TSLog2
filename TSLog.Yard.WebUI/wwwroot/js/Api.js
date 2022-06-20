@@ -372,7 +372,7 @@ class Api {
 
     // Автоматически распределяет работников на операцию двора в зависимости от нормативов (потребностей в персонале)
     async allocateOperationWorkers(id) {
-        const url = "./api/v1/yard/AllocateOperationEmployees";
+        const url = "./api/v1/yard/AllocateOperationWorkers";
         const data = {
             id: id
         }

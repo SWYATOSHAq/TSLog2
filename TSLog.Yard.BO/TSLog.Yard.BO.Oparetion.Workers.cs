@@ -68,7 +68,7 @@ namespace TSLog.Yard.BO
                 var count = operationWork.WorkersCount;
                 if (!result.ContainsKey(position))
                     result.Add(position, count);
-                else if (result[position] > count)
+                else if (result[position] < count)
                     result[position] = count;
             }
             return result;

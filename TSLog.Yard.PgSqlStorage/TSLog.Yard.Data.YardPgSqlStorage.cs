@@ -2078,6 +2078,9 @@ namespace TSLog.Yard.Data
                 var workersCounts = operation.PositionsWorkersCount();
                 foreach (var pair in workersCounts)
                 {
+                    if (!pair.Key.IsLinear)
+                        continue;
+
                     // Определяем наименее загруженных сотрудников
                     var duration = operation.PlanWorkFinishDate - operation.PlanWorkStartDate;
                     var temp = GetLeastBisyEmployees((DateTime)date,

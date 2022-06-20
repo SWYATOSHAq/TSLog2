@@ -144,7 +144,7 @@
 		
 			<right code="GET_BOSSCONTROL_WORKS" name="" note=""></right>
 		</role>
-		<role code="LEAD" name="Руководитель клиентских менеджеров" groupName="Leads" note="Руководство клиентских менеджеров">
+		<role code="LEAD" name="Руководящий состав" groupName="Leads" note="Руководящий состав">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 
 			<right code="GET_PARTNER_MANAGER" name="" note=""></right>
@@ -169,6 +169,10 @@
 			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="" note=""></right>
 			
 			<right code="GET_BOSSCONTROL_WORKS" name="" note=""></right>
+
+			<!-- Добавил права на просмотр назначенных работников начальнику склада, по требованию С. Башлыкова (задача #1791)-->
+			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
+			<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
 
 			<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>

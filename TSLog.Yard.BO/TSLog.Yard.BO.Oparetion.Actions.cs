@@ -74,6 +74,28 @@ namespace TSLog.Yard.BO
                     return true;
             return false;
         }
+        /// <summary>
+        /// Идентификатор первого попавшегося партнёра (клиента, манданта)
+        /// </summary>
+        public string AnyPartnerId
+        {
+            get
+            {
+                var partners = GetPartners();
+                return partners != null && partners.Length > 0 ? partners[0].Id : string.Empty;
+            }
+        }
+        /// <summary>
+        /// Название первого попавшегося партнёра (клиента, манданта)
+        /// </summary>
+        public string AnyPartnerName
+        {
+            get
+            {
+                var partners = GetPartners();
+                return partners != null && partners.Length > 0 ? partners[0].Name : string.Empty;
+            }
+        }
         public Partner[] GetPartners()
         {
             var partners = new HashSet<Partner>();
@@ -89,9 +111,27 @@ namespace TSLog.Yard.BO
             get { return GetPartners(); }
         }
         /// <summary>
-        /// Названия всех партнёров операции через запятую
+        /// Идентификаторы всех клиентов (партнёров, мандантов) операции через запятую
         /// </summary>
-        public string PartnerNames
+        public string PartnersIds
+        {
+            get
+            {
+                var names = new StringBuilder();
+                var partners = GetPartners();
+                foreach (var partner in partners)
+                {
+                    if (names.Length > 0)
+                        names.Append(", ");
+                    names.Append(partner.Id);
+                }
+                return names.ToString();
+            }
+        }
+        /// <summary>
+        /// Названия всех клиентов (партнёров, мандантов) операции через запятую
+        /// </summary>
+        public string PartnersNames
         {
             get
             {
@@ -104,6 +144,42 @@ namespace TSLog.Yard.BO
                     names.Append(partner.Name);
                 }
                 return names.ToString();
+            }
+        }
+        /// <summary>
+        /// Список идентификаторов (из WMS) всех складских действ
+        /// </summary>
+        public string ActionsIds
+        {
+            get
+            {
+                var ids = new StringBuilder();
+                var actions = GetActions();
+                foreach (var action in actions)
+                {
+                    if (ids.Length > 0)
+                        ids.Append(", ");
+                    ids.Append(action.Id);
+                }
+                return ids.ToString();
+            }
+        }
+        /// <summary>
+        /// Список клиентских (партнёрских) идентификаторов всех складских действ
+        /// </summary>
+        public string PartnerActionsIds
+        {
+            get 
+            {
+                var ids = new StringBuilder();
+                var actions = GetActions();
+                foreach (var action in actions)
+                {
+                    if (ids.Length > 0)
+                        ids.Append(", ");
+                    ids.Append(!string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : "Б/Н");
+                }
+                return ids.ToString();
             }
         }
     }

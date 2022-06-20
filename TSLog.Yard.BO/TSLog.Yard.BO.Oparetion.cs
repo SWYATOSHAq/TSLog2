@@ -121,6 +121,17 @@ namespace TSLog.Yard.BO
         /// </summary>
         public Employee ResponsibleOfficer { get; set; } = Employee.Null;
         /// <summary>
+        /// Полное Ф. И. О. ответственного сотрудника склада
+        /// </summary>
+        public string ResponsibleOfficerFullName
+        {
+            get
+            {
+                return ResponsibleOfficer != null && ResponsibleOfficer != Employee.Null && ResponsibleOfficer != Employee.Empty
+                    ? ResponsibleOfficer.FullName : string.Empty;
+            }
+        }
+        /// <summary>
         /// Приоритет
         /// </summary>
         public short Priority { get; set; }
