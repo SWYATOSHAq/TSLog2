@@ -15,6 +15,10 @@ if (useAuthentication)
     });
 }
 builder.Services.AddRazorPages();
+builder.Services.AddMvc().AddRazorPagesOptions(options =>
+{
+    options.RootDirectory = "/View";
+});
 builder.Services.AddMvc();
 
 var isDebug = builder.Configuration.GetValue<bool>("IsDebug");

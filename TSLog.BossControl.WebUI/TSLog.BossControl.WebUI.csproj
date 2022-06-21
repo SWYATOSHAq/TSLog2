@@ -31,16 +31,21 @@
     <PackageReference Include="bootstrap" Version="5.1.3" />
     <PackageReference Include="Bootstrap.Datepicker" Version="1.8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="6.0.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TSLog.Authorization\TSLog.Authorization.csproj" />
     <ProjectReference Include="..\TSLog.BossControl.BO\TSLog.BossControl.BO.csproj" />
     <ProjectReference Include="..\TSLog.BossControl.OracleStorage\TSLog.BossControl.OracleStorage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Blocks\" />
+    <Content Update="View\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

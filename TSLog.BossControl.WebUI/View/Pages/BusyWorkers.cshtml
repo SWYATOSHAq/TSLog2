@@ -1,0 +1,30 @@
+﻿@page "/BusyWorkers"
+@using TSLog.BossControl.WebUI.Models
+@model BusyWorkersModel
+@{
+    ViewData["Title"] = "Занятые сотрудники";
+    var storage = Model.Storage;
+
+    var workersFiltersBlockModel = new WorkersFiltersBlockModel(storage);
+}
+
+<div class="table-div">
+    <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />
+    <b>Занятые сотрудники</b>
+    <table class="table table-light table-bordered table-striped table-sortable" style="margin: 0; padding: 0">
+        <thead>
+            <tr>
+                <th class="table-column-header" >Сотрудник</th>
+                <th class="table-column-header">Должность</th>
+                <th class="table-column-header">Компания</th>
+                <th class="table-column-header">Пользователь WMS</th>
+                <th class="table-column-header">Участок</th>
+                <th class="table-column-header">Мандант</th>
+                <th class="table-column-header">Время прихода</th>
+                <th class="table-column-header" style="width: 10%">Выход</th>
+            </tr>
+        </thead>
+        <tbody id="sites-workers-tbody">
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,63 @@
+﻿@using TSLog.BossControl.BO
+@using TSLog.Partners.BO
+@using TSLog.Authorization
+@using TSLog.BossControl.WebUI.Models
+
+@model WorkersFiltersBlockModel
+@{
+    var storage = Model.Storage;
+    var divClasses = "col-md-3 col-6 filter-div";
+    var selectClasses = "form-select filter-select";
+
+    var filterByWorker = true;
+
+    var positions = storage.GetPositions();
+    PositionsModel? positionsModel = new PositionsModel(positions, string.Empty, true, true, string.Empty, divClasses, selectClasses);
+
+    var companies = storage.GetCompanies();
+    CompaniesModel? companiesModel = new CompaniesModel(companies, string.Empty, true, true, string.Empty, divClasses, selectClasses);
+
+    var filterByWmsUser = true;
+
+    var sites = storage.GetSites();
+    SitesModel? sitesModel = new SitesModel(sites, string.Empty, true, true, string.Empty, divClasses, selectClasses);
+
+    var partners = storage.GetPartners();
+    PartnersModel? partnersModel = new PartnersModel(partners, string.Empty, true, true, string.Empty, divClasses, selectClasses);;
+
+    //Microsoft.AspNetCore.Mvc.TagHelpers.PartialTagHelper
+}
+
+<div id="filters-div">
+    <b>Фильтры:</b>
+    <div class="row">
+        @if (filterByWorker)
+        {
+            <div id="worker-div" class="col-md-3 col-6">
+                <input class="form-control filter-input" id="worker-input" placeholder="Работник">
+            </div>
+        }
+        @if (positionsModel != null)
+        {
+            <partial name="Blocks/Lists/_PositionsDropdown" model="positionsModel" />
+        }
+        @if (companiesModel != null)
+        {
+            <partial name="Blocks/Lists/_CompaniesDropdown" model="companiesModel" />
+        }
+        @if (filterByWmsUser)
+        {
+            <div id="wms-user-div" class="col-md-3 col-6">
+                <input class="form-control filter-input" id="wms-user-input" placeholder="Пользователь WMS">
+            </div>
+        }
+        @if (sitesModel != null)
+        {
+            <partial name="Blocks/Lists/_SitesDropdown" model="sitesModel" />
+        }
+        @if (partnersModel != null)
+        {
+            <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+        }
+    </div>
+</div>

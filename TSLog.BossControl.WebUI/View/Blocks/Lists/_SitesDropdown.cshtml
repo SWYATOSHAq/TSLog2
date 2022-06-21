@@ -1,9 +1,9 @@
 ﻿@using TSLog.BossControl.WebUI.Models
 
-@model PositionsModel
+@model SitesModel
 @{
-    var position = Model.Positions;
-    var selectedPosition = Model.SelectedPosition;
+    var sites = Model.Sites;
+    var selectedSite = Model.SelectedSite;
     var isEnabled = Model.IsEnabled;
     var isSmall = Model.IsSmall;
     var defaultText = Model.DefaultText;
@@ -11,15 +11,15 @@
     var selectClasses = Model.SelectClasses;
 
     if (string.IsNullOrWhiteSpace(defaultText))
-        defaultText = "Должность не выбрана";
+        defaultText = "Участок не выбран";
 }
 <div id="positions-div" class="@divClasses">
-    <span class="input-group-text col-3@(isSmall  ? " d-none" : string.Empty)">Должность</span>
+    <span class="input-group-text col-3@(isSmall ? " d-none" : string.Empty)">Участок</span>
     <select id="positions-select" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
         <option value="">@defaultText</option>
-        @foreach (var position in positions)
+        @foreach (var site in sites)
         {
-           @: <option value="@gate.Code"@((gate.Code != selectedGate) ? string.Empty : " selected")>@gate.DisplayName</option>
+           @: <option value="@site.Code"@((site.Code != selectedSite) ? string.Empty : " selected")>@site.DisplayName</option>
         }
     </select>
 </div>

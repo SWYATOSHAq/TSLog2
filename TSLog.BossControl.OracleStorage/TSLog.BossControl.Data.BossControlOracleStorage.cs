@@ -118,6 +118,11 @@ namespace TSLog.BossControl.Data
                 return site;
             throw new SiteNotFoundException(id);
         }
+        public Site[] GetSites()
+        {
+            var sites = new List<Site>();
+            return sites.ToArray();
+        }
         #endregion
 
         #region Partners
@@ -166,6 +171,11 @@ namespace TSLog.BossControl.Data
             if (partner != null && partner != Partner.Null && partner != Partner.Empty)
                 return partner;
             throw new PartnerNotFoundException(id);
+        }
+        public Partner[] GetPartners()
+        {
+            var partners = new List<Partner>();
+            return partners.ToArray();
         }
         #endregion
 
@@ -222,6 +232,11 @@ namespace TSLog.BossControl.Data
             if (legalEntity != null && legalEntity != LegalEntity.Null && legalEntity != LegalEntity.Empty)
                 return legalEntity;
             throw new LegalEntityNotFoundException(id);
+        }
+        public LegalEntity[] GetCompanies()
+        {
+            var companies = new List<LegalEntity>();
+            return companies.ToArray();
         }
         #endregion
 
@@ -330,11 +345,12 @@ namespace TSLog.BossControl.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectPositionsSql =
-                    $"select p.id, p.code, " +
-                    $"       p.name, p.short_name, p.alt_name, p.display_name, " +
-                    $"       p.is_active, p.display_order, " +
-                    $"       p.is_linear, " +
-                    $"       p.note " +
+                    $"select p.id, p.code,\n" +
+                    $"       p.name, p.short_name, p.alt_name, p.display_name,\n" +
+                    $"       p.is_active, p.display_order,\n" +
+                    $"       p.is_linear,\n" +
+                    $"       p.cost, p.cost_currency_code,\n" +
+                    $"       p.note\n" +
                     $"  from {StaffSchema}.stf_position#v p";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
