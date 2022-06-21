@@ -12,6 +12,9 @@ using static TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
 {
+    /// <summary>
+    /// Контроллер api модуля управления двором 
+    /// </summary>
     [Route("/api/v1/[controller]")]
     [ApiController]
     public class YardController : ControllerBase
@@ -2298,6 +2301,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+        /// <summary>
+        /// Первая версия отчёта 
+        /// </summary>
+        /// <returns>Данные отчёта</returns>
         [HttpGet("WorkersPerfomanceReport")]
         public string GetWorkersPerfomanceReport()
         {
@@ -2375,6 +2382,125 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var text = JsonSerializer.Serialize(elements.ToArray());
                 Response.StatusCode = 200;
                 return text; 
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        /// <summary>
+        /// Вторая версия отчёта (детали смотри в комментариях в теле процедуры)
+        /// </summary>
+        /// <returns>Данные отчёта</returns>
+        [HttpGet("WorkersPerfomanceReport2")]        
+        public string GetWorkersPerfomanceReport2()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
+                if (_useAuthentication && (!useYard || !getData))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["from_date"];
+                var fromDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out fromDate))
+                        return $"Wrong to date {temp}";
+                }
+                temp = Request.Query["to_date"];
+                var toDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out toDate))
+                        return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1).AddTicks(-1);
+                }
+
+                var operations = _storage.GetOperationsByFactWork(fromDate, toDate);
+                var data = new Dictionary<Employee, IDictionary<Operation, double>>();
+                var data2 = new Dictionary<Employee, IDictionary<Operation, double>>(); // Для производительности = План. продолжительность / Факт. продолжительность
+                // Смотрим все операции двора за указанный период,
+                // для кадлой операции определяем список работников, которые по БоссКонтролю "задели" фактический промежуток работ по операции,
+                // определяем суммарное время всех работ (на данном участке) по БоссКонтролю, которые "задели" фактический промежуток работ по операции,
+                // определяем производительность каждого сотрудника на данной операции как:
+                // отношение плановой продолжительности работ по операции, умноженной на количество сотрудников  
+                // и суммарного времени всех работ (на данном участке) по БоссКонтролю
+                foreach (var operation in operations)
+                {
+                    if (operation.FactWorkStartDate == DateTime.MinValue || operation.FactWorkFinishDate == DateTime.MinValue)
+                        continue;
+
+                    var siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
+                    var works = _storage.GetBossControlWorks(operation.FactWorkStartDate, operation.FactWorkFinishDate, siteCode);
+
+                    var bcDuration = 0; // Длительность всех работ по БК для конкретной операции двора
+                    var workers = new HashSet<Employee>(); // Работники, зарегистрированные на данном участке в течение работ по данной операции
+                    foreach (var work in works)
+                    {
+                        bcDuration += work.duration;
+                        var employee = _storage.GetEmployee(work.workerId);
+                        if (!workers.Contains(employee))
+                            workers.Add(employee);
+                    }
+                    var workersCount = workers.Count;
+                    var perfomance = bcDuration > 0 ? (operation.PlanDuration * workersCount / bcDuration) : 0.0;
+                    var perfomance2 = operation.PlanDuration / operation.FactDuration; // Для производительности = План. продолжительность / Факт. продолжительность
+                    foreach (var worker in workers)
+                    {
+                        if (!data.ContainsKey(worker))
+                            data.Add(worker, new Dictionary<Operation, double>());
+                        var workerOperations = data[worker];
+                        workerOperations.Add(operation, perfomance);
+
+                        // Для производительности = План. продолжительность / Факт. продолжительность
+                        if (!data2.ContainsKey(worker))
+                            data2.Add(worker, new Dictionary<Operation, double>());
+                        var workerOperations2 = data2[worker];
+                        workerOperations2.Add(operation, perfomance2);
+                    }
+                }                
+
+                // Вычисляем уже средневзвешенную производительность каждого работника:
+                // сумма производельностей по конкретной операции, умноженных на плановое время операции, делённая на суммарное время фактичнских продолжительностей операций,
+                // Производительности работника = Сумма(Производительность работника по конкретной операции * Плановая продолжительность операции) / Сумма(Фактическая продолжительность операции)
+                var elements = new List<dynamic>();
+                foreach (var worker in data.Keys)
+                {
+                    var workerOperations = data[worker];
+                    var workerOperations2 = data2[worker]; // Для производительности = План. продолжительность / Факт. продолжительность
+                    var perfomance = 0.0;
+                    var perfomance2 = 0.0; // Для производительности = План. продолжительность / Факт. продолжительность
+                    var totalFactDuration = 0.0;
+                    foreach (var operation in workerOperations.Keys)
+                    {
+                        perfomance += operation.PlanDuration * workerOperations[operation];
+                        perfomance2 += operation.PlanDuration * workerOperations2[operation]; // Для производительности = План. продолжительность / Факт. продолжительность
+                        totalFactDuration += operation.FactDuration;
+                    }
+                    perfomance /= totalFactDuration;
+                    perfomance2 /= totalFactDuration; // Для производительности = План. продолжительность / Факт. продолжительность
+
+                    dynamic element = new ExpandoObject();
+                    element.workerId = worker.Id;
+                    element.workerFullName = worker.FullName;
+                    element.workerPositionId = worker.MajorPosition.Id;
+                    element.workerPositionName = worker.MajorPosition.Name;
+                    element.perfomance = perfomance * 100.0;
+                    element.perfomance2 = perfomance2 * 100.0; // Для производительности = План. продолжительность / Факт. продолжительность
+                    elements.Add(element);
+                }
+
+                var text = JsonSerializer.Serialize(elements.ToArray());
+                Response.StatusCode = 200;
+                return text;
             }
             catch (Exception exception)
             {

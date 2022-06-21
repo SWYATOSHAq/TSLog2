@@ -34,11 +34,10 @@
     dayInterval.AddOperations(operations);
     var intervals = dayInterval.Split();
     
-    // Count statsitics about amount of personal
-    var workersData = dayInterval.MaxParallelPositionWorkers(); // Data to display as overall summ of workers
-    var workers = workersData.Keys; // Additional collumns of table
+    var workersData = dayInterval.MaxParallelPositionWorkers();
+    var workers = workersData.Keys;
 
-    displayCollumns.Add("Пропускн. машин"); // Add first collumn with amount of cars per period
+    displayCollumns.Add("Пропускн. машин");
     foreach (var worker in workers)
         if (worker.IsLinear)
             displayCollumns.Add(worker.DisplayName);

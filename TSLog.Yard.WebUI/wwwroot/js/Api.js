@@ -551,9 +551,21 @@ class Api {
         }
     }
 
-    // Формирует отчёт производительности по работникам (за период)
+    // Формирует отчёт производительности по работникам (за период), первая версия
     async createWorkersPerfomanceReport(fromDate, toDate) {
         let url = "./api/v1/yard/WorkersPerfomanceReport?from_date=" + fromDate + "&to_date=" + toDate;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Формирует отчёт производительности по работникам (за период), вторая версия
+    async createWorkersPerfomanceReport2(fromDate, toDate) {
+        let url = "./api/v1/yard/WorkersPerfomanceReport2?from_date=" + fromDate + "&to_date=" + toDate;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());

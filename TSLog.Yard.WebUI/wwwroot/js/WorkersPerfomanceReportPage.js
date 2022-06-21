@@ -22,7 +22,8 @@ class WorkersPerfomanceReportPage {
     }
 
     async getData(fromDate, toDate) {
-        const result = await api.createWorkersPerfomanceReport(fromDate, toDate);
+        // const result = await api.createWorkersPerfomanceReport2(fromDate, toDate);
+        const result = await api.createWorkersPerfomanceReport2(fromDate, toDate);
         if (result.code === 0) {
             this.data = result.data;
         } else {
@@ -47,7 +48,7 @@ class WorkersPerfomanceReportPage {
             const tr = document.createElement("tr");
             viewUtils.createCell(tr, ["table-cell"], [element.workerFullName]);
             viewUtils.createCell(tr, ["table-cell"], [element.workerPositionName]);
-            viewUtils.createCell(tr, ["table-cell"], [Math.round(element.perfomance)]);
+            viewUtils.createCell(tr, ["table-cell"], [Math.round(element.perfomance).toString() + " / " + Math.round(element.perfomance2).toString()]);
             tbody.append(tr);
         }
     }
