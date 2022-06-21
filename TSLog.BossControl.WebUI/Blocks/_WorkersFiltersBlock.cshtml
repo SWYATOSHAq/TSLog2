@@ -1,0 +1,61 @@
+﻿@using TSLog.BossControl.BO
+@using TSLog.Partners.BO
+@using TSLog.Authorization
+@using TSLog.BossControl.WebUI.Models
+
+@model WorkersFiltersBlockModel
+@{
+    var positionModel = Model.OperationTypesModel;
+    var operationStatesModel = Model.OperationStatesModel;
+    var partnersModel = Model.PartnersModel;
+    var filterById = Model.FilterById;
+    var filterByVehicleNumber = Model.FilterByVehicleNumber;
+    var filterByDriveName = Model.FilterByDriveName;
+    var filterByPartnerActionId = Model.FilterByPartnerActionId;
+    var filterByEmployee = Model.FilterByEmployee;
+}
+<div id="filters" class="row filters-div">
+
+    @if (positionsModel != null)
+    {
+        <partial name="Blocks/Lists/_PositionsDropdown" model="positionsModel" />
+    }
+    @if (operationStatesModel != null)
+    {
+        <partial name="Blocks/Lists/_OperationStatesDropdown" model="operationStatesModel" />
+    }
+    @if (partnersModel != null)
+    {
+        <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
+    }
+     @if (filterById)
+     {
+        <div id="id-number-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="id-number-input" placeholder="№ заявки">
+        </div>
+     }
+    @if (filterByVehicleNumber)
+    {
+        <div id="vehicle-number-div" class="col-md-3 col-6 filter-div">                        
+            <input class="form-control filter-input" id="vehicle-number-input" placeholder="Номер машины">
+        </div>
+    }
+    @if (filterByDriveName)
+    {
+        <div id="driver-name-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="driver-name-input" placeholder="Ф. И. О. водителя">
+        </div>
+    }
+    @if (filterByPartnerActionId)
+    {
+        <div id="partner-action-id-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="partner-action-id-input" placeholder="Заказ/приход">
+        </div>        
+    }
+    @if (filterByEmployee)
+    {
+        <div id="worker-div" class="col-md-3 col-6 filter-div">
+            <input class="form-control filter-input" id="worker-input" placeholder="Работник">
+        </div>        
+    }
+</div>

@@ -38,3 +38,8 @@
 .table-sortable .th-sort-desc {
     background: rgba(0, 0, 0, 0.1);
 }
+
+.filter-panel {
+    display: flex;
+    height: 31px;
+}
