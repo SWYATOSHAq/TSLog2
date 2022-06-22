@@ -40,7 +40,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string json = await reader.ReadToEndAsync();
             return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
         }
-        private static dynamic OperationToDynamic(Operation operation)
+        private dynamic OperationToDynamic(Operation operation)
         {
             dynamic result = new ExpandoObject();
             result.id = operation.Id;
@@ -123,23 +123,43 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.lowerPartnerActionId = result.partnerActionId.ToLower();
             result.partnersNames = Partner.Serialize(operation.GetPartners());
 
+            result.createDate = operation.CreateDate;
+            try
+            {
+                result.creator = _storage.GetEmployeeByAdLogin(operation.Creator).FullName;
+            }
+            catch
+            {
+                result.creator = operation.Creator;
+            }
+            
+            result.editDate = operation.EditDate;
+            try
+            {
+                result.editor = _storage.GetEmployeeByAdLogin(operation.Editor).FullName;
+            }
+            catch
+            {
+                result.editor = operation.Editor;
+            }            
+
             result.displayColor = operation.DisplayColor;
 
             return result;
         }
-        private static dynamic[] OperationsToDynamic(Operation[] operations)
+        private dynamic[] OperationsToDynamic(Operation[] operations)
         {
             var result = new List<dynamic>();
             foreach (Operation operation in operations)
-                result.Add(YardController.OperationToDynamic(operation));
+                result.Add(OperationToDynamic(operation));
             return result.ToArray();
         }
-        private static string OperationToJson(Operation operation)
+        private string OperationToJson(Operation operation)
         {
-            var temp = YardController.OperationToDynamic(operation);
+            var temp = OperationToDynamic(operation);
             return JsonSerializer.Serialize(temp);
         }
-        private static string OperationsToJson(Operation[] operations)
+        private string OperationsToJson(Operation[] operations)
         {
             var temp = OperationsToDynamic(operations);
             return JsonSerializer.Serialize(temp);

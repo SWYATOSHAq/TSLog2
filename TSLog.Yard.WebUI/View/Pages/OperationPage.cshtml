@@ -241,6 +241,14 @@
             <span class="input-group-text col-4">Ответственный (склад)</span>
             <input id="responsible-officer-input" class="form-control" value="" disabled/>
         </div>
+        <div id="creator-div" class="row input-group input-div">
+            <span class="input-group-text col-4">Создание</span>
+            <input id="creator-input" class="form-control" value="" disabled/>
+        </div>
+        <div id="editor-div" class="row input-group input-div">
+            <span class="input-group-text col-4">Последние изменения</span>
+            <input id="editor-input" class="form-control" value="" disabled/>
+        </div>
 
         @if (setGate && !isPartnerUser && (action == "VIEW" || action == "VIEW_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
         {

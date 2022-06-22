@@ -1351,7 +1351,7 @@ class OperationPage {
             }
             if (allActionsDiv != undefined && allActionsDiv != null) {
                 allActionsDiv.remove();
-            }            
+            }
         }
         this.changeWarehouseActionsTitle();
         this.resizeWarehouseActionsDivs();
@@ -1359,6 +1359,19 @@ class OperationPage {
         // Responsible officer
         document.getElementById("responsible-officer-input").value =
             operation != null && operation.responsibleOfficer != "" ? operation.responsibleOfficer : "<Не определено>";
+
+        // Creator, editor, create date, edit date
+        const creatorInput = document.getElementById("creator-input");
+        const editorInput = document.getElementById("editor-input");
+        if (operation != null && this.stateCode != "") {
+            creatorInput.value = operation.creator + " (" + utils.dateTimeToString(new Date(operation.createDate)) + ")";
+            if (operation.editor != "") {
+                editorInput.value = operation.editor + " (" + utils.dateTimeToString(new Date(operation.editDate)) + ")";
+            }            
+        } else {
+            document.getElementById("creator-div").remove();
+            document.getElementById("editor-div").remove();
+        }        
 
         // Gates
         const gatesSelect = document.getElementById("gates-select");

@@ -64,6 +64,14 @@ namespace TSLog.Yard.Data
                 note);
             return action;
         }
+        /// <summary>
+        /// Возвращает складское дейтсво по виду действа (приход, расход) и идентификатору
+        /// </summary>
+        /// <param name="actionKind">Вид складского действа (приход, расход)</param>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Складское действо</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="WarehouseActionNotFoundException"></exception>
         public WarehouseAction GetAction(ActionKind actionKind, string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -84,11 +92,38 @@ namespace TSLog.Yard.Data
                 if (reader.Read())
                     action = CreateAction(reader);
                 reader.Close();
+
+                // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых
+                if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
+                {
+                    var selectArchivedDeletedAction = 
+                        $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
+                        $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
+                        $" where a.id = :id\n" +
+                        $"   and a.kind = :kind";
+                    command.CommandText = selectArchivedDeletedAction;
+                    command.Parameters.Add(new OracleParameter("id", id));
+                    command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                    using var reader2 = command.ExecuteReader();
+                    if (reader2.Read())
+                        action = CreateAction(reader2);
+                    reader2.Close();
+                }
             }
             if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
                 return action;
+
             throw new WarehouseActionNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает складское действо по виду складского действа (приход, расход), клиенту (манданту) и идентификатору в системе клиента
+        /// </summary>
+        /// <param name="actionKind">Вид (приход, расход)</param>
+        /// <param name="partner">Клиент (мандант)</param>
+        /// <param name="partnerActionId">Идентификатор в системе клиента</param>
+        /// <returns>Складское действо</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="WarehouseActionNotFoundException"></exception>
         public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId)
         {
             if (partner == null)
@@ -116,6 +151,13 @@ namespace TSLog.Yard.Data
                 return action;
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
+        /// <summary>
+        /// Ищет складское действа по виду складского действа (приход, расход), партнёру и "шаблону" идентификатора/номера/клиентского идентификатора
+        /// </summary>
+        /// <param name="kind">Вид (приход, расход)</param>
+        /// <param name="partner">Клиент (мандант)</param>
+        /// <param name="pattern">Шаблон идентификатора/номера/клиентского идентификатора</param>
+        /// <returns>Массив складских действ</returns>
         public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
         {
             var actions = new List<WarehouseAction>();
@@ -178,6 +220,13 @@ namespace TSLog.Yard.Data
                 note);
             return legalEntity;
         }
+        /// <summary>
+        /// Возвращает юридическое лицо (gp_t) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Юридическое лицо (gp_t)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="LegalEntityNotFoundException"></exception>
         public LegalEntity GetLegalEntity(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -209,6 +258,9 @@ namespace TSLog.Yard.Data
                 return legalEntity;
             throw new LegalEntityNotFoundException(id);
         }
+        #endregion
+
+        #region Sites
         private readonly IDictionary<string, string> _siteCodes = new Dictionary<string, string>
         {
             { "EIN01", "GATE_1" },
@@ -228,9 +280,11 @@ namespace TSLog.Yard.Data
             { "EIN15", "GATE_15" },
             { "EIN16", "GATE_16" }
         };
-        #endregion
-
-        #region Sites
+        /// <summary>
+        /// Возвращает код участка работ по коду ворот
+        /// </summary>
+        /// <param name="gateCode">Код ворот</param>
+        /// <returns>Код участка</returns>
         public string GetSiteCodeByGateCode(string gateCode)
         {
             return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
@@ -256,6 +310,13 @@ namespace TSLog.Yard.Data
                 displayOrder);
             return partner;
         }
+        /// <summary>
+        /// Возвращает клиента (мандант) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Клиент (мандант)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="PartnerNotFoundException"></exception>
         public Partner GetPartner(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -284,6 +345,12 @@ namespace TSLog.Yard.Data
                 return partner;
             throw new PartnerNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает менеджеров указанного клиента (манданта)
+        /// </summary>
+        /// <param name="partner">Клиент (мандант)</param>
+        /// <returns>Массив менеджеров (сотрудников)</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public Employee[] GetPartnerManagers(Partner partner)
         {
             if (partner == null)
@@ -309,6 +376,11 @@ namespace TSLog.Yard.Data
             }
             return managers.ToArray();
         }
+        /// <summary>
+        /// Возвращает всех или только активых клиентов (мандантов)
+        /// </summary>
+        /// <param name="getOnlyActive">Признак - "только активных"</param>
+        /// <returns>Массив клиентов (мандантов)</returns>
         public Partner[] GetPartners(bool getOnlyActive = true)
         {
             var partners = new List<Partner>();
@@ -416,6 +488,12 @@ namespace TSLog.Yard.Data
 
             return employee;
         }
+        /// <summary>
+        /// Возвращает сотрудника по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Сотрудник</returns>
+        /// <exception cref="EmployeeNotFoundException"></exception>
         public Employee GetEmployee(int id)
         {
             id = id > 0 ? id : 0;
@@ -457,6 +535,13 @@ namespace TSLog.Yard.Data
                 return employee;
             throw new EmployeeNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает сотрудника по имени пользователя active directory
+        /// </summary>
+        /// <param name="login">Имя пользователя active directory</param>
+        /// <returns>Сотрудник</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EmployeeNotFoundException"></exception>
         public Employee GetEmployeeByAdLogin(string login)
         {
             if (string.IsNullOrWhiteSpace(login))
@@ -502,6 +587,11 @@ namespace TSLog.Yard.Data
                 return employee;
             throw new EmployeeNotFoundException("AD login", login);
         }
+        /// <summary>
+        /// Ищет сотрудников по "фаблону" Ф. И. О. (полному или краткому)
+        /// </summary>
+        /// <param name="pattern">Шаблон поиска</param>
+        /// <returns>Массов сотрудников</returns>
         public Employee[] FindEmployees(string pattern)
         {
             pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
@@ -603,6 +693,10 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        /// <summary>
+        /// Возвращает "линейных" ("линейнх" должностей) сотрудников
+        /// </summary>
+        /// <returns>Массис вотрудников</returns>
         public Employee[] GetLinearEmployees()
         {
             var employees = new List<Employee>();
@@ -638,6 +732,10 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        /// <summary>
+        /// Возвращает ВСЕХ сотрудников
+        /// </summary>
+        /// <returns>Массив сотрудников</returns>
         public Employee[] GetEmployees()
         {
             var employees = new List<Employee>();
@@ -738,6 +836,13 @@ namespace TSLog.Yard.Data
             var shift = GetShift(date);
             return GetShiftEmployees(shift);
         }
+        /// <summary>
+        /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке
+        /// </summary>
+        /// <param name="startDate">Начальная дата (+ время)</param>
+        /// <param name="finishDate">Конечная дата (+ время)</param>
+        /// <param name="siteCode">Код участка</param>
+        /// <returns>Массив работ</returns>
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
         {
             var works = new List<dynamic>();
@@ -830,6 +935,12 @@ namespace TSLog.Yard.Data
                 note);
             return position;
         }
+        /// <summary>
+        /// Возвращает подразделение по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Подразделение</returns>
+        /// <exception cref="DepartmentNotFoundException"></exception>
         public Department GetDepartment(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -861,6 +972,13 @@ namespace TSLog.Yard.Data
                 return department;
             throw new DepartmentNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает подразделение по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Подразделение</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="DepartmentNotFoundException"></exception>
         public Department GetDepartment(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -894,6 +1012,10 @@ namespace TSLog.Yard.Data
                 return department;
             throw new DepartmentNotFoundException(code);
         }
+        /// <summary>
+        /// Возвращает подразделения
+        /// </summary>
+        /// <returns>Массив подразделений</returns>
         public Department[] GetDepartments()
         {
             var departments = new List<Department>();
@@ -953,6 +1075,12 @@ namespace TSLog.Yard.Data
             position.LaborHourCostCurrency = GetMeasureUnit(costCurrencyCode);
             return position;
         }
+        /// <summary>
+        /// Возвращает должность по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Должность</returns>
+        /// <exception cref="PositionNotFoundException"></exception>
         public Position GetPosition(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -985,6 +1113,13 @@ namespace TSLog.Yard.Data
                 return position;
             throw new PositionNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает должность по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Должность</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="PositionNotFoundException"></exception>
         public Position GetPosition(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -1019,6 +1154,10 @@ namespace TSLog.Yard.Data
                 return position;
             throw new PositionNotFoundException(code);
         }
+        /// <summary>
+        /// Возвращает ВСЕ должности
+        /// </summary>
+        /// <returns>Массив должностей</returns>
         public Position[] GetPositions()
         {
             var positions = new List<Position>();
@@ -1043,6 +1182,10 @@ namespace TSLog.Yard.Data
             positions.Sort();
             return positions.ToArray();
         }
+        /// <summary>
+        /// Возвращает "линейные" должности (линейного персонала)
+        /// </summary>
+        /// <returns>Массив "линейных" должностей</returns>
         public Position[] GetLinePositions()
         {
             var positions = new List<Position>();
