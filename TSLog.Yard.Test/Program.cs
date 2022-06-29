@@ -23,8 +23,8 @@ string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("Le
 string oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema");
 
 var pgsqlConnectionSettings = isDebug
-    ? configuration.GetSection("PostgreeSqlConnectionDebugSettings")
-    : configuration.GetSection("PostgreeSqlConnectionSettings");
+    ? configuration.GetSection("PostgreSqlConnectionDebugSettings")
+    : configuration.GetSection("PostgreSqlConnectionSettings");
 string pgsqlHost = pgsqlConnectionSettings.GetValue<string>("Host");
 string pgsqlUserName = pgsqlConnectionSettings.GetValue<string>("UserName");
 string pgsqlPassword = pgsqlConnectionSettings.GetValue<string>("Password");
@@ -100,7 +100,7 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
         "Ivanov", "Ivan", "Ivanovich",
         defManager);
 
-    var action = storage.GetAction(ActionKind.Outgo, partner, "ВБ00-008867");
+    var action = storage.GetWarehouseAction(ActionKind.Outgo, partner, "ВБ00-008867");
 
     operation.AddAction(action);
     storage.AddOperation(operation, user);

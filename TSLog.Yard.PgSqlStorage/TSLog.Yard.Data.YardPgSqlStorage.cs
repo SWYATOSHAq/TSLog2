@@ -15,7 +15,7 @@ using OperationType = TSLog.Yard.BO.OperationType;
 namespace TSLog.Yard.Data
 {
     /// <summary>
-    /// Класс для работы с данными в БД PostgreeSQL
+    /// Класс для работы с данными в БД PostgreSQL
     /// </summary>
     public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage
     {
@@ -67,6 +67,12 @@ namespace TSLog.Yard.Data
                 displayOrder,
                 note);
         }
+        /// <summary>
+        /// Возвращает ворота по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Ворота</returns>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Gate GetGate(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -96,6 +102,13 @@ namespace TSLog.Yard.Data
                 return gate;
             throw new EntityNotFoundException(nameof(Gate), id);
         }
+        /// <summary>
+        /// Возвращает ворота по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Ворота</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Gate GetGate(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -127,6 +140,10 @@ namespace TSLog.Yard.Data
                 return gate;
             throw new EntityNotFoundException(nameof(Gate), code);
         }
+        /// <summary>
+        /// Возвращает ВСЕ ворота
+        /// </summary>
+        /// <returns>Массив ворот</returns>
         public Gate[] GetGates()
         {
             var gates = new List<Gate>();
@@ -175,6 +192,12 @@ namespace TSLog.Yard.Data
                 displayOrder,
                 note);
         }
+        /// <summary>
+        /// Возвращает логиста (транспортную компанию) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Логист (транспортная компания)</returns>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Logist GetLogist(int id)
         {
             id = id > 0 ? id : -1;
@@ -206,6 +229,13 @@ namespace TSLog.Yard.Data
                 return logist;
             throw new EntityNotFoundException(nameof(logist), id);
         }
+        /// <summary>
+        /// Возвращает логиста (транспортную компанию) по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Логист (транспортная компания)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Logist GetLogist(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -238,6 +268,10 @@ namespace TSLog.Yard.Data
                 return logist;
             throw new EntityNotFoundException(nameof(logist), code);
         }
+        /// <summary>
+        /// Возвращает ВСЕХ логистов (транспортные компании)
+        /// </summary>
+        /// <returns>Массив логистов (транспортных компаий)</returns>
         public Logist[] GetLogists()
         {
             var logists = new List<Logist>();
@@ -264,6 +298,11 @@ namespace TSLog.Yard.Data
         }
 
         private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
+        /// <summary>
+        /// Возвращает состояние операции двора (ПРР) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Состояние операции двора</returns>
         public Entity GetOperationState(short id)
         {
             var SelectOperationStateByIdSql =
@@ -271,6 +310,11 @@ namespace TSLog.Yard.Data
                 $"  from {YardSchema}.v_operation_state os where os.id = :id";
             return GetEntity(id, SelectOperationStateByIdSql, _operationStates);
         }
+        /// <summary>
+        /// Возвращает состояние операции двора (ПРР) по коду
+        /// </summary>
+        /// <param name="code">Код </param>
+        /// <returns>Состояние операции двора (ПРР)</returns>
         public Entity GetOperationState(string code)
         {
             var SelectOperationStateByCodeSql =
@@ -278,6 +322,10 @@ namespace TSLog.Yard.Data
                 $"from {YardSchema}.v_operation_state os where os.code = :code";
             return GetEntity(code, SelectOperationStateByCodeSql, _operationStates);
         }
+        /// <summary>
+        /// Возвращает ВСЕ состояния операций двора
+        /// </summary>
+        /// <returns>Массив состояний операций двора</returns>
         public Entity[] GetOperationStates()
         {
             var SelectOperationStatesSql =
@@ -294,6 +342,7 @@ namespace TSLog.Yard.Data
 
             var id = Utils.DbValueToShort(reader["id"]);
             var direction = Utils.DbValueToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
+            var isPallet = true;
             var code = Utils.DbValueToString(reader["code"]);
             var name = Utils.DbValueToString(reader["name"]);
             var shortName = Utils.DbValueToString(reader["short_name"]);
@@ -305,6 +354,7 @@ namespace TSLog.Yard.Data
             var note = Utils.DbValueToString(reader["note"]);
             var operationtype = new OperationType(id,
                 direction,
+                isPallet,
                 code,
                 name,
                 shortName,
@@ -316,6 +366,12 @@ namespace TSLog.Yard.Data
                 note);
             return operationtype;
         }
+        /// <summary>
+        /// Возвращает тип операции двора (ПРР) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Тип операции двора (ПРР)</returns>
+        /// <exception cref="EntityNotFoundException"></exception>
         public OperationType GetOperationType(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -348,6 +404,13 @@ namespace TSLog.Yard.Data
                 return operationType;
             throw new EntityNotFoundException(nameof(operationType), id);
         }
+        /// <summary>
+        /// Возвращает тип операции двора (ПРР) по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Тип операции двора (ПРР)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public OperationType GetOperationType(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -381,6 +444,12 @@ namespace TSLog.Yard.Data
                 return operationType;
             throw new EntityNotFoundException(nameof(operationType), code);
         }
+        /// <summary>
+        /// Возвращает типы операций двора указанного партнёра (манданта)
+        /// </summary>
+        /// <param name="partner">Партнёр (клиент, мандант)</param>
+        /// <returns>Массив типов операций двора (ПРР)</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public OperationType[] GetOperationTypes(Partner partner)
         {
             if (partner == null)
@@ -410,6 +479,10 @@ namespace TSLog.Yard.Data
             operationTypes.Sort();
             return operationTypes.ToArray();
         }
+        /// <summary>
+        /// Возвращает ВСЕ типы операций двора (ПРР)
+        /// </summary>
+        /// <returns>Массив типов операций двора (ПРР)</returns>
         public OperationType[] GetOperationTypes()
         {
             var operationTypes = new List<OperationType>();
@@ -460,6 +533,12 @@ namespace TSLog.Yard.Data
                 note);
             return vehicleKind;
         }
+        /// <summary>
+        /// Возвращает вид автомашины по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Вид автомашины</returns>
+        /// <exception cref="EntityNotFoundException"></exception>
         public VehicleKind GetVehicleKind(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -492,6 +571,13 @@ namespace TSLog.Yard.Data
                 return vehicleKind;
             throw new EntityNotFoundException(nameof(vehicleKind), id);
         }
+        /// <summary>
+        /// Возвращает вид автомашины по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Вид автомашины</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public VehicleKind GetVehicleKind(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -525,6 +611,10 @@ namespace TSLog.Yard.Data
                 return vehicleKind;
             throw new EntityNotFoundException(nameof(vehicleKind), code);
         }
+        /// <summary>
+        /// Возвращает ВСЕ виды автомашин
+        /// </summary>
+        /// <returns>Массив видов автомашин</returns>
         public VehicleKind[] GetVehicleKinds()
         {
             var vehicleKinds = new List<VehicleKind>();
@@ -600,7 +690,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (work != null && work != Work.Null)
+            if (work != null && work != Work.Null && work != Work.Empty)
                 return work;
             throw new EntityNotFoundException(nameof(work), id);
         }
@@ -633,7 +723,7 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            if (work != null && work != Work.Null)
+            if (work != null && work != Work.Null && work != Work.Empty)
                 return work;
             throw new EntityNotFoundException(nameof(work), code);
         }
@@ -677,26 +767,55 @@ namespace TSLog.Yard.Data
         public GetEmployeesByShiftDelegate? GetEmployeesByShift { private get; set; }
         public GetEmployeesDelegate? GetEmployees { private get; set; }
         public GetWarehouseActionDelegate? GetWarehouseAction { private get; set; }
+        /// <summary>
+        /// Возвращает клиента (мандант) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Клиент (мандант)</returns>
         public Partner GetPartner(string id)
         {
             return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
         }
+        /// <summary>
+        /// Возвращает сотрудника по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Сотрудник</returns>
         private Employee GetEmployee(int id)
         {
             return GetEmployeeById != null ? GetEmployeeById(id) : Employee.Null;
         }
+        /// <summary>
+        /// Возвращает должность по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Должность</returns>
         private Position GetPosition(short id)
         {
             return GetPositionById != null ? GetPositionById(id) : Position.Null;
         }
+        /// <summary>
+        /// Возвращает рабочую смену, которая затрагивает указанный момент времени
+        /// </summary>
+        /// <param name="date">Момент времени (дата + время)</param>
+        /// <returns>Рабочая смена</returns>
         private Shift? GetShift(DateTime date)
         {
             return GetShiftByDate != null ? GetShiftByDate(date) : null;
         }
+        /// <summary>
+        /// Возвращает сотрудников, работающих в указанную рабочую смену
+        /// </summary>
+        /// <param name="shift">Рабочая смена</param>
+        /// <returns>Массив сотрудников</returns>
         private Employee[] GetShiftEmployees(Shift shift)
         {
             return GetEmployeesByShift != null ? GetEmployeesByShift(shift) : Array.Empty<Employee>();
         }
+        /// <summary>
+        /// Возвращает ВСЕХ сотрудников
+        /// </summary>
+        /// <returns>Массив сотрудников</returns>
         private Employee[] GetAllEmployees()
         {
             return GetEmployees != null ? GetEmployees() : Array.Empty<Employee>();
@@ -720,6 +839,11 @@ namespace TSLog.Yard.Data
             { "GATE_15", "EIN15" },
             { "GATE_16", "EIN16" }
         };
+        /// <summary>
+        /// Возвращает код ворот по коду участка (соответствующего воротам)
+        /// </summary>
+        /// <param name="siteCode">Код участка</param>
+        /// <returns>Код ворот</returns>
         public string GetGateCodeBySiteCode(string siteCode)
         {
             return !string.IsNullOrWhiteSpace(siteCode) && _gateCodes.ContainsKey(siteCode) ? _gateCodes[siteCode] : string.Empty;
@@ -727,98 +851,6 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Operations     
-        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var time = OperationType.DefaultTime;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select otvkt.operation_time\n" +
-                        $"  from {YardSchema}.v_ot_vk_time otvkt\n" +
-                        $" where otvkt.operation_type_id = :operation_type_id\n" +
-                        $"   and otvkt.vehicle_kind_id = :vehicle_kind_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                        time = Utils.DbValueToShort(reader["operation_time"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            // TODO: get default time for current operation type
-            return time;
-        }
-        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var laborCost = OperationType.DefaultLaborCost;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select otvkw.time, otvkw.workers_count\n" +
-                        $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
-                        $" where otvkw.operation_type_id = :operation_type_id\n" +
-                        $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return laborCost;
-        }
-        public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var laborCost = OperationType.DefaultLaborCost;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"   select otvkw.time, otvkw.workers_count\n" +
-                        $"     from {YardSchema}.v_ot_vk_work otvkw\n" +
-                        $"left join {YardSchema}.v_position p on otvkw.position_id = p.id\n" +
-                        $"    where otvkw.operation_type_id = :operation_type_id\n" +
-                        $"      and otvkw.vehicle_kind_id = :vehicle_kind_id\n" +
-                        $"      and p.is_linear = 1";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return laborCost;
-        }
         private Interval CreateInterval(DbDataReader reader)
         {
             if (reader == null)
@@ -828,143 +860,6 @@ namespace TSLog.Yard.Data
             var gate = GetGate(Utils.DbValueToShort(reader["gate_id"]));
             var interval = new Interval(from, to, gate);
             return interval;
-        }
-        public Interval[] GetAllIntervals(DateTime from, DateTime to)
-        {
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql = $"select (yard.get_all_windows(:p_start_date, :p_finish_date)).*;";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var interval = CreateInterval(reader);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select (yard.get_avalible_windows(:p_start_date,\n" +
-                        $"    :p_finish_date,\n" +
-                        $"    :p_operation_type_code,\n" +
-                        $"    :p_vehicle_kind_code)).*;";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
-                    command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
-                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var interval = CreateInterval(reader);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to)
-        {
-            if (gate == null)
-                throw new ArgumentNullException(nameof(gate));
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql = $"select (yard.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var interval = CreateInterval(reader);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        public Operation AddOperation(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql = $"select {YardSchema}.add_operation(:p_type_code,\n" +
-                        ":p_plan_work_start_date,\n" +
-                        ":p_plan_work_finish_date,\n" +
-                        ":p_vehicle_kind_code,\n" +
-                        ":p_vehicle_brand,\n" +
-                        ":p_vehicle_model,\n" +
-                        ":p_vehicle_number,\n" +
-                        ":p_trailer_number,\n" +
-                        ":p_driver_name,\n" +
-                        ":p_driver_phone_number,\n" +
-                        ":p_logist_id,\n" +
-                        ":p_priority,\n" +
-                        ":p_partner_manager_name,\n" +
-                        ":p_partner_manager_phone_number,\n" +
-                        ":p_partner_manager_email,\n" +
-                        ":p_manager_id,\n" +
-                        ":p_note,\n" +
-                        ":p_user);";
-                    command.CommandText = sql;
-
-                    command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
-                    command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
-                    command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
-                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
-                    command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
-                    command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
-                    command.Parameters.Add(CreateParameter("p_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
-                    command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
-                    command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
-                    command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
-                    command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
-                        operation.Logist != null ? operation.Logist.Id : DBNull.Value));
-                    command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
-                    command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
-                    command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
-                    command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
-                    command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
-                    command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
-                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-
-                    operation.Id = Convert.ToInt64(command.ExecuteScalar());
-                }                
-                connection.Close();
-            }
-            return operation;
         }
         private Operation CreateOperation(DbDataReader reader)
         {
@@ -1026,14 +921,339 @@ namespace TSLog.Yard.Data
             var actions = GetActions(operation);
             operation.AddActions(actions);
 
+            // Элементарые работы для операции двора (зависят от типа операции, вида автомашины)
             var operationWorks = GetOperationWorks(operation);
             operation.AddOperationWorks(operationWorks);
 
-            var operationWorkers = GetOperationEmployees(operation);
-            operation.AddOperationEmployees(operationWorkers);
+            var operationWorkers = GetOperationWorkers(operation);
+            operation.AddWorkers(operationWorkers);
 
             return operation;
         }
+        /// <summary>
+        /// Возвращаем продолжительность операции двора (ПРР) в зависимости от типа операции двора и вида автомашины
+        /// </summary>
+        /// <param name="operationType">Тип операции двора</param>
+        /// <param name="vehicleKind">Вид автомашины</param>
+        /// <returns>Продолжительность</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var time = OperationType.DefaultTime;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select otvkt.operation_time\n" +
+                        $"  from {YardSchema}.v_ot_vk_time otvkt\n" +
+                        $" where otvkt.operation_type_id = :operation_type_id\n" +
+                        $"   and otvkt.vehicle_kind_id = :vehicle_kind_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        time = Utils.DbValueToShort(reader["operation_time"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            // TODO: get default time for current operation type
+            return time;
+        }
+
+
+        public short GetDuration2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+            if (actions == null)
+                throw new ArgumentNullException(nameof(actions));
+            return 0;
+        }
+
+        /// <summary>
+        /// Возвращает плановые трудозатраты операции двора (ПРР) по указанному типу операции двора и виду автомашины
+        /// </summary>
+        /// <param name="operationType">Тип операции двора</param>
+        /// <param name="vehicleKind">Вид автомашины</param>
+        /// <returns>Плановые трудозатраты</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var laborCost = OperationType.DefaultLaborCost;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select otvkw.time, otvkw.workers_count\n" +
+                        $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
+                        $" where otvkw.operation_type_id = :operation_type_id\n" +
+                        $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return laborCost;
+        }
+
+        public int GetLaborCost2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+            if (actions == null)
+                throw new ArgumentNullException(nameof(actions));
+            return 0;
+        }
+
+
+        /// <summary>
+        /// Возвращает плановые трудозатраты ЛИНЕЙНОГО персонала операции двора (ПРР) по указанному типу операции двора и виду автомашины
+        /// </summary>
+        /// <param name="operationType">Тип операции двора</param>
+        /// <param name="vehicleKind">Вид автомашины</param>
+        /// <returns>Плановые трудозатраты ЛИНЕЙНОГО персонала</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var laborCost = OperationType.DefaultLaborCost;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"   select otvkw.time, otvkw.workers_count\n" +
+                        $"     from {YardSchema}.v_ot_vk_work otvkw\n" +
+                        $"left join {YardSchema}.v_position p on otvkw.position_id = p.id\n" +
+                        $"    where otvkw.operation_type_id = :operation_type_id\n" +
+                        $"      and otvkw.vehicle_kind_id = :vehicle_kind_id\n" +
+                        $"      and p.is_linear = 1";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return laborCost;
+        }
+
+        public int GetLinearLaborCost2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+            if (actions == null)
+                throw new ArgumentNullException(nameof(actions));
+            return 0;
+        }
+
+        /// <summary>
+        /// Возвращает ВСЕ свободные интервалы времени в указанном промежутке
+        /// </summary>
+        /// <param name="from">Начало указанного интервала (дата + время)</param>
+        /// <param name="to">Окончание указанного интервала (дата + время)</param>
+        /// <returns></returns>
+        public Interval[] GetAllIntervals(DateTime from, DateTime to)
+        {
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = $"select (yard.get_all_windows(:p_start_date, :p_finish_date)).*;";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var interval = CreateInterval(reader);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
+        /// <summary>
+        /// Возвращает доступные интервалы в указанном промежуьке для операции двора (ПРР) указанного типа и для указанного вида автомашины
+        /// </summary>
+        /// <param name="from">Начало промежутка (дата + время)</param>
+        /// <param name="to">Окончание промежутка (дата + время)</param>
+        /// <param name="operationType">Тип операции двора (ПРР)</param>
+        /// <param name="vehicleKind">Вид автомашины</param>
+        /// <returns>Массив доступных интервалов</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select (yard.get_avalible_windows(:p_start_date,\n" +
+                        $"    :p_finish_date,\n" +
+                        $"    :p_operation_type_code,\n" +
+                        $"    :p_vehicle_kind_code)).*;";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                    command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
+                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var interval = CreateInterval(reader);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
+        /// <summary>
+        /// Возвращаеет все свободные интервалы на указанных воротах в указанном периоде
+        /// </summary>
+        /// <param name="gate">Ворота</param>
+        /// <param name="from">Начало периода (дата + время)</param>
+        /// <param name="to">Окончание периода (дата + время)</param>
+        /// <returns>Массив интервалов</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to)
+        {
+            if (gate == null)
+                throw new ArgumentNullException(nameof(gate));
+            var intervals = new List<Interval>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = $"select (yard.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var interval = CreateInterval(reader);
+                        intervals.Add(interval);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return intervals.ToArray();
+        }
+        /// <summary>
+        /// Создаёт и сохраняет новую операцию двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <returns>Сохранённая операция двора с присвоенным идентификатором</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Operation AddOperation(Operation operation, string user = "")
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql = $"select {YardSchema}.add_operation(:p_type_code,\n" +
+                        ":p_plan_work_start_date,\n" +
+                        ":p_plan_work_finish_date,\n" +
+                        ":p_vehicle_kind_code,\n" +
+                        ":p_vehicle_brand,\n" +
+                        ":p_vehicle_model,\n" +
+                        ":p_vehicle_number,\n" +
+                        ":p_trailer_number,\n" +
+                        ":p_driver_name,\n" +
+                        ":p_driver_phone_number,\n" +
+                        ":p_logist_id,\n" +
+                        ":p_priority,\n" +
+                        ":p_partner_manager_name,\n" +
+                        ":p_partner_manager_phone_number,\n" +
+                        ":p_partner_manager_email,\n" +
+                        ":p_manager_id,\n" +
+                        ":p_note,\n" +
+                        ":p_user);";
+                    command.CommandText = sql;
+
+                    command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
+                    command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
+                    command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
+                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
+                    command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
+                    command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+                    command.Parameters.Add(CreateParameter("p_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
+                    command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
+                    command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+                    command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
+                    command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
+                        operation.Logist != null ? operation.Logist.Id : DBNull.Value));
+                    command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+                    command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
+                    command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
+                    command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
+                    command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
+                    command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+
+                    operation.Id = Convert.ToInt64(command.ExecuteScalar());
+                }                
+                connection.Close();
+            }
+            return operation;
+        }        
+        /// <summary>
+        /// Возвращает операцию двора (ПРР) по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Операция двора (ПРР)</returns>
+        /// <exception cref="OperationNotFoundException"></exception>
         public Operation GetOperation(long id)
         {
             var operation = Operation.Null;
@@ -1075,6 +1295,15 @@ namespace TSLog.Yard.Data
                 return operation;
             throw new OperationNotFoundException(id);
         }
+        private readonly Dictionary<string, Operation.OperationWork[]> _operationWorks = new();
+        /// <summary>
+        /// Возвращает элементарные микро-операции, которые относятся к операции двора (ПРР) по указанному типу и указанному виду автомашины
+        /// </summary>
+        /// <param name="operationType">Тип операции двора (ПРР)</param>
+        /// <param name="vehicleKind">Вид автомашины</param>
+        /// <returns>Массив элементарных микро-операций</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind)
         {
             if (operationType == null)
@@ -1083,6 +1312,11 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(vehicleKind));
             if (GetPositionById == null)
                 throw new ArgumentException($"{nameof(GetPositionById)} is null");
+            
+            var key = $"{operationType.Code}_{vehicleKind.Code}";
+            if (_operationWorks.ContainsKey(key))
+                return _operationWorks[key];
+
             var operationWorks = new List<Operation.OperationWork>();
             using (var connection = CloneConnection())
             {
@@ -1111,14 +1345,29 @@ namespace TSLog.Yard.Data
                 }
                 connection.Close();
             }
-            return operationWorks.ToArray();
+            var result = operationWorks.ToArray();
+            _operationWorks.Add(key, result);
+            return result;
         }
+        /// <summary>
+        /// Возвращает элементарные микро-операции, которые относятся к указаной операции двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора</param>
+        /// <returns>Массив элементарных микро-операций</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public Operation.OperationWork[] GetOperationWorks(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
             return GetOperationWorks(operation.Type, operation.VehicleKind);
         }
+        /// <summary>
+        /// Возвращате операции двора, которые "задевают" указанный период времени и относятся к указанным клиентам (мандантам)
+        /// </summary>
+        /// <param name="from">Начало периода (дата + время)</param>
+        /// <param name="to">Окончание периода (дата + время)</param>
+        /// <param name="partners">Массив партнёров (мандантов)</param>
+        /// <returns>Массив операций двора (ПРР)</returns>
         public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
         {
             var operations = new List<Operation>();
@@ -1241,6 +1490,25 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
+        /// <summary>
+        /// Фильтрует и возвращает операции двора по ряду указаных признаков
+        /// </summary>
+        /// <param name="id">Шаблон подобия идентификатора ("like")</param>
+        /// <param name="from">Начало периода (дата + время) - учитывается как плановая дата начала работ, так и фактическая</param>
+        /// <param name="to">Окончание периода (дата + время) - учитывается как плановая дата окончания работ, так и фактическая 
+        /// (+ если работа в процессе, то план корректируется в зависимости от факта начала)</param>
+        /// <param name="type">Тип операции двора (ПРР)</param>
+        /// <param name="vehicleKind">Вид автомашины</param>
+        /// <param name="state">Состояние (статус)</param>
+        /// <param name="gate">Ворота</param>
+        /// <param name="partner">Партнёр (мандант)</param>
+        /// <param name="vehicleBrand">Марка автомашины</param>
+        /// <param name="vehicleNumber">Гос. номер автомашины</param>
+        /// <param name="driverName">Ф. И. О. водителя (шаблон "like")</param>
+        /// <param name="driverPhoneNumber">Номер телефона водителя</param>
+        /// <param name="partnerActionId">Идентификатор заказа/прихода (складского дейтсва) в системе клиента (партнёра)</param>
+        /// <param name="workers">Массив назначенных работников (удовлетворяет условию поиска, если хотя бы один работник из указанного набора назначен на операцию двора)</param>
+        /// <returns>Массив операций двора (ПРР)</returns>
         public Operation[] GetOperations(string? id,
             DateTime? from, DateTime? to,
             OperationType? type,
@@ -1365,6 +1633,12 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
+        /// <summary>
+        /// Возвращает операции двора (ПРР), которые "задевают" указанным интервал по фактическому времени начала и окончания работ
+        /// </summary>
+        /// <param name="from">Начало периода (дата + время)</param>
+        /// <param name="to">Окончание периода (дата + время)</param>
+        /// <returns></returns>
         public Operation[] GetOperationsByFactWork(DateTime? from, DateTime? to)
         {
             var operations = new List<Operation>();
@@ -1400,8 +1674,10 @@ namespace TSLog.Yard.Data
                        $"         or :from_date is not null and o.fact_work_finish_date < :from_date);";
 
                     command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, 
+                        from == null || from == DateTime.MinValue ? DBNull.Value : from));
+                    command.Parameters.Add(CreateParameter("to_date", 
+                        NpgsqlDbType.Timestamp, to == null || to == DateTime.MinValue ? DBNull.Value : to));
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -1415,6 +1691,10 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
+        /// <summary>
+        /// Возвращает операции двора (ПРР), если автомашины находятся на территории складского комплекса
+        /// </summary>
+        /// <returns>Массив операций двора (ПРР)</returns>
         public Operation[] GetActiveOperations()
         {
             var operations = new List<Operation>();
@@ -1461,6 +1741,10 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
+        /// <summary>
+        /// Возвращает все операции для сотрудников охраны (те машины, которые должны или приехать или уехать)
+        /// </summary>
+        /// <returns>Массив операций двора (ПРР)</returns>
         public Operation[] GetGuardOperations()
         {
             var operations = new List<Operation>();
@@ -1507,6 +1791,12 @@ namespace TSLog.Yard.Data
             }
             return operations.ToArray();
         }
+        /// <summary>
+        /// Возвращает массив уникальых партнёров (мандантов), у которых есть операции двора (ПРР) за указанный период
+        /// </summary>
+        /// <param name="from">Начало периода (дата + время)</param>
+        /// <param name="to">Окочание периода (дата + время)</param>
+        /// <returns></returns>
         public Partner[] GetOperationsPartners(DateTime from, DateTime to)
         {
             var partners = new HashSet<Partner>();
@@ -1534,6 +1824,14 @@ namespace TSLog.Yard.Data
             }
             return partners.ToArray();
         }
+        /// <summary>
+        /// Назначает ворота на операцию двора (ПРР) и сохраняет их
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="gate">Ворота</param>
+        /// <param name="user">Имя полльзователя</param>
+        /// <returns>Назначенные ворота</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "")
         {
             if (operation == null)
@@ -1557,6 +1855,12 @@ namespace TSLog.Yard.Data
             }
             return operation.Gate;
         }
+        /// <summary>
+        /// Сбрасывает ворота у операции двора (снимает назначение)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void CancelOperationGate(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1573,6 +1877,12 @@ namespace TSLog.Yard.Data
             }
             connection.Close();
         }
+        /// <summary>
+        /// Правит и сохраняет операцию двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void EditOperation(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1628,6 +1938,12 @@ namespace TSLog.Yard.Data
             }
             connection.Close();
         }
+        /// <summary>
+        /// Начинает операцию двора (ПРР) - запускает автомашину на территорию складского комплекса
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void StartOperation(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1642,6 +1958,13 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        /// <summary>
+        /// Устанавливает ответственного сотрудника склада операции двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="officer">Ответственный сотрудник склада</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "")
         {
             if (operation == null)
@@ -1663,33 +1986,44 @@ namespace TSLog.Yard.Data
             operation.ResponsibleOfficer = officer;
             connection.Close();
         }
+        /// <summary>
+        /// Сохраняет назначенных работников на операцию двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void SaveOperationWorkers(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
-            var oldWorkers = GetOperationEmployees(operation);
+            var oldWorkers = GetOperationWorkers(operation);
             var oldKeys = new HashSet<string>();
             foreach (var operationWorker in oldWorkers)
-                oldKeys.Add($"{operationWorker.Employee.Id}_{operationWorker.Position.Id}");
+                oldKeys.Add($"{operationWorker.Worker.Id}_{operationWorker.Position.Id}");
 
-            var newWorkers = operation.OperationEmployees;
+            var newWorkers = operation.OperationWorkers;
             var newKeys = new HashSet<string>();
             foreach (var operationWorker in newWorkers)
             {
-                var key = $"{operationWorker.Employee.Id}_{operationWorker.Position.Id}";
+                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
                 newKeys.Add(key);
                 if (!oldKeys.Contains(key))
-                    AddEmployee(operation, operationWorker.Employee, operationWorker.Position, 0.0, MeasureUnit.Null);
+                    AddOperationWorker(operation, operationWorker.Worker, operationWorker.Position, 0.0, MeasureUnit.Null);
             }
 
             foreach (var operationWorker in oldWorkers)
             {
-                var key = $"{operationWorker.Employee.Id}_{operationWorker.Position.Id}";
+                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
                 if (!newKeys.Contains(key))
-                    RemoveEmployee(operation, operationWorker.Employee, operationWorker.Position);
+                    RemoveOperationWorker(operation, operationWorker.Worker, operationWorker.Position);
             }
         }
+        /// <summary>
+        /// Запускает работы по операции двора (ПРР) - ставит автомашину на ворота
+        /// </summary>
+        /// <param name="operation">Опрация двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void StartOperationWork(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1704,6 +2038,12 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        /// <summary>
+        /// Завершает работы по операции двора (ПРР) - снимает автомашину с ворот
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void FinishOperationWork(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1718,6 +2058,12 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        /// <summary>
+        /// Правит (и сохраняет) примечания операции двора (ПРР), значение уще храниться в свойстве operation.Note
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void SetOperationNote(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1733,6 +2079,12 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        /// <summary>
+        /// Завершает операцию двора (ПРР) - выпускает автомашину с территории складского комплекса
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void FinishOperation(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1747,6 +2099,12 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        /// <summary>
+        /// Отмеяет операцию двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void CancelOperation(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1761,6 +2119,12 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        /// <summary>
+        /// Удаляет операцию двора (ПРР)
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя пользователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void DeleteOperation(Operation operation, string user = "")
         {
             if (operation == null)
@@ -1929,7 +2293,7 @@ namespace TSLog.Yard.Data
             connection.Close();
             return result;
         }
-        public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
+        public void AddOperationWorker(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
@@ -1956,11 +2320,11 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
-        public Operation.OperationEmployee[] GetOperationEmployees(Operation operation)
+        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-            var operationWorkers = new List<Operation.OperationEmployee>();
+            var operationWorkers = new List<Operation.OperationWorker>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -1978,7 +2342,7 @@ namespace TSLog.Yard.Data
                         var positionId = Utils.DbValueToShort(reader["position_id"]);
                         var worker = GetEmployee(workerId);
                         var position = GetPosition(positionId);
-                        var operationWorker = new Operation.OperationEmployee(worker, position);
+                        var operationWorker = new Operation.OperationWorker(worker, position);
                         operationWorkers.Add(operationWorker);
                     }
                     reader.Close();
@@ -2051,15 +2415,15 @@ namespace TSLog.Yard.Data
             }
             return result.ToArray();
         }
-        public void AllocateEmployees(Operation operation, DateTime? date = null)
+        public void AllocateOperationWorkers(Operation operation, DateTime? date = null)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
             //  Удаляем текущие связи работников с операциями двора (ПРР)
-            var operationEmployees = GetOperationEmployees(operation);
+            var operationEmployees = GetOperationWorkers(operation);
             foreach (var operationEmployee in operationEmployees)
-                RemoveEmployee(operation, operationEmployee.Employee, operationEmployee.Position);
+                RemoveOperationWorker(operation, operationEmployee.Worker, operationEmployee.Position);
 
             date = date == null || date == DateTime.MinValue ? DateTime.Now : date;
             date = date > operation.PlanWorkStartDate ? date : operation.PlanWorkStartDate;
@@ -2091,12 +2455,12 @@ namespace TSLog.Yard.Data
 
                     // Назначаем сотрудников
                     foreach (var employee in temp)
-                        AddEmployee(operation, employee, pair.Key, employee.Cost, employee.CostMeasureUnit);
+                        AddOperationWorker(operation, employee, pair.Key, employee.Cost, employee.CostMeasureUnit);
                 }
             }
             connection.Close();
         }
-        public void RemoveEmployee(Operation operation, Employee employee, Position position)
+        public void RemoveOperationWorker(Operation operation, Employee employee, Position position)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));

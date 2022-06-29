@@ -63,7 +63,7 @@ namespace TSlog.Links.PSI.DataConverter
                     $"|AupMgSoll={PrepStrPar(row.PlanQuantity)}" +
                     $"|ArtNr={PrepStrPar(row.Product.Code, true)}" +
                     $"|BstQlf={defaultQualification}" +
-                    $"|AupInfo1={PrepStrPar(row.MeasureUnit, defmeasureUnit)}" + // <plannedDespatchQuantity measurementUnitCode="ST">
+                    $"|AupInfo1={PrepStrPar(row.QuantityMeasureUnit, defmeasureUnit)}" + // <plannedDespatchQuantity measurementUnitCode="ST">
                     $"|AupInfo2={PrepStrPar(row.OKEI, true)}" + // <eComStringAttributeValuePairList attributeName="OKEI">
                     $"|AupInfo6={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // <note>
                     $"|AupWert={PrepStrPar(row.Product.Price.ToString(), true)}" +

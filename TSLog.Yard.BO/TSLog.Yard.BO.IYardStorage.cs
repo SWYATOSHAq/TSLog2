@@ -36,7 +36,7 @@ namespace TSLog.Yard.BO
         public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind);
         public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
-        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind);
+        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to);
         public Operation AddOperation(Operation operation, string user = "");
         public Operation GetOperation(long id);
@@ -75,19 +75,21 @@ namespace TSLog.Yard.BO
         public void RemoveAction(Operation operation, WarehouseAction action);
         public void RemoveActions(Operation operation);
         public bool IsWorkerBusy(Employee employee);
-        public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency);
-        public Operation.OperationEmployee[] GetOperationEmployees(Operation operation);
-        public void AllocateEmployees(Operation operation, DateTime? date = null);
-        public void RemoveEmployee(Operation operation, Employee employee, Position position);
+        public void AddOperationWorker(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency);
+        public Operation.OperationWorker[] GetOperationWorkers(Operation operation);
+        public void AllocateOperationWorkers(Operation operation, DateTime? date = null);
+        public void RemoveOperationWorker(Operation operation, Employee employee, Position position);
     }
     public interface IYardWmsStorage
     {
         public string GetSiteCodeByGateCode(string gateCode);
         public MeasureUnit GetMeasureUnit(string code);
         public MeasureUnit[] GetMeasureUnits();
-        public WarehouseAction GetAction(ActionKind actionKind, string id);
-        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId);
-        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern);
+        public LineBase[] GetWarehouseActionLines(ActionKind actionKind, string actionId);
+        public WarehouseAction GetWarehouseAction(ActionKind actionKind, string id);
+        public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId);
+        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern);
+        public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
         public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);

@@ -360,8 +360,8 @@ namespace TSLog.Links.Data
                     product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
                     product.UnitLinerial = Convert.ToString(reader["length_measure"]);
 
-                    product.Netto = Convert.ToInt32(reader["net_weight"]);
-                    product.Netto = Convert.ToInt32(reader["gross_weight"]);
+                    product.NetWeight = Convert.ToInt32(reader["net_weight"]);
+                    product.NetWeight = Convert.ToInt32(reader["gross_weight"]);
                     product.UnitWeight = Convert.ToString(reader["weight_measure"]);
 
                     product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
@@ -378,7 +378,6 @@ namespace TSLog.Links.Data
                 Products.Add(product);
             return product ?? Product.Null;
         }
-
         public Product GetProductByGtin(string gtin)
         {
             gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
@@ -403,8 +402,8 @@ namespace TSLog.Links.Data
                     product.Height = Convert.ToInt32(reader[nameof(product.Height)]);
                     product.UnitLinerial = Convert.ToString(reader["length_measure"]);
 
-                    product.Netto = Convert.ToInt32(reader["net_weight"]);
-                    product.Netto = Convert.ToInt32(reader["gross_weight"]);
+                    product.NetWeight = Convert.ToInt32(reader["net_weight"]);
+                    product.NetWeight = Convert.ToInt32(reader["gross_weight"]);
                     product.UnitWeight = Convert.ToString(reader["weight_measure"]);
 
                     product.Volume = Convert.ToInt32(reader[nameof(product.Volume)]);
@@ -421,13 +420,11 @@ namespace TSLog.Links.Data
                 Products.Add(product);
             return product ?? Product.Null;
         }
-
         public Product GetProduct(Partner partner, string partnerProductId)
         {
             // TODO: realize
             return null;
         }
-
         public Product[] GetProducts(Partner[] partners = null)
         {
             var products = new List<Product>();
@@ -461,7 +458,6 @@ namespace TSLog.Links.Data
             }
             return products.ToArray();
         }
-
         #endregion
 
         #region Inbound instruction and notification
@@ -1012,7 +1008,6 @@ namespace TSLog.Links.Data
         #endregion ShippingNotice
 
         #endregion Outbound instruction and notification
-
 
         #region login
 

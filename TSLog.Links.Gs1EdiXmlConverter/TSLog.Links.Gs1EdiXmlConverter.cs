@@ -314,8 +314,8 @@ namespace TSLog.Links.Gs1EdiXml
                         Height = height,
                         Length = depth,
 
-                        Netto = netWeight,
-                        Brutto = grossWeight
+                        NetWeight = netWeight,
+                        GrossWeight = grossWeight
                     };
 
                     return product;
@@ -796,10 +796,10 @@ namespace TSLog.Links.Gs1EdiXml
                 //< xsd:element minOccurs = "0" name = "actualReceiptQuantity" type = "shared_common:QuantityType" />
                 var xmlPlanQuantity = xmlLine.AppendChild(xmlDocument.CreateElement("actualAcceptedQuantity"));
                 xmlPlanQuantity.InnerText = line.PlanQuantity.ToString();
-                xmlPlanQuantity.Attributes.Append(xmlDocument.CreateAttribute("measurementUnitCode")).Value = line.MeasureUnit.Code;
+                xmlPlanQuantity.Attributes.Append(xmlDocument.CreateAttribute("measurementUnitCode")).Value = line.QuantityMeasureUnit.Code;
                 var xmlFactQuantity = xmlLine.AppendChild(xmlDocument.CreateElement("plannedReceiptQuantity"));
                 xmlFactQuantity.InnerText = line.FactQuantity.ToString();
-                xmlPlanQuantity.Attributes.Append(xmlDocument.CreateAttribute("measurementUnitCode")).Value = line.MeasureUnit.Code;
+                xmlPlanQuantity.Attributes.Append(xmlDocument.CreateAttribute("measurementUnitCode")).Value = line.QuantityMeasureUnit.Code;
                 //<xsd:element minOccurs = "0" name = "communicatedDespatchQuantity" type = "shared_common:QuantityType"/>
             }
             return xmlDocument.OuterXml;

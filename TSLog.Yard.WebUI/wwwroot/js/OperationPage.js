@@ -766,6 +766,7 @@ class OperationPage {
         button.type = "button";
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important; width: 100%";
+        button.dataset.actionKind = action.kind;
         button.dataset.actionId = action.id;
         button.dataset.partnerActionId = action.partnerActionId;
         button.dataset.actionPartnerId = action.partnerId;

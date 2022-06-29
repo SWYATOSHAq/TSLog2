@@ -39,7 +39,7 @@ namespace TSLog.Yard
                 GetPositionById = _oracleStorage.GetPosition,
                 GetEmployeesByShift = _oracleStorage.GetShiftEmployees,
                 GetEmployees = _oracleStorage.GetEmployees,
-                GetWarehouseAction = _oracleStorage.GetAction
+                GetWarehouseAction = _oracleStorage.GetWarehouseAction
             };
         }
         public void ConnectOracle(string userName, string password)
@@ -267,7 +267,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetAllIntervals(from, to);
         }
-        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, Entity vehicleKind)
+        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, VehicleKind vehicleKind)
         {
             return _pgsqlStorage.GetAvalibleIntervals(from, to, operationType, vehicleKind);
         }
@@ -384,21 +384,29 @@ namespace TSLog.Yard
         {
             _pgsqlStorage.AddAction(operation, action);
         }
-        public WarehouseAction GetAction(ActionKind actionKind, string id)
+        public LineBase[] GetWarehouseActionLines(ActionKind actionKind, string actionId)
         {
-            return _oracleStorage.GetAction(actionKind, id);
+            return _oracleStorage.GetWarehouseActionLines(actionKind, actionId);
         }
-        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId)
+        public WarehouseAction GetWarehouseAction(ActionKind actionKind, string id)
         {
-            return _oracleStorage.GetAction(actionKind, partner, partnerActionId);
+            return _oracleStorage.GetWarehouseAction(actionKind, id);
+        }
+        public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId)
+        {
+            return _oracleStorage.GetWarehouseAction(actionKind, partner, partnerActionId);
         }
         public WarehouseAction[] GetActions(Operation operation)
         {
             return _pgsqlStorage.GetActions(operation);
         }
-        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
+        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern)
         {
-            return _oracleStorage.FindActions(kind, partner, pattern);
+            return _oracleStorage.FindWarehouseActions(kind, partner, pattern);
+        }
+        public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount)
+        {
+            _oracleStorage.GetAssembliedOutgo(id, out palletsCount, out eachesCount);
         }
         public void RemoveAction(Operation operation, WarehouseAction action)
         {
@@ -415,21 +423,21 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.IsWorkerBusy(employee);
         }
-        public void AddEmployee(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
+        public void AddOperationWorker(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
         {
-            _pgsqlStorage.AddEmployee(operation, employee, position, cost, costCurrency);
+            _pgsqlStorage.AddOperationWorker(operation, employee, position, cost, costCurrency);
         }
-        public Operation.OperationEmployee[] GetOperationEmployees(Operation operation)
+        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
         {
-            return _pgsqlStorage.GetOperationEmployees(operation);
+            return _pgsqlStorage.GetOperationWorkers(operation);
         }
-        public void AllocateEmployees(Operation operation, DateTime? date = null)
+        public void AllocateOperationWorkers(Operation operation, DateTime? date = null)
         {
-            _pgsqlStorage.AllocateEmployees(operation);
+            _pgsqlStorage.AllocateOperationWorkers(operation);
         }
-        public void RemoveEmployee(Operation operation, Employee employee, Position position)
+        public void RemoveOperationWorker(Operation operation, Employee employee, Position position)
         {
-            _pgsqlStorage.RemoveEmployee(operation, employee, position);
+            _pgsqlStorage.RemoveOperationWorker(operation, employee, position);
         }
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
         {

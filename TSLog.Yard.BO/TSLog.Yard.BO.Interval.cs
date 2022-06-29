@@ -33,7 +33,6 @@ namespace TSLog.Yard.BO
             Gate = gate;
         }
 
-
         #region Operations
         private readonly IDictionary<long, Operation> _operations = new Dictionary<long, Operation>();
         /// <summary>
@@ -533,7 +532,6 @@ namespace TSLog.Yard.BO
         }
         #endregion
 
-
         /// <summary>
         /// Разбивка интервала на более мелкие интервалы с указанной протяжённостью
         /// </summary>
@@ -565,7 +563,7 @@ namespace TSLog.Yard.BO
         /// Объединение интервалов
         /// </summary>
         /// <param name="intervals"></param>
-        /// <returns></returns>
+        /// <returns>Массив интервалов после объединения (далее их объединить невозможно)</returns>
         public static Interval[] Union(Interval[] intervals)
         {
             var result = new List<Interval>();
@@ -625,7 +623,6 @@ namespace TSLog.Yard.BO
                 throw new ArgumentNullException(nameof(operation));
             return !(From >= operation.PlanWorkFinishDate || To <= operation.PlanWorkStartDate);
         }
-
         /// <summary>
         /// Возвращает долю операции, которая приходтся на данный интервал
         /// </summary>

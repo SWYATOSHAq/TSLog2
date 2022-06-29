@@ -8,7 +8,7 @@ using TSLog.ExceptionHandler;
 namespace TSLog.Common.Data
 {
     /// <summary>
-    /// Класс для работы с данными из БД PostgreeSQL
+    /// Класс для работы с данными из БД PostgreSQL
     /// </summary>
     public class PgSqlStorage : IDisposable
     {
@@ -155,6 +155,12 @@ namespace TSLog.Common.Data
                 return entity;
             throw new EntityNotFoundException(code);
         }
+        /// <summary>
+        /// Возвращает сущности, которые возвращаются указанным SQL запросом
+        /// </summary>
+        /// <param name="sql">Текст SQL запроса</param>
+        /// <returns>Массив сущностей</returns>
+        /// <exception cref="ArgumentException"></exception>
         public Entity[] GetEntities(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql))

@@ -1,5 +1,6 @@
 ﻿using TSLog.Common.BO;
 using TSLog.Partners.BO;
+using TSLog.Products.BO;
 
 namespace TSLog.WarehouseActions.BO
 {
@@ -13,13 +14,13 @@ namespace TSLog.WarehouseActions.BO
         /// </summary>
         public new string Id
         {
-            get 
-            { 
-                return Code;  
+            get
+            {
+                return Code;
             }
-            protected set 
-            { 
-                Code = value; 
+            protected set
+            {
+                Code = value;
             }
         }
         /// <summary>
@@ -30,6 +31,9 @@ namespace TSLog.WarehouseActions.BO
         /// Вид (приход, расход, ...)
         /// </summary>
         public ActionKind Kind { get; private set; }
+        /// <summary>
+        /// Ключ - вид + идентификатор
+        /// </summary>
         public string Key
         {
             get
@@ -50,8 +54,9 @@ namespace TSLog.WarehouseActions.BO
         /// Плановая дата (и время) складского действа
         /// </summary>
         public DateTime PlanActionDate { get; set; }
-        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, DateTime planActionDate, 
-            bool isActive, string note) 
+        protected readonly IDictionary<Product, LineBase> _lines = new Dictionary<Product, LineBase>();
+        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, DateTime planActionDate,
+            bool isActive, string note)
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
             //if (string.IsNullOrWhiteSpace(number))
@@ -68,8 +73,116 @@ namespace TSLog.WarehouseActions.BO
             Partner = Partner.Empty;
             PartnerActionId = string.Empty;
         }
-        private static WarehouseAction? _null = null;
 
+        /// <summary>
+        /// Добавляет товарную позицию
+        /// </summary>
+        /// <param name="line">Товарная позиция</param>
+        public void AddLine(LineBase line)
+        {
+            if (line == null)
+                throw new ArgumentNullException(nameof(line));
+            if (!_lines.ContainsKey(line.Product))
+                _lines.Add(line.Product, line);
+            else
+                _lines[line.Product].FactQuantity += line.FactQuantity;
+        }
+        /// <summary>
+        /// Добавляет товарные позиции
+        /// </summary>
+        /// <param name="lines">Товарные позиции</param>
+        public void AddLines(LineBase[] lines)
+        {
+            if (lines == null)
+                throw new ArgumentNullException(nameof(lines));
+            foreach (var line in lines)
+                AddLine(line);
+        }
+        /// <summary>
+        /// Товарные позиции расхода
+        /// </summary>
+        public LineBase[] Lines => _lines.Values.ToArray();
+        /// <summary>
+        /// Суммарный объём
+        /// </summary>
+        public double Volume
+        {
+            get
+            {
+                var volume = 0.0;
+                foreach (var line in _lines.Values)
+                    volume += line.PlanVolume;
+                return volume;
+            }
+        }
+        public MeasureUnit VolumeMeasureunit
+        {
+            get
+            {
+                return _lines.Count > 0 ? _lines.Values.ToArray()[0].VolumeMeasureUnit : MeasureUnit.Null;
+            }
+        }
+        /// <summary>
+        /// Суммарный вес нетто
+        /// </summary>
+        public double NetWeight
+        {
+            get
+            {
+                var netWeight = 0.0;
+                foreach (var line in _lines.Values)
+                    netWeight += line.FactNetWeight;
+                return netWeight;
+            }
+        }
+        /// <summary>
+        /// Суммарный вес брутто
+        /// </summary>
+        public double GrossWeight
+        {
+            get
+            {
+                var grossWeight = 0.0;
+                foreach (var line in _lines.Values)
+                    grossWeight += line.FactGrossWeight;
+                return grossWeight;
+            }
+        }
+        public MeasureUnit WeightMeasureUnit
+        {
+            get
+            {
+                return _lines.Count > 0 ? _lines.Values.ToArray()[0].WeightMeasureUnit : MeasureUnit.Null;
+            }
+        }
+        /// <summary>
+        /// Плановое количество паллет
+        /// </summary>
+        public double PlanPalletsCount
+        {
+            get
+            {
+                var count = 0.0;
+                foreach (var line in _lines.Values)
+                    count += line.PlanQuantity / line.PalletStandard;
+                return count;
+            }
+        }
+        /// <summary>
+        /// "Фактическое" колличество паллет (рассчёт по фактичесому количеству)
+        /// </summary>
+        public double FactPalletsCount
+        {
+            get
+            {
+                var count = 0.0;
+                foreach (var line in _lines.Values)
+                    count += line.FactQuantity / line.PalletStandard;
+                return count;
+            }
+        }
+
+        private static WarehouseAction? _null = null;
         /// <summary>
         /// Null object
         /// </summary>
@@ -83,7 +196,6 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         private static WarehouseAction? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

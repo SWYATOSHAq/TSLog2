@@ -87,6 +87,9 @@ namespace TSLog.Yard.BO
                 return result;
             }
         }
+        /// <summary>
+        /// Общие ПЛАНОВЫЕ трудозатраты в человекосекундах ТОЛЬКО "линейного" персонала
+        /// </summary>
         public int PlanLinearLaborCost
         {
             get
@@ -105,7 +108,7 @@ namespace TSLog.Yard.BO
             get 
             {
                 return FactWorkFinishDate != DateTime.MinValue && FactWorkStartDate != DateTime.MinValue ?
-                    (int)Math.Round((FactWorkFinishDate - FactWorkStartDate).TotalSeconds) * OperationEmployeesCount : 
+                    (int)Math.Round((FactWorkFinishDate - FactWorkStartDate).TotalSeconds) * WorkersCount : 
                     0;
             }
         }

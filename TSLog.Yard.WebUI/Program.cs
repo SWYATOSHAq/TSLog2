@@ -47,8 +47,8 @@ string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("Le
 string oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema");
 
 var pgsqlConnectionSettings = isDebug 
-    ? builder.Configuration.GetSection("PostgreeSqlConnectionDebugSettings")
-    : builder.Configuration.GetSection("PostgreeSqlConnectionSettings");
+    ? builder.Configuration.GetSection("PostgreSqlConnectionDebugSettings")
+    : builder.Configuration.GetSection("PostgreSqlConnectionSettings");
 string pgsqlHost = pgsqlConnectionSettings.GetValue<string>("Host");
 string pgsqlUserName = pgsqlConnectionSettings.GetValue<string>("UserName");
 string pgsqlPassword = pgsqlConnectionSettings.GetValue<string>("Password");

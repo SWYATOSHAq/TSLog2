@@ -29,6 +29,29 @@ class Api {
         }
     }
 
+    // Возвращает плановою продолжительность операции с учётом назначенных заказов
+    async getPlanDuration2(operationTypeCode, vehicleKindCode, warehouseActions) {
+        const data = {
+            operationTypeCode: operationTypeCode,
+            vehicleKindCode: vehicleKindCode,
+            warehouseActions: warehouseActions
+        };
+        const url = "./api/v1/yard/OperationDuration2";
+        const options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("planDuration", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+
+    }
+
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
     async getPlanLaborCost(operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/OperationLaborCost?" +

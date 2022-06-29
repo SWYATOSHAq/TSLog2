@@ -33,7 +33,7 @@ namespace TSLog.Outgoes.BO
             /// <summary>
             /// Сумма
             /// </summary>
-            public double Sum => Price * Quantity;
+            public double Sum => Price * base.FactQuantity;
 
             /// <summary>
             /// Код ОКЕИ
@@ -43,20 +43,30 @@ namespace TSLog.Outgoes.BO
             /// <summary>
             /// Плановое количество
             /// </summary>
-            public double PlanQuantity { get; set; }
+            public new double PlanQuantity 
+            {
+                get
+                {
+                    return base.PlanQuantity;
+                }
+                set
+                {
+                    base.PlanQuantity = value > 0.0 ? value : 0.0;
+                }
+            }
 
             /// <summary>
             /// Фактическое количество
             /// </summary>
-            public double FactQuantity
+            public new double FactQuantity
             {
                 get
                 {
-                    return Quantity;
+                    return base.FactQuantity;
                 }
                 set
                 {
-                    Quantity = value > 0.0 ? value : 0.0;
+                    base.FactQuantity = value > 0.0 ? value : 0.0;
                 }
             }
 
@@ -79,7 +89,7 @@ namespace TSLog.Outgoes.BO
 
             public Line(int number, Product product, double price, Entity currency,
                 double planQuantity, double factQuantity, MeasureUnit measureUnit)
-                : base(number, product, factQuantity, measureUnit)
+                : base(number, product, planQuantity, factQuantity, measureUnit)
             {
                 Price = price > 0.0 ? price : 0.0;
                 if (price > 0.0 && currency == null)
@@ -181,7 +191,7 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Индекс адреса доставки
         /// </summary>
-        public string DeliveryZip { get; set; } = string.Empty;
+        public string DeliveryPostalCode { get; set; } = string.Empty;
 
         /// <summary>
         /// Город доставки
@@ -203,7 +213,6 @@ namespace TSLog.Outgoes.BO
         /// </summary>
         public string DeliveryComment { get; set; } = string.Empty;
 
-        private readonly IDictionary<Product, Line> _lines = new Dictionary<Product, Line>();
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Outgo(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "")
@@ -229,7 +238,7 @@ namespace TSLog.Outgoes.BO
             if (!_lines.ContainsKey(line.Product))
                 _lines.Add(line.Product, line);
             else
-                _lines[line.Product].Quantity += line.Quantity;
+                _lines[line.Product].FactQuantity += line.FactQuantity;
         }
 
         /// <summary>
@@ -247,7 +256,16 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Товарные позиции расхода
         /// </summary>
-        public Line[] Lines => _lines.Values.ToArray();
+        public Line[] Lines
+        {
+            get
+            {
+                var lines = new List<Line>();
+                foreach (var line in _lines.Values)
+                    lines.Add((Line)line);
+                return lines.ToArray();
+            }
+        }
 
         /// <summary>
         /// Добавялет место

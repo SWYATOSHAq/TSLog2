@@ -1,12 +1,14 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Dynamic;
+using System.Text;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
 using TSLog.ExceptionHandler;
 using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
+using TSLog.Products.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
@@ -22,6 +24,7 @@ namespace TSLog.Yard.Data
         private const string DefaultStaffSchema = "staff";
         private const string DefaultLegalEntitiesSchema = "legal_entities";
         private const string DefaultPartnersSchema = "partners";
+        private const string DefaultProductsSchema = "products";
         /// <summary>
         /// Максимальное количество строк для вывода
         /// </summary>
@@ -41,8 +44,149 @@ namespace TSLog.Yard.Data
         public YardOracleStorage(string dataSource): base(dataSource)
         { }
 
+        #region Products
+        public ProductCatalog<Product> Products { private get; set; } = new ProductCatalog<Product>("PRODUCTS_CATALOG", "Справочник товаров");
+        private static Product CreateProduct(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            var product = new Product(Utils.DbValueToString(reader["id"]),
+                Utils.DbValueToString(reader["code"]),
+                Utils.DbValueToString(reader["gtin"]),
+                Utils.DbValueToString(reader["name"]),
+                Utils.DbValueToString(reader["note1"]));
+
+            product.Length = Utils.DbValueToInt(reader[nameof(product.Length)]);
+            product.Width = Utils.DbValueToInt(reader[nameof(product.Width)]);
+            product.Height = Utils.DbValueToInt(reader[nameof(product.Height)]);
+            product.UnitLinerial = Utils.DbValueToString(reader["length_measure"]);
+            product.NetWeight = Utils.DbValueToInt(reader["net_weight"]);
+            product.NetWeight = Utils.DbValueToInt(reader["gross_weight"]);
+            product.UnitWeight = Utils.DbValueToString(reader["weight_measure"]);
+            product.Volume = Utils.DbValueToInt(reader[nameof(product.Volume)]);
+            product.UnitVolume = Utils.DbValueToString(reader["volume_measure"]);
+            product.Price = Utils.DbValueToDouble(reader[nameof(product.Price)]);
+
+            return product;
+        }
+        public Product GetProduct(string id)
+        {
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
+            var product = Products.GetByInternalCode(id);
+            if (product != null && product != Product.Null)
+                return product;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.prod_product#v p where p.id = :id";
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    product = CreateProduct(reader);
+                    Products.Add(product);
+                }
+                reader.Close();
+            }
+            if (product != null && product != Product.Null && product != Product.Empty)
+                return product;
+            throw new ProductNotFoundException(id);
+        }
+        public Product GetProductByGtin(string gtin)
+        {
+            gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
+            var product = Products[gtin];
+            if (product != null && product != Product.Null && product != Product.Empty)
+                return product;
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $"select * from {CommonSchema}.v_product p where p.gtin = :gtin";
+                command.Parameters.Add(new OracleParameter("gtin", gtin));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    product = CreateProduct(reader);
+                    Products.Add(product);
+                }
+                reader.Close();
+            }
+            if (product != null && product != Product.Null && product != Product.Empty)
+                Products.Add(product);
+            throw new ProductNotFoundException(gtin);
+        }
+        public Product GetProduct(Partner partner, string partnerProductId)
+        {
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            if (string.IsNullOrWhiteSpace(partnerProductId))
+                throw new ArgumentException("partner product id is empty");
+            return Product.Null;
+        }
+        public Product[] GetProducts(Partner[]? partners = null)
+        {
+            var products = new List<Product>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = new StringBuilder($"select * from {CommonSchema}.v_product p");
+                var where = new StringBuilder();
+                if (partners != null && partners.Length > 0)
+                {
+                    foreach (var partner in partners)
+                    {
+                        if (where.Length > 0)
+                            where.Append(", ");
+                        where.Append(Utils.ToSql(partner.Id));
+                    }
+                    where.Insert(0, "\nwhere p.partner_id in (");
+                    where.Append(')');
+                    sql.Append(where);
+                }
+                command.CommandText = sql.ToString();
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    var product = CreateProduct(reader);
+                    Products.Add(product);
+                }
+                reader.Close();
+            }
+            return products.ToArray();
+        }
+        #endregion
+
         #region Warehouse actions
-        private WarehouseAction CreateAction(DbDataReader reader)
+        private LineBase CreateWarehouseActionLine(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            var productId = Utils.DbValueToString(reader["product_id"]);
+            var product = GetProduct(productId);
+            var plaQuantity = Utils.DbValueToDouble(reader["plan_quantity"]);
+            var factQuantity = Utils.DbValueToDouble(reader["fact_quantity"]);
+            var quantityMeasureUnitCode = Utils.DbValueToString(reader["quantity_measure_code"]);
+            var quantityMeasureunit = GetMeasureUnit(quantityMeasureUnitCode);
+            var line = new LineBase(-1, product, plaQuantity, factQuantity, quantityMeasureunit);
+
+            line.PalletStandard = Utils.DbValueToDouble(reader["pallet_standard"]);
+            line.BoxStandard = Utils.DbValueToDouble(reader["box_standard"]);
+
+            line.PlanVolume = Utils.DbValueToDouble(reader["volume"]);
+            var volumeMeasureUnitCode = Utils.DbValueToString(reader["volume_measure_code"]);
+            var volumeMeasureUnit = GetMeasureUnit(volumeMeasureUnitCode);
+            line.VolumeMeasureUnit = volumeMeasureUnit;
+
+            line.PlanNetWeight = Utils.DbValueToDouble(reader["plan_net_weight"]);
+            line.PlanGrossWeight = Utils.DbValueToDouble(reader["plan_gross_weight"]);
+            line.FactNetWeight = Utils.DbValueToDouble(reader["fact_net_weight"]);
+            line.FactGrossWeight = Utils.DbValueToDouble(reader["fact_gross_weight"]);
+            var weightMeasureUnitCode = Utils.DbValueToString(reader["weight_measure_code"]);
+            var weightMeasureUnit = GetMeasureUnit(weightMeasureUnitCode);
+            line.WeightMeasureUnit = weightMeasureUnit;
+
+            return line;
+        }
+        private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -64,6 +208,87 @@ namespace TSLog.Yard.Data
                 note);
             return action;
         }
+        public LineBase GetWarehouseActionLine(ActionKind actionKind, string actionId, int number)
+        {
+            if (string.IsNullOrWhiteSpace(actionId))
+                throw new ArgumentException("action id is empty");
+            actionId = actionId.Trim();
+            number = number > 0 ? number : -1;
+            LineBase? line = null;
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"select *\n" +
+                    $"  from {CommonSchema}.act_warehouse_action_line#v al\n" +
+                    $" where al.action_id = :action_id\n" +
+                    $"   and al.line_number = :line_number\n" +
+                    $"   and al.action_kind = :action_kind";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                command.Parameters.Add(new OracleParameter("action_id", actionId));
+                command.Parameters.Add(new OracleParameter("line_number", number));
+
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    line = CreateWarehouseActionLine(reader);
+                reader.Close();
+            }
+            if (line == null)
+                throw new Exception();
+            return line;
+        }
+        /// <summary>
+        /// Возвращает товарные позиции складского действа (прихода, расхода, ...)
+        /// </summary>
+        /// <param name="actionKind">Вид складского действа (прихода, расхода, ...)</param>
+        /// <param name="actionId">Идентификатор складского действа (прихода, расхода, ...)</param>
+        /// <returns>Массив товарных позиций</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public LineBase[] GetWarehouseActionLines(ActionKind actionKind, string actionId)
+        {
+            var lines = new List<LineBase>();
+            if (string.IsNullOrWhiteSpace(actionId))
+                throw new ArgumentException("action id is empty");
+            actionId = actionId.Trim();            
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    $"select al.action_kind, al.action_id,\n" +
+                    $"       al.line_number,\n" +
+                    $"       al.product_id,\n" +
+                    $"       al.plan_quantity, al.fact_quantity, al.quantity_measure_unit_code,\n" +
+                    $"       al.plan_net_weight, al.plan_gross_weight, al.fact_net_weight, al.fact_gross_weight, al.weight_measure_unit_code,\n" +
+                    $"       al.plan_volume, al.fact_volume, al.volume_measure_unit_code,\n" +
+                    $"       al.plan_pallets_count, al.plan_boxes_count,\n" +
+                    $"       al.fact_pallets_count, al.fact_boxes_count\n" +
+                    $"  from ecco.act_wa_line_ext#v al\n" + 
+                    $" where action_id = :action_id and action_kind = :action_kind";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                command.Parameters.Add(new OracleParameter("action_id", actionId));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var line = CreateWarehouseActionLine(reader);
+                    lines.Add(line);
+                }
+                reader.Close();
+            }
+            return lines.ToArray();
+        }
+        /// <summary>
+        /// Возвращает товарные позиции складского действа (прихода, расхода, ...)
+        /// </summary>
+        /// <param name="action">Складское действо</param>
+        /// <returns>Массив товарных позиций</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public LineBase[] GetWarehouseActionLines(WarehouseAction action)
+        {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+            return GetWarehouseActionLines(action.Kind, action.Id);
+        }
         /// <summary>
         /// Возвращает складское дейтсво по виду действа (приход, расход) и идентификатору
         /// </summary>
@@ -72,7 +297,7 @@ namespace TSLog.Yard.Data
         /// <returns>Складское действо</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="WarehouseActionNotFoundException"></exception>
-        public WarehouseAction GetAction(ActionKind actionKind, string id)
+        public WarehouseAction GetWarehouseAction(ActionKind actionKind, string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("action id is empty");
@@ -89,8 +314,12 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("id", id));
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
-                if (reader.Read())
-                    action = CreateAction(reader);
+                if (reader.Read()) 
+                {
+                    action = CreateWarehouseAction(reader);
+                    var lines = GetWarehouseActionLines(action);
+                    action.AddLines(lines);
+                }                    
                 reader.Close();
 
                 // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых
@@ -106,7 +335,11 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                     using var reader2 = command.ExecuteReader();
                     if (reader2.Read())
-                        action = CreateAction(reader2);
+                    {
+                        action = CreateWarehouseAction(reader2);
+                        var lines = GetWarehouseActionLines(action);
+                        action.AddLines(lines);
+                    }                        
                     reader2.Close();
                 }
             }
@@ -124,7 +357,7 @@ namespace TSLog.Yard.Data
         /// <returns>Складское действо</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="WarehouseActionNotFoundException"></exception>
-        public WarehouseAction GetAction(ActionKind actionKind, Partner partner, string partnerActionId)
+        public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
@@ -144,7 +377,11 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
-                    action = CreateAction(reader);
+                {
+                    action = CreateWarehouseAction(reader);
+                    //var lines = GetWarehouseActionLines(action);
+                    //action.AddLines(lines);
+                }                    
                 reader.Close();
             }
             if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
@@ -158,7 +395,7 @@ namespace TSLog.Yard.Data
         /// <param name="partner">Клиент (мандант)</param>
         /// <param name="pattern">Шаблон идентификатора/номера/клиентского идентификатора</param>
         /// <returns>Массив складских действ</returns>
-        public WarehouseAction[] FindActions(ActionKind kind, Partner? partner, string pattern)
+        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern)
         {
             var actions = new List<WarehouseAction>();
             pattern = !string.IsNullOrWhiteSpace(pattern) ? $"%{pattern.Trim().ToUpper()}%" : "%";
@@ -188,12 +425,52 @@ namespace TSLog.Yard.Data
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    var action = CreateAction(reader);
+                    var action = CreateWarehouseAction(reader);
+                    //var lines = GetWarehouseActionLines(action);
+                    //action.AddLines(lines);
                     actions.Add(action);
                 }
                 reader.Close();
             }
             return actions.ToArray();
+        }
+        /// <summary>
+        /// Возвращает информацию по собранному расходу (заказу) - количество собранных паллет и штук
+        /// </summary>
+        /// <param name="id">Идкнтификатор расхода (заказа) = auf_t.aufid</param>
+        /// <param name="palletsCount">Количество собранных паллет</param>
+        /// <param name="eachesCount">Количество собранных штук</param>
+        /// <exception cref="ArgumentException"></exception>
+        public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount)
+        {
+            palletsCount = 0.0;
+            eachesCount = 0.0;
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("outgo id is empty!");
+
+            // Пытаемся получить заказ, что бы проверить существование такого заказа
+            GetWarehouseAction(ActionKind.Outgo, id);
+
+            id = id.Trim();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    $"select o.order_id id,\n" + 
+                    $"       o.pallets_count,\n" +
+                    $"       o.eaches_count\n" +
+                    $"  from {CommonSchema}.o_assambled_outgo#v o\n" +
+                    $" where o.order_id = :id";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    palletsCount = Utils.DbValueToDouble(reader["pallets_count"]);
+                    eachesCount = Utils.DbValueToDouble(reader["eaches_count"]);
+                }
+                reader.Close();
+            }            
         }
         #endregion
 
@@ -591,7 +868,7 @@ namespace TSLog.Yard.Data
         /// Ищет сотрудников по "фаблону" Ф. И. О. (полному или краткому)
         /// </summary>
         /// <param name="pattern">Шаблон поиска</param>
-        /// <returns>Массов сотрудников</returns>
+        /// <returns>Массов сотрудников</returns>        
         public Employee[] FindEmployees(string pattern)
         {
             pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
@@ -641,6 +918,14 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        /// <summary>
+        /// Ищет сотрудников по шаблону Ф. И. О., на определённой должности, по определёному режиму работы (номеру смены)
+        /// </summary>
+        /// <param name="position">Должность</param>
+        /// <param name="pattern">Шаблон Ф. И. О.</param>
+        /// <param name="workMode">Режим работы (номер смены)</param>
+        /// <returns>Массив сотрудников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "")
         {
             if (position == null)
@@ -770,6 +1055,11 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        /// <summary>
+        /// Возвращает сотрудников, которые должны работать по плану по указанному моменту времени
+        /// </summary>
+        /// <param name="date">Дата (+ время)</param>
+        /// <returns>Массив сотрудников</returns>
         public Employee[] GetPlanShiftEmployees(DateTime? date = null)
         {
             var employees = new List<Employee>();
@@ -807,6 +1097,12 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        /// <summary>
+        /// Возвращает сотрудников, работающих в указанную смену
+        /// </summary>
+        /// <param name="shift">Смена</param>
+        /// <returns>Массив сотрудников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public Employee[] GetShiftEmployees(Shift shift)
         {
             if (shift == null)
@@ -831,6 +1127,11 @@ namespace TSLog.Yard.Data
             }
             return employees.ToArray();
         }
+        /// <summary>
+        /// Возвращает массив сотрудников, работающих в смену по указанному моменту времени
+        /// </summary>
+        /// <param name="date">Дата (+ время)</param>
+        /// <returns>Массив сотрудников</returns>
         public Employee[] GetShiftEmployees(DateTime date)
         {
             var shift = GetShift(date);

@@ -234,6 +234,70 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+        [HttpGet("OperationDuration2")]
+        async public Task<string> GetOperationDuration2()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+                if (_useAuthentication && (!useYard || !getOperationDuration))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string temp = data.operationTypeCode;
+
+                string stringOperationType = Request.Query["operation_type"];
+                string stringVehicleKind = Request.Query["vehicle_kind"];
+                //string stringIds = Request.Query["actions_ids"];
+                string stringIds = "00180000W0018N0001840";
+                dynamic[] actions = Array.Empty<dynamic>();
+
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
+
+                var operationType = _storage.GetOperationType(stringOperationType);
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+
+                var standardDuration = _storage.GetDuration(operationType, vehicleKind);
+
+                var ids = stringIds.Split(",");                
+                var totalPlanPalletsCount = 0.0;
+                var totalFactPalletsCount = 0.0;
+                var totalPlanBoxesCount = 0.0;
+                var totalFactBoxesCount = 0.0;
+
+                var totalVolume = 0.0;
+                var totalGrossWeight = 0.0;
+                var totalAssembiedPalletsCount = 0.0;
+                foreach (var action in actions)
+                {
+                    var kind = action.kind == "O" ? ActionKind.Outgo : ActionKind.Income;
+                    var id = action.id;
+
+                    var lines = _storage.GetWarehouseActionLines(kind, id);
+                }
+
+
+                var timeSpan = 0;
+                var text = JsonSerializer.Serialize(timeSpan);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
         [HttpGet("OperationLaborCost")]
         public string GetOperationLaborCost()
         {
@@ -1453,6 +1517,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         private static dynamic WarehouseActionToDynamic(WarehouseAction action)
         {
             dynamic result = new ExpandoObject();
+            result.kind = action.Kind == ActionKind.Outgo ? "O" : "I";
             result.id = action.Id;
             result.partnerActionId = action.PartnerActionId;
             result.partnerId = action.Partner.Id;
@@ -1507,7 +1572,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     partner = _storage.GetPartner(temp);
                 }
 
-                var actions = _storage.FindActions(actionKind, partner, pattern);
+                var actions = _storage.FindWarehouseActions(actionKind, partner, pattern);
                 var objects = WarehouseActionsToDynamic(actions);
 
                 var text = JsonSerializer.Serialize(objects);
@@ -1584,7 +1649,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringOperationId}!";
                 
                 var operation = _storage.GetOperation(operationId);
-                var action = _storage.GetAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+                var action = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
                 _storage.AddAction(operation, action);
 
                 var text = JsonSerializer.Serialize(operation);
@@ -1712,22 +1777,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 result.Add(EmployeeToDynamic(employee));
             return result.ToArray();
         }
-        private static dynamic OperationWorkerToDynamic(Operation.OperationEmployee operationWorker)
+        private static dynamic OperationWorkerToDynamic(Operation.OperationWorker operationWorker)
         {
             dynamic result = new ExpandoObject();            
-            result.id = operationWorker.Employee.Id;
-            result.surname = operationWorker.Employee.Surname;
-            result.firstName = operationWorker.Employee.FirstName;
-            result.patronymic = operationWorker.Employee.Patronymic;
-            result.shortName = operationWorker.Employee.ShortName;
-            result.fullName = operationWorker.Employee.FullName;
+            result.id = operationWorker.Worker.Id;
+            result.surname = operationWorker.Worker.Surname;
+            result.firstName = operationWorker.Worker.FirstName;
+            result.patronymic = operationWorker.Worker.Patronymic;
+            result.shortName = operationWorker.Worker.ShortName;
+            result.fullName = operationWorker.Worker.FullName;
             result.positionId = operationWorker.Position.Id;
             result.positionCode = operationWorker.Position.Code;
             result.positionName = operationWorker.Position.Name;
             result.positionShortName = operationWorker.Position.ShortName;
             return result;
         }
-        private static dynamic[] OperationWorkersToDynamic(Operation.OperationEmployee[] operationWorkers)
+        private static dynamic[] OperationWorkersToDynamic(Operation.OperationWorker[] operationWorkers)
         {
             var result = new List<dynamic>();
             foreach (var operationWorker in operationWorkers)
@@ -1873,7 +1938,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {temp}";
 
                 var operation = _storage.GetOperation(id);
-                var operationWorkers = _storage.GetOperationEmployees(operation);
+                var operationWorkers = _storage.GetOperationWorkers(operation);
                 var objects = OperationWorkersToDynamic(operationWorkers);
                 var text = JsonSerializer.Serialize(objects);
                 Response.StatusCode = 200;
@@ -1922,7 +1987,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var worker = _storage.GetEmployee(workerId);
                 var position = _storage.GetPosition(stringPositionCode);
 
-                _storage.AddEmployee(operation, worker, position, 0.0, MeasureUnit.Null);
+                _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null);
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1970,7 +2035,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var worker = _storage.GetEmployee(workerId);
                 var position = _storage.GetPosition(stringPositionCode);
 
-                _storage.RemoveEmployee(operation, worker, position);
+                _storage.RemoveOperationWorker(operation, worker, position);
                 var text = JsonSerializer.Serialize(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -2006,7 +2071,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.AllocateEmployees(operation);
+                _storage.AllocateOperationWorkers(operation);
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;

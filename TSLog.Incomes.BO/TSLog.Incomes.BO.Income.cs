@@ -31,32 +31,42 @@ namespace TSLog.Incomes.BO
             /// <summary>
             /// Сумма
             /// </summary>
-            public double Sum => Price * Quantity;
-
-            /// <summary>
-            /// Планируемое количество
-            /// </summary>
-            public double PlanQuantity { get; set; }
-
-            /// <summary>
-            /// Фактическое количество
-            /// </summary>
-            public double FactQuantity
-            {
-                get
-                {
-                    return Quantity;
-                }
-                private set
-                {
-                    Quantity = value;
-                }
-            }
+            public double Sum => Price * base.FactQuantity;
 
             /// <summary>
             /// (OKAI) Код ОКЕИ
             /// </summary>
             public string OKEI { get; set; } = string.Empty;
+
+            /// <summary>
+            /// Плановое количество
+            /// </summary>
+            public new double PlanQuantity
+            {
+                get
+                {
+                    return base.PlanQuantity;
+                }
+                set
+                {
+                    base.PlanQuantity = value > 0.0 ? value : 0.0;
+                }
+            }
+
+            /// <summary>
+            /// Фактическое количество
+            /// </summary>
+            public new double FactQuantity
+            {
+                get
+                {
+                    return base.FactQuantity;
+                }
+                set
+                {
+                    base.FactQuantity = value > 0.0 ? value : 0.0;
+                }
+            }
 
             /// <summary>
             /// (Info) Дополнительная информация  Возможно, по согласованию,
@@ -78,13 +88,12 @@ namespace TSLog.Incomes.BO
 
             public Line(int number, Product product, double price, Entity currency,
                 double planQuantity, double factQuantity, MeasureUnit measureUnit, string note = "")
-                : base(number, product, factQuantity, measureUnit)
+                : base(number, product, planQuantity, factQuantity, measureUnit)
             {
                 Price = price > 0.0 ? price : 0.0;
                 if (currency == null && price > 0.0)
                     throw new ArgumentNullException(nameof(currency));
                 Currency = price > 0.0 && currency != null ? currency : Null;
-                PlanQuantity = planQuantity;
                 Info = !string.IsNullOrWhiteSpace(note) ? note.Trim() : string.Empty;
             }
 
@@ -181,11 +190,9 @@ namespace TSLog.Incomes.BO
         /// </summary>
         public DateTime FactAcceptanceEnd { get; set; }
 
-        private readonly IDictionary<Product, Line> _lines = new Dictionary<Product, Line>();
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
-        public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state,
-            string note = "") : base(ActionKind.Income, id, number, partner, partnerNumber, DateTime.MinValue, true, note)
+        public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "") : base(ActionKind.Income, id, number, partner, partnerNumber, DateTime.MinValue, true, note)
         {
             Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));
@@ -207,7 +214,7 @@ namespace TSLog.Incomes.BO
             if (!_lines.ContainsKey(line.Product))
                 _lines.Add(line.Product, line);
             else
-                _lines[line.Product].Quantity += line.Quantity;
+                _lines[line.Product].FactQuantity += line.FactQuantity;
         }
 
         /// <summary>
@@ -225,7 +232,16 @@ namespace TSLog.Incomes.BO
         /// <summary>
         /// Товарные позиции прихода
         /// </summary>
-        public Line[] Lines => _lines.Values.ToArray();
+        public Line[] Lines
+        {
+            get
+            {
+                var lines = new List<Line>();
+                foreach (var line in _lines.Values)
+                    lines.Add((Line)line);
+                return lines.ToArray();
+            }
+        }
 
         /// <summary>
         /// Добавить место

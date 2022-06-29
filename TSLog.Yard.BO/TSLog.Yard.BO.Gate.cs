@@ -7,6 +7,14 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class Gate : Entity
     {
+        /// <summary>
+        /// Код участка из БоссКонтроль
+        /// </summary>
+        public string SiteCode { get; set; } = string.Empty;
+        /// <summary>
+        /// Признак наличия "Кальяна" на поротах
+        /// </summary>
+        public bool IsHookan { get; set; } = false;
         public Gate(long id, string code,
             string name = "", string shortName = "", string altName = "", string displayName = "",
             bool isActive = true, short displayOrder = -1,
@@ -17,7 +25,6 @@ namespace TSLog.Yard.BO
         { }
 
         private static Gate? _null = null;
-
         /// <summary>
         /// Null object
         /// </summary>
@@ -31,7 +38,6 @@ namespace TSLog.Yard.BO
             }
         }
         private static Gate? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

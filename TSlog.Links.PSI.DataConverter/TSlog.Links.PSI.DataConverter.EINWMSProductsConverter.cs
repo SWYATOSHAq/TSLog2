@@ -77,8 +77,8 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|ArtGewEh={TranslateMeasurmentUnit(PrepStrPar(product.UnitWeight, defaultValue: "кг"))}" +
                 $"|ArtMgEh={defMeasurment}" +
                 $"|ArtMgEhWWS={defMeasurment}" +
-                $"|ArtGewNet={PrepStrPar(product.Netto)}" +
-                $"|ArtGewBru={PrepStrPar(product.Brutto)}" +
+                $"|ArtGewNet={PrepStrPar(product.NetWeight)}" +
+                $"|ArtGewBru={PrepStrPar(product.GrossWeight)}" +
                 $"|ArtMhdTageWeDeflt={PrepStrPar((product.ExpirationDate - DateTime.Today).Days, 999) }" +
                 $"|ArtWertVk={PrepStrPar(product.Price)}" +
                 $"|ArtWwsBeleg={PrepStrPar(TruncateLongString(product.Code, 30), true)}" +

@@ -7,6 +7,10 @@ namespace TSLog.Yard.BO
     /// </summary>
     public class VehicleKind : Entity
     {
+        private const double PalletLength = 1.2;
+        private const double PalletWidth = 0.8;
+        private const double PalletHeight = 1.7;
+
         private const int DefaultCapacity = 20000;
         private const short DefaultPallectsCount = 33;
         private const double DefaultBodyLength = 13.60;
@@ -27,7 +31,16 @@ namespace TSLog.Yard.BO
         /// Ширина кузова в метрах
         /// </summary>
         public double BodyWidth { get; private set; }
-
+        /// <summary>
+        /// Объём груза при максимальной загрузке
+        /// </summary>
+        public double CargoVolume
+        {
+            get
+            {
+                return PalletLength * PalletWidth * PalletHeight * PalletsCount;
+            }            
+        }                
         public VehicleKind(short id, string code, string name, string shortName, string altName, string displayName,
             int capacity, short palletsCount, double bodyLength, double bodyWidth, 
             bool isActive = true, short displayOrder = -1,
@@ -48,7 +61,6 @@ namespace TSLog.Yard.BO
         }
 
         private static VehicleKind? _null = null;
-
         /// <summary>
         /// Null object
         /// </summary>
@@ -63,7 +75,6 @@ namespace TSLog.Yard.BO
             }
         }
         private static VehicleKind? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>
