@@ -88,6 +88,38 @@ namespace TSLog.Yard.BO
             }
         }
         /// <summary>
+        /// Плановые трудозатраты на постоянные микроработы
+        /// </summary>
+        public int PlanConstantLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operationWork in _operationWorks)
+                {
+                    if (!operationWork.Work.IsVariable)
+                        result += operationWork.Time * operationWork.WorkersCount;
+                }
+                return result;
+            }
+        }
+        /// <summary>
+        /// Плановые трудозатраты на переменные микроработы
+        /// </summary>
+        public int PlanVariableLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operationWork in _operationWorks)
+                {
+                    if (operationWork.Work.IsVariable)
+                        result += operationWork.Time * operationWork.WorkersCount;
+                }
+                return result;
+            }
+        }
+        /// <summary>
         /// Общие ПЛАНОВЫЕ трудозатраты в человекосекундах ТОЛЬКО "линейного" персонала
         /// </summary>
         public int PlanLinearLaborCost
@@ -97,6 +129,40 @@ namespace TSLog.Yard.BO
                 var result = 0;
                 foreach (var operationWork in _operationWorks)
                     result += operationWork.Position.IsLinear ? operationWork.Time * operationWork.WorkersCount : 0;
+                return result;
+            }
+        }
+        /// <summary>
+        /// Общие ПЛАНОВЫЕ трудозатраты в человекосекундах ТОЛЬКО "линейного" персонала на постоянных микроработах
+        /// </summary>
+        public int PlanLinearConstantLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operationWork in _operationWorks)
+                {
+                    if (!operationWork.Work.IsVariable)
+                        result += operationWork.Position.IsLinear ? operationWork.Time * operationWork.WorkersCount : 0;
+                }
+                    
+                return result;
+            }
+        }
+        /// <summary>
+        /// Общие ПЛАНОВЫЕ трудозатраты в человекосекундах ТОЛЬКО "линейного" персонала на переменных микроработах
+        /// </summary>
+        public int PlanLinearVariableLaborCost
+        {
+            get
+            {
+                var result = 0;
+                foreach (var operationWork in _operationWorks)
+                {
+                    if (operationWork.Work.IsVariable)
+                        result += operationWork.Position.IsLinear ? operationWork.Time * operationWork.WorkersCount : 0;
+                }
+
                 return result;
             }
         }

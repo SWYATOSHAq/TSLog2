@@ -164,25 +164,31 @@ namespace TSLog.Yard.Data
             var product = GetProduct(productId);
             var plaQuantity = Utils.DbValueToDouble(reader["plan_quantity"]);
             var factQuantity = Utils.DbValueToDouble(reader["fact_quantity"]);
-            var quantityMeasureUnitCode = Utils.DbValueToString(reader["quantity_measure_code"]);
+            var quantityMeasureUnitCode = Utils.DbValueToString(reader["quantity_measure_unit_code"]);
             var quantityMeasureunit = GetMeasureUnit(quantityMeasureUnitCode);
             var line = new LineBase(-1, product, plaQuantity, factQuantity, quantityMeasureunit);
 
-            line.PalletStandard = Utils.DbValueToDouble(reader["pallet_standard"]);
-            line.BoxStandard = Utils.DbValueToDouble(reader["box_standard"]);
-
-            line.PlanVolume = Utils.DbValueToDouble(reader["volume"]);
-            var volumeMeasureUnitCode = Utils.DbValueToString(reader["volume_measure_code"]);
-            var volumeMeasureUnit = GetMeasureUnit(volumeMeasureUnitCode);
-            line.VolumeMeasureUnit = volumeMeasureUnit;
+            //line.PalletStandard = Utils.DbValueToDouble(reader["pallet_standard"]);
+            //line.BoxStandard = Utils.DbValueToDouble(reader["box_standard"]);
 
             line.PlanNetWeight = Utils.DbValueToDouble(reader["plan_net_weight"]);
             line.PlanGrossWeight = Utils.DbValueToDouble(reader["plan_gross_weight"]);
             line.FactNetWeight = Utils.DbValueToDouble(reader["fact_net_weight"]);
             line.FactGrossWeight = Utils.DbValueToDouble(reader["fact_gross_weight"]);
-            var weightMeasureUnitCode = Utils.DbValueToString(reader["weight_measure_code"]);
+            var weightMeasureUnitCode = Utils.DbValueToString(reader["weight_measure_unit_code"]);
             var weightMeasureUnit = GetMeasureUnit(weightMeasureUnitCode);
             line.WeightMeasureUnit = weightMeasureUnit;
+
+            line.PlanVolume = Utils.DbValueToDouble(reader["plan_volume"]);
+            line.FactVolume = Utils.DbValueToDouble(reader["fact_volume"]);
+            var volumeMeasureUnitCode = Utils.DbValueToString(reader["volume_measure_unit_code"]);
+            var volumeMeasureUnit = GetMeasureUnit(volumeMeasureUnitCode);
+            line.VolumeMeasureUnit = volumeMeasureUnit;
+
+            line.PlanPalletsCount = Utils.DbValueToDouble(reader["plan_pallets_count"]);
+            line.PlanBoxesCount = Utils.DbValueToDouble(reader["plan_boxes_count"]);
+            line.FactPalletsCount = Utils.DbValueToDouble(reader["fact_pallets_count"]);
+            line.FactBoxesCount = Utils.DbValueToDouble(reader["fact_boxes_count"]);
 
             return line;
         }
@@ -262,7 +268,7 @@ namespace TSLog.Yard.Data
                     $"       al.plan_volume, al.fact_volume, al.volume_measure_unit_code,\n" +
                     $"       al.plan_pallets_count, al.plan_boxes_count,\n" +
                     $"       al.fact_pallets_count, al.fact_boxes_count\n" +
-                    $"  from ecco.act_wa_line_ext#v al\n" + 
+                    $"  from {CommonSchema}.act_wa_line_ext#v al\n" + 
                     $" where action_id = :action_id and action_kind = :action_kind";
                 command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
@@ -315,11 +321,7 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
                 if (reader.Read()) 
-                {
                     action = CreateWarehouseAction(reader);
-                    var lines = GetWarehouseActionLines(action);
-                    action.AddLines(lines);
-                }                    
                 reader.Close();
 
                 // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых
@@ -335,11 +337,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                     using var reader2 = command.ExecuteReader();
                     if (reader2.Read())
-                    {
                         action = CreateWarehouseAction(reader2);
-                        var lines = GetWarehouseActionLines(action);
-                        action.AddLines(lines);
-                    }                        
                     reader2.Close();
                 }
             }

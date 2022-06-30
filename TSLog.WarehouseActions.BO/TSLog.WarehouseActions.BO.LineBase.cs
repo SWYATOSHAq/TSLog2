@@ -171,6 +171,10 @@ namespace TSLog.WarehouseActions.BO
         /// Количество единиц измерения в коробке
         /// </summary>
         public double BoxStandard { get; set; } = 0.0;
+        public double PlanPalletsCount { get; set; } = 0;
+        public double PlanBoxesCount { get; set; } = 0;
+        public double FactPalletsCount { get; set; } = 0;
+        public double FactBoxesCount { get; set; } = 0;
         public LineBase(int number, Product product, double planQuantity, double factQuantity, MeasureUnit measureUnit)
         {
             Number = number > 0 ? number : -1;

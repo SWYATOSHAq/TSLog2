@@ -5,8 +5,8 @@ using TSLog.WarehouseActions.BO;
 using TSLog.Staff.BO;
 
 var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false);
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false);
 
 var configuration = builder.Build();
 
@@ -88,7 +88,7 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     var testVehicleKind = storage.GetVehicleKind("20_TONS");
     var startDate = DateTime.Now.AddDays(3);
     var finishDate = startDate;
-    finishDate = finishDate.Add(new TimeSpan(0, storage.GetDuration(type, vehicleKind), 0));
+    finishDate = finishDate.Add(new TimeSpan(0, storage.GetDuration(type, vehicleKind, out int constantDuration, out int variableDuration), 0));
     var defState = storage.GetOperationState("CREATED");
     var defManager = storage.GetEmployee(100004);
 
@@ -134,5 +134,3 @@ using (var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase))
     Console.WriteLine("[тест был пройден успешно]");
 }
 Console.ReadKey();
-
-

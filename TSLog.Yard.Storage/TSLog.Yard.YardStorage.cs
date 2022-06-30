@@ -251,9 +251,9 @@ namespace TSLog.Yard
         #endregion
 
         #region Operations
-        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind, out int constantDuration, out int variableDuration)
         {
-            return _pgsqlStorage.GetDuration(operationType, vehicleKind);
+            return _pgsqlStorage.GetDuration(operationType, vehicleKind, out constantDuration, out variableDuration);
         }
         public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
         {
@@ -479,7 +479,7 @@ namespace TSLog.Yard
             return _oracleStorage.GetEcData(fromDate, toDate);
         }
         #endregion
-
+        
         public void Dispose()
         {
             _oracleStorage.Dispose();

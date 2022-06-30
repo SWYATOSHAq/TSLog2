@@ -1,5 +1,4 @@
 ﻿using TSLog.Common.BO;
-using TSLog.Staff.BO;
 
 namespace TSLog.Yard.BO
 {
@@ -13,12 +12,17 @@ namespace TSLog.Yard.BO
         /// Время проведения элементарной работы
         /// </summary>
         public int Time { get; private set; }
-        public Work(short id, string code, string name, string shortName, string altName, string displayName, short time,
+        /// <summary>
+        /// Признак "переменной" длительности элементарной работы
+        /// </summary>
+        public bool IsVariable { get; private set; }
+        public Work(short id, string code, bool isVariable, string name, string shortName, string altName, string displayName, short time,
             bool isActive = true, short displayOrder = -1,
             string note = "") 
             : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
         {
             Time = time > 0 ? Time : DefaultTime;
+            IsVariable = isVariable;
         }
         private Work() : base()
         {
@@ -26,7 +30,6 @@ namespace TSLog.Yard.BO
         }
 
         private static Work? _null = null;
-
         /// <summary>
         /// Null object
         /// </summary>
@@ -35,12 +38,11 @@ namespace TSLog.Yard.BO
             get
             {
                 if (_null == null)
-                    _null = new Work(-1, "NULL", "NULL", "NULL", "NULL", "NULL", DefaultTime);
+                    _null = new Work(-1, "NULL", false, "NULL", "NULL", "NULL", "NULL", DefaultTime);
                 return _null;
             }
         }
         private static Work? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

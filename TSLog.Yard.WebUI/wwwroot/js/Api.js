@@ -38,7 +38,7 @@ class Api {
         };
         const url = "./api/v1/yard/OperationDuration2";
         const options = {
-            method: "PATCH",
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
@@ -49,7 +49,6 @@ class Api {
         else {
             return utils.createErrorObject(await response.text());
         }
-
     }
 
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)

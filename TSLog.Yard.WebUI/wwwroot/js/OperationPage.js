@@ -162,7 +162,12 @@ class OperationPage {
             return;
         }
 
-        const result = await api.getPlanDuration(operationTypeCode, vehicleKindCode);
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
+        const result = await api.getPlanDuration2(operationTypeCode, vehicleKindCode, actions);
+
         if (result.code === 0) {
             this.planDuration = result.planDuration;
             this.countOperationBlocks();
@@ -356,9 +361,7 @@ class OperationPage {
         }
     }
 
-    async onChangeOperationTypeVehicleKind() {
-        this.getOperationTypeHint();
-
+    async onChangeDuration() {
         await this.getPlanDuration();
         await this.getPlanLaborCost();
         this.showDuration();
@@ -386,8 +389,9 @@ class OperationPage {
     }
 
     async onChangeOperationType() {
-        await this.onChangeOperationTypeVehicleKind();
+        await this.onChangeDuration();
 
+        this.getOperationTypeHint();
         const kind = this.getKind();
         if (this.kind != kind) {
             this.clearSelectedWarehouseActions();
@@ -739,7 +743,7 @@ class OperationPage {
         }
     }
 
-    onWarehouseActionClick(button) {
+    async onWarehouseActionClick(button) {
         const id = button.dataset.actionId;
         const warehouseAction = this.warehouseActions[id];
         button.remove();
@@ -747,22 +751,24 @@ class OperationPage {
 
         const selectedWarehouseActionsDiv = document.getElementById("selected-actions-content-div");
         const selectedButton = document.createElement("button");
-        this.showWarehouseAction(warehouseAction, selectedButton, "REMOVE");
+        await this.showWarehouseAction(warehouseAction, selectedButton, "REMOVE");
         selectedWarehouseActionsDiv.append(selectedButton);
 
         this.resizeWarehouseActionsDivs();
+        await this.onChangeDuration();
     }
 
-    onSelectedWarehouseActionClick(selectedButton) {
+    async onSelectedWarehouseActionClick(selectedButton) {
         const id = selectedButton.dataset.actionId;
         delete this.selectedWarehouseActions[id];
         selectedButton.remove();
-        this.showAllWarehouseActions();
+        await this.showAllWarehouseActions();
 
         this.resizeWarehouseActionsDivs();
+        await this.onChangeDuration();
     }
 
-    showWarehouseAction(action, button, direction) {
+    async showWarehouseAction(action, button, direction) {
         button.type = "button";
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important; width: 100%";
@@ -782,18 +788,18 @@ class OperationPage {
             button.append(" (" + utils.dateToString(date) + ") ");
         }        
 
-        button.onclick = () => {
+        button.onclick = async () => {
             if (direction === "ADD") {
-                this.onWarehouseActionClick(button);
+                await this.onWarehouseActionClick(button);
             } else if (direction === "REMOVE") {
-                this.onSelectedWarehouseActionClick(button);
+                await this.onSelectedWarehouseActionClick(button);
             } else {
                 alert("Unknown direction " + direction);
             }
         }
     }
 
-    showAllWarehouseActions() {
+    async showAllWarehouseActions() {
         const allWarehoiseActionsDiv = document.getElementById("all-actions-content-div");
         allWarehoiseActionsDiv.replaceChildren();
         for (let id in this.warehouseActions) {
@@ -802,7 +808,7 @@ class OperationPage {
             }
             const warehouseAction = this.warehouseActions[id];
             const button = document.createElement("button");
-            this.showWarehouseAction(warehouseAction, button, "ADD");
+            await this.showWarehouseAction(warehouseAction, button, "ADD");
             allWarehoiseActionsDiv.append(button);
         }
     }
@@ -818,7 +824,7 @@ class OperationPage {
                 document.getElementById("action-filter-div").classList.remove("d-none");
                 document.getElementById("actions-div").classList.remove("d-none");
                 await this.getAllWarehouseActions();
-                this.showAllWarehouseActions();
+                await this.showAllWarehouseActions();
             } else {
                 //warehouseActionsTitleDiv.classList.add("d-none");
                 document.getElementById("action-filter-div").classList.add("d-none");
@@ -839,14 +845,14 @@ class OperationPage {
         selectedWarehouseActionsDiv.replaceChildren();
         for (let id in this.selectedWarehouseActions) {
             const button = document.createElement("button");
-            this.showWarehouseAction(this.selectedWarehouseActions[id], button, "REMOVE");
+            await this.showWarehouseAction(this.selectedWarehouseActions[id], button, "REMOVE");
             selectedWarehouseActionsDiv.append(button);
         }
     }
 
     async onChangeActionsFilter() {
         await this.getAllWarehouseActions();
-        this.showAllWarehouseActions();
+        await this.showAllWarehouseActions();
         this.resizeWarehouseActionsDivs();
     }
 
@@ -1259,7 +1265,7 @@ class OperationPage {
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
         vehiclekindsSelect.value = operation != null ? operation.vehicleKindCode : "";
         if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
-            vehiclekindsSelect.onchange = this.onChangeOperationTypeVehicleKind.bind(this);
+            vehiclekindsSelect.onchange = this.onChangeDuration.bind(this);
         } else {
             vehiclekindsSelect.disabled = true;
         }
@@ -1516,6 +1522,22 @@ class OperationPage {
         closeButton.onclick = this.closeOperation.bind(this);
 
         window.onclick = this.windowClick.bind(this);
+
+        //const recalculateStandardButton = document.getElementById("recalculate-standard-button");
+        //recalculateStandardButton.onclick = this.recalculateStandard.bind(this);
+    }
+
+    async recalculateStandard() {
+        const operationTypeCode = "O_PALLET";
+        const vehicleKindCode = "5_TONS";
+        const actions = [{ kind: "O", id: "00030000W0003N0003564" }, { kind: "O", id: "00030000W0003N0003563" }];
+
+        const result = await api.getPlanDuration2(operationTypeCode, vehicleKindCode, actions);
+        if (result.code === 0) {
+            alert(result.planDuration);
+        } else {
+            alert(result.message);
+        }
     }
 }
 

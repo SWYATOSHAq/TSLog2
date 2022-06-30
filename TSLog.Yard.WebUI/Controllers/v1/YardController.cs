@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Text.Json;
 using TSLog.Authorization;
@@ -19,6 +20,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
     [ApiController]
     public class YardController : ControllerBase
     {
+        // Средее время выгрузки/погрузки паллеты/коробки/штуки
+        private const int PalletUnloadTime = 93;
+        private const int BoxUnloadTime = 20; 
+        private const int PieceUnloadTime = 25;
+        private const int PalletLoadTime = 93;
+        private const int BoxLoadTime = 20;
+        private const int PieceLoadTime = 25; 
+
         private readonly IConfiguration _configuration;
         private readonly IYardStorage _storage;
         private readonly RightsChecker _rightsChecker;
@@ -224,7 +233,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operationType = _storage.GetOperationType(stringOperationType);
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                var timeSpan = _storage.GetDuration(operationType, vehicleKind);
+                var timeSpan = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
                 var text = JsonSerializer.Serialize(timeSpan);
                 Response.StatusCode = 200;
                 return text;
@@ -234,7 +243,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("OperationDuration2")]
+        [HttpPost("OperationDuration2")]
         async public Task<string> GetOperationDuration2()
         {
             try
@@ -252,43 +261,56 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (data == null)
                     return "Input data is null!";
 
-                string temp = data.operationTypeCode;
-
-                string stringOperationType = Request.Query["operation_type"];
-                string stringVehicleKind = Request.Query["vehicle_kind"];
-                //string stringIds = Request.Query["actions_ids"];
-                string stringIds = "00180000W0018N0001840";
-                dynamic[] actions = Array.Empty<dynamic>();
-
+                string stringOperationType = data.operationTypeCode;
                 if (string.IsNullOrWhiteSpace(stringOperationType))
                     return "Operation type is empty";
+                var operationType = _storage.GetOperationType(stringOperationType);
+                string stringVehicleKind = data.vehicleKindCode;
                 if (string.IsNullOrWhiteSpace(stringVehicleKind))
                     return "Vehicle kind is empty";
-
-                var operationType = _storage.GetOperationType(stringOperationType);
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+                dynamic[] actions = ((JArray)(data.warehouseActions)).ToArray<dynamic>();
 
-                var standardDuration = _storage.GetDuration(operationType, vehicleKind);
-
-                var ids = stringIds.Split(",");                
-                var totalPlanPalletsCount = 0.0;
-                var totalFactPalletsCount = 0.0;
-                var totalPlanBoxesCount = 0.0;
-                var totalFactBoxesCount = 0.0;
-
-                var totalVolume = 0.0;
-                var totalGrossWeight = 0.0;
-                var totalAssembiedPalletsCount = 0.0;
+                var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind, 
+                    out int standardConstantDuration, out int standardVariableDuration);
+                var totalTime = 0.0;
                 foreach (var action in actions)
                 {
                     var kind = action.kind == "O" ? ActionKind.Outgo : ActionKind.Income;
-                    var id = action.id;
-
-                    var lines = _storage.GetWarehouseActionLines(kind, id);
+                    var palletTime = action.kind == "O" ? PalletLoadTime : PalletUnloadTime;
+                    var boxTime = action.kind == "O" ? BoxLoadTime : BoxUnloadTime;
+                    var pieceTime = action.kind == "O" ? PieceLoadTime : PieceUnloadTime;
+                    string id = action.id;
+                    LineBase[] lines = _storage.GetWarehouseActionLines(kind, id);
+                    var actionTime = 0.0;
+                    foreach (var line in lines)
+                    {
+                        if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
+                            actionTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
+                        else
+                        {
+                            if (line.PlanVolume > 0.0)
+                                actionTime += line.PlanVolume / (vehicleKind.CargoVolume * 1000 * 1000 * 1000) * standardTotalDuration;
+                            else if (line.PlanGrossWeight > 0.0)       
+                                // Килограммы переводим в милиграммы
+                                actionTime += line.PlanGrossWeight / (vehicleKind.Capacity * 1000 * 1000) * standardTotalDuration;
+                        }
+                    }
+                    if (actionTime <= 0.0 && action.kind == "O")
+                    {
+                        _storage.GetAssembliedOutgo(id, out double palletsCount, out double eachesCount);
+                        actionTime = palletsCount * palletTime + eachesCount * pieceTime;
+                    }
+                    totalTime += actionTime;
                 }
 
-
-                var timeSpan = 0;
+                totalTime = (int)totalTime;
+                if (totalTime <= 0.0 || totalTime > standardTotalDuration)
+                    totalTime = standardTotalDuration;
+                // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
+                //else
+                //    totalTime += standardConstantDuration;
+                var timeSpan = (int)totalTime;
                 var text = JsonSerializer.Serialize(timeSpan);
                 Response.StatusCode = 200;
                 return text;
@@ -639,7 +661,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong start date {temp}!";
 
                 temp = data.finishDate;
-                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind)));
+                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind, 
+                    out int constantDuration, out int variableDuration)));
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -744,7 +767,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong start date {temp}!";
 
                 temp = data.finishDate;
-                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind)));
+                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind, 
+                    out int constantDuration, out int variableDuration)));
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -856,7 +880,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong start date {temp}!";
 
                 temp = data.finishDate;
-                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind)));
+                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind, 
+                    out int constantDuration, out int variableDuration)));
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -967,7 +992,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (!DateTime.TryParse(temp, out planWorkStartDate))
                         return $"Wrong start date {temp}!";
-                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind)));
+                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind, 
+                        out int constantDuration, out int variableDuration)));
                 }
                 
                 temp = data.finishDate;                
@@ -1108,7 +1134,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (!DateTime.TryParse(temp, out planWorkStartDate))
                         return $"Wrong start date {temp}!";
-                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind)));
+                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operation.Type, vehicleKind,
+                        out int constantDuration, out int variableDuration)));
                 }
 
                 temp = data.finishDate;

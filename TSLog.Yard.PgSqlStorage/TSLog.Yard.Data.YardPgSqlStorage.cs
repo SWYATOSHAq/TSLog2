@@ -342,7 +342,7 @@ namespace TSLog.Yard.Data
 
             var id = Utils.DbValueToShort(reader["id"]);
             var direction = Utils.DbValueToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
-            var isPallet = true;
+            var isPallet = Utils.DbValueToShort(reader["is_pallet"]) == 1;
             var code = Utils.DbValueToString(reader["code"]);
             var name = Utils.DbValueToString(reader["name"]);
             var shortName = Utils.DbValueToString(reader["short_name"]);
@@ -384,7 +384,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectOperationTypeByIdSql =
-                        $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
+                        $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
                         $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
                         $"  from {YardSchema}.v_operation_type ot\n" +
                         $" where ot.id = :id order by ot.display_order";
@@ -424,7 +424,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectOperationTypeByCodeSql =
-                        $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
+                        $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
                         $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
                         $"  from {YardSchema}.v_operation_type ot\n" +
                         $" where ot.code = :code";
@@ -460,7 +460,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectOperationTypesByPartnerSql =
-                        $"select pot.id, pot.direction, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name,\n" +
+                        $"select pot.id, pot.direction, pot.is_pallet, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name,\n" +
                         $"       pot.time, pot.is_active, pot.display_order, pot.note\n" +
                         $"  from {YardSchema}.v_partner_operation_type pot\n" +
                         $" where pot.partner_id = :partner_id";
@@ -491,7 +491,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectOperationTypesSql =
-                        $"select ot.id, ot.direction, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
+                        $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
                         $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
                         $"  from {YardSchema}.v_operation_type ot";
                     command.CommandText = SelectOperationTypesSql;
@@ -649,6 +649,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(reader));
             var id = Utils.DbValueToShort(reader["id"]);
             var code = Utils.DbValueToString(reader["code"]);
+            var isVariable = Utils.DbValueToShort(reader["is_variable"]) == 1;
             var name = Utils.DbValueToString(reader["name"]);
             var shortName = Utils.DbValueToString(reader["short_name"]);
             var altName = Utils.DbValueToString(reader["alt_name"]);
@@ -657,7 +658,7 @@ namespace TSLog.Yard.Data
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
             var note = Utils.DbValueToString(reader["note"]);
-            var work = new Work(id, code, name, shortName, altName, displayName, time,
+            var work = new Work(id, code, isVariable, name, shortName, altName, displayName, time,
                 isActive, displayOrder,
                 note);
             return work;
@@ -674,7 +675,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectWorkByIdSql =
-                        $"select w.id, w.code, w.name, w.short_name, w.alt_name, w.display_name,\n" +
+                        $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
                         $"       w.time,\n" +
                         $"       w.is_active, w.display_order, w.note\n" +
                         $"  from {YardSchema}.v_work w where w.id = :id";
@@ -707,7 +708,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectWorkByCodeSql =
-                        $"select w.id, w.code, w.name, w.short_name, w.alt_name, w.display_name,\n" +
+                        $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
                         $"       w.time,\n" +
                         $"       w.is_active, w.display_order, w.note\n" +
                         $"  from {YardSchema}.v_work w where w.code = :code";
@@ -735,7 +736,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectWorksSql =
-                        $"select w.id, w.code, w.name, w.short_name, w.alt_name, w.display_name,\n" +
+                        $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
                         $"       w.time,\n" +
                         $"       w.is_active, w.display_order, w.note\n" +
                         $"  from {YardSchema}.v_work w";
@@ -937,7 +938,7 @@ namespace TSLog.Yard.Data
         /// <param name="vehicleKind">Вид автомашины</param>
         /// <returns>Продолжительность</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public short GetDuration(OperationType operationType, VehicleKind vehicleKind)
+        public short GetDuration(OperationType operationType, VehicleKind vehicleKind, out int constantDuration, out int variableDuration)
         {
             if (operationType == null)
                 throw new ArgumentNullException(nameof(operationType));
@@ -965,10 +966,18 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             // TODO: get default time for current operation type
+            var works = GetOperationWorks(operationType, vehicleKind);
+            constantDuration = 0;
+            variableDuration = 0;
+            foreach (var work in works)
+            {
+                if (work.Work.IsVariable)
+                    variableDuration += work.Time;
+                else
+                    constantDuration += work.Time;
+            }
             return time;
         }
-
-
         public short GetDuration2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
         {
             if (operationType == null)
@@ -979,7 +988,6 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(actions));
             return 0;
         }
-
         /// <summary>
         /// Возвращает плановые трудозатраты операции двора (ПРР) по указанному типу операции двора и виду автомашины
         /// </summary>
@@ -1017,7 +1025,6 @@ namespace TSLog.Yard.Data
             }
             return laborCost;
         }
-
         public int GetLaborCost2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
         {
             if (operationType == null)
@@ -1028,8 +1035,6 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(actions));
             return 0;
         }
-
-
         /// <summary>
         /// Возвращает плановые трудозатраты ЛИНЕЙНОГО персонала операции двора (ПРР) по указанному типу операции двора и виду автомашины
         /// </summary>
@@ -1069,7 +1074,6 @@ namespace TSLog.Yard.Data
             }
             return laborCost;
         }
-
         public int GetLinearLaborCost2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
         {
             if (operationType == null)
@@ -1080,7 +1084,6 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(actions));
             return 0;
         }
-
         /// <summary>
         /// Возвращает ВСЕ свободные интервалы времени в указанном промежутке
         /// </summary>
