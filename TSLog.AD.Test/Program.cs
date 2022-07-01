@@ -2,15 +2,14 @@
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 
-
-/*получаем данные о ветке */
+/* получаем данные о ветке */
 DirectoryEntry CurrentDomain = new DirectoryEntry();
 
 var domain = Domain.GetCurrentDomain();
 Console.WriteLine(domain.Name);
 
-var domains = domain.Children;
-var controllers = domain.DomainControllers;
+//var domains = domain.Children;
+//var controllers = domain.DomainControllers;
 
 //var AD = new DirectoryEntry();
 //string QWRY = @"(&(objectCategory=person)(objectClass=user))";
@@ -42,8 +41,5 @@ if (user != null)
         Console.WriteLine("In group2");
 }
 
-
-
 Console.WriteLine(CurrentDomain.Name);
-
 Console.ReadKey();

@@ -451,6 +451,10 @@ class OperationPage {
             return;
         }
 
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
@@ -465,7 +469,8 @@ class OperationPage {
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
             note: document.getElementById("note-textarea").value,
-            partnerId: document.getElementById("partners-select").value
+            partnerId: document.getElementById("partners-select").value,
+            warehouseActions: actions
         };
 
         const result = await api.createOperation(data);
@@ -491,6 +496,10 @@ class OperationPage {
             return;
         }
 
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
@@ -505,7 +514,8 @@ class OperationPage {
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
             note: document.getElementById("note-textarea").value,
-            partnerId: document.getElementById("partners-select").value
+            partnerId: document.getElementById("partners-select").value,
+            warehouseActions: actions
         };
 
         const result = await api.createConfirmOperation(data);
@@ -530,6 +540,10 @@ class OperationPage {
             return;
         }
 
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
@@ -543,7 +557,8 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value
+            note: document.getElementById("note-textarea").value,
+            warehouseActions: actions
         };
 
         const result = await api.createOperationByPartner(data);
@@ -573,6 +588,10 @@ class OperationPage {
             return;
         }
 
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
         const data = {
             id: this.id,
             startDate: utils.dateTimeToString(this.planWorkStartDate),
@@ -589,7 +608,8 @@ class OperationPage {
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
             note: document.getElementById("note-textarea").value,
-            partnerId: document.getElementById("partners-select").value
+            partnerId: document.getElementById("partners-select").value,
+            warehouseActions: actions
         };
 
         const result = await api.editOperation(data);
@@ -622,6 +642,10 @@ class OperationPage {
             return;
         }
 
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
         const data = {
             id: this.id,
             startDate: utils.dateTimeToString(this.planWorkStartDate),
@@ -636,7 +660,8 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value
+            note: document.getElementById("note-textarea").value,
+            warehouseActions: actions
         };
 
         const result = await api.editOperationByPartner(data);

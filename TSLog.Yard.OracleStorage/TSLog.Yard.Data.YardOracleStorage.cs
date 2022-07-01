@@ -450,25 +450,23 @@ namespace TSLog.Yard.Data
             GetWarehouseAction(ActionKind.Outgo, id);
 
             id = id.Trim();
-            using (var command = _connection.CreateCommand())
+            using var command = _connection.CreateCommand();
+            command.BindByName = true;
+            var sql =
+                $"select o.order_id id,\n" +
+                $"       o.pallets_count,\n" +
+                $"       o.eaches_count\n" +
+                $"  from {CommonSchema}.o_assambled_outgo#v o\n" +
+                $" where o.order_id = :id";
+            command.CommandText = sql;
+            command.Parameters.Add(new OracleParameter("id", id));
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
             {
-                command.BindByName = true;
-                var sql =
-                    $"select o.order_id id,\n" + 
-                    $"       o.pallets_count,\n" +
-                    $"       o.eaches_count\n" +
-                    $"  from {CommonSchema}.o_assambled_outgo#v o\n" +
-                    $" where o.order_id = :id";
-                command.CommandText = sql;
-                command.Parameters.Add(new OracleParameter("id", id));
-                using var reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    palletsCount = Utils.DbValueToDouble(reader["pallets_count"]);
-                    eachesCount = Utils.DbValueToDouble(reader["eaches_count"]);
-                }
-                reader.Close();
-            }            
+                palletsCount = Utils.DbValueToDouble(reader["pallets_count"]);
+                eachesCount = Utils.DbValueToDouble(reader["eaches_count"]);
+            }
+            reader.Close();
         }
         #endregion
 
@@ -685,7 +683,7 @@ namespace TSLog.Yard.Data
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            return null;
+            return new Shift(-1, DateTime.Today, DateTime.Today, "I");
         }
         private string? GetShiftKind(DateTime? date = null)
         {
@@ -704,11 +702,11 @@ namespace TSLog.Yard.Data
         }
         public Shift GetShift(int id)
         {
-            return null;
+            return new Shift(id, DateTime.Today, DateTime.Today, "I"); ;
         }
         public Shift GetShift(DateTime date)
         {
-            return null;
+            return new Shift(-1, date, date, "I");
         }
         #endregion
 

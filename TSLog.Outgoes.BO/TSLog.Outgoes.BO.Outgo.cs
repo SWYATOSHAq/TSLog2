@@ -256,7 +256,7 @@ namespace TSLog.Outgoes.BO
         /// <summary>
         /// Товарные позиции расхода
         /// </summary>
-        public Line[] Lines
+        public new Line[] Lines
         {
             get
             {

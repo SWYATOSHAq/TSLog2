@@ -2195,6 +2195,8 @@ namespace TSLog.Yard.Data
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
+            if (GetWarehouseAction == null)
+                throw new ArgumentNullException(nameof(GetWarehouseAction));
             var actions = new List<WarehouseAction>();
             using (var connection = CloneConnection())
             {
