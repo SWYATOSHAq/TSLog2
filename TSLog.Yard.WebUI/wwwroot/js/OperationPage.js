@@ -170,6 +170,10 @@ class OperationPage {
 
         if (result.code === 0) {
             this.planDuration = result.planDuration;
+            if (this.planWorkStartDate > utils.nullDate) {
+                this.planWorkFinishDate = new Date(this.planWorkStartDate);
+                this.planWorkFinishDate = new Date(this.planWorkFinishDate.setSeconds(this.planDuration));
+            }
             this.countOperationBlocks();
         } else {
             viewUtils.showError(result.message);
@@ -209,7 +213,11 @@ class OperationPage {
             return;
         }
 
-        const result = await api.getPlanLaborCost(operationTypeCode, vehicleKindCode);
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
+        const result = await api.getPlanLaborCost2(operationTypeCode, vehicleKindCode, actions);
         if (result.code === 0) {
             this.planLaborCost = result.data.laborCost;
             this.planLinearLaborCost = result.data.linearLaborCost;
@@ -364,7 +372,7 @@ class OperationPage {
     async onChangeDuration() {
         await this.getPlanDuration();
         await this.getPlanLaborCost();
-        this.showDuration();
+        this.showDuration();        
         await this.showLaborCost();
         if (this.planDuration <= 0) {
             this.planWorkStartDate = utils.nullDate;
@@ -372,7 +380,9 @@ class OperationPage {
             this.hideTimeTable();
             this.showWorkStartFinish();
             return;
-        }
+        } else {
+            this.showWorkStartFinish();
+        }        
         await this.getAvalibleIntervals();
         this.showTimeTable();
         const blockId = this.getBlockId(this.planWorkStartDate);
@@ -438,6 +448,7 @@ class OperationPage {
         this.clearSelectedWarehouseActions();
         await this.displayWarehouseActions();
         this.resizeWarehouseActionsDivs();
+        await this.onChangeDuration();
     }
 
     async createOperation() {

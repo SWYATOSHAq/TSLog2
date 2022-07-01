@@ -959,6 +959,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
                     command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
                     using var reader = command.ExecuteReader();
+                    time = 0;
                     if (reader.Read())
                         time = Utils.DbValueToShort(reader["operation_time"]);
                     reader.Close();
@@ -1016,7 +1017,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
                     command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
                     using var reader = command.ExecuteReader();
-
+                    laborCost = 0;
                     while (reader.Read())
                         laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
                     reader.Close();
@@ -1065,7 +1066,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
                     command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
                     using var reader = command.ExecuteReader();
-
+                    laborCost = 0;
                     while (reader.Read())
                         laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
                     reader.Close();

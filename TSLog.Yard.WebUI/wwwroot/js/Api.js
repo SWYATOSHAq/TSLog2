@@ -64,6 +64,29 @@ class Api {
         }
     }
 
+    // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
+    // с учётом назначенных заказов
+    async getPlanLaborCost2(operationTypeCode, vehicleKindCode, warehouseActions) {
+        const data = {
+            operationTypeCode: operationTypeCode,
+            vehicleKindCode: vehicleKindCode,
+            warehouseActions: warehouseActions
+        };
+        const url = "./api/v1/yard/OperationLaborCost2";
+        const options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
     // Возвращает допустимые интервалы по дате, типу операции двора, виду автомашины
     async getAvalibleIntervals(date, operationTypeCode, vehicleKindCode) {
         let response = await fetch("./api/v1/yard/AvalibleIntervals?" +

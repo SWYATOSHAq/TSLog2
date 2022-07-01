@@ -278,7 +278,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 totalTime += actionTime;
             }
 
-            totalTime = (int)totalTime;
+            totalTime = Math.Round(totalTime);
             if (totalTime <= 0.0 || totalTime > standardTotalDuration)
                 totalTime = standardTotalDuration;
             // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
@@ -354,6 +354,59 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 dynamic result = new ExpandoObject();
                 result.laborCost = laborCost;
                 result.linearLaborCost = linearLaborCost;
+
+                var text = JsonSerializer.Serialize(result);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        private double GetLaborCostK(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
+        {
+            var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
+                   out int standardConstantDuration, out int standardVariableDuration);
+            var duration = GetDuration2(operationType, vehicleKind, actions);
+
+            return (double)duration / (double)standardTotalDuration;
+        }
+        [HttpPost("OperationLaborCost2")]
+        async public Task<string> GetOperationLaborCost2()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+                if (_useAuthentication && (!useYard || !getOperationDuration))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationType = data.operationTypeCode;
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                var operationType = _storage.GetOperationType(stringOperationType);
+                string stringVehicleKind = data.vehicleKindCode;
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+                dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+
+                var k = GetLaborCostK(operationType, vehicleKind, actions);
+                var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
+                var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
+               
+                dynamic result = new ExpandoObject();
+                result.laborCost = Math.Round(laborCost * k);
+                result.linearLaborCost = Math.Round(linearLaborCost * k);
 
                 var text = JsonSerializer.Serialize(result);
                 Response.StatusCode = 200;
@@ -486,7 +539,20 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                     // TODO: check partner;
 
-                    var text = OperationToJson(operation);
+                    var dynamicOperation = OperationToDynamic(operation);
+                    var dynamicActions = new List<dynamic>();
+                    foreach (var action in operation.GetActions()) 
+                    {
+                        dynamic dynamicAction = new ExpandoObject();
+                        dynamicAction.kind = action.Kind == ActionKind.Outgo ? "O" : "I";
+                        dynamicAction.id = action.Id;
+                        dynamicActions.Add(dynamicAction);
+                    }
+                    var k = GetLaborCostK(operation.Type, operation.VehicleKind, dynamicActions.ToArray());
+                    dynamicOperation.planLaborCost = Math.Round(dynamicOperation.planLaborCost * k);
+                    dynamicOperation.planLinearLaborCost = Math.Round(dynamicOperation.planLinearLaborCost * k);
+                    
+                    var text = JsonSerializer.Serialize(dynamicOperation);
                     Response.StatusCode = 200;
                     return text;
                 }
