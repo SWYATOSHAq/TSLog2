@@ -405,6 +405,8 @@ namespace TSLog.BossControl.Data
             employee.EmploymentDate = Utils.DbValueToDateTime(reader["employment_date"]);
             employee.DismissalDate = Utils.DbValueToDateTime(reader["dismissal_date"]);
 
+            employee.WorkMode = Utils.DbValueToString(reader["work_mode"]);
+
             //var departmentId = Utils.DbValueToInt(reader["department_id"]);
             //employee.Department = GetDepartment(departmentId);
 
@@ -435,6 +437,7 @@ namespace TSLog.BossControl.Data
                     $"          e.employment_date, e.dismissal_date,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.cost,\n" +
                     $"          e.cost_currency_code,\n" +
                     $"          e.is_active," +
@@ -594,6 +597,7 @@ namespace TSLog.BossControl.Data
         #endregion
 
         #region Reporting
+        private const int DefaultShiftLength = 12 * 60 * 60;
         public dynamic[] CreatePositionsShiftReport(DateTime date)
         {
             var data = new Dictionary<short, dynamic>();
@@ -768,10 +772,126 @@ namespace TSLog.BossControl.Data
             }
             return data.Values.ToArray();
         }
-
         public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate)
         {
-            return Array.Empty<dynamic>();
+            // Подготовительная часть, берём данные из БД,
+            // группируем по сменам работников, с указанием отработанного времени
+            var shiftsData = new Dictionary<string, dynamic>();
+            var shifts = Shift.GetShifts(fromDate, toDate);
+            foreach (var shift in shifts)
+            {
+                var k = (double)shift.Length / DefaultShiftLength;
+                dynamic shiftData = new ExpandoObject();
+                shiftData.from = shift.From;
+                shiftData.to = shift.To;
+                shiftData.length = shift.Length;
+                shiftData.k = k;
+                using (var command = _connection.CreateCommand())
+                {
+                    command.BindByName = true;
+                    var sql = 
+                        $"   select emp.employee_id, emp.employee_surname, emp.employee_first_name, emp.employee_patronymic,\n" +
+                        $"          emp.position_id, emp.position_name,\n" +
+                        $"          emp.work_mode worker_work_mode, --Режим работы\n" +
+                        $"          case\n" +
+                        $"              when emp.work_mode = '5/2-40' then 8.0\n" +
+                        $"              when emp.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
+                        $"              else 8.0\n" +
+                        $"          end worker_standard, --Нормы выработки\n" +
+                        $"          d.start_date, d.finish_date\n" +
+                        $"     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +
+                        $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                        $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
+                        $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                        $"    where s.kind <> 'AUXILIARY' and emp.employee_id is not null\n" +
+                        $" order by emp.position_id, emp.employee_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(new OracleParameter("from_date", shift.From));
+                    command.Parameters.Add(new OracleParameter("to_date", shift.To));
+                    using var reader = command.ExecuteReader();
+                    var workers = new Dictionary<int, int>();
+                    while (reader.Read())
+                    {
+                        var workerId = Utils.DbValueToInt(reader["employee_id"]);
+                        var startTime = Utils.DbValueToDateTime(reader["start_date"]);
+                        var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
+                        if (!workers.ContainsKey(workerId))
+                            workers.Add(workerId, 0);
+                        var span = finishTime - startTime;
+                        workers[workerId] += (int)Math.Round(span.TotalSeconds);
+                    }                    
+                    reader.Close();
+                    shiftData.workers = workers;
+                }                
+                var key = $"{shift.From.ToString("yyyy.MM.dd HH.mm.ss")}-{shift.To.ToString("yyyy.MM.dd HH.mm.ss")}";                
+                shiftsData.Add(key, shiftData);
+            }
+
+            // Готвим данные на вывод
+            var employees = new Dictionary<int, dynamic>();
+            foreach (var key in shiftsData.Keys)
+            {
+                var shiftData = shiftsData[key];
+                var shiftWorkers = (Dictionary<int, int>)shiftData.workers;
+                foreach (var workerId in shiftWorkers.Keys)
+                {
+                    var factor = shiftWorkers[workerId] / (double)shiftData.length;
+                    if (factor < 0.1)
+                        continue;
+
+                    if (!employees.ContainsKey(workerId))
+                    {                        
+                        var employee = GetEmployee(workerId);
+                        
+                        dynamic worker = new ExpandoObject();
+                        worker.id = workerId;
+                        worker.positionId = employee.MajorPosition.Id;
+                        worker.surname = employee.Surname;
+                        worker.firstName = employee.FirstName;
+                        worker.patronymic = employee.Patronymic;
+                        worker.fullName = employee.FullName;
+                        worker.workMode = employee.WorkMode;
+                        worker.shiftLength = employee.ShiftLength * shiftData.k;
+                        worker.laborCost = employee.Cost;
+                        worker.laborCostCurrencyCode = employee.CostMeasureUnit.Code;
+                        worker.planWorkTime = 0;
+                        worker.factWorkTime = 0;
+                        worker.planCost = 0.0;
+                        worker.factCost = 0.0;
+                        employees.Add(workerId, worker);
+                    }
+                    employees[workerId].planWorkTime += employees[workerId].shiftLength;
+                    employees[workerId].factWorkTime += shiftWorkers[workerId];
+                    employees[workerId].planCost += (double)employees[workerId].shiftLength / 60 / 60 * employees[workerId].laborCost;
+                    employees[workerId].factCost += (double)shiftWorkers[workerId] / 60 / 60 * employees[workerId].laborCost;
+                }
+            }
+            var positions = new Dictionary<short, dynamic>();
+            foreach (var employee in employees.Values)
+            {
+                short positionId = employee.positionId;
+                if (!positions.ContainsKey(employee.positionId))
+                {                    
+                    var position = GetPosition(positionId);
+                    dynamic positionElement = new ExpandoObject();
+                    positionElement.id = positionId;
+                    positionElement.code = position.Code;
+                    positionElement.name = position.Name;
+                    positionElement.planWorkTime = 0;
+                    positionElement.factWorkTime = 0;
+                    positionElement.planCost = 0.0;
+                    positionElement.factCost = 0.0;
+                    positionElement.employees = new List<dynamic>();
+                    positions.Add(positionId, positionElement);
+                }
+                positions[positionId].planWorkTime += employee.planWorkTime;
+                positions[positionId].factWorkTime += employee.factWorkTime;
+                positions[positionId].planCost += employee.planCost;
+                positions[positionId].factCost += employee.factCost;
+                var positionEmployees = (List<dynamic>)positions[employee.positionId].employees;
+                positionEmployees.Add(employee);
+            }
+            return positions.Values.ToArray();
         }
         #endregion
     }

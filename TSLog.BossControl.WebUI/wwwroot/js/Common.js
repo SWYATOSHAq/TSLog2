@@ -81,6 +81,22 @@ class Utils {
             message: message
         }
     }
+
+    // Отображает корректно дродное число (с округлением, с разделением разрядов)
+    displayFloat(value, decimalPoints = 0) {
+        const w = value.toFixed(decimalPoints);
+        const k = w | 0;
+        const b = value < 0 ? 1 : 0;
+        const u = Math.abs(w - k);
+        const d = ("" + u.toFixed(decimalPoints)).substr(2, decimalPoints);
+        const s = "" + k;
+        let i = s.length;
+        let r = "";
+        while ((i -= 3) > b) {
+            r = " " + s.substr(i, 3) + r;
+        }
+        return s.substr(0, i + 3) + r + (d ? "," + d : "");
+    };
 }
 
 const utils = new Utils();

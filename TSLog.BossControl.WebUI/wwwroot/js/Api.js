@@ -95,6 +95,20 @@ class Api {
             return utils.createErrorObject(await response.text());
         }
     }
+
+    // Формирование отчёта по персоналу за период
+    async createStaffReport(fromDate, toDate) {
+        let url = "./api/v1/BossControl/StaffReport" +
+            "?from_date=" + fromDate +
+            "&to_date=" + toDate;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
 }
 
 const api = new Api();

@@ -23,23 +23,24 @@
     <div class="row button-div">
         <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
             type="button" 
-            onclick="positionsShiftReport.createReport()">Применить</button>
-    </div>
-
-    <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
-        Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов).</b>
-    </div>
-    <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; color: red">
-        Красным выделены сотрудники, работающие во время перерывов.
+            onclick="staffReport.createReport()">Применить</button>
     </div>
 
     <table class="table table-light table-bordered table-striped" style="margin: 0; padding: 0">
         <thead>
             <tr>                
-                <th class="table-column-header">Сотрудник</th>
-                <th class="table-column-header">План</th>
-                <th class="table-column-header">Факт</th>
-                <th class="table-column-header">Простои</th>                
+                <th rowspan="2" class="table-column-header">Сотрудник</th>
+                <th colspan="2" class="table-column-header">План</th>
+                <th colspan="2" class="table-column-header">Факт</th>
+                <th colspan="2" class="table-column-header">Простои</th>                
+            </tr>
+            <tr>
+                <th class="table-column-header">Чел * час</th>
+                <th class="table-column-header">Руб.</th>
+                <th class="table-column-header">Чел * час</th>
+                <th class="table-column-header">Руб.</th>
+                <th class="table-column-header">Чел * час</th>
+                <th class="table-column-header">Руб.</th>
             </tr>
         </thead>
         <tbody id="report-tbody">

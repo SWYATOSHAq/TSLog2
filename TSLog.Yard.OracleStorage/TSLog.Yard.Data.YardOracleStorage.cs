@@ -311,6 +311,7 @@ namespace TSLog.Yard.Data
             var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
+                command.BindByName = true;
                 var SelectWarehouseActionByIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +

@@ -211,10 +211,8 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
 
                 fromDate = fromDate.Date;
                 toDate = toDate.AddDays(1);
-
                 var data = _storage.CreateStaffReport(fromDate, toDate);
-
-                var text = string.Empty;
+                var text = JsonSerializer.Serialize(data);
                 Response.StatusCode = 200;
                 return text;
             }

@@ -70,6 +70,15 @@ namespace TSLog.Staff.BO
         public MeasureUnit CostMeasureUnit { get; set; } = MeasureUnit.Null;
         private const string DefaultWorkMode = "5/2-40";
         public string WorkMode { get; set; } = DefaultWorkMode;
+        public int ShiftLength
+        {
+            get
+            {
+                return WorkMode == "I" || WorkMode == "II" || WorkMode == "III" || WorkMode == "IV" ? 
+                    (int)Math.Round(10.5 * 60 * 60) :
+                    8 * 60 * 60;
+            }
+        }
         /// <summary>
         /// "Основная" должность
         /// </summary>

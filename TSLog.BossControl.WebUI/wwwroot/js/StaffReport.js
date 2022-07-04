@@ -1,6 +1,7 @@
 ﻿/*
     Страница отчёта по персоналу.
     Автор - Буров Михаил.
+    Создан - 2022.07.04.
 */
 
 class StaffReport {
@@ -14,13 +15,13 @@ class StaffReport {
 
     createParameters() {
         let result = "";
-        result = utils.addParameter(result, "date", "date-input");
-        result = utils.addParameter(result, "shift", "shift-select");
+        result = utils.addParameter(result, "from_date", "from-date-input");
+        result = utils.addParameter(result, "to_date", "to-date-input");
         return result != "" ? "?" + result : "";
     }
 
-    async getData(date, shift) {
-        const result = await api.createPositionsShiftReport(date, shift);
+    async getData(fromDate, toDate) {
+        const result = await api.createStaffReport(fromDate, toDate);
         if (result.code === 0) {
             this.data = result.data;
         } else {
@@ -33,87 +34,60 @@ class StaffReport {
         elementsTbody.replaceChildren();
     }
 
-    showElement(element, elementsTbody) {
+    showPosition(position, elementsTbody) {
         const positionTr = document.createElement("tr");
         positionTr.classList.add("table-row");
-        positionTr.classList.add("position-table-row");
+        positionTr.classList.add("worker-table-row");
 
-        positionTr.id = "position-tr-" + element.positionId;
-        positionTr.dataset.positionId = element.positionId;
-        positionTr.dataset.positionName = element.positionName;
-        positionTr.dataset.state = "C";
-        viewUtils.createCell(positionTr, ["table-cell"], [element.positionName], "text-align: left; font-weight: bold");
-        viewUtils.createCell(positionTr, ["table-cell"], [element.factLaborCost], "font-weight: bold");
-        viewUtils.createCell(positionTr, ["table-cell"], [element.normLaborCost], "font-weight: bold");
-        viewUtils.createCell(positionTr, ["table-cell"], [element.efficiency], "font-weight: bold");
-        viewUtils.createCell(positionTr, ["table-cell"], [element.losses], "font-weight: bold");        
-        positionTr.onclick = () => {
-            this.onPositionRowClick(element.positionId);
-        }    
-        elementsTbody.append(positionTr);        
+        const planTime = utils.displayFloat(position.planWorkTime / 60 / 60, 2);
+        const planCost = utils.displayFloat(position.planCost);
+        const factTime = utils.displayFloat(position.factWorkTime / 60 / 60, 2);
+        const factCost = utils.displayFloat(position.factCost);
+        const lostTime = utils.displayFloat(position.planWorkTime / 60 / 60 - position.factWorkTime / 60 / 60, 2);
+        const lostCost = utils.displayFloat(position.planCost - position.factCost, 0);
 
-        for (let worker of element.workers) {
-            let workerTr = document.createElement("tr");
-            workerTr.classList.add("table-row");
-            workerTr.classList.add("worker-table-row");
+        viewUtils.createCell(positionTr, ["table-cell"], [position.name], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [planTime], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [planCost], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [factTime], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [factCost], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [lostTime], "font-weight: bold");
+        viewUtils.createCell(positionTr, ["table-cell"], [lostCost], "font-weight: bold");
 
-            workerTr.dataset.positionId = worker.positionId;
-            workerTr.id = "worker-tr-" + worker.workerId;
-            workerTr.dataset.workerId = worker.workerId;
-            workerTr.dataset.workerFullName = worker.workerFullName;
-            workerTr.dataset.state = "C";
+        elementsTbody.append(positionTr);
+    }
 
-            const restWork = worker.restWork === 1;
-            viewUtils.createCell(workerTr, ["table-cell"], [worker.workerFullName],
-                !restWork ? "text-align: left; padding-left: 2% !important" : "text-align: left; padding-left: 2% !important; color: red");
-            viewUtils.createCell(workerTr, ["table-cell"], [worker.factLaborCost], !restWork ? "" : "color: red");
-            viewUtils.createCell(workerTr, ["table-cell"], [worker.normLaborCost], !restWork ? "" : "color: red");
-            viewUtils.createCell(workerTr, ["table-cell"], [worker.efficiency], !restWork ? "" : "color: red");
-            viewUtils.createCell(workerTr, ["table-cell"], [worker.losses], !restWork ? "" : "color: red");
+    showWorker(worker, elementsTbody) {
+        const workerTr = document.createElement("tr");
+        workerTr.classList.add("table-row");
+        workerTr.classList.add("worker-table-row");
 
-            workerTr.onclick = () => {
-                this.onWorkerRowClick(worker.workerId);
-            }  
+        const planTime = utils.displayFloat(worker.planWorkTime / 60 / 60, 2);
+        const planCost = utils.displayFloat(worker.planCost);
+        const factTime = utils.displayFloat(worker.factWorkTime / 60 / 60, 2);
+        const factCost = utils.displayFloat(worker.factCost);
+        const lostTime = utils.displayFloat(worker.planWorkTime / 60 / 60 - worker.factWorkTime / 60 / 60, 2);
+        const lostCost = utils.displayFloat(worker.planCost - worker.factCost, 0);
 
-            elementsTbody.append(workerTr);
+        viewUtils.createCell(workerTr, ["table-cell"], [worker.fullName]);
+        viewUtils.createCell(workerTr, ["table-cell"], [planTime]);
+        viewUtils.createCell(workerTr, ["table-cell"], [planCost]);
+        viewUtils.createCell(workerTr, ["table-cell"], [factTime]);
+        viewUtils.createCell(workerTr, ["table-cell"], [factCost]);
+        viewUtils.createCell(workerTr, ["table-cell"], [lostTime]);
+        viewUtils.createCell(workerTr, ["table-cell"], [lostCost]);
 
-            for (let work of worker.works) {
-                let workTr = document.createElement("tr");
-                workTr.classList.add("table-row");
-                workTr.classList.add("work-table-row");
-
-                workTr.dataset.workerId = worker.workerId;
-
-                //work.startDate = utils.convertDate(work.startDate) + " " + utils.convertTime(work.startDate);
-                //work.finishDate = utils.convertDate(work.finishDate) + " " + utils.convertTime(work.finishDate);
-                work.startDate = utils.convertTimeHHMM(work.startDate);
-                work.finishDate = utils.convertTimeHHMM(work.finishDate);
-
-                const restWork = work.restWork === 1;
-                const siteB = document.createElement("b");
-                siteB.textContent = work.siteName;
-                viewUtils.createCell(workTr, ["table-cell"],
-                    [work.startDate + " - " + work.finishDate + " (" + work.duration + " мин.) ", siteB],
-                    !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
-
-                viewUtils.createCell(workTr, ["table-cell"], "");
-                viewUtils.createCell(workTr, ["table-cell"], "");
-                viewUtils.createCell(workTr, ["table-cell"], "");
-                viewUtils.createCell(workTr, ["table-cell"], "");
-
-                elementsTbody.append(workTr);
-            }            
-        }
+        elementsTbody.append(workerTr);
     }
 
     showReport() {
         const elementsTbody = document.getElementById("report-tbody");
-        for (let element of this.data) {
-            this.showElement(element, elementsTbody);
+        for (let position of this.data) {
+            this.showPosition(position, elementsTbody);
+            for (let worker of position.employees) {
+                this.showWorker(worker, elementsTbody);
+            }            
         }    
-        this.collapsePositionsRows();
-        this.hideWorkersRows();
-        this.hideWorksRows();
     }
 
     onChangeParameters() {        
@@ -124,15 +98,15 @@ class StaffReport {
 
     async createReport() {
         this.clearReport();
-        await this.getData(utils.getUrlParameter("date"), utils.getUrlParameter("shift"));
+        await this.getData(utils.getUrlParameter("from_date"), utils.getUrlParameter("to_date"));
         this.showReport()
     }
 
     async show() {        
-        let fromDate = utils.getUrlParameter("from-date");
+        let fromDate = utils.getUrlParameter("from-from_date");
         if (fromDate == "")
             fromDate = utils.getNowDate();
-        let toDate = utils.getUrlParameter("to-date");
+        let toDate = utils.getUrlParameter("to_date");
         if (toDate == "")
             toDate = utils.getNowDate();
         
@@ -147,6 +121,6 @@ class StaffReport {
     }
 }
 
-const positionsShiftReport = new PositionsShiftReport();
+const staffReport = new StaffReport();
 
-document.addEventListener('DOMContentLoaded', positionsShiftReport.show.bind(positionsShiftReport));
+document.addEventListener('DOMContentLoaded', staffReport.show.bind(staffReport));

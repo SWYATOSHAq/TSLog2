@@ -18,6 +18,16 @@
         /// </summary>
         public DateTime To { get; private set; }
         /// <summary>
+        /// Продолжительность смены в секундах
+        /// </summary>
+        public int Length 
+        {
+            get
+            {
+                return (int)(To - From).TotalSeconds;
+            }
+        }
+        /// <summary>
         /// Режим работы (номер смены)
         /// </summary>
         public string WorkMode { get; private set; } = string.Empty;     
@@ -98,7 +108,32 @@
         /// <returns>Массив "промежутков" - смен</returns>
         public static Shift[] GetShifts(DateTime fromDate, DateTime toDate)
         {
+            //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 9:00:00"), DateTime.Parse("01.06.2022 21:00:00"));
+            //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 9:00:00"), DateTime.Parse("02.06.2022 9:00:00"));
+            //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 0:00:00"), DateTime.Parse("02.06.2022 0:00:00"));
+            //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 13:00:00"), DateTime.Parse("01.06.2022 14:00:00"));
+
             var shifts = new List<Shift>();
+            var shiftStart = fromDate;
+            DateTime shiftFinish;
+            if (fromDate < fromDate.Date.AddHours(9))
+                shiftFinish = fromDate.Date.AddHours(9); // 9:00
+            else if (fromDate < fromDate.Date.AddHours(21))
+                shiftFinish = fromDate.Date.AddHours(21); // 21:00
+            else
+                shiftFinish = fromDate.Date.AddMinutes(33); // 9:00 след. суток
+
+            do
+            {
+                var shift = new Shift(-1,
+                    shiftStart,
+                    shiftFinish <= toDate ? shiftFinish : toDate,
+                    string.Empty);
+                shifts.Add(shift);
+                shiftStart = shiftFinish;
+                shiftFinish = shiftStart.AddHours(12);
+            } while (shiftStart < toDate);
+
             return shifts.ToArray();
         }
     }
