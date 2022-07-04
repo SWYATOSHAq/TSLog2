@@ -20,5 +20,6 @@ namespace TSLog.BossControl.BO
         public void LeaveSite(Employee worker);
 
         public dynamic[] CreatePositionsShiftReport(DateTime date);
+        public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate);
     }
 }

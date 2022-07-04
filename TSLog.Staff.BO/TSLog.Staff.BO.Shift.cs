@@ -90,5 +90,16 @@
                 throw new ArgumentException($"Employee with id {employee.Id} not found");
             _employees.Remove((int)employee.Id);
         }
+        /// <summary>
+        /// Возвращает массив "промежутков" - смен в указанном временном интервале
+        /// </summary>
+        /// <param name="fromDate">Начало интервала</param>
+        /// <param name="toDate">Окончание интервала</param>
+        /// <returns>Массив "промежутков" - смен</returns>
+        public static Shift[] GetShifts(DateTime fromDate, DateTime toDate)
+        {
+            var shifts = new List<Shift>();
+            return shifts.ToArray();
+        }
     }
 }

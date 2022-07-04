@@ -768,6 +768,11 @@ namespace TSLog.BossControl.Data
             }
             return data.Values.ToArray();
         }
+
+        public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate)
+        {
+            return Array.Empty<dynamic>();
+        }
         #endregion
     }
 }

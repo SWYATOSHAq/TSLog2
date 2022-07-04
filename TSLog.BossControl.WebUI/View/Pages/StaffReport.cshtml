@@ -1,0 +1,48 @@
+﻿@page "/StaffReport"
+@model TSLog.BossControl.WebUI.Pages.StaffReportModel
+@{
+    ViewData["Title"] = "Отчёт по персоналу";
+}
+
+<div class="table-div"> 
+    <b>Отчёт по персоналу</b>
+    <div class="row dates-div">
+        <label class="date-label" for="date-input">Начало периода:</label>
+        <input id="from-date-input" 
+            class="datepicker border border-secondary date-input" 
+            placeholder="Выберете дату" 
+            ne="date" 
+            readonly="" />    
+        <label class="date-label" for="date-input">Окончание периода:</label>
+        <input id="to-date-input" 
+            class="datepicker border border-secondary date-input" 
+            placeholder="Выберете дату" 
+            ne="date" 
+            readonly="" />    
+    </div>
+    <div class="row button-div">
+        <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
+            type="button" 
+            onclick="positionsShiftReport.createReport()">Применить</button>
+    </div>
+
+    <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
+        Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов).</b>
+    </div>
+    <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; color: red">
+        Красным выделены сотрудники, работающие во время перерывов.
+    </div>
+
+    <table class="table table-light table-bordered table-striped" style="margin: 0; padding: 0">
+        <thead>
+            <tr>                
+                <th class="table-column-header">Сотрудник</th>
+                <th class="table-column-header">План</th>
+                <th class="table-column-header">Факт</th>
+                <th class="table-column-header">Простои</th>                
+            </tr>
+        </thead>
+        <tbody id="report-tbody">
+        </tbody>
+    </table>
+</div>

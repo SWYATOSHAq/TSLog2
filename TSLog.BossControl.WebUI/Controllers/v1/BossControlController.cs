@@ -189,5 +189,39 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             Response.StatusCode = 200;
             return text;
         }
+
+
+        [HttpGet("StaffReport")]
+        public string StaffReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                string stringFromDate = Request.Query["from_date"];
+                if (string.IsNullOrWhiteSpace(stringFromDate))
+                    return "From date is empty!";
+                if (!DateTime.TryParse(stringFromDate.Trim(), out DateTime fromDate))
+                    return $"Wrong to date {stringFromDate}";
+
+                string stringToDate = Request.Query["to_date"];
+                if (string.IsNullOrWhiteSpace(stringToDate))
+                    return "From date is empty!";
+                if (!DateTime.TryParse(stringToDate.Trim(), out DateTime toDate))
+                    return $"Wrong to date {stringToDate}";
+
+                fromDate = fromDate.Date;
+                toDate = toDate.AddDays(1);
+
+                var data = _storage.CreateStaffReport(fromDate, toDate);
+
+                var text = string.Empty;
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }            
+        }
     }
 }

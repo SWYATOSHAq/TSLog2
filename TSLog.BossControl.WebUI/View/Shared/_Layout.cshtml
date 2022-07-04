@@ -34,6 +34,10 @@
     {
         <link rel="stylesheet" href="~/css/PositionsShiftReport.css" asp-append-version="true" />
     }
+    else if (page == "StaffReport")
+    {
+        <link rel="stylesheet" href="~/css/StaffReport.css" asp-append-version="true" />
+    }
 </head>
 <body>
     <div style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
@@ -48,7 +52,10 @@
                     <a class="nav-link text-dark" asp-area="" asp-page="/BusyWorkers">Занятые</a>
                     <a class="nav-link text-dark" asp-area="" asp-page="/FreeWorkers">Свободные</a>
                     <a class="nav-link text-dark" asp-area="" asp-page="/FreeShiftWorkers">Свободные на смене</a>
+                    <!--
                     <a class="nav-link text-dark" asp-area="" asp-page="/PositionsShiftReport">Отчёт за смену</a>
+                    -->
+                    <a class="nav-link text-dark" href="/StaffReport">Отчёт по персоналу</a>
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
             </div>
@@ -96,10 +103,10 @@
     else if (page == "FreeShiftWorkers")
     {
         <script src="~/js/FreeShiftWorkers.js" asp-append-version="true"></script>    
-    }
+    }    
     else if (page == "PositionsShiftReport")
     {
-        <script src="~/js/PositionsShiftReport.js" asp-append-version="true"></script>    
+        <script src="~/js/StaffReport.js" asp-append-version="true"></script>    
     }
 
     @await RenderSectionAsync("Scripts", required: false)
