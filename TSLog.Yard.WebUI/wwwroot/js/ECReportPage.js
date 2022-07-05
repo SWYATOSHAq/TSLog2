@@ -45,6 +45,7 @@ class ECReportPage {
         let totalBcCost = 0.0;
         let totalBillingTotalIncome = 0.0;
         let totalBillingStoreIncome = 0.0;
+        let totalBillingConsumablesIncome = 0.0;
         let totalBillingHandlingIncome = 0.0;
         let totalHandlingProfit = 0.0;
         let totalTotalProfit = 0.0;
@@ -61,6 +62,7 @@ class ECReportPage {
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcCost)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingTotalIncome)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingStoreIncome)]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingConsumablesIncome)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingHandlingIncome)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.handlingProfit)]);            
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.totalProfit)]);
@@ -72,6 +74,7 @@ class ECReportPage {
             totalBcCost += element.bcCost;
             totalBillingTotalIncome += element.billingTotalIncome;
             totalBillingStoreIncome += element.billingStoreIncome;
+            totalBillingConsumablesIncome += element.billingConsumablesIncome;
             totalBillingHandlingIncome += element.billingHandlingIncome;            
         }
         totalHandlingProfit = totalBillingHandlingIncome - totalBcCost;
@@ -88,6 +91,7 @@ class ECReportPage {
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcCost)], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingTotalIncome)], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingStoreIncome)], boldStyle);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingConsumablesIncome)], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingHandlingIncome)], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalHandlingProfit)], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalTotalProfit)], boldStyle);

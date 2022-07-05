@@ -1686,8 +1686,9 @@ namespace TSLog.Yard.Data
                     $"    -- 1.2 складывается результат умножения всех начисленных услуг на их стоимость по данному клиенту за указанный период -\n" +
                     $"    -- это есть вся выручка по клиенту за период.\n" +
                     $"  select bsl.bl_mndnr partner_id,\n" +
-                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' then bsl.bl_qty * bsl.bl_price end) as store_income,\n" +
-                    $"         sum(case when bst.bst_doc_type != 'SYSTEM' then bsl.bl_qty * bsl.bl_price end) as handling_income," +
+                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' and lower(bsd.bsd_name) not like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) store_income,\n" +
+                    $"         sum(case when lower(bsd.bsd_name) like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) consumables_income,\n" +
+                    $"         sum(case when bst.bst_doc_type != 'SYSTEM' and lower(bsd.bsd_name) not like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) handling_income,\n" +
                     $"         sum(bsl.bl_qty * bsl.bl_price) total_income\n" +
                     $"    from ecco.bl_service_log bsl\n" +
                     $"    --left join ecco.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
@@ -1733,7 +1734,8 @@ namespace TSLog.Yard.Data
                     $"          round(nvl(d.total_duration, 0.0), 8) bc_duration, -- В часах\n" +
                     $"          round(nvl(d.total_cost, 0.0), 8) bc_cost,\n" +
                     $"          round(nvl(bd.store_income, 0.0), 8) billing_store_income,\n" +
-                    $"          round(nvl(bd.handling_income, 0.0), 8) billing_handling_income,\n" +
+                    $"          round(nvl(bd.consumables_income, 0.0), 8) billing_consumables_income,\n" +
+                    $"          round(nvl(bd.handling_income, 0.0), 8) billing_handling_income,\n" +                    
                     $"          round(nvl(bd.total_income, 0.0), 8) billing_total_income,\n" +
                     $"          round(nvl(bd.handling_income, 0.0) - nvl(d.total_cost, 0.0), 8) handling_profit,\n" +
                     $"          round(nvl(bd.total_income, 0.0) - nvl(d.total_cost, 0.0), 8) total_profit,\n" +
@@ -1766,6 +1768,7 @@ namespace TSLog.Yard.Data
                     element.bcCost = Utils.DbValueToDouble(reader["bc_cost"]);
                     element.billingStoreIncome = Utils.DbValueToDouble(reader["billing_store_income"]);
                     element.billingHandlingIncome = Utils.DbValueToDouble(reader["billing_handling_income"]);
+                    element.billingConsumablesIncome = Utils.DbValueToDouble(reader["billing_consumables_income"]);
                     element.billingTotalIncome = Utils.DbValueToDouble(reader["billing_total_income"]);
                     element.handlingProfit = Utils.DbValueToDouble(reader["handling_profit"]);
                     element.totalProfit = Utils.DbValueToDouble(reader["total_profit"]);
