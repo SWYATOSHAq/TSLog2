@@ -2,9 +2,18 @@
 
 namespace TSLog.Staff.BO
 {
+    /// <summary>
+    /// Участок работ
+    /// </summary>
     public class Site: Entity
     {
+        /// <summary>
+        /// Вид
+        /// </summary>
         public string Kind { get; set; } = string.Empty;
+        /// <summary>
+        /// Вышестоящий (аггрегирующий) участок
+        /// </summary>
         public Site? Parent { get; set; } = null;
         public Site(short id, string code, string kind, string name, string shortName, string altName, string displayName, 
             bool isActive, short displayOrder, string note = "")
@@ -29,7 +38,6 @@ namespace TSLog.Staff.BO
             }
         }
         private static Site? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

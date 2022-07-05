@@ -28,7 +28,6 @@ namespace TSLog.Partners.BO
             }
         }
         private static Partner? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

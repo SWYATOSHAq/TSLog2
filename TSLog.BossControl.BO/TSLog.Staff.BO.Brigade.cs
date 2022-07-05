@@ -2,8 +2,14 @@
 
 namespace TSLog.Staff.BO
 {
+    /// <summary>
+    /// Бригада
+    /// </summary>
     public class Brigade: Entity
     {
+        /// <summary>
+        /// Вид
+        /// </summary>
         public string Kind { get; set; } = string.Empty;
 
         public Brigade(int id, string kind, string name, string note)

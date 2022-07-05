@@ -90,7 +90,6 @@ namespace TSLog.Staff.BO
         }
 
         private static Department? _null = null;
-
         /// <summary>
         /// Null object
         /// </summary>
@@ -105,7 +104,6 @@ namespace TSLog.Staff.BO
             }
         }
         private static Department? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>
@@ -119,6 +117,4 @@ namespace TSLog.Staff.BO
             }
         }
     }
-
-    
 }

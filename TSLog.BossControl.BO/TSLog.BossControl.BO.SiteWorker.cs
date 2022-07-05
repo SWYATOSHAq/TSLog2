@@ -8,9 +8,21 @@ namespace TSLog.BossControl.BO
     /// </summary>
     public class SiteWorker : IComparable<SiteWorker>
     {
+        /// <summary>
+        /// Участок
+        /// </summary>
         public Site Site { get; set; }
+        /// <summary>
+        /// Партнёр (мандант)
+        /// </summary>
         public Partner Partner { get; set; }
+        /// <summary>
+        /// Работник (сотрудник)
+        /// </summary>
         public Employee Worker { get; set; }
+        /// <summary>
+        /// Дата начала работы на участке
+        /// </summary>
         public DateTime StartDate { get; set; }
         public SiteWorker(Site site, Partner partner, Employee worker, DateTime startDate)
         {

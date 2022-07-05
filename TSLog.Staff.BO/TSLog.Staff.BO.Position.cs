@@ -59,7 +59,6 @@ namespace TSLog.Staff.BO
             }
         }
         private static Position? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

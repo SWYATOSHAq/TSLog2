@@ -108,6 +108,9 @@
         /// <returns>Массив "промежутков" - смен</returns>
         public static Shift[] GetShifts(DateTime fromDate, DateTime toDate)
         {
+            if (fromDate >= toDate)
+                throw new ArgumentException($"Wrong dates - from: {fromDate}, to: {toDate}");
+
             //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 9:00:00"), DateTime.Parse("01.06.2022 21:00:00"));
             //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 9:00:00"), DateTime.Parse("02.06.2022 9:00:00"));
             //var shifts = Shift.GetShifts(DateTime.Parse("01.06.2022 0:00:00"), DateTime.Parse("02.06.2022 0:00:00"));

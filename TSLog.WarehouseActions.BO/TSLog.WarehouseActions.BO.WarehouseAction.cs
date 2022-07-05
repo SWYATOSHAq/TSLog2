@@ -115,6 +115,9 @@ namespace TSLog.WarehouseActions.BO
                 return volume;
             }
         }
+        /// <summary>
+        /// Единица измерения объёма
+        /// </summary>
         public MeasureUnit VolumeMeasureunit
         {
             get
@@ -148,6 +151,9 @@ namespace TSLog.WarehouseActions.BO
                 return grossWeight;
             }
         }
+        /// <summary>
+        /// Единица измерения веса
+        /// </summary>
         public MeasureUnit WeightMeasureUnit
         {
             get

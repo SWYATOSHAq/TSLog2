@@ -8,6 +8,9 @@ namespace TSLog.Staff.BO
     /// </summary>
     public class Employee : Entity
     {
+        /// <summary>
+        /// Идентификатор
+        /// </summary>
         public new int Id
         {
             get
@@ -20,9 +23,21 @@ namespace TSLog.Staff.BO
             }
         }
         private const double DefaultCost = 100.00;
+        /// <summary>
+        /// Имя пользователя в WMS системе
+        /// </summary>
         public string WmsLogin { get; set; } = string.Empty;
+        /// <summary>
+        /// Имя пользователя в Active Directory
+        /// </summary>
         public string AdLogin { get; set; } = string.Empty;
+        /// <summary>
+        /// Фамилия
+        /// </summary>
         public string Surname { get; private set; }
+        /// <summary>
+        /// Имя
+        /// </summary>
         public string FirstName
         {
             get
@@ -34,6 +49,9 @@ namespace TSLog.Staff.BO
                 Name = value;
             }
         }
+        /// <summary>
+        /// Отчество
+        /// </summary>
         public string Patronymic { get; set; } = string.Empty;
         public new string DisplayName
         {
@@ -42,6 +60,9 @@ namespace TSLog.Staff.BO
                 return $"{Surname} {FirstName} {Patronymic}";
             }
         }
+        /// <summary>
+        /// Полное Ф. И. О.
+        /// </summary>
         public string FullName
         {
             get 
@@ -49,27 +70,78 @@ namespace TSLog.Staff.BO
                 return DisplayName;
             }
         }
+        /// <summary>
+        /// Пол
+        /// </summary>
         public string Sex { get; set; } = "M";
+        /// <summary>
+        /// Дата рождения
+        /// </summary>
         public DateTime BirthDate { get; private set; }
         /// <summary>
         /// Гражданство (подданство)
         /// </summary>
         public string Nationality { get; set; } = string.Empty;
+        /// <summary>
+        /// Контактный телефон
+        /// </summary>
         public string PhoneNumber { get; set; } = string.Empty;
+        /// <summary>
+        /// Адрес эл. почты
+        /// </summary>
         public string Email { get; set; } = string.Empty;
+        /// <summary>
+        /// Документ, удосоверяющий личность
+        /// </summary>
         public string DocumentName { get; set; } = string.Empty;
+        /// <summary>
+        /// Серия документа, удостоверяющего личность
+        /// </summary>
         public string DocumentSeries { get; set; } = string.Empty;
+        /// <summary>
+        /// Номер документа, удостоверяющего личность
+        /// </summary>
         public string DocumentNumber { get; set; } = string.Empty;
+        /// <summary>
+        /// Дата выдачи документа, удостоверяющего личность
+        /// </summary>
         public DateTime DocumentIssueDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Организация, выдавшая документ, удостоверяющий личность
+        /// </summary>
         public string DocumentIssueOrganization { get; set; } = string.Empty;
+        /// <summary>
+        /// Дата приёма на работу
+        /// </summary>
         public DateTime EmploymentDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Дата увольнения
+        /// </summary>
         public DateTime DismissalDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Компания (ТСЛ или подрядчик)
+        /// </summary>
         public LegalEntity Company { get; private set; }
+        /// <summary>
+        /// Подразделение
+        /// </summary>
         public Department? Department { get; set; } = null;
+        /// <summary>
+        /// Стоимость часа работы
+        /// </summary>
         public double Cost { get; set; } = DefaultCost;
+        /// <summary>
+        /// Валюта стоимости часа работы
+        /// </summary>
         public MeasureUnit CostMeasureUnit { get; set; } = MeasureUnit.Null;
         private const string DefaultWorkMode = "5/2-40";
+        /// <summary>
+        /// Режим работы (номер смены)
+        /// </summary>
         public string WorkMode { get; set; } = DefaultWorkMode;
+        /// <summary>
+        /// Продолжительность рабочей смены (в секундах)
+        /// </summary>
         public int ShiftLength
         {
             get
@@ -108,7 +180,6 @@ namespace TSLog.Staff.BO
             Company = LegalEntity.Empty;
         }
         private static Employee? _null = null;
-
         /// <summary>
         /// Null object
         /// </summary>
@@ -122,7 +193,6 @@ namespace TSLog.Staff.BO
             }
         }
         private static Employee? _empty = null;
-
         /// <summary>
         /// Empty object
         /// </summary>

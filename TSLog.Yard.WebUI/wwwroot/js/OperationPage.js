@@ -1470,7 +1470,7 @@ class OperationPage {
                 this.showSelectedWorkers();
                 const workersFieldset = document.getElementById("workers-fieldset");                
                 const linearWorkersDiv = document.getElementById("linear-workers-div");
-                if (this.stateCode === "STARTED"
+                if ((this.stateCode === "STARTED" || this.stateCode === "WORK_STARTED")
                     && workersFilterDiv != undefined && workersFilterDiv != null
                     && linearWorkersDiv != undefined && linearWorkersDiv != null)
                 {
