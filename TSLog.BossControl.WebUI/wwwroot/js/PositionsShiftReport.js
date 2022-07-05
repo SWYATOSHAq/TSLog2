@@ -155,7 +155,7 @@ class PositionsShiftReport {
                 const siteB = document.createElement("b");
                 siteB.textContent = work.siteName;
                 viewUtils.createCell(workTr, ["table-cell"],
-                    [work.startDate + " - " + work.finishDate + " (" + work.duration + " мин.) ", siteB],
+                    [work.startDate + " - " + work.finishDate + " (" + work.duration + " мин.) ", siteB, " (" + work.partnerName + ")"],
                     !restWork ? "text-align: left; padding-left: 4% !important" : "text-align: left; padding-left: 4% !important; color: red");
 
                 viewUtils.createCell(workTr, ["table-cell"], "");

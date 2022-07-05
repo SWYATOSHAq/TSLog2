@@ -714,6 +714,7 @@ namespace TSLog.BossControl.Data
                         $"          d.start_date, d.finish_date,\n" +
                         $"          d.site_id, -- Идентификатор участка\n" +
                         $"          s.name site_name, -- Название участка\n" +
+                        $"          p.id partner_id, p.name partner_name,\n" +
                         $"          round(d.finish_date - d.start_date, 8) duration, -- Продолжительность\n" +
                         $"          case\n" +
                         $"              when not (sh.shift_start + 2/24 >= d.finish_date or sh.shift_start + 2/24 + 10/60/24 <= d.start_date) then 1 -- 11:00 - 11:10\n" +
@@ -752,6 +753,8 @@ namespace TSLog.BossControl.Data
                         workElement.duration = Math.Round(Utils.DbValueToDouble(worksReader["duration"]) * 24 * 60);
                         workElement.siteId = Utils.DbValueToShort(worksReader["site_id"]);
                         workElement.siteName = Utils.DbValueToString(worksReader["site_name"]);
+                        workElement.partnerId = Utils.DbValueToString(worksReader["partner_id"]);
+                        workElement.partnerName = Utils.DbValueToString(worksReader["partner_name"]);
                         workElement.restWork = Utils.DbValueToShort(worksReader["rest_work"]);
                         workerElement.works.Add(workElement);
                     }

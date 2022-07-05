@@ -189,8 +189,6 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             Response.StatusCode = 200;
             return text;
         }
-
-
         [HttpGet("StaffReport")]
         public string StaffReport()
         {
