@@ -92,8 +92,7 @@ class StaffReport {
 
     onChangeParameters() {        
         const url = this.shortUrl + this.createParameters();
-        history.pushState({}, null, url);
-        this.showShiftInfo();
+        history.pushState({}, null, url);        
     }
 
     async createReport() {

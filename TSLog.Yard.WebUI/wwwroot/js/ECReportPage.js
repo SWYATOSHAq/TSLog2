@@ -1,5 +1,6 @@
 ﻿/*
     Страница по приходам/расходам (БоссКоннтроль + Биллинг).
+    2022.07.06 - добавлен выбор НЕСКОЛЬКИХ клиентов.
     Автор - Буров Михаил.
 */
 
@@ -16,12 +17,46 @@ class ECReportPage {
         let result = "";
         result = utils.addParameter(result, "from_date", "from-date-input");
         result = utils.addParameter(result, "to_date", "to-date-input");
-        //result = utils.addParameter(result, "partner_id", "partners-select");
+        const ids = this.getIds(",")
+        result = utils.addParameterValue(result, "partners_ids", ids);
         return result != "" ? "?" + result : "";
     }
 
-    async getData(fromDate, toDate) {
-        const result = await api.createECReport(fromDate, toDate);
+    getIds(separator = " ") {
+        const partnersUl = document.getElementById("partners-ul");
+        const items = partnersUl.children;
+        let result = "";
+        for (let i = 0; i < items.length; i++) {
+            const li = items[i];
+            const partnerId = li.getAttribute("partnerId");
+            const checkbox = document.getElementById("partner-" + partnerId + "-input");
+            if (checkbox.checked) {
+                if (result.length > 0) {
+                    result += separator;
+                }
+                result += partnerId;
+            }
+        }
+        return result;
+    }
+
+    getSelectedClientsCount() {
+        const partnersUl = document.getElementById("partners-ul");
+        const items = partnersUl.children;
+        let result = 0;
+        for (let i = 0; i < items.length; i++) {
+            const li = items[i];
+            const partnerId = li.getAttribute("partnerId");
+            const checkbox = document.getElementById("partner-" + partnerId + "-input");
+            if (checkbox.checked) {                
+                result++;
+            }
+        }
+        return result;
+    }
+
+    async getData(fromDate, toDate, ids) {        
+        const result = await api.createECReport(fromDate, toDate, ids);
         if (result.code === 0) {
             this.data = result.data;
         } else {
@@ -56,7 +91,7 @@ class ECReportPage {
         for (let element of this.data) {
             const tr = document.createElement("tr");
             //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
-            viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")]);
+            //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")]);
             viewUtils.createCell(tr, ["table-cell"], [element.partnerName]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcDuration)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcCost)]);
@@ -85,7 +120,7 @@ class ECReportPage {
         const boldStyle = "font-weight: bold";
         const tr = document.createElement("tr");
         //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
-        viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")], boldStyle);
+        //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], ["Итого:"], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcDuration)], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcCost)], boldStyle);
@@ -108,13 +143,59 @@ class ECReportPage {
 
     async createReport() {
         this.clearReport();
-        await this.getData(utils.getUrlParameter("from_date"), utils.getUrlParameter("to_date"));
+        await this.getData(utils.getUrlParameter("from_date"),
+            utils.getUrlParameter("to_date"),
+            utils.getUrlParameter("partners_ids"));
         this.showReport()
     }
 
     onChangeDate() {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+    }
+
+    onPartnersSpanClick() {        
+        const partnersDiv = document.getElementById('partners-div');
+        const partnersSpan = document.getElementById("partners-span");        
+        const partnersUl = document.getElementById("partners-ul");
+        if (partnersDiv.classList.contains('visible')) {
+            partnersDiv.classList.remove('visible');
+            partnersSpan.style.cssText = "padding: 0; text-align: center; width: 240px; border-radius: 4px";
+            partnersUl.style.cssText = "";
+        }
+        else {
+            partnersDiv.classList.add('visible');
+            partnersSpan.style.cssText = "padding: 0; text-align: center; width: 240px; border-radius: 4px 4px 0 0";
+            partnersUl.style.cssText = "border-radius: 0 0 4px 4px";
+        }
+    }
+
+    onPartnerInputChange() {
+        const partnersSpan = document.getElementById("partners-span");
+        const selectedClientsCount = this.getSelectedClientsCount();
+        partnersSpan.textContent = selectedClientsCount > 0 ? "Клиентов выбрано: " + selectedClientsCount.toString() : "Выберите клиентов";
+
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
+
+    selectPartners(partnersIds) {
+        const idsArray = partnersIds.split(",");
+        const ids = new Set(idsArray);
+
+        const partnersUl = document.getElementById("partners-ul");
+        const items = partnersUl.children;
+        let selectedClientsCount = 0;
+        for (let i = 0; i < items.length; i++) {
+            const li = items[i];
+            const partnerId = li.getAttribute("partnerId");
+            const checkbox = document.getElementById("partner-" + partnerId + "-input");
+            checkbox.checked = ids.has(partnerId);
+            selectedClientsCount += ids.has(partnerId) ? 1 : 0;
+        }
+
+        const partnersSpan = document.getElementById("partners-span");
+        partnersSpan.textContent = selectedClientsCount > 0 ? "Клиентов выбрано: " + selectedClientsCount.toString() : "Выберите клиентов";
     }
 
     async show() {        
@@ -147,7 +228,13 @@ class ECReportPage {
         }
         toDatePicker.datepicker("setDate", toDate);
         toDatePicker.on("changeDate", this.onChangeDate.bind(this));
-        
+
+        const partnersIds = utils.getUrlParameter("partners_ids");
+        this.selectPartners(partnersIds);
+
+        const partnersSpan = document.getElementById("partners-span");
+        partnersSpan.onclick = this.onPartnersSpanClick.bind(this);
+
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         await this.createReport();

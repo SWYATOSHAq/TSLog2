@@ -474,9 +474,9 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetBcPerfomanceData(fromDate, toDate, siteCode);
         }
-        public dynamic[] GetEcData(DateTime fromDate, DateTime toDate)
+        public dynamic[] GetEcData(DateTime fromDate, DateTime toDate, string[] partnersIds)
         {
-            return _oracleStorage.GetEcData(fromDate, toDate);
+            return _oracleStorage.GetEcData(fromDate, toDate, partnersIds);
         }
         #endregion
         

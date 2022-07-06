@@ -11,7 +11,6 @@
 @model ECReportPageModel
 @{
     ViewData["Title"] = "Отчет по затратам по клиентам";
-
     var storage = Model.Storage;
     var rightsChecker = Model.RightsChecker;
 
@@ -22,9 +21,7 @@
         Response.StatusCode = 403;
         throw new UnauthorizedAccessException();
     }    
-    var divClasses = "input-group dropdown-div";
-    var selectClasses = "form-select dropdown-select";
-    var partnersModel = new PartnersModel(storage.GetPartners(), string.Empty, true, true, "Все клиенты", divClasses, selectClasses);
+    var partners = storage.GetPartners();
 }
 
 <div style="display: flex; padding: 0; margin: 0">
@@ -46,14 +43,20 @@
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />
-    <!--
-    <label class="d-none"
-        style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;"
-        for="partners-filter-container">Клиент:</label>
-    <div class="d-none">
-        <partial name="Blocks/Lists/_PartnersDropdown" model="partnersModel" />
-    </div>    
-    -->
+    <div id="partners-div" 
+        class="dropdown-check-list" 
+        style="position: absolute; margin-left: 34%; background-color: white">
+        <span id="partners-span" class="anchor" style="padding: 0; text-align: center; width: 240px; border-radius: 4px">Выберите клиентов</span>
+        <ul id="partners-ul" class="items">
+            @foreach (var partner in partners)
+            {
+                <li id="partner-@partner.Id-li" partnerId="@partner.Id">
+                    <input id="partner-@partner.Id-input" type="checkbox" onchange="ecReportPage.onPartnerInputChange()"/>
+                    @partner.Name
+                </li>    
+            }
+        </ul>
+    </div>
 </div>
 <div style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success"
@@ -70,9 +73,9 @@
         <thead class="thead-light">
             <tr>
                 <!--
-                <th class="table-header">Id манданта</th>
-                -->
+                <th class="table-header">Id манданта</th>                
                 <th class="table-header" style="width: 12%">Период с по</th>
+                -->
                 <th class="table-header" style="width: 12%">Мандант</th>
                 <th class="table-header">Время по БК (час.)</th>
                 <th class="table-header">Трудозатраты с налогами (руб.)</th>

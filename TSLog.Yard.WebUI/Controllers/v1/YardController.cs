@@ -2475,7 +2475,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {temp}";
                     toDate = toDate.AddDays(1).AddTicks(-1);
                 }
-                var elements = _storage.GetEcData(fromDate, toDate);
+
+                temp = Request.Query["partners_ids"];
+                var ids = string.IsNullOrWhiteSpace(temp) ? Array.Empty<string>() : temp.Split(",");
+
+                var elements = _storage.GetEcData(fromDate, toDate, ids);
                 var text = JsonSerializer.Serialize(elements);
                 Response.StatusCode = 200;
                 return text;

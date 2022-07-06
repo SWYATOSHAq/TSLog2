@@ -1670,8 +1670,23 @@ namespace TSLog.Yard.Data
             }
             return works.ToArray();
         }
-        public dynamic[] GetEcData(DateTime fromDate, DateTime toDate)
+        public dynamic[] GetEcData(DateTime fromDate, DateTime toDate, string[] partnersIds)
         {
+            var partners = GetPartners();
+            var ids = new StringBuilder();
+            if (partnersIds.Length > 0 && partnersIds.Length < partners.Length) 
+            {
+                foreach (var id in partnersIds)
+                {
+                    var partner = Array.Find(partners, p => p.Id == id);
+                    if (partner == null)
+                        continue;
+                    if (ids.Length > 0)
+                        ids.Append(", ");
+                    ids.Append(id);
+                }
+            }
+
             var works = new List<dynamic>();
             using (var command = _connection.CreateCommand())
             {
@@ -1695,7 +1710,7 @@ namespace TSLog.Yard.Data
                     $"    left join ecco.bl_services_def bsd on bsd.bsd_id = bsl.bl_bsd_id\n" +
                     $"    left join ecco.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
                     $"   where bsl.adddate between :start_date and :finish_date\n" +
-                    $"	     --and bsl.bl_mndnr = :partner_id\n" +
+                    (ids.Length <= 0 ? "" : $"         and bsl.bl_mndnr in ({ids.ToString()})\n") +
                     $"group by bsl.bl_mndnr\n" +
                     $"order by partner_id\n" +
                     $"),\n" +
@@ -1717,6 +1732,7 @@ namespace TSLog.Yard.Data
                     $"    where d.finish_date - d.start_date > 0\n" +
                     $"      and s.kind <> 'AUXILIARY'\n" +
                     $"      and e.id is not null\n" +
+                    (ids.Length <= 0 ? "" : $"      and d.partner_id in ({ids.ToString()})\n") +
                     $" ),\n" +
                     $"data3 as (\n" +
                     $"   select\n" +

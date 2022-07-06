@@ -585,8 +585,8 @@ class Api {
     }
 
     // Формирует отчёт по выручке/расходам (БоссКоннтроль + Биллинг)
-    async createECReport(fromDate, toDate) {
-        let url = "./api/v1/yard/ECReport?from_date=" + fromDate + "&to_date=" + toDate;
+    async createECReport(fromDate, toDate, ids) {
+        let url = "./api/v1/yard/ECReport?from_date=" + fromDate + "&to_date=" + toDate + "&partners_ids=" + ids;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());
