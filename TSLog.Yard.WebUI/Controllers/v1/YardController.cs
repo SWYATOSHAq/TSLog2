@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Text.Json;
 using TSLog.Authorization;
+using TSLog.BossControl.BO;
 using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
@@ -2580,8 +2581,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// Вторая версия отчёта (детали смотри в комментариях в теле процедуры)
         /// </summary>
         /// <returns>Данные отчёта</returns>
-        [HttpGet("WorkersPerfomanceReport2")]        
-        public string GetWorkersPerfomanceReport2()
+        //[HttpGet("WorkersPerfomanceReport2")]        
+        public string GetWorkersPerfomanceReport20()
         {
             try
             {
@@ -2687,6 +2688,182 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var text = JsonSerializer.Serialize(elements.ToArray());
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("WorkersPerfomanceReport2")]
+        public string GetWorkersPerfomanceReport21()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
+                if (_useAuthentication && (!useYard || !getData))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["from_date"];
+                var fromDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out fromDate))
+                        return $"Wrong to date {temp}";
+                }
+                temp = Request.Query["to_date"];
+                var toDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out toDate))
+                        return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1);
+                }
+
+                var operationStarts = new Dictionary<DateTime, List<Operation>>();
+                var operationFinishes = new Dictionary<DateTime, List<Operation>>();
+                var operations = _storage.GetOperationsByFactWork(fromDate, toDate);
+                foreach (var operation in operations)
+                {
+                    if (!operationStarts.ContainsKey(operation.FactWorkStartDate))
+                    {
+                        var tempList = new List<Operation>();
+                        tempList.Add(operation);
+                        operationStarts.Add(operation.FactWorkStartDate, tempList);
+                    }
+                    else
+                        operationStarts[operation.FactWorkStartDate].Add(operation);
+                    if (!operationFinishes.ContainsKey(operation.FactWorkFinishDate))
+                    {
+                        var tempList = new List<Operation>();
+                        tempList.Add(operation);
+                        operationFinishes.Add(operation.FactWorkFinishDate, tempList);
+                    }
+                    else
+                        operationFinishes[operation.FactWorkFinishDate].Add(operation);
+                }
+
+                var worksStarts = new Dictionary<DateTime, List<SiteWorker>>();
+                var worksFinishes = new Dictionary<DateTime, List<SiteWorker>>();
+                var works = _storage.GetSitesWorkers(fromDate, toDate, "");
+                foreach (var work in works)
+                {
+                    if (!worksStarts.ContainsKey(work.StartDate))
+                    {
+                        var tempList = new List<SiteWorker>();
+                        tempList.Add(work);
+                        worksStarts.Add(work.StartDate, tempList);
+                    }
+                    else
+                        worksStarts[work.StartDate].Add(work);
+                    if (!worksFinishes.ContainsKey(work.FinishDate))
+                    {
+                        var tempList = new List<SiteWorker>();
+                        tempList.Add(work);
+                        worksFinishes.Add(work.FinishDate, tempList);
+                    }
+                    else
+                        worksFinishes[work.FinishDate].Add(work);
+                }
+
+                var keys = operationStarts.Keys.ToHashSet();
+                keys.UnionWith(operationFinishes.Keys);
+                keys.UnionWith(worksStarts.Keys);
+                keys.UnionWith(worksFinishes.Keys);
+
+                // Определяем промежутки работ по БК, который относятся к той или иной операции
+                var moments = keys.ToArray();
+                Array.Sort(moments);
+                var data = new Dictionary<Operation, HashSet<SiteWorker>>();
+                var activeOperations = new HashSet<Operation>();
+                var activeWorks = new HashSet<SiteWorker>();
+                var dummyOperations = new List<Operation>();
+                var dummyWorks = new List<SiteWorker>();
+                foreach (var moment in moments)
+                {
+                    var startedOperations = operationStarts.ContainsKey(moment) ? operationStarts[moment] : dummyOperations;
+                    var finishedOperations = operationFinishes.ContainsKey(moment) ? operationFinishes[moment] : dummyOperations;
+                    activeOperations.UnionWith(startedOperations);
+                    activeOperations.ExceptWith(finishedOperations);
+
+                    var startedWorks = worksStarts.ContainsKey(moment) ? worksStarts[moment] : dummyWorks;
+                    var finishedWorks = worksFinishes.ContainsKey(moment) ? worksFinishes[moment] : dummyWorks;
+                    activeWorks.UnionWith(startedWorks);
+                    activeWorks.ExceptWith(finishedWorks);
+
+                    foreach (var operation in activeOperations)
+                    {
+                        if (!data.ContainsKey(operation))
+                            data.Add(operation, new HashSet<SiteWorker>());
+                        foreach (var work in activeWorks)
+                            if (_storage.GetSiteCodeByGateCode(operation.Gate.Code) == work.Site.Code)
+                                data[operation].Add(work);
+                    }
+                }
+
+                // Определяем производительность операции и сотрудников, работающих на данной операции (по БК)
+                var perfomances = new Dictionary<Operation, double>();
+                var operationsEmployees = new Dictionary<Operation, HashSet<Employee>>();
+                foreach (var operation in data.Keys)
+                {
+                    var workers = new HashSet<Employee>();
+                    var bcDuration = 0.0;
+                    foreach (var work in data[operation])
+                    {
+                        workers.Add(work.Worker);
+                        bcDuration += work.Duration;
+                    }
+                    var perfomance = bcDuration > 0.0 ? operation.PlanDuration * workers.Count / bcDuration : 0.0;
+                    perfomances.Add(operation, perfomance);
+                    operationsEmployees.Add(operation, workers);
+                }
+
+                // Определяем операции двора каждого сотрудника
+                var employeesOperations = new Dictionary<Employee, HashSet<Operation>>();
+                foreach (var operation in operationsEmployees.Keys)
+                {
+                    var tempEmployees = operationsEmployees[operation];
+                    foreach (var employee in tempEmployees)
+                    {
+                        if (!employeesOperations.ContainsKey(employee))
+                            employeesOperations.Add(employee, new HashSet<Operation>());
+                        employeesOperations[employee].Add(operation);
+                    }
+                }
+
+                // Непосредственно определяем средневзвешенную производительность каждого сотрудника
+                var result = new List<dynamic>();
+                foreach (var employee in employeesOperations.Keys)
+                {
+                    dynamic element = new ExpandoObject();
+                    element.workerId = employee.Id;
+                    element.workerFullName = employee.FullName;
+                    element.workerPositionId = employee.MajorPosition.Id;
+                    element.workerPositionName = employee.MajorPosition.Name;
+
+                    var perfomance = 0.0;
+                    var totalFactDuration = 0.0;
+                    foreach (var operation in employeesOperations[employee])
+                    {
+                        perfomance += perfomances[operation] * operation.PlanDuration;
+                        totalFactDuration += operation.FactDuration;
+                    }
+                    perfomance /= totalFactDuration;
+
+                    element.perfomance = perfomance * 100.0;
+                    //element.perfomance2 = 0.0; // Альтернативная производиетльность (пока не актуально - эксперименты)
+                    result.Add(element);
+                }
+
+                var text = JsonSerializer.Serialize(result.ToArray());
                 Response.StatusCode = 200;
                 return text;
             }

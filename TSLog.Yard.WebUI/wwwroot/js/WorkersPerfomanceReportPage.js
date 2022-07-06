@@ -48,7 +48,8 @@ class WorkersPerfomanceReportPage {
             const tr = document.createElement("tr");
             viewUtils.createCell(tr, ["table-cell"], [element.workerFullName]);
             viewUtils.createCell(tr, ["table-cell"], [element.workerPositionName]);
-            viewUtils.createCell(tr, ["table-cell"], [Math.round(element.perfomance).toString() + " / " + Math.round(element.perfomance2).toString()]);
+            //viewUtils.createCell(tr, ["table-cell"], [Math.round(element.perfomance).toString() + " / " + Math.round(element.perfomance2).toString()]);
+            viewUtils.createCell(tr, ["table-cell"], [Math.round(element.perfomance).toString()]);
             tbody.append(tr);
         }
     }

@@ -24,12 +24,28 @@ namespace TSLog.BossControl.BO
         /// Дата начала работы на участке
         /// </summary>
         public DateTime StartDate { get; set; }
-        public SiteWorker(Site site, Partner partner, Employee worker, DateTime startDate)
+        /// <summary>
+        /// Дата окончания работы на участке
+        /// </summary>
+        public DateTime FinishDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Продолжительность промежутка работ в секундах
+        /// </summary>
+        public double Duration
+        {
+            get 
+            {
+                return (FinishDate - StartDate).TotalSeconds;
+            }
+        }
+        public SiteWorker(Site site, Partner partner, Employee worker, DateTime startDate, DateTime? finishDate = null)
         {
             Site = site;
             Partner = partner;
             Worker = worker;
             StartDate = startDate;
+            if (finishDate != null)
+                FinishDate = (DateTime)finishDate;
         }
 
         public int CompareTo(SiteWorker? other)

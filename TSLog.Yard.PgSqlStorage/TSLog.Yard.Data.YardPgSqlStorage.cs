@@ -931,6 +931,74 @@ namespace TSLog.Yard.Data
 
             return operation;
         }
+        private Operation CreateOperationLite(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
+            var planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+            var planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+            var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
+            var vehicleBrand = "<null>";
+            var vehicleModel = "<null>";
+            var vehicleNumber = "<null>";
+            var trailerNumber = string.Empty;
+            var driverName = "<null>";
+            var driverPhoneNumber = string.Empty;
+            var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
+            var priority = Convert.ToInt16(reader["priority"]);
+            var partnerManagerName = string.Empty;
+            var partnerManagerPhoneNumber = string.Empty;
+            var partnerManagerEmail = string.Empty;
+            var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
+
+            var createDate = Utils.DbValueToDateTime(reader["created"]);
+            var creator = Utils.DbValueToString(reader["creator"]);
+            var editDate = Utils.DbValueToDateTime(reader["edited"]);
+            var editor = Utils.DbValueToString(reader["editor"]);
+
+            var operation = new Operation(Convert.ToInt64(reader["id"]), null,
+                type,
+                planWorkStartDate, planWorkFinishDate,
+                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
+                state,
+                priority,
+                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+                manager)
+            {
+                FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
+                FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
+                StartDate = Utils.DbValueToDateTime(reader["start_date"]),
+                FinishDate = Utils.DbValueToDateTime(reader["finish_date"]),
+                CreateDate = createDate,
+                Creator = creator,
+                EditDate = editDate,
+                Editor = editor
+            };
+
+            operation.Logist = Logist.Null;
+
+            var gateId = Utils.DbValueToShort(reader["gate_id"]);
+            operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
+
+            var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
+            operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
+
+            operation.Note = string.Empty;
+
+            var actions = Array.Empty<WarehouseAction>();
+            operation.AddActions(actions);
+
+            // Элементарые работы для операции двора (зависят от типа операции, вида автомашины)
+            var operationWorks = Array.Empty<Operation.OperationWork>();
+            operation.AddOperationWorks(operationWorks);
+
+            var operationWorkers = Array.Empty<Operation.OperationWorker>();
+            operation.AddWorkers(operationWorkers);
+
+            return operation;
+        }
         /// <summary>
         /// Возвращаем продолжительность операции двора (ПРР) в зависимости от типа операции двора и вида автомашины
         /// </summary>
@@ -1652,26 +1720,16 @@ namespace TSLog.Yard.Data
                 {
                     var sql =
                        $"select o.id,\n" +
-                       $"       o.type_id, o.type_code, o.type_name,\n" +
+                       $"       o.type_id,\n" +
                        $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
                        $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
                        $"       o.start_date, o.finish_date,\n" +
-                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                       $"       o.vehicle_brand,\n" +
-                       $"       o.vehicle_model,\n" +
-                       $"       o.vehicle_number,\n" +
-                       $"       o.trailer_number,\n" +
-                       $"       o.driver_name, o.driver_phone_number,\n" +
-                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
-                       $"       o.state_id, o.state_code, o.state_name,\n" +
+                       $"       o.vehicle_kind_id,\n" +
+                       $"       o.gate_id,\n" +
+                       $"       o.state_id,\n" +
                        $"       o.priority,\n" +
-                       $"       o.partner_manager_name,\n" +
-                       $"       o.partner_manager_phone_number,\n" +
-                       $"       o.partner_manager_email,\n" +
                        $"       o.manager_id,\n" +
                        $"       o.responsible_officer_id,\n" +
-                       $"       o.note,\n" +
                        $"       o.created, o.creator, o.edited, o.editor\n" +
                        $"  from {YardSchema}.v_operation o\n" +
                        $" where not (:to_date is not null and o.fact_work_start_date > :to_date\n" +
@@ -1686,7 +1744,7 @@ namespace TSLog.Yard.Data
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var operation = CreateOperation(reader);
+                        var operation = CreateOperationLite(reader);
                         operations.Add(operation);
                     }
                     reader.Close();

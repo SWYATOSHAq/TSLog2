@@ -1,4 +1,5 @@
-﻿using TSLog.Common.BO;
+﻿using TSLog.BossControl.BO;
+using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
@@ -110,6 +111,7 @@ namespace TSLog.Yard.BO
         public Position[] GetPositions();
         public Position[] GetLinePositions();
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode);
+        public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode);
     }
     public interface IYardReportingStorage
     {

@@ -2,6 +2,7 @@
 using System.Data.Common;
 using System.Dynamic;
 using System.Text;
+using TSLog.BossControl.BO;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
@@ -562,6 +563,70 @@ namespace TSLog.Yard.Data
         public string GetSiteCodeByGateCode(string gateCode)
         {
             return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
+        }
+        private readonly Catalog<Site> _sites = new("SITES", "Участки");
+        private static Site CreateSite(DbDataReader reader)
+        {
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+            var id = Utils.DbValueToShort(reader["id"]);
+            var code = Utils.DbValueToString(reader["code"]);
+            var kind = Utils.DbValueToString(reader["kind"]);
+            var name = Utils.DbValueToString(reader["name"]);
+            var shortName = Utils.DbValueToString(reader["short_name"]);
+            var altName = Utils.DbValueToString(reader["alt_name"]);
+            var displayName = Utils.DbValueToString(reader["display_name"]);
+            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+            var note = Utils.DbValueToString(reader["note"]);
+            var site = new Site(id,
+                code,
+                kind,
+                name,
+                shortName,
+                altName,
+                displayName,
+                isActive,
+                displayOrder,
+                note);
+            return site;
+        }
+        public Site GetSite(short id)
+        {
+            var site = _sites[id];
+            if (site != null && site != Site.Null && site != Site.Empty)
+                return site;
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select s.id," +
+                    $"       s.code,\n" +
+                    $"       s.kind,\n" +
+                    $"       s.name, s.short_name, s.alt_name, s.display_name,\n" +
+                    $"       s.is_active,\n" +
+                    $"       s.display_order,\n" +
+                    $"       s.parent_id,\n" +
+                    $"       s.note\n" +
+                    $"  from {StaffSchema}.stf_site#v s\n" +
+                    $" where s.id = :id";
+                command.CommandText = SelectPartnerByIdSql;
+                command.Parameters.Add(new OracleParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    site = CreateSite(reader);
+                    _sites.Add(site);
+                }
+                reader.Close();
+            }
+            if (site != null && site != Site.Null && site != Site.Empty)
+                return site;
+            throw new SiteNotFoundException(id);
+        }
+        public Site[] GetSites()
+        {
+            var sites = new List<Site>();
+            return sites.ToArray();
         }
         #endregion
 
@@ -1172,7 +1237,7 @@ namespace TSLog.Yard.Data
                     $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
                     $"     where d.finish_date - d.start_date > 0\n" +
                     $"       and s.kind <> 'AUXILIARY'\n" +
-                    $"       and s.code = :site_code\n" +
+                    $"       and (:site_code is null or s.code = :site_code)\n" +
                     $"       and s.kind = 'GATE' -- Только ворота\n" +
                     $"       and e.id is not null\n" +
                     $" )\n" +
@@ -1189,7 +1254,7 @@ namespace TSLog.Yard.Data
                 command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("start_date", startDate));
                 command.Parameters.Add(new OracleParameter("finish_date", finishDate));
-                command.Parameters.Add(new OracleParameter("site_code", siteCode));
+                command.Parameters.Add(new OracleParameter("site_code", !string.IsNullOrWhiteSpace(siteCode) ? siteCode : DBNull.Value));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -1203,6 +1268,60 @@ namespace TSLog.Yard.Data
                     work.clippedFinishDate = Utils.DbValueToDateTime(reader["clipped_finish_date"]);
                     work.duration = Utils.DbValueToDouble(reader["duration"]);
                     work.clippedDuration = Utils.DbValueToDouble(reader["clipped_duration"]);
+                    works.Add(work);
+                }
+                reader.Close();
+            }
+            return works.ToArray();
+        }
+        public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode)
+        {
+            var works = new List<SiteWorker>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"with dates as (\n" +
+                    $"   select :start_date fact_work_start_date,\n" +
+                    $"          :finish_date fact_work_finish_date\n" +
+                    $"     from dual\n" +
+                    $"),\n" +
+                    $"data2 as (\n" +
+                    $"    select d.worker_id,\n" +
+                    $"           d.start_date, d.finish_date,\n" +
+                    $"           d.site_id,\n" +
+                    $"           d.partner_id\n" +
+                    $"      from dates dt\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works_wi(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $" left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"     where d.finish_date - d.start_date > 0\n" +
+                    $"       and s.kind <> 'AUXILIARY'\n" +
+                    $"       and (:site_code is null or s.code = :site_code)\n" +
+                    $"       and s.kind = 'GATE' -- Только ворота\n" +
+                    $"       and e.id is not null\n" +
+                    $" )\n" +
+                    $"    select d.worker_id,\n" +
+                    $"           d.site_id,\n" +
+                    $"           d.partner_id,\n" +
+                    $"           d.start_date, d.finish_date\n" +
+                    $"      from data2 d";
+
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("start_date", startDate));
+                command.Parameters.Add(new OracleParameter("finish_date", finishDate));
+                command.Parameters.Add(new OracleParameter("site_code", !string.IsNullOrWhiteSpace(siteCode) ? siteCode : DBNull.Value));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var siteId = Utils.DbValueToShort(reader["site_id"]);
+                    var site = GetSite(siteId);
+                    var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    var worker = GetEmployee(workerId);
+                    var partnerId = Utils.DbValueToString(reader["partner_id"]);
+                    var partner = GetPartner(partnerId);
+                    var workStartDate = Utils.DbValueToDateTime(reader["start_date"]);
+                    var workFinishDate = Utils.DbValueToDateTime(reader["finish_date"]);
+                    var work = new SiteWorker(site, partner, worker, workStartDate, workFinishDate);
                     works.Add(work);
                 }
                 reader.Close();

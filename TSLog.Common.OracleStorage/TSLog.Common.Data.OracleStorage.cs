@@ -29,6 +29,11 @@ namespace TSLog.Common.Data
             _dataSource = dataSource;
         }
 
+        /// <summary>
+        /// Подключиться к БД
+        /// </summary>
+        /// <param name="user">Имя пользователя БД</param>
+        /// <param name="password">Пароль пользователя БД</param>
         public void Connect(string user, SecureString password)
         {
             var stringBuilder = new OracleConnectionStringBuilder
@@ -42,6 +47,11 @@ namespace TSLog.Common.Data
             _connection.Open();
             stringBuilder.Clear();
         }
+        /// <summary>
+        /// Выполнить произвольный SQL код
+        /// </summary>
+        /// <param name="sql">SQL код</param>
+        /// <exception cref="ArgumentException"></exception>
         public void Execute(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -75,6 +85,17 @@ namespace TSLog.Common.Data
                 note);
             return entity;
         }
+        /// <summary>
+        /// Возвращает базовую сущность по идентификатору (с указанием SQL запроса и каталога каэша)
+        /// Сначала сущность ищется в кэше, в каталоге,
+        /// потом в БД по указанному SQL запросу
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <param name="sql">SQL запрос</param>
+        /// <param name="catalog">Каталог (кэш)</param>
+        /// <returns>Сущность</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Entity GetEntity(int id, string sql, Catalog<Entity> catalog = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -104,6 +125,18 @@ namespace TSLog.Common.Data
                 return entity;
             throw new EntityNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает базовую сущность по коду (с указанием SQL запроса и каталога каэша)
+        /// Сначала сущность ищется в кэше, в каталоге,
+        /// потом в БД по указанному SQL запросу
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <param name="sql">SQL запрос</param>
+        /// <param name="catalog">Каталог (кэш)</param>
+        /// <returns>Сущность</returns>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Entity GetEntity(string code, string sql, Catalog<Entity> catalog = null)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -135,6 +168,12 @@ namespace TSLog.Common.Data
                 return entity;
             throw new EntityNotFoundException(code);
         }
+        /// <summary>
+        /// Возвращает набор базовых сущностей из БД по указанному SQL запросу
+        /// </summary>
+        /// <param name="sql">SQL запрос</param>
+        /// <returns>Массив базовых сущностей</returns>
+        /// <exception cref="ArgumentException"></exception>
         public Entity[] GetEntities(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -175,10 +214,22 @@ namespace TSLog.Common.Data
                 category, isBasic, coefficient, isDefault, note);
             return measureUnit;
         }
+        /// <summary>
+        /// Возвращает единицу измерения по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Единица измерения</returns>
+        /// <exception cref="NotImplementedException"></exception>
         public MeasureUnit GetMeasureUnit(short id)
         {
             throw new NotImplementedException();
         }
+        /// <summary>
+        /// Возвращает единицу измерения по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Единица измерения</returns>
+        /// <exception cref="EntityNotFoundException"></exception>
         public MeasureUnit GetMeasureUnit(string code)
         {
             code = !string.IsNullOrWhiteSpace(code) ? code.Trim() : string.Empty;
@@ -209,6 +260,10 @@ namespace TSLog.Common.Data
                 return measureUnit;
             throw new EntityNotFoundException(code);
         }
+        /// <summary>
+        /// Возвращает набор единиц измерения
+        /// </summary>
+        /// <returns>Массив единиц измерения</returns>
         public MeasureUnit[] GetMeasureUnits()
         {
             var measureUnits = new List<MeasureUnit>();

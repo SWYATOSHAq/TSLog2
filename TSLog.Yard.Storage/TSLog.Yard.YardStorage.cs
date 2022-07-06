@@ -1,4 +1,5 @@
-﻿using TSLog.Common;
+﻿using TSLog.BossControl.BO;
+using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
@@ -442,6 +443,10 @@ namespace TSLog.Yard
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
         {
             return _oracleStorage.GetBossControlWorks(startDate, finishDate, siteCode);
+        }
+        public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode)
+        {
+            return _oracleStorage.GetSitesWorkers(startDate, finishDate, siteCode);
         }
         #endregion
 

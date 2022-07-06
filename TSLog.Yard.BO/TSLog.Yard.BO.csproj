@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TSLog.BossControl.BO\TSLog.BossControl.BO.csproj" />
     <ProjectReference Include="..\TSLog.Common.BO\TSLog.Common.BO.csproj" />
     <ProjectReference Include="..\TSLog.ExceptionHandler\TSLog.ExceptionHandler.csproj" />
     <ProjectReference Include="..\TSLog.Partners.BO\TSLog.Partners.BO.csproj" />

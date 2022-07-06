@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TSLog.BossControl.BO\TSLog.BossControl.BO.csproj" />
     <ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
     <ProjectReference Include="..\TSLog.Yard.OracleStorage\TSLog.Yard.OracleStorage.csproj" />
     <ProjectReference Include="..\TSLog.Yard.PgSqlStorage\TSLog.Yard.PgSqlStorage.csproj" />
