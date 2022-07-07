@@ -105,6 +105,10 @@ class WorkersPerfomanceReportPage {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         await this.createReport();
+
+        viewUtils.sortTable();
+        const workerTh = document.getElementById("worker-th");
+        workerTh.click();
     }
 }
 

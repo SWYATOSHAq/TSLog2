@@ -33,6 +33,7 @@ class BusyWorkersPage {
             }
         }
     }
+
     showSiteWorker(siteWorker) {
         const tr = document.createElement("tr");
 
@@ -81,7 +82,7 @@ class BusyWorkersPage {
         this.clearBusyWorkers();
         await this.getBusyWorkers();
         this.showBusyWorkers();
-        viewUtils.sortTable ();
+        viewUtils.sortTable();
     }
 }
 

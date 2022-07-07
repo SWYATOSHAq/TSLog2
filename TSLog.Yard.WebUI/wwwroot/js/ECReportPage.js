@@ -65,8 +65,10 @@ class ECReportPage {
     }
 
     clearReport() {
-        const elementsTbody = document.getElementById("report-tbody");
-        elementsTbody.replaceChildren();
+        const reportBody = document.getElementById("report-tbody");
+        const reportFooter = document.getElementById("report-footer");
+        reportBody.replaceChildren();
+        reportFooter.replaceChildren();
     }
 
     showReport() {
@@ -87,8 +89,17 @@ class ECReportPage {
         let avgHandlingMargin = 0.0;
         let avgTotalMargin = 0.0;
 
-        const tbody = document.getElementById("report-tbody");
+        let downtime = 0.0;
+        let downcost = 0.0;
+        const reportBody = document.getElementById("report-tbody");
+        const reportFooter = document.getElementById("report-footer");
         for (let element of this.data) {
+            if (element.partnerId === "DOWN") {
+                downtime = element.bcDuration;
+                downcost = element.bcCost;
+                continue;
+            }
+
             const tr = document.createElement("tr");
             //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
             //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")]);
@@ -103,7 +114,7 @@ class ECReportPage {
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.totalProfit)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.handlingMargin)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.totalMargin)]);
-            tbody.append(tr);
+            reportBody.append(tr);
 
             totalBcDuration += element.bcDuration;
             totalBcCost += element.bcCost;
@@ -113,26 +124,44 @@ class ECReportPage {
             totalBillingHandlingIncome += element.billingHandlingIncome;            
         }
         totalHandlingProfit = totalBillingHandlingIncome - totalBcCost;
-        totalTotalProfit = totalBillingTotalIncome - totalBcCost;
+        totalTotalProfit = totalBillingTotalIncome - totalBcCost - downcost; // Простои учтены ТОЛЬКО в общеё прибыли и в общей марже, в обработке не учтены.
         avgHandlingMargin = totalBillingHandlingIncome != 0.0 ? totalHandlingProfit / totalBillingHandlingIncome * 100.0 : 0.0;
         avgTotalMargin = totalBillingTotalIncome != 0.0 ? totalTotalProfit / totalBillingTotalIncome * 100.0 : 0.0;
 
-        const boldStyle = "font-weight: bold";
-        const tr = document.createElement("tr");
+        const boldStyleTitle = "font-weight: bold; width: 12%";
+        const boldStyleContent = "font-weight: bold; width: 8.8%";
+
+        // Выводим итог
+        let tr = document.createElement("tr");
         //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
         //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], ["Итого:"], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcDuration)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcCost)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingTotalIncome)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingStoreIncome)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingConsumablesIncome)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingHandlingIncome)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalHandlingProfit)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalTotalProfit)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgHandlingMargin)], boldStyle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgTotalMargin)], boldStyle);
-        tbody.append(tr);
+        viewUtils.createCell(tr, ["table-cell"], ["Итого:"], boldStyleTitle);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcDuration)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBcCost)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingTotalIncome)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingStoreIncome)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingConsumablesIncome)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalBillingHandlingIncome)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalHandlingProfit)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalTotalProfit)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgHandlingMargin)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgTotalMargin)], boldStyleContent);
+        reportFooter.append(tr);
+
+        // Выводим простои
+        tr = document.createElement("tr");
+        viewUtils.createCell(tr, ["table-cell"], ["Простои:"], boldStyleTitle);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(downtime)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(downcost)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        reportFooter.append(tr);
     }
 
     onChangeParameters() {        
@@ -154,7 +183,7 @@ class ECReportPage {
         history.pushState({}, null, url);
     }
 
-    onPartnersSpanClick() {        
+    onPartnersSpanClick(event) {        
         const partnersDiv = document.getElementById('partners-div');
         const partnersSpan = document.getElementById("partners-span");        
         const partnersUl = document.getElementById("partners-ul");
@@ -163,11 +192,17 @@ class ECReportPage {
             partnersSpan.style.cssText = "padding: 0; text-align: center; width: 240px; border-radius: 4px";
             partnersUl.style.cssText = "";
         }
-        else {
+        else {            
             partnersDiv.classList.add('visible');
             partnersSpan.style.cssText = "padding: 0; text-align: center; width: 240px; border-radius: 4px 4px 0 0";
             partnersUl.style.cssText = "border-radius: 0 0 4px 4px";
         }
+        event.stopPropagation();
+    }
+
+    onPageClick() {
+        const partnersDiv = document.getElementById('partners-div');
+        partnersDiv.classList.remove('visible');
     }
 
     onPartnerInputChange() {
@@ -177,6 +212,10 @@ class ECReportPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+    }
+
+    onPartnerInputClick(event) {
+        event.stopPropagation();
     }
 
     selectPartners(partnersIds) {
@@ -238,9 +277,14 @@ class ECReportPage {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         await this.createReport();
+
+        viewUtils.sortTable();
+        const partnerIdTh = document.getElementById("partner-id-th");
+        partnerIdTh.click();
     }
 }
 
 const ecReportPage = new ECReportPage();
 
 document.addEventListener('DOMContentLoaded', ecReportPage.show.bind(ecReportPage));
+document.onclick = ecReportPage.onPageClick.bind(ecReportPage);

@@ -815,6 +815,8 @@ namespace TSLog.Yard.Data
             employee.EmploymentDate = Utils.DbValueToDateTime(reader["employment_date"]);
             employee.DismissalDate = Utils.DbValueToDateTime(reader["dismissal_date"]);
 
+            employee.WorkMode = Utils.DbValueToString(reader["work_mode"]);
+
             //var departmentId = Utils.DbValueToInt(reader["department_id"]);
             //employee.Department = GetDepartment(departmentId);
 
@@ -849,6 +851,7 @@ namespace TSLog.Yard.Data
                     $"          e.phone_number, e.email,\n" +
                     $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
                     $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
                     $"          e.cost,\n" +
@@ -901,6 +904,7 @@ namespace TSLog.Yard.Data
                     $"          e.phone_number, e.email,\n" +
                     $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
                     $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
                     $"          e.cost,\n" +
@@ -945,6 +949,7 @@ namespace TSLog.Yard.Data
                     $"          e.phone_number, e.email,\n" +
                     $"          e.document_name, e.document_series, e.document_number, e.document_issue_date, e.document_issue_organization,\n" +
                     $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
                     $"          e.cost,\n" +
@@ -1057,6 +1062,7 @@ namespace TSLog.Yard.Data
                     $"          e.phone_number, e.email,\n" +
                     $"          e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
                     $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
                     $"          e.cost,\n" +
@@ -1096,6 +1102,7 @@ namespace TSLog.Yard.Data
                     $"          e.phone_number, e.email,\n" +
                     $"          e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
                     $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
                     $"          e.cost,\n" +
@@ -1136,6 +1143,7 @@ namespace TSLog.Yard.Data
                     $"          e.phone_number, e.email,\n" +
                     $"          e.document_name, e.document_series, e.document_number, document_issue_date, document_issue_organization,\n" +
                     $"          e.employment_date, e.dismissal_date,\n" +
+                    $"          e.work_mode,\n" +
                     $"          e.company_id,\n" +
                     $"          e.department_id,\n" +
                     $"          e.cost,\n" +
@@ -1274,6 +1282,13 @@ namespace TSLog.Yard.Data
             }
             return works.ToArray();
         }
+        /// <summary>
+        /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке (в виде объектов SiteWorker)
+        /// </summary>
+        /// <param name="startDate">Начальная дата (+ время)</param>
+        /// <param name="finishDate">Конечная дата (+ время)</param>
+        /// <param name="siteCode">Код участка</param>
+        /// <returns>Массив обхектов SiteWorker</returns>
         public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode)
         {
             var works = new List<SiteWorker>();
@@ -1630,6 +1645,7 @@ namespace TSLog.Yard.Data
         #endregion
 
         #region Reporting
+        private const int DefaultShiftLength = 12 * 60 * 60;
         public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
         {
             var lines = new List<dynamic>();
@@ -1789,6 +1805,86 @@ namespace TSLog.Yard.Data
             }
             return works.ToArray();
         }
+        /// <summary>
+        /// Функция определения планового времени работы и простоя персонала за период (во времени и в деньгах).
+        /// Период разбивается на смены по 12 часов.
+        /// Для каждой смены определяются работники, которые в течение смены отработали хотя бы 10% времени от смены.
+        /// Для всех таких работников определяется их общее время работы на смене и нормативное время смены.
+        /// Из нормативного времени смены вычитаем время работы сотрудника на смене - это и будет простой.
+        /// Все такие простои суммируем по всем работникам по всем сменам.
+        /// </summary>
+        /// <param name="fromDate">Дата начала периода</param>
+        /// <param name="toDate">Дата окончания периода</param>        
+        /// <param name="planTime">Плановое время</param>
+        /// <param name="planCost">Плановые затраты в деньгах</param>
+        /// <param name="downTime">Простои</param>
+        /// <param name="downCost">Потери из-за простоев в деньгах</param>
+        public void GetBcPlan(DateTime fromDate, DateTime toDate, 
+            out double planTime, out double planCost, out double downTime, out double downCost)
+        {
+            downTime = 0.0;
+            downCost = 0.0;
+            planTime = 0.0;
+            planCost = 0.0;
+            var shifts = Shift.GetShifts(fromDate, toDate);
+            foreach (var shift in shifts)
+            {
+                var k = (double)shift.Length / DefaultShiftLength;
+                using var command = _connection.CreateCommand();
+                command.BindByName = true;
+                var sql =
+                    $"   select d.worker_id,\n" +                    
+                    $"          d.start_date, d.finish_date\n" +
+                    $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"    where s.kind <> 'AUXILIARY' and emp.employee_id is not null";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("from_date", shift.From));
+                command.Parameters.Add(new OracleParameter("to_date", shift.To));
+                using var reader = command.ExecuteReader();
+                var planWorks = new Dictionary<int, double>();
+                var factWorks = new Dictionary<int, double>();
+                while (reader.Read())
+                {
+                    var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    if (!planWorks.ContainsKey(workerId))
+                    {
+                        var employee = GetEmployee(workerId);
+                        planWorks.Add(workerId, employee.ShiftLength * k);
+                    }
+                    var startTime = Utils.DbValueToDateTime(reader["start_date"]);
+                    var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
+                    if (!factWorks.ContainsKey(workerId))
+                        factWorks.Add(workerId, 0.0);
+                    var span = finishTime - startTime;
+                    factWorks[workerId] += (int)Math.Round(span.TotalSeconds);
+                }
+                reader.Close();
+                foreach (var workerId in planWorks.Keys)
+                {
+                    if (factWorks[workerId] / planWorks[workerId] < 0.1)
+                        continue;
+                    var workerDownTime = planWorks[workerId] - factWorks[workerId];
+                    if (workerDownTime <= 0.0)
+                        continue;
+
+                    var employee = GetEmployee(workerId);
+                    var cost = Math.Max(employee.MajorPosition.LaborHourCost, employee.Cost);
+                    planTime += planWorks[workerId];
+                    planCost += planWorks[workerId] / 60 / 60 * cost;
+                    downTime += workerDownTime;
+                    downCost += workerDownTime / 60 / 60 * cost;
+                }
+            }            
+        }
+        /// <summary>
+        /// Функция формирования отчёта о затратах/выручке за период
+        /// </summary>
+        /// <param name="fromDate">Дата (+ время) начала периода</param>
+        /// <param name="toDate">Дата (+ время) окончания периода</param>
+        /// <param name="partnersIds">Идентификаторы клиентов (мандантов)</param>
+        /// <returns>Данные отчёта</returns>
         public dynamic[] GetEcData(DateTime fromDate, DateTime toDate, string[] partnersIds)
         {
             var partners = GetPartners();
@@ -1807,6 +1903,7 @@ namespace TSLog.Yard.Data
             }
 
             var works = new List<dynamic>();
+            dynamic element;
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
@@ -1824,10 +1921,10 @@ namespace TSLog.Yard.Data
                     $"         sum(case when lower(bsd.bsd_name) like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) consumables_income,\n" +
                     $"         sum(case when bst.bst_doc_type != 'SYSTEM' and lower(bsd.bsd_name) not like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) handling_income,\n" +
                     $"         sum(bsl.bl_qty * bsl.bl_price) total_income\n" +
-                    $"    from ecco.bl_service_log bsl\n" +
-                    $"    --left join ecco.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
-                    $"    left join ecco.bl_services_def bsd on bsd.bsd_id = bsl.bl_bsd_id\n" +
-                    $"    left join ecco.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
+                    $"    from {CommonSchema}.bl_service_log bsl\n" +
+                    $"    --left join {CommonSchema}.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
+                    $"    left join {CommonSchema}.bl_services_def bsd on bsd.bsd_id = bsl.bl_bsd_id\n" +
+                    $"    left join {CommonSchema}.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
                     $"   where bsl.adddate between :start_date and :finish_date\n" +
                     (ids.Length <= 0 ? "" : $"         and bsl.bl_mndnr in ({ids.ToString()})\n") +
                     $"group by bsl.bl_mndnr\n" +
@@ -1835,7 +1932,7 @@ namespace TSLog.Yard.Data
                     $"),\n" +
                     $"data2 as (\n" +
                     $"   select emp.position_id, emp.position_name,\n" +
-                    $"          emp.cost position_cost, emp.cost_currency_code position_cost_currency_code,\n" +
+                    $"          emp.cost position_cost/*, emp.cost_currency_code position_cost_currency_code*/,\n" +
                     $"          d.worker_id, e.full_name worker_full_name,\n" +
                     $"          greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
                     $"          least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
@@ -1843,11 +1940,11 @@ namespace TSLog.Yard.Data
                     $"          d.site_id, s.name site_name,\n" +
                     $"          d.partner_id, par.name partner_name\n" +
                     $"     from dates dt\n" +
-                    $"cross join table(ecco.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
-                    $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                    $"left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
-                    $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
-                    $"left join ecco.par_partner#v par on d.partner_id = par.id\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"left join {PartnersSchema}.par_partner#v par on d.partner_id = par.id\n" +
                     $"    where d.finish_date - d.start_date > 0\n" +
                     $"      and s.kind <> 'AUXILIARY'\n" +
                     $"      and e.id is not null\n" +
@@ -1887,7 +1984,7 @@ namespace TSLog.Yard.Data
                     $"          'RUR' currency_code\n" +
                     $"     from data3 d\n" +
                     $"full join billind_data bd on d.partner_id = bd.partner_id\n" +
-                    $"left join ecco.par_partner#v par on nvl(d.partner_id, bd.partner_id) = par.id\n" +
+                    $"left join {PartnersSchema}.par_partner#v par on nvl(d.partner_id, bd.partner_id) = par.id\n" +
                     $"order by partner_id";
                 command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("start_date", fromDate));
@@ -1896,7 +1993,7 @@ namespace TSLog.Yard.Data
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    dynamic element = new ExpandoObject();
+                    element = new ExpandoObject();
                     element.partnerId = Utils.DbValueToString(reader["partner_id"]);
                     element.partnerName = Utils.DbValueToString(reader["partner_name"]);
                     element.bcDuration = Utils.DbValueToDouble(reader["bc_duration"]);
@@ -1914,6 +2011,16 @@ namespace TSLog.Yard.Data
                 }
                 reader.Close();
             }
+
+            // Определяем простои
+            GetBcPlan(fromDate, toDate, out double planTime, out double planCost, out double downTime, out double downCost);
+            element = new ExpandoObject();
+            element.partnerId = "DOWN";
+            element.partnerName = "Простои";
+            element.bcDuration = downTime / 60 / 60;
+            element.bcCost = downCost;            
+            works.Add(element);
+
             return works.ToArray();
         }
         #endregion

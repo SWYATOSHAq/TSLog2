@@ -540,8 +540,8 @@ namespace TSLog.BossControl.Data
                     $"       sw.partner_id, sw.partner_name,\n" +
                     $"       sw.last_date\n" +
                     $"  from {StaffSchema}.stf_free_worker#v sw\n" +
-                    "  where sw.last_date >= ecco.get_shift_start(0, sysdate) + 1 / 96\n" +
-                    "    and sw.last_date <= ecco.get_shift_finish(0, sysdate) + 1 / 96";
+                    $" where sw.last_date >= {StaffSchema}.get_shift_start(0, sysdate) + 1 / 96\n" +
+                    $"   and sw.last_date <= {StaffSchema}.get_shift_finish(0, sysdate) + 1 / 96";
                 command.CommandText = SelectPositionsSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -627,14 +627,14 @@ namespace TSLog.BossControl.Data
                     $"                       end) > 0 then 1\n" +
                     $"              else 0\n" +
                     $"          end rest_work\n" +
-                    $"     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
-                    $"                                       ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
-                    $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                    $"left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
-                    $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
-                    $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
-                    $"left join (select ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
-                    $"                  ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
+                    $"     from table({StaffSchema}.stf_get_all_works({StaffSchema}.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
+                    $"                                       {StaffSchema}.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
+                    $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"left join (select {StaffSchema}.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
+                    $"                  {StaffSchema}.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
                     $"           from dual) sh on 1 = 1\n" +
                     $"    where d.finish_date - d.start_date > 0\n" +
                     $"      and s.kind <> 'AUXILIARY'\n" +
@@ -650,7 +650,7 @@ namespace TSLog.BossControl.Data
                     $"          end losses,\n" +
                     $"          d.rest_work\n" +
                     $"     from data2 d\n" +
-                    $"left join ecco.stf_position#v p on d.worker_position_id = p.id\n" +
+                    $"left join {StaffSchema}.stf_position#v p on d.worker_position_id = p.id\n" +
                     $"    where p.is_linear = 1\n" +
                     $" group by d.worker_id, d.worker_full_name, d.worker_position_id, d.worker_position_name, d.rest_work\n" +
                     $" order by d.worker_position_id, d.worker_full_name";                
@@ -723,14 +723,14 @@ namespace TSLog.BossControl.Data
                         $"              when not (sh.shift_start + 9/24 >= d.finish_date or sh.shift_start + 9/24 + 35/60/24 <= d.start_date) then 1 -- 18:00 - 18:35\n" +
                         $"              else 0\n" +
                         $"          end rest_work\n" +
-                        $"     from table(ecco.stf_get_all_works(ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
-                        $"                                       ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
-                        $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                        $"left join ecco.stf_employee#v e on d.worker_id = e.id\n" +
-                        $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
-                        $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
-                        $"left join(select ecco.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
-                        $"                  ecco.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
+                        $"     from table({StaffSchema}.stf_get_all_works({StaffSchema}.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')),\n" +
+                        $"                                       {StaffSchema}.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')))) d\n" +
+                        $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                        $"left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                        $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
+                        $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                        $"left join(select {StaffSchema}.get_shift_start(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_start,\n" +
+                        $"                  {StaffSchema}.get_shift_finish(0, to_date(:report_date, 'DD.MM.YYYY HH24:MI:SS')) shift_finish\n" +
                         $"             from dual) sh on 1 = 1\n" +
                         $"    where d.finish_date - d.start_date > 0\n" +
                         $"      and s.kind <> 'AUXILIARY'\n" +
@@ -795,17 +795,17 @@ namespace TSLog.BossControl.Data
                     var sql = 
                         $"   select emp.employee_id, emp.employee_surname, emp.employee_first_name, emp.employee_patronymic,\n" +
                         $"          emp.position_id, emp.position_name,\n" +
-                        $"          emp.work_mode worker_work_mode, --Режим работы\n" +
+                        $"          emp.work_mode worker_work_mode, -- Режим работы\n" +
                         $"          case\n" +
                         $"              when emp.work_mode = '5/2-40' then 8.0\n" +
                         $"              when emp.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
                         $"              else 8.0\n" +
-                        $"          end worker_standard, --Нормы выработки\n" +
+                        $"          end worker_standard, -- Нормы выработки\n" +
                         $"          d.start_date, d.finish_date\n" +
-                        $"     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +
-                        $"left join ecco.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                        $"left join ecco.par_partner#v p on d.partner_id = p.id\n" +
-                        $"left join ecco.stf_site#v s on d.site_id = s.id\n" +
+                        $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
+                        $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                        $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
+                        $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
                         $"    where s.kind <> 'AUXILIARY' and emp.employee_id is not null\n" +
                         $" order by emp.position_id, emp.employee_id";
                     command.CommandText = sql;

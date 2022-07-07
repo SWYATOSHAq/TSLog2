@@ -65,7 +65,7 @@ class ViewUtils {
         }
     }
 
-    sortTable () {
+    sortTable() {
         function sortTableByColumn(table, column, asc = true) {
             const directionModifier = asc ? 1 : -1;
             const tBody = table.tBodies[0];
@@ -74,20 +74,18 @@ class ViewUtils {
             const sortedRows = rows.sort((a, b) => {
                 const aColText = a.querySelector(`td:nth-child(${ column + 1 })`).textContent.trim();
                 const bColText = b.querySelector(`td:nth-child(${ column + 1 })`).textContent.trim();
-
                 return aColText > bColText ? (1 * directionModifier) : (-1 * directionModifier);
-
             });
 
-            //Remove all existing TRs from the table
+            // Remove all existing TRs from the table
             while (tBody.firstChild) {
                 tBody.removeChild(tBody.firstChild);
             }
 
-            //Re-add the newly sorted rows
+            // Re-add the newly sorted rows
             tBody.append(...sortedRows);
 
-            //Remember how the column is currently sorted
+            // Remember how the column is currently sorted
             table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
             table.querySelector(`th:nth-child(${ column + 1})`).classList.toggle("th-sort-asc", asc);
             table.querySelector(`th:nth-child(${ column + 1})`).classList.toggle("th-sort-desc", !asc);

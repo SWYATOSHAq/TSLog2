@@ -45,14 +45,20 @@
         readonly="" />
     <div id="partners-div" 
         class="dropdown-check-list" 
-        style="position: absolute; margin-left: 34%; background-color: white">
+        style="position: absolute; margin-left: 32%; background-color: white">
         <span id="partners-span" class="anchor" style="padding: 0; text-align: center; width: 240px; border-radius: 4px">Выберите клиентов</span>
         <ul id="partners-ul" class="items">
             @foreach (var partner in partners)
             {
                 <li id="partner-@partner.Id-li" partnerId="@partner.Id">
-                    <input id="partner-@partner.Id-input" type="checkbox" onchange="ecReportPage.onPartnerInputChange()"/>
-                    @partner.Name
+                    <input id="partner-@partner.Id-input" 
+                        type="checkbox"                         
+                        style="margin-left: 5px"
+                        onchange="ecReportPage.onPartnerInputChange()"
+                        onclick="ecReportPage.onPartnerInputClick(event)"/>
+                    <label for="partner-@partner.Id-input"
+                        onclick="ecReportPage.onPartnerInputClick(event)"
+                        style="width: 90%">@partner.Name</label>                    
                 </li>    
             }
         </ul>
@@ -65,10 +71,31 @@
         type="button" 
         onclick="ecReportPage.createReport()">Применить</button>
 </div>
-<h3 id="report-header"
-    style="padding: 0; margin: 0; margin-top: 8px">Отчёт по затратам на персонал из БоссКонтроля</h3>
+<b id="report-header"
+    style="padding: 0; margin: 0; margin-top: 8px">Отчёт по затратам на персонал из БоссКонтроля</b>
+
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+        Порядок рассчёта:
+    </b>
+    1. суммируется всё отработанное время сотрудников за указанный период по каждому манданту;<br />
+    2. если сотрудник в смене работал менее 10% продолжительности смены, то это время НЕ УЧИТЫВАЕТСЯ<br />
+    &emsp;(это нужно что бы отсечь приходы до начала смены и уходы после окончания);<br />
+    3. простои учитыватся как плановое время работы сотрудников минус фактическое<br />
+    &emsp;(если сотрудник вышел на смену, то его плановое время на эту смену равно продолжительности смены);<br />
+    4. переработки в смене не учитываются (отрицательный простой не может быть);<br />
+    5. трудозатраты в деньгах считаются как отработанный часы сотрудника, умноженные на стоимость человекочаса данного сотрудника (его должности);<br />
+    6. простои в деньгах считаются аналогично пункту 5, но берётся время простоя того или иного сотрудника;<br />
+    7. Выручка (хранение, обработка, расходники) берётся из документов услух из системы Биллинг<br />
+    &emsp;(хранение, обработка, расходники - зависит от типа документа услуг, от названия);<br />
+    8. Маржинальный доход по обработке = Выручка по обработки - Трудозатраты из БК (в деньгах);<br />
+    9. Маржинальный доход ВСЕГО = Выручка ВСЕГО - Трудозатраты из БК (в деньгах) - Простои (в деньгах);<br />
+    10. Маржа по обработке = Маржинальный доход по обработке (пункт 8) / Выручку по обработке (из биллинга, в рублях);<br />
+    11. Маржинальный доход ВСЕГО = Маржинальный доход ВСЕГО (пункт 9) / Выручку ВСЕГО (из биллинга, в рублях).<br />            
+</div>
+
 <div style="padding: 0; margin-top: 8px;">
-    <table class="table table-light table-bordered table-striped"
+    <table class="table table-light table-bordered table-striped table-sortable"
         style="padding: 0; margin: 0">
         <thead class="thead-light">
             <tr>
@@ -76,20 +103,26 @@
                 <th class="table-header">Id манданта</th>                
                 <th class="table-header" style="width: 12%">Период с по</th>
                 -->
-                <th class="table-header" style="width: 12%">Мандант</th>
-                <th class="table-header">Время по БК (час.)</th>
-                <th class="table-header">Трудозатраты с налогами (руб.)</th>
-                <th class="table-header">Выручка Биллинг без НДС итого (руб.)</th>
-                <th class="table-header">Выручка хранение (руб.)</th>
-                <th class="table-header">Выручка расходники (руб.)</th>
-                <th class="table-header">Выручка обработка (руб.)</th>
-                <th class="table-header">Маржинальный доход обработка (руб.)</th>
-                <th class="table-header">Маржинальный доход итого (руб.)</th>
-                <th class="table-header">Маржа обработка (%)</th>
-                <th class="table-header">Маржа (%)</th>
+                <th id="partner-id-th" class="table-header datatype-text" style="width: 12%">Мандант</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Время по БК (час.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Трудозатраты с налогами (руб.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Выручка Биллинг без НДС итого (руб.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Выручка хранение (руб.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Выручка расходники (руб.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Выручка обработка (руб.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Маржинальный доход обработка (руб.)</th>
+                <th class="table-header datatype-integer" style="width: 8.8%">Маржинальный доход итого (руб.)</th>
+                <th class="table-header datatype-float" style="width: 8.8%">Маржа обработка (%)</th>
+                <th class="table-header datatype-float" style="width: 8.8%">Маржа (%)</th>
             </tr>
         </thead>
         <tbody id="report-tbody">
         </tbody>
+    </table>
+    <table class="table table-light table-bordered table-striped"
+        style="padding: 0; margin: 0">
+        <thead id="report-footer"
+            class="thead-light">            
+        </thead>
     </table>
 </div>
