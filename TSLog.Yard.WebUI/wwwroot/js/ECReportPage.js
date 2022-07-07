@@ -175,7 +175,9 @@ class ECReportPage {
         await this.getData(utils.getUrlParameter("from_date"),
             utils.getUrlParameter("to_date"),
             utils.getUrlParameter("partners_ids"));
-        this.showReport()
+        this.showReport();
+        const partnerIdTh = document.getElementById("partner-id-th");
+        partnerIdTh.click();
     }
 
     onChangeDate() {
@@ -276,11 +278,8 @@ class ECReportPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        await this.createReport();
-
         viewUtils.sortTable();
-        const partnerIdTh = document.getElementById("partner-id-th");
-        partnerIdTh.click();
+        await this.createReport();
     }
 }
 

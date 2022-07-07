@@ -63,7 +63,9 @@ class WorkersPerfomanceReportPage {
     async createReport() {
         this.clearReport();
         await this.getData(utils.getUrlParameter("from_date"), utils.getUrlParameter("to_date"));
-        this.showReport()
+        this.showReport();
+        const workerTh = document.getElementById("worker-th");
+        workerTh.click();
     }
 
     onChangeDate() {
@@ -104,11 +106,8 @@ class WorkersPerfomanceReportPage {
         
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        await this.createReport();
-
         viewUtils.sortTable();
-        const workerTh = document.getElementById("worker-th");
-        workerTh.click();
+        await this.createReport();                
     }
 }
 
