@@ -3,6 +3,7 @@
     Автор - Буров Михаил.
 */
 
+// Страница занятых сотрудников
 class BusyWorkersPage {
     shortUrl;
 

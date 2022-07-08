@@ -97,10 +97,11 @@ class Api {
     }
 
     // Формирование отчёта по персоналу за период
-    async createStaffReport(fromDate, toDate) {
+    async createStaffReport(fromDate, toDate, onlyLinear) {
         let url = "./api/v1/BossControl/StaffReport" +
             "?from_date=" + fromDate +
-            "&to_date=" + toDate;
+            "&to_date=" + toDate + 
+            "&only_linear=" + (onlyLinear ? "1" : "0");
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());

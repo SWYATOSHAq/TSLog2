@@ -3,6 +3,7 @@
     Автор - Буров Михаил.
 */
 
+// Страница отчёта о трудозатратах за смену
 class PositionsShiftReport {
     shortUrl;
 
