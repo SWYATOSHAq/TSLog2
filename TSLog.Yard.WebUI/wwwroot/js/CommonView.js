@@ -191,12 +191,12 @@ class ViewUtils {
             const bColText = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
 
             if (dataType === "float") {
-                const aValue = parseFloat(aColText.replace(" ", ""));
-                const bValue = parseFloat(bColText.replace(" ", ""));
+                const aValue = parseFloat(aColText.replaceAll(" ", ""));
+                const bValue = parseFloat(bColText.replaceAll(" ", ""));
                 return aValue > bValue ? (1 * directionModifier) : (-1 * directionModifier);
             } else if (dataType === "integer") {
-                const aValue = Number(aColText.replace(" ", ""));
-                const bValue = Number(bColText.replace(" ", ""));
+                const aValue = Number(aColText.replaceAll(" ", ""));
+                const bValue = Number(bColText.replaceAll(" ", ""));
                 return aValue > bValue ? (1 * directionModifier) : (-1 * directionModifier);
             }
             else {
@@ -220,38 +220,20 @@ class ViewUtils {
 
     // Сортировка таблицы
     sortTable() {
-        function sortTableByColumn(table, column, asc = true) {
-            const directionModifier = asc ? 1 : -1;
-            const tBody = table.tBodies[0];
-            const rows = Array.from(tBody.querySelectorAll("tr"));
-            //sort each row
-            const sortedRows = rows.sort((a, b) => {
-                const aColText = a.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
-                const bColText = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
-                return aColText > bColText ? (1 * directionModifier) : (-1 * directionModifier);
-            });
-
-            // Remove all existing TRs from the table
-            while (tBody.firstChild) {
-                tBody.removeChild(tBody.firstChild);
-            }
-
-            // Re-add the newly sorted rows
-            tBody.append(...sortedRows);
-
-            // Remember how the column is currently sorted
-            table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
-            table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-asc", asc);
-            table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
-        }
-
         document.querySelectorAll(".table-sortable th").forEach(headerCell => {
             headerCell.addEventListener("click", () => {
                 const tableElement = headerCell.parentElement.parentElement.parentElement;
                 const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
                 const currentIsAscending = headerCell.classList.contains("th-sort-asc");
 
-                sortTableByColumn(tableElement, headerIndex, !currentIsAscending);
+                let dataType = "text";
+                if (headerCell.classList.contains("datatype-integer")) {
+                    dataType = "integer";
+                } else if (headerCell.classList.contains("datatype-float")) {
+                    dataType = "float";
+                }
+
+                this.sortTableByColumn(tableElement, headerIndex, dataType, !currentIsAscending);
             });
         });
     }

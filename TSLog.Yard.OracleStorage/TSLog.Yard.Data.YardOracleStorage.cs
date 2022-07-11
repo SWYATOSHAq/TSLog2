@@ -1931,13 +1931,17 @@ namespace TSLog.Yard.Data
                     $"order by partner_id\n" +
                     $"),\n" +
                     $"data2 as (\n" +
-                    $"   select emp.position_id, emp.position_name,\n" +
-                    $"          emp.cost position_cost/*, emp.cost_currency_code position_cost_currency_code*/,\n" +
-                    $"          d.worker_id, e.full_name worker_full_name,\n" +
+                    $"   select case\n" +
+                    $"              when emp.is_linear = 1 then emp.cost\n" +
+                    $"              else 0\n" +
+                    $"          end position_cost,\n" +
+                    $"          d.worker_id,\n" +
                     $"          greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
                     $"          least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
-                    $"          least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) duration, -- Продолжительность\n" +
-                    $"          d.site_id, s.name site_name,\n" +
+                    $"          case\n" +
+                    $"              when emp.is_linear = 1 then least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date)\n" +
+                    $"              else 0\n" +
+                    $"          end duration, -- Продолжительность\n" +
                     $"          d.partner_id, par.name partner_name\n" +
                     $"     from dates dt\n" +
                     $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
@@ -1951,16 +1955,12 @@ namespace TSLog.Yard.Data
                     (ids.Length <= 0 ? "" : $"      and d.partner_id in ({ids.ToString()})\n") +
                     $" ),\n" +
                     $"data3 as (\n" +
-                    $"   select\n" +
-                    $"          --d.worker_id, d.worker_full_name, -- по людям\n" +
-                    $"          d.partner_id, d.partner_name,\n" +
+                    $"   select d.partner_id, d.partner_name,\n" +
                     $"          sum(duration * 24) total_duration,\n" +
                     $"          sum(d.position_cost * d.duration * 24) * 1.305 total_cost, 'RUR' total_cost_currency\n" +
                     $"     from data2 d\n" +
                     $" group by\n" +
                     $"          d.partner_id, d.partner_name\n" +
-                    $"          --d.worker_id, d.worker_full_name\n" +
-                    $" --order by d.position_id, d.worker_id, d.worker_full_name, d.start_date, d.finish_date\n" +
                     $")\n" +
                     $"   select nvl(d.partner_id, bd.partner_id) partner_id, par.name partner_name,\n" +
                     $"          round(nvl(d.total_duration, 0.0), 8) bc_duration, -- В часах\n" +
