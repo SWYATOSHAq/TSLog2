@@ -5,7 +5,7 @@ namespace TSLog.BossControl.WebUI.Pages
 {
     public class BusyWorkersModel : PageModel
     {
-        public readonly IBossControlStorage Storage;
+        public IBossControlStorage Storage { get; private set; }
         public BusyWorkersModel(IBossControlStorage storage)
         {
             Storage = storage;

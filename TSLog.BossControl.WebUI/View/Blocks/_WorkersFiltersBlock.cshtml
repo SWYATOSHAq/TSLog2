@@ -6,24 +6,34 @@
 @model WorkersFiltersBlockModel
 @{
     var storage = Model.Storage;
+    var filterBySite = Model.FilterBySite;
+    var filterByPartner = Model.FilterByPartner;
     var divClasses = "col-md-3 col-6 filter-div";
     var selectClasses = "form-select filter-select";
 
     var filterByWorker = true;
 
     var positions = storage.GetPositions();
-    PositionsModel? positionsModel = new PositionsModel(positions, string.Empty, true, true, string.Empty, divClasses, selectClasses);
+    var positionsModel = new PositionsModel(positions, string.Empty, true, true, string.Empty, divClasses, selectClasses);
 
     var companies = storage.GetCompanies();
-    CompaniesModel? companiesModel = new CompaniesModel(companies, string.Empty, true, true, string.Empty, divClasses, selectClasses);
+    var companiesModel = new CompaniesModel(companies, string.Empty, true, true, string.Empty, divClasses, selectClasses);
 
     var filterByWmsUser = true;
 
-    var sites = storage.GetSites();
-    SitesModel? sitesModel = new SitesModel(sites, string.Empty, true, true, string.Empty, divClasses, selectClasses);
+    SitesModel? sitesModel = null;
+    if (filterBySite)
+    {
+        var sites = storage.GetSites();
+        sitesModel = filterBySite ? new SitesModel(sites, string.Empty, true, true, string.Empty, divClasses, selectClasses) : null;
+    }
 
-    var partners = storage.GetPartners();
-    PartnersModel? partnersModel = new PartnersModel(partners, string.Empty, true, true, string.Empty, divClasses, selectClasses);;
+    PartnersModel? partnersModel = null;
+    if (filterByPartner)
+    {
+        var partners = storage.GetPartners();
+        partnersModel = new PartnersModel(partners, string.Empty, true, true, string.Empty, divClasses, selectClasses);;        
+    }
 }
 
 <div id="filters-div">

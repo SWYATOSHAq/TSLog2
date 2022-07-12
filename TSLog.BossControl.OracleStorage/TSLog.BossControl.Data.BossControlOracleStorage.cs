@@ -131,6 +131,27 @@ namespace TSLog.BossControl.Data
         public Site[] GetSites()
         {
             var sites = new List<Site>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select s.id," +
+                    $"       s.code,\n" +
+                    $"       s.kind,\n" +
+                    $"       s.name, s.short_name, s.alt_name, s.display_name,\n" +
+                    $"       s.is_active,\n" +
+                    $"       s.display_order,\n" +
+                    $"       s.parent_id,\n" +
+                    $"       s.note\n" +
+                    $"  from {StaffSchema}.stf_site#v s";
+                command.CommandText = SelectPartnerByIdSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var site = CreateSite(reader);
+                    sites.Add(site);
+                }
+                reader.Close();
+            }
             return sites.ToArray();
         }
         #endregion
@@ -196,6 +217,20 @@ namespace TSLog.BossControl.Data
         public Partner[] GetPartners()
         {
             var partners = new List<Partner>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select p.id, p.name, p.display_order\n" +
+                    $"  from {PartnersSchema}.par_partner#v p";
+                command.CommandText = SelectPartnerByIdSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var partner = CreatePartner(reader);
+                    partners.Add(partner);
+                }
+                reader.Close();
+            }
             return partners.ToArray();
         }
         #endregion
@@ -268,6 +303,24 @@ namespace TSLog.BossControl.Data
         public LegalEntity[] GetCompanies()
         {
             var companies = new List<LegalEntity>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"select le.id,\n" +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name,\n" +
+                    $"       le.is_active, le.display_order,\n" +
+                    $"       le.note\n" +
+                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le\n" +
+                    $" where upper(trim(le.id)) in (select distinct e.company_id  from {StaffSchema}.stf_employee#v e)";
+                command.CommandText = sql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var company = CreateLegalEntity(reader);
+                    companies.Add(company);
+                }
+                reader.Close();
+            }
             return companies.ToArray();
         }
         #endregion

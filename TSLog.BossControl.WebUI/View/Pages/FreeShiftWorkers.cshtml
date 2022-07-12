@@ -1,10 +1,15 @@
 ﻿@page "/FreeShiftWorkers"
+@using TSLog.BossControl.WebUI.Models
+
 @model TSLog.BossControl.WebUI.Pages.FreeWorkersModel
 @{
     ViewData["Title"] = "Свободные сотрудники на смене";
+    var storage = Model.Storage;    
+    var workersFiltersBlockModel = new WorkersFiltersBlockModel(storage);
 }
 
 <div>
+    <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />
     <b>Свободные сотрудники</b>
     <table class="table table-light table-bordered table-striped free-workers-table table-sortable" style="margin: 0; padding: 0">
         <thead>
