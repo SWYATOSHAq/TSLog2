@@ -86,6 +86,12 @@ namespace TSLog.BossControl.Data
                 note);
             return site;
         }
+        /// <summary>
+        /// Возвращает участок работ по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Участок работ</returns>
+        /// <exception cref="SiteNotFoundException"></exception>
         public Site GetSite(short id)
         {
             var site = _sites[id];
@@ -118,9 +124,34 @@ namespace TSLog.BossControl.Data
                 return site;
             throw new SiteNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает все участки работ
+        /// </summary>
+        /// <returns>Массив участков работ</returns>
         public Site[] GetSites()
         {
             var sites = new List<Site>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select s.id," +
+                    $"       s.code,\n" +
+                    $"       s.kind,\n" +
+                    $"       s.name, s.short_name, s.alt_name, s.display_name,\n" +
+                    $"       s.is_active,\n" +
+                    $"       s.display_order,\n" +
+                    $"       s.parent_id,\n" +
+                    $"       s.note\n" +
+                    $"  from {StaffSchema}.stf_site#v s";
+                command.CommandText = SelectPartnerByIdSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var site = CreateSite(reader);
+                    sites.Add(site);
+                }
+                reader.Close();
+            }
             return sites.ToArray();
         }
         #endregion
@@ -144,6 +175,13 @@ namespace TSLog.BossControl.Data
                 displayOrder);
             return partner;
         }
+        /// <summary>
+        /// Возвращает партнёра (манданта)
+        /// </summary>
+        /// <param name="id">Идентификатор партнёра (манданта)</param>
+        /// <returns>Партнёр (мандант)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="PartnerNotFoundException"></exception>
         public Partner GetPartner(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -172,9 +210,27 @@ namespace TSLog.BossControl.Data
                 return partner;
             throw new PartnerNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает ВСЕХ партнёров (мандантов)
+        /// </summary>
+        /// <returns>Массив партнёров (мандантов)</returns>
         public Partner[] GetPartners()
         {
             var partners = new List<Partner>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select p.id, p.name, p.display_order\n" +
+                    $"  from {PartnersSchema}.par_partner#v p";
+                command.CommandText = SelectPartnerByIdSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var partner = CreatePartner(reader);
+                    partners.Add(partner);
+                }
+                reader.Close();
+            }
             return partners.ToArray();
         }
         #endregion
@@ -202,6 +258,13 @@ namespace TSLog.BossControl.Data
                 note);
             return legalEntity;
         }
+        /// <summary>
+        /// Возвращает юридическое лицо по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Юридическое лицо</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="LegalEntityNotFoundException"></exception>
         public LegalEntity GetLegalEntity(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -233,9 +296,31 @@ namespace TSLog.BossControl.Data
                 return legalEntity;
             throw new LegalEntityNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает ВСЕХ юридических лиц
+        /// </summary>
+        /// <returns>Массив юридических лиц</returns>
         public LegalEntity[] GetCompanies()
         {
             var companies = new List<LegalEntity>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"select le.id,\n" +
+                    $"       le.name, le.short_name, le.alt_name, le.display_name,\n" +
+                    $"       le.is_active, le.display_order,\n" +
+                    $"       le.note\n" +
+                    $"  from {LegalEntitiesSchema}.le_legal_entity#v le\n" +
+                    $" where upper(trim(le.id)) in (select distinct e.company_id  from {StaffSchema}.stf_employee#v e)";
+                command.CommandText = sql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var company = CreateLegalEntity(reader);
+                    companies.Add(company);
+                }
+                reader.Close();
+            }
             return companies.ToArray();
         }
         #endregion
@@ -273,6 +358,12 @@ namespace TSLog.BossControl.Data
             position.LaborHourCostCurrency = GetMeasureUnit(costCurrencyCode);
             return position;
         }
+        /// <summary>
+        /// Возвращает должность по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Должность</returns>
+        /// <exception cref="PositionNotFoundException"></exception>
         public Position GetPosition(short id)
         {
             id = id > 0 ? id : (short)-1;
@@ -305,6 +396,13 @@ namespace TSLog.BossControl.Data
                 return position;
             throw new PositionNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает должность по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <returns>Должность</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="PositionNotFoundException"></exception>
         public Position GetPosition(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -339,6 +437,10 @@ namespace TSLog.BossControl.Data
                 return position;
             throw new PositionNotFoundException(code);
         }
+        /// <summary>
+        /// Возвращает ВСЕ должность
+        /// </summary>
+        /// <returns>Массив должностей</returns>
         public Position[] GetPositions()
         {
             var positions = new List<Position>();
@@ -419,6 +521,12 @@ namespace TSLog.BossControl.Data
 
             return employee;
         }
+        /// <summary>
+        /// Возвращает сотрудника по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Сотрудник</returns>
+        /// <exception cref="EmployeeNotFoundException"></exception>
         public Employee GetEmployee(int id)
         {
             id = id > 0 ? id : 0;
@@ -480,6 +588,10 @@ namespace TSLog.BossControl.Data
             var siteWorker = new SiteWorker(site, partner, worker, startDate);
             return siteWorker;
         }
+        /// <summary>
+        /// Возвращает занятых работников
+        /// </summary>
+        /// <returns>Массив занятых работников (с участком работы и с партнёром)</returns>
         public SiteWorker[] GetBusyWorkers()
         {
             var siteWorkers = new List<SiteWorker>();
@@ -505,6 +617,10 @@ namespace TSLog.BossControl.Data
             siteWorkers.Sort();
             return siteWorkers.ToArray();
         }
+        /// <summary>
+        /// Возвращает свободных работников
+        /// </summary>
+        /// <returns>Массив свободных работников</returns>
         public Employee[] GetFreeWorkers()
         {
             var workers = new List<Employee>();
@@ -527,6 +643,10 @@ namespace TSLog.BossControl.Data
             }
             return workers.ToArray();
         }
+        /// <summary>
+        /// Возвращает свободных работников, которые работали в текущей смене
+        /// </summary>
+        /// <returns>Массив работников</returns>
         public SiteWorker[] GetFreeShiftWorkers()
         {
             var siteWorkers = new List<SiteWorker>();
@@ -554,6 +674,14 @@ namespace TSLog.BossControl.Data
             siteWorkers.Sort();
             return siteWorkers.ToArray();
         }
+        /// <summary>
+        /// Поступить на участок
+        /// </summary>
+        /// <param name="worker">Сотрудник</param>
+        /// <param name="site">Участок</param>
+        /// <param name="partner">Партнёр (мандант)</param>
+        /// <param name="note">Примечания и комментарии на естественном языке</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void EnterSite(Employee worker, Site site, Partner partner, string note = "")
         {
             if (worker == null)
@@ -579,6 +707,11 @@ namespace TSLog.BossControl.Data
             command.Parameters.Add(new OracleParameter("note", string.IsNullOrWhiteSpace(note) ? DBNull.Value : note.Trim()));
             command.ExecuteScalar();
         }
+        /// <summary>
+        /// Покинуть участок
+        /// </summary>
+        /// <param name="worker">Сотрудник</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void LeaveSite(Employee worker)
         {
             if (worker == null)
@@ -775,7 +908,14 @@ namespace TSLog.BossControl.Data
             }
             return data.Values.ToArray();
         }
-        public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate)
+        /// <summary>
+        /// Сформировать отчёт по сотрудникам за период
+        /// </summary>
+        /// <param name="fromDate">Дата начала периода (+ время)</param>
+        /// <param name="toDate">Дата окончания периода (+ время)</param>
+        /// <param name="onlyLinear">Признак "только линейный персонал"</param>
+        /// <returns>Данные отчёта</returns>
+        public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate, bool onlyLinear = true)
         {
             // Подготовительная часть, берём данные из БД,
             // группируем по сменам работников, с указанием отработанного времени
@@ -803,10 +943,11 @@ namespace TSLog.BossControl.Data
                         $"          end worker_standard, -- Нормы выработки\n" +
                         $"          d.start_date, d.finish_date\n" +
                         $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
-                        $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                        $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +         
                         $"left join {StaffSchema}.par_partner#v p on d.partner_id = p.id\n" +
                         $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
                         $"    where s.kind <> 'AUXILIARY' and emp.employee_id is not null\n" +
+          (onlyLinear ? $"      and emp.is_linear = 1\n" : "") +
                         $" order by emp.position_id, emp.employee_id";
                     command.CommandText = sql;
                     command.Parameters.Add(new OracleParameter("from_date", shift.From));
@@ -826,7 +967,7 @@ namespace TSLog.BossControl.Data
                     reader.Close();
                     shiftData.workers = workers;
                 }                
-                var key = $"{shift.From.ToString("yyyy.MM.dd HH.mm.ss")}-{shift.To.ToString("yyyy.MM.dd HH.mm.ss")}";                
+                var key = $"{shift.From:yyyy.MM.dd HH.mm.ss}-{shift.To:yyyy.MM.dd HH.mm.ss}";                
                 shiftsData.Add(key, shiftData);
             }
 
@@ -857,21 +998,30 @@ namespace TSLog.BossControl.Data
                         worker.shiftLength = employee.ShiftLength * shiftData.k;
                         worker.laborCost = employee.Cost;
                         worker.laborCostCurrencyCode = employee.CostMeasureUnit.Code;
-                        worker.planWorkTime = 0;
-                        worker.factWorkTime = 0;
+                        worker.planTime = 0;
+                        worker.factTime = 0;
                         worker.planCost = 0.0;
                         worker.factCost = 0.0;
+                        worker.downTime = 0.0;
+                        worker.downCost = 0.0;
                         employees.Add(workerId, worker);
                     }
-                    employees[workerId].planWorkTime += employees[workerId].shiftLength;
-                    employees[workerId].factWorkTime += shiftWorkers[workerId];
+                    employees[workerId].planTime += employees[workerId].shiftLength;
+                    employees[workerId].factTime += shiftWorkers[workerId];
                     employees[workerId].planCost += (double)employees[workerId].shiftLength / 60 / 60 * employees[workerId].laborCost;
                     employees[workerId].factCost += (double)shiftWorkers[workerId] / 60 / 60 * employees[workerId].laborCost;
                 }
             }
             var positions = new Dictionary<short, dynamic>();
-            foreach (var employee in employees.Values)
+            var sortedEmployees = employees.Values.ToArray();
+            
+            Array.Sort(sortedEmployees, 
+                (employee1, employee2) => ((string)(employee1.surname + employee1.firstName + employee1.patronymic)).CompareTo(employee2.surname + employee2.firstName + employee2.patronymic));
+            foreach (var employee in sortedEmployees)
             {
+                employee.downTime += employee.planTime - employee.factTime > 0.0 ? employee.planTime - employee.factTime : 0.0;
+                employee.downCost += employee.planCost - employee.factCost > 0.0 ? employee.planCost - employee.factCost : 0.0;
+
                 short positionId = employee.positionId;
                 if (!positions.ContainsKey(employee.positionId))
                 {                    
@@ -880,21 +1030,29 @@ namespace TSLog.BossControl.Data
                     positionElement.id = positionId;
                     positionElement.code = position.Code;
                     positionElement.name = position.Name;
-                    positionElement.planWorkTime = 0;
-                    positionElement.factWorkTime = 0;
+                    positionElement.planTime = 0;
+                    positionElement.factTime = 0;
                     positionElement.planCost = 0.0;
                     positionElement.factCost = 0.0;
+                    positionElement.downTime = 0.0;
+                    positionElement.downCost = 0.0;
                     positionElement.employees = new List<dynamic>();
                     positions.Add(positionId, positionElement);
                 }
-                positions[positionId].planWorkTime += employee.planWorkTime;
-                positions[positionId].factWorkTime += employee.factWorkTime;
+                positions[positionId].planTime += employee.planTime;
+                positions[positionId].factTime += employee.factTime;
                 positions[positionId].planCost += employee.planCost;
                 positions[positionId].factCost += employee.factCost;
+                positions[positionId].downTime += employee.downTime;
+                positions[positionId].downCost += employee.downCost;
+
                 var positionEmployees = (List<dynamic>)positions[employee.positionId].employees;
                 positionEmployees.Add(employee);
             }
-            return positions.Values.ToArray();
+
+            var sortedPositions = positions.Values.ToArray();
+            Array.Sort(sortedPositions, (position1, position2) => ((string)position1.name).CompareTo(position2.name));
+            return sortedPositions;
         }
         #endregion
     }

@@ -144,8 +144,9 @@
         <tbody>
             @foreach (var gate in gates)
             {
+                var gateName = gate != null && gate != Gate.Null && gate != Gate.Empty ? gate.DisplayName : "<Не указаны>";
                 <tr>
-                    <td class="text-right">@gate.DisplayName</td>
+                    <td class="text-right">@gateName</td>
                     <td class="gates-plan-table-cell">@data[gate]</td>
                 </tr>
             }

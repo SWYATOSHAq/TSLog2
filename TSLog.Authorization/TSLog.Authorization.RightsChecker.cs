@@ -68,7 +68,11 @@ namespace TSLog.Authorization
                     reader.Read();
             }
         }
-        public void GetRights(string fileName)
+        /// <summary>
+        /// Загружает права из *.xml файла
+        /// </summary>
+        /// <param name="fileName">Имя *.xml файла</param>
+        public void LoadRights(string fileName)
         {
             _roles.Clear();
             using var reader = XmlReader.Create(fileName);
@@ -86,7 +90,11 @@ namespace TSLog.Authorization
             }
             reader.Close();
         }
-        public void GetUserPartners(string fileName)
+        /// <summary>
+        /// Загружает информацию о партнёрский (клиентских) пользователях из *.xml файла
+        /// </summary>
+        /// <param name="fileName">Имя *.xml файла</param>
+        public void LoadUserPartners(string fileName)
         {
             _users.Clear();
             using var reader = XmlReader.Create(fileName);

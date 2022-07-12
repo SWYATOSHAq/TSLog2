@@ -87,6 +87,15 @@ namespace TSLog.Common.Data
                 note);
             return entity;
         }
+        /// <summary>
+        /// Возвращает сущность по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <param name="sql">SQL запрос для получения сущности</param>
+        /// <param name="catalog">Каталог для поиска сущости в кэше</param>
+        /// <returns>Сущность</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
@@ -120,6 +129,15 @@ namespace TSLog.Common.Data
                 return entity;
             throw new EntityNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает сущность по коду
+        /// </summary>
+        /// <param name="code">Код</param>
+        /// <param name="sql">SQL запрос для получеия сущности</param>
+        /// <param name="catalog">Каталог для поиска сущности в кэше</param>
+        /// <returns>Сущность</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
         public Entity GetEntity(string code, string sql, Catalog<Entity>? catalog = null)
         {
             if (string.IsNullOrWhiteSpace(code))

@@ -71,6 +71,12 @@ namespace TSLog.Yard.Data
 
             return product;
         }
+        /// <summary>
+        /// Возвращает товар по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Товар</returns>
+        /// <exception cref="ProductNotFoundException"></exception>
         public Product GetProduct(string id)
         {
             id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
@@ -93,6 +99,12 @@ namespace TSLog.Yard.Data
                 return product;
             throw new ProductNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает товар по GTIN (EAN) номеру
+        /// </summary>
+        /// <param name="gtin">GTIN (EAN) номер</param>
+        /// <returns>Товар</returns>
+        /// <exception cref="ProductNotFoundException"></exception>
         public Product GetProductByGtin(string gtin)
         {
             gtin = !string.IsNullOrWhiteSpace(gtin) ? gtin.Trim() : string.Empty;
@@ -115,6 +127,14 @@ namespace TSLog.Yard.Data
                 Products.Add(product);
             throw new ProductNotFoundException(gtin);
         }
+        /// <summary>
+        /// Возвращает товар по идентификатору в системе партнёра (клиента)
+        /// </summary>
+        /// <param name="partner">Партнёр (клиент)</param>
+        /// <param name="partnerProductId">Идентификатор в системе партнёра</param>
+        /// <returns>Товар</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public Product GetProduct(Partner partner, string partnerProductId)
         {
             if (partner == null)
@@ -123,6 +143,11 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("partner product id is empty");
             return Product.Null;
         }
+        /// <summary>
+        /// Возвращает ВСЕ товраы, которые относятся к указанным мандантам (клиентам), если не указан ни один клиент, то возвращает вообще ВСЕ товары
+        /// </summary>
+        /// <param name="partners">Клиенты (манданты)</param>
+        /// <returns>Массиы товаров</returns>
         public Product[] GetProducts(Partner[]? partners = null)
         {
             var products = new List<Product>();
@@ -591,6 +616,12 @@ namespace TSLog.Yard.Data
                 note);
             return site;
         }
+        /// <summary>
+        /// Возвращает участок работ по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Учаток работ</returns>
+        /// <exception cref="SiteNotFoundException"></exception>
         public Site GetSite(short id)
         {
             var site = _sites[id];
@@ -623,9 +654,34 @@ namespace TSLog.Yard.Data
                 return site;
             throw new SiteNotFoundException(id);
         }
+        /// <summary>
+        /// Возвращает ВСЕ участки работ
+        /// </summary>
+        /// <returns>Массив участков работ</returns>
         public Site[] GetSites()
         {
             var sites = new List<Site>();
+            using (var command = _connection.CreateCommand())
+            {
+                var SelectPartnerByIdSql =
+                    $"select s.id," +
+                    $"       s.code,\n" +
+                    $"       s.kind,\n" +
+                    $"       s.name, s.short_name, s.alt_name, s.display_name,\n" +
+                    $"       s.is_active,\n" +
+                    $"       s.display_order,\n" +
+                    $"       s.parent_id,\n" +
+                    $"       s.note\n" +
+                    $"  from {StaffSchema}.stf_site#v s";
+                command.CommandText = SelectPartnerByIdSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var site = CreateSite(reader);
+                    sites.Add(site);
+                }
+                reader.Close();
+            }
             return sites.ToArray();
         }
         #endregion
@@ -751,6 +807,11 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(reader));
             return new Shift(-1, DateTime.Today, DateTime.Today, "I");
         }
+        /// <summary>
+        /// Возвращает тип (номер) смены, которая попадает на указанный момент времени
+        /// </summary>
+        /// <param name="date">Дата (+ время)</param>
+        /// <returns>Номер смены</returns>
         private string? GetShiftKind(DateTime? date = null)
         {
             var shift = DefaultShift;
@@ -766,10 +827,20 @@ namespace TSLog.Yard.Data
             }
             return shift;
         }
+        /// <summary>
+        /// Возвращает конкретную рабочую смену по идентификатору
+        /// </summary>
+        /// <param name="id">Идентификатор</param>
+        /// <returns>Рабочая смена</returns>
         public Shift GetShift(int id)
         {
             return new Shift(id, DateTime.Today, DateTime.Today, "I"); ;
         }
+        /// <summary>
+        /// Возвращает конкретную рабочую смену по попаданию в эту смену указанного момента времени
+        /// </summary>
+        /// <param name="date">Дата (+ время)</param>
+        /// <returns>Конкретная рабочая смена</returns>
         public Shift GetShift(DateTime date)
         {
             return new Shift(-1, date, date, "I");
@@ -1646,6 +1717,12 @@ namespace TSLog.Yard.Data
 
         #region Reporting
         private const int DefaultShiftLength = 12 * 60 * 60;
+        /// <summary>
+        /// Возвщает трудозатраты по БоссКотролю за период
+        /// </summary>
+        /// <param name="fromDate">Дата начала периода (+ время)</param>
+        /// <param name="toDate">Дата окончания периода (+ время)</param>
+        /// <returns>Массив объектов (мандант, должность, количество работников, трудозатраты)</returns>
         public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
         {
             var lines = new List<dynamic>();
@@ -1690,6 +1767,11 @@ namespace TSLog.Yard.Data
             }
             return lines.ToArray();
         }
+        /// <summary>
+        /// Возвращает трудозатраты за смену
+        /// </summary>
+        /// <param name="date">Дата, по которой определяется смена (попадание даты в смену)</param>
+        /// <returns>Массив объектов (должность, нормативное время работы, фактическое время работы)</returns>
         public dynamic[] GetBcShiftLabocCosts(DateTime date)
         {
             var lines = new List<dynamic>();
@@ -1743,7 +1825,14 @@ namespace TSLog.Yard.Data
             }
             return lines.ToArray();
         }
-        public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode)
+        /// <summary>
+        /// Возвращает промежутки работ по БоссКонтролю
+        /// </summary>
+        /// <param name="fromDate">Дата начала периода (+ время)</param>
+        /// <param name="toDate">Дата окочания периода (+ время)</param>
+        /// <param name="siteCode">Код участка</param>
+        /// <returns>Массив объектов (работник, должность, дата и время начала работы, дата и время окончания работы)</returns>
+        public dynamic[] GetBcWorks(DateTime fromDate, DateTime toDate, string siteCode)
         {
             var works = new List<dynamic>();
             using (var command = _connection.CreateCommand())
@@ -1931,13 +2020,17 @@ namespace TSLog.Yard.Data
                     $"order by partner_id\n" +
                     $"),\n" +
                     $"data2 as (\n" +
-                    $"   select emp.position_id, emp.position_name,\n" +
-                    $"          emp.cost position_cost/*, emp.cost_currency_code position_cost_currency_code*/,\n" +
-                    $"          d.worker_id, e.full_name worker_full_name,\n" +
+                    $"   select case\n" +
+                    $"              when emp.is_linear = 1 then emp.cost\n" +
+                    $"              else 0\n" +
+                    $"          end position_cost,\n" +
+                    $"          d.worker_id,\n" +
                     $"          greatest(d.start_date, dt.fact_work_start_date) start_date,\n" +
                     $"          least(d.finish_date, dt.fact_work_finish_date) finish_date,\n" +
-                    $"          least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) duration, -- Продолжительность\n" +
-                    $"          d.site_id, s.name site_name,\n" +
+                    $"          case\n" +
+                    $"              when emp.is_linear = 1 then least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date)\n" +
+                    $"              else 0\n" +
+                    $"          end duration, -- Продолжительность\n" +
                     $"          d.partner_id, par.name partner_name\n" +
                     $"     from dates dt\n" +
                     $"cross join table({StaffSchema}.stf_get_all_works(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
@@ -1951,16 +2044,12 @@ namespace TSLog.Yard.Data
                     (ids.Length <= 0 ? "" : $"      and d.partner_id in ({ids.ToString()})\n") +
                     $" ),\n" +
                     $"data3 as (\n" +
-                    $"   select\n" +
-                    $"          --d.worker_id, d.worker_full_name, -- по людям\n" +
-                    $"          d.partner_id, d.partner_name,\n" +
+                    $"   select d.partner_id, d.partner_name,\n" +
                     $"          sum(duration * 24) total_duration,\n" +
                     $"          sum(d.position_cost * d.duration * 24) * 1.305 total_cost, 'RUR' total_cost_currency\n" +
                     $"     from data2 d\n" +
                     $" group by\n" +
                     $"          d.partner_id, d.partner_name\n" +
-                    $"          --d.worker_id, d.worker_full_name\n" +
-                    $" --order by d.position_id, d.worker_id, d.worker_full_name, d.start_date, d.finish_date\n" +
                     $")\n" +
                     $"   select nvl(d.partner_id, bd.partner_id) partner_id, par.name partner_name,\n" +
                     $"          round(nvl(d.total_duration, 0.0), 8) bc_duration, -- В часах\n" +

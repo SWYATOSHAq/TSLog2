@@ -206,4 +206,18 @@ namespace TSLog.Staff.BO
             }
         }
     }
+
+    public class EmployeeesFullNameComparer: IComparer<Employee>
+    {
+        public int Compare(Employee? employee1, Employee? employee2)
+        {
+            if (employee1 == null && employee2 == null)
+                return 0;
+            else if (employee1 == null)
+                return 1;
+            else if (employee2 == null)
+                return -1;
+            return employee1.FullName.CompareTo(employee2.FullName);
+        }
+    }
 }

@@ -2413,14 +2413,17 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     string partnerIds = operation.partnerIds;
                     var ids = partnerIds.Split(",");
                     var partnerNames = string.Empty;
+                    var partners = new HashSet<string>();
                     foreach (var id in ids)
                     {
-                        if (!string.IsNullOrWhiteSpace(id))
+                        var tempId = id.Trim();
+                        if (!string.IsNullOrWhiteSpace(tempId) && !partners.Contains(tempId))
                         {
-                            var partner = _storage.GetPartner(id.Trim());
+                            var partner = _storage.GetPartner(tempId);
                             if (partnerNames.Length > 0)
                                 partnerNames = partnerNames += ", ";
                             partnerNames += partner.Name;
+                            partners.Add(tempId);
                         }
                     }
                     operation.partnerNames = partnerNames;

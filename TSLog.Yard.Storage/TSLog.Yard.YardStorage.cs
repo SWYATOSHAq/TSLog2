@@ -477,7 +477,7 @@ namespace TSLog.Yard
         }
         public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode)
         {
-            return _oracleStorage.GetBcPerfomanceData(fromDate, toDate, siteCode);
+            return _oracleStorage.GetBcWorks(fromDate, toDate, siteCode);
         }
         public dynamic[] GetEcData(DateTime fromDate, DateTime toDate, string[] partnersIds)
         {

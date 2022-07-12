@@ -143,51 +143,86 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
         [HttpGet("BusyWorkers")]
         public string GetBusyWorkers()
         {
-            var siteWorkers = _storage.GetBusyWorkers();
-            var objects = SiteWorkersToDynamic(siteWorkers);
-            var text = JsonSerializer.Serialize(objects);
-            return text;
+            try
+            {
+                Response.StatusCode = 200;
+                var siteWorkers = _storage.GetBusyWorkers();
+                var objects = SiteWorkersToDynamic(siteWorkers);
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
         }
         [HttpGet("FreeWorkers")]
         public string GetFreeWorkers()
         {
-            var workers = _storage.GetFreeWorkers();
-            var objects = WorkersToDynamic(workers);
-            var text = JsonSerializer.Serialize(objects);
-            return text;
+            try
+            {
+                Response.StatusCode = 500;
+                var workers = _storage.GetFreeWorkers();
+                var objects = WorkersToDynamic(workers);
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
         }
         [HttpGet("FreeShiftWorkers")]
         public string GetFreeShiftWorkers()
         {
-            var siteWorkers = _storage.GetFreeShiftWorkers();
-            var objects = SiteWorkersToDynamic(siteWorkers);
-            var text = JsonSerializer.Serialize(objects);
-            return text;
+            try
+            {
+                Response.StatusCode = 500;
+                var siteWorkers = _storage.GetFreeShiftWorkers();
+                var objects = SiteWorkersToDynamic(siteWorkers);
+                var text = JsonSerializer.Serialize(objects);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
         }
         [HttpGet("PositionsShiftReport")]
         public string PositionsShiftReport()
         {
-            string stringDate = Request.Query["date"];
-            var date = DateTime.Now;
-            if (!string.IsNullOrWhiteSpace(stringDate))
+            try
             {
-                stringDate = stringDate.Trim();
-                if (!DateTime.TryParse(stringDate, out date))
-                    return $"Wrong to date {stringDate}";
+                Response.StatusCode = 500;
+                string stringDate = Request.Query["date"];
+                var date = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(stringDate))
+                {
+                    stringDate = stringDate.Trim();
+                    if (!DateTime.TryParse(stringDate, out date))
+                        return $"Wrong to date {stringDate}";
+                }
+                string shift = Request.Query["shift"];
+                if (string.IsNullOrWhiteSpace(shift))
+                    shift = "day";
+                shift = shift.Trim().ToLower();
+                if (shift != "day" && shift != "night")
+                    return $"Unknown shift {shift}";
+
+                date = shift == "day" ? date.Date.AddHours(15) : date.Date.AddHours(27);
+
+                var data = _storage.CreatePositionsShiftReport(date);
+                var text = JsonSerializer.Serialize(data);
+                Response.StatusCode = 200;
+                return text;
             }
-            string shift = Request.Query["shift"];
-            if (string.IsNullOrWhiteSpace(shift))
-                shift = "day";
-            shift = shift.Trim().ToLower();
-            if (shift != "day" && shift != "night")
-                return $"Unknown shift {shift}";
-
-            date = shift == "day" ? date.Date.AddHours(15) : date.Date.AddHours(27);
-
-            var data = _storage.CreatePositionsShiftReport(date);
-            var text = JsonSerializer.Serialize(data);
-            Response.StatusCode = 200;
-            return text;
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
         }
         [HttpGet("StaffReport")]
         public string StaffReport()
@@ -195,21 +230,24 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             try
             {
                 Response.StatusCode = 500;
-                string stringFromDate = Request.Query["from_date"];
-                if (string.IsNullOrWhiteSpace(stringFromDate))
+                string temp = Request.Query["from_date"];
+                if (string.IsNullOrWhiteSpace(temp))
                     return "From date is empty!";
-                if (!DateTime.TryParse(stringFromDate.Trim(), out DateTime fromDate))
-                    return $"Wrong to date {stringFromDate}";
+                if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
+                    return $"Wrong to date {temp}";
 
-                string stringToDate = Request.Query["to_date"];
-                if (string.IsNullOrWhiteSpace(stringToDate))
+                temp = Request.Query["to_date"];
+                if (string.IsNullOrWhiteSpace(temp))
                     return "From date is empty!";
-                if (!DateTime.TryParse(stringToDate.Trim(), out DateTime toDate))
-                    return $"Wrong to date {stringToDate}";
+                if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
+                    return $"Wrong to date {temp}";
+
+                temp = Request.Query["only_linear"];
+                var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
 
                 fromDate = fromDate.Date;
                 toDate = toDate.AddDays(1);
-                var data = _storage.CreateStaffReport(fromDate, toDate);
+                var data = _storage.CreateStaffReport(fromDate, toDate, onlyLinear);
                 var text = JsonSerializer.Serialize(data);
                 Response.StatusCode = 200;
                 return text;

@@ -40,6 +40,15 @@ class ViewUtils {
         }
     }
 
+    // Инициализирует check box
+    initCheckbox(id, value, onChangeFunction) {
+        const input = document.getElementById(id);
+        if (input != undefined) {
+            input.checked = value;
+            input.onchange = onChangeFunction;
+        }
+    }
+
     // Создаёт содержимое ячейки таблицы
     createCellContent(tagName, row, styles, contents, cssText = "") {
         const cell = document.createElement(tagName);
@@ -167,10 +176,11 @@ class ViewUtils {
                 element.remove();
             } else if (onClickEventHandler != null) {
                 element.onclick = onClickEventHandler;
-            }           
+            }
         }
     }
 
+    // Сортировка данных таблицы по указанной колонке
     sortTableByColumn(table, column, dataType = "text", asc = true) {
         const directionModifier = asc ? 1 : -1;
         const tBody = table.tBodies[0];
@@ -181,12 +191,12 @@ class ViewUtils {
             const bColText = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim();
 
             if (dataType === "float") {
-                const aValue = parseFloat(aColText.replace(" ", ""));
-                const bValue = parseFloat(bColText.replace(" ", ""));
+                const aValue = parseFloat(aColText.replaceAll(" ", ""));
+                const bValue = parseFloat(bColText.replaceAll(" ", ""));
                 return aValue > bValue ? (1 * directionModifier) : (-1 * directionModifier);
             } else if (dataType === "integer") {
-                const aValue = Number(aColText.replace(" ", ""));
-                const bValue = Number(bColText.replace(" ", ""));
+                const aValue = Number(aColText.replaceAll(" ", ""));
+                const bValue = Number(bColText.replaceAll(" ", ""));
                 return aValue > bValue ? (1 * directionModifier) : (-1 * directionModifier);
             }
             else {
@@ -208,22 +218,23 @@ class ViewUtils {
         table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
     }
 
+    // Сортировка таблицы
     sortTable() {
         document.querySelectorAll(".table-sortable th").forEach(headerCell => {
-            headerCell.onclick = () => {
+            headerCell.addEventListener("click", () => {
                 const tableElement = headerCell.parentElement.parentElement.parentElement;
                 const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
                 const currentIsAscending = headerCell.classList.contains("th-sort-asc");
 
                 let dataType = "text";
-                if (headerCell.classList.contains("datatype-float")) {
-                    dataType = "float";
-                } else if (headerCell.classList.contains("datatype-integer")) {
+                if (headerCell.classList.contains("datatype-integer")) {
                     dataType = "integer";
+                } else if (headerCell.classList.contains("datatype-float")) {
+                    dataType = "float";
                 }
 
                 this.sortTableByColumn(tableElement, headerIndex, dataType, !currentIsAscending);
-            };
+            });
         });
     }
 }
