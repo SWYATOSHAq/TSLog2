@@ -42,7 +42,13 @@
         @if (filterByWorker)
         {
             <div id="worker-div" class="col-md-3 col-6">
-                <input class="form-control filter-input" id="worker-input" placeholder="Работник">
+                <input class="form-control filter-input" id="worker-input" placeholder="Сотрудник">
+            </div>
+        }
+        @if (filterByWmsUser)
+        {
+            <div id="wms-user-div" class="col-md-3 col-6">
+                <input class="form-control filter-input" id="wms-user-input" placeholder="Пользователь WMS">
             </div>
         }
         @if (positionsModel != null)
@@ -52,12 +58,6 @@
         @if (companiesModel != null)
         {
             <partial name="Blocks/Lists/_CompaniesDropdown" model="companiesModel" />
-        }
-        @if (filterByWmsUser)
-        {
-            <div id="wms-user-div" class="col-md-3 col-6">
-                <input class="form-control filter-input" id="wms-user-input" placeholder="Пользователь WMS">
-            </div>
         }
         @if (sitesModel != null)
         {

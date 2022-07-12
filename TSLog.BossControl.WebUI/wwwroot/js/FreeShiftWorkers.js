@@ -28,6 +28,9 @@ class FreeShiftWorkersPage {
         const tr = document.createElement("tr");
 
         viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.surname + " " + siteWorker.worker.firstName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.majorPosition]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.companyName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.wmsLogin]);
         viewUtils.createCell(tr, ["table-cell"], [siteWorker.site.name]);
         viewUtils.createCell(tr, ["table-cell"], [siteWorker.partner.name]);
 
@@ -69,6 +72,7 @@ class FreeShiftWorkersPage {
         await this.getFreehiftWorkers();
         this.showFreeShiftWorkers();
         viewUtils.sortTable ();
+        viewUtils.filterTable(".table-div");
     }
 }
 

@@ -66,6 +66,7 @@ class FreeWorkersPage {
         await this.getFreeWorkers();
         this.showFreeWorkers();
         viewUtils.sortTable ();
+        viewUtils.filterTable(".table-div");
     }
 }
 

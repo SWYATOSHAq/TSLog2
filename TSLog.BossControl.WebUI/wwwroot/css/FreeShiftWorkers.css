@@ -13,3 +13,21 @@
     vertical-align: middle;
     font-weight: bold;
 }
+
+.table-div .table .hide {
+    background: #ff9;
+    display: none;
+}
+
+.filter-input {
+    padding: 0px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+}
+
+.filter-select {
+    padding: 0px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
