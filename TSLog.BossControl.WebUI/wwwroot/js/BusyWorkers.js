@@ -69,6 +69,27 @@ class BusyWorkersPage {
         }
     }
 
+    filterTable(selector) {
+        const wrapper = document.querySelector(selector);
+        const table = wrapper.getElementsByTagName("table")[0];
+        const inputs = wrapper.getElementsByTagName("input");
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener('keyup', () => {
+                let employee = inputs[0].value.toLowerCase().replace("ё", "е");
+                let wmsUser = inputs[1].value.toLowerCase().replace("ё", "е");
+                for (let i = 1; i < table.rows.length; i++) {
+                    table.rows[i].className = "";
+                    if (
+                        table.rows[i].cells[0].innerHTML.toLowerCase().replace("ё", "е").indexOf(employee) == -1 ||
+                        table.rows[i].cells[3].innerHTML.toLowerCase().replace("ё", "е").indexOf(wmsUser) == -1
+                    ) {
+                        table.rows[i].className = "hide";
+                    }
+                }
+            });
+        }
+    }
+
     async getBusyWorkers() {
         const result = await api.getBusyWorkers();
         if (result.code === 0) {
@@ -83,6 +104,7 @@ class BusyWorkersPage {
         await this.getBusyWorkers();
         this.showBusyWorkers();
         viewUtils.sortTable();
+        this.filterTable(".table-div");
     }
 }
 
