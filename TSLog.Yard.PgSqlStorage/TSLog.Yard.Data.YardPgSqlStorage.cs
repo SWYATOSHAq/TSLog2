@@ -1166,7 +1166,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = $"select (yard.get_all_windows(:p_start_date, :p_finish_date)).*;";
+                    var sql = $"select ({YardSchema}.get_all_windows(:p_start_date, :p_finish_date)).*;";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
@@ -1203,7 +1203,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        $"select (yard.get_avalible_windows(:p_start_date,\n" +
+                        $"select ({YardSchema}.get_avalible_windows(:p_start_date,\n" +
                         $"    :p_finish_date,\n" +
                         $"    :p_operation_type_code,\n" +
                         $"    :p_vehicle_kind_code)).*;";
@@ -1241,7 +1241,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = $"select (yard.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
+                    var sql = $"select ({YardSchema}.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
                     command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
@@ -2325,8 +2325,8 @@ namespace TSLog.Yard.Data
                           o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
                           o.fact_work_start_date, o.fact_work_finish_date,          
                           o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date         
-                     from yard.v_operation_worker ow
-                left join yard.scheduler o on ow.operation_id = o.id
+                     from {YardSchema}.v_operation_worker ow
+                left join {YardSchema}.scheduler o on ow.operation_id = o.id
                     where ow.worker_id = :worker_id
                       and o.fact_work_finish_date is null
                       and not (o.fact_work_start_date is null and (o.plan_work_start_date >= :finish_date or o.plan_work_finish_date <= :start_date)
@@ -2425,12 +2425,12 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectBisyIntervals =
-                        "select wbi.employee_id,\n" +
-                        "       wbi.plan_work_start_date,\n" +
-                        "       wbi.plan_work_finish_date\n" +
-                        "  from yard.v_worker_busy_intervals wbi\n" +
-                        " where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)\n" +
-                        "   and wbi.employee_id = :employee_id";
+                        $"select wbi.employee_id,\n" +
+                        $"       wbi.plan_work_start_date,\n" +
+                        $"       wbi.plan_work_finish_date\n" +
+                        $"  from {YardSchema}.v_worker_busy_intervals wbi\n" +
+                        $" where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)\n" +
+                        $"   and wbi.employee_id = :employee_id";
                     command.CommandText = SelectBisyIntervals;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
@@ -2556,64 +2556,64 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql = 
-                        "with operation_labor as (\n" +
-                        "   select o.id,\n" +
-                        "          o.plan_work_start_date, o.fact_work_start_date,\n" +
-                        "          o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                        "          o.plan_work_finish_date - o.plan_work_start_date plan_duration,\n" +
-                        "          o.fact_work_finish_date - o.fact_work_start_date fact_duration,\n" +
-                        "          case\n" +
-                        "              when o.fact_work_finish_date is not null and o.fact_work_start_date is not null then 1\n" +
-                        "              else 0\n" +
-                        "          end work_finished,\n" +
-                        "          case\n" +
-                        "              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) < 0 then 0\n" +
-                        "              else extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
-                        "          end / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date)) plan_k,\n" +
-                        "          case\n" +
-                        "              when extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) < 0 then 0\n" +
-                        "              else extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
-                        "          end / (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date)) fact_k,\n" +
-                        "          case\n" +
-                        "              when o.fact_work_finish_date is null\n" +
-                        "                or o.fact_work_start_date is null\n" +
-                        "                or o.plan_work_finish_date is null\n" +
-                        "                or o.plan_work_start_date is null\n" +
-                        "                or o.plan_work_finish_date = o.plan_work_start_date then 1\n" +
-                        "              else (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date))\n" +
-                        "                 / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date))\n" +
-                        "          end k,\n" +
-                        "          --o.type_id,\n" +
-                        "          --o.vehicle_kind_id,\n" +
-                        "          ow.position_id,\n" +
-                        "          --ow.work_id,\n" +
-                        "          --ow.workers_count,\n" +
-                        "          (select min(oa.partner_id) from yard.v_operation_action oa where oa.operation_id = o.id) partner_id,\n" +
-                        "          sum(ow.\"time\" * ow.workers_count) labor_cost\n" +
-                        "     from yard.v_operation o\n" +
-                        "left join yard.v_ot_vk_work ow on o.type_id = ow.operation_type_id and o.vehicle_kind_id = ow.vehicle_kind_id\n" +
-                        " group by o.id,\n" +
-                        "          ow.position_id,\n" +
-                        "          o.plan_work_start_date, o.fact_work_start_date,\n" +
-                        "          o.plan_work_finish_date, o.fact_work_finish_date\n" +
-                        ")\n" +
-                        "   select ol.partner_id, p.name partner_name,\n" +
-                        "          ol.position_id, ps.name position_name,\n" +
-                        "          round((sum(ol.labor_cost * ol.plan_k) / 3600)::numeric, 2) plan_labor_cost,\n" +
-                        "          round((sum(ol.labor_cost * ol.fact_k * ol.k) / 3600)::numeric, 2) fact_labor_cost\n" +
-                        "     from operation_labor ol\n" +
-                        "left join yard.v_partner p on ol.partner_id = p.id\n" +
-                        "left join yard.v_position ps on ol.position_id = ps.id\n" +
-                        "    where ol.work_finished = 1\n" +
-                        "          and(ol.position_id != 1005)\n" +
-                        "          and(ol.position_id != 1008)\n" +
-                        "          and(ol.position_id != 1015)\n" +
-                        "          and(ol.position_id != 1017)\n" +
-                        "          and not(ol.plan_work_start_date > :to_date or ol.plan_work_finish_date < :from_date)\n" +
-                        " group by ol.partner_id, p.name,\n" +
-                        "          ol.position_id, ps.name\n" +
-                        " order by ol.partner_id,\n" +
-                        "          ol.position_id";
+                        $"with operation_labor as (\n" +
+                        $"   select o.id,\n" +
+                        $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
+                        $"          o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                        $"          o.plan_work_finish_date - o.plan_work_start_date plan_duration,\n" +
+                        $"          o.fact_work_finish_date - o.fact_work_start_date fact_duration,\n" +
+                        $"          case\n" +
+                        $"              when o.fact_work_finish_date is not null and o.fact_work_start_date is not null then 1\n" +
+                        $"              else 0\n" +
+                        $"          end work_finished,\n" +
+                        $"          case\n" +
+                        $"              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) < 0 then 0\n" +
+                        $"              else extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
+                        $"          end / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date)) plan_k,\n" +
+                        $"          case\n" +
+                        $"              when extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) < 0 then 0\n" +
+                        $"              else extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
+                        $"          end / (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date)) fact_k,\n" +
+                        $"          case\n" +
+                        $"              when o.fact_work_finish_date is null\n" +
+                        $"                or o.fact_work_start_date is null\n" +
+                        $"                or o.plan_work_finish_date is null\n" +
+                        $"                or o.plan_work_start_date is null\n" +
+                        $"                or o.plan_work_finish_date = o.plan_work_start_date then 1\n" +
+                        $"              else (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date))\n" +
+                        $"                 / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date))\n" +
+                        $"          end k,\n" +
+                        $"          --o.type_id,\n" +
+                        $"          --o.vehicle_kind_id,\n" +
+                        $"          ow.position_id,\n" +
+                        $"          --ow.work_id,\n" +
+                        $"          --ow.workers_count,\n" +
+                        $"          (select min(oa.partner_id) from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_id,\n" +
+                        $"          sum(ow.\"time\" * ow.workers_count) labor_cost\n" +
+                        $"     from {YardSchema}.v_operation o\n" +
+                        $"left join {YardSchema}.v_ot_vk_work ow on o.type_id = ow.operation_type_id and o.vehicle_kind_id = ow.vehicle_kind_id\n" +
+                        $" group by o.id,\n" +
+                        $"          ow.position_id,\n" +
+                        $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
+                        $"          o.plan_work_finish_date, o.fact_work_finish_date\n" +
+                        $")\n" +
+                        $"   select ol.partner_id, p.name partner_name,\n" +
+                        $"          ol.position_id, ps.name position_name,\n" +
+                        $"          round((sum(ol.labor_cost * ol.plan_k) / 3600)::numeric, 2) plan_labor_cost,\n" +
+                        $"          round((sum(ol.labor_cost * ol.fact_k * ol.k) / 3600)::numeric, 2) fact_labor_cost\n" +
+                        $"     from operation_labor ol\n" +
+                        $"left join {YardSchema}.v_partner p on ol.partner_id = p.id\n" +
+                        $"left join {YardSchema}.v_position ps on ol.position_id = ps.id\n" +
+                        $"    where ol.work_finished = 1\n" +
+                        $"          and(ol.position_id != 1005)\n" +
+                        $"          and(ol.position_id != 1008)\n" +
+                        $"          and(ol.position_id != 1015)\n" +
+                        $"          and(ol.position_id != 1017)\n" +
+                        $"          and not(ol.plan_work_start_date > :to_date or ol.plan_work_finish_date < :from_date)\n" +
+                        $" group by ol.partner_id, p.name,\n" +
+                        $"          ol.position_id, ps.name\n" +
+                        $" order by ol.partner_id,\n" +
+                        $"          ol.position_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
@@ -2641,47 +2641,46 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        "with data as (\n" +
-                        "   select ow.worker_id,\n" +
-                        "          ow.position_id, pos.\"name\" position_name,\n" +
-                        "          par.id partner_id, par.\"name\" partner_name,\n" +
-                        "          o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                        "          case\n" +
-                        "              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) > 0\n" +
-                        "                  then extract('epoch' from least(:to_date, o.plan_work_finish_date)) -extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
-                        "              else 0\n" +
-                        "          end plan_duration,\n" +
-                        "          o.fact_work_start_date, o.fact_work_finish_date,\n" +
-                        "          case\n" +
-                        "              when o.plan_work_start_date is not null\n" +
-                        "               and o.plan_work_finish_date is not null\n" +
-                        "               and o.fact_work_start_date is not null\n" +
-                        "               and o.fact_work_finish_date is not null\n" +
-                        "               and extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) > 0\n" +
-                        "                   then extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
-                        "              else 0\n" +
-                        "          end fact_duration\n" +
-                        "     from yard.v_operation_worker ow\n" +
-                        "left join yard.v_position pos on ow.position_id = pos.id\n" +
-                        "left join yard.v_partner par on par.id = (select oa.partner_id from yard.v_operation_action oa where oa.operation_id = ow.operation_id)\n" +
-                        "left join yard.v_operation o on ow.operation_id = o.id\n" +
-                        "    where not(o.plan_work_start_date >= :to_date or o.plan_work_finish_date <= :from_date)\n" +
-                        "       or not(o.fact_work_start_date >= :to_date or o.fact_work_finish_date <= :from_date)\n" +
-                        ")\n" +
-                        "  select d.partner_id, d.partner_name,\n" +
-                        "         d.position_id, d.position_name,\n" +
-                        "         count(distinct d.worker_id) workers_count,\n" +
-                        "         round(sum(d.plan_duration)::numeric / 3600, 2) plan_labor_cost,\n" +
-                        "         round(sum(d.plan_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_plan_labor_cost,\n" +
-                        "         round(sum(d.fact_duration)::numeric / 3600, 2) fact_labor_cost,\n" +
-                        "         round(sum(d.fact_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_fact_labor_cost\n" +
-                        "    from data d\n" +
-                        "group by d.partner_id, d.partner_name,\n" +
-                        "         d.position_id, d.position_name\n" +
-                        "  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" + 
-                        "order by d.partner_id,\n" +
-                        "         d.position_id";
-
+                        $"with data as (\n" +
+                        $"   select ow.worker_id,\n" +
+                        $"          ow.position_id, pos.\"name\" position_name,\n" +
+                        $"          par.id partner_id, par.\"name\" partner_name,\n" +
+                        $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                        $"          case\n" +
+                        $"              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) > 0\n" +
+                        $"                  then extract('epoch' from least(:to_date, o.plan_work_finish_date)) -extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
+                        $"              else 0\n" +
+                        $"          end plan_duration,\n" +
+                        $"          o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                        $"          case\n" +
+                        $"              when o.plan_work_start_date is not null\n" +
+                        $"               and o.plan_work_finish_date is not null\n" +
+                        $"               and o.fact_work_start_date is not null\n" +
+                        $"               and o.fact_work_finish_date is not null\n" +
+                        $"               and extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) > 0\n" +
+                        $"                   then extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
+                        $"              else 0\n" +
+                        $"          end fact_duration\n" +
+                        $"     from {YardSchema}.v_operation_worker ow\n" +
+                        $"left join {YardSchema}.v_position pos on ow.position_id = pos.id\n" +
+                        $"left join {YardSchema}.v_partner par on par.id = (select oa.partner_id from {YardSchema}.v_operation_action oa where oa.operation_id = ow.operation_id)\n" +
+                        $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                        $"    where not(o.plan_work_start_date >= :to_date or o.plan_work_finish_date <= :from_date)\n" +
+                        $"       or not(o.fact_work_start_date >= :to_date or o.fact_work_finish_date <= :from_date)\n" +
+                        $")\n" +
+                        $"  select d.partner_id, d.partner_name,\n" +
+                        $"         d.position_id, d.position_name,\n" +
+                        $"         count(distinct d.worker_id) workers_count,\n" +
+                        $"         round(sum(d.plan_duration)::numeric / 3600, 2) plan_labor_cost,\n" +
+                        $"         round(sum(d.plan_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_plan_labor_cost,\n" +
+                        $"         round(sum(d.fact_duration)::numeric / 3600, 2) fact_labor_cost,\n" +
+                        $"         round(sum(d.fact_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_fact_labor_cost\n" +
+                        $"    from data d\n" +
+                        $"group by d.partner_id, d.partner_name,\n" +
+                        $"         d.position_id, d.position_name\n" +
+                        $"  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" + 
+                        $"order by d.partner_id,\n" +
+                        $"         d.position_id";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
                     command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
@@ -2710,80 +2709,79 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var sql =
-                        "with tempdate as (\n" +
-                        "    select yard.get_shift_start(:date::timestamp, 0::int2) start_date, yard.get_shift_finish(:date::timestamp, 0::int2) finish_date\n" +
-                        "),\n" +
-                        "plan_data as (\n" +
-                        "   select --o.id,\n" +
-                        "          --o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                        "          --least(o.plan_work_finish_date, td.finish_date) - greatest(o.plan_work_start_date, td.start_date) plan_duration,\n" +
-                        "          nw.position_id,\n" +
-                        "          o.gate_id,\n" +
-                        "          sum(nw.\"time\" * nw.workers_count) plan_lc\n" +
-                        "     from yard.v_ot_vk_work nw\n" +
-                        "left join yard.v_operation o on nw.operation_type_id = o.type_id and nw.vehicle_kind_id = o.vehicle_kind_id\n" +
-                        "left join tempdate td on true\n" +
-                        "    where o.fact_work_start_date is not null\n" +
-                        "      and o.fact_work_finish_date is not null\n" +
-                        "      and not (o.plan_work_start_date >= td.finish_date or o.plan_work_finish_date <= td.start_date)\n" +
-                        " group by nw.position_id, o.gate_id\n" +
-                        "),\n" +
-                        "fact_data as (\n" +
-                        "   select --o.id,\n" +
-                        "          --o.fact_work_start_date, o.fact_work_finish_date,\n" +
-                        "          --least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date) fact_duration,\n" +
-                        "          ow.position_id,\n" +
-                        "          o.gate_id,\n" +
-                        "          sum(extract('epoch' from(least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date)))) fact_lc\n" +
-                        "    from yard.v_operation_worker ow\n" +
-                        "left join yard.v_operation o on ow.operation_id = o.id\n" +
-                        "left join tempdate td on true\n" +
-                        "    where o.fact_work_start_date is not null\n" +
-                        "      and o.fact_work_finish_date is not null\n" +
-                        "      and not (o.fact_work_start_date >= td.finish_date or o.fact_work_finish_date <= td.start_date)\n" +
-                        " group by ow.position_id, o.gate_id\n" +
-                        "),\n" +
-                        "gate_data as (\n" +
-                        "   select coalesce(pd.position_id, fd.position_id) position_id, p.name position_name,\n" +
-                        "          coalesce(pd.gate_id, fd.gate_id) gate_id, g.name gate_name,\n" +
-                        "          round(coalesce(pd.plan_lc::numeric / 3600::numeric, 0)::numeric, 2) plan_lc,\n" +
-                        "          round(coalesce(fd.fact_lc::numeric / 3600::numeric, 0)::numeric, 2) fact_lc,\n" +
-                        "          case\n" +
-                        "              when coalesce(fd.fact_lc, 0) <> 0 then coalesce(pd.plan_lc, 0) / coalesce(fd.fact_lc, 0) * 100\n" +
-                        "              else 0\n" +
-                        "          end perfomance\n" +
-                        "     from plan_data pd\n" +
-                        "full join fact_data fd on pd.position_id = fd.position_id and pd.gate_id = fd.gate_id\n" +
-                        "left join yard.v_position p on coalesce(pd.position_id, fd.position_id) = p.id\n" +
-                        "left join yard.v_gate g on coalesce(pd.gate_id, fd.gate_id) = g.id\n" +
-                        "    where p.is_linear = 1\n" +
-                        " order by coalesce(pd.position_id, fd.position_id),\n" +
-                        "          coalesce(pd.gate_id, fd.gate_id)\n" +
-                        ")\n" +
-                        "  select gd.position_id, gd.position_name,\n" +
-                        "         round(case\n" +
-                        "             when sum(coalesce(gd.fact_lc, 0)) <> 0 then sum(coalesce(gd.plan_lc, 0)) / sum(coalesce(gd.fact_lc, 0)) * 100\n" +
-                        "             else 0\n" +
-                        "         end::numeric, 2) total,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1001 then gd.perfomance::numeric end), 2), 0.0) pg1,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1002 then gd.perfomance::numeric end), 2), 0.0) pg2,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1003 then gd.perfomance::numeric end), 2), 0.0) pg3,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1004 then gd.perfomance::numeric end), 2), 0.0) pg4,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1005 then gd.perfomance::numeric end), 2), 0.0) pg5,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1006 then gd.perfomance::numeric end), 2), 0.0) pg6,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1007 then gd.perfomance::numeric end), 2), 0.0) pg7,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1008 then gd.perfomance::numeric end), 2), 0.0) pg8,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1009 then gd.perfomance::numeric end), 2), 0.0) pg9,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1010 then gd.perfomance::numeric end), 2), 0.0) pg10,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1011 then gd.perfomance::numeric end), 2), 0.0) pg11,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1012 then gd.perfomance::numeric end), 2), 0.0) pg12,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1013 then gd.perfomance::numeric end), 2), 0.0) pg13,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1014 then gd.perfomance::numeric end), 2), 0.0) pg14,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1015 then gd.perfomance::numeric end), 2), 0.0) pg15,\n" +
-                        "         coalesce(round(avg(case when gd.gate_id = 1016 then gd.perfomance::numeric end), 2), 0.0) pg16\n" +
-                        "    from gate_data gd\n" +
-                        "group by gd.position_id, gd.position_name";
-
+                        $"with tempdate as (\n" +
+                        $"    select {YardSchema}.get_shift_start(:date::timestamp, 0::int2) start_date, {YardSchema}.get_shift_finish(:date::timestamp, 0::int2) finish_date\n" +
+                        $"),\n" +
+                        $"plan_data as (\n" +
+                        $"   select --o.id,\n" +
+                        $"          --o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                        $"          --least(o.plan_work_finish_date, td.finish_date) - greatest(o.plan_work_start_date, td.start_date) plan_duration,\n" +
+                        $"          nw.position_id,\n" +
+                        $"          o.gate_id,\n" +
+                        $"          sum(nw.\"time\" * nw.workers_count) plan_lc\n" +
+                        $"     from {YardSchema}.v_ot_vk_work nw\n" +
+                        $"left join {YardSchema}.v_operation o on nw.operation_type_id = o.type_id and nw.vehicle_kind_id = o.vehicle_kind_id\n" +
+                        $"left join tempdate td on true\n" +
+                        $"    where o.fact_work_start_date is not null\n" +
+                        $"      and o.fact_work_finish_date is not null\n" +
+                        $"      and not (o.plan_work_start_date >= td.finish_date or o.plan_work_finish_date <= td.start_date)\n" +
+                        $" group by nw.position_id, o.gate_id\n" +
+                        $"),\n" +
+                        $"fact_data as (\n" +
+                        $"   select --o.id,\n" +
+                        $"          --o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                        $"          --least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date) fact_duration,\n" +
+                        $"          ow.position_id,\n" +
+                        $"          o.gate_id,\n" +
+                        $"          sum(extract('epoch' from(least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date)))) fact_lc\n" +
+                        $"    from {YardSchema}.v_operation_worker ow\n" +
+                        $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                        $"left join tempdate td on true\n" +
+                        $"    where o.fact_work_start_date is not null\n" +
+                        $"      and o.fact_work_finish_date is not null\n" +
+                        $"      and not (o.fact_work_start_date >= td.finish_date or o.fact_work_finish_date <= td.start_date)\n" +
+                        $" group by ow.position_id, o.gate_id\n" +
+                        $"),\n" +
+                        $"gate_data as (\n" +
+                        $"   select coalesce(pd.position_id, fd.position_id) position_id, p.name position_name,\n" +
+                        $"          coalesce(pd.gate_id, fd.gate_id) gate_id, g.name gate_name,\n" +
+                        $"          round(coalesce(pd.plan_lc::numeric / 3600::numeric, 0)::numeric, 2) plan_lc,\n" +
+                        $"          round(coalesce(fd.fact_lc::numeric / 3600::numeric, 0)::numeric, 2) fact_lc,\n" +
+                        $"          case\n" +
+                        $"              when coalesce(fd.fact_lc, 0) <> 0 then coalesce(pd.plan_lc, 0) / coalesce(fd.fact_lc, 0) * 100\n" +
+                        $"              else 0\n" +
+                        $"          end perfomance\n" +
+                        $"     from plan_data pd\n" +
+                        $"full join fact_data fd on pd.position_id = fd.position_id and pd.gate_id = fd.gate_id\n" +
+                        $"left join {YardSchema}.v_position p on coalesce(pd.position_id, fd.position_id) = p.id\n" +
+                        $"left join {YardSchema}.v_gate g on coalesce(pd.gate_id, fd.gate_id) = g.id\n" +
+                        $"    where p.is_linear = 1\n" +
+                        $" order by coalesce(pd.position_id, fd.position_id),\n" +
+                        $"          coalesce(pd.gate_id, fd.gate_id)\n" +
+                        $")\n" +
+                        $"  select gd.position_id, gd.position_name,\n" +
+                        $"         round(case\n" +
+                        $"             when sum(coalesce(gd.fact_lc, 0)) <> 0 then sum(coalesce(gd.plan_lc, 0)) / sum(coalesce(gd.fact_lc, 0)) * 100\n" +
+                        $"             else 0\n" +
+                        $"         end::numeric, 2) total,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1001 then gd.perfomance::numeric end), 2), 0.0) pg1,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1002 then gd.perfomance::numeric end), 2), 0.0) pg2,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1003 then gd.perfomance::numeric end), 2), 0.0) pg3,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1004 then gd.perfomance::numeric end), 2), 0.0) pg4,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1005 then gd.perfomance::numeric end), 2), 0.0) pg5,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1006 then gd.perfomance::numeric end), 2), 0.0) pg6,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1007 then gd.perfomance::numeric end), 2), 0.0) pg7,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1008 then gd.perfomance::numeric end), 2), 0.0) pg8,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1009 then gd.perfomance::numeric end), 2), 0.0) pg9,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1010 then gd.perfomance::numeric end), 2), 0.0) pg10,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1011 then gd.perfomance::numeric end), 2), 0.0) pg11,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1012 then gd.perfomance::numeric end), 2), 0.0) pg12,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1013 then gd.perfomance::numeric end), 2), 0.0) pg13,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1014 then gd.perfomance::numeric end), 2), 0.0) pg14,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1015 then gd.perfomance::numeric end), 2), 0.0) pg15,\n" +
+                        $"         coalesce(round(avg(case when gd.gate_id = 1016 then gd.perfomance::numeric end), 2), 0.0) pg16\n" +
+                        $"    from gate_data gd\n" +
+                        $"group by gd.position_id, gd.position_name";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("date", NpgsqlDbType.Timestamp, date));
                     using var reader = command.ExecuteReader();
@@ -2828,7 +2826,7 @@ namespace TSLog.Yard.Data
                     var sql = 
                         $"   select o.id,\n" +
                         $"          o.vehicle_number,\n" +
-                        $"          (select string_agg(oa.partner_id, ', ') from yard.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
+                        $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
                         $"          greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
                         $"          least(o.plan_work_finish_date, :finish_date) plan_work_finish_date,\n" +
                         $"          greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +

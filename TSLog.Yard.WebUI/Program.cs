@@ -74,8 +74,8 @@ var programFileName = Assembly.GetExecutingAssembly().Location;
 var programDirectory = Path.GetDirectoryName(programFileName) ?? throw new Exception("Rights file not found");
 var rightsFileName = Path.Combine(programDirectory, "rights.xml");
 var userPartnersFileName = Path.Combine(programDirectory, "userPartners.xml");
-rightsChecker.GetRights(rightsFileName);
-rightsChecker.GetUserPartners(userPartnersFileName);
+rightsChecker.LoadRights(rightsFileName);
+rightsChecker.LoadUserPartners(userPartnersFileName);
 
 var app = builder.Build();
 

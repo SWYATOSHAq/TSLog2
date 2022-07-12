@@ -176,7 +176,7 @@ class ViewUtils {
                 element.remove();
             } else if (onClickEventHandler != null) {
                 element.onclick = onClickEventHandler;
-            } 
+            }
         }
     }
 
