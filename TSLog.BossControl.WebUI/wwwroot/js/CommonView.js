@@ -218,27 +218,76 @@ class ViewUtils {
         table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
     }
 
-    // фильтрация таблицы
-    filterTable(selector) {
-        const wrapper = document.querySelector(selector);
-        const table = wrapper.getElementsByTagName("table")[0];
-        const inputs = wrapper.getElementsByTagName("input");
-        for (let i = 0; i < inputs.length; i++) {
-            inputs[i].addEventListener('keyup', () => {
-                let employee = inputs[0].value.toLowerCase().replace("ё", "е");
-                let wmsUser = inputs[1].value.toLowerCase().replace("ё", "е");
-                for (let i = 1; i < table.rows.length; i++) {
-                    table.rows[i].className = "";
-                    if (
-                        table.rows[i].cells[0].innerHTML.toLowerCase().replace("ё", "е").indexOf(employee) == -1 ||
-                        table.rows[i].cells[3].innerHTML.toLowerCase().replace("ё", "е").indexOf(wmsUser) == -1
-                    ) {
-                        table.rows[i].className = "hide";
-                    }
-                }
-            });
+    getFilterElementByStringInput(fieldName, input, condition = "like", options = { caseInsensitive: true, replaceOnE: true }) {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        let internalValue;
+        if (options.caseInsensitive) {
+            internalValue = input.value.toLowerCase();
+        } else {
+            internalValue = input.value;
         }
+        if (options.replaceOnE) {
+            internalValue = value.replace("ё", "е");
+        }
+        filter.value = internalValue;
+        return filter;
     }
+
+    getFilterElementByNumberInput(fieldName, input, condition = "=", options = { onlyPositive: true }) {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        if (options.onlyPositive) {
+            if (input.value >= 0 )
+                filter.value = input.value;
+        }
+        return filter;
+    }
+
+    getFilterElementBySelect(fieldName, select, condition = "=") {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        filter.value = select.value;
+        return filter;
+    }
+
+    getFilterElementByDatePicker(fieldName, datePicker, condition = "=", options = {}) {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        filter.value = datePicker.value;
+
+        if (options.includeTime) {
+            filter.includeTime = true;
+        }
+
+        return filter;
+    }
+
+    // фильтрация таблицы
+    // filterTable(selector) {
+    //     const wrapper = document.querySelector(selector);
+    //     const table = wrapper.getElementsByTagName("table")[0];
+    //     const inputs = wrapper.getElementsByTagName("input");
+    //     for (let i = 0; i < inputs.length; i++) {
+    //         inputs[i].addEventListener('keyup', () => {
+    //             let employee = inputs[0].value.toLowerCase().replace("ё", "е");
+    //             let wmsUser = inputs[1].value.toLowerCase().replace("ё", "е");
+    //             for (let i = 1; i < table.rows.length; i++) {
+    //                 table.rows[i].className = "";
+    //                 if (
+    //                     table.rows[i].cells[0].innerHTML.toLowerCase().replace("ё", "е").indexOf(employee) == -1 ||
+    //                     table.rows[i].cells[3].innerHTML.toLowerCase().replace("ё", "е").indexOf(wmsUser) == -1
+    //                 ) {
+    //                     table.rows[i].className = "hide";
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
 
     // Сортировка таблицы
     sortTable() {
