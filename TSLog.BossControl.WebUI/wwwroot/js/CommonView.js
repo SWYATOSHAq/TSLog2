@@ -180,6 +180,29 @@ class ViewUtils {
         }
     }
 
+    // фильтрация таблицы
+    // TODO: переделать!
+    filterTable(selector) {
+        const wrapper = document.querySelector(selector);
+        const table = wrapper.getElementsByTagName("table")[0];
+        const inputs = wrapper.getElementsByTagName("input");
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener('keyup', () => {
+                let employee = inputs[0].value.toLowerCase().replace("ё", "е");
+                let wmsUser = inputs[1].value.toLowerCase().replace("ё", "е");
+                for (let i = 1; i < table.rows.length; i++) {
+                    table.rows[i].className = "";
+                    if (
+                        table.rows[i].cells[0].innerHTML.toLowerCase().replace("ё", "е").indexOf(employee) == -1 ||
+                        table.rows[i].cells[3].innerHTML.toLowerCase().replace("ё", "е").indexOf(wmsUser) == -1
+                    ) {
+                        table.rows[i].className = "hide";
+                    }
+                }
+            });
+        }
+    }
+
     // Сортировка данных таблицы по указанной колонке
     sortTableByColumn(table, column, dataType = "text", asc = true) {
         const directionModifier = asc ? 1 : -1;
@@ -216,28 +239,6 @@ class ViewUtils {
         table.querySelectorAll("th").forEach(th => th.classList.remove("th-sort-asc", "th-sort-desc"));
         table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-asc", asc);
         table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
-    }
-
-    // фильтрация таблицы
-    filterTable(selector) {
-        const wrapper = document.querySelector(selector);
-        const table = wrapper.getElementsByTagName("table")[0];
-        const inputs = wrapper.getElementsByTagName("input");
-        for (let i = 0; i < inputs.length; i++) {
-            inputs[i].addEventListener('keyup', () => {
-                let employee = inputs[0].value.toLowerCase().replace("ё", "е");
-                let wmsUser = inputs[1].value.toLowerCase().replace("ё", "е");
-                for (let i = 1; i < table.rows.length; i++) {
-                    table.rows[i].className = "";
-                    if (
-                        table.rows[i].cells[0].innerHTML.toLowerCase().replace("ё", "е").indexOf(employee) == -1 ||
-                        table.rows[i].cells[3].innerHTML.toLowerCase().replace("ё", "е").indexOf(wmsUser) == -1
-                    ) {
-                        table.rows[i].className = "hide";
-                    }
-                }
-            });
-        }
     }
 
     // Сортировка таблицы
