@@ -36,10 +36,13 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.surname = worker.Surname;
             result.firstName = worker.FirstName;
             result.patronymic = worker.Patronymic;
-            result.majorPosition = worker.MajorPosition.Name;
+            result.majorPosition = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty 
+                ? worker.MajorPosition.Name 
+                : string.Empty;
             result.companyId = worker.Company.Id;
             result.companyName = worker.Company.Name;
             result.wmsLogin = worker.WmsLogin;
+            result.adLogin = worker.AdLogin;
             return result;
         }
         private static dynamic SiteToDynamic(Site site)
@@ -67,9 +70,30 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             if (siteWorker == null)
                 throw new ArgumentNullException(nameof(siteWorker));
             dynamic result = new ExpandoObject();
-            result.site = BossControlController.SiteToDynamic(siteWorker.Site);
-            result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
-            result.worker = BossControlController.WorkerToDynamic(siteWorker.Worker);
+            //result.site = BossControlController.SiteToDynamic(siteWorker.Site);
+            result.siteId = siteWorker.Site.Id;
+            result.siteName = siteWorker.Site.Name;
+            //result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
+            result.partnerId = siteWorker.Partner.Id;
+            result.partnerName = siteWorker.Partner.Name;
+            //result.worker = BossControlController.WorkerToDynamic(siteWorker.Worker);
+            result.workerId = siteWorker.Worker.Id;
+            result.workerFullName = siteWorker.Worker.FullName;
+
+            result.workerMajorPositionId = -1;
+            result.workerMajorPositionName = string.Empty;
+            if (siteWorker.Worker.MajorPosition != null && siteWorker.Worker.MajorPosition != Position.Null && siteWorker.Worker.MajorPosition != Position.Empty)
+            {
+                result.workerMajorPositionId = siteWorker.Worker.MajorPosition.Id;
+                result.workerMajorPositionName = siteWorker.Worker.MajorPosition.Name;
+            }
+
+            result.workerCompanyId = siteWorker.Worker.Company.Id;
+            result.workerCompanyName = siteWorker.Worker.Company.Name;
+
+            result.workerWmsLogin = siteWorker.Worker.WmsLogin;
+            result.workerAdLogin = siteWorker.Worker.AdLogin;
+
             result.startDate = siteWorker.StartDate.ToString("HH:mm:ss (yyyy.MM.dd)");
             result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy"); ;
             result.startTime = siteWorker.StartDate.ToString("HH:mm:ss"); ;

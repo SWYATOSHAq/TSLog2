@@ -38,13 +38,12 @@ class BusyWorkersPage {
     showSiteWorker(siteWorker) {
         const tr = document.createElement("tr");
 
-        const workerFullName = siteWorker.worker.surname + " " + siteWorker.worker.firstName;
-        viewUtils.createCell(tr, ["table-cell"], [workerFullName]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.majorPosition]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.companyName]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.wmsLogin]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.site.name]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.partner.name]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerFullName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerMajorPositionName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerCompanyName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerWmsLogin]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.siteName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.partnerName]);
 
         const startTimeB = document.createElement("b");
         startTimeB.textContent = siteWorker.startTime;
@@ -57,7 +56,7 @@ class BusyWorkersPage {
         leaveButton.classList.add("table-cell-button");
         leaveButton.style.cssText = "width: 160px";
         leaveButton.textContent = "Снять с участка";
-        leaveButton.onclick = this.createLeave(siteWorker.worker.id, workerFullName);
+        leaveButton.onclick = this.createLeave(siteWorker.workerId, siteWorker.workerFullName);
         viewUtils.createCell(tr, ["table-cell"], [leaveButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");

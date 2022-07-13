@@ -27,12 +27,12 @@ class FreeShiftWorkersPage {
     showSiteWorker(siteWorker) {
         const tr = document.createElement("tr");
 
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.surname + " " + siteWorker.worker.firstName]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.majorPosition]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.companyName]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.worker.wmsLogin]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.site.name]);
-        viewUtils.createCell(tr, ["table-cell"], [siteWorker.partner.name]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerFullName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerMajorPositionName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerCompanyName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.workerWmsLogin]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.siteName]);
+        viewUtils.createCell(tr, ["table-cell"], [siteWorker.partnerName]);
 
         const startDateTdBold = document.createElement("b");
         startDateTdBold.textContent = siteWorker.startTime;
@@ -45,7 +45,7 @@ class FreeShiftWorkersPage {
         enterButton.classList.add("table-cell-button");
         enterButton.style.cssText = "width: 160px";
         enterButton.textContent = "Назначить на уч.";
-        enterButton.onclick = this.createEnter(siteWorker.worker.id);
+        enterButton.onclick = this.createEnter(siteWorker.workerId);
         viewUtils.createCell(tr, ["table-cell"], [enterButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
