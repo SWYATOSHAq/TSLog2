@@ -1,0 +1,73 @@
+﻿@page "/OperationalReportPage"
+@using TSLog.Partners.BO
+@using TSLog.Yard.WebUI.Models
+@using TSLog.Yard.BO
+
+@model OperationalReportPageModel
+@{
+    ViewData["Title"] = "Оперативный отчёт за смену";
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var request = Model.Request;
+}
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+
+<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+    <label for="date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Дата:</label>
+    <input id="date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" /> 
+    <label for="shift-select" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Смена:</label>
+    <select id="shift-select" 
+        class="form-select border-secondary" 
+        style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
+        <option value="day" selected>Дневная</option>
+        <option value="night">Ночная</option>
+    </select>
+    <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
+</div>
+<div class="row"
+    style="padding: 0; margin: 0; margin-bottom: 8px">
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 160px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="operationalReportPage.createReport()">Применить</button>
+</div>
+
+<h5 id="header3">Всего заявок</h5>
+<table class="table table-bordered table-sortable" 
+    style="width: fit-content; margin: auto">
+    <thead class="thead-light">
+        <tr id="header-row">
+            <th id="operation-id-th" class="table-header datatype-text">Номер</th>
+            <th class="table-header datatype-text">Клиент</th>
+            <th class="table-header datatype-text">Тип</th>
+            <th class="table-header datatype-text">Вид авто</th>
+            <th class="table-header datatype-text">Состояние</th>
+            <th class="table-header datatype-text">Прибытие</th>
+            <th class="table-header datatype-text" style="width: 6%">Нач. работ<br />план (факт)</th>
+            <th class="table-header datatype-text" style="width: 6%">Оконч. работ<br />план (факт)</th>
+            <th class="table-header datatype-text">Убытие</th>
+            <th class="table-header datatype-text">Время во дворе мин.</th>
+            <th class="table-header datatype-text">Длительность<br />план (факт) мин.</th>
+            <th class="table-header datatype-text">Трудозатраты план лин. (факт) чел. * мин.</th>
+            <th class="table-header datatype-text">Кол-во работников</th>
+            <th class="table-header datatype-text">Приходов/расходов</th>
+            <!--
+            <th class="table-header datatype-text">Вес нетто (кг)</th>
+            -->
+            <th class="table-header datatype-text">Вес брутто (кг)</th>
+            <th class="table-header datatype-text">Объём (куб. м)</th>
+            <th class="table-header datatype-text">Паллет</th>
+        </tr>
+    </thead>
+    <tbody id="report-tbody">
+    </tbody>
+</table>

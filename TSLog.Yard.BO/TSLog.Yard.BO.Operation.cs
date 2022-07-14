@@ -65,13 +65,23 @@ namespace TSLog.Yard.BO
         {
             get
             {
-                return (FactWorkFinishDate - FactWorkStartDate).TotalSeconds;
+                return FactWorkStartDate != DateTime.MinValue ? ((FactWorkFinishDate != DateTime.MinValue ? FactWorkFinishDate : DateTime.Now) - FactWorkStartDate).TotalSeconds : 0.0;
             }
         }
         /// <summary>
         /// Фактическая дата и время окончания
         /// </summary>
         public DateTime FinishDate { get; set; }
+        /// <summary>
+        /// Время присутствия машины на территории
+        /// </summary>
+        public double PresenceTime
+        {
+            get 
+            {
+                return StartDate != DateTime.MinValue ? ((FinishDate != DateTime.MinValue ? FinishDate : DateTime.Now) - StartDate).TotalSeconds : 0.0;
+            }
+        }
         /// <summary>
         /// Вид автомашины
         /// </summary>

@@ -44,12 +44,18 @@ class Utils {
 
     // Преобразует время в строку (только время) в формате HH:ММ
     timeToStringHHMM(date) {
-        return new date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     // Преобразует дату и время в строку
     dateTimeToString(date) {
         return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    }
+
+    // Преобразует время и дату в строку
+    timeDateToString(date) {
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " " +
+            date.toLocaleDateString([], { year: "2-digit", month: "2-digit" });
     }
 
     secondsToString(seconds) {

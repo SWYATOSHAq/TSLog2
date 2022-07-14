@@ -2218,6 +2218,91 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         #endregion
 
         #region Reporting
+
+        [HttpGet("OperationalReport")]
+        public string GetOperationalReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_OPERATIONAL_REPORT", User);
+                if (_useAuthentication && (!useYard || !getData))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string stringDate = Request.Query["date"];
+                var date = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(stringDate))
+                {
+                    stringDate = stringDate.Trim();
+                    if (!DateTime.TryParse(stringDate, out date))
+                        return $"Wrong to date {stringDate}";
+                }
+                string shift = Request.Query["shift"];
+                if (string.IsNullOrWhiteSpace(shift))
+                    shift = "day";
+                shift = shift.Trim().ToLower();
+                if (shift != "day" && shift != "night")
+                    return $"Unknown shift {shift}";
+
+                var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
+                var toDate = fromDate.AddHours(12);
+
+                var operations = _storage.GetOperationalReportData(fromDate, toDate);
+                var data = new List<dynamic>();
+                foreach (var operation in operations)
+                {
+                    dynamic element = new ExpandoObject();
+                    element.id = operation.Id;
+                    element.typeCode = operation.Type.Code;
+                    element.typeName = operation.Type.Name;
+                    element.typeShortName = operation.Type.ShortName;
+                    element.vehicleKindCode = operation.VehicleKind.Code;
+                    element.vehicleKindName = operation.VehicleKind.Name;
+                    element.vehicleKindShortName = operation.VehicleKind.ShortName;
+                    element.stateCode = operation.State.Code;
+                    element.stateName = operation.State.Name;
+                    element.stateShortName = operation.State.ShortName;
+                    element.startDate = operation.StartDate;
+                    element.planWorkStartDate = operation.PlanWorkStartDate;
+                    element.factWorkStartDate = operation.FactWorkStartDate;
+                    element.planWorkFinishDate = operation.PlanWorkFinishDate;
+                    element.factWorkFinishDate = operation.FactWorkFinishDate;
+                    element.finishDate = operation.FinishDate;
+                    element.planDuration = operation.PlanDuration;
+                    element.factDuration = operation.FactDuration;
+                    element.presenceTime = operation.PresenceTime;
+
+                    element.planLinearLaborCost = operation.PlanLinearLaborCost;
+                    element.planLaborCost = operation.PlanLaborCost;
+                    element.factLaborCost = operation.FactLaborCost;
+
+                    element.warehouseActionsCount = operation.ActionsCount;
+                    element.partnersIds = operation.PartnersIds;
+                    element.partnersNames = operation.PartnersNames;
+
+                    element.workersCount = operation.WorkersCount;
+                    //element.netWeight = operation.NetWeight;
+                    element.grossWeight = operation.GrossWeight;                    
+                    element.volume = operation.Volume;
+
+                    data.Add(element);
+
+                    // TODO: get actions, weight, volume, pallets count, boxes count
+                }
+
+                var text = JsonSerializer.Serialize(data);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
         private static dynamic LaborReportElementToDynamic(LaborReport.Element element)
         {
             dynamic result = new ExpandoObject();

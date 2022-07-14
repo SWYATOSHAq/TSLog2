@@ -11,7 +11,6 @@
     <ProjectReference Include="..\TSlog.Links.PSI.DataConverter\TSLog.Links.PSI.DataConverter.csproj" />
     <ProjectReference Include="..\TSLog.Links.Services\TSLog.Links.Services.csproj" />
     <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
-    <ProjectReference Include="..\TSLog.Log\TSLog.Log.csproj" />
   </ItemGroup>
 
 </Project>

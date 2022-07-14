@@ -451,6 +451,10 @@ namespace TSLog.Yard
         #endregion
 
         #region Reporting
+        public Operation[] GetOperationalReportData(DateTime? fromDate, DateTime? toDate)
+        {
+            return _pgsqlStorage.GetOperationalReportData(fromDate, toDate);
+        }
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
         {
             return _pgsqlStorage.GetYardStandardLabocCosts(fromDate, toDate);

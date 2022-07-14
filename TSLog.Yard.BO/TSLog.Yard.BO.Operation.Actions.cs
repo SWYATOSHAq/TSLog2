@@ -108,7 +108,10 @@ namespace TSLog.Yard.BO
         }
         public Partner[] Partners
         {
-            get { return GetPartners(); }
+            get 
+            { 
+                return GetPartners(); 
+            }
         }
         /// <summary>
         /// Идентификаторы всех клиентов (партнёров, мандантов) операции через запятую
@@ -147,6 +150,16 @@ namespace TSLog.Yard.BO
             }
         }
         /// <summary>
+        /// Общее количество складских действ (приходов, расходов) в операции двора
+        /// </summary>
+        public int ActionsCount
+        {
+            get 
+            {
+                return _actions.Count;
+            }
+        }
+        /// <summary>
         /// Список идентификаторов (из WMS) всех складских действ
         /// </summary>
         public string ActionsIds
@@ -180,6 +193,39 @@ namespace TSLog.Yard.BO
                     ids.Append(!string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : "Б/Н");
                 }
                 return ids.ToString();
+            }
+        }
+        public double NetWeight
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.NetWeight;
+                return result;
+            }
+        }
+        public double GrossWeight
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.GrossWeight;
+                return result;
+            }
+        }
+        public double Volume
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.Volume;
+                return result;
             }
         }
     }

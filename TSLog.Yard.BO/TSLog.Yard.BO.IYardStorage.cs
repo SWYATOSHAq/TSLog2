@@ -115,6 +115,7 @@ namespace TSLog.Yard.BO
     }
     public interface IYardReportingStorage
     {
+        public Operation[] GetOperationalReportData(DateTime? fromDate, DateTime? toDate);
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate);
         public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate);
         public dynamic[] GetYardShiftLabocCosts(DateTime date);

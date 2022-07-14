@@ -25,6 +25,7 @@
     var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT_PAGE", User);
     var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_PRESENT_VEHICLES_PAGE", User);
     var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
+    var canOperationalReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATIONAL_REPORT_PAGE", User);
     var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
     var canViewEcReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User);
@@ -87,6 +88,10 @@
     else if (page == "GuardPage")
     {
         <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
+    } 
+    else if (page == "OperationalReportPage")
+    {
+        <link rel="stylesheet" href="~/css/OperationalReportPage.css" asp-append-version="true" />
     } 
     else if (page == "LaborReportPage")
     {
@@ -154,6 +159,10 @@
             </div>
         </div>
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+            @if (canOperationalReportPage)
+            {
+                <a class="nav-link text-dark hide-on-print" href="/OperationalReportPage">Оперативный отчёт</a>
+            }
             @if (canViewLaborReportPage)
             {
                 <!--
@@ -249,6 +258,10 @@
         else if (page == "GuardPage")
         {        
             <script type="text/javascript" src="~/js/GuardPage.js"></script>
+        }
+        else if (page == "OperationalReportPage")
+        {        
+            <script type="text/javascript" src="~/js/OperationalReportPage.js"></script>
         }
         else if (page == "LaborReportPage")
         {        
