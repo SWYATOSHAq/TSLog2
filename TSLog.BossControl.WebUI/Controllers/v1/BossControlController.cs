@@ -36,8 +36,12 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.surname = worker.Surname;
             result.firstName = worker.FirstName;
             result.patronymic = worker.Patronymic;
-            result.majorPosition = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty 
-                ? worker.MajorPosition.Name 
+            result.fullName = worker.FullName;
+            result.majorPositionCode = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
+                ? worker.MajorPosition.Code
+                : string.Empty;
+            result.majorPositionName = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
+                ? worker.MajorPosition.Name
                 : string.Empty;
             result.companyId = worker.Company.Id;
             result.companyName = worker.Company.Name;

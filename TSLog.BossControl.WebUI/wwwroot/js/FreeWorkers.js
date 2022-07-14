@@ -28,7 +28,7 @@ class FreeWorkersPage {
         const tr = document.createElement("tr");
 
         viewUtils.createCell(tr, ["table-cell"], [worker.surname + " " + worker.firstName]);
-        viewUtils.createCell(tr, ["table-cell"], [worker.majorPosition]);
+        viewUtils.createCell(tr, ["table-cell"], [worker.majorPositionName]);
         viewUtils.createCell(tr, ["table-cell"], [worker.companyName]);
         viewUtils.createCell(tr, ["table-cell"], [worker.wmsLogin]);
 
@@ -46,8 +46,8 @@ class FreeWorkersPage {
         tbody.appendChild(tr);
     }
 
-    showFreeWorkers() {
-        for (let siteWorker of this.workers) {
+    showFreeWorkers(filteredData) {
+        for (let siteWorker of filteredData) {
             this.showWorker(siteWorker);
         }
     }
@@ -61,12 +61,46 @@ class FreeWorkersPage {
         }
     }
 
-    async show() {
+    onChangeFilter() {
+        const filters = [];
+        const workerNameInput = document.getElementById("workerInput");
+        if (workerNameInput != undefined && workerNameInput != null && workerNameInput.value.trim() != "") {
+            const workerNameFilterElement = viewUtils.getFilterElementByStringInput("fullName", workerNameInput);
+            filters.push(workerNameFilterElement);
+        }
+
+        const wmsUserInput = document.getElementById("wmsUserInput");
+        if (wmsUserInput != undefined && wmsUserInput != null && wmsUserInput.value.trim() != "") {
+            const wmsUserFilterElement = viewUtils.getFilterElementByStringInput("wmsLogin", wmsUserInput);
+            filters.push(wmsUserFilterElement);
+        }
+
+        const positionsSelect = document.getElementById("positions-select");
+        const positionsFilterElement = viewUtils.getFilterElementBySelect("majorPositionCode", positionsSelect);
+        if (positionsFilterElement.value != undefined && positionsFilterElement.value != null && positionsFilterElement.value.trim() != "") {
+            filters.push(positionsFilterElement);
+        }
+
+        const companiesSelect = document.getElementById("companies-select");
+        const companiesFilterElement = viewUtils.getFilterElementBySelect("companyId", companiesSelect);
+        if (companiesFilterElement.value != undefined && companiesFilterElement.value != null && companiesFilterElement.value.trim() != "") {
+            filters.push(companiesFilterElement);
+        }
+
+        let filteredData = utils.filterData(this.workers, filters);
         this.clearFreeWorkers();
+        this.showFreeWorkers(filteredData);
+
+    }
+
+    async show() {
         await this.getFreeWorkers();
-        this.showFreeWorkers();
+        this.onChangeFilter();
+        viewUtils.initInput("workerInput", "", this.onChangeFilter.bind(this));
+        viewUtils.initInput("wmsUserInput", "", this.onChangeFilter.bind(this));
+        viewUtils.initSelect("positions-select", "", this.onChangeFilter.bind(this));
+        viewUtils.initSelect("companies-select", "", this.onChangeFilter.bind(this));
         viewUtils.sortTable ();
-        viewUtils.filterTable(".table-div");
     }
 }
 
