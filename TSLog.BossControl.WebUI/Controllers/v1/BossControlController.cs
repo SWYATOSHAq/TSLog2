@@ -72,6 +72,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             dynamic result = new ExpandoObject();
             //result.site = BossControlController.SiteToDynamic(siteWorker.Site);
             result.siteId = siteWorker.Site.Id;
+            result.siteCode = siteWorker.Site.Code;
             result.siteName = siteWorker.Site.Name;
             //result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
             result.partnerId = siteWorker.Partner.Id;
@@ -81,10 +82,14 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.workerFullName = siteWorker.Worker.FullName;
 
             result.workerMajorPositionId = -1;
+            result.workerMajorPositionCode = "";
             result.workerMajorPositionName = string.Empty;
-            if (siteWorker.Worker.MajorPosition != null && siteWorker.Worker.MajorPosition != Position.Null && siteWorker.Worker.MajorPosition != Position.Empty)
+            if (siteWorker.Worker.MajorPosition != null
+                && siteWorker.Worker.MajorPosition != Position.Null
+                && siteWorker.Worker.MajorPosition != Position.Empty)
             {
                 result.workerMajorPositionId = siteWorker.Worker.MajorPosition.Id;
+                result.workerMajorPositionCode = siteWorker.Worker.MajorPosition.Code;
                 result.workerMajorPositionName = siteWorker.Worker.MajorPosition.Name;
             }
 
@@ -95,8 +100,8 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.workerAdLogin = siteWorker.Worker.AdLogin;
 
             result.startDate = siteWorker.StartDate.ToString("HH:mm:ss (yyyy.MM.dd)");
-            result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy"); ;
-            result.startTime = siteWorker.StartDate.ToString("HH:mm:ss"); ;
+            result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy");
+            result.startTime = siteWorker.StartDate.ToString("HH:mm:ss");
 
             return result;
         }

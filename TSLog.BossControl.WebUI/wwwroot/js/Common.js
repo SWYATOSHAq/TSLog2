@@ -117,16 +117,16 @@ class Utils {
 
     filterData(data, filters) {
         let resultData = [];
-        for (let element in data) {
+        for (let element of data) {
             let isValid = true;
-            for (let filter in filters) {
+            for (let filter of filters) {
                 if (filter.condition === "=") {
                     if (element[filter.fieldName] != filter.value) {
                         isValid = false;
                         break;
                     }
                 } else if (filter.condition === "like") {
-                    if (!(element[filter.fieldName].includes(filter.value))) {
+                    if (!(element[filter.fieldName].toLowerCase().replace("ё", "е").includes(filter.value))) {
                         isValid = false;
                         break;
                     }

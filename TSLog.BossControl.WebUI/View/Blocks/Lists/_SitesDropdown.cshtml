@@ -15,7 +15,7 @@
 }
 <div id="positions-div" class="@divClasses">
     <span class="input-group-text col-3@(isSmall ? " d-none" : string.Empty)">Участок</span>
-    <select id="positions-select" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
+    <select id="sites-select" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
         <option value="">@defaultText</option>
         @foreach (var site in sites)
         {
