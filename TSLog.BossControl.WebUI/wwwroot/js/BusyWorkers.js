@@ -78,12 +78,36 @@ class BusyWorkersPage {
         }
     }
 
+    onChangeFilter() {
+        const filters = [];
+        const workerNameInput = document.getElementById("workerInput");
+        if (workerNameInput != undefined && workerNameInput != null && workerNameInput.value.trim() != "") {
+            const workerNameFilterElement = viewUtils.getFilterElementByStringInput("workerName", workerNameInput);
+            filters.push(workerNameFilterElement);
+        }
+
+        const wmsUserInput = document.getElementById("wmsUserInput");
+        if (wmsUserInput != undefined && wmsUserInput != null && wmsUserInput.value.trim() != "") {
+            const wmsUserFilterElement = viewUtils.getFilterElementByStringInput("wmsUser", wmsUserInput);
+            filters.push(wmsUserFilterElement);
+        }
+
+        const positionsSelect = document.getElementById("positions-select");
+        const positionsFilterElement = viewUtils.getFilterElementBySelect("position", positionsSelect);
+        filters.push(positionsFilterElement);
+
+        let filteredData = utils.filterData(this.sitesWorkers, filters);
+        this.clearBusyWorkers();
+        this.showData(filteredData);
+
+    }
+
     async show() {
         this.clearBusyWorkers();
         await this.getBusyWorkers();
         this.showBusyWorkers();
         viewUtils.sortTable();
-        viewUtils.filterTable(".table-div");
+        //viewUtils.filterTable(".table-div");
     }
 }
 
