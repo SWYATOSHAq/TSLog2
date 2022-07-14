@@ -82,7 +82,9 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
 
             result.workerMajorPositionId = -1;
             result.workerMajorPositionName = string.Empty;
-            if (siteWorker.Worker.MajorPosition != null && siteWorker.Worker.MajorPosition != Position.Null && siteWorker.Worker.MajorPosition != Position.Empty)
+            if (siteWorker.Worker.MajorPosition != null 
+                && siteWorker.Worker.MajorPosition != Position.Null 
+                && siteWorker.Worker.MajorPosition != Position.Empty)
             {
                 result.workerMajorPositionId = siteWorker.Worker.MajorPosition.Id;
                 result.workerMajorPositionName = siteWorker.Worker.MajorPosition.Name;
@@ -95,8 +97,8 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.workerAdLogin = siteWorker.Worker.AdLogin;
 
             result.startDate = siteWorker.StartDate.ToString("HH:mm:ss (yyyy.MM.dd)");
-            result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy"); ;
-            result.startTime = siteWorker.StartDate.ToString("HH:mm:ss"); ;
+            result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy");
+            result.startTime = siteWorker.StartDate.ToString("HH:mm:ss");
 
             return result;
         }
@@ -118,7 +120,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
         }
 
         [HttpPatch("EnterSite")]
-        async public Task<string> EmployeeEnterSite() 
+        async public Task<string> EmployeeEnterSite()
         {
             try
             {
@@ -163,7 +165,6 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 return exception.Message;
             }
         }
-
         [HttpGet("BusyWorkers")]
         public string GetBusyWorkers()
         {
