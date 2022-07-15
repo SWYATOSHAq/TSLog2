@@ -72,6 +72,13 @@ class ViewUtils {
         this.createCellContent("td", row, styles, contents, cssText);
     }
 
+    // Создаёт ячейку таблицы c ЖИРНЫМ шрифтом
+    createBoldCell(row, styles, contents, cssText = "") {
+        const b = document.createElement("b");
+        b.append(contents);
+        this.createCellContent("td", row, styles, [b], cssText);
+    }
+
     // Показывает сообщение об ошибке
     showError(message, showLog = true, showAlert = true) {
         if (showLog) {

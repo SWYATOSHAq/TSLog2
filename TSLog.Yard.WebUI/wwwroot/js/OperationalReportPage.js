@@ -3,6 +3,8 @@
     Автор - Буров Михаил.
     Создан - 2022.07.14.
 */
+
+// Страница оперативного отчёта (за смену)
 class OperationalReportPage {
     shortUrl;
     data = [];
@@ -24,12 +26,6 @@ class OperationalReportPage {
         result = utils.addParameter(result, "date", "date-input");
         result = utils.addParameter(result, "shift", "shift-select");
 
-        result = utils.addParameter(result, "gate_code", "gates-select");
-        result = utils.addParameter(result, "partner_id", "partners-select");
-        result = utils.addParameter(result, "operation_type_code", "operation-types-select");
-        result = utils.addParameter(result, "vehicle_kind_code", "vehicle-kinds-select");
-        result = utils.addParameter(result, "state_code", "operation-states-select");
-
         return result != "" ? "?" + result : "";
     }
 
@@ -50,79 +46,149 @@ class OperationalReportPage {
         this.data = [];
     }
 
+    showOperation(tr, element) {
+        element.startDate = utils.stringToDate(element.startDate);
+        element.planWorkStartDate = utils.stringToDate(element.planWorkStartDate);
+        element.factWorkStartDate = utils.stringToDate(element.factWorkStartDate);
+        element.planWorkFinishDate = utils.stringToDate(element.planWorkFinishDate);
+        element.factWorkFinishDate = utils.stringToDate(element.factWorkFinishDate);
+        element.finishDate = utils.stringToDate(element.finishDate);
+
+        const isLate = element.factWorkFinishDate > utils.nullDate && element.planWorkFinishDate < element.factWorkFinishDate; 
+        const durationExcess = element.factDuration > 0 && element.planDuration < element.factDuration;
+        const laborCostExcess = element.factLaborCost > 0 && element.planLinearLaborCost < element.factLaborCost;
+        const isBad = isLate || durationExcess || laborCostExcess;
+        
+        let style = "background-color: lightcyan";
+        if (isBad) {
+            style = "background-color: peachpuff";
+        }
+        tr.style.cssText = style;
+
+        viewUtils.createCell(tr, ["table-cell"], [element.id]);
+        viewUtils.createCell(tr, ["table-cell"], [element.partnersNames]);
+        viewUtils.createCell(tr, ["table-cell"], [element.typeShortName]);
+        viewUtils.createCell(tr, ["table-cell"], [element.vehicleKindShortName]);
+        viewUtils.createCell(tr, ["table-cell"], [element.stateShortName]);
+
+        let content = "Ожидается"
+        if (element.startDate > utils.nullDate) {
+            content = utils.timeToStringHHMM(element.startDate);
+        }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
+
+        content = utils.timeToStringHHMM(element.planWorkStartDate);
+        if (element.factWorkStartDate > utils.nullDate) {
+            content += " (" + utils.timeToStringHHMM(element.factWorkStartDate) + ")"
+        }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
+
+        content = utils.timeToStringHHMM(element.planWorkFinishDate);
+        if (element.factWorkFinishDate > utils.nullDate) {
+            content += " (" + utils.timeToStringHHMM(element.factWorkFinishDate) + ")"
+        }
+        if (isLate) {
+            viewUtils.createBoldCell(tr, ["table-cell"], [content]);
+        } else {
+            viewUtils.createCell(tr, ["table-cell"], [content]);
+        }
+
+        viewUtils.createCell(tr, ["table-cell"],
+            [element.finishDate > utils.nullDate ? utils.timeToStringHHMM(element.finishDate) : ""]);
+
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.presenceTime / 60)]);
+
+        content = utils.displayFloat(element.planDuration / 60);
+        if (element.factDuration > 0) {
+            content += " (" + utils.displayFloat(element.factDuration / 60) + ")"
+        }
+        if (durationExcess) {
+            viewUtils.createBoldCell(tr, ["table-cell"], [content]);
+        } else {
+            viewUtils.createCell(tr, ["table-cell"], [content]);
+        }        
+
+        content = utils.displayFloat(element.planLinearLaborCost / 60);
+        if (element.factLaborCost > 0) {
+            content += " (" + utils.displayFloat(element.factLaborCost / 60) + ")"
+        }
+        if (laborCostExcess) {
+            viewUtils.createBoldCell(tr, ["table-cell"], [content]);
+        } else {
+            viewUtils.createCell(tr, ["table-cell"], [content]);
+        }        
+
+        viewUtils.createCell(tr, ["table-cell"], [element.workersCount]);
+        viewUtils.createCell(tr, ["table-cell"], [element.warehouseActionsCount]);
+
+        //viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.netWeight / 1000 / 1000)]);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.grossWeight / 1000 / 1000)]);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.volume / 1000 / 1000 / 1000, 2)]);
+
+        viewUtils.createCell(tr, ["table-cell"], [""]);
+    }
+
     async showOperations() {
         const reportTBody = document.getElementById("report-tbody");
+        let totalPresenceTime = 0.0;
+        let totalPlanWorkTime = 0.0;
+        let totalFactWorkTime = 0.0;
+        let totalPlanLaborCost = 0.0;
+        let totalFactLaborCost = 0.0;
+        let totalWorkersCount = 0;
+        let totalActionsCount = 0;
+        let totalWeight = 0.0;
+        let totalVolume = 0.0;
         for (let element of this.data) {
-            element.startDate = utils.stringToDate(element.startDate);
-            element.planWorkStartDate = utils.stringToDate(element.planWorkStartDate);
-            element.factWorkStartDate = utils.stringToDate(element.factWorkStartDate);
-            element.planWorkFinishDate = utils.stringToDate(element.planWorkFinishDate);
-            element.factWorkFinishDate = utils.stringToDate(element.factWorkFinishDate);
-            element.finishDate = utils.stringToDate(element.finishDate);
-
-            const isBad = element.factWorkFinishDate > utils.nullDate && element.planWorkFinishDate < element.factWorkFinishDate ||
-                element.factDuration > 0 && element.planDuration < element.factDuration ||
-                element.factLaborCost > 0 && element.planLinearLaborCost < element.factLaborCost;
-
             const tr = document.createElement("tr");
-            let style = "background-color: lightcyan";
-            if (isBad) {
-                style = "background-color: peachpuff";
-            }
-            tr.style.cssText = style;
-
-            viewUtils.createCell(tr, ["table-cell"], [element.id]);
-            viewUtils.createCell(tr, ["table-cell"], [element.partnersNames]);
-            viewUtils.createCell(tr, ["table-cell"], [element.typeShortName]);
-            viewUtils.createCell(tr, ["table-cell"], [element.vehicleKindShortName]);
-            viewUtils.createCell(tr, ["table-cell"], [element.stateShortName]);
-
-            let content = "Ожидается"
-            if (element.startDate > utils.nullDate) {
-                content = utils.timeToStringHHMM(element.startDate);
-            }
-            viewUtils.createCell(tr, ["table-cell"], [content]);
-
-            content = utils.timeToStringHHMM(element.planWorkStartDate);
-            if (element.factWorkStartDate > utils.nullDate) {
-                content += " (" + utils.timeToStringHHMM(element.factWorkStartDate) + ")"
-            }
-            viewUtils.createCell(tr, ["table-cell"], [content]);
-
-            content = utils.timeToStringHHMM(element.planWorkFinishDate);
-            if (element.factWorkStartDate > utils.nullDate) {
-                content += " (" + utils.timeToStringHHMM(element.factWorkFinishDate) + ")"
-            }
-            viewUtils.createCell(tr, ["table-cell"], [content]);
-
-            viewUtils.createCell(tr, ["table-cell"],
-                [element.finishDate > utils.nullDate ? utils.timeToStringHHMM(element.finishDate) : ""]);
-
-            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.presenceTime / 60)]);
-
-            content = utils.displayFloat(element.planDuration / 60);
-            if (element.factDuration > 0) {
-                content += " (" + utils.displayFloat(element.factDuration / 60) + ")"
-            }
-            viewUtils.createCell(tr, ["table-cell"], [content]);
-
-            content = utils.displayFloat(element.planLinearLaborCost / 60);
-            if (element.factLaborCost > 0) {
-                content += " (" + utils.displayFloat(element.factLaborCost / 60) + ")"
-            }
-            viewUtils.createCell(tr, ["table-cell"], [content]);
-
-            viewUtils.createCell(tr, ["table-cell"], [element.workersCount]);
-            viewUtils.createCell(tr, ["table-cell"], [element.warehouseActionsCount]);
-                        
-            //viewUtils.createCell(tr, ["table-cell"], [element.netWeight]);
-            viewUtils.createCell(tr, ["table-cell"], [element.grossWeight]);
-            viewUtils.createCell(tr, ["table-cell"], [element.volume]);
-
-            viewUtils.createCell(tr, ["table-cell"], [""]);
-
+            this.showOperation(tr, element);
             reportTBody.append(tr);
+
+            totalPresenceTime += element.presenceTime;
+            totalPlanWorkTime += element.planDuration;
+            totalFactWorkTime += element.factDuration;
+            totalPlanLaborCost += element.planLaborCost;
+            totalFactLaborCost += element.factLaborCost;
+            totalWorkersCount += element.workersCount;
+            totalActionsCount += element.warehouseActionsCount;
+            totalWeight += element.grossWeight;
+            totalVolume += element.volume;
         }
+        const elementsCountH5 = document.getElementById("elements-count-h5");
+        elementsCountH5.textContent = "Всего заявок - " + this.data.length;
+
+        const reportTFoot = document.getElementById("report-tfoot");
+        const summaryTr = document.createElement("tr");
+        let contents = "";
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [utils.displayFloat(totalPresenceTime / 60)]);
+        contents = utils.displayFloat(totalPlanWorkTime / 60);
+        if (totalFactWorkTime > 0.0) {
+            contents += " (" + utils.displayFloat(totalFactWorkTime / 60) + ")";
+        }
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [contents]);
+
+        contents = utils.displayFloat(totalPlanLaborCost / 60);
+        if (totalFactLaborCost > 0.0) {
+            contents += " (" + utils.displayFloat(totalFactLaborCost / 60) + ")"
+        }
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [contents]);
+
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [totalWorkersCount]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [totalActionsCount]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [utils.displayFloat(totalWeight / 1000 / 1000)]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [utils.displayFloat(totalVolume / 1000 / 1000 / 1000, 2)]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+
+        reportTFoot.append(summaryTr);
     }
 
     async onChangeFilter() {
@@ -130,18 +196,6 @@ class OperationalReportPage {
         await this.getData();
         this.sortOperations(this.sortCompare.bind(this));
         await this.showOperations();
-    }
-
-    getOperationTypeHint() {
-        //const select = document.getElementById("operation-types-select");
-        //if (select.selectedIndex >= 0) {
-        //    select.title = select.options[select.selectedIndex].getAttribute("note");
-        //}        
-    }
-
-    async onChangeOperationType() {
-        await this.onChangeFilter();
-        this.getOperationTypeHint();        
     }
 
     showShiftInfo() {
@@ -186,20 +240,11 @@ class OperationalReportPage {
         if (shift != "day" && shift != "night") {
             shift = "day";
         }
-        viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));
-        this.showShiftInfo();
+        viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
 
-        viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeOperationType.bind(this));
-        viewUtils.initSelect("vehicle-kinds-select", utils.getUrlParameter("vehicle_kind_code"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
-               
-        this.getOperationTypeHint();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.showShiftInfo();
         viewUtils.sortTable();
 
         await this.createReport();

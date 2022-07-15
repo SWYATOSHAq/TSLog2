@@ -2218,7 +2218,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         #endregion
 
         #region Reporting
-
         [HttpGet("OperationalReport")]
         public string GetOperationalReport()
         {
@@ -2255,6 +2254,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var data = new List<dynamic>();
                 foreach (var operation in operations)
                 {
+                    var actions = operation.GetActions();
+                    foreach (var action in actions)
+                    {
+                        var lines = _storage.GetWarehouseActionLines(action.Kind, action.Id);
+                        action.AddLines(lines);
+                    }
                     dynamic element = new ExpandoObject();
                     element.id = operation.Id;
                     element.typeCode = operation.Type.Code;
@@ -2285,13 +2290,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.partnersNames = operation.PartnersNames;
 
                     element.workersCount = operation.WorkersCount;
-                    //element.netWeight = operation.NetWeight;
+                    element.netWeight = operation.NetWeight;
                     element.grossWeight = operation.GrossWeight;                    
                     element.volume = operation.Volume;
 
                     data.Add(element);
 
-                    // TODO: get actions, weight, volume, pallets count, boxes count
+                    // TODO: get pallets count, boxes count
                 }
 
                 var text = JsonSerializer.Serialize(data);

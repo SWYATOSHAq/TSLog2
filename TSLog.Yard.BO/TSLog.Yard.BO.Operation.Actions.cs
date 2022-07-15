@@ -224,7 +224,7 @@ namespace TSLog.Yard.BO
                 var result = 0.0;
                 var actions = GetActions();
                 foreach (var action in actions)
-                    result += action.Volume;
+                    result += action.PlanVolume;
                 return result;
             }
         }
