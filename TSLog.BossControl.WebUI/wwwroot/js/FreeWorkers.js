@@ -13,6 +13,18 @@ class FreeWorkersPage {
         this.shortUrl = location.href.split('?')[0];
     }
 
+    createParameters() {
+        let result = "";
+
+        result = utils.addParameter(result, "worker", "workerInput");
+        result = utils.addParameter(result, "wmsUser", "wmsUserInput");
+        result = utils.addParameter(result, "position", "positions-select");
+        result = utils.addParameter(result, "company", "companies-select");
+        //result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
+
+        return result != "" ? "?" + result : "";
+    }
+
     clearFreeWorkers() {
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.replaceChildren();
@@ -90,16 +102,18 @@ class FreeWorkersPage {
         let filteredData = utils.filterData(this.workers, filters);
         this.clearFreeWorkers();
         this.showFreeWorkers(filteredData);
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
 
     }
 
     async show() {
         await this.getFreeWorkers();
         this.onChangeFilter();
-        viewUtils.initInput("workerInput", "", this.onChangeFilter.bind(this));
-        viewUtils.initInput("wmsUserInput", "", this.onChangeFilter.bind(this));
-        viewUtils.initSelect("positions-select", "", this.onChangeFilter.bind(this));
-        viewUtils.initSelect("companies-select", "", this.onChangeFilter.bind(this));
+        viewUtils.initInput("workerInput", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("wmsUserInput", utils.getUrlParameter("wmsUser"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("positions-select", utils.getUrlParameter("position"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("companies-select", utils.getUrlParameter("company"), this.onChangeFilter.bind(this));
         viewUtils.sortTable ();
     }
 }
