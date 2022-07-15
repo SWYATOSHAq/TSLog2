@@ -13,6 +13,20 @@ class BusyWorkersPage {
         this.shortUrl = location.href.split('?')[0];
     }
 
+    createParameters() {
+        let result = "";
+
+        result = utils.addParameter(result, "worker", "workerInput");
+        result = utils.addParameter(result, "wmsUser", "wmsUserInput");
+        result = utils.addParameter(result, "position", "positions-select");
+        result = utils.addParameter(result, "company", "companies-select");
+        result = utils.addParameter(result, "site", "sites-select");
+        result = utils.addParameter(result, "partner", "partners-select");
+        //result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
+
+        return result != "" ? "?" + result : "";
+    }
+
     clearBusyWorkers() {
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.replaceChildren();
@@ -63,8 +77,8 @@ class BusyWorkersPage {
         tbody.appendChild(tr);
     }
 
-    showBusyWorkers() {
-        for (let siteWorker of this.sitesWorkers) {
+    showBusyWorkers(filteredData) {
+        for (let siteWorker of filteredData) {
             this.showSiteWorker(siteWorker);
         }
     }
@@ -82,32 +96,58 @@ class BusyWorkersPage {
         const filters = [];
         const workerNameInput = document.getElementById("workerInput");
         if (workerNameInput != undefined && workerNameInput != null && workerNameInput.value.trim() != "") {
-            const workerNameFilterElement = viewUtils.getFilterElementByStringInput("workerName", workerNameInput);
+            const workerNameFilterElement = viewUtils.getFilterElementByStringInput("workerFullName", workerNameInput);
             filters.push(workerNameFilterElement);
         }
 
         const wmsUserInput = document.getElementById("wmsUserInput");
         if (wmsUserInput != undefined && wmsUserInput != null && wmsUserInput.value.trim() != "") {
-            const wmsUserFilterElement = viewUtils.getFilterElementByStringInput("wmsUser", wmsUserInput);
+            const wmsUserFilterElement = viewUtils.getFilterElementByStringInput("workerWmsLogin", wmsUserInput);
             filters.push(wmsUserFilterElement);
         }
 
         const positionsSelect = document.getElementById("positions-select");
-        const positionsFilterElement = viewUtils.getFilterElementBySelect("position", positionsSelect);
-        filters.push(positionsFilterElement);
+        const positionsFilterElement = viewUtils.getFilterElementBySelect("workerMajorPositionCode", positionsSelect);
+        if (positionsFilterElement.value != undefined && positionsFilterElement.value != null && positionsFilterElement.value.trim() != "") {
+            filters.push(positionsFilterElement);
+        }
+
+        const companiesSelect = document.getElementById("companies-select");
+        const companiesFilterElement = viewUtils.getFilterElementBySelect("workerCompanyId", companiesSelect);
+        if (companiesFilterElement.value != undefined && companiesFilterElement.value != null && companiesFilterElement.value.trim() != "") {
+            filters.push(companiesFilterElement);
+        }
+
+        const sitesSelect = document.getElementById("sites-select");
+        const sitesFilterElement = viewUtils.getFilterElementBySelect("siteCode", sitesSelect);
+        if (sitesFilterElement.value != undefined && sitesFilterElement.value != null && sitesFilterElement.value.trim() != "") {
+            filters.push(sitesFilterElement);
+        }
+
+        const partnersSelect = document.getElementById("partners-select");
+        const partnersFilterElement = viewUtils.getFilterElementBySelect("partnerId", partnersSelect);
+        if (partnersFilterElement.value != undefined && partnersFilterElement.value != null && partnersFilterElement.value.trim() != "") {
+            filters.push(partnersFilterElement);
+        }
 
         let filteredData = utils.filterData(this.sitesWorkers, filters);
         this.clearBusyWorkers();
-        this.showData(filteredData);
+        this.showBusyWorkers(filteredData);
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
 
     }
 
     async show() {
-        this.clearBusyWorkers();
         await this.getBusyWorkers();
-        this.showBusyWorkers();
+        this.onChangeFilter();
+        viewUtils.initInput("workerInput", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("wmsUserInput", utils.getUrlParameter("wmsUser"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("positions-select", utils.getUrlParameter("position"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("companies-select", utils.getUrlParameter("company"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("sites-select", utils.getUrlParameter("site"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner"), this.onChangeFilter.bind(this));
         viewUtils.sortTable();
-        //viewUtils.filterTable(".table-div");
     }
 }
 

@@ -37,8 +37,11 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.firstName = worker.FirstName;
             result.patronymic = worker.Patronymic;
             result.fullName = worker.FullName;
-            result.majorPosition = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty 
-                ? worker.MajorPosition.Name 
+            result.majorPositionCode = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
+                ? worker.MajorPosition.Code
+                : string.Empty;
+            result.majorPositionName = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
+                ? worker.MajorPosition.Name
                 : string.Empty;
             result.companyId = worker.Company.Id;
             result.companyName = worker.Company.Name;
@@ -85,8 +88,8 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.workerMajorPositionId = -1;
             result.workerMajorPositionCode = "";
             result.workerMajorPositionName = string.Empty;
-            if (siteWorker.Worker.MajorPosition != null 
-                && siteWorker.Worker.MajorPosition != Position.Null 
+            if (siteWorker.Worker.MajorPosition != null
+                && siteWorker.Worker.MajorPosition != Position.Null
                 && siteWorker.Worker.MajorPosition != Position.Empty)
             {
                 result.workerMajorPositionId = siteWorker.Worker.MajorPosition.Id;
@@ -124,7 +127,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
         }
 
         [HttpPatch("EnterSite")]
-        async public Task<string> EmployeeEnterSite()
+        async public Task<string> EmployeeEnterSite() 
         {
             try
             {
@@ -169,6 +172,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 return exception.Message;
             }
         }
+
         [HttpGet("BusyWorkers")]
         public string GetBusyWorkers()
         {
