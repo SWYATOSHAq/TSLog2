@@ -13,6 +13,20 @@ class BusyWorkersPage {
         this.shortUrl = location.href.split('?')[0];
     }
 
+    createParameters() {
+        let result = "";
+
+        result = utils.addParameter(result, "worker", "workerInput");
+        result = utils.addParameter(result, "wmsUser", "wmsUserInput");
+        result = utils.addParameter(result, "position", "positions-select");
+        result = utils.addParameter(result, "company", "companies-select");
+        result = utils.addParameter(result, "site", "sites-select");
+        result = utils.addParameter(result, "partner", "partners-select");
+        //result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
+
+        return result != "" ? "?" + result : "";
+    }
+
     clearBusyWorkers() {
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.replaceChildren();
@@ -119,18 +133,20 @@ class BusyWorkersPage {
         let filteredData = utils.filterData(this.sitesWorkers, filters);
         this.clearBusyWorkers();
         this.showBusyWorkers(filteredData);
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
 
     }
 
     async show() {
         await this.getBusyWorkers();
         this.onChangeFilter();
-        viewUtils.initInput("workerInput", "", this.onChangeFilter.bind(this));
-        viewUtils.initInput("wmsUserInput", "", this.onChangeFilter.bind(this));
-        viewUtils.initSelect("positions-select", "", this.onChangeFilter.bind(this));
-        viewUtils.initSelect("companies-select", "", this.onChangeFilter.bind(this));
-        viewUtils.initSelect("sites-select", "", this.onChangeFilter.bind(this));
-        viewUtils.initSelect("partners-select", "", this.onChangeFilter.bind(this));
+        viewUtils.initInput("workerInput", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
+        viewUtils.initInput("wmsUserInput", utils.getUrlParameter("wmsUser"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("positions-select", utils.getUrlParameter("position"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("companies-select", utils.getUrlParameter("company"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("sites-select", utils.getUrlParameter("site"), this.onChangeFilter.bind(this));
+        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner"), this.onChangeFilter.bind(this));
         viewUtils.sortTable();
     }
 }
