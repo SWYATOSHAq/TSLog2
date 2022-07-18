@@ -153,29 +153,55 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный вес нетто
+        /// Суммарный плановый вес нетто
         /// </summary>
-        public double NetWeight
+        public double PlanNetWeight
         {
             get
             {
-                var netWeight = 0.0;
+                var planNetWeight = 0.0;
                 foreach (var line in _lines.Values)
-                    netWeight += line.FactNetWeight;
-                return netWeight;
+                    planNetWeight += line.PlanNetWeight;
+                return planNetWeight;
             }
         }
         /// <summary>
-        /// Суммарный вес брутто
+        /// Суммарный плановый вес брутто
         /// </summary>
-        public double GrossWeight
+        public double PlanGrossWeight
         {
             get
             {
-                var grossWeight = 0.0;
+                var planGrossWeight = 0.0;
                 foreach (var line in _lines.Values)
-                    grossWeight += line.FactGrossWeight;
-                return grossWeight;
+                    planGrossWeight += line.PlanGrossWeight;
+                return planGrossWeight;
+            }
+        }
+        /// <summary>
+        /// Суммарный фактический вес нетто
+        /// </summary>
+        public double FactNetWeight
+        {
+            get
+            {
+                var factNetWeight = 0.0;
+                foreach (var line in _lines.Values)
+                    factNetWeight += line.FactNetWeight;
+                return factNetWeight;
+            }
+        }
+        /// <summary>
+        /// Суммарный фактический вес брутто
+        /// </summary>
+        public double FactGrossWeight
+        {
+            get
+            {
+                var factGrossWeight = 0.0;
+                foreach (var line in _lines.Values)
+                    factGrossWeight += line.FactGrossWeight;
+                return factGrossWeight;
             }
         }
         /// <summary>
@@ -214,7 +240,32 @@ namespace TSLog.WarehouseActions.BO
                 return count;
             }
         }
-
+        /// <summary>
+        /// Плановое количество коробок
+        /// </summary>
+        public double PlanBoxeCount
+        {
+            get 
+            {
+                var count = 0.0;
+                foreach (var line in _lines.Values)
+                    count += line.PlanQuantity / line.BoxStandard;
+                return count;
+            }
+        }
+        /// <summary>
+        /// Фактическое количество коробок
+        /// </summary>
+        public double FactBoxeCount
+        {
+            get
+            {
+                var count = 0.0;
+                foreach (var line in _lines.Values)
+                    count += line.FactQuantity / line.BoxStandard;
+                return count;
+            }
+        }
         private static WarehouseAction? _null = null;
         /// <summary>
         /// Null object

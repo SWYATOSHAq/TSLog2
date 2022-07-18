@@ -16,7 +16,7 @@ class OperationalReportPage {
     createOpenOperationFunction(id) {
         return function () {
             sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
-            location.href = "/OperationPage?id=" + id + "&action=" + (!isPartnerUser ? "VIEW" : "VIEW_BY_PARTNER");
+            location.href = "/OperationPage?id=" + id + "&action=VIEW";
         }
     }
 
@@ -43,6 +43,8 @@ class OperationalReportPage {
     clearOperations() {
         const reportTBody = document.getElementById("report-tbody");
         reportTBody.replaceChildren();
+        const reportTFoot = document.getElementById("report-tfoot");
+        reportTFoot.replaceChildren();
         this.data = [];
     }
 
@@ -58,20 +60,32 @@ class OperationalReportPage {
         const durationExcess = element.factDuration > 0 && element.planDuration < element.factDuration;
         const laborCostExcess = element.factLaborCost > 0 && element.planLinearLaborCost < element.factLaborCost;
         const isBad = isLate || durationExcess || laborCostExcess;
-        
+
         let style = "background-color: lightcyan";
-        if (isBad) {
+        if (durationExcess || laborCostExcess) {
             style = "background-color: peachpuff";
+        } else if (isLate) {
+            style = "background-color: lemonchiffon";
         }
         tr.style.cssText = style;
 
-        viewUtils.createCell(tr, ["table-cell"], [element.id]);
+        const openButton = document.createElement("button");
+        openButton.classList.add("btn");
+        openButton.classList.add("btn-outline-info");
+        openButton.classList.add("m-3");
+        openButton.classList.add("table-cell-button");
+        openButton.onclick = this.createOpenOperationFunction(element.id);
+        openButton.textContent = "Открыть";
+        openButton.title = "Открыть карточку операции двора";
+        let content = [openButton, element.id];
+
+        viewUtils.createCell(tr, ["table-cell"], content);
         viewUtils.createCell(tr, ["table-cell"], [element.partnersNames]);
         viewUtils.createCell(tr, ["table-cell"], [element.typeShortName]);
         viewUtils.createCell(tr, ["table-cell"], [element.vehicleKindShortName]);
         viewUtils.createCell(tr, ["table-cell"], [element.stateShortName]);
 
-        let content = "Ожидается"
+        content = "Ожидается"
         if (element.startDate > utils.nullDate) {
             content = utils.timeToStringHHMM(element.startDate);
         }
@@ -122,10 +136,37 @@ class OperationalReportPage {
         viewUtils.createCell(tr, ["table-cell"], [element.warehouseActionsCount]);
 
         //viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.netWeight / 1000 / 1000)]);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.grossWeight / 1000 / 1000)]);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.volume / 1000 / 1000 / 1000, 2)]);
+        content = utils.displayFloat(element.planGrossWeight / 1000 / 1000);
+        if (element.stateCode === "FINISHED") {
+            content += " (" + utils.displayFloat(element.factGrossWeight / 1000 / 1000) + ")";
+        }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
 
-        viewUtils.createCell(tr, ["table-cell"], [""]);
+        content = utils.displayFloat(element.planVolume / 1000 / 1000 / 1000, 2);
+        if (element.stateCode === "FINISHED") {
+            content += " (" + utils.displayFloat(element.factVolume / 1000 / 1000 / 1000, 2) + ")";
+        }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
+
+        content = utils.displayFloat(element.planPalletsCount);
+        if (element.stateCode === "FINISHED") {
+            content += " (" + utils.displayFloat(element.factPalletsCount) + ")"
+        }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
+
+        content = utils.displayFloat(element.planBoxesCount);
+        if (element.stateCode === "FINISHED") {
+            content += " (" + utils.displayFloat(element.factBoxesCount) + ")"
+        }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
+
+        if (durationExcess || laborCostExcess) {
+            viewUtils.createCell(tr, ["table-cell"], ["ПП"]);
+        } else if (isLate) {
+            viewUtils.createCell(tr, ["table-cell"], ["О"]);
+        } else {
+            viewUtils.createCell(tr, ["table-cell"], [""]);
+        }        
     }
 
     async showOperations() {
@@ -137,8 +178,15 @@ class OperationalReportPage {
         let totalFactLaborCost = 0.0;
         let totalWorkersCount = 0;
         let totalActionsCount = 0;
-        let totalWeight = 0.0;
-        let totalVolume = 0.0;
+        let totalPlanGrossWeight = 0.0;
+        let totalFactGrossWeight = 0.0;
+        let totalPlanVolume = 0.0;
+        let totalFactVolume = 0.0;
+        let totalPlanPalletsCount = 0.0;
+        let totalFactPalletsCount = 0.0;
+        let totalPlanBoxesCount = 0.0;
+        let totalFactBoxesCount = 0.0;
+
         for (let element of this.data) {
             const tr = document.createElement("tr");
             this.showOperation(tr, element);
@@ -151,8 +199,17 @@ class OperationalReportPage {
             totalFactLaborCost += element.factLaborCost;
             totalWorkersCount += element.workersCount;
             totalActionsCount += element.warehouseActionsCount;
-            totalWeight += element.grossWeight;
-            totalVolume += element.volume;
+
+            totalPlanGrossWeight += element.planGrossWeight;            
+            totalPlanVolume += element.planVolume;
+            totalPlanPalletsCount += element.planPalletsCount;
+            totalPlanBoxesCount += element.planBoxesCount;
+            if (element.stateCode === "FINISHED") {
+                totalFactGrossWeight += element.factGrossWeight;
+                totalFactVolume += element.factVolume;
+                totalFactPalletsCount += element.factPalletsCount;
+                totalFactBoxesCount += element.factBoxesCount;
+            }
         }
         const elementsCountH5 = document.getElementById("elements-count-h5");
         elementsCountH5.textContent = "Всего заявок - " + this.data.length;
@@ -160,7 +217,7 @@ class OperationalReportPage {
         const reportTFoot = document.getElementById("report-tfoot");
         const summaryTr = document.createElement("tr");
         let contents = "";
-        viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], ["Всего:"]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
@@ -184,8 +241,14 @@ class OperationalReportPage {
 
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [totalWorkersCount]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [totalActionsCount]);
-        viewUtils.createBoldCell(summaryTr, ["table-cell"], [utils.displayFloat(totalWeight / 1000 / 1000)]);
-        viewUtils.createBoldCell(summaryTr, ["table-cell"], [utils.displayFloat(totalVolume / 1000 / 1000 / 1000, 2)]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"],
+            [utils.displayFloat(totalPlanGrossWeight / 1000 / 1000) + " (" + utils.displayFloat(totalFactGrossWeight / 1000 / 1000) + ")"]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"],
+            [utils.displayFloat(totalPlanVolume / 1000 / 1000 / 1000, 2) + " (" + utils.displayFloat(totalFactVolume / 1000 / 1000 / 1000, 2) + ")"]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"],
+            [utils.displayFloat(totalPlanPalletsCount) + " (" + utils.displayFloat(totalFactPalletsCount) + ")"]);
+        viewUtils.createBoldCell(summaryTr, ["table-cell"],
+            [utils.displayFloat(totalPlanBoxesCount) + " (" + utils.displayFloat(totalFactBoxesCount) + ")"]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
 
         reportTFoot.append(summaryTr);

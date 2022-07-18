@@ -41,7 +41,18 @@
         onclick="operationalReportPage.createReport()">Применить</button>
 </div>
 
-<h5 id="elements-count-h5">Всего заявок</h5>
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+        Порядок рассчёта и комментарии к отчёту:
+    </b>    
+    1. Смотрим все операции двора за указанную смену;<br />
+    2. Для каждой операции двора смотрим её основные параметры (вид, тип авто, клиент, заказы, вес, объём, ...);<br />
+    3. Сравниваем плановое время окончания работ с фактическим, плановую продолжительность с фактическим, плановые трудозатраты с фактическими;<br />
+    4. Если фактические показатели превышают плановые, то подсвечиваем такую запись как "плохую", она требует разбора, почему так произошло;<br />
+    5. Пояснения к полю "Корр." (признак корректности): "" - с заявкой всё хорошо, "О" - опоздание, "ПП" - превышен план по времени или по трудозатратам.<br />
+</div>
+
+<h5 id="elements-count-h5">Всего заявок - 0</h5>
 <table class="table table-bordered table-sortable" 
     style="width: 100%; margin: auto">
     <thead class="thead-light">
@@ -52,20 +63,22 @@
             <th class="table-header datatype-text" style="width: 4%">Вид авто</th>
             <th class="table-header datatype-text" style="width: 4%">Состояние</th>
             <th class="table-header datatype-text" style="width: 6%">Прибытие</th>
-            <th class="table-header datatype-text" style="width: 7%">Нач. работ пл. (ф.)</th>
-            <th class="table-header datatype-text" style="width: 7%">Оконч. работ пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 6%">Нач. раб. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 6%">Оконч. раб. пл. (ф.)</th>
             <th class="table-header datatype-text" style="width: 6%">Убытие</th>
-            <th class="table-header datatype-text" style="width: 7%">Время во дворе мин.</th>
-            <th class="table-header datatype-text" style="width: 7%">Длит. пл. (ф.) мин.</th>
+            <th class="table-header datatype-text" style="width: 6%">Время во дворе мин.</th>
+            <th class="table-header datatype-text" style="width: 6%">Длит. пл. (ф.) мин.</th>
             <th class="table-header datatype-text" style="width: 7%">Т/з лин. пл. (ф.) ч. * мин.</th>
             <th class="table-header datatype-text" style="width: 5%">Кол-во работников</th>
-            <th class="table-header datatype-text" style="width: 6%">Кол-во прих./расх.</th>
+            <th class="table-header datatype-text" style="width: 5%">Кол-во пр./рас.</th>
             <!--
             <th class="table-header datatype-text">Вес нетто (кг)</th>
             -->
-            <th class="table-header datatype-text" style="width: 6%">Вес брутто (кг)</th>
-            <th class="table-header datatype-text" style="width: 6%">Объём (куб. м)</th>
-            <th class="table-header datatype-text" style="width: 4%">Кол-во паллет</th>
+            <th class="table-header datatype-text" style="width: 5%">Вес бр. пл. (ф.) кг</th>
+            <th class="table-header datatype-text" style="width: 5%">Объём пл. (ф.) куб. м</th>
+            <th class="table-header datatype-text" style="width: 4%">Кол-во палл. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 4%">Кол-во кор. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 5%">Корр.</th>
         </tr>
     </thead>
     <tfoot id="report-tfoot">        

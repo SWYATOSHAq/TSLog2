@@ -2290,9 +2290,17 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.partnersNames = operation.PartnersNames;
 
                     element.workersCount = operation.WorkersCount;
-                    element.netWeight = operation.NetWeight;
-                    element.grossWeight = operation.GrossWeight;                    
-                    element.volume = operation.Volume;
+                    element.planNetWeight = operation.PlanNetWeight;
+                    element.planGrossWeight = operation.PlanGrossWeight;
+                    element.factNetWeight = operation.FactNetWeight;
+                    element.factGrossWeight = operation.FactGrossWeight;                    
+                    element.planVolume = operation.PlanVolume;
+                    element.factVolume = operation.FactVolume;
+
+                    element.planPalletsCount = operation.PlanPalletsCount;
+                    element.planBoxesCount = operation.PlanBoxesCount;
+                    element.factPalletsCount = operation.FactPalletsCount;
+                    element.factBoxesCount = operation.FactBoxesCount;
 
                     data.Add(element);
 

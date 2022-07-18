@@ -195,29 +195,66 @@ namespace TSLog.Yard.BO
                 return ids.ToString();
             }
         }
-        public double NetWeight
+        /// <summary>
+        /// Плановый вес НЕТТО
+        /// </summary>
+        public double PlanNetWeight
         {
             get
             {
                 var result = 0.0;
                 var actions = GetActions();
                 foreach (var action in actions)
-                    result += action.NetWeight;
+                    result += action.PlanNetWeight;
                 return result;
             }
         }
-        public double GrossWeight
+        /// <summary>
+        /// Плановый вес БРУТТО
+        /// </summary>
+        public double PlanGrossWeight
         {
             get
             {
                 var result = 0.0;
                 var actions = GetActions();
                 foreach (var action in actions)
-                    result += action.GrossWeight;
+                    result += action.PlanGrossWeight;
                 return result;
             }
         }
-        public double Volume
+        /// <summary>
+        /// Фактический вес НЕТТО
+        /// </summary>
+        public double FactNetWeight
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.FactNetWeight;
+                return result;
+            }
+        }
+        /// <summary>
+        /// Фактический вес БРУТТО
+        /// </summary>
+        public double FactGrossWeight
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.FactGrossWeight;
+                return result;
+            }
+        }
+        /// <summary>
+        /// Плановый объём
+        /// </summary>
+        public double PlanVolume
         {
             get
             {
@@ -226,6 +263,76 @@ namespace TSLog.Yard.BO
                 foreach (var action in actions)
                     result += action.PlanVolume;
                 return result;
+            }
+        }
+        /// <summary>
+        /// Фактический объём
+        /// </summary>
+        public double FactVolume
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.FactVolume;
+                return result;
+            }
+        }
+        /// <summary>
+        /// Плановое колличество паллет
+        /// </summary>
+        public double PlanPalletsCount
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.PlanPalletsCount;
+                return 0.0;
+            }
+        }
+        /// <summary>
+        /// Фактическое количество паллет
+        /// </summary>
+        public double FactPalletsCount
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.FactPalletsCount;
+                return 0.0;
+            }
+        }
+        /// <summary>
+        /// Плановое количество коробок
+        /// </summary>
+        public double PlanBoxesCount
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.PlanBoxeCount;
+                return 0.0;
+            }
+        }
+        /// <summary>
+        /// Фактическое количество коробок
+        /// </summary>
+        public double FactBoxesCount
+        {
+            get
+            {
+                var result = 0.0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.FactBoxeCount;
+                return 0.0;
             }
         }
     }
