@@ -75,6 +75,8 @@
 
 		<right code="GET_OPERATIONAL_REPORT" name="Формирование оперативного отчёта (за смену)"></right>
 		<right code="VIEW_OPERATIONAL_REPORT_PAGE" name="Просмотр оперативного отчёта (за смену)"></right>
+		<right code="GET_DISPATCHER_REPORT" name="Формирование отчёта диспетчера (за период)"></right>
+		<right code="VIEW_DISPATCHER_REPORT_PAGE" name="Просмотр отчёта диспетчера (за период)"></right>
 		<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>
 		<right code="VIEW_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам"></right>		
 		<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>
@@ -185,6 +187,8 @@
 
 			<right code="GET_OPERATIONAL_REPORT" name="Формирование оперативного отчёта (за смену)"></right>
 			<right code="VIEW_OPERATIONAL_REPORT_PAGE" name="Просмотр оперативного отчёта (за смену)"></right>
+			<right code="GET_DISPATCHER_REPORT" name="Формирование отчёта диспетчера (за период)"></right>
+			<right code="VIEW_DISPATCHER_REPORT_PAGE" name="Просмотр отчёта диспетчера (за период)"></right>
 			<right code="GET_LABOR_REPORT" name=""></right>
 			<right code="VIEW_LABOR_REPORT_PAGE" name="отчёта по трудозатратам"></right>
 			<right code="GET_SHIFT_LABOR_REPORT" name=""></right>
@@ -393,6 +397,8 @@
 
 			<right code="GET_OPERATIONAL_REPORT" name="Формирование оперативного отчёта (за смену)"></right>
 			<right code="VIEW_OPERATIONAL_REPORT_PAGE" name="Просмотр оперативного отчёта (за смену)"></right>
+			<right code="GET_DISPATCHER_REPORT" name="Формирование отчёта диспетчера (за период)"></right>
+			<right code="VIEW_DISPATCHER_REPORT_PAGE" name="Просмотр отчёта диспетчера (за период)"></right>
 			<right code="GET_LABOR_REPORT" name="Формирование отчёта по трудозатратам"></right>
 			<right code="VIEW_LABOR_REPORT_PAGE" name="Просмотр отчёта по трудозатратам"></right>
 			<right code="GET_SHIFT_LABOR_REPORT" name="Формирование отчёта по трудозатратам за смену"></right>

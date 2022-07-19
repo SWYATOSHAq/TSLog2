@@ -77,7 +77,7 @@ namespace TSLog.Yard.BO
         /// </summary>
         public double PresenceTime
         {
-            get 
+            get
             {
                 return StartDate != DateTime.MinValue ? ((FinishDate != DateTime.MinValue ? FinishDate : DateTime.Now) - StartDate).TotalSeconds : 0.0;
             }
@@ -173,6 +173,24 @@ namespace TSLog.Yard.BO
         /// Кто внёс последние изменения (имя пользователя)
         /// </summary>
         public string Editor { get; set; } = string.Empty;
+        /// <summary>
+        /// Дата (и время) удаления
+        /// </summary>
+        public DateTime DeleteDate { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// Кто удалил (имя пользователя)
+        /// </summary>
+        public string Deleter { get; set; } = string.Empty;
+        /// <summary>
+        /// Признак удаления
+        /// </summary>
+        public bool IsDeleted
+        {
+            get
+            {
+                return DeleteDate > DateTime.MinValue || !string.IsNullOrWhiteSpace(Deleter);
+            }
+        }
         
         public Operation(long id, string? code, OperationType type,
             DateTime planWorkStartDate, DateTime planWorkFinishDate,

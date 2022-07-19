@@ -1,0 +1,96 @@
+﻿@page "/DispatcherReportPage"
+@using TSLog.Partners.BO
+@using TSLog.Yard.WebUI.Models
+@using TSLog.Yard.BO
+
+@model DispatcherReportPageModel
+@{
+    ViewData["Title"] = "Отчёт диспетчера";
+    var rightsChecker = Model.RightsChecker;
+    var storage = Model.Storage;
+    var request = Model.Request;
+}
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+
+<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+    <label for="from-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Начало периода:</label>
+    <input id="from-date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />     
+    <label for="to-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Окончание периода:</label>
+    <input id="to-date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" /> 
+
+</div>
+<div class="row"
+    style="padding: 0; margin: 0; margin-bottom: 8px">
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 160px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="dispatcherReportPage.createReport()">Применить</button>
+</div>
+
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+        Порядок рассчёта и комментарии к отчёту:
+    </b>    
+    1. Сюда что то написать!<br />
+</div>
+
+<table id="report-table"
+    class="table table-bordered table-sortable" 
+    style="margin: auto">
+    <thead class="thead-light">
+        <tr id="header-tr" style="background-color: cornsilk">
+            <th style="width: 200px">Показатель</th>            
+        </tr>        
+    </thead>
+    <tfoot id="report-tfoot">        
+    </tfoot>
+    <tbody id="report-tbody">
+        <tr id="next-day-operations-tr">
+            <th class="table-header datatype-text">Заявок на сл. дни</th>
+        </tr>
+        <tr id="day-to-day-operations-tr">
+            <th class="table-header datatype-text">Заявок день в день</th>
+        </tr>
+        <tr id="deleted-operations-tr">
+            <th class="table-header datatype-text">Заявок удалено</th>
+        </tr>
+        <tr id="idle-operations-tr">
+            <th class="table-header datatype-text">Машин НЕ приехало</th>
+        </tr>        
+        <tr id="pallet-incomes-tr" style="background-color: lightgoldenrodyellow">
+            <th class="table-header datatype-text">Погрузок палл.</th>
+        </tr>
+        <tr id="box-incomes-tr" style="background-color: lightgoldenrodyellow">
+            <th class="table-header datatype-text">Погрузок росс.</th>
+        </tr>
+        <tr id="total-incomes-tr" style="background-color: lightgoldenrodyellow">
+            <th class="table-header datatype-text">Погрузок всего</th>
+        </tr>        
+        <tr id="pallet-outgoues-tr" style="background-color: lightcyan">
+            <th class="table-header datatype-text">Разгрузок палл.</th>
+        </tr>
+        <tr id="box-outgoes-tr" style="background-color: lightcyan">
+            <th class="table-header datatype-text">Разгрузок росс.</th>
+        </tr>
+        <tr id="total-outgoes-tr" style="background-color: lightcyan">
+            <th class="table-header datatype-text">Разгрузок всего</th>
+        </tr>
+        <tr id="total-operations-tr" style="background-color: skyblue">
+            <th class="table-header datatype-text">Заявок всего</th>
+        </tr>
+    </tbody>
+</table>

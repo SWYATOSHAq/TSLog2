@@ -139,5 +139,15 @@
 
             return shifts.ToArray();
         }
+        public static string GetKey(DateTime date)
+        {
+            var day = date.Date;
+            if (date < day.AddHours(9))
+                return $"{day.AddDays(-1):yyyyMMdd}N";
+            else if (date < day.AddHours(21))
+                return $"{day:yyyyMMdd}D";
+            else
+                return $"{day:yyyyMMdd}N";
+        }
     }
 }
