@@ -141,16 +141,7 @@ class BusyWorkersPage {
     printPage () {
         const printButton = document.querySelector(".print-button");
         printButton.onclick = () => {
-            // document.querySelector(".table").classList.remove("table-striped", "table-light");
-            // const th = document.querySelectorAll(".table-column-header");
-            // const thForDelete = th[th.length - 1].classList.add("invisible");
-            // const tr = document.querySelectorAll(".table-cell");
-            // console.log(tr);
-            // const trForDelete = tr[tr.length - 1].classList.add("invisible");
-            //
-            // //document.getElementsByTagName("th").classList.add("invisible");
             window.print();
-
         }
     }
 

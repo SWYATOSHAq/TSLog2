@@ -52,7 +52,7 @@ class FreeWorkersPage {
         enterButton.textContent = "Назначить на уч.";
         enterButton.style.cssText = "width: 160px";
         enterButton.onclick = this.createEnter(worker.id);
-        viewUtils.createCell(tr, ["table-cell"], [enterButton]);
+        viewUtils.createCell(tr, ["table-cell", "not-for-print"], [enterButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.appendChild(tr);
@@ -107,6 +107,13 @@ class FreeWorkersPage {
 
     }
 
+    printPage () {
+        const printButton = document.querySelector(".print-button");
+        printButton.onclick = () => {
+            window.print();
+        }
+    }
+
     async show() {
         await this.getFreeWorkers();
         this.onChangeFilter();
@@ -115,6 +122,7 @@ class FreeWorkersPage {
         viewUtils.initSelect("positions-select", utils.getUrlParameter("position"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("companies-select", utils.getUrlParameter("company"), this.onChangeFilter.bind(this));
         viewUtils.sortTable ();
+        this.printPage();
     }
 }
 
