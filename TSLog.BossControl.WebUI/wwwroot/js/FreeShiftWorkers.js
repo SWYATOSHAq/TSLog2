@@ -60,7 +60,7 @@ class FreeShiftWorkersPage {
         enterButton.style.cssText = "width: 160px";
         enterButton.textContent = "Назначить на уч.";
         enterButton.onclick = this.createEnter(siteWorker.workerId);
-        viewUtils.createCell(tr, ["table-cell"], [enterButton]);
+        viewUtils.createCell(tr, ["table-cell", "not-for-print"], [enterButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.appendChild(tr);
@@ -128,6 +128,13 @@ class FreeShiftWorkersPage {
 
     }
 
+    printPage () {
+        const printButton = document.querySelector(".print-button");
+        printButton.onclick = () => {
+            window.print();
+        }
+    }
+
     async show() {
         await this.getFreehiftWorkers();
         this.onChangeFilter();
@@ -138,6 +145,7 @@ class FreeShiftWorkersPage {
         viewUtils.initSelect("sites-select", utils.getUrlParameter("site"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner"), this.onChangeFilter.bind(this));
         viewUtils.sortTable ();
+        this.printPage();
     }
 }
 
