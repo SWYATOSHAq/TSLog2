@@ -3,16 +3,21 @@
 @using TSLog.Yard.WebUI.Models
 @using TSLog.Yard.BO
 
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
 @model OperationalReportPageModel
 @{
     ViewData["Title"] = "Оперативный отчёт за смену";
     var rightsChecker = Model.RightsChecker;
-    var storage = Model.Storage;
-    var request = Model.Request;
-}
-@inject IConfiguration Configuration
-@{
-    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+    var viewOperationalReportPage = !useAuthentication || 
+        (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_OPERATIONAL_REPORT_PAGE", User));
+    if (!viewOperationalReportPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
 }
 
 <div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">

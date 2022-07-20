@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
+using System.Globalization;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.BossControl.BO;
@@ -2357,6 +2358,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     dynamic element = new ExpandoObject();
                     element.date = date;
                     element.day = date.ToString("dd.MM");
+
+                    //var dayOfWeek = DateTimeFormatInfo.CurrentInfo.GetDayName(date.DayOfWeek);
+                    var dayOfWeek2 = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(date.DayOfWeek);
+                    //var dayOfWeek3 = DateTimeFormatInfo.CurrentInfo.GetShortestDayName(date.DayOfWeek);
+                    element.dayOfWeek = dayOfWeek2;
+                    element.isHoliday = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+
                     element.key = key;
                     element.nextDayOperations = 0;
                     element.dayToDayOperations = 0;

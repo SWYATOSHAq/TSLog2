@@ -72,23 +72,30 @@ class DispatcherReportPage {
 
         let width = 200;
         for (let element of this.data) {
+            //const cellStyle = element.isHoliday ? "background-color: bisque" : "";
+            const cellStyle = "";
+
             width += 80;
-            viewUtils.createCell(headerTr, ["header-cell"], [element.day], "width: 80px !important");
+            const br = document.createElement("br");
+            const dayOwWeekB = document.createElement("b");
+            dayOwWeekB.textContent = element.dayOfWeek;
+            viewUtils.createCell(headerTr, ["header-cell"], [element.day, br, dayOwWeekB], "width: 80px !important; " + cellStyle);
 
-            viewUtils.createCell(nextDayOperationsTr, ["content-cell"], [element.nextDayOperations]);
-            viewUtils.createCell(dayToDayOperationsTr, ["content-cell"], [element.dayToDayOperations]);
-            viewUtils.createCell(deletedOperationsTr, ["content-cell"], [element.deletedOperations]);
-            viewUtils.createCell(idleOperationsTr, ["content-cell"], [element.idleOperations]);
+            viewUtils.createCell(nextDayOperationsTr, ["content-cell"], [element.nextDayOperations], cellStyle);
+            viewUtils.createCell(dayToDayOperationsTr, ["content-cell"], [element.dayToDayOperations], cellStyle);
+            viewUtils.createCell(deletedOperationsTr, ["content-cell"], [element.deletedOperations], cellStyle);
+            viewUtils.createCell(idleOperationsTr, ["content-cell"], [element.idleOperations], cellStyle);
 
-            viewUtils.createCell(palletIncomesTr, ["content-cell"], [element.palletIncomes]);
-            viewUtils.createCell(boxIncomesTr, ["content-cell"], [element.boxIncomes]);
-            viewUtils.createCell(totalIncomesTr, ["content-cell"], [element.palletIncomes + element.boxIncomes]);
+            viewUtils.createCell(palletIncomesTr, ["content-cell"], [element.palletIncomes], cellStyle);
+            viewUtils.createCell(boxIncomesTr, ["content-cell"], [element.boxIncomes], cellStyle);
+            viewUtils.createCell(totalIncomesTr, ["content-cell"], [element.palletIncomes + element.boxIncomes], cellStyle);
 
-            viewUtils.createCell(palletOutgouesTr, ["content-cell"], [element.palletOutgoues]);
-            viewUtils.createCell(boxOutgoesTr, ["content-cell"], [element.boxOutgoes]);
-            viewUtils.createCell(totalOutgoesTr, ["content-cell"], [element.palletOutgoues + element.boxOutgoes]);
+            viewUtils.createCell(palletOutgouesTr, ["content-cell"], [element.palletOutgoues], cellStyle);
+            viewUtils.createCell(boxOutgoesTr, ["content-cell"], [element.boxOutgoes], cellStyle);
+            viewUtils.createCell(totalOutgoesTr, ["content-cell"], [element.palletOutgoues + element.boxOutgoes], cellStyle);
 
-            viewUtils.createCell(totalOperationsTr, ["content-cell"], [element.palletIncomes + element.boxIncomes + element.palletOutgoues + element.boxOutgoes]);
+            viewUtils.createCell(totalOperationsTr, ["content-cell"],
+                [element.palletIncomes + element.boxIncomes + element.palletOutgoues + element.boxOutgoes], cellStyle);
         }
         document.getElementById("report-table").style.cssText = "width: " + width + "px; margin: auto";
     }

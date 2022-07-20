@@ -240,6 +240,15 @@ namespace TSLog.Yard.Data
                 note);
             return action;
         }
+        /// <summary>
+        /// Возвращает товарную позицию складского действа по виду складского действа, идентификатору складского действа и номеру позиции
+        /// </summary>
+        /// <param name="actionKind">Вид складского действа (приход, расход)</param>
+        /// <param name="actionId">Идентификатор складского действа</param>
+        /// <param name="number">Номер товарной позиции</param>
+        /// <returns>Товарная позиция</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception"></exception>
         public LineBase GetWarehouseActionLine(ActionKind actionKind, string actionId, int number)
         {
             if (string.IsNullOrWhiteSpace(actionId))
