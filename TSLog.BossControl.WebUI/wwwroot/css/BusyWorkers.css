@@ -1,4 +1,20 @@
-﻿.table-div {    
+﻿@media print {
+    .not-for-print {
+        visibility: hidden;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        --bs-table-accent-bg: white;
+    }
+
+    .table {
+        position: absolute;
+        left: 9%;
+        top: 0px;
+    }
+}
+
+.table-div {
 }
 
 .table-column-header {

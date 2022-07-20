@@ -71,7 +71,7 @@ class BusyWorkersPage {
         leaveButton.style.cssText = "width: 160px";
         leaveButton.textContent = "Снять с участка";
         leaveButton.onclick = this.createLeave(siteWorker.workerId, siteWorker.workerFullName);
-        viewUtils.createCell(tr, ["table-cell"], [leaveButton]);
+        viewUtils.createCell(tr, ["table-cell", "not-for-print"], [leaveButton]);
 
         const tbody = document.getElementById("sites-workers-tbody");
         tbody.appendChild(tr);
@@ -138,6 +138,22 @@ class BusyWorkersPage {
 
     }
 
+    printPage () {
+        const printButton = document.querySelector(".print-button");
+        printButton.onclick = () => {
+            // document.querySelector(".table").classList.remove("table-striped", "table-light");
+            // const th = document.querySelectorAll(".table-column-header");
+            // const thForDelete = th[th.length - 1].classList.add("invisible");
+            // const tr = document.querySelectorAll(".table-cell");
+            // console.log(tr);
+            // const trForDelete = tr[tr.length - 1].classList.add("invisible");
+            //
+            // //document.getElementsByTagName("th").classList.add("invisible");
+            window.print();
+
+        }
+    }
+
     async show() {
         await this.getBusyWorkers();
         this.onChangeFilter();
@@ -148,6 +164,7 @@ class BusyWorkersPage {
         viewUtils.initSelect("sites-select", utils.getUrlParameter("site"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner"), this.onChangeFilter.bind(this));
         viewUtils.sortTable();
+        this.printPage();
     }
 }
 

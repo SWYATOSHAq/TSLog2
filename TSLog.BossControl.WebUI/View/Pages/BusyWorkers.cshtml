@@ -9,8 +9,12 @@
 }
 
 <div class="table-div">    
-    <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />    
-    <b>Занятые сотрудники</b>
+    <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />
+    <div class="row button-div">
+        <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 print-button not-for-print"
+            type="button">Печать</button>
+    </div>
+    <b class="not-for-print">Занятые сотрудники</b>
     <table class="table table-light table-bordered table-striped table-sortable" style="margin: 0; padding: 0">
         <thead>
             <tr>
@@ -21,7 +25,7 @@
                 <th class="table-column-header">Участок</th>
                 <th class="table-column-header">Мандант</th>
                 <th class="table-column-header">Время прихода</th>
-                <th class="table-column-header" style="width: 10%">Выход</th>
+                <th class="table-column-header not-for-print" style="width: 10%">Выход</th>
             </tr>
         </thead>
         <tbody id="sites-workers-tbody">
