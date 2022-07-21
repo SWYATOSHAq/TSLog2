@@ -1,0 +1,123 @@
+﻿@page "/DispatcherReportPage"
+@using TSLog.Partners.BO
+@using TSLog.Yard.WebUI.Models
+@using TSLog.Yard.BO
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model DispatcherReportPageModel
+@{
+    ViewData["Title"] = "Отчёт диспетчера";
+    var rightsChecker = Model.RightsChecker;
+    var viewOperationalReportPage = !useAuthentication || 
+        (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_DISPATCHER_REPORT_PAGE", User));
+    if (!viewOperationalReportPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
+}
+
+<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+    <label for="from-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Начало периода:</label>
+    <input id="from-date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />     
+    <label for="to-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Окончание периода <b>(включительно!)</b>:</label>
+    <input id="to-date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" /> 
+
+</div>
+<div class="row"
+    style="padding: 0; margin: 0; margin-bottom: 8px">
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="dispatcherReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="dispatcherReportPage.exportToExcel()">В Excel</button>
+</div>
+
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+        Порядок рассчёта и комментарии к отчёту:
+    </b>    
+    Общее: данные собираются за АСТРОНОМИЧЕСКИЕ сутки, к сменам привязок нет.<br />
+    1. Заявки на следующий день - заявки созданные в УКАЗАННУЮ дату на БУДУЩИЕ даты (плановая дата окончания на след. день и далее);<br />
+    2. Заявки день в день - заявки созданные в УКАЗАННУЮ дату на ЭТУ ЖЕ УКАЗАННУЮ дату (плановая дата окончания совпадает с датой создания);<br />
+    3. Заявки на день - заявки, зарегистрированные на УКАЗАННУЮ дату;<br />
+    4. Заявок день в день (%) - процент заявок, зарегистрированных день в день от всех запланированных на день;<br />
+    5. Удалённые заявки - заявки, у которых плановая дата окончания равна УКАЗАННОЙ дате, но которые удалены;<br />
+    6. Не приехавшие машины - на УКАЗАННУЮ дату машина ещё не приехала или приехала в последующие дни;<br />
+    7. Отгрузок паллетных - всего ПАЛЛЕТНЫХ отгрузок за УКАЗАННУЮ дату;<br />
+    8. Отгрузок россыпью - всего отгрузок РОССЫПЬЮ за УКАЗАННУЮ дату;<br />
+    9. Отгрузок всего - всего ВСЕХ отгрузок за УКАЗАННУЮ дату;<br />
+    10. Разгрузок паллетных - всего ПАЛЛЕТНЫХ разгрузок за УКАЗАННУЮ дату;<br />
+    11. Разгрузок россыпью - всего разгрузок РОССЫПЬЮ за указанную дату;<br />
+    12. Разгрузок всего - всего ВСЕХ разгрузок за УКАЗАННУЮ дату;<br />
+    13. Заявок всего - всего ВСЕХ операций двора (приёмок и отгрузок) за УКАЗАННУЮ дату;<br />
+</div>
+
+<table id="report-table"
+    class="table table-bordered table-sortable" 
+    style="margin: auto">
+    <thead class="thead-light">
+        <tr id="header-tr" style="background-color: cornsilk">
+            <th style="width: 200px; vertical-align: middle">Показатель</th>            
+        </tr>        
+    </thead>
+    <tbody id="report-tbody">
+        <tr id="next-day-operations-tr">
+            <td class="table-header datatype-text">Заявок на сл. дни</td>
+        </tr>
+        <tr id="day-to-day-operations-tr">
+            <td class="table-header datatype-text">Заявок день в день</td>
+        </tr>
+        <tr id="day-operations-tr">
+            <td class="table-header datatype-text">Заявок на день</td>
+        </tr>
+        <tr id="day-to-day-operations-percent-tr">
+            <td class="table-header datatype-text">Заявок день в день (%)</td>
+        </tr>
+        <tr id="deleted-operations-tr">
+            <td class="table-header datatype-text">Заявок удалено</td>
+        </tr>
+        <tr id="idle-operations-tr">
+            <td class="table-header datatype-text">Машин НЕ приехало</td>
+        </tr>        
+        <tr id="pallet-incomes-tr" style="background-color: lightcyan">
+            <td class="table-header datatype-text">Приёмок палл.</td>
+        </tr>
+        <tr id="box-incomes-tr" style="background-color: lightcyan">
+            <td class="table-header datatype-text">Приёмок росс.</td>
+        </tr>
+        <tr id="total-incomes-tr" style="background-color: lightcyan">
+            <td class="table-header datatype-text">Приёмок всего</td>
+        </tr>
+        <tr id="pallet-outgoes-tr" style="background-color: lightgoldenrodyellow">
+            <td class="table-header datatype-text">Отгрузок палл.</td>
+        </tr>
+        <tr id="box-outgoes-tr" style="background-color: lightgoldenrodyellow">
+            <td class="table-header datatype-text">Отгрузок росс.</td>
+        </tr>
+        <tr id="total-outgoes-tr" style="background-color: lightgoldenrodyellow">
+            <td class="table-header datatype-text">Отгрузок всего</td>
+        </tr>
+        <tr id="total-operations-tr" style="background-color: skyblue; font-weight: bold">
+            <td class="table-header datatype-text">Заявок всего</td>
+        </tr>
+    </tbody>
+</table>

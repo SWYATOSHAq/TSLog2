@@ -180,6 +180,21 @@ class ECReportPage {
         partnerIdTh.click();
     }
 
+    exportToExcel() {
+        const reportTable = document.getElementById("report-table");
+
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = utils.getNowDate();
+        const fileName = "ecReport_" + fromDate + "_" + toDate;
+        const sheetName = fromDate + " - " + toDate;
+
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
     onChangeDate() {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -244,6 +245,25 @@ namespace TSLog.Common
             for (int i = 1; i < names.Length; i++) 
                 shortName = shortName + " " + names[i][0] + ".";
             return shortName;
+        }
+        /// <summary>
+        /// Возвращает массив дней (дат), которые попадают в заданный промежуток (начало включено, окончание не включено)
+        /// </summary>
+        /// <param name="fromDate">Дата и время начала промежутка</param>
+        /// <param name="toDate">Дата и время окончания промежутка</param>
+        /// <returns>Массив дней (дат)</returns>
+        public static DateTime[] GetDates(DateTime fromDate, DateTime toDate)
+        {
+            if (fromDate > toDate)
+                return Array.Empty<DateTime>();
+            var dates = new List<DateTime>();
+            var tempDate = fromDate.Date;
+            while (tempDate < toDate) 
+            { 
+                dates.Add(tempDate);
+                tempDate.AddDays(1);
+            }
+            return dates.ToArray();
         }
     }
 }

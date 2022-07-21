@@ -11,8 +11,8 @@
     ViewData["Title"] = "Отчёт по производительности по работникам (за смену)";
     var rightsChecker = Model.RightsChecker;
 
-    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) 
-        && rightsChecker.CheckRight("VIEW_WORKERS_PERFOMANCE_REPORT_PAGE", User));
+    var viewGuardPage = !useAuthentication || 
+        (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_WORKERS_PERFOMANCE_REPORT_PAGE", User));
     if (!viewGuardPage)
     {        
         Response.StatusCode = 403;
@@ -43,10 +43,15 @@
 </div>
 <div style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 120px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="workersPerfomanceReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="workersPerfomanceReportPage.exportToExcel()">В Excel</button>
 </div>
 <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
@@ -62,7 +67,8 @@
     &emsp;сумма производельностей по конкретных операций, умноженных на плановое время конкретных операций, делённая на суммарное время фактичнских продолжительностей операций,<br />
     &emsp;(Производительности работника = Сумма(Производительность работника по конкретной операции * Плановая продолжительность операции) / Сумма(Фактическая продолжительность операции)).
 </div>
-<table class="table table-light table-bordered table-striped table-sortable" 
+<table id="report-table"
+    class="table table-light table-bordered table-striped table-sortable" 
     style="width: fit-content; margin: auto">
     <thead class="thead-light">
         <tr id="header-row">

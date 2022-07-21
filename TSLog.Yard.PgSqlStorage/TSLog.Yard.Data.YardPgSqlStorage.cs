@@ -2551,7 +2551,6 @@ namespace TSLog.Yard.Data
         public Operation[] GetOperationalReportData(DateTime? fromDate, DateTime? toDate)
         {
             var operations = new List<Operation>();
-
             using (var command = _connection.CreateCommand())
             {
                 var sql =
@@ -2601,15 +2600,60 @@ namespace TSLog.Yard.Data
                 command.CommandText = sql;
                 command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
                 command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
                 }
+                reader.Close();
+            }
+            return operations.ToArray();
+        }
+        public Operation[] GetDispatcherReportData(DateTime? fromDate, DateTime? toDate)
+        {
+            var operations = new List<Operation>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                       $"select o.id,\n" +
+                       $"       o.type_id, o.type_code, o.type_name,\n" +
+                       $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
+                       $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                       $"       o.start_date, o.finish_date,\n" +
+                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                       $"       o.vehicle_brand,\n" +
+                       $"       o.vehicle_model,\n" +
+                       $"       o.vehicle_number,\n" +
+                       $"       o.trailer_number,\n" +
+                       $"       o.driver_name, o.driver_phone_number,\n" +
+                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                       $"       o.state_id, o.state_code, o.state_name,\n" +
+                       $"       o.priority,\n" +
+                       $"       o.partner_manager_name,\n" +
+                       $"       o.partner_manager_phone_number,\n" +
+                       $"       o.partner_manager_email,\n" +
+                       $"       o.manager_id,\n" +
+                       $"       o.responsible_officer_id,\n" +
+                       $"       o.note,\n" +
+                       $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter\n" +
+                       $"  from {YardSchema}.v_dr_operation o\n" +
+                       $"    /*\n" +
+                       $"    */\n" +
+                       $" where o.created >= :from_date and o.created < :to_date\n" +
+                       $"    or o.plan_work_finish_date >= :from_date and o.plan_work_finish_date < :to_date\n" +
+                       $"    or o.fact_work_finish_date >= :from_date and o.fact_work_finish_date < :to_date\n";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
+                }
+                reader.Close();
             }
             return operations.ToArray();
         }

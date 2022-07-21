@@ -25,7 +25,8 @@
     var canViewPartnersReport = !useAuthentication || rightsChecker.CheckRight("VIEW_PARTNERS_REPORT_PAGE", User);
     var canViewActiveOperations = !useAuthentication || rightsChecker.CheckRight("VIEW_PRESENT_VEHICLES_PAGE", User);
     var canViewGuardPage = !useAuthentication || rightsChecker.CheckRight("VIEW_GUARD_PAGE", User);
-    var canOperationalReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATIONAL_REPORT_PAGE", User);
+    var canViewOperationalReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATIONAL_REPORT_PAGE", User);
+    var canViewDispatcherReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_DISPATCHER_REPORT_PAGE", User);
     var canViewLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_LABOR_REPORT_PAGE", User);
     var canViewShiftLaborReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User);
     var canViewEcReportPage = !useAuthentication || rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User);
@@ -88,6 +89,10 @@
     else if (page == "GuardPage")
     {
         <link rel="stylesheet" href="~/css/GuardPage.css" asp-append-version="true" />
+    } 
+    else if (page == "DispatcherReportPage")
+    {
+        <link rel="stylesheet" href="~/css/DispatcherReportPage.css" asp-append-version="true" />
     } 
     else if (page == "OperationalReportPage")
     {
@@ -159,9 +164,13 @@
             </div>
         </div>
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
-            @if (canOperationalReportPage)
+            @if (canViewOperationalReportPage)
             {
                 <a class="nav-link text-dark hide-on-print" href="/OperationalReportPage">Оперативный отчёт</a>
+            }
+            @if (canViewDispatcherReportPage)
+            {
+                <a class="nav-link text-dark hide-on-print" href="/DispatcherReportPage">Отчёт диспетчера</a>
             }
             @if (canViewLaborReportPage)
             {
@@ -258,10 +267,23 @@
         else if (page == "GuardPage")
         {        
             <script type="text/javascript" src="~/js/GuardPage.js"></script>
-        }
+        }        
         else if (page == "OperationalReportPage")
         {        
             <script type="text/javascript" src="~/js/OperationalReportPage.js"></script>
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+        }
+        else if (page == "DispatcherReportPage")
+        {        
+            <script type="text/javascript" src="~/js/DispatcherReportPage.js"></script>
+            <!--
+            <script type="text/javascript" 
+                src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/js/tableexport.min.js" 
+                integrity="sha512-XmZS54be9JGMZjf+zk61JZaLZyjTRgs41JLSmx5QlIP5F+sSGIyzD2eJyxD4K6kGGr7AsVhaitzZ2WTfzpsQzg==" 
+                crossorigin="anonymous" 
+                referrerpolicy="no-referrer"></script>
+            -->
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
         else if (page == "LaborReportPage")
         {        
@@ -284,10 +306,12 @@
         else if (page == "ECReportPage")
         {        
             <script type="text/javascript" src="~/js/ECReportPage.js"></script>
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
         else if (page == "WorkersPerfomanceReportPage")
         {        
             <script type="text/javascript" src="~/js/WorkersPerfomanceReportPage.js"></script>
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
     }
     @await RenderSectionAsync("Scripts", required: false)

@@ -455,6 +455,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperationalReportData(fromDate, toDate);
         }
+        public Operation[] GetDispatcherReportData(DateTime? fromDate, DateTime? toDate)
+        {
+            return _pgsqlStorage.GetDispatcherReportData(fromDate, toDate);
+        }
         public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
         {
             return _pgsqlStorage.GetYardStandardLabocCosts(fromDate, toDate);

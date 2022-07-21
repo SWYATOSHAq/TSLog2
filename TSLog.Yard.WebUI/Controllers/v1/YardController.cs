@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
+using System.Globalization;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.BossControl.BO;
@@ -2218,7 +2219,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         #endregion
 
         #region Reporting
-
         [HttpGet("OperationalReport")]
         public string GetOperationalReport()
         {
@@ -2239,7 +2239,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     stringDate = stringDate.Trim();
                     if (!DateTime.TryParse(stringDate, out date))
-                        return $"Wrong to date {stringDate}";
+                        return $"Wrong date {stringDate}";
                 }
                 string shift = Request.Query["shift"];
                 if (string.IsNullOrWhiteSpace(shift))
@@ -2255,6 +2255,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var data = new List<dynamic>();
                 foreach (var operation in operations)
                 {
+                    var actions = operation.GetActions();
+                    foreach (var action in actions)
+                    {
+                        var lines = _storage.GetWarehouseActionLines(action.Kind, action.Id);
+                        action.AddLines(lines);
+                    }
                     dynamic element = new ExpandoObject();
                     element.id = operation.Id;
                     element.typeCode = operation.Type.Code;
@@ -2285,16 +2291,154 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.partnersNames = operation.PartnersNames;
 
                     element.workersCount = operation.WorkersCount;
-                    //element.netWeight = operation.NetWeight;
-                    element.grossWeight = operation.GrossWeight;                    
-                    element.volume = operation.Volume;
+                    element.planNetWeight = operation.PlanNetWeight;
+                    element.planGrossWeight = operation.PlanGrossWeight;
+                    element.factNetWeight = operation.FactNetWeight;
+                    element.factGrossWeight = operation.FactGrossWeight;                    
+                    element.planVolume = operation.PlanVolume;
+                    element.factVolume = operation.FactVolume;
+
+                    element.planPalletsCount = operation.PlanPalletsCount;
+                    element.planBoxesCount = operation.PlanBoxesCount;
+                    element.factPalletsCount = operation.FactPalletsCount;
+                    element.factBoxesCount = operation.FactBoxesCount;
 
                     data.Add(element);
 
-                    // TODO: get actions, weight, volume, pallets count, boxes count
+                    // TODO: get pallets count, boxes count
                 }
 
                 var text = JsonSerializer.Serialize(data);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("DispatcherReport")]
+        public string GetDispatcherReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_DISPATCHER_REPORT", User);
+                if (_useAuthentication && (!useYard || !getData))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["from_date"];
+                var fromDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out fromDate))
+                        return $"Wrong from date {temp}";
+                }
+                temp = Request.Query["to_date"];
+                var toDate = DateTime.Today.AddDays(1);
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out toDate))
+                        return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1);
+                }
+
+                var data = new Dictionary<string, dynamic>();
+
+                void addElement(string key, DateTime date)
+                {
+                    if (data.ContainsKey(key))
+                        return;
+                    dynamic element = new ExpandoObject();
+                    element.date = date;
+                    element.day = date.ToString("dd.MM");
+
+                    //var dayOfWeek = DateTimeFormatInfo.CurrentInfo.GetDayName(date.DayOfWeek);
+                    var dayOfWeek2 = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(date.DayOfWeek);
+                    //var dayOfWeek3 = DateTimeFormatInfo.CurrentInfo.GetShortestDayName(date.DayOfWeek);
+                    element.dayOfWeek = dayOfWeek2;
+                    element.isHoliday = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+
+                    element.key = key;
+                    element.nextDayOperations = 0;
+                    element.dayToDayOperations = 0;
+                    element.dayOperations = 0;
+                    element.dayToDayOperationsPercent = 0.0;
+                    element.deletedOperations = 0;
+                    element.idleOperations = 0;
+                    element.palletIncomes = 0;
+                    element.boxIncomes = 0;
+                    element.palletOutgoues = 0;
+                    element.boxOutgoes = 0;
+                    data.Add(key, element);
+                }
+
+                var operations = _storage.GetDispatcherReportData(fromDate, toDate);                
+                foreach (var operation in operations)
+                {
+                    // Смотрим удалённые операции (те, которые планировались на указанную дату, но были удалены)
+                    var key = operation.PlanWorkFinishDate.ToString("yyyy.MM.dd");
+                    addElement(key, operation.PlanWorkFinishDate.Date);
+                    if (operation.IsDeleted)
+                        data[key].deletedOperations++;
+                    else if (operation.State.Code != "CREATED" && operation.State.Code != "CANCELED")
+                    {
+                        // Все заявки, запланированные на указанный день
+                        data[key].dayOperations++;
+
+                        // Опоздавшие машины (на сутки) или не приехавшие
+                        if (operation.PlanWorkFinishDate.Date < operation.FactWorkFinishDate.Date
+                            || operation.FactWorkFinishDate <= DateTime.MinValue)
+                            data[key].idleOperations++;
+
+                        // Смотрим оформленные операции
+                        key = operation.CreateDate.ToString("yyyy.MM.dd");
+                        addElement(key, operation.CreateDate.Date);
+                        if (operation.PlanWorkFinishDate.Date == operation.CreateDate.Date) // Заявка оформлена день в день
+                            data[key].dayToDayOperations++;
+                        else if (operation.CreateDate < operation.PlanWorkFinishDate.Date) // Заявка оформлена в указанную смену на последующие дни
+                            data[key].nextDayOperations++;                        
+
+                        // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не були удалены)
+                        if (operation.FactWorkFinishDate > DateTime.MinValue)
+                        {
+                            key = operation.FactWorkFinishDate.ToString("yyyy.MM.dd");
+                            addElement(key, operation.FactWorkFinishDate.Date);
+                            if (operation.Type.Direction == TypeDirection.In)
+                            {
+                                if (operation.Type.IsPallet)
+                                    data[key].palletIncomes++;
+                                else
+                                    data[key].boxIncomes++;
+                            }
+                            else if (operation.Type.Direction == TypeDirection.Out)
+                            {
+                                if (operation.Type.IsPallet)
+                                    data[key].palletOutgoues++;
+                                else
+                                    data[key].boxOutgoes++;
+                            }
+                        }
+                    }                    
+                }
+
+                var elements = data.Values.OrderBy(e => e.key).ToArray();
+                var result = new List<dynamic>();
+                foreach (var element in elements)
+                {
+                    if (element.date < fromDate.Date || element.date >= toDate.AddTicks(-1).Date.AddDays(1))
+                        continue;
+                    element.dayToDayOperationsPercent = 100.0 * element.dayToDayOperations / element.dayOperations;
+                    result.Add(element);                    
+                }
+
+                var text = JsonSerializer.Serialize(result);
                 Response.StatusCode = 200;
                 return text;
             }

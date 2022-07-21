@@ -11,8 +11,8 @@
     ViewData["Title"] = "Отчёт по трудозатратам (за смену)";
     var rightsChecker = Model.RightsChecker;
 
-    var viewGuardPage = !useAuthentication || (rightsChecker.CheckRight("USE_YARD", User) 
-        && rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User));
+    var viewGuardPage = !useAuthentication || 
+        (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_SHIFT_LABOR_REPORT_PAGE", User));
     if (!viewGuardPage)
     {        
         Response.StatusCode = 403;

@@ -84,8 +84,22 @@ namespace TSLog.WarehouseActions.BO
                 throw new ArgumentNullException(nameof(line));
             if (!_lines.ContainsKey(line.Product))
                 _lines.Add(line.Product, line);
-            else
-                _lines[line.Product].FactQuantity += line.FactQuantity;
+            else 
+            {
+                var sameLine = _lines[line.Product];
+                sameLine.PlanQuantity += line.PlanQuantity;
+                sameLine.FactQuantity += line.FactQuantity;
+                sameLine.PlanNetWeight += line.PlanNetWeight;
+                sameLine.FactNetWeight += line.FactNetWeight;
+                sameLine.PlanGrossWeight += line.PlanGrossWeight;
+                sameLine.FactGrossWeight += line.FactGrossWeight;
+                sameLine.PlanVolume += line.PlanVolume;
+                sameLine.FactVolume += line.FactVolume;                
+                sameLine.PlanBoxesCount += line.PlanBoxesCount;
+                sameLine.FactBoxesCount += line.FactBoxesCount;
+                sameLine.PlanPalletsCount += line.PlanPalletsCount;
+                sameLine.FactPalletsCount += line.FactPalletsCount;
+            }                
         }
         /// <summary>
         /// Добавляет товарные позиции
@@ -103,15 +117,28 @@ namespace TSLog.WarehouseActions.BO
         /// </summary>
         public LineBase[] Lines => _lines.Values.ToArray();
         /// <summary>
-        /// Суммарный объём
+        /// Суммарный плановый объём
         /// </summary>
-        public double Volume
+        public double PlanVolume
         {
             get
             {
                 var volume = 0.0;
                 foreach (var line in _lines.Values)
                     volume += line.PlanVolume;
+                return volume;
+            }
+        }
+        /// <summary>
+        /// Суммарный фактический объём
+        /// </summary>
+        public double FactVolume
+        {
+            get
+            {
+                var volume = 0.0;
+                foreach (var line in _lines.Values)
+                    volume += line.FactVolume;
                 return volume;
             }
         }
@@ -126,29 +153,55 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный вес нетто
+        /// Суммарный плановый вес нетто
         /// </summary>
-        public double NetWeight
+        public double PlanNetWeight
         {
             get
             {
-                var netWeight = 0.0;
+                var planNetWeight = 0.0;
                 foreach (var line in _lines.Values)
-                    netWeight += line.FactNetWeight;
-                return netWeight;
+                    planNetWeight += line.PlanNetWeight;
+                return planNetWeight;
             }
         }
         /// <summary>
-        /// Суммарный вес брутто
+        /// Суммарный плановый вес брутто
         /// </summary>
-        public double GrossWeight
+        public double PlanGrossWeight
         {
             get
             {
-                var grossWeight = 0.0;
+                var planGrossWeight = 0.0;
                 foreach (var line in _lines.Values)
-                    grossWeight += line.FactGrossWeight;
-                return grossWeight;
+                    planGrossWeight += line.PlanGrossWeight;
+                return planGrossWeight;
+            }
+        }
+        /// <summary>
+        /// Суммарный фактический вес нетто
+        /// </summary>
+        public double FactNetWeight
+        {
+            get
+            {
+                var factNetWeight = 0.0;
+                foreach (var line in _lines.Values)
+                    factNetWeight += line.FactNetWeight;
+                return factNetWeight;
+            }
+        }
+        /// <summary>
+        /// Суммарный фактический вес брутто
+        /// </summary>
+        public double FactGrossWeight
+        {
+            get
+            {
+                var factGrossWeight = 0.0;
+                foreach (var line in _lines.Values)
+                    factGrossWeight += line.FactGrossWeight;
+                return factGrossWeight;
             }
         }
         /// <summary>
@@ -187,7 +240,32 @@ namespace TSLog.WarehouseActions.BO
                 return count;
             }
         }
-
+        /// <summary>
+        /// Плановое количество коробок
+        /// </summary>
+        public double PlanBoxeCount
+        {
+            get 
+            {
+                var count = 0.0;
+                foreach (var line in _lines.Values)
+                    count += line.PlanQuantity / line.BoxStandard;
+                return count;
+            }
+        }
+        /// <summary>
+        /// Фактическое количество коробок
+        /// </summary>
+        public double FactBoxeCount
+        {
+            get
+            {
+                var count = 0.0;
+                foreach (var line in _lines.Values)
+                    count += line.FactQuantity / line.BoxStandard;
+                return count;
+            }
+        }
         private static WarehouseAction? _null = null;
         /// <summary>
         /// Null object

@@ -38,6 +38,10 @@
     {
         <link rel="stylesheet" href="~/css/StaffReport.css" asp-append-version="true" />
     }
+    else if (page == "BCDispatcherReportPage")
+    {
+        <link rel="stylesheet" href="~/css/BCDispatcherReportPage.css" asp-append-version="true" />
+    }
 </head>
 <body>
     <div class="not-for-print" style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
@@ -54,6 +58,7 @@
                     <a class="nav-link text-dark" href="/FreeShiftWorkers">Свободные на смене</a>
                     <a class="nav-link text-dark" href="/PositionsShiftReport">Отчёт за смену</a>
                     <a class="nav-link text-dark" href="/StaffReport">Отчёт по персоналу</a>
+                    <a class="nav-link text-dark" href="/BCDispatcherReportPage">Отчёт диспетчера</a>
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
             </div>
@@ -110,6 +115,10 @@
     {
         <script src="~/js/StaffReport.js" asp-append-version="true"></script>    
     }
+    else if (page == "BCDispatcherReportPage")
+    {
+        <script src="~/js/BCDispatcherReportPage.js" asp-append-version="true"></script>    
+    }    
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

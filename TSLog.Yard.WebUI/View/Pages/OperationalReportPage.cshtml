@@ -3,16 +3,21 @@
 @using TSLog.Yard.WebUI.Models
 @using TSLog.Yard.BO
 
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
 @model OperationalReportPageModel
 @{
     ViewData["Title"] = "Оперативный отчёт за смену";
     var rightsChecker = Model.RightsChecker;
-    var storage = Model.Storage;
-    var request = Model.Request;
-}
-@inject IConfiguration Configuration
-@{
-    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+    var viewOperationalReportPage = !useAuthentication || 
+        (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_OPERATIONAL_REPORT_PAGE", User));
+    if (!viewOperationalReportPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }
 }
 
 <div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
@@ -35,39 +40,60 @@
 <div class="row"
     style="padding: 0; margin: 0; margin-bottom: 8px">
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 160px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="operationalReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="operationalReportPage.exportToExcel()">В Excel</button>
 </div>
 
-<h5 id="header3">Всего заявок</h5>
-<table class="table table-bordered table-sortable" 
-    style="width: fit-content; margin: auto">
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+        Порядок рассчёта и комментарии к отчёту:
+    </b>    
+    1. Смотрим все операции двора за указанную смену;<br />
+    2. Для каждой операции двора смотрим её основные параметры (вид, тип авто, клиент, заказы, вес, объём, ...);<br />
+    3. Сравниваем плановое время окончания работ с фактическим, плановую продолжительность с фактическим, плановые трудозатраты с фактическими;<br />
+    4. Если фактические показатели превышают плановые, то подсвечиваем такую запись как "плохую", она требует разбора, почему так произошло;<br />
+    5. Пояснения к полю "Корр." (признак корректности): "" - с заявкой всё хорошо, "О" - опоздание, "ПП" - превышен план по времени или по трудозатратам.<br />
+</div>
+
+<h5 id="elements-count-h5">Всего заявок - 0</h5>
+<table id="report-table"
+    class="table table-bordered table-sortable" 
+    style="width: 100%; margin: auto">
     <thead class="thead-light">
         <tr id="header-row">
-            <th id="operation-id-th" class="table-header datatype-text">Номер</th>
-            <th class="table-header datatype-text">Клиент</th>
-            <th class="table-header datatype-text">Тип</th>
-            <th class="table-header datatype-text">Вид авто</th>
-            <th class="table-header datatype-text">Состояние</th>
-            <th class="table-header datatype-text">Прибытие</th>
-            <th class="table-header datatype-text" style="width: 6%">Нач. работ<br />план (факт)</th>
-            <th class="table-header datatype-text" style="width: 6%">Оконч. работ<br />план (факт)</th>
-            <th class="table-header datatype-text">Убытие</th>
-            <th class="table-header datatype-text">Время во дворе мин.</th>
-            <th class="table-header datatype-text">Длительность<br />план (факт) мин.</th>
-            <th class="table-header datatype-text">Трудозатраты план лин. (факт) чел. * мин.</th>
-            <th class="table-header datatype-text">Кол-во работников</th>
-            <th class="table-header datatype-text">Приходов/расходов</th>
+            <th id="operation-id-th" class="table-header datatype-text" style="width: 5%">Номер</th>
+            <th class="table-header datatype-text" style="width: 7%">Клиент</th>
+            <th class="table-header datatype-text" style="width: 6%">Тип</th>
+            <th class="table-header datatype-text" style="width: 4%">Вид авто</th>
+            <th class="table-header datatype-text" style="width: 4%">Состояние</th>
+            <th class="table-header datatype-text" style="width: 6%">Прибытие</th>
+            <th class="table-header datatype-text" style="width: 6%">Нач. раб. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 6%">Оконч. раб. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 6%">Убытие</th>
+            <th class="table-header datatype-text" style="width: 6%">Время во дворе мин.</th>
+            <th class="table-header datatype-text" style="width: 6%">Длит. пл. (ф.) мин.</th>
+            <th class="table-header datatype-text" style="width: 7%">Т/з лин. пл. (ф.) ч. * мин.</th>
+            <th class="table-header datatype-text" style="width: 5%">Кол-во работников</th>
+            <th class="table-header datatype-text" style="width: 5%">Кол-во пр./рас.</th>
             <!--
             <th class="table-header datatype-text">Вес нетто (кг)</th>
             -->
-            <th class="table-header datatype-text">Вес брутто (кг)</th>
-            <th class="table-header datatype-text">Объём (куб. м)</th>
-            <th class="table-header datatype-text">Паллет</th>
+            <th class="table-header datatype-text" style="width: 5%">Вес бр. пл. (ф.) кг</th>
+            <th class="table-header datatype-text" style="width: 5%">Объём пл. (ф.) куб. м</th>
+            <th class="table-header datatype-text" style="width: 4%">Кол-во палл. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 4%">Кол-во кор. пл. (ф.)</th>
+            <th class="table-header datatype-text" style="width: 5%">Корр.</th>
         </tr>
     </thead>
+    <tfoot id="report-tfoot">        
+    </tfoot>
     <tbody id="report-tbody">
     </tbody>
 </table>
