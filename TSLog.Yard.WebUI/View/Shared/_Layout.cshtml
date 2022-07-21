@@ -267,14 +267,23 @@
         else if (page == "GuardPage")
         {        
             <script type="text/javascript" src="~/js/GuardPage.js"></script>
+        }        
+        else if (page == "OperationalReportPage")
+        {        
+            <script type="text/javascript" src="~/js/OperationalReportPage.js"></script>
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
         else if (page == "DispatcherReportPage")
         {        
             <script type="text/javascript" src="~/js/DispatcherReportPage.js"></script>
-        }
-        else if (page == "OperationalReportPage")
-        {        
-            <script type="text/javascript" src="~/js/OperationalReportPage.js"></script>
+            <!--
+            <script type="text/javascript" 
+                src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/js/tableexport.min.js" 
+                integrity="sha512-XmZS54be9JGMZjf+zk61JZaLZyjTRgs41JLSmx5QlIP5F+sSGIyzD2eJyxD4K6kGGr7AsVhaitzZ2WTfzpsQzg==" 
+                crossorigin="anonymous" 
+                referrerpolicy="no-referrer"></script>
+            -->
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
         else if (page == "LaborReportPage")
         {        
@@ -297,10 +306,12 @@
         else if (page == "ECReportPage")
         {        
             <script type="text/javascript" src="~/js/ECReportPage.js"></script>
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
         else if (page == "WorkersPerfomanceReportPage")
         {        
             <script type="text/javascript" src="~/js/WorkersPerfomanceReportPage.js"></script>
+            <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
     }
     @await RenderSectionAsync("Scripts", required: false)

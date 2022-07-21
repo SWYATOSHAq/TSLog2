@@ -244,6 +244,60 @@ class ViewUtils {
             });
         });
     }
+
+    // Экспорт таблицы в excel (версия 1)
+    tableToExcel_v1(table, fileName = "tableData", fileType = "xls") {
+        const dataType = "application/vnd.ms-excel";
+        const tableHtml = table.outerHTML.replace(/ /g, "%20");
+
+        // Specify file name
+        fileName = fileName ? fileName : "tableData";
+        fileType = fileType ? fileType : "xlsx";
+        fileName = fileName + "." + fileType;
+
+        // Create download link element
+        const downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            const blob = new Blob(["\ufeff", tableHtml], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, fileName);
+        } else {
+            // Create a link to the file
+            downloadLink.href = "data:" + dataType + ", " + tableHtml;
+
+            // Setting the file name
+            downloadLink.download = fileName;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+
+    // Экспорт таблицы в excel (версия 2)
+    tableToExcel_v2(table, fileName = "tableData", fileType = "xlsx", sheetName = "sheet1") {
+        sheetName = sheetName ? sheetName : "sheet1"
+        if (sheetName.length > 31) {
+            sheetName = sheetName.substring(0, 31);
+        }
+        const sheetOptions = {
+            sheet: sheetName
+        }
+        const file = XLSX.utils.table_to_book(table, sheetOptions);
+        const options = {
+            bookType: fileType,
+            bookSST: true,
+            type: 'base64'
+        }
+        XLSX.write(file, options);
+        fileName = fileName ? fileName : "tableData";
+        fileType = fileType ? fileType : "xlsx";
+        fileName = fileName + "." + fileType;
+        XLSX.writeFile(file, fileName);
+    }
 }
 
 const viewUtils = new ViewUtils();

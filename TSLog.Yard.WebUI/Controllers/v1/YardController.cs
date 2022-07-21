@@ -2368,6 +2368,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.key = key;
                     element.nextDayOperations = 0;
                     element.dayToDayOperations = 0;
+                    element.dayOperations = 0;
+                    element.dayToDayOperationsPercent = 0.0;
                     element.deletedOperations = 0;
                     element.idleOperations = 0;
                     element.palletIncomes = 0;
@@ -2387,6 +2389,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         data[key].deletedOperations++;
                     else if (operation.State.Code != "CREATED" && operation.State.Code != "CANCELED")
                     {
+                        // Все заявки, запланированные на указанный день
+                        data[key].dayOperations++;
+
                         // Опоздавшие машины (на сутки) или не приехавшие
                         if (operation.PlanWorkFinishDate.Date < operation.FactWorkFinishDate.Date
                             || operation.FactWorkFinishDate <= DateTime.MinValue)
@@ -2429,7 +2434,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (element.date < fromDate.Date || element.date >= toDate.AddTicks(-1).Date.AddDays(1))
                         continue;
-                    result.Add(element);
+                    element.dayToDayOperationsPercent = 100.0 * element.dayToDayOperations / element.dayOperations;
+                    result.Add(element);                    
                 }
 
                 var text = JsonSerializer.Serialize(result);

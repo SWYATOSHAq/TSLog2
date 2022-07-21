@@ -40,10 +40,15 @@
 <div class="row"
     style="padding: 0; margin: 0; margin-bottom: 8px">
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 160px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="dispatcherReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="dispatcherReportPage.exportToExcel()">В Excel</button>
 </div>
 
 <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
@@ -53,15 +58,17 @@
     Общее: данные собираются за АСТРОНОМИЧЕСКИЕ сутки, к сменам привязок нет.<br />
     1. Заявки на следующий день - заявки созданные в УКАЗАННУЮ дату на БУДУЩИЕ даты (плановая дата окончания на след. день и далее);<br />
     2. Заявки день в день - заявки созданные в УКАЗАННУЮ дату на ЭТУ ЖЕ УКАЗАННУЮ дату (плановая дата окончания совпадает с датой создания);<br />
-    3. Удалённые заявки - заявки, у которых плановая дата окончания равна УКАЗАННОЙ дате, но которые удалены;<br />
-    4. Не приехавшие машины - на УКАЗАННУЮ дату машина ещё не приехала или приехала в последующие дни;<br />
-    5. Отгрузок паллетных - всего ПАЛЛЕТНЫХ отгрузок за УКАЗАННУЮ дату;<br />
-    6. Отгрузок россыпью - всего отгрузок РОССЫПЬЮ за УКАЗАННУЮ дату;<br />
-    7. Отгрузок всего - всего ВСЕХ отгрузок за УКАЗАННУЮ дату;<br />
-    8. Разгрузок паллетных - всего ПАЛЛЕТНЫХ разгрузок за УКАЗАННУЮ дату;<br />
-    9. Разгрузок россыпью - всего разгрузок РОССЫПЬЮ за указанную дату;<br />
-    10. Разгрузок всего - всего ВСЕХ разгрузок за УКАЗАННУЮ дату;<br />
-    11. Заявок всего - всего ВСЕХ операций двора (приёмок и отгрузок) за УКАЗАННУЮ дату;<br />
+    3. Заявки на день - заявки, зарегистрированные на УКАЗАННУЮ дату;<br />
+    4. Заявок день в день (%) - процент заявок, зарегистрированных день в день от всех запланированных на день;<br />
+    5. Удалённые заявки - заявки, у которых плановая дата окончания равна УКАЗАННОЙ дате, но которые удалены;<br />
+    6. Не приехавшие машины - на УКАЗАННУЮ дату машина ещё не приехала или приехала в последующие дни;<br />
+    7. Отгрузок паллетных - всего ПАЛЛЕТНЫХ отгрузок за УКАЗАННУЮ дату;<br />
+    8. Отгрузок россыпью - всего отгрузок РОССЫПЬЮ за УКАЗАННУЮ дату;<br />
+    9. Отгрузок всего - всего ВСЕХ отгрузок за УКАЗАННУЮ дату;<br />
+    10. Разгрузок паллетных - всего ПАЛЛЕТНЫХ разгрузок за УКАЗАННУЮ дату;<br />
+    11. Разгрузок россыпью - всего разгрузок РОССЫПЬЮ за указанную дату;<br />
+    12. Разгрузок всего - всего ВСЕХ разгрузок за УКАЗАННУЮ дату;<br />
+    13. Заявок всего - всего ВСЕХ операций двора (приёмок и отгрузок) за УКАЗАННУЮ дату;<br />
 </div>
 
 <table id="report-table"
@@ -72,41 +79,45 @@
             <th style="width: 200px; vertical-align: middle">Показатель</th>            
         </tr>        
     </thead>
-    <tfoot id="report-tfoot">        
-    </tfoot>
     <tbody id="report-tbody">
         <tr id="next-day-operations-tr">
-            <th class="table-header datatype-text">Заявок на сл. дни</th>
+            <td class="table-header datatype-text">Заявок на сл. дни</td>
         </tr>
         <tr id="day-to-day-operations-tr">
-            <th class="table-header datatype-text">Заявок день в день</th>
+            <td class="table-header datatype-text">Заявок день в день</td>
+        </tr>
+        <tr id="day-operations-tr">
+            <td class="table-header datatype-text">Заявок на день</td>
+        </tr>
+        <tr id="day-to-day-operations-percent-tr">
+            <td class="table-header datatype-text">Заявок день в день (%)</td>
         </tr>
         <tr id="deleted-operations-tr">
-            <th class="table-header datatype-text">Заявок удалено</th>
+            <td class="table-header datatype-text">Заявок удалено</td>
         </tr>
         <tr id="idle-operations-tr">
-            <th class="table-header datatype-text">Машин НЕ приехало</th>
+            <td class="table-header datatype-text">Машин НЕ приехало</td>
         </tr>        
-        <tr id="pallet-incomes-tr" style="background-color: lightgoldenrodyellow">
-            <th class="table-header datatype-text">Отгрузок палл.</th>
+        <tr id="pallet-incomes-tr" style="background-color: lightcyan">
+            <td class="table-header datatype-text">Приёмок палл.</td>
         </tr>
-        <tr id="box-incomes-tr" style="background-color: lightgoldenrodyellow">
-            <th class="table-header datatype-text">Отгрузок росс.</th>
+        <tr id="box-incomes-tr" style="background-color: lightcyan">
+            <td class="table-header datatype-text">Приёмок росс.</td>
         </tr>
-        <tr id="total-incomes-tr" style="background-color: lightgoldenrodyellow">
-            <th class="table-header datatype-text">Отгрузок всего</th>
-        </tr>        
-        <tr id="pallet-outgoues-tr" style="background-color: lightcyan">
-            <th class="table-header datatype-text">Разгрузок палл.</th>
+        <tr id="total-incomes-tr" style="background-color: lightcyan">
+            <td class="table-header datatype-text">Приёмок всего</td>
         </tr>
-        <tr id="box-outgoes-tr" style="background-color: lightcyan">
-            <th class="table-header datatype-text">Разгрузок росс.</th>
+        <tr id="pallet-outgoes-tr" style="background-color: lightgoldenrodyellow">
+            <td class="table-header datatype-text">Отгрузок палл.</td>
         </tr>
-        <tr id="total-outgoes-tr" style="background-color: lightcyan">
-            <th class="table-header datatype-text">Разгрузок всего</th>
+        <tr id="box-outgoes-tr" style="background-color: lightgoldenrodyellow">
+            <td class="table-header datatype-text">Отгрузок росс.</td>
         </tr>
-        <tr id="total-operations-tr" style="background-color: skyblue">
-            <th class="table-header datatype-text">Заявок всего</th>
+        <tr id="total-outgoes-tr" style="background-color: lightgoldenrodyellow">
+            <td class="table-header datatype-text">Отгрузок всего</td>
+        </tr>
+        <tr id="total-operations-tr" style="background-color: skyblue; font-weight: bold">
+            <td class="table-header datatype-text">Заявок всего</td>
         </tr>
     </tbody>
 </table>

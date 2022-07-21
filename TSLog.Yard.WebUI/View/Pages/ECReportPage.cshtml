@@ -65,10 +65,15 @@
 </div>
 <div style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success"
-        style="padding: 0; margin: 0; width: 120px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="ecReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="ecReportPage.exportToExcel()">В Excel</button>
 </div>
 <b id="report-header"
     style="padding: 0; margin: 0; margin-top: 8px">Отчёт по затратам на персонал из БоссКонтроля</b>
@@ -94,7 +99,8 @@
 </div>
 
 <div style="padding: 0; margin-top: 8px;">
-    <table class="table table-light table-bordered table-striped table-sortable"
+    <table id="report-table"
+        class="table table-light table-bordered table-striped table-sortable"
         style="padding: 0; margin: 0">
         <thead class="thead-light">
             <tr>

@@ -1,0 +1,58 @@
+﻿@page "/BCDispatcherReportPage"
+@using TSLog.BossControl.WebUI.Models
+
+@model BCDispatcherReportPageModel
+@{
+    ViewData["Title"] = "Отчёт диспетчера БК";
+}
+
+<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+    <label for="from-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Начало периода:</label>
+    <input id="from-date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />     
+    <label for="to-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Окончание периода <b>(включительно!)</b>:</label>
+    <input id="to-date-input" 
+        class="datepicker border border-secondary" 
+        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" /> 
+
+</div>
+<div class="row"
+    style="padding: 0; margin: 0; margin-bottom: 8px">
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 160px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="dispatcherReportPage.createReport()">Применить</button>
+</div>
+
+<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+        Порядок рассчёта и комментарии к отчёту:
+    </b>    
+    Общее: данные собираются за АСТРОНОМИЧЕСКИЕ сутки, к сменам привязок нет.<br />
+    1. ;<br />
+</div>
+
+<table id="report-table"
+    class="table table-bordered table-sortable" 
+    style="margin: auto">
+    <thead class="thead-light">
+        <tr id="header-tr" style="background-color: cornsilk">
+            <th style="width: 200px; vertical-align: middle">Показатель</th>            
+        </tr>        
+    </thead>
+    <tfoot id="report-tfoot">        
+    </tfoot>
+    <tbody id="report-tbody">
+        <tr id="next-day-operations-tr">
+            <td class="table-header datatype-text">Заявок на сл. дни</td>
+        </tr>        
+    </tbody>
+</table>

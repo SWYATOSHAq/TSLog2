@@ -294,6 +294,30 @@ class OperationalReportPage {
         operationIdTh.click();
     }
 
+    exportToExcel() {
+        const reportTable = document.getElementById("report-table");
+
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = utils.getNowDate();
+        const fileName = "operationalReport_" + fromDate + "_" + toDate;
+        const sheetName = fromDate + " - " + toDate;
+
+        const openButtons = document.getElementsByClassName("table-cell-button");
+        function setButtonsText(buttons, text = "") {
+            for (let button of buttons) {
+                button.textContent = text;
+            }
+        }
+
+        setButtonsText(openButtons);        
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+        setButtonsText(openButtons, "Открыть");
+    }
+
     async show() {
         let date = utils.getUrlParameter("date");
         if (date == "")

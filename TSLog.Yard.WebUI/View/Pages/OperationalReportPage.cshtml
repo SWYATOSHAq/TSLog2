@@ -40,10 +40,15 @@
 <div class="row"
     style="padding: 0; margin: 0; margin-bottom: 8px">
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 160px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="operationalReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="operationalReportPage.exportToExcel()">В Excel</button>
 </div>
 
 <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
@@ -58,7 +63,8 @@
 </div>
 
 <h5 id="elements-count-h5">Всего заявок - 0</h5>
-<table class="table table-bordered table-sortable" 
+<table id="report-table"
+    class="table table-bordered table-sortable" 
     style="width: 100%; margin: auto">
     <thead class="thead-light">
         <tr id="header-row">
