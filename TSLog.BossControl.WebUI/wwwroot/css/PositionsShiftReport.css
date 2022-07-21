@@ -1,4 +1,30 @@
-﻿.dates-div {
+﻿@media print {
+    .not-for-print {
+        visibility: hidden;
+    }
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        --bs-table-accent-bg: white;
+    }
+    .table {
+        position: absolute;
+        left: 0;
+        top:0;
+    }
+    .print-on-top-1 {
+        position: absolute;
+        top: 0;
+    }
+    .print-on-top-2 {
+        position: absolute;
+        top: 0;
+    }
+    .table-row.work-table-row {
+        visibility: visible;
+        font-weight: bold;
+    }
+}
+
+.dates-div {
     margin: 0px !important;
     padding: 0px !important;
     margin-top: 8px !important;

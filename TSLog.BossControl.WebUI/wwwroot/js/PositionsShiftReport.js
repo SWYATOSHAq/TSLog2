@@ -208,6 +208,13 @@ class PositionsShiftReport {
         this.showReport()
     }
 
+    printPage () {
+        const printButton = document.querySelector(".print-button");
+        printButton.onclick = () => {
+            window.print();
+        }
+    }
+
     async show() {        
         let date = utils.getUrlParameter("date");
         if (date == "")
@@ -223,6 +230,7 @@ class PositionsShiftReport {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         this.showShiftInfo();
+        this.printPage();
     }
 }
 
