@@ -1,7 +1,7 @@
-﻿@page "/BusyWorkers"
+﻿@page "/BusyWorkersPage"
 @using TSLog.BossControl.WebUI.Models
 
-@model BusyWorkersModel
+@model BusyWorkersPageModel
 @{
     ViewData["Title"] = "Занятые сотрудники";
     var storage = Model.Storage;    
@@ -10,15 +10,25 @@
 
 <div class="table-div">    
     <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />
-    <div class="row button-div">
-        <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 print-button not-for-print"
+    <div class="row button-div"
+        style="padding: 0; margin: 0">
+        <button class="btn btn-outline-success not-for-print" 
+            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+            title="Выгрузить отчёт в Excel"
+            type="button" 
+            onclick="busyWorkersPage.exportToExcel()">В Excel</button>
+        <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+            style="padding: 0; margin: 0; width: 120px"
+            title="Печать отчёта"
             type="button">Печать</button>
     </div>
     <b class="not-for-print">Занятые сотрудники</b>
-    <table class="table table-light table-bordered table-striped table-sortable" style="margin: 0; padding: 0">
+    <table id="data-table"
+        class="table table-light table-bordered table-striped table-sortable" 
+        style="margin: 0; padding: 0">
         <thead>
             <tr>
-                <th class="table-column-header" >Сотрудник</th>
+                <th class="table-column-header">Сотрудник</th>
                 <th class="table-column-header">Должность</th>
                 <th class="table-column-header">Компания</th>
                 <th class="table-column-header">Пользователь WMS</th>

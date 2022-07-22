@@ -290,5 +290,39 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 return exception.Message;
             }            
         }
+        [HttpGet("DailyReport")]
+        public string DailyReport()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                string temp = Request.Query["from_date"];
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "From date is empty!";
+                if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
+                    return $"Wrong to date {temp}";
+
+                temp = Request.Query["to_date"];
+                if (string.IsNullOrWhiteSpace(temp))
+                    return "From date is empty!";
+                if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
+                    return $"Wrong to date {temp}";
+
+                temp = Request.Query["only_linear"];
+                var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
+
+                fromDate = fromDate.Date;
+                toDate = toDate.AddDays(1);
+                //var data = _storage.CreateStaffReport(fromDate, toDate, onlyLinear);
+                //var text = JsonSerializer.Serialize(data);
+                var text = string.Empty;
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
     }
 }

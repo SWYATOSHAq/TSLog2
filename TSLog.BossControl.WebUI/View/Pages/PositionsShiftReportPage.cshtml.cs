@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace TSLog.BossControl.WebUI.Pages
 {
-    public class PositionsShiftReportModel : PageModel
+    public class PositionsShiftReportPageModel : PageModel
     {
         public void OnGet()
         {

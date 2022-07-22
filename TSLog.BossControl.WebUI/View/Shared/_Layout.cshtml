@@ -90,12 +90,15 @@
     <script src="~/lib/datepicker/bootstrap-datepicker.js"></script>
     <script src="~/lib/datepicker/bootstrap-datepicker.ru.min.js"></script>
 
+    <!-- Excel export -->
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
     <!-- Common scriprs -->
     <script type="text/javascript" src="~/js/Common.js"></script>
     <script type="text/javascript" src="~/js/CommonView.js"></script>
     <script type="text/javascript" src="~/js/Api.js"></script>
 
-    @if (page == "BusyWorkers")
+    @if (page == "BusyWorkersPage")
     {
         <script src="~/js/BusyWorkersPage.js" asp-append-version="true"></script>    
     }
@@ -105,22 +108,19 @@
     }
     else if (page == "FreeShiftWorkersPage")
     {
-        <script src="~/js/FreeShiftWorkers.js" asp-append-version="true"></script>    
+        <script src="~/js/FreeShiftWorkersPage.js" asp-append-version="true"></script>    
     }    
     else if (page == "PositionsShiftReportPage")
     {
-        <script src="~/js/PositionsShiftReport.js" asp-append-version="true"></script>    
-        <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+        <script src="~/js/PositionsShiftReportPage.js" asp-append-version="true"></script>    
     }
     else if (page == "StaffReportPage")
     {
         <script src="~/js/StaffReportPage.js" asp-append-version="true"></script>    
-        <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
     }
     else if (page == "DailyReportPage")
     {
         <script src="~/js/DailyReportPage.js" asp-append-version="true"></script>    
-        <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
     }    
 
     @await RenderSectionAsync("Scripts", required: false)

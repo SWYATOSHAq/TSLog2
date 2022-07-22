@@ -32,7 +32,7 @@ class DailyReportPage {
     async getData() {
         const fromDate = utils.getUrlParameter("from_date");
         const toDate = utils.getUrlParameter("to_date");
-        const result = await api.createDispatcherReport(fromDate, toDate);
+        const result = await api.createDailyReport(fromDate, toDate);
         if (result.code === 0) {
             this.data = result.data;
         } else {
