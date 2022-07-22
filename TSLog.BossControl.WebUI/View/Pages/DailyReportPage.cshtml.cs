@@ -3,12 +3,12 @@ using TSLog.BossControl.BO;
 
 namespace TSLog.BossControl.WebUI.Models
 {
-    public class BCDispatcherReportPageModel : PageModel
+    public class DailyReportPageModel : PageModel
     {
-        private readonly ILogger<BCDispatcherReportPageModel> _logger;
+        private readonly ILogger<DailyReportPageModel> _logger;
         public IBossControlStorage Storage { get; private set; }
         public List<Endpoint> Endpoints { get; private set; }
-        public BCDispatcherReportPageModel(ILogger<BCDispatcherReportPageModel> logger,
+        public DailyReportPageModel(ILogger<DailyReportPageModel> logger,
             IBossControlStorage storage, 
             IEnumerable<EndpointDataSource> endpointSources)
         {

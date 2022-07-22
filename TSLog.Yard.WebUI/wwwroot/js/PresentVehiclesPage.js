@@ -9,6 +9,7 @@ class PresentVehiclesPage {
     sortedOperations = [];
     sortField = "driverName";
     sortDirection = "forward";
+    refreshTime = 60;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -30,6 +31,12 @@ class PresentVehiclesPage {
         result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
         return result != "" ? "?" + result : "";
+    }
+
+    changeRefreshMeta() {
+        const refreshMeta = document.getElementById("refresh-meta")
+        const url = this.shortUrl + this.createParameters();
+        refreshMeta.content = this.refreshTime.toString() + "; URL='" + url + "'"
     }
 
     async getOperations() {
@@ -220,8 +227,10 @@ class PresentVehiclesPage {
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
+
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 
     // обработчик события при смене поля сортировки
@@ -233,6 +242,7 @@ class PresentVehiclesPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 
     // обработчик события при смене "направления" сортировки
@@ -248,6 +258,7 @@ class PresentVehiclesPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 
     getOperationTypeHint() {
@@ -298,8 +309,10 @@ class PresentVehiclesPage {
         this.showOperations();
         const header = document.getElementById("header1");
         header.textContent = header.textContent + " (всего машин - " + this.operations.length + ")";
+
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 }
 

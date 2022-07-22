@@ -3,10 +3,10 @@ using TSLog.BossControl.BO;
 
 namespace TSLog.BossControl.WebUI.Pages
 {
-    public class FreeWorkersModel : PageModel
+    public class FreeWorkersPageModel : PageModel
     {
         public IBossControlStorage Storage { get; private set; }
-        public FreeWorkersModel(IBossControlStorage storage)
+        public FreeWorkersPageModel(IBossControlStorage storage)
         {
             Storage = storage;
         }
