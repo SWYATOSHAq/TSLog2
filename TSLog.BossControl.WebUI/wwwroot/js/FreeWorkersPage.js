@@ -107,11 +107,15 @@ class FreeWorkersPage {
 
     }
 
-    printPage () {
-        const printButton = document.querySelector(".print-button");
-        printButton.onclick = () => {
-            window.print();
-        }
+    exportToExcel() {
+        const reportTable = document.getElementById("data-table");
+        const fileName = "freeWorkers";
+        const sheetName = "Свободные работники";
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
+    print() {
+        window.print();
     }
 
     async show() {
@@ -121,8 +125,7 @@ class FreeWorkersPage {
         viewUtils.initInput("wmsUserInput", utils.getUrlParameter("wmsUser"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("positions-select", utils.getUrlParameter("position"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("companies-select", utils.getUrlParameter("company"), this.onChangeFilter.bind(this));
-        viewUtils.sortTable ();
-        this.printPage();
+        viewUtils.sortTable();
     }
 }
 

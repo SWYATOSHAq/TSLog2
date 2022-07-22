@@ -13,7 +13,6 @@
             placeholder="Выберете дату" 
             ne="date" 
             readonly="" />    
-
         <label class="date-label" for="shift-select">Смена:</label>
         <select id="shift-select" 
             class="form-select border-secondary" 
@@ -40,10 +39,18 @@
             type="button">Печать</button>
     </div>
 
-    <div class="row print-on-top-1" style="margin: 0.5% 0 !important; padding: 0 !important">
-        Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов).</b>
+    <div class="row not-for-print" 
+        style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+        <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+            Порядок рассчёта:
+        </b>    
+        1. отчёт смотри все промежутки работ сотрудников на участках, суммирует данные по каждой должности и по всем должностям;<br />
+        2. эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов);<br />
+        3. потери равны разнице 100% и эффективности;<br />        
     </div>
-    <div class="row print-on-top-2" style="margin: 0.5% 0 !important; padding: 0 !important; color: red">
+    
+    <div class="row print-on-top-2" 
+        style="margin: 0.5% 0 !important; padding: 0 !important; color: red">
         Красным выделены сотрудники, работающие во время перерывов.
     </div>
 

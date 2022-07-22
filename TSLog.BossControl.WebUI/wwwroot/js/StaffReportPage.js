@@ -164,6 +164,10 @@ class StaffReportPage {
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
     }
 
+    print() {
+        window.print();
+    }
+
     async show() {        
         let fromDate = utils.getUrlParameter("from-from_date");
         if (fromDate == "")

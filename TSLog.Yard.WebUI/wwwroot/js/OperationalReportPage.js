@@ -265,13 +265,13 @@ class OperationalReportPage {
         const shiftDiv = document.getElementById("shift-info");
         if (document.getElementById("shift-select").value == "day") {
             const date = utils.getUrlParameter("date");
-            shiftDiv.textContent = "Дневная смена с " + date + " 9:00 по " + date + " 21:00";
+            shiftDiv.innerHTML = "Дневная смена с <b>9:00</b> (" + date + ") по <b>21:00</b> (" + date + ")";
         }
         else if (document.getElementById("shift-select").value == "night") {
             const fromDate = utils.stringToDate(utils.getUrlParameter("date"));
             let toDate = utils.stringToDate(utils.getUrlParameter("date"));
             toDate.setDate(toDate.getDate() + 1);
-            shiftDiv.textContent = "Ночная смена с " + fromDate.toLocaleDateString() + " 21:00 по " + toDate.toLocaleDateString() + " 9:00";
+            shiftDiv.innerHTML = "Ночная смена с <b>21:00</b> (" + fromDate.toLocaleDateString() + ") по <b>9:00</b> (" + toDate.toLocaleDateString() + ")";
         }
         else {
             shiftDiv.textContent = "Смена не определена!";

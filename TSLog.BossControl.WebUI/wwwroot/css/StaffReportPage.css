@@ -1,4 +1,20 @@
-﻿.dates-div {
+﻿@media print {
+    .not-for-print {
+        visibility: hidden;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        --bs-table-accent-bg: white;
+    }
+
+    .table {
+        position: absolute;
+        left: 9%;
+        top: 0px;
+    }
+}
+
+.dates-div {
     margin: 0px !important;
     padding: 0px !important;
     margin-top: 8px !important;

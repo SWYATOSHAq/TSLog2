@@ -128,11 +128,15 @@ class FreeShiftWorkersPage {
 
     }
 
-    printPage () {
-        const printButton = document.querySelector(".print-button");
-        printButton.onclick = () => {
-            window.print();
-        }
+    exportToExcel() {
+        const reportTable = document.getElementById("data-table");
+        const fileName = "freeShiftWorkers";
+        const sheetName = "Свободные работники";
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
+    print() {
+        window.print();
     }
 
     async show() {
@@ -144,8 +148,7 @@ class FreeShiftWorkersPage {
         viewUtils.initSelect("companies-select", utils.getUrlParameter("company"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("sites-select", utils.getUrlParameter("site"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner"), this.onChangeFilter.bind(this));
-        viewUtils.sortTable ();
-        this.printPage();
+        viewUtils.sortTable();
     }
 }
 

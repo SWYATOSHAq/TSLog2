@@ -5,8 +5,8 @@
 }
 
 <div class="table-div"> 
-    <b>Отчёт по персоналу</b>
-    <div class="row dates-div">
+    <b class="not-for-print">Отчёт по персоналу</b>
+    <div class="row dates-div not-for-print">
         <label class="date-label" for="date-input">Начало периода:</label>
         <input id="from-date-input" 
             class="datepicker border border-secondary date-input" 
@@ -22,17 +22,34 @@
         <input id="only-linear-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
         <label for="only-linear-input" style="width: fit-content; margin: 0; padding: 0">Только линейные</label>
     </div>
-    <div class="row button-div">
+    <div class="row button-div not-for-print">
         <button class="btn btn-outline-success hide-on-print" 
             style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
             title="Сформировать отчёт"
             type="button" 
             onclick="staffReportPage.createReport()">Применить</button>
         <button class="btn btn-outline-success" 
-            style="padding: 0; margin: 0; width: 120px"
+            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
             title="Выгрузить отчёт в Excel"
             type="button" 
             onclick="staffReportPage.exportToExcel()">В Excel</button>
+        <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+            style="padding: 0; margin: 0; width: 120px"
+            title="Печать отчёта"
+            type="button"
+            onclick="staffReportPage.print()">Печать</button>
+    </div>
+
+    <div class="row not-for-print" 
+        style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+        <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
+            Порядок рассчёта:
+        </b>    
+        1. смотрим все промежутки работ работников за указанный период;<br />
+        2. определяем плановое время работы как количество смен, на которых работник отработал хотя бы 10%;<br />
+        3. определяем фактическое время работы работника как сумма времени всех промежутков работ на участких;<br />
+        4. определяем простои как план - факт (переработки не учитываются);<br />
+        5. определяем затраты в деньгах как время работы (план, факт или простои), умноженное на стоимость часа работ.<br />
     </div>
 
     <table id="report-table"

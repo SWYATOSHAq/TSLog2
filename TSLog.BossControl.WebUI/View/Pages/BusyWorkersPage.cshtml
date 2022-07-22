@@ -14,13 +14,14 @@
         style="padding: 0; margin: 0">
         <button class="btn btn-outline-success not-for-print" 
             style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
-            title="Выгрузить отчёт в Excel"
+            title="Выгрузить данные в Excel"
             type="button" 
             onclick="busyWorkersPage.exportToExcel()">В Excel</button>
         <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
             style="padding: 0; margin: 0; width: 120px"
             title="Печать отчёта"
-            type="button">Печать</button>
+            type="button"
+            onclick="busyWorkersPage.print()">Печать</button>
     </div>
     <b class="not-for-print">Занятые сотрудники</b>
     <table id="data-table"

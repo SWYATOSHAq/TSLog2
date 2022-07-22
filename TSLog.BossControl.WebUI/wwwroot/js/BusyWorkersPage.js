@@ -140,18 +140,13 @@ class BusyWorkersPage {
 
     exportToExcel() {
         const reportTable = document.getElementById("data-table");
-
         const fileName = "busyWorkers";
         const sheetName = "Занятые работники";
-
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
     }
 
-    printPage() {
-        const printButton = document.querySelector(".print-button");
-        printButton.onclick = () => {
-            window.print();
-        }
+    print() {
+        window.print();
     }
 
     async show() {
@@ -164,7 +159,6 @@ class BusyWorkersPage {
         viewUtils.initSelect("sites-select", utils.getUrlParameter("site"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner"), this.onChangeFilter.bind(this));
         viewUtils.sortTable();
-        this.printPage();
     }
 }
 
