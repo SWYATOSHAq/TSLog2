@@ -18,29 +18,29 @@
     <link rel="stylesheet" href="~/lib/datepicker/bootstrap-datepicker.css" />    
     <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TSLog.BossControl.WebUI.styles.css" asp-append-version="true" />
-    @if (page == "BusyWorkers")
+    @if (page == "BusyWorkersPage")
     {
-        <link rel="stylesheet" href="~/css/BusyWorkers.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/BusyWorkersPage.css" asp-append-version="true" />
     }
-    else if (page == "FreeWorkers")
+    else if (page == "FreeWorkersPage")
     {
-        <link rel="stylesheet" href="~/css/FreeWorkers.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/FreeWorkersPage.css" asp-append-version="true" />
     }
-    else if (page == "FreeShiftWorkers")
+    else if (page == "FreeShiftWorkersPage")
     {
-        <link rel="stylesheet" href="~/css/FreeShiftWorkers.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/FreeShiftWorkersPage.css" asp-append-version="true" />
     }
-    else if (page == "PositionsShiftReport")
+    else if (page == "PositionsShiftReportPage")
     {
-        <link rel="stylesheet" href="~/css/PositionsShiftReport.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/PositionsShiftReportPage.css" asp-append-version="true" />
     }
-    else if (page == "StaffReport")
+    else if (page == "StaffReportPage")
     {
-        <link rel="stylesheet" href="~/css/StaffReport.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/StaffReportPage.css" asp-append-version="true" />
     }
-    else if (page == "BCDispatcherReportPage")
+    else if (page == "DailyReportPage")
     {
-        <link rel="stylesheet" href="~/css/BCDispatcherReportPage.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/DailyReportPage.css" asp-append-version="true" />
     }
 </head>
 <body>
@@ -53,12 +53,12 @@
             </div>
             <div style="display: flex; align-items: center">
                 <div style="margin-right: 48px; display: flex">
-                    <a class="nav-link text-dark" href="/BusyWorkers">Занятые</a>
-                    <a class="nav-link text-dark" href="/FreeWorkers">Свободные</a>
-                    <a class="nav-link text-dark" href="/FreeShiftWorkers">Свободные на смене</a>
-                    <a class="nav-link text-dark" href="/PositionsShiftReport">Отчёт за смену</a>
-                    <a class="nav-link text-dark" href="/StaffReport">Отчёт по персоналу</a>
-                    <a class="nav-link text-dark" href="/BCDispatcherReportPage">Отчёт диспетчера</a>
+                    <a class="nav-link text-dark" href="/BusyWorkersPage">Занятые</a>
+                    <a class="nav-link text-dark" href="/FreeWorkersPage">Свободные</a>
+                    <a class="nav-link text-dark" href="/FreeShiftWorkersPage">Свободные на смене</a>
+                    <a class="nav-link text-dark" href="/PositionsShiftReportPage">Отчёт за смену</a>
+                    <a class="nav-link text-dark" href="/StaffReportPage">Отчёт по персоналу</a>
+                    <a class="nav-link text-dark" href="/DailyReportPage">Отчёт по дням</a>
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
             </div>
@@ -97,27 +97,30 @@
 
     @if (page == "BusyWorkers")
     {
-        <script src="~/js/BusyWorkers.js" asp-append-version="true"></script>    
+        <script src="~/js/BusyWorkersPage.js" asp-append-version="true"></script>    
     }
-    else if (page == "FreeWorkers")
+    else if (page == "FreeWorkersPage")
     {
-        <script src="~/js/FreeWorkers.js" asp-append-version="true"></script>    
+        <script src="~/js/FreeWorkersPage.js" asp-append-version="true"></script>    
     }
-    else if (page == "FreeShiftWorkers")
+    else if (page == "FreeShiftWorkersPage")
     {
         <script src="~/js/FreeShiftWorkers.js" asp-append-version="true"></script>    
     }    
-    else if (page == "PositionsShiftReport")
+    else if (page == "PositionsShiftReportPage")
     {
         <script src="~/js/PositionsShiftReport.js" asp-append-version="true"></script>    
+        <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
     }
-    else if (page == "StaffReport")
+    else if (page == "StaffReportPage")
     {
-        <script src="~/js/StaffReport.js" asp-append-version="true"></script>    
+        <script src="~/js/StaffReportPage.js" asp-append-version="true"></script>    
+        <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
     }
-    else if (page == "BCDispatcherReportPage")
+    else if (page == "DailyReportPage")
     {
-        <script src="~/js/BCDispatcherReportPage.js" asp-append-version="true"></script>    
+        <script src="~/js/DailyReportPage.js" asp-append-version="true"></script>    
+        <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
     }    
 
     @await RenderSectionAsync("Scripts", required: false)

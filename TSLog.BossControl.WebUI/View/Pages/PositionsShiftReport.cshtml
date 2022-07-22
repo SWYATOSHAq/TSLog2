@@ -1,5 +1,5 @@
-﻿@page "/PositionsShiftReport"
-@model TSLog.BossControl.WebUI.Pages.PositionsShiftReportModel
+﻿@page "/PositionsShiftReportPage"
+@model TSLog.BossControl.WebUI.Pages.PositionsShiftReportPageModel
 @{
     ViewData["Title"] = "Отчёт за смену по должностям";
 }
@@ -24,9 +24,15 @@
         <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
     </div>
     <div class="row button-div">
-        <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
+        <button class="btn btn-outline-success hide-on-print" 
+            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
             type="button" 
             onclick="positionsShiftReport.createReport()">Применить</button>
+        <button class="btn btn-outline-success" 
+            style="padding: 0; margin: 0; width: 120px"
+            title="Выгрузить отчёт в Excel"
+            type="button" 
+            onclick="positionsShiftReport.exportToExcel()">В Excel</button>
     </div>
 
     <div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
@@ -36,7 +42,9 @@
         Красным выделены сотрудники, работающие во время перерывов.
     </div>
 
-    <table class="table table-light table-bordered table-striped" style="margin: 0; padding: 0">
+    <table id="report-table"
+        class="table table-light table-bordered table-striped" 
+        style="margin: 0; padding: 0">
         <thead>
             <tr>
                 <th class="table-column-header" rowspan="2">Должность</th>

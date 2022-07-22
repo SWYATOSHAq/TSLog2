@@ -1,5 +1,5 @@
-﻿@page "/StaffReport"
-@model TSLog.BossControl.WebUI.Pages.StaffReportModel
+﻿@page "/StaffReportPage"
+@model TSLog.BossControl.WebUI.Pages.StaffReportPageModel
 @{
     ViewData["Title"] = "Отчёт по персоналу";
 }
@@ -23,12 +23,20 @@
         <label for="only-linear-input" style="width: fit-content; margin: 0; padding: 0">Только линейные</label>
     </div>
     <div class="row button-div">
-        <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
+        <button class="btn btn-outline-success hide-on-print" 
+            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
             type="button" 
-            onclick="staffReport.createReport()">Применить</button>
+            onclick="staffReportPage.createReport()">Применить</button>
+        <button class="btn btn-outline-success" 
+            style="padding: 0; margin: 0; width: 120px"
+            title="Выгрузить отчёт в Excel"
+            type="button" 
+            onclick="staffReportPage.exportToExcel()">В Excel</button>
     </div>
 
-    <table class="table table-light table-bordered table-striped" style="margin: 0; padding: 0">
+    <table id="report-table" 
+        class="table table-light table-bordered table-striped" 
+        style="margin: 0; padding: 0">
         <thead>
             <tr>                
                 <th rowspan="2" class="table-column-header">Сотрудник / Должность</th>

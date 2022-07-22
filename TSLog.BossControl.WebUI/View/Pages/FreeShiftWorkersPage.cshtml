@@ -1,15 +1,15 @@
-﻿@page "/FreeWorkers"
+﻿@page "/FreeShiftWorkersPage"
 @using TSLog.BossControl.WebUI.Models
 
-@model TSLog.BossControl.WebUI.Pages.FreeWorkersModel
+@model TSLog.BossControl.WebUI.Pages.FreeWorkersPageModel
 @{
-    ViewData["Title"] = "Свободные сотрудники";
+    ViewData["Title"] = "Свободные сотрудники на смене";
     var storage = Model.Storage;    
-    var workersFiltersBlockModel = new WorkersFiltersBlockModel(storage, false, false);
+    var workersFiltersBlockModel = new WorkersFiltersBlockModel(storage);
 }
 
 <div class="table-div">
-    <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />    
+    <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />
     <b>Свободные сотрудники</b>
     <table class="table table-light table-bordered table-striped free-workers-table table-sortable" style="margin: 0; padding: 0">
         <thead>
@@ -18,6 +18,9 @@
                 <th class="table-column-header">Должность</th>
                 <th class="table-column-header">Компания</th>
                 <th class="table-column-header">Пользователь WMS</th>
+                <th class="table-column-header">Участок (пред.)</th>
+                <th class="table-column-header">Мандант (пред.)</th>
+                <th class="table-column-header">Время ухода</th>
                 <th class="table-column-header">Назначить</th>
             </tr>
         </thead>

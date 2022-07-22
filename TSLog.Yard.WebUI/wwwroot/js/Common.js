@@ -105,7 +105,7 @@ class Utils {
         }
     }
 
-    // Отображает корректно дродное число (с округлением, с разделением разрядов)
+    // Отображает корректно дробное число (с округлением, с разделением разрядов)
     displayFloat(value, decimalPoints = 0) {
         const w = value.toFixed(decimalPoints);
         const k = w | 0;
@@ -120,6 +120,45 @@ class Utils {
         }
         return s.substr(0, i + 3) + r + (d ? "," + d : "");
     };
+
+    filterData(data, filters) {
+        let resultData = [];
+        for (let element of data) {
+            let isValid = true;
+            for (let filter of filters) {
+                if (filter.condition === "=") {
+                    if (element[filter.fieldName] != filter.value) {
+                        isValid = false;
+                        break;
+                    }
+                } else if (filter.condition === "like") {
+                    if (!(element[filter.fieldName].toLowerCase().replace("ё", "е").includes(filter.value))) {
+                        isValid = false;
+                        break;
+                    }
+                } else if (filter.condition === "!=") {
+                    if (element[filter.fieldName] === filter.value) {
+                        isValid = false;
+                        break;
+                    }
+                } else if (filter.condition === "<") {
+                    if (element[filter.fieldName] >= filter.value) {
+                        isValid = false;
+                        break;
+                    }
+                } else if (filter.condition === ">") {
+                    if (element[filter.fieldName] <= filter.value) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+            if (isValid) {
+                resultData.push(element);
+            }
+        }
+        return resultData;
+    }
 }
 
 const utils = new Utils();

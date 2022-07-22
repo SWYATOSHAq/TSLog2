@@ -4,7 +4,7 @@
 */
 
 // Страница отчёта о трудозатратах за смену
-class PositionsShiftReport {
+class PositionsShiftReportPage {
     shortUrl;
 
     data = [];
@@ -140,11 +140,14 @@ class PositionsShiftReport {
 
             elementsTbody.append(workerTr);
 
+            let index = 1000;
             for (let work of worker.works) {
                 let workTr = document.createElement("tr");
                 workTr.classList.add("table-row");
                 workTr.classList.add("work-table-row");
 
+                index++;
+                workTr.id = "work-tr-" + index.toString();
                 workTr.dataset.workerId = worker.workerId;
 
                 //work.startDate = utils.convertDate(work.startDate) + " " + utils.convertTime(work.startDate);
@@ -208,6 +211,45 @@ class PositionsShiftReport {
         this.showReport()
     }
 
+    exportToExcel() {
+        const reportTable = document.getElementById("report-table");
+
+        let date = utils.getUrlParameter("date");
+        if (date == "")
+            date = utils.getNowDate();
+        let shift = utils.getUrlParameter("shift");
+        if (shift == "")
+            shift = "day";
+        const fileName = "positionsShiftReport_" + date + "_" + shift;
+        const sheetName = date + " - " + shift;
+
+        const reportTbody = document.getElementById("report-tbody");
+        const trs = reportTbody.children;
+        const visibleTrs = new Set();
+
+        function showAllRows() {
+            for (let tr of trs) {
+                if (tr.classList.contains("d-none")) {
+                    tr.classList.remove("d-none");
+                } else {
+                    visibleTrs.add(tr.id);
+                }
+            }
+        }
+
+        function hideRows() {
+            for (let tr of trs) {
+                if (!visibleTrs.has(tr.id)) {
+                    tr.classList.add("d-none");
+                }
+            }
+        }
+        
+        showAllRows();
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+        hideRows();        
+    }
+
     async show() {        
         let date = utils.getUrlParameter("date");
         if (date == "")
@@ -226,6 +268,6 @@ class PositionsShiftReport {
     }
 }
 
-const positionsShiftReport = new PositionsShiftReport();
+const positionsShiftReportPage = new PositionsShiftReportPage();
 
-document.addEventListener('DOMContentLoaded', positionsShiftReport.show.bind(positionsShiftReport));
+document.addEventListener('DOMContentLoaded', positionsShiftReportPage.show.bind(positionsShiftReportPage));

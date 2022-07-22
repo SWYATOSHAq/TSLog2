@@ -5,7 +5,7 @@
 */
 
 // Страница отчёта диспетчера (за период).
-class BCDispatcherReportPage {
+class DailyReportPage {
     shortUrl;
     data = [];
 
@@ -73,6 +73,21 @@ class BCDispatcherReportPage {
         await this.showData();
     }
 
+    exportToExcel() {
+        const reportTable = document.getElementById("report-table");
+
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = utils.getNowDate();
+        const fileName = "dailyReport_" + fromDate + "_" + toDate;
+        const sheetName = fromDate + " - " + toDate;
+
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
     async show() {
         let fromDate = utils.getUrlParameter("from_date");
         if (fromDate == "")
@@ -90,6 +105,6 @@ class BCDispatcherReportPage {
     }
 }
 
-const bcDispatcherReportPage = new BCDispatcherReportPage();
+const dailyReportPage = new DailyReportPage();
 
-document.addEventListener('DOMContentLoaded', bcDispatcherReportPage.show.bind(bcDispatcherReportPage));
+document.addEventListener('DOMContentLoaded', dailyReportPage.show.bind(dailyReportPage));

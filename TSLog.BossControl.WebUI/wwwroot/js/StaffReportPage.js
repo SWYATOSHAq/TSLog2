@@ -5,7 +5,7 @@
 */
 
 // Страница отчёта по персоналу
-class StaffReport {
+class StaffReportPage {
     shortUrl;
 
     data = [];
@@ -149,6 +149,21 @@ class StaffReport {
         this.showReport()
     }
 
+    exportToExcel() {
+        const reportTable = document.getElementById("report-table");
+
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = utils.getNowDate();
+        const fileName = "staffReport_" + fromDate + "_" + toDate;
+        const sheetName = fromDate + " - " + toDate;
+
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
     async show() {        
         let fromDate = utils.getUrlParameter("from-from_date");
         if (fromDate == "")
@@ -170,6 +185,6 @@ class StaffReport {
     }
 }
 
-const staffReport = new StaffReport();
+const staffReportPage = new StaffReportPage();
 
-document.addEventListener('DOMContentLoaded', staffReport.show.bind(staffReport));
+document.addEventListener('DOMContentLoaded', staffReportPage.show.bind(staffReportPage));

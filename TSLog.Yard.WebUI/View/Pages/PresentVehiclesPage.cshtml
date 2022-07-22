@@ -51,7 +51,9 @@
     sortFields.Add("stateId", "Состояние");
     var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
 }
-<meta http-equiv="refresh" content="60">  
+<meta id="refresh-meta"
+    http-equiv="refresh" 
+    content="60; URL='/PresentVehiclesPage'">  
 <h1 id="header1">Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1>
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
 <partial name="Blocks/_OperationsSortBlock" model="sortModel" />

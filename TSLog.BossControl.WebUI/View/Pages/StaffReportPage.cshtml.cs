@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace TSLog.BossControl.WebUI.Pages
 {
-    public class StaffReportModel : PageModel
+    public class StaffReportPageModel : PageModel
     {
         public void OnGet()
         {

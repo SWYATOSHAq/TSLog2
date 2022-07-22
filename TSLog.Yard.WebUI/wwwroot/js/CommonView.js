@@ -225,6 +225,55 @@ class ViewUtils {
         table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
     }
 
+    getFilterElementByStringInput(fieldName, input, condition = "like", options = { caseInsensitive: true, replaceOnE: true }) {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        let internalValue;
+        if (options.caseInsensitive) {
+            internalValue = input.value.toLowerCase();
+        } else {
+            internalValue = input.value;
+        }
+        if (options.replaceOnE) {
+            internalValue = internalValue.replace("ё", "е");
+        }
+        filter.value = internalValue;
+        return filter;
+    }
+
+    getFilterElementByNumberInput(fieldName, input, condition = "=", options = { onlyPositive: true }) {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        if (options.onlyPositive) {
+            if (input.value >= 0 )
+                filter.value = input.value;
+        }
+        return filter;
+    }
+
+    getFilterElementBySelect(fieldName, select, condition = "=") {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        filter.value = select.value;
+        return filter;
+    }
+
+    getFilterElementByDatePicker(fieldName, datePicker, condition = "=", options = {}) {
+        let filter = {};
+        filter.fieldName = fieldName;
+        filter.condition = condition;
+        filter.value = datePicker.value;
+
+        if (options.includeTime) {
+            filter.includeTime = true;
+        }
+
+        return filter;
+    }
+
     // Сортировка таблицы
     sortTable() {
         document.querySelectorAll(".table-sortable th").forEach(headerCell => {
