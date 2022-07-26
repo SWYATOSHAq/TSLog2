@@ -729,6 +729,70 @@ namespace TSLog.BossControl.Data
         }
         #endregion
 
+        public SiteWorker[] GetWorks(DateTime fromDate, DateTime toDate)
+        {
+            var works = new List<SiteWorker>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    $"   select d.worker_id,\n" +
+                    $"          d.start_date, d.finish_date,\n" +
+                    $"          d.site_id,\n" +
+                    $"          d.partner_id\n" +
+                    $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
+                    $"left join ecco.stf_employee#v e on e.id = d.worker_id\n" +
+                    $"    where e.id is not null";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("from_date", fromDate));
+                command.Parameters.Add(new OracleParameter("to_date", toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    var worker = GetEmployee(workerId);
+                    var startDate = Utils.DbValueToDateTime(reader["start_date"]);
+                    var finishDate = Utils.DbValueToDateTime(reader["finish_date"]);
+                    var siteId = Utils.DbValueToShort(reader["site_id"]);
+                    var site = GetSite(siteId);
+                    var partnerId = Utils.DbValueToString(reader["partner_id"]);
+                    var partner = GetPartner(partnerId);
+
+                    var siteWorker = new SiteWorker(site, partner, worker, startDate, finishDate);
+                    works.Add(siteWorker);
+                }
+                reader.Close();
+            }
+            return works.ToArray();
+        }
+        public Position[] GetDistinstPositions(DateTime fromDate, DateTime toDate)
+        {
+            var positions = new List<Position>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql = 
+                    $"   select distinct emp.position_id\n" +
+                    $"     from table(ecco.stf_get_all_works(:from_date, :to_date)) d\n" +
+                    $"left join {StaffSchema}.stf_employee#v e on e.id = d.worker_id\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"    where e.id is not null\n" +
+                    $" order by emp.position_id";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("from_date", fromDate));
+                command.Parameters.Add(new OracleParameter("to_date", toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var positionId = Utils.DbValueToShort(reader["position_id"]);
+                    var position = GetPosition(positionId);
+                    positions.Add(position);
+                }
+                reader.Close();
+            }
+            return positions.ToArray();
+        }
+
         #region Reporting
         private const int DefaultShiftLength = 12 * 60 * 60;
         public dynamic[] CreatePositionsShiftReport(DateTime date)

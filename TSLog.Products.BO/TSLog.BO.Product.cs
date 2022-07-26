@@ -54,19 +54,19 @@ namespace TSLog.Products.BO
         /// <summary>
         /// (ArtLng) Длина (км до мм)
         /// </summary>
-        public int Length { get; set; } = 0;
+        public double Length { get; set; } = 0;
         /// <summary>
         /// (ArtBre) Ширина (км до мм)
         /// </summary>
-        public int Width { get; set; } = 0;
+        public double Width { get; set; } = 0;
         /// <summary>
         /// (ArtHoe) Высота (км до мм)
         /// </summary>
-        public int Height { get; set; } = 0;
+        public double Height { get; set; } = 0;
         /// <summary>
         /// (ArtVol) Объем  (м3 до мм3)
         /// </summary>
-        public int Volume { get; set; } = 0;
+        public double Volume { get; set; } = 0;
         /// <summary>
         /// (ArtMgEh) Единица измерения по умолчанию, т.е. в те, в которых указываются присылаемые данные и производится учет
         /// </summary>

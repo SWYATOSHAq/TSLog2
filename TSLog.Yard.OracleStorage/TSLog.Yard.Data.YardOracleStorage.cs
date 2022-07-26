@@ -58,16 +58,16 @@ namespace TSLog.Yard.Data
                 Utils.DbValueToString(reader["name"]),
                 Utils.DbValueToString(reader["note1"]));
 
-            product.Length = Utils.DbValueToInt(reader[nameof(product.Length)]);
-            product.Width = Utils.DbValueToInt(reader[nameof(product.Width)]);
-            product.Height = Utils.DbValueToInt(reader[nameof(product.Height)]);
+            product.Length = Utils.DbValueToDouble(reader["length"]);
+            product.Width = Utils.DbValueToDouble(reader["width"]);
+            product.Height = Utils.DbValueToDouble(reader["height"]);
             product.UnitLinerial = Utils.DbValueToString(reader["length_measure"]);
-            product.NetWeight = Utils.DbValueToInt(reader["net_weight"]);
-            product.NetWeight = Utils.DbValueToInt(reader["gross_weight"]);
+            product.NetWeight = Utils.DbValueToDouble(reader["net_weight"]);
+            product.NetWeight = Utils.DbValueToDouble(reader["gross_weight"]);
             product.UnitWeight = Utils.DbValueToString(reader["weight_measure"]);
-            product.Volume = Utils.DbValueToInt(reader[nameof(product.Volume)]);
+            product.Volume = Utils.DbValueToDouble(reader["volume"]);
             product.UnitVolume = Utils.DbValueToString(reader["volume_measure"]);
-            product.Price = Utils.DbValueToDouble(reader[nameof(product.Price)]);
+            product.Price = Utils.DbValueToDouble(reader["price"]);
 
             return product;
         }
@@ -85,7 +85,15 @@ namespace TSLog.Yard.Data
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.prod_product#v p where p.id = :id";
+                command.CommandText = 
+                    $"select p.id, p.code, p.gtin,\n" +
+                    $"       p.name,\n" +
+                    $"       p.note1," +
+                    $"       p.length, p.width, p.height, p.length_measure,\n" +
+                    $"       p.net_weight, p.gross_weight, p.weight_measure,\n" +
+                    $"       p.volume, p.volume_measure,\n" +
+                    $"       p.price\n" +
+                    $"  from {CommonSchema}.prod_product#v p where p.id = :id";
                 command.Parameters.Add(new OracleParameter("id", id));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
@@ -113,7 +121,15 @@ namespace TSLog.Yard.Data
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $"select * from {CommonSchema}.v_product p where p.gtin = :gtin";
+                command.CommandText = 
+                    $"select p.id, p.code, p.gtin,\n" +
+                    $"       p.name,\n" +
+                    $"       p.note1," +
+                    $"       p.length, p.width, p.height, p.length_measure,\n" +
+                    $"       p.net_weight, p.gross_weight, p.weight_measure,\n" +
+                    $"       p.volume, p.volume_measure,\n" +
+                    $"       p.price\n" +
+                    $"  from {CommonSchema}.prod_product#v p where p.gtin = :gtin";
                 command.Parameters.Add(new OracleParameter("gtin", gtin));
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
@@ -153,7 +169,15 @@ namespace TSLog.Yard.Data
             var products = new List<Product>();
             using (var command = _connection.CreateCommand())
             {
-                var sql = new StringBuilder($"select * from {CommonSchema}.v_product p");
+                var sql = new StringBuilder(
+                    $"select p.id, p.code, p.gtin,\n" +
+                    $"       p.name,\n" +
+                    $"       p.note1," +
+                    $"       p.length, p.width, p.height, p.length_measure,\n" +
+                    $"       p.net_weight, p.gross_weight, p.weight_measure,\n" +
+                    $"       p.volume, p.volume_measure,\n" +
+                    $"       p.price\n" +
+                    $"from {CommonSchema}.prod_product#v p");
                 var where = new StringBuilder();
                 if (partners != null && partners.Length > 0)
                 {

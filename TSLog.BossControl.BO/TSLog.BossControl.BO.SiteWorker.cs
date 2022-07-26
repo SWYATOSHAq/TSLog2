@@ -52,7 +52,10 @@ namespace TSLog.BossControl.BO
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
-            return other.StartDate.CompareTo(StartDate);
+            var result = other.StartDate.CompareTo(StartDate);
+            if (result == 0)
+                result = other.FinishDate.CompareTo(FinishDate);
+            return result;
         }
     }
 }

@@ -30,7 +30,11 @@
         /// <summary>
         /// Режим работы (номер смены)
         /// </summary>
-        public string WorkMode { get; private set; } = string.Empty;     
+        public string WorkMode { get; private set; } = string.Empty;
+        /// <summary>
+        /// Вид смены (день, ночь)
+        /// </summary>
+        public string Kind { get; private set; } = "D";
         /// <summary>
         /// Примечания и комментарии на естественном языке
         /// </summary>
@@ -127,11 +131,17 @@
                 shiftFinish = fromDate.Date.AddMinutes(33); // 9:00 след. суток
 
             do
-            {
+            {                
                 var shift = new Shift(-1,
                     shiftStart,
                     shiftFinish <= toDate ? shiftFinish : toDate,
                     string.Empty);
+
+                if (shiftStart >= shiftStart.Date.AddHours(9) && shiftStart < shiftStart.Date.AddHours(21))
+                    shift.Kind = "D";
+                else
+                    shift.Kind = "N";
+
                 shifts.Add(shift);
                 shiftStart = shiftFinish;
                 shiftFinish = shiftStart.AddHours(12);
