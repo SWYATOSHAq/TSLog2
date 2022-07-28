@@ -33,7 +33,7 @@
     var partners = Array.Empty<Partner>();
     if (isPartnerUser)
     {
-        var userName = rightsChecker.GetUserName(User);
+        var userName = Authorization.RightsChecker.GetUserName(User);
         partnerId = rightsChecker.GetPartnerIdByUser(userName);
         partners = new Partner[] { storage.GetPartner(partnerId) };
     }

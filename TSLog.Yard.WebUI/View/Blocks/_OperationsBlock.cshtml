@@ -67,7 +67,7 @@
     var isPartnerUser = rightsChecker.CheckRight("PARTNER_USER", User);
     if (isPartnerUser)
     {
-        var userName = rightsChecker.GetUserName(User);
+        var userName = RightsChecker.GetUserName(User);
         var partnerId = rightsChecker.GetPartnerIdByUser(userName);
 
         var list = new List<Operation>();

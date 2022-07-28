@@ -3,7 +3,7 @@
     /// <summary>
     /// Рабочая смена
     /// </summary>
-    public class Shift
+    public class Shift : IComparable<Shift>
     {
         /// <summary>
         /// Идентификатор
@@ -34,7 +34,7 @@
         /// <summary>
         /// Вид смены (день, ночь)
         /// </summary>
-        public string Kind { get; private set; } = "D";
+        public string Kind { get; set; } = "D";
         /// <summary>
         /// Примечания и комментарии на естественном языке
         /// </summary>
@@ -158,6 +158,13 @@
                 return $"{day:yyyyMMdd}D";
             else
                 return $"{day:yyyyMMdd}N";
+        }
+
+        public int CompareTo(Shift? other)
+        {
+            var key = Kind != "TOTAL" ? GetKey(From) : Kind;
+            var otherKey = other.Kind != "TOTAL" ? GetKey(other.From) : other.Kind;
+            return key.CompareTo(otherKey);
         }
     }
 }

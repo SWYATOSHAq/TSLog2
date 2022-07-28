@@ -14,9 +14,22 @@ namespace TSLog.Authorization
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var roleCode = reader.GetAttribute("code") ?? string.Empty;
-            var roleName = reader.GetAttribute("name") ?? string.Empty;
-            var roleGroupName = reader.GetAttribute("groupName") ?? string.Empty;
+            
+            var roleCode = reader.GetAttribute("code");
+            if (string.IsNullOrWhiteSpace(roleCode))
+                throw new Exception("Role code is empty");
+            roleCode = roleCode.Trim().ToUpper();
+            var roleName = reader.GetAttribute("name");
+
+            if (string.IsNullOrWhiteSpace(roleName))
+                throw new Exception("Role name is empty");
+            roleName = roleName.Trim();
+
+            var roleGroupName = reader.GetAttribute("groupName");
+            if (string.IsNullOrWhiteSpace(roleGroupName))
+                throw new Exception("Role group name is empty");
+            roleGroupName = roleGroupName.Trim();
+
             if (!_roles.ContainsKey(roleCode))
                 _roles.Add(roleCode, new Role(roleCode, roleName, roleGroupName));
             var role = _roles[roleCode];
@@ -26,7 +39,10 @@ namespace TSLog.Authorization
                 {
                     if (reader.Name == "right")
                     {
-                        var rightCode = reader.GetAttribute("code") ?? string.Empty;
+                        var rightCode = reader.GetAttribute("code");
+                        if (string.IsNullOrWhiteSpace(rightCode))
+                            throw new Exception("Right code is empty");
+                        rightCode = rightCode.Trim().ToUpper();
                         if (!role.Rights.Contains(rightCode))
                             role.Rights.Add(rightCode);
                         reader.Read();
@@ -44,8 +60,13 @@ namespace TSLog.Authorization
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            var name = reader.GetAttribute("name") ?? string.Empty;
-            var login = reader.GetAttribute("login") ?? string.Empty;
+            var name = reader.GetAttribute("name");
+            if (string.IsNullOrWhiteSpace(name))
+                throw new Exception("Name is empty");
+            var login = reader.GetAttribute("login");
+            if (string.IsNullOrWhiteSpace(login))
+                throw new Exception("Login is empty");
+            login = login.Trim().ToLower();
             if (!_users.ContainsKey(login))
                 _users.Add(login, new User(name, login));
             var user = _users[login];
@@ -55,7 +76,10 @@ namespace TSLog.Authorization
                 {
                     if (reader.Name == "partner")
                     {
-                        var partnerCode = reader.GetAttribute("code") ?? string.Empty;
+                        var partnerCode = reader.GetAttribute("code");
+                        if (string.IsNullOrWhiteSpace(partnerCode))
+                            throw new Exception("Partner code is empty");
+                        partnerCode = partnerCode.Trim().ToUpper();
                         user.AddPartner(partnerCode);
                         reader.Read();
                     }
@@ -118,11 +142,14 @@ namespace TSLog.Authorization
         /// </summary>
         /// <param name="user">Пользователь AD</param>
         /// <returns>Имя пользователя AD</returns>
-        public string GetUserName(ClaimsPrincipal user)
+        public static string GetUserName(ClaimsPrincipal user)
         {
             var userName = "m.burov"; // Для теста!
             if (user != null && user.Identity != null && !string.IsNullOrWhiteSpace(user.Identity.Name))
+            {
                 userName = user.Identity.Name.Split('\\').Last();
+                userName = userName.Trim().ToLower();
+            }                
             return userName;
         }
         /// <summary>
@@ -167,34 +194,36 @@ namespace TSLog.Authorization
         /// <summary>
         /// Возвращает идентификатор партнёра (клиента) по имени пользователя
         /// </summary>
-        /// <param name="userName">Имя пользователя</param>
+        /// <param name="userLogin">Имя пользователя</param>
         /// <returns>Идентификатор партнёра (клиента)</returns>
         /// <exception cref="ArgumentException"></exception>
-        public string GetPartnerIdByUser(string userName) 
+        public string GetPartnerIdByUser(string userLogin) 
         {
-            if (string.IsNullOrWhiteSpace(userName))
+            if (string.IsNullOrWhiteSpace(userLogin))
                 throw new ArgumentException("User name is empty!");
-            userName = userName.Split('\\').Last();
-            userName = userName.ToLower();
-            if (!_users.ContainsKey(userName))
-                throw new ArgumentException($"User {userName} not found!");
-            var user = _users[userName];
+            userLogin = userLogin.Split('\\').Last();
+            userLogin = userLogin.Trim().ToLower();
+            if (!_users.ContainsKey(userLogin))
+                throw new ArgumentException($"User {userLogin} not found!");
+            var user = _users[userLogin];
             var partners = user.GetPartners();
             return partners[0];
         }
         /// <summary>
         /// Возвращает идентификаторы партнёров (мандантов) по имени пользователя (тех мандантов, с которыми может работать указанный пользователь)
         /// </summary>
-        /// <param name="userName">Имя пользователя</param>
+        /// <param name="userLogin">Имя пользователя</param>
         /// <returns>Идентификаторы мандантов</returns>
         /// <exception cref="ArgumentException"></exception>
-        public HashSet<string> GetPartnersIdsByUser(string userName)
+        public HashSet<string> GetPartnersIdsByUser(string userLogin)
         {
-            if (string.IsNullOrWhiteSpace(userName))
+            if (string.IsNullOrWhiteSpace(userLogin))
                 throw new ArgumentException("User name is empty!");
-            if (!_users.ContainsKey(userName))
+            userLogin = userLogin.Split('\\').Last();
+            userLogin = userLogin.Trim().ToLower();
+            if (!_users.ContainsKey(userLogin))
                 return new HashSet<string>();
-            var user = _users[userName];
+            var user = _users[userLogin];
             var partners = user.GetPartners();
             return partners.ToHashSet();
         }

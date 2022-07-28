@@ -314,73 +314,12 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 fromDate = fromDate.Date;
                 toDate = toDate.AddDays(1);
 
-                // Получаем все смены, которые попадают в указанный промежуток
-                var shifts = Shift.GetShifts(fromDate, toDate);
-
-                // Получаем массив должостей, сотрудники которых работали в течение периода
-                var distinctPositions = _storage.GetDistinstPositions(fromDate, toDate);
-
-                var elements = new List<dynamic>();
-                // Проходим по всем сменам, попадающим в указанный промежуток
-                foreach (var shift in shifts)
-                {
-                    // Для каждой смены получаем массив промежутков работ
-                    var works = _storage.GetWorks(shift.From, shift.To);
-                    var workers = new Dictionary<Employee, double>();
-                    var auxiliaryTime = 0.0;
-                    // Определяем работников, которые работали на смене и фактическое время отработки на смене
-                    foreach (var work in works)
-                    {
-                        if (!workers.ContainsKey(work.Worker))
-                            workers.Add(work.Worker, 0.0);
-                        if (work.Site.Kind != "AUXILIARY")
-                            workers[work.Worker] += work.Duration;
-                        else
-                            auxiliaryTime += work.Duration;
-                    }
-
-                    // Определяем должности, работающие на смене
-                    var positions = new Dictionary<short, dynamic>();
-                    foreach (var p in distinctPositions)
-                    {
-                        dynamic position = new ExpandoObject();
-                        position.id = p.Id;
-                        position.code = p.Code;
-                        position.name = p.Name;
-                        position.workersCount = 0;
-                        position.planTime = 0.0;
-                        position.factTime = 0.0;
-                        position.planCost = 0.0;
-                        position.factCost = 0.0;
-                        positions.Add(p.Id, position);
-                    }
-
-                    foreach (var worker in workers.Keys)
-                    {
-                        // Если продолжительности работы работника на смене менее 10% то этого работника не учитываем
-                        if (workers[worker] * 10 < worker.ShiftLength)
-                            continue;                        
-                        positions[worker.MajorPosition.Id].workersCount++;
-                        positions[worker.MajorPosition.Id].planTime += worker.ShiftLength;
-                        positions[worker.MajorPosition.Id].factTime += workers[worker];
-                        positions[worker.MajorPosition.Id].planCost += worker.ShiftLength * worker.MajorPosition.LaborHourCost / 60 / 60;
-                        positions[worker.MajorPosition.Id].factCost += workers[worker] * worker.MajorPosition.LaborHourCost / 60 / 60;
-                    }
-
-                    dynamic element = new ExpandoObject();
-                    element.date = shift.From;
-                    element.shift = shift.Kind;                    
-                    element.positions = positions;
-                    element.auxiliaryTime = auxiliaryTime;
-
-                    elements.Add(element);
-                }
-
-                dynamic data = new ExpandoObject();
-                data.positions = distinctPositions;
-                data.elements = elements;
+                var dailReport = new DailyReport(fromDate, toDate, _storage);
+                dailReport.Create();
+                var data = dailReport.ToDynamic();
 
                 var text = JsonSerializer.Serialize(data);
+
                 Response.StatusCode = 200;
                 return text;
             }

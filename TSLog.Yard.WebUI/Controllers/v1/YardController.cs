@@ -177,14 +177,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
         private HashSet<string> GetPartnersIds()
         {
-            var userName = _rightsChecker.GetUserName(User);
+            var userName = RightsChecker.GetUserName(User);
             return _rightsChecker.GetPartnersIdsByUser(userName);
         }
 
         #region Reference data
         private bool CheckPartner(string partnerId)
         {
-            var userName = _rightsChecker.GetUserName(User);
+            var userName = RightsChecker.GetUserName(User);
             var partnerIds = _rightsChecker.GetPartnersIdsByUser(userName);
             return partnerIds.Contains(partnerId);
         }
@@ -794,7 +794,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     Note = note
                 };
 
-                var user = _rightsChecker.GetUserName(User);
+                var user = RightsChecker.GetUserName(User);
                 _storage.AddOperation(operation, user);
 
                 var text = OperationToJson(operation);
@@ -900,7 +900,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     Note = note
                 };
 
-                var user = _rightsChecker.GetUserName(User);
+                var user = RightsChecker.GetUserName(User);
                 operation = _storage.AddOperation(operation, user);
                 
                 // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
@@ -995,7 +995,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerManagerEmail = data.partnerManagerEmail;
                 string note = data.note;
 
-                var user = _rightsChecker.GetUserName(User);
+                var user = RightsChecker.GetUserName(User);
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
                 var manager = _storage.GetPartnerManagers(partner)[0];
@@ -1010,7 +1010,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation = _storage.AddOperation(operation, _rightsChecker.GetUserName(User));
+                operation = _storage.AddOperation(operation, RightsChecker.GetUserName(User));
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
@@ -1133,7 +1133,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.VehicleKind = vehicleKind;
                 operation.PlanWorkStartDate = planWorkStartDate;
                 operation.PlanWorkFinishDate = planWorkFinishDate;
-                var userName = _rightsChecker.GetUserName(User);
+                var userName = RightsChecker.GetUserName(User);
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.EditOperation(operation, userName);
                 if (operation.Gate.Code != gate.Code)
@@ -1245,7 +1245,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.PartnerManagerEmail = data.partnerManagerEmail;
                 operation.Note = data.note;
 
-                var user = _rightsChecker.GetUserName(User);
+                var user = RightsChecker.GetUserName(User);
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
                 var managers = _storage.GetPartnerManagers(partner);
@@ -1295,7 +1295,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var operation = _storage.GetOperation(id);
                 operation.Note = data.note;
                 
-                _storage.SetOperationNote(operation, _rightsChecker.GetUserName(User));
+                _storage.SetOperationNote(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1343,7 +1343,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     }
 
                 var operation = _storage.GetOperation(id);
-                var userName = _rightsChecker.GetUserName(User);
+                var userName = RightsChecker.GetUserName(User);
 
                 // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
                 // неьзя было присвоить ворота
@@ -1386,7 +1386,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.CancelOperationGate(operation, _rightsChecker.GetUserName(User));
+                _storage.CancelOperationGate(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1422,7 +1422,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.StartOperation(operation, _rightsChecker.GetUserName(User));
+                _storage.StartOperation(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1458,7 +1458,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.StartOperationWork(operation, _rightsChecker.GetUserName(User));
+                _storage.StartOperationWork(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1494,7 +1494,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.FinishOperationWork(operation, _rightsChecker.GetUserName(User));
+                _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1530,7 +1530,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.FinishOperation(operation, _rightsChecker.GetUserName(User));
+                _storage.FinishOperation(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1566,7 +1566,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.CancelOperation(operation, _rightsChecker.GetUserName(User));
+                _storage.CancelOperation(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1602,7 +1602,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong operation id {stringId}";
 
                 var operation = _storage.GetOperation(id);
-                _storage.DeleteOperation(operation, _rightsChecker.GetUserName(User));
+                _storage.DeleteOperation(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1669,7 +1669,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     temp = temp.Trim().ToUpper();
                     if (temp == "AUTO")
-                        temp = _rightsChecker.GetPartnerIdByUser(_rightsChecker.GetUserName(User));
+                        temp = _rightsChecker.GetPartnerIdByUser(RightsChecker.GetUserName(User));
                     partner = _storage.GetPartner(temp);
                 }
 

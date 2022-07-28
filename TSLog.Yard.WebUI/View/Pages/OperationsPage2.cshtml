@@ -50,7 +50,7 @@
     var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
     if (isPartnerUser)
     {
-        var userName = rightsChecker.GetUserName(User);
+        var userName = Authorization.RightsChecker.GetUserName(User);
         var partnerId = rightsChecker.GetPartnerIdByUser(userName);
         var partner = storage.GetPartner(partnerId);
         partners = new Partner[] { partner };
