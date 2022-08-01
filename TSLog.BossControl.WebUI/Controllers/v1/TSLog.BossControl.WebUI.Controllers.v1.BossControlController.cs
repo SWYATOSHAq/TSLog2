@@ -11,6 +11,10 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
     [ApiController]
     public class BossControlController : ControllerBase
     {
+        /// <summary>
+        /// Максимальное количество дней для некоторых отчётов (по дням)
+        /// </summary>
+        private const int MaxReportPeriodDays = 45;
         private readonly IBossControlStorage _storage;
         public BossControlController(IBossControlStorage storage)
         {
@@ -311,10 +315,20 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 temp = Request.Query["only_linear"];
                 var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
 
+                temp = Request.Query["shifts"];
+                temp = !string.IsNullOrWhiteSpace(temp) ? temp.Trim().ToUpper() : "D";
+                var dayShifts = temp.Contains('D');
+                var nightShifts = temp.Contains('N');
+
                 fromDate = fromDate.Date;
                 toDate = toDate.AddDays(1);
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
 
-                var dailReport = new DailyReport(fromDate, toDate, _storage);
+                if ((toDate - fromDate).TotalDays > MaxReportPeriodDays)
+                    toDate = fromDate.AddDays(MaxReportPeriodDays);
+
+                var dailReport = new DailyReport(fromDate, toDate, onlyLinear, dayShifts, nightShifts, _storage);
                 dailReport.Create();
                 var data = dailReport.ToDynamic();
 

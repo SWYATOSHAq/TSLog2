@@ -4,12 +4,12 @@
     Создан - 2022.07.14.
 */
 
-// Страница отчёта диспетчера (за период).
+// Страница отчёта по дням, по сменам (за период).
 class DailyReportPage {
     shortUrl;
-    data = {};
-    marks = {};
-    markColumnWidth = 320;
+    data = null;
+    marks = null;
+    markColumnWidth = 420;
     shiftColumnWidth = 112;
 
     constructor() {
@@ -29,16 +29,35 @@ class DailyReportPage {
         result = utils.addParameter(result, "from_date", "from-date-input");
         result = utils.addParameter(result, "to_date", "to-date-input");
 
+        const onlyLinearInput = document.getElementById("only-linear-input");
+        const onlyLinear = onlyLinearInput.checked;
+        result = utils.addParameterValue(result, "only_linear", onlyLinear ? "1" : "0");
+
+        let shifts = "";
+        const dayShiftsInput = document.getElementById("day-shifts-input");
+        if (dayShiftsInput.checked) {
+            shifts += "D";
+        }
+        const nightShiftsInput = document.getElementById("night-shifts-input");
+        if (nightShiftsInput.checked) {
+            shifts += "N";
+        }
+        result = utils.addParameterValue(result, "shifts", shifts);
+
         return result != "" ? "?" + result : "";
     }
 
     async getData() {
         const fromDate = utils.getUrlParameter("from_date");
         const toDate = utils.getUrlParameter("to_date");
-        const result = await api.createDailyReport(fromDate, toDate);
+        const onlyLinear = utils.getUrlParameter("only_linear") != "0";
+        const shifts = utils.getUrlParameter("shifts");
+        const result = await api.createDailyReport(fromDate, toDate, onlyLinear, shifts);        
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = null;
+            this.marks = null;
             alert(result.message);
         }
     }
@@ -48,15 +67,25 @@ class DailyReportPage {
         while (headerCells.length > 0) {
             headerCells[0].remove();
         }
+
+        const reportTbody = document.getElementById("report-tbody");
+        reportTbody.replaceChildren();
+
+        /*
         const contentCells = document.getElementsByClassName("content-cell");
         while (contentCells.length > 0) {
             contentCells[0].remove();
         }
+        */
         this.data = [];
         this.marks = {};
     }
 
     async showData() {
+        if (this.data === null) {
+            return;
+        }
+
         const headerTr = document.getElementById("header-tr");
         const shifts = this.data.shifts;
         let tableWidth = this.markColumnWidth;
@@ -96,7 +125,7 @@ class DailyReportPage {
 
         for (let element of this.data.elements) {
             let markKey = element.markKey;
-            const dataType = this.marks[markKey].dataType;
+            const dataType = this.marks[markKey].dataType.toUpperCase();
             for (let value of element.values) {
                 const tdId = markKey + "_" + value.shiftKey;
                 const td = document.getElementById(tdId);                
@@ -104,7 +133,7 @@ class DailyReportPage {
                     td.style.cssText = "font-weight: bold";
                 }
 
-                if (markKey.includes("PLAN_TIME") || markKey.includes("FACT_TIME") || markKey.includes("AUXILIARY_TIME")) {
+                if (markKey.includes("PLAN_TIME") || markKey.includes("FACT_TIME") || markKey.includes("AUXILIARY_TIME") || markKey.includes("DOWN_TIME")) {
                     value.value = value.value / 60 / 60;
                 }
                 let text = "";
@@ -152,6 +181,10 @@ class DailyReportPage {
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
     }
 
+    print() {
+        window.print();
+    }
+
     async show() {
         let fromDate = utils.getUrlParameter("from_date");
         if (fromDate == "")
@@ -161,6 +194,21 @@ class DailyReportPage {
         if (toDate == "")
             toDate = utils.getNowDate();
         viewUtils.initDatePicker("to-date-input", toDate, this.onChangeParameters.bind(this));        
+
+        const onlyLinear = utils.getUrlParameter("only_linear") != "0";
+        viewUtils.initCheckbox("only-linear-input", onlyLinear, this.onChangeParameters.bind(this));
+
+        let shifts = utils.getUrlParameter("shifts");
+        shifts = shifts.trim();
+        if (shifts === "") {
+            shifts = "D";
+        } else {
+            shifts = shifts.toUpperCase();
+        }        
+        const dayShifts = shifts.includes("D");
+        viewUtils.initCheckbox("day-shifts-input", dayShifts, this.onChangeParameters.bind(this));
+        const nightShifts = shifts.includes("N");
+        viewUtils.initCheckbox("night-shifts-input", nightShifts, this.onChangeParameters.bind(this));
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);

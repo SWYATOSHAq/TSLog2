@@ -159,7 +159,6 @@
             else
                 return $"{day:yyyyMMdd}N";
         }
-
         public int CompareTo(Shift? other)
         {
             var key = Kind != "TOTAL" ? GetKey(From) : Kind;

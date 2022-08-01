@@ -22,6 +22,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
     [ApiController]
     public class YardController : ControllerBase
     {
+        /// <summary>
+        /// Максимальное количество дней для некоторых отчётов (по дням)
+        /// </summary>
+        private const int MaxReportPeriodDays = 45;
+
         // Средее время выгрузки/погрузки паллеты/коробки/штуки
         private const int PalletUnloadTime = 93;
         private const int BoxUnloadTime = 20; 
@@ -2348,6 +2353,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {temp}";
                     toDate = toDate.AddDays(1);
                 }
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
+                if ((toDate - fromDate).TotalDays > MaxReportPeriodDays)
+                    toDate = fromDate.AddDays(MaxReportPeriodDays);
 
                 var data = new Dictionary<string, dynamic>();
 
@@ -2372,10 +2381,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.dayToDayOperationsPercent = 0.0;
                     element.deletedOperations = 0;
                     element.idleOperations = 0;
+                    element.overPlanOperations = 0;
                     element.palletIncomes = 0;
                     element.boxIncomes = 0;
                     element.palletOutgoues = 0;
                     element.boxOutgoes = 0;
+                    element.gates1_6Operations = 0;
+                    element.gate7Operations = 0;
+                    element.gates8_16Operations = 0;
                     data.Add(key, element);
                 }
 
@@ -2397,6 +2410,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             || operation.FactWorkFinishDate <= DateTime.MinValue)
                             data[key].idleOperations++;
 
+                        // Количество операций двора по группам ворот
+                        if (operation.Gate.Code is "EIN01" or "EIN02" or "EIN03" or "EIN04" or "EIN05" or "EIN06")
+                            data[key].gates1_6Operations += operation.FactDuration;
+                        else if (operation.Gate.Code == "EIN07")
+                            data[key].gate7Operations += operation.FactDuration;
+                        else if (operation.Gate.Code is "EIN08" or "EIN09" or "EIN10" or "EIN11" or "EIN12" or "EIN13" or "EIN14" or "EIN15" or "EIN16")
+                            data[key].gates8_16Operations += operation.FactDuration;
+
+                        // Операции, с превышением плана
+                        if (operation.FactDuration > 0 && operation.PlanDuration < operation.FactDuration ||
+                            operation.FactLaborCost > 0 && operation.PlanLaborCost < operation.FactLaborCost)
+                            data[key].overPlanOperations++;
+
                         // Смотрим оформленные операции
                         key = operation.CreateDate.ToString("yyyy.MM.dd");
                         addElement(key, operation.CreateDate.Date);
@@ -2405,7 +2431,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         else if (operation.CreateDate < operation.PlanWorkFinishDate.Date) // Заявка оформлена в указанную смену на последующие дни
                             data[key].nextDayOperations++;                        
 
-                        // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не були удалены)
+                        // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не были удалены)
                         if (operation.FactWorkFinishDate > DateTime.MinValue)
                         {
                             key = operation.FactWorkFinishDate.ToString("yyyy.MM.dd");
@@ -2661,9 +2687,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.works = _storage.GetBcPerfomanceData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
                     operation.factLaborCost = 0.0;
                     foreach (var work in operation.works) 
-                    {
                         operation.factLaborCost += work.duration;
-                    }
                     operation.planLaborCost = operation.planLaborCost;
                     operation.factLaborCost = operation.factLaborCost;
                 }

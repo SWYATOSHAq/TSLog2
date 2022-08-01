@@ -20,7 +20,8 @@
     }
 }
 
-<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+<div class="row not-for-print" 
+    style="padding: 0; margin: 0; margin-bottom: 8px">
     <label for="from-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Начало периода:</label>
     <input id="from-date-input" 
         class="datepicker border border-secondary" 
@@ -37,7 +38,7 @@
         readonly="" /> 
 
 </div>
-<div class="row"
+<div class="row not-for-print"
     style="padding: 0; margin: 0; margin-bottom: 8px">
     <button class="btn btn-outline-success" 
         style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
@@ -45,13 +46,19 @@
         type="button" 
         onclick="dispatcherReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 120px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="dispatcherReportPage.exportToExcel()">В Excel</button>
+     <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 120px"
+        title="Печать отчёта"
+        type="button"
+        onclick="dispatcherReportPage.print()">Печать</button>
 </div>
 
-<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+<div class="row not-for-print" 
+    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта и комментарии к отчёту:
     </b>    
@@ -75,48 +82,73 @@
     class="table table-bordered table-sortable" 
     style="margin: auto">
     <thead class="thead-light">
-        <tr id="header-tr" style="background-color: cornsilk">
-            <th style="width: 200px; vertical-align: middle">Показатель</th>            
+        <!-- style="background-color: cornsilk; border-width: 4px 4px 4px 4px" -->
+        <tr id="header-tr" style="border-width: 3px 3px 3px 3px">
+            <th style="width: 220px; vertical-align: middle">Показатель</th>            
         </tr>        
     </thead>
     <tbody id="report-tbody">
-        <tr id="next-day-operations-tr">
+        <tr id="next-day-operations-tr" style="border-width: 3px 3px 1px 3px">
             <td class="table-header datatype-text">Заявок на сл. дни</td>
         </tr>
-        <tr id="day-to-day-operations-tr">
+        <tr id="day-to-day-operations-tr" style="border-width: 1px 3px 1px 3px">
             <td class="table-header datatype-text">Заявок день в день</td>
         </tr>
-        <tr id="day-operations-tr">
+        <tr id="day-operations-tr" style="border-width: 1px 3px 1px 3px">
             <td class="table-header datatype-text">Заявок на день</td>
         </tr>
-        <tr id="day-to-day-operations-percent-tr">
+        <tr id="day-to-day-operations-percent-tr" style="border-width: 1px 3px 1px 3px">
             <td class="table-header datatype-text">Заявок день в день (%)</td>
         </tr>
-        <tr id="deleted-operations-tr">
+        <tr id="deleted-operations-tr" style="border-width: 1px 3px 3px 3px">
             <td class="table-header datatype-text">Заявок удалено</td>
         </tr>
-        <tr id="idle-operations-tr">
+        <!-- style="background-color: bisque; border-width: 4px 4px 1px 4px" -->
+        <tr id="idle-operations-tr" style="border-width: 3px 3px 1px 3px">
             <td class="table-header datatype-text">Машин НЕ приехало</td>
         </tr>        
-        <tr id="pallet-incomes-tr" style="background-color: lightcyan">
+        <!-- style="background-color: bisque; border-width: 1px 4px 4px 4px" -->
+        <tr id="over-plan-operations-tr" style="border-width: 1px 3px 3px 3px">
+            <td class="table-header datatype-text">Не уложились в план</td>
+        </tr>        
+        <!-- style="background-color: lightcyan; border-width: 4px 4px 1px 4px" -->
+        <tr id="pallet-incomes-tr" style="border-width: 3px 3px 1px 3px">
             <td class="table-header datatype-text">Приёмок палл.</td>
         </tr>
-        <tr id="box-incomes-tr" style="background-color: lightcyan">
+        <!-- style="background-color: lightcyan; border-width: 1px 4px 1px 4px" -->
+        <tr id="box-incomes-tr" style="border-width: 1px 3px 1px 3px">
             <td class="table-header datatype-text">Приёмок росс.</td>
         </tr>
-        <tr id="total-incomes-tr" style="background-color: lightcyan">
+        <!-- style="background-color: lightcyan; border-width: 1px 4px 4px 4px" -->
+        <tr id="total-incomes-tr" style="border-width: 1px 3px 3px 3px">
             <td class="table-header datatype-text">Приёмок всего</td>
         </tr>
-        <tr id="pallet-outgoes-tr" style="background-color: lightgoldenrodyellow">
+        <!-- style="background-color: lightgoldenrodyellow; border-width: 4px 4px 1px 4px" -->
+        <tr id="pallet-outgoes-tr" style="border-width: 3px 3px 1px 3px">
             <td class="table-header datatype-text">Отгрузок палл.</td>
         </tr>
-        <tr id="box-outgoes-tr" style="background-color: lightgoldenrodyellow">
+        <!-- style="background-color: lightgoldenrodyellow; border-width: 1px 4px 1px 4px" -->
+        <tr id="box-outgoes-tr" style="border-width: 1px 3px 1px 3px">
             <td class="table-header datatype-text">Отгрузок росс.</td>
         </tr>
-        <tr id="total-outgoes-tr" style="background-color: lightgoldenrodyellow">
+        <!-- style="background-color: lightgoldenrodyellow; border-width: 1px 4px 4px 4px" -->
+        <tr id="total-outgoes-tr" style="border-width: 1px 3px 3px 3px">
             <td class="table-header datatype-text">Отгрузок всего</td>
         </tr>
-        <tr id="total-operations-tr" style="background-color: skyblue; font-weight: bold">
+        <!-- style="background-color: azure; border-width: 4px 4px 1px 4px" -->
+        <tr id="gates-1-6-operations-tr" style="border-width: 3px 3px 1px 3px">
+            <td class="table-header datatype-text">% занятости ворот 1-6</td>
+        </tr>
+        <!-- style="background-color: azure; border-width: 1px 4px 1px 4px" -->
+        <tr id="gate-7-operations-tr" style="border-width: 1px 3px 1px 3px">
+            <td class="table-header datatype-text">% занятости ворот 7</td>
+        </tr>
+        <!-- style="background-color: azure; border-width: 1px 4px 4px 4px" -->
+        <tr id="gates-8-16-operations-tr" style="border-width: 1px 3px 3px 3px">
+            <td class="table-header datatype-text">% занятости ворот 8-16</td>
+        </tr>
+        <!-- style="background-color: skyblue; font-weight: bold; border-width: 4px 4px 4px 4px" -->
+        <tr id="total-operations-tr" style="font-weight: bold; border-width: 3px 3px 3px 3px">
             <td class="table-header datatype-text">Заявок всего</td>
         </tr>
     </tbody>

@@ -51,14 +51,21 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
         private const double K = 0.1;
         public DateTime FromDate { get; private set; }
         public DateTime ToDate { get; private set; }        
+        public bool OnlyLinear { get; private set; }
+        public bool DayShifts { get; private set; }
+        public bool NightShifts { get; private set; }
 
         private readonly IBossControlStorage _storage;
-        public DailyReport(DateTime fromDate, DateTime toDate, IBossControlStorage storage)
+        public DailyReport(DateTime fromDate, DateTime toDate, bool onlyLinear, bool dayShifts, bool nightShifts,
+            IBossControlStorage storage)
         {
             if (fromDate >= toDate)
                 throw new ArgumentException("Wrong dates!");
             FromDate = fromDate;
             ToDate = toDate;
+            OnlyLinear = onlyLinear;
+            DayShifts = dayShifts;
+            NightShifts = nightShifts;
             _storage = storage;
         }
         private HashSet<Shift> _shifts = new HashSet<Shift>();
@@ -75,7 +82,9 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
         {
             // Получаем все смены, которые попадают в указанный промежуток
             var shifts = Shift.GetShifts(FromDate, ToDate);
-            _shifts = new HashSet<Shift>(shifts);
+            foreach (var shift in shifts) 
+                if (shift.Kind == "D" && DayShifts || shift.Kind == "N" && NightShifts)
+                    _shifts.Add(shift);
         }
         private void GetData()
         {
@@ -90,6 +99,9 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 var shiftData = new ShiftData(shiftKey);
                 foreach (var work in works)
                 {
+                    if (OnlyLinear && !work.Worker.MajorPosition.IsLinear)
+                        continue;
+
                     if (work.Site.Kind != "AUXILIARY")
                     {
                         if (shiftData.WorkersTime.ContainsKey(work.Worker))
@@ -129,35 +141,44 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                     shiftData.AddMarkValue(markKey, value);
                 }
 
-                var markKey = "AUXILIARY_TIME";
-                var markName = "Время на МОП";
+                var markKey = "A2_AUXILIARY_TIME";
+                var markName = "Время на МОП (чел. * час.)";
                 AddMark(markKey, markName, "DOUBLE", shiftData, shiftData.AuxiliaryTime);
                 foreach (var workerTime in shiftData.WorkersTime)
                 {
                     markKey = workerTime.Key.MajorPosition.Id + "_1WORKERS_COUNT";
-                    markName = workerTime.Key.MajorPosition.ShortName + " - людей";
+                    //markName = workerTime.Key.MajorPosition.ShortName + " - людей";
+                    markName = workerTime.Key.MajorPosition.Name + ", кол-во";
                     AddMark(markKey, markName, "INTEGER", shiftData, 1.0);
-                    AddMark("TOTAL_1WORKERS_COUNT", "Всего людей", "INTEGER", shiftData, 1.0);
+                    AddMark("A1_TOTAL_WORKERS_COUNT", "Всего сотрудников", "INTEGER", shiftData, 1.0);
 
-                    markKey = workerTime.Key.MajorPosition.Id + "_2PLAN_TIME";
-                    markName = workerTime.Key.MajorPosition.ShortName + " - вр. (пл.)";
-                    AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Key.ShiftLength);
-                    AddMark("TOTAL_2PLAN_TIME", "Всего вр. (пл.)", "DOUBLE", shiftData, workerTime.Key.ShiftLength);
+                    //markKey = workerTime.Key.MajorPosition.Id + "_2PLAN_TIME";
+                    //markName = workerTime.Key.MajorPosition.ShortName + " - вр. (пл.)";
+                    //AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Key.ShiftLength);
+                    AddMark("A3_TOTAL_PLAN_TIME", "Всего вр. пл. (чел. * час.)", "DOUBLE", shiftData, workerTime.Key.ShiftLength);
 
-                    markKey = workerTime.Key.MajorPosition.Id + "_3FACT_TIME";
-                    markName = workerTime.Key.MajorPosition.ShortName + " - вр. (ф.)";
-                    AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Value);
-                    AddMark("TOTAL_3FACT_TIME", "Всего вр. (ф.)", "DOUBLE", shiftData, workerTime.Value);
+                    var factTime = workerTime.Value;
+                    if (factTime > workerTime.Key.ShiftLength)
+                        factTime = workerTime.Key.ShiftLength;
+                    //markKey = workerTime.Key.MajorPosition.Id + "_3FACT_TIME";
+                    //markName = workerTime.Key.MajorPosition.ShortName + " - вр. (ф.)";
+                    //AddMark(markKey, markName, "DOUBLE", shiftData, factTime);
+                    AddMark("A4_TOTAL_FACT_TIME", "Всего вр. ф. (чел. * час.)", "DOUBLE", shiftData, factTime);
 
-                    markKey = workerTime.Key.MajorPosition.Id + "_4PLAN_COST";
-                    markName = workerTime.Key.MajorPosition.ShortName + " - затр. (ф.)";
-                    AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Key.ShiftLength / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
-                    AddMark("TOTAL_4PLAN_COST", "Всего затр. (пл.)", "DOUBLE", shiftData, workerTime.Key.ShiftLength / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
+                    var downTime = workerTime.Key.ShiftLength - workerTime.Value;
+                    if (downTime < 0)
+                        downTime = 0.0;
+                    AddMark("A5_TOTAL_DOWN_TIME", "Всего простоев (чел. * час.)", "DOUBLE", shiftData, downTime);
 
-                    markKey = workerTime.Key.MajorPosition.Id + "_5FACT_COST";
-                    markName = workerTime.Key.MajorPosition.ShortName + " - затр. (пл.)";
-                    AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Value / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
-                    AddMark("TOTAL_5FACT_COST", "Всего затр. (пл.)", "DOUBLE", shiftData, workerTime.Value / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
+                    //markKey = workerTime.Key.MajorPosition.Id + "_4PLAN_COST";
+                    //markName = workerTime.Key.MajorPosition.ShortName + " - затр. (ф.)";
+                    //AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Key.ShiftLength / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
+                    AddMark("A6_TOTAL_PLAN_COST", "Всего затр. пл. (руб.)", "DOUBLE", shiftData, workerTime.Key.ShiftLength / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
+
+                    //markKey = workerTime.Key.MajorPosition.Id + "_5FACT_COST";
+                    //markName = workerTime.Key.MajorPosition.ShortName + " - затр. (пл.)";
+                    //AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Value / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
+                    AddMark("A7_TOTAL_6FACT_COST", "Всего затр. ф. (руб.)", "DOUBLE", shiftData, factTime / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
                 }
             }
         }
@@ -192,7 +213,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             result.dataType = mark.DataType;
             return result;
         }
-        private dynamic[] MarksToDynamic(Mark[] marks)
+        private static dynamic[] MarksToDynamic(Mark[] marks)
         {
             var result = new List<dynamic>();
             foreach (var mark in marks)
@@ -214,10 +235,12 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 textKind = "день";
             else if (shift.Kind == "N")
                 textKind = "ночь";
-            result.caption = shift.Kind != "TOTAL" ? $"{shift.From.ToString("dd.MM")} {textKind}" : "Всего";
+
+            var startDate = shift.From < shift.From.Date.AddHours(9) ? shift.From.Date.AddDays(-1) : shift.From.Date;
+            result.caption = shift.Kind != "TOTAL" ? $"{startDate.ToString("dd.MM")} {textKind}" : "Всего";
             return result;
         }
-        private dynamic[] ShiftsToDynamic(Shift[] shifts)
+        private static dynamic[] ShiftsToDynamic(Shift[] shifts)
         {
             var result = new List<dynamic>();
             foreach (var shift in shifts)

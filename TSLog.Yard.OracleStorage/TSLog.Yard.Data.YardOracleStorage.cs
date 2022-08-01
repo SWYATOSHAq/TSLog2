@@ -602,7 +602,7 @@ namespace TSLog.Yard.Data
             { "EIN04", "GATE_4" },
             { "EIN05", "GATE_5" },
             { "EIN06", "GATE_6" },
-            { "EIN07", "GATE_7" },
+            { "EIN07", "HOOKAH" },
             { "EIN08", "GATE_8" },
             { "EIN09", "GATE_9" },
             { "EIN10", "GATE_10" },

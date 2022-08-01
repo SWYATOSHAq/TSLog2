@@ -8,6 +8,8 @@
 class DispatcherReportPage {
     shortUrl;
     data = [];
+    markColumnWidth = 220;
+    valueColumnWidth = 80;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -36,6 +38,7 @@ class DispatcherReportPage {
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = [];
             alert(result.message);
         }
     }
@@ -53,6 +56,9 @@ class DispatcherReportPage {
     }
 
     async showData() {
+        if (this.data.length <= 0) {
+            return;
+        }
         const headerTr = document.getElementById("header-tr");
 
         const nextDayOperationsTr = document.getElementById("next-day-operations-tr");
@@ -61,6 +67,7 @@ class DispatcherReportPage {
         const dayToDayOperationsPercentTr = document.getElementById("day-to-day-operations-percent-tr");
         const deletedOperationsTr = document.getElementById("deleted-operations-tr");
         const idleOperationsTr = document.getElementById("idle-operations-tr");
+        const overPlanOperationsTr = document.getElementById("over-plan-operations-tr");
 
         const palletIncomesTr = document.getElementById("pallet-incomes-tr");
         const boxIncomesTr = document.getElementById("box-incomes-tr");
@@ -70,14 +77,18 @@ class DispatcherReportPage {
         const boxOutgoesTr = document.getElementById("box-outgoes-tr");
         const totalOutgoesTr = document.getElementById("total-outgoes-tr");
 
+        const gates1_6operationsTr = document.getElementById("gates-1-6-operations-tr");
+        const gate7operationsTr = document.getElementById("gate-7-operations-tr");
+        const gates8_16operationsTr = document.getElementById("gates-8-16-operations-tr");
+
         const totalOperationsTr = document.getElementById("total-operations-tr");
 
-        let width = 200;
+        let width = this.markColumnWidth;
         for (let element of this.data) {
             //const cellStyle = element.isHoliday ? "background-color: bisque" : "";
             const cellStyle = "";
 
-            width += 80;
+            width += this.valueColumnWidth;
             const br = document.createElement("br");
             const dayOwWeekB = document.createElement("b");
             dayOwWeekB.textContent = element.dayOfWeek;
@@ -89,6 +100,7 @@ class DispatcherReportPage {
             viewUtils.createCell(dayToDayOperationsPercentTr, ["content-cell"], [utils.displayFloat(element.dayToDayOperationsPercent)], cellStyle);
             viewUtils.createCell(deletedOperationsTr, ["content-cell"], [element.deletedOperations], cellStyle);
             viewUtils.createCell(idleOperationsTr, ["content-cell"], [element.idleOperations], cellStyle);
+            viewUtils.createCell(overPlanOperationsTr, ["content-cell"], [element.overPlanOperations], cellStyle);
 
             viewUtils.createCell(palletIncomesTr, ["content-cell"], [element.palletIncomes], cellStyle);
             viewUtils.createCell(boxIncomesTr, ["content-cell"], [element.boxIncomes], cellStyle);
@@ -97,6 +109,10 @@ class DispatcherReportPage {
             viewUtils.createCell(palletOutgouesTr, ["content-cell"], [element.palletOutgoues], cellStyle);
             viewUtils.createCell(boxOutgoesTr, ["content-cell"], [element.boxOutgoes], cellStyle);
             viewUtils.createCell(totalOutgoesTr, ["content-cell"], [element.palletOutgoues + element.boxOutgoes], cellStyle);
+
+            viewUtils.createCell(gates1_6operationsTr, ["content-cell"], [utils.displayFloat(element.gates1_6Operations / 24 / 60 / 60 * 100)], cellStyle);
+            viewUtils.createCell(gate7operationsTr, ["content-cell"], [utils.displayFloat(element.gate7Operations / 24 / 60 / 60 * 100)], cellStyle);
+            viewUtils.createCell(gates8_16operationsTr, ["content-cell"], [utils.displayFloat(element.gates8_16Operations / 24 / 60 / 60 * 100)], cellStyle);
 
             viewUtils.createCell(totalOperationsTr, ["content-cell"],
                 [element.palletIncomes + element.boxIncomes + element.palletOutgoues + element.boxOutgoes], cellStyle);
@@ -134,6 +150,10 @@ class DispatcherReportPage {
         const sheetName = fromDate + " - " + toDate;
 
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
+    print() {
+        window.print();
     }
 
     async show() {

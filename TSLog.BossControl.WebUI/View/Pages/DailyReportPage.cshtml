@@ -6,7 +6,8 @@
     ViewData["Title"] = "Отчёт по дням";
 }
 
-<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+<div class="row not-for-print" 
+    style="padding: 0; margin: 0; margin-bottom: 8px">
     <label for="from-date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Начало периода:</label>
     <input id="from-date-input" 
         class="datepicker border border-secondary" 
@@ -21,9 +22,15 @@
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" /> 
+    <input id="only-linear-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
+    <label for="only-linear-input" style="width: fit-content; margin: 0; margin-right: 24px; padding: 0">Только линейные</label>
 
+    <input id="day-shifts-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
+    <label for="day-shifts-input" style="width: fit-content; margin: 0; margin-right: 24px; padding: 0">Дневные</label>
+    <input id="night-shifts-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
+    <label for="night-shifts-input" style="width: fit-content; margin: 0; margin-right: 24px; padding: 0">Ночные</label>
 </div>
-<div class="row"
+<div class="row not-for-print"
     style="padding: 0; margin: 0; margin-bottom: 8px">
     <button class="btn btn-outline-success" 
         style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
@@ -31,18 +38,28 @@
         type="button" 
         onclick="dailyReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 120px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="dailyReportPage.exportToExcel()">В Excel</button>
+    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+            style="padding: 0; margin: 0; width: 120px"
+            title="Печать отчёта"
+            type="button"
+            onclick="dailyReportPage.print()">Печать</button>
 </div>
 
-<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+<div class="row not-for-print" 
+    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта и комментарии к отчёту:
     </b>    
     Общее: данные собираются за РАБОЧИЕ СМЕНЫ.<br />
-    1. ;<br />
+    1. Отчёт собирает данные по определённым показателям по рабочим сменам;<br />
+    2. Дневная смена считается с 9:00 до 21:00 ТЕХ ЖЕ суток;<br />
+    3. Ночная смена считается с 21:00 до 9:00 СЛЕДУЮЩИХ суток;<br />
+    4. Датой смены считается ДАТА начала смены;<br />
+    5. Время работы (плановое и фактическое) сотрудника на смене учитывается, если он отработал хотя бы 10% длительности смены.
 </div>
 
 <table id="report-table"
@@ -50,7 +67,7 @@
     style="margin: auto">
     <thead class="thead-light">
         <tr id="header-tr" style="background-color: cornsilk">
-            <th style="width: 320px; text-align: center; vertical-align: middle">Показатель</th>            
+            <th style="width: 420px; text-align: center; vertical-align: middle">Показатель</th>            
         </tr>        
     </thead>
     <tfoot id="report-tfoot">        

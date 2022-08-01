@@ -112,10 +112,12 @@ class Api {
     }
 
     // Формирование отчёта по по дням за период
-    async createDailyReport(fromDate, toDate,) {
+    async createDailyReport(fromDate, toDate, onlyLinear, shifts) {
         let url = "./api/v1/BossControl/DailyReport" +
             "?from_date=" + fromDate +
-            "&to_date=" + toDate;
+            "&to_date=" + toDate +
+            "&only_linear=" + (onlyLinear ? "1" : "0") + 
+            "&shifts=" + shifts;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());

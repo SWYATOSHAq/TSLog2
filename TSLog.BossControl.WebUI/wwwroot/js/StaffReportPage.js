@@ -145,7 +145,8 @@ class StaffReportPage {
         this.clearReport();
         await this.getData(utils.getUrlParameter("from_date"),
             utils.getUrlParameter("to_date"),
-            utils.getUrlParameter("only_linear") === "1");
+            utils.getUrlParameter("only_linear") === "1",
+            utils.getUrlParameter("shifts"));
         this.showReport()
     }
 
