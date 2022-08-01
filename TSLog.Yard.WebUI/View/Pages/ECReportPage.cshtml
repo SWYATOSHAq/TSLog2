@@ -63,7 +63,8 @@
         </ul>
     </div>
 </div>
-<div style="padding: 0; margin: 0; margin-top: 8px">
+<div class="row"
+    style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success"
         style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
@@ -75,13 +76,21 @@
         type="button" 
         onclick="ecReportPage.exportToExcel()">В Excel</button>
 </div>
-<b id="report-header"
-    style="padding: 0; margin: 0; margin-top: 8px">Отчёт по затратам на персонал из БоссКонтроля</b>
+<button id="show-hide-description-button"
+    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+    style="padding: 0; margin: 0; margin-top: 8px; width: 480px"
+    title="Показать порядок рассчёта и комментарии к отчёту"
+    type="button"
+    onclick="ecReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
 
-<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+<div id="description-div"  
+    class="row d-none" 
+    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <!--
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта:
     </b>
+    -->
     1. суммируется всё отработанное время сотрудников за указанный период по каждому манданту;<br />
     2. если сотрудник в смене работал менее 10% продолжительности смены, то это время НЕ УЧИТЫВАЕТСЯ<br />
     &emsp;(это нужно что бы отсечь приходы до начала смены и уходы после окончания);<br />
@@ -98,6 +107,10 @@
     11. Маржинальный доход ВСЕГО = Маржинальный доход ВСЕГО (пункт 9) / Выручку ВСЕГО (из биллинга, в рублях).<br />            
 </div>
 
+<div style="margin-top: 16px">
+    <b id="report-header"
+        style="padding: 0; margin: 0">Отчёт по затратам на персонал из БоссКонтроля</b>
+</div>
 <div style="padding: 0; margin-top: 8px;">
     <table id="report-table"
         class="table table-light table-bordered table-striped table-sortable"

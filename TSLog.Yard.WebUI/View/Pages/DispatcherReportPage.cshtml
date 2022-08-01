@@ -50,18 +50,27 @@
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="dispatcherReportPage.exportToExcel()">В Excel</button>
-     <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
         style="padding: 0; margin: 0; width: 120px"
         title="Печать отчёта"
         type="button"
         onclick="dispatcherReportPage.print()">Печать</button>
 </div>
 
-<div class="row not-for-print" 
-    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+<button id="show-hide-description-button"
+    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+    style="padding: 0; margin: 0; width: 480px"
+    title="Показать порядок рассчёта и комментарии к отчёту"
+    type="button"
+    onclick="dispatcherReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+<div id="description-div" 
+    class="d-none row not-for-print" 
+    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">    
+    <!--
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта и комментарии к отчёту:
     </b>    
+    -->
     Общее: данные собираются за АСТРОНОМИЧЕСКИЕ сутки, к сменам привязок нет.<br />
     1. Заявки на следующий день - заявки созданные в УКАЗАННУЮ дату на БУДУЩИЕ даты (плановая дата окончания на след. день и далее);<br />
     2. Заявки день в день - заявки созданные в УКАЗАННУЮ дату на ЭТУ ЖЕ УКАЗАННУЮ дату (плановая дата окончания совпадает с датой создания);<br />
@@ -80,11 +89,11 @@
 
 <table id="report-table"
     class="table table-bordered table-sortable" 
-    style="margin: auto">
+    style="margin: auto; margin-top: 16px">
     <thead class="thead-light">
         <!-- style="background-color: cornsilk; border-width: 4px 4px 4px 4px" -->
         <tr id="header-tr" style="border-width: 3px 3px 3px 3px">
-            <th style="width: 220px; vertical-align: middle">Показатель</th>            
+            <th style="width: 240px; vertical-align: middle">Показатель</th>            
         </tr>        
     </thead>
     <tbody id="report-tbody">
@@ -108,8 +117,12 @@
             <td class="table-header datatype-text">Машин НЕ приехало</td>
         </tr>        
         <!-- style="background-color: bisque; border-width: 1px 4px 4px 4px" -->
-        <tr id="over-plan-operations-tr" style="border-width: 1px 3px 3px 3px">
-            <td class="table-header datatype-text">Не уложились в план</td>
+        <tr id="over-plan-incomes-tr" style="border-width: 1px 3px 1px 3px">
+            <td class="table-header datatype-text">"Проблемных" приёмок (%)</td>
+        </tr>        
+        <!-- style="background-color: bisque; border-width: 1px 4px 4px 4px" -->
+        <tr id="over-plan-outgoes-tr" style="border-width: 1px 3px 3px 3px">
+            <td class="table-header datatype-text">"Проблемных" отгрузок (%)</td>
         </tr>        
         <!-- style="background-color: lightcyan; border-width: 4px 4px 1px 4px" -->
         <tr id="pallet-incomes-tr" style="border-width: 3px 3px 1px 3px">

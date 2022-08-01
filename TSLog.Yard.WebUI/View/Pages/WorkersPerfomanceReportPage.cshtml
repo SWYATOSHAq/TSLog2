@@ -41,7 +41,8 @@
         ne="date" 
         readonly="" />
 </div>
-<div style="padding: 0; margin: 0; margin-top: 8px">
+<div class="row" 
+    style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success" 
         style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
@@ -53,10 +54,20 @@
         type="button" 
         onclick="workersPerfomanceReportPage.exportToExcel()">В Excel</button>
 </div>
-<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+<button id="show-hide-description-button"
+    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+    style="padding: 0; margin: 0; margin-top: 8px; width: 480px"
+    title="Показать порядок рассчёта и комментарии к отчёту"
+    type="button"
+    onclick="workersPerfomanceReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+<div id="description-div" 
+    class="row d-none" 
+    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <!--
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта:
     </b>    
+    -->
     1. смотрим все операции двора за указанный период;<br />
     2. для каждой операции определяем список работников, которые по БоссКонтролю "задели" фактический промежуток работ по операции;<br />
     3. определяем суммарное время всех работ (на данном участке) по БоссКонтролю, которые "задели" фактический промежуток работ по операции;<br />
@@ -69,7 +80,7 @@
 </div>
 <table id="report-table"
     class="table table-light table-bordered table-striped table-sortable" 
-    style="width: fit-content; margin: auto">
+    style="width: fit-content; margin: auto; margin-top: 16px">
     <thead class="thead-light">
         <tr id="header-row">
             <th id="worker-th" class="table-header datatype-text">Работник (Ф. И. О.)</th>

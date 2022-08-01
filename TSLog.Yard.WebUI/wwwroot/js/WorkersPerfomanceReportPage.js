@@ -83,6 +83,20 @@ class WorkersPerfomanceReportPage {
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
     }
 
+    showHideDescription() {
+        const showHideDescriptionButton = document.getElementById("show-hide-description-button");
+        const descriptionDiv = document.getElementById("description-div");
+        if (descriptionDiv.classList.contains("d-none")) {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (скрыть)";
+            showHideDescriptionButton.title = "Скрыть порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.remove("d-none");
+        } else {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (показать)";
+            showHideDescriptionButton.title = "Показать порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.add("d-none");
+        }
+    }
+
     onChangeDate() {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);

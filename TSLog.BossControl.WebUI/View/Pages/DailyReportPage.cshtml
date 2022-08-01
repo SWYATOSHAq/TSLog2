@@ -49,11 +49,20 @@
             onclick="dailyReportPage.print()">Печать</button>
 </div>
 
-<div class="row not-for-print" 
+<button id="show-hide-description-button"
+    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+    style="padding: 0; margin: 0; width: 480px"
+    title="Показать порядок рассчёта и комментарии к отчёту"
+    type="button"
+    onclick="dailyReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+<div id="description-div"  
+    class="row not-for-print d-none" 
     style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <!--
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта и комментарии к отчёту:
     </b>    
+    -->
     Общее: данные собираются за РАБОЧИЕ СМЕНЫ.<br />
     1. Отчёт собирает данные по определённым показателям по рабочим сменам;<br />
     2. Дневная смена считается с 9:00 до 21:00 ТЕХ ЖЕ суток;<br />
@@ -64,7 +73,7 @@
 
 <table id="report-table"
     class="table table-bordered table-sortable" 
-    style="margin: auto">
+    style="margin: auto; margin-top: 16px">
     <thead class="thead-light">
         <tr id="header-tr" style="background-color: cornsilk">
             <th style="width: 420px; text-align: center; vertical-align: middle">Показатель</th>            

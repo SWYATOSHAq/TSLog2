@@ -252,13 +252,24 @@ class PositionsShiftReportPage {
         this.hideRows(visibleTrs);
     }
 
-    printReport() {
-        const printButton = document.querySelector(".print-button");        
-        printButton.onclick = () => {
-            const visibleTrs = this.showRows();
-            window.print();
-            this.hideRows(visibleTrs);
-        }        
+    print() {
+        const visibleTrs = this.showRows();
+        window.print();
+        this.hideRows(visibleTrs);
+    }
+
+    showHideDescription() {
+        const showHideDescriptionButton = document.getElementById("show-hide-description-button");
+        const descriptionDiv = document.getElementById("description-div");
+        if (descriptionDiv.classList.contains("d-none")) {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (скрыть)";
+            showHideDescriptionButton.title = "Скрыть порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.remove("d-none");
+        } else {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (показать)";
+            showHideDescriptionButton.title = "Показать порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.add("d-none");
+        }
     }
 
     async show() {        
@@ -276,7 +287,7 @@ class PositionsShiftReportPage {
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         this.showShiftInfo();
-        this.printReport();
+        this.print();
     }
 }
 

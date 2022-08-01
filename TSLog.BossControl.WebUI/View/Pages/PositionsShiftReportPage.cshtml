@@ -36,14 +36,24 @@
         <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
             style="padding: 0; margin: 0; width: 120px"
             title="Печать отчёта"
-            type="button">Печать</button>
+            type="button"
+            onclick="positionsShiftReportPage.print()">Печать</button>
     </div>
 
-    <div class="row not-for-print" 
+    <button id="show-hide-description-button"
+        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 480px"
+        title="Показать порядок рассчёта и комментарии к отчёту"
+        type="button"
+        onclick="positionsShiftReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+    <div id="description-div"   
+        class="row not-for-print d-none" 
         style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+        <!--
         <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
             Порядок рассчёта:
         </b>    
+        -->
         1. отчёт смотри все промежутки работ сотрудников на участках, суммирует данные по каждой должности и по всем должностям;<br />
         2. эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов);<br />
         3. потери равны разнице 100% и эффективности;<br />        

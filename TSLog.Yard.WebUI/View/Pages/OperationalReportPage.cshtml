@@ -51,10 +51,20 @@
         onclick="operationalReportPage.exportToExcel()">В Excel</button>
 </div>
 
-<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+<button id="show-hide-description-button"
+    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+    style="padding: 0; margin: 0; width: 480px"
+    title="Показать порядок рассчёта и комментарии к отчёту"
+    type="button"
+    onclick="operationalReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+<div id="description-div"  
+    class="row d-none" 
+    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+    <!--
     <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
         Порядок рассчёта и комментарии к отчёту:
     </b>    
+    -->
     1. Смотрим все операции двора за указанную смену;<br />
     2. Для каждой операции двора смотрим её основные параметры (вид, тип авто, клиент, заказы, вес, объём, ...);<br />
     3. Сравниваем плановое время окончания работ с фактическим, плановую продолжительность с фактическим, плановые трудозатраты с фактическими;<br />
@@ -62,7 +72,7 @@
     5. Пояснения к полю "Корр." (признак корректности): "" - с заявкой всё хорошо, "О" - опоздание, "ПП" - превышен план по времени или по трудозатратам.<br />
 </div>
 
-<h5 id="elements-count-h5">Всего заявок - 0</h5>
+<h5 style="margin-top: 16px" id="elements-count-h5">Всего заявок - 0</h5>
 <table id="report-table"
     class="table table-bordered table-sortable" 
     style="width: 100%; margin: auto">

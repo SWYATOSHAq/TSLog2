@@ -2366,6 +2366,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return;
                     dynamic element = new ExpandoObject();
                     element.date = date;
+                    element.stringDate = date.ToString("dd.MM.yyyy");
                     element.day = date.ToString("dd.MM");
 
                     //var dayOfWeek = DateTimeFormatInfo.CurrentInfo.GetDayName(date.DayOfWeek);
@@ -2381,7 +2382,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.dayToDayOperationsPercent = 0.0;
                     element.deletedOperations = 0;
                     element.idleOperations = 0;
-                    element.overPlanOperations = 0;
+                    element.overPlanIncomes = 0;
+                    element.overPlanOutgoes = 0;
                     element.palletIncomes = 0;
                     element.boxIncomes = 0;
                     element.palletOutgoues = 0;
@@ -2421,7 +2423,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         // Операции, с превышением плана
                         if (operation.FactDuration > 0 && operation.PlanDuration < operation.FactDuration ||
                             operation.FactLaborCost > 0 && operation.PlanLaborCost < operation.FactLaborCost)
-                            data[key].overPlanOperations++;
+                        {
+                            if (operation.Type.Direction == TypeDirection.In)
+                                data[key].overPlanIncomes++;
+                            else if (operation.Type.Direction == TypeDirection.Out)
+                                data[key].overPlanOutgoes++;
+                        }                            
 
                         // Смотрим оформленные операции
                         key = operation.CreateDate.ToString("yyyy.MM.dd");

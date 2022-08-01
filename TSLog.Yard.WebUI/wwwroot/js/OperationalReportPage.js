@@ -318,6 +318,24 @@ class OperationalReportPage {
         setButtonsText(openButtons, "Открыть");
     }
 
+    print() {
+        window.print();
+    }
+
+    showHideDescription() {
+        const showHideDescriptionButton = document.getElementById("show-hide-description-button");
+        const descriptionDiv = document.getElementById("description-div");
+        if (descriptionDiv.classList.contains("d-none")) {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (скрыть)";
+            showHideDescriptionButton.title = "Скрыть порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.remove("d-none");
+        } else {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (показать)";
+            showHideDescriptionButton.title = "Показать порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.add("d-none");
+        }
+    }
+
     async show() {
         let date = utils.getUrlParameter("date");
         if (date == "")

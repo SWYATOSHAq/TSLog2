@@ -40,11 +40,20 @@
             onclick="staffReportPage.print()">Печать</button>
     </div>
 
-    <div class="row not-for-print" 
+    <button id="show-hide-description-button"
+        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 480px"
+        title="Показать порядок рассчёта и комментарии к отчёту"
+        type="button"
+        onclick="staffReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+    <div id="description-div"
+        class="row not-for-print d-none" 
         style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
+        <!--
         <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
             Порядок рассчёта:
-        </b>    
+        </b> 
+        -->
         1. смотрим все промежутки работ работников за указанный период;<br />
         2. определяем плановое время работы как количество смен, на которых работник отработал хотя бы 10%;<br />
         3. определяем фактическое время работы работника как сумма времени всех промежутков работ на участких;<br />
@@ -54,7 +63,7 @@
 
     <table id="report-table"
         class="table table-light table-bordered table-striped" 
-        style="margin: 0; padding: 0">
+        style="margin: 0; margin-top: 16px; padding: 0">
         <thead>
             <tr>                
                 <th rowspan="2" class="table-column-header">Сотрудник / Должность</th>

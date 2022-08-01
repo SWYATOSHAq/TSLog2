@@ -8,7 +8,7 @@
 class DispatcherReportPage {
     shortUrl;
     data = [];
-    markColumnWidth = 220;
+    markColumnWidth = 240;
     valueColumnWidth = 80;
 
     constructor() {
@@ -66,8 +66,10 @@ class DispatcherReportPage {
         const dayOperationsTr = document.getElementById("day-operations-tr");
         const dayToDayOperationsPercentTr = document.getElementById("day-to-day-operations-percent-tr");
         const deletedOperationsTr = document.getElementById("deleted-operations-tr");
+
         const idleOperationsTr = document.getElementById("idle-operations-tr");
-        const overPlanOperationsTr = document.getElementById("over-plan-operations-tr");
+        const overPlanIncomesTr = document.getElementById("over-plan-incomes-tr");
+        const overPlanOutgoesTr = document.getElementById("over-plan-outgoes-tr");
 
         const palletIncomesTr = document.getElementById("pallet-incomes-tr");
         const boxIncomesTr = document.getElementById("box-incomes-tr");
@@ -85,6 +87,10 @@ class DispatcherReportPage {
 
         let width = this.markColumnWidth;
         for (let element of this.data) {
+            const totalIncomes = element.palletIncomes + element.boxIncomes;
+            const totalOutgoes = element.palletOutgoues + element.boxOutgoes;
+            const overPlanCellOnclick = function () { location.href = "OperationalReportPage?date=" + element.stringDate + "&shift=day"; };
+
             //const cellStyle = element.isHoliday ? "background-color: bisque" : "";
             const cellStyle = "";
 
@@ -99,16 +105,22 @@ class DispatcherReportPage {
             viewUtils.createCell(dayOperationsTr, ["content-cell"], [element.dayOperations], cellStyle);
             viewUtils.createCell(dayToDayOperationsPercentTr, ["content-cell"], [utils.displayFloat(element.dayToDayOperationsPercent)], cellStyle);
             viewUtils.createCell(deletedOperationsTr, ["content-cell"], [element.deletedOperations], cellStyle);
+
             viewUtils.createCell(idleOperationsTr, ["content-cell"], [element.idleOperations], cellStyle);
-            viewUtils.createCell(overPlanOperationsTr, ["content-cell"], [element.overPlanOperations], cellStyle);
+            const overPlanIncomesTd =
+                viewUtils.createCell(overPlanIncomesTr, ["content-cell"], [utils.displayFloat(100 * element.overPlanIncomes / totalIncomes)], cellStyle);
+            overPlanIncomesTd.onclick = overPlanCellOnclick; 
+            const overPlanOutgoesTd =
+                viewUtils.createCell(overPlanOutgoesTr, ["content-cell"], [utils.displayFloat(100 * element.overPlanOutgoes / totalOutgoes)], cellStyle);
+            overPlanOutgoesTd.onclick = overPlanCellOnclick;
 
             viewUtils.createCell(palletIncomesTr, ["content-cell"], [element.palletIncomes], cellStyle);
             viewUtils.createCell(boxIncomesTr, ["content-cell"], [element.boxIncomes], cellStyle);
-            viewUtils.createCell(totalIncomesTr, ["content-cell"], [element.palletIncomes + element.boxIncomes], cellStyle);
+            viewUtils.createCell(totalIncomesTr, ["content-cell"], [totalIncomes], cellStyle);
 
             viewUtils.createCell(palletOutgouesTr, ["content-cell"], [element.palletOutgoues], cellStyle);
             viewUtils.createCell(boxOutgoesTr, ["content-cell"], [element.boxOutgoes], cellStyle);
-            viewUtils.createCell(totalOutgoesTr, ["content-cell"], [element.palletOutgoues + element.boxOutgoes], cellStyle);
+            viewUtils.createCell(totalOutgoesTr, ["content-cell"], [totalOutgoes], cellStyle);
 
             viewUtils.createCell(gates1_6operationsTr, ["content-cell"], [utils.displayFloat(element.gates1_6Operations / 24 / 60 / 60 * 100)], cellStyle);
             viewUtils.createCell(gate7operationsTr, ["content-cell"], [utils.displayFloat(element.gate7Operations / 24 / 60 / 60 * 100)], cellStyle);
@@ -117,7 +129,7 @@ class DispatcherReportPage {
             viewUtils.createCell(totalOperationsTr, ["content-cell"],
                 [element.palletIncomes + element.boxIncomes + element.palletOutgoues + element.boxOutgoes], cellStyle);
         }
-        document.getElementById("report-table").style.cssText = "width: " + width + "px; margin: auto";
+        document.getElementById("report-table").style.cssText = "width: " + width + "px; margin: auto; margin-top: 16px";
     }
 
     async onChangeFilter() {
@@ -154,6 +166,20 @@ class DispatcherReportPage {
 
     print() {
         window.print();
+    }
+
+    showHideDescription() {
+        const showHideDescriptionButton = document.getElementById("show-hide-description-button");
+        const descriptionDiv = document.getElementById("description-div");
+        if (descriptionDiv.classList.contains("d-none")) {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (скрыть)";
+            showHideDescriptionButton.title = "Скрыть порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.remove("d-none");
+        } else {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (показать)";
+            showHideDescriptionButton.title = "Показать порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.add("d-none");
+        }        
     }
 
     async show() {

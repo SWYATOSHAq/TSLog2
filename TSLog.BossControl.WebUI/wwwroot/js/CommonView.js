@@ -60,23 +60,24 @@ class ViewUtils {
         }
         cell.style.cssText = cssText;
         row.append(cell);
+        return cell;
     }
 
     // Создаёт заголовок строки таблицы
     createRowHeader(row, styles, contents, cssText = "") {
-        this.createCellContent("th", row, styles, contents, cssText);
+        return this.createCellContent("th", row, styles, contents, cssText);
     }
 
     // Создаёт ячейку таблицы
     createCell(row, styles, contents, cssText = "") {
-        this.createCellContent("td", row, styles, contents, cssText);
+        return this.createCellContent("td", row, styles, contents, cssText);
     }
 
     // Создаёт ячейку таблицы c ЖИРНЫМ шрифтом
     createBoldCell(row, styles, contents, cssText = "") {
         const b = document.createElement("b");
         b.append(contents);
-        this.createCellContent("td", row, styles, [b], cssText);
+        return this.createCellContent("td", row, styles, [b], cssText);
     }
 
     // Показывает сообщение об ошибке
