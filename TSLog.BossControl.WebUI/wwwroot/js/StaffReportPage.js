@@ -4,7 +4,9 @@
     Создан - 2022.07.04.
 */
 
-// Страница отчёта по персоналу
+// Страница отчёта по персоналу 
+// (аггрегированная информация по плановому времени работы, фактическому времени работы, 
+// плановым затратам, фактическим затратам и простоям)
 class StaffReportPage {
     shortUrl;
 
@@ -31,6 +33,7 @@ class StaffReportPage {
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = [];
             viewUtils.showError(result.message);
         }
     }
@@ -136,6 +139,14 @@ class StaffReportPage {
         elementsTbody.append(totalTr);
     }
 
+    showReportTitle() {
+        const reportTitleB = document.getElementById("report-title-b");
+        const fromDate = utils.getUrlParameter("from_date");
+        const toDate = utils.getUrlParameter("to_date");
+        const staffKind = utils.getUrlParameter("only_linear") === "1" ? "ЛИНЕЙНОМУ" : "ВСЕМУ"        
+        reportTitleB.textContent = "Отчёт по персоналу c " + fromDate + " по " + toDate + "(ВКЛЮЧАЯ!) по " + staffKind + " персоналу";
+    }
+
     onChangeParameters() {        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);        
@@ -145,9 +156,9 @@ class StaffReportPage {
         this.clearReport();
         await this.getData(utils.getUrlParameter("from_date"),
             utils.getUrlParameter("to_date"),
-            utils.getUrlParameter("only_linear") === "1",
-            utils.getUrlParameter("shifts"));
-        this.showReport()
+            utils.getUrlParameter("only_linear") === "1");
+        this.showReport();
+        this.showReportTitle();
     }
 
     exportToExcel() {
@@ -190,17 +201,15 @@ class StaffReportPage {
         let toDate = utils.getUrlParameter("to_date");
         if (toDate == "")
             toDate = utils.getNowDate();
-        const onlyLinear = utils.getUrlParameter("only_linear") != "0";
-        
-        await this.getData(fromDate, toDate, onlyLinear);        
-
         viewUtils.initDatePicker("from-date-input", fromDate, this.onChangeParameters.bind(this));        
         viewUtils.initDatePicker("to-date-input", fromDate, this.onChangeParameters.bind(this));        
+        const onlyLinear = utils.getUrlParameter("only_linear") === "1";
         viewUtils.initCheckbox("only-linear-input", onlyLinear, this.onChangeParameters.bind(this));        
 
-        this.showReport();        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+
+        this.createReport();
     }
 }
 

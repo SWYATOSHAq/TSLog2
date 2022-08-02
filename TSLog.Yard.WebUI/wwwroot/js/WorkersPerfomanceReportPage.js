@@ -3,7 +3,7 @@
     Автор - Буров Михаил.
 */
 
-// Страница отчёта по производительности по работникам (за период)
+// Страница отчёта по производительности по работникам (за период, с указанием основных должностей).
 class WorkersPerfomanceReportPage {
     shortUrl;
 
@@ -27,6 +27,7 @@ class WorkersPerfomanceReportPage {
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = [];
             viewUtils.showError(result.message);
         }
     }
@@ -37,12 +38,6 @@ class WorkersPerfomanceReportPage {
     }
 
     showReport() {
-        const h3 = document.getElementById("report-header")
-        h3.textContent = "Отчёт по производительности по работникам" +
-            " с " + utils.getUrlParameter("from_date") +
-            " по " + utils.getUrlParameter("to_date") + 
-            " (включая!)";
-
         const tbody = document.getElementById("report-tbody");
         for (let element of this.data) {
             const tr = document.createElement("tr");
@@ -52,6 +47,13 @@ class WorkersPerfomanceReportPage {
             viewUtils.createCell(tr, ["table-cell"], [Math.round(element.perfomance).toString()]);
             tbody.append(tr);
         }
+    }
+
+    showReportTitle() {
+        const reportHeaderB = document.getElementById("report-header-b")
+        const fromDate = utils.getUrlParameter("from_date");
+        const toDate = utils.getUrlParameter("to_date");
+        reportHeaderB.textContent = "Отчёт по производительности работников с " + fromDate + " по " + toDate + " (ВКЛЮЧАЯ!)";
     }
 
     onChangeParameters() {        
@@ -64,6 +66,8 @@ class WorkersPerfomanceReportPage {
         this.clearReport();
         await this.getData(utils.getUrlParameter("from_date"), utils.getUrlParameter("to_date"));
         this.showReport();
+        this.showReportTitle();
+
         const workerTh = document.getElementById("worker-th");
         workerTh.click();
     }
@@ -81,6 +85,10 @@ class WorkersPerfomanceReportPage {
         const sheetName = fromDate + " - " + toDate;
 
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
+    print() {
+        window.print();
     }
 
     showHideDescription() {

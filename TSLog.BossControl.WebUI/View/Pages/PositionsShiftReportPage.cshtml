@@ -1,85 +1,86 @@
 ﻿@page "/PositionsShiftReportPage"
-@model TSLog.BossControl.WebUI.Pages.PositionsShiftReportPageModel
+@using TSLog.BossControl.WebUI.Models
+
+@model PositionsShiftReportPageModel
 @{
     ViewData["Title"] = "Отчёт за смену по должностям";
 }
 
-<div class="table-div"> 
-    <b class="not-for-print">Отчёт за смену по должностям</b>
-    <div class="row dates-div not-for-print">
-        <label class="date-label" for="date-input">Дата:</label>
-        <input id="date-input" 
-            class="datepicker border border-secondary date-input" 
-            placeholder="Выберете дату" 
-            ne="date" 
-            readonly="" />    
-        <label class="date-label" for="shift-select">Смена:</label>
-        <select id="shift-select" 
-            class="form-select border-secondary" 
-            style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
-            <option value="day" selected>Дневная</option>
-            <option value="night">Ночная</option>
-        </select>
-        <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
-    </div>
-    <div class="row button-div not-for-print">
-        <button class="btn btn-outline-success hide-on-print" 
-            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
-            title="Сформировать отчёт"
-            type="button" 
-            onclick="positionsShiftReportPage.createReport()">Применить</button>
-        <button class="btn btn-outline-success not-for-print" 
-            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
-            title="Выгрузить отчёт в Excel"
-            type="button" 
-            onclick="positionsShiftReportPage.exportToExcel()">В Excel</button>
-        <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-            style="padding: 0; margin: 0; width: 120px"
-            title="Печать отчёта"
-            type="button"
-            onclick="positionsShiftReportPage.print()">Печать</button>
-    </div>
+<div class="row not-for-print" style="padding: 0; margin: 0">
+    <label class="date-label" for="date-input">Дата:</label>
+    <input id="date-input" 
+        class="datepicker border border-secondary date-input" 
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />    
+    <label class="date-label" for="shift-select">Смена:</label>
+    <select id="shift-select" 
+        class="form-select border-secondary" 
+        style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
+        <option value="day" selected>Дневная</option>
+        <option value="night">Ночная</option>
+    </select>
+    <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
+</div>
 
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button class="btn btn-outline-success hide-on-print" 
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="positionsShiftReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success not-for-print" 
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="positionsShiftReportPage.exportToExcel()">В Excel</button>
+    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 120px"
+        title="Печать отчёта"
+        type="button"
+        onclick="positionsShiftReportPage.print()">Печать</button>
+</div>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
         class="btn btn-outline-secondary hide-on-print print-button not-for-print"
         style="padding: 0; margin: 0; width: 480px"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
         onclick="positionsShiftReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
-    <div id="description-div"   
-        class="row not-for-print d-none" 
-        style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
-        <!--
-        <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
-            Порядок рассчёта:
-        </b>    
-        -->
-        1. отчёт смотри все промежутки работ сотрудников на участках, суммирует данные по каждой должности и по всем должностям;<br />
-        2. эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов);<br />
-        3. потери равны разнице 100% и эффективности;<br />        
-    </div>
-    
+</div>
+
+<div id="description-div"   
+    class="row not-for-print d-none" 
+    style="padding: 0; margin: 0; margin-top: 8px; display: flex; flex-direction: column">
+    1. отчёт смотри все промежутки работ сотрудников на участках, суммирует данные по каждой должности и по всем должностям;<br />
+    2. эффективность равна отношению фактически отработанного времени сотрудником к нормосмене (8 или 10,5 часов);<br />
+    3. потери равны разнице 100% и эффективности;<br />        
     <div class="row print-on-top-2" 
-        style="margin: 0.5% 0 !important; padding: 0 !important; color: red">
+        style="padding: 0; margin: 0; color: red">
         Красным выделены сотрудники, работающие во время перерывов.
     </div>
-
-    <table id="report-table"
-        class="table table-light table-bordered table-striped" 
-        style="margin: 0; padding: 0">
-        <thead>
-            <tr>
-                <th class="table-column-header" rowspan="2">Должность</th>
-                <th class="table-column-header" colspan="4">Босс контроль</th>
-            </tr>
-            <tr>                
-                <th class="table-column-header">Факт. (ч. * см.)</th>
-                <th class="table-column-header">Норм. (ч. * см.)</th>
-                <th class="table-column-header">Эффективность (%)</th>
-                <th class="table-column-header">Потери (%)</th>                
-            </tr>
-        </thead>
-        <tbody id="report-tbody">
-        </tbody>
-    </table>
 </div>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b id="report-title-b" style="padding: 0; margin: 0">Отчёт за смену по должностям</b>
+</div>
+
+<table id="report-table"
+    class="table table-light table-bordered table-striped" 
+    style="padding: 0; margin: 0; margin-top: 16px">
+    <thead>
+        <tr>
+            <th class="table-column-header" style="width: 600px" rowspan="2">Должность</th>
+            <th class="table-column-header" colspan="4">Босс контроль</th>
+        </tr>
+        <tr>                
+            <th class="table-column-header">Факт. (ч. * см.)</th>
+            <th class="table-column-header">Норм. (ч. * см.)</th>
+            <th class="table-column-header">Эффективность (%)</th>
+            <th class="table-column-header">Потери (%)</th>                
+        </tr>
+    </thead>
+    <tbody id="report-tbody">
+    </tbody>
+</table>

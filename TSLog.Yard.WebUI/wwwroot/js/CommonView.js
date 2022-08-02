@@ -226,6 +226,7 @@ class ViewUtils {
         table.querySelector(`th:nth-child(${column + 1})`).classList.toggle("th-sort-desc", !asc);
     }
 
+    // Формирует элемент фильтра по значению input-а для текста
     getFilterElementByStringInput(fieldName, input, condition = "like", options = { caseInsensitive: true, replaceOnE: true }) {
         let filter = {};
         filter.fieldName = fieldName;
@@ -243,6 +244,7 @@ class ViewUtils {
         return filter;
     }
 
+    // Формирует элемент фильтра по значению input-а для числа
     getFilterElementByNumberInput(fieldName, input, condition = "=", options = { onlyPositive: true }) {
         let filter = {};
         filter.fieldName = fieldName;
@@ -254,6 +256,7 @@ class ViewUtils {
         return filter;
     }
 
+    // Формирует элемент фильтра по значению select-а
     getFilterElementBySelect(fieldName, select, condition = "=") {
         let filter = {};
         filter.fieldName = fieldName;
@@ -262,6 +265,7 @@ class ViewUtils {
         return filter;
     }
 
+    // Формирует элемент фильтра по значению date picker-а
     getFilterElementByDatePicker(fieldName, datePicker, condition = "=", options = {}) {
         let filter = {};
         filter.fieldName = fieldName;

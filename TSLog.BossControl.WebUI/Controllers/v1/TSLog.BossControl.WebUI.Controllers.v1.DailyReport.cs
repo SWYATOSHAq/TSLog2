@@ -68,7 +68,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             NightShifts = nightShifts;
             _storage = storage;
         }
-        private HashSet<Shift> _shifts = new HashSet<Shift>();
+        private HashSet<Shift> _shifts = new();
         private readonly IDictionary<string, Mark> _marks = new Dictionary<string, Mark>();
         public readonly IDictionary<string, ShiftData> _shiftsData = new Dictionary<string, ShiftData>();
 
@@ -203,7 +203,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             GetData();
             PrepareData();
             CalculateMarks();
-            CalculateTotalShift();
+            //CalculateTotalShift();
         }
         private static dynamic MarkToDynamic(Mark mark)
         {

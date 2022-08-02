@@ -4,6 +4,8 @@
     Автор - Буров Михаил.
 */
 
+// Страница отчёта по приходам/расходам (БоссКоннтроль + Биллинг) - 
+// отчёта по затратам по БоссКонтролю и по выручке из Биллинга по клиентам.
 class ECReportPage {
     shortUrl;
 
@@ -60,24 +62,20 @@ class ECReportPage {
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = [];
             viewUtils.showError(result.message);
         }
     }
 
     clearReport() {
         const reportBody = document.getElementById("report-tbody");
-        const reportFooter = document.getElementById("report-footer");
+        const reportFooter = document.getElementById("report-tfoot");
         reportBody.replaceChildren();
         reportFooter.replaceChildren();
+        this.data = [];
     }
 
     showReport() {
-        const h3 = document.getElementById("report-header")
-        h3.textContent = "Отчёт по затратам на персонал из БоссКонтроля" +
-            " с " + utils.getUrlParameter("from_date") +
-            " по " + utils.getUrlParameter("to_date") + 
-            " (включая!)";
-
         let totalBcDuration = 0.0;
         let totalBcCost = 0.0;
         let totalBillingTotalIncome = 0.0;
@@ -92,7 +90,7 @@ class ECReportPage {
         let downtime = 0.0;
         let downcost = 0.0;
         const reportBody = document.getElementById("report-tbody");
-        const reportFooter = document.getElementById("report-footer");
+        const reportFooter = document.getElementById("report-tfoot");
         for (let element of this.data) {
             if (element.partnerId === "DOWN") {
                 downtime = element.bcDuration;
@@ -164,6 +162,14 @@ class ECReportPage {
         reportFooter.append(tr);
     }
 
+    showReportTitle() {
+        const reportHeaderB = document.getElementById("report-header-b")
+        reportHeaderB.textContent = "Отчёт по затратам (БоссКонтроль) и выручке (Биллинг)" +
+            " с " + utils.getUrlParameter("from_date") +
+            " по " + utils.getUrlParameter("to_date") +
+            " (ВКЛЮЧАЯ!)";
+    }
+
     onChangeParameters() {        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
@@ -176,6 +182,8 @@ class ECReportPage {
             utils.getUrlParameter("to_date"),
             utils.getUrlParameter("partners_ids"));
         this.showReport();
+        this.showReportTitle(); 
+
         const partnerIdTh = document.getElementById("partner-id-th");
         partnerIdTh.click();
     }
@@ -193,6 +201,10 @@ class ECReportPage {
         const sheetName = fromDate + " - " + toDate;
 
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
+    print() {
+        window.print();
     }
 
     showHideDescription() {

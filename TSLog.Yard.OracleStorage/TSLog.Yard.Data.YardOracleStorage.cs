@@ -262,6 +262,7 @@ namespace TSLog.Yard.Data
                 planActionDate,
                 isActive,
                 note);
+            action.TusCount = Utils.DbValueToInt(reader["tu_count"]);
             return action;
         }
         /// <summary>
@@ -372,7 +373,7 @@ namespace TSLog.Yard.Data
             {
                 command.BindByName = true;
                 var SelectWarehouseActionByIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
                     $"   and a.kind = :kind";
@@ -388,7 +389,7 @@ namespace TSLog.Yard.Data
                 if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
                 {
                     var selectArchivedDeletedAction = 
-                        $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
+                        $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
                         $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
                         $" where a.id = :id\n" +
                         $"   and a.kind = :kind";
@@ -424,7 +425,7 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 var SelectWarehouseActionByPartnerActionIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date\n" +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.partner_number = :partner_number\n" +
                     $"   and a.partner_id = :partner_id\n" +
@@ -466,7 +467,8 @@ namespace TSLog.Yard.Data
                     $"       a.partner_id,\n" +
                     $"       a.partner_number,\n" +
                     $"       a.state_code,\n" +
-                    $"       a.plan_action_date\n" +
+                    $"       a.plan_action_date,\n" +
+                    $"       a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where (upper(trim(a.id)) like :pattern\n" +
                     $"     or upper(trim(a.action_number)) like :pattern\n" +

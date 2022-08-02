@@ -1,4 +1,9 @@
-﻿@media print {
+﻿@page {
+    size: auto;
+    margin: 0mm;
+}
+
+@media print {
     .not-for-print {
         visibility: hidden;
     }
@@ -17,11 +22,6 @@
 .filters-div {
     padding: 0px !important;
     margin: 0px !important;
-}
-
-.dates-div {
-    margin: 0px !important;
-    padding: 4px !important;
 }
 
 .filter-div {

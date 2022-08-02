@@ -20,7 +20,7 @@
     }
 }
 
-<div class="row" style="padding: 0; margin: 0; margin-bottom: 8px">
+<div class="row not-for-print" style="padding: 0; margin: 0">
     <label for="date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Дата:</label>
     <input id="date-input" 
         class="datepicker border border-secondary" 
@@ -37,34 +37,36 @@
     </select>
     <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
 </div>
-<div class="row"
-    style="padding: 0; margin: 0; margin-bottom: 8px">
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success" 
         style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="operationalReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 120px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="operationalReportPage.exportToExcel()">В Excel</button>
+    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 120px"
+        title="Печать отчёта"
+        type="button"
+        onclick="operationalReportPage.print()">Печать</button>
 </div>
 
-<button id="show-hide-description-button"
-    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-    style="padding: 0; margin: 0; width: 480px"
-    title="Показать порядок рассчёта и комментарии к отчёту"
-    type="button"
-    onclick="operationalReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button id="show-hide-description-button"
+        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 480px"
+        title="Показать порядок рассчёта и комментарии к отчёту"
+        type="button"
+        onclick="operationalReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+</div>
 <div id="description-div"  
-    class="row d-none" 
-    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
-    <!--
-    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
-        Порядок рассчёта и комментарии к отчёту:
-    </b>    
-    -->
+    class="row not-for-print d-none" 
+    style="padding: 0; margin: 0; margin-top: 8px; display: flex; flex-direction: column">
     1. Смотрим все операции двора за указанную смену;<br />
     2. Для каждой операции двора смотрим её основные параметры (вид, тип авто, клиент, заказы, вес, объём, ...);<br />
     3. Сравниваем плановое время окончания работ с фактическим, плановую продолжительность с фактическим, плановые трудозатраты с фактическими;<br />
@@ -72,10 +74,13 @@
     5. Пояснения к полю "Корр." (признак корректности): "" - с заявкой всё хорошо, "О" - опоздание, "ПП" - превышен план по времени или по трудозатратам.<br />
 </div>
 
-<h5 style="margin-top: 16px" id="elements-count-h5">Всего заявок - 0</h5>
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b id="report-header-b" style="padding: 0; margin: 0">Оперативный отчёт (всего заявок - 0)</b>
+</div>
+
 <table id="report-table"
     class="table table-bordered table-sortable" 
-    style="width: 100%; margin: auto">
+    style="width: 100%; margin: 0; margin-top: 16px">
     <thead class="thead-light">
         <tr id="header-row">
             <th id="operation-id-th" class="table-header datatype-text" style="width: 5%">Номер</th>
@@ -87,18 +92,24 @@
             <th class="table-header datatype-text" style="width: 6%">Нач. раб. пл. (ф.)</th>
             <th class="table-header datatype-text" style="width: 6%">Оконч. раб. пл. (ф.)</th>
             <th class="table-header datatype-text" style="width: 6%">Убытие</th>
-            <th class="table-header datatype-text" style="width: 6%">Время во дворе мин.</th>
+            <th class="table-header datatype-float" style="width: 6%">Время во дворе мин.</th>
             <th class="table-header datatype-text" style="width: 6%">Длит. пл. (ф.) мин.</th>
             <th class="table-header datatype-text" style="width: 7%">Т/з лин. пл. (ф.) ч. * мин.</th>
-            <th class="table-header datatype-text" style="width: 5%">Кол-во работников</th>
-            <th class="table-header datatype-text" style="width: 5%">Кол-во пр./рас.</th>
+            <th class="table-header datatype-integer" style="width: 5%">Кол-во работников</th>
+            <th class="table-header datatype-integer" style="width: 5%">Кол-во пр./рас.</th>
             <!--
-            <th class="table-header datatype-text">Вес нетто (кг)</th>
+            <th class="table-header datatype-float">Вес нетто (кг)</th>
             -->
-            <th class="table-header datatype-text" style="width: 5%">Вес бр. пл. (ф.) кг</th>
-            <th class="table-header datatype-text" style="width: 5%">Объём пл. (ф.) куб. м</th>
+            <th class="table-header datatype-text" style="width: 7%">Вес бр. пл. (ф.) кг</th>
+            <th class="table-header datatype-text" style="width: 7%">Объём пл. (ф.) куб. м</th>
+
+            <!--
             <th class="table-header datatype-text" style="width: 4%">Кол-во палл. пл. (ф.)</th>
             <th class="table-header datatype-text" style="width: 4%">Кол-во кор. пл. (ф.)</th>
+            -->
+
+            <th class="table-header datatype-integer" style="width: 4%">Кол-во ТЕ</th>
+
             <th class="table-header datatype-text" style="width: 5%">Корр.</th>
         </tr>
     </thead>

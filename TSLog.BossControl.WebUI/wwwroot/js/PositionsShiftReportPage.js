@@ -3,7 +3,9 @@
     Автор - Буров Михаил.
 */
 
-// Страница отчёта о трудозатратах за смену
+// Страница отчёта о трудозатратах за смену 
+// (отчёт с указанием сотрудников, работающих на смене, с указанием участков работ, 
+// с указанием промежутков работ на участках, с аггрегацией по должностям).
 class PositionsShiftReportPage {
     shortUrl;
 
@@ -25,6 +27,7 @@ class PositionsShiftReportPage {
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = [];
             viewUtils.showError(result.message);
         }
     }
@@ -182,6 +185,13 @@ class PositionsShiftReportPage {
         this.hideWorksRows();
     }
 
+    showReportTitle() {
+        const reportTitleB = document.getElementById("report-title-b");
+        const shiftName = utils.getUrlParameter("shift") === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
+        const date = utils.getUrlParameter("date");
+        reportTitleB.textContent = "Отчёт за " + shiftName + " смену за " + date + " по должностям";
+    }
+
     showShiftInfo() {
         const shiftDiv = document.getElementById("shift-info");
         if (document.getElementById("shift-select").value == "day") {
@@ -208,7 +218,8 @@ class PositionsShiftReportPage {
     async createReport() {
         this.clearReport();
         await this.getData(utils.getUrlParameter("date"), utils.getUrlParameter("shift"));
-        this.showReport()
+        this.showReport();
+        this.showReportTitle();        
     }
 
     showRows() {
@@ -278,16 +289,15 @@ class PositionsShiftReportPage {
             date = utils.getNowDate();
         let shift = utils.getUrlParameter("shift");
         if (shift == "")
-            shift = "day";
-        await this.getData(date, shift);        
+            shift = "day";        
         viewUtils.initDatePicker("date-input", date, this.onChangeParameters.bind(this));
         viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
-
-        this.showReport();        
+               
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         this.showShiftInfo();
-        this.print();
+
+        this.createReport();
     }
 }
 

@@ -4,7 +4,7 @@
     Создан - 2022.07.14.
 */
 
-// Страница оперативного отчёта (за смену)
+// Страница оперативного отчёта (за смену) - отчёта по состояниям, корректности, объёмам товара операций двора за смену.
 class OperationalReportPage {
     shortUrl;
     data = [];
@@ -148,6 +148,7 @@ class OperationalReportPage {
         }
         viewUtils.createCell(tr, ["table-cell"], [content]);
 
+        /*
         content = utils.displayFloat(element.planPalletsCount);
         if (element.stateCode === "FINISHED") {
             content += " (" + utils.displayFloat(element.factPalletsCount) + ")"
@@ -158,6 +159,9 @@ class OperationalReportPage {
         if (element.stateCode === "FINISHED") {
             content += " (" + utils.displayFloat(element.factBoxesCount) + ")"
         }
+        viewUtils.createCell(tr, ["table-cell"], [content]);
+        */
+        content = utils.displayFloat(element.tusCount);
         viewUtils.createCell(tr, ["table-cell"], [content]);
 
         if (durationExcess || laborCostExcess) {
@@ -186,6 +190,7 @@ class OperationalReportPage {
         let totalFactPalletsCount = 0.0;
         let totalPlanBoxesCount = 0.0;
         let totalFactBoxesCount = 0.0;
+        let totalTusCount = 0;
 
         for (let element of this.data) {
             const tr = document.createElement("tr");
@@ -210,9 +215,8 @@ class OperationalReportPage {
                 totalFactPalletsCount += element.factPalletsCount;
                 totalFactBoxesCount += element.factBoxesCount;
             }
-        }
-        const elementsCountH5 = document.getElementById("elements-count-h5");
-        elementsCountH5.textContent = "Всего заявок - " + this.data.length;
+            totalTusCount += element.tusCount;
+        }        
 
         const reportTFoot = document.getElementById("report-tfoot");
         const summaryTr = document.createElement("tr");
@@ -245,13 +249,26 @@ class OperationalReportPage {
             [utils.displayFloat(totalPlanGrossWeight / 1000 / 1000) + " (" + utils.displayFloat(totalFactGrossWeight / 1000 / 1000) + ")"]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"],
             [utils.displayFloat(totalPlanVolume / 1000 / 1000 / 1000, 2) + " (" + utils.displayFloat(totalFactVolume / 1000 / 1000 / 1000, 2) + ")"]);
+
+        /*
         viewUtils.createBoldCell(summaryTr, ["table-cell"],
             [utils.displayFloat(totalPlanPalletsCount) + " (" + utils.displayFloat(totalFactPalletsCount) + ")"]);
         viewUtils.createBoldCell(summaryTr, ["table-cell"],
             [utils.displayFloat(totalPlanBoxesCount) + " (" + utils.displayFloat(totalFactBoxesCount) + ")"]);
+        */
+        viewUtils.createBoldCell(summaryTr, ["table-cell"], [utils.displayFloat(totalTusCount)]);
+
         viewUtils.createBoldCell(summaryTr, ["table-cell"], [""]);
 
         reportTFoot.append(summaryTr);
+    }
+
+    showReportTitle() {
+        const reportHeaderB = document.getElementById("report-header-b");
+        const date = utils.getUrlParameter("date");
+        const shiftCode = utils.getUrlParameter("shift");
+        const shift = shiftCode === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
+        reportHeaderB.textContent = "Оперативный отчёт за " + date + " за " + shift + " смену (всего заявок - " + this.data.length + ")";
     }
 
     async onChangeFilter() {
@@ -288,6 +305,7 @@ class OperationalReportPage {
         this.clearOperations();
         await this.getData();
         await this.showOperations();
+        this.showReportTitle();
 
         const operationIdTh = document.getElementById("operation-id-th");
         operationIdTh.classList.remove("th-sort-asc", "th-sort-desc")
@@ -316,6 +334,10 @@ class OperationalReportPage {
         setButtonsText(openButtons);        
         viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
         setButtonsText(openButtons, "Открыть");
+    }
+
+    print() {
+        window.print();
     }
 
     print() {

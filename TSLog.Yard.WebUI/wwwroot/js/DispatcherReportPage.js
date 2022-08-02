@@ -4,7 +4,7 @@
     Создан - 2022.07.14.
 */
 
-// Страница отчёта диспетчера (за период).
+// Страница отчёта диспетчера (за период) - отчёта по количеству операций двора с теми или иными призаками, по дням.
 class DispatcherReportPage {
     shortUrl;
     data = [];
@@ -55,7 +55,7 @@ class DispatcherReportPage {
         this.data = [];
     }
 
-    async showData() {
+    async showReport() {
         if (this.data.length <= 0) {
             return;
         }
@@ -129,13 +129,20 @@ class DispatcherReportPage {
             viewUtils.createCell(totalOperationsTr, ["content-cell"],
                 [element.palletIncomes + element.boxIncomes + element.palletOutgoues + element.boxOutgoes], cellStyle);
         }
-        document.getElementById("report-table").style.cssText = "width: " + width + "px; margin: auto; margin-top: 16px";
+        document.getElementById("report-table").style.cssText = "width: " + width + "px; margin: 0; margin-top: 16px";
+    }
+
+    showReportTitle() {
+        const reportHeaderB = document.getElementById("report-header-b");
+        const fromDate = utils.getUrlParameter("from_date");
+        const toDate = utils.getUrlParameter("to_date");
+        reportHeaderB.textContent = "Отчёт диспетчера с " + fromDate + " по " + toDate + " (ВКЛЮЧАЯ!)";
     }
 
     async onChangeFilter() {
         this.clearOperations();
         await this.getData();
-        await this.showData();
+        await this.showReport();
     }
 
     onChangeParameters() {
@@ -146,7 +153,8 @@ class DispatcherReportPage {
     async createReport() {
         this.clearOperations();
         await this.getData();
-        await this.showData();
+        await this.showReport();
+        this.showReportTitle();
     }
 
     exportToExcel() {

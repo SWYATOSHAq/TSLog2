@@ -277,13 +277,16 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                 if (string.IsNullOrWhiteSpace(temp))
                     return "From date is empty!";
                 if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
-                    return $"Wrong to date {temp}";
+                    return $"Wrong to date {temp}";                
 
                 temp = Request.Query["only_linear"];
                 var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
 
                 fromDate = fromDate.Date;
                 toDate = toDate.AddDays(1);
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
+
                 var data = _storage.CreateStaffReport(fromDate, toDate, onlyLinear);
                 var text = JsonSerializer.Serialize(data);
                 Response.StatusCode = 200;

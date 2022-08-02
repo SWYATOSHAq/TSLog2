@@ -1,88 +1,90 @@
 ﻿@page "/StaffReportPage"
-@model TSLog.BossControl.WebUI.Pages.StaffReportPageModel
+@using TSLog.BossControl.WebUI.Models
+
+@model StaffReportPageModel
 @{
     ViewData["Title"] = "Отчёт по персоналу";
 }
 
-<div class="table-div"> 
-    <b class="not-for-print">Отчёт по персоналу</b>
-    <div class="row dates-div not-for-print">
-        <label class="date-label" for="date-input">Начало периода:</label>
-        <input id="from-date-input" 
-            class="datepicker border border-secondary date-input" 
-            placeholder="Выберете дату" 
-            ne="date" 
-            readonly="" />    
-        <label class="date-label" for="date-input">Окончание периода:</label>
-        <input id="to-date-input" 
-            class="datepicker border border-secondary date-input" 
-            placeholder="Выберете дату" 
-            ne="date" 
-            readonly="" />
-        <input id="only-linear-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
-        <label for="only-linear-input" style="width: fit-content; margin: 0; padding: 0">Только линейные</label>
-    </div>
-    <div class="row button-div not-for-print">
-        <button class="btn btn-outline-success hide-on-print" 
-            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
-            title="Сформировать отчёт"
-            type="button" 
-            onclick="staffReportPage.createReport()">Применить</button>
-        <button class="btn btn-outline-success" 
-            style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
-            title="Выгрузить отчёт в Excel"
-            type="button" 
-            onclick="staffReportPage.exportToExcel()">В Excel</button>
-        <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-            style="padding: 0; margin: 0; width: 120px"
-            title="Печать отчёта"
-            type="button"
-            onclick="staffReportPage.print()">Печать</button>
-    </div>
+<div class="row not-for-print" style="padding: 0; margin: 0">
+    <label class="date-label" for="date-input">Начальная дата:</label>
+    <input id="from-date-input" 
+        class="datepicker border border-secondary date-input" 
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />    
+    <label class="date-label" for="date-input">Конечная дата <b>(включая!)</b>:</label>
+    <input id="to-date-input" 
+        class="datepicker border border-secondary date-input" 
+        placeholder="Выберете дату" 
+        ne="date" 
+        readonly="" />
+    <input id="only-linear-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
+    <label for="only-linear-input" style="width: fit-content; padding: 0; margin: 0">Только линейные</label>
+</div>
 
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button class="btn btn-outline-success hide-on-print" 
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        title="Сформировать отчёт"
+        type="button" 
+        onclick="staffReportPage.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="staffReportPage.exportToExcel()">В Excel</button>
+    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 120px"
+        title="Печать отчёта"
+        type="button"
+        onclick="staffReportPage.print()">Печать</button>
+</div>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
         class="btn btn-outline-secondary hide-on-print print-button not-for-print"
         style="padding: 0; margin: 0; width: 480px"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
         onclick="staffReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
-    <div id="description-div"
-        class="row not-for-print d-none" 
-        style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
-        <!--
-        <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
-            Порядок рассчёта:
-        </b> 
-        -->
-        1. смотрим все промежутки работ работников за указанный период;<br />
-        2. определяем плановое время работы как количество смен, на которых работник отработал хотя бы 10%;<br />
-        3. определяем фактическое время работы работника как сумма времени всех промежутков работ на участких;<br />
-        4. определяем простои как план - факт (переработки не учитываются);<br />
-        5. определяем затраты в деньгах как время работы (план, факт или простои), умноженное на стоимость часа работ.<br />
-    </div>
-
-    <table id="report-table"
-        class="table table-light table-bordered table-striped" 
-        style="margin: 0; margin-top: 16px; padding: 0">
-        <thead>
-            <tr>                
-                <th rowspan="2" class="table-column-header">Сотрудник / Должность</th>
-                <th colspan="2" class="table-column-header">План</th>
-                <th colspan="2" class="table-column-header">Факт</th>
-                <th colspan="4" class="table-column-header">Простои</th>                
-            </tr>
-            <tr>
-                <th class="table-column-header">Чел * час</th>
-                <th class="table-column-header">Руб.</th>
-                <th class="table-column-header">Чел * час</th>
-                <th class="table-column-header">Руб.</th>
-                <th class="table-column-header">Чел * час</th>
-                <th class="table-column-header">Руб.</th>
-                <th class="table-column-header">% время</th>
-                <th class="table-column-header">% деньги</th>
-            </tr>
-        </thead>
-        <tbody id="report-tbody">
-        </tbody>
-    </table>
 </div>
+
+<div id="description-div"
+    class="row not-for-print d-none" 
+    style=" padding: 0; margin: 0; margin-top: 8px; display: flex; flex-direction: column">
+    1. смотрим все промежутки работ работников за указанный период;<br />
+    2. определяем плановое время работы как количество смен, на которых работник отработал хотя бы 10%;<br />
+    3. определяем фактическое время работы работника как сумма времени всех промежутков работ на участких;<br />
+    4. определяем простои как план - факт (переработки не учитываются);<br />
+    5. определяем затраты в деньгах как время работы (план, факт или простои), умноженное на стоимость часа работ.<br />
+</div>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b id="report-title-b" style="padding: 0; margin: 0">Отчёт по персоналу</b>
+</div>
+
+<table id="report-table"
+    class="table table-light table-bordered table-striped" 
+    style="padding: 0; margin: 0; margin-top: 16px">
+    <thead>
+        <tr>                
+            <th rowspan="2" class="table-column-header">Сотрудник / Должность</th>
+            <th colspan="2" class="table-column-header">План</th>
+            <th colspan="2" class="table-column-header">Факт</th>
+            <th colspan="4" class="table-column-header">Простои</th>                
+        </tr>
+        <tr>
+            <th class="table-column-header">Чел * час</th>
+            <th class="table-column-header">Руб.</th>
+            <th class="table-column-header">Чел * час</th>
+            <th class="table-column-header">Руб.</th>
+            <th class="table-column-header">Чел * час</th>
+            <th class="table-column-header">Руб.</th>
+            <th class="table-column-header">% время</th>
+            <th class="table-column-header">% деньги</th>
+        </tr>
+    </thead>
+    <tbody id="report-tbody">
+    </tbody>
+</table>

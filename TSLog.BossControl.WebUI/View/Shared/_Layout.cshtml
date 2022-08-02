@@ -53,12 +53,24 @@
             </div>
             <div style="display: flex; align-items: center">
                 <div style="margin-right: 48px; display: flex">
-                    <a class="nav-link text-dark" href="/BusyWorkersPage">Занятые</a>
-                    <a class="nav-link text-dark" href="/FreeWorkersPage">Свободные</a>
-                    <a class="nav-link text-dark" href="/FreeShiftWorkersPage">Свободные на смене</a>
-                    <a class="nav-link text-dark" href="/PositionsShiftReportPage">Отчёт за смену</a>
-                    <a class="nav-link text-dark" href="/StaffReportPage">Отчёт по персоналу</a>
-                    <a class="nav-link text-dark" href="/DailyReportPage">Отчёт по дням</a>
+                    <a class="nav-link text-dark" 
+                        title="Открыть страницу со списком ЗАНЯТЫХ сотрудников (которые на данный момент находятся на участках работ)"
+                        href="/BusyWorkersPage">Занятые</a>
+                    <a class="nav-link text-dark" 
+                        title="Открыть страницу со списком СВОБОДНЫХ сотрудников (которые на данный момент не находятся на участках работ)"
+                        href="/FreeWorkersPage">Свободные</a>
+                    <a class="nav-link text-dark" 
+                        title="Открыть страницу со списком свободных сотрудников на смене (которые работали в течение текущей смены, но на данный момент не находятся на участке работы)"
+                        href="/FreeShiftWorkersPage">Свободные на смене</a>
+                    <a class="nav-link text-dark" 
+                        title="Открыть страницу отчёта за смену (отчёт с указанием сотрудников, работающих на смене, с указанием участков работ, с указанием промежутков работ на участках, с аггрегацией по должностям)"
+                        href="/PositionsShiftReportPage">Отчёт за смену</a>
+                    <a class="nav-link text-dark" 
+                        title="Открыть страницу отчёта по персоналу за период (аггрегированная информация по плановому времени работы, фактическому времени работы, плановым затратам, фактическим затратам и простоям)"
+                        href="/StaffReportPage">Отчёт по персоналу</a>
+                    <a class="nav-link text-dark" 
+                        title="Открыть страницу отчёта по дням (количество работников по должностям, плановое и фактическое время работы по сменам за период)"
+                        href="/DailyReportPage">Отчёт по дням</a>
                 </div>
                 <div>Вы вошли как: <b>@userName</b></div>
             </div>

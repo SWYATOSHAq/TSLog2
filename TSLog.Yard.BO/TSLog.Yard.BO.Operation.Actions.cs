@@ -108,9 +108,9 @@ namespace TSLog.Yard.BO
         }
         public Partner[] Partners
         {
-            get 
-            { 
-                return GetPartners(); 
+            get
+            {
+                return GetPartners();
             }
         }
         /// <summary>
@@ -154,7 +154,7 @@ namespace TSLog.Yard.BO
         /// </summary>
         public int ActionsCount
         {
-            get 
+            get
             {
                 return _actions.Count;
             }
@@ -182,7 +182,7 @@ namespace TSLog.Yard.BO
         /// </summary>
         public string PartnerActionsIds
         {
-            get 
+            get
             {
                 var ids = new StringBuilder();
                 var actions = GetActions();
@@ -290,7 +290,7 @@ namespace TSLog.Yard.BO
                 var actions = GetActions();
                 foreach (var action in actions)
                     result += action.PlanPalletsCount;
-                return 0.0;
+                return result;
             }
         }
         /// <summary>
@@ -304,7 +304,7 @@ namespace TSLog.Yard.BO
                 var actions = GetActions();
                 foreach (var action in actions)
                     result += action.FactPalletsCount;
-                return 0.0;
+                return result;
             }
         }
         /// <summary>
@@ -318,7 +318,7 @@ namespace TSLog.Yard.BO
                 var actions = GetActions();
                 foreach (var action in actions)
                     result += action.PlanBoxeCount;
-                return 0.0;
+                return result;
             }
         }
         /// <summary>
@@ -332,7 +332,21 @@ namespace TSLog.Yard.BO
                 var actions = GetActions();
                 foreach (var action in actions)
                     result += action.FactBoxeCount;
-                return 0.0;
+                return result;
+            }
+        }
+        /// <summary>
+        /// Количество ТЕ в операции двора
+        /// </summary>
+        public int TusCount
+        {
+            get
+            {
+                var result = 0;
+                var actions = GetActions();
+                foreach (var action in actions)
+                    result += action.TusCount;
+                return result;
             }
         }
     }

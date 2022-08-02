@@ -4,7 +4,8 @@
     Создан - 2022.07.14.
 */
 
-// Страница отчёта по дням, по сменам (за период).
+// Страница отчёта по дням, по сменам за период 
+// (количество работников по должностям, плановое и фактическое время работы по сменам за период).
 class DailyReportPage {
     shortUrl;
     data = null;
@@ -81,7 +82,7 @@ class DailyReportPage {
         this.marks = {};
     }
 
-    async showData() {
+    async showReport() {
         if (this.data === null) {
             return;
         }
@@ -146,13 +147,29 @@ class DailyReportPage {
             }
         }
         const table = document.getElementById("report-table");
-        table.style.cssText = "margin: auto; margin-top: 16px; width: " + tableWidth + "px";
+        table.style.cssText = "margin: 0; margin-top: 16px; width: " + tableWidth + "px";
+    }
+
+    showReportTitle() {
+        const reportTitleB = document.getElementById("report-title-b");
+        const fromDate = utils.getUrlParameter("from_date");
+        const toDate = utils.getUrlParameter("to_date");
+        const staffKind = utils.getUrlParameter("only_linear") === "1" ? "ЛИНЕЙНОМУ" : "ВСЕМУ"
+        const shifts = utils.getUrlParameter("shifts");
+        let shiftKind = "дневные смены";
+        if (shifts === "DN" || shifts === "ND") {
+            shiftKind = "дневные и ночные смены";
+        } else if (shifts === "N") {
+            shiftKind = "ночные смены"
+        }
+        reportTitleB.textContent =
+            "Отчёт по персоналу c " + fromDate + " по " + toDate + " (ВКЛЮЧАЯ!) по " + staffKind + " персоналу (" + shiftKind + ")";
     }
 
     async onChangeFilter() {
         this.clearData();
         await this.getData();
-        await this.showData();
+        await this.showReport();
     }
 
     onChangeParameters() {
@@ -163,7 +180,8 @@ class DailyReportPage {
     async createReport() {
         this.clearData();
         await this.getData();
-        await this.showData();
+        await this.showReport();
+        this.showReportTitle();
     }
 
     exportToExcel() {

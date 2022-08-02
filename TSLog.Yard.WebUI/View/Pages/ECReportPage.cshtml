@@ -23,8 +23,8 @@
     var partners = storage.GetPartners();
 }
 
-<div style="display: flex; padding: 0; margin: 0">
-    <label style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;" 
+<div class="row not-for-print" style="padding: 0; margin: 0">
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" 
         for="from-date-picker">Начальная дата:</label>
     <input id="from-date-input" 
         type="text" 
@@ -33,7 +33,7 @@
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />
-    <label style="min-width: fit-content; padding: 0; margin: 0; margin-right: 4px;"
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;"
         for="to-date-picker">Конечная дата <b>(включая!)</b>:</label>
     <input id="to-date-input" 
         type="text" 
@@ -63,34 +63,37 @@
         </ul>
     </div>
 </div>
-<div class="row"
-    style="padding: 0; margin: 0; margin-top: 8px">
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success"
         style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Сформировать отчёт"
         type="button" 
         onclick="ecReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; width: 120px"
+        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="ecReportPage.exportToExcel()">В Excel</button>
+    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 120px"
+        title="Печать отчёта"
+        type="button"
+        onclick="ecReportPage.print()">Печать</button>
 </div>
-<button id="show-hide-description-button"
-    class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-    style="padding: 0; margin: 0; margin-top: 8px; width: 480px"
-    title="Показать порядок рассчёта и комментарии к отчёту"
-    type="button"
-    onclick="ecReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button id="show-hide-description-button"
+        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        style="padding: 0; margin: 0; width: 480px"
+        title="Показать порядок рассчёта и комментарии к отчёту"
+        type="button"
+        onclick="ecReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+</div>
 
 <div id="description-div"  
-    class="row d-none" 
-    style="margin: 0.5% 0 !important; padding: 0 !important; display: flex; flex-direction: column">
-    <!--
-    <b style="margin: 0 !important; padding: 0 !important; width: fit-content">
-        Порядок рассчёта:
-    </b>
-    -->
+    class="row not-for-print d-none" 
+    style="padding: 0; margin: 0; margin-top: 8px; display: flex; flex-direction: column">
     1. суммируется всё отработанное время сотрудников за указанный период по каждому манданту;<br />
     2. если сотрудник в смене работал менее 10% продолжительности смены, то это время НЕ УЧИТЫВАЕТСЯ<br />
     &emsp;(это нужно что бы отсечь приходы до начала смены и уходы после окончания);<br />
@@ -107,40 +110,34 @@
     11. Маржинальный доход ВСЕГО = Маржинальный доход ВСЕГО (пункт 9) / Выручку ВСЕГО (из биллинга, в рублях).<br />            
 </div>
 
-<div style="margin-top: 16px">
-    <b id="report-header"
-        style="padding: 0; margin: 0">Отчёт по затратам на персонал из БоссКонтроля</b>
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b id="report-header-b" style="padding: 0; margin: 0">Отчёт по затратам на персонал из БоссКонтроля</b>
 </div>
-<div style="padding: 0; margin-top: 8px;">
-    <table id="report-table"
-        class="table table-light table-bordered table-striped table-sortable"
-        style="padding: 0; margin: 0">
-        <thead class="thead-light">
-            <tr>
-                <!--
-                <th class="table-header">Id манданта</th>                
-                <th class="table-header" style="width: 12%">Период с по</th>
-                -->
-                <th id="partner-id-th" class="table-header datatype-text" style="width: 12%">Мандант</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Время по БК (час.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Трудозатраты с налогами (руб.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Выручка Биллинг без НДС итого (руб.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Выручка хранение (руб.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Выручка расходники (руб.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Выручка обработка (руб.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Маржинальный доход обработка (руб.)</th>
-                <th class="table-header datatype-integer" style="width: 8.8%">Маржинальный доход итого (руб.)</th>
-                <th class="table-header datatype-float" style="width: 8.8%">Маржа обработка (%)</th>
-                <th class="table-header datatype-float" style="width: 8.8%">Маржа (%)</th>
-            </tr>
-        </thead>
-        <tbody id="report-tbody">
-        </tbody>
-    </table>
-    <table class="table table-light table-bordered table-striped"
-        style="padding: 0; margin: 0">
-        <thead id="report-footer"
-            class="thead-light">            
-        </thead>
-    </table>
-</div>
+
+<table id="report-table"
+    class="table table-light table-bordered table-striped table-sortable"
+    style="padding: 0; margin: 0; margin-top: 16px">
+    <thead class="thead-light">
+        <tr>
+            <!--
+            <th class="table-header">Id манданта</th>                
+            <th class="table-header" style="width: 12%">Период с по</th>
+            -->
+            <th id="partner-id-th" class="table-header datatype-text" style="width: 12%">Мандант</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Время по БК (час.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Трудозатраты с налогами (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Выручка Биллинг без НДС итого (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Выручка хранение (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Выручка расходники (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Выручка обработка (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Маржинальный доход обработка (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 8.8%">Маржинальный доход итого (руб.)</th>
+            <th class="table-header datatype-float" style="width: 8.8%">Маржа обработка (%)</th>
+            <th class="table-header datatype-float" style="width: 8.8%">Маржа (%)</th>
+        </tr>
+    </thead>
+    <tfoot id="report-tfoot">        
+    </tfoot>
+    <tbody id="report-tbody">
+    </tbody>
+</table>

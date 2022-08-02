@@ -1,4 +1,9 @@
-﻿@media print {
+﻿@page {
+    size: auto;
+    margin: 0mm;
+}
+
+@media print {
     .not-for-print {
         visibility: hidden;
     }

@@ -134,30 +134,44 @@
             </div>
             <div style="display: flex; align-items: center">
                 <div style="margin-right: 48px; display: flex">
-                        <a class="nav-link text-dark hide-on-print" href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
+                        <a class="nav-link text-dark hide-on-print" 
+                            title="Открыть страницу со списком операций двора"
+                            href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
                         @if (canCreateOperation && page != "OperationsPage" && page != "OperationsPage2")
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/OperationPage?action=@createAction">Cоздать заявку</a>
+                            <a class="nav-link text-dark hide-on-print" 
+                                title="Открыть страницу создания операции двора"
+                                href="/OperationPage?action=@createAction">Cоздать заявку</a>
                         }
                         @if (canViewStaffPlan)
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/StaffPage?date=@date">План персонала</a>
+                            <a class="nav-link text-dark hide-on-print" 
+                                title="Открыть страницу плана персонала"
+                                href="/StaffPage?date=@date">План персонала</a>
                         }
                         @if (canViewGatesPlan)
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/GatesPage?date=@date">План ворот</a>                            
+                            <a class="nav-link text-dark hide-on-print" 
+                                title="Открыть страницу плана ворот"
+                                href="/GatesPage?date=@date">План ворот</a>                            
                         }
                         @if (canViewPartnersReport)
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/ClientReportPage">Затраты по клиентам</a>
+                            <a class="nav-link text-dark hide-on-print" 
+                                title="Открыть страницу затрат по клиентам"
+                                href="/ClientReportPage">Затраты по клиентам</a>
                         }
                         @if (canViewActiveOperations)
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/PresentVehiclesPage">Машины во дворе</a>
+                            <a class="nav-link text-dark hide-on-print" 
+                                title="Открыть страницу со списком машин во дворе"
+                                href="/PresentVehiclesPage">Машины во дворе</a>
                         }
                         @if (canViewGuardPage)
                         {
-                            <a class="nav-link text-dark hide-on-print" href="/GuardPage">Въезд/выезд</a>
+                            <a class="nav-link text-dark hide-on-print" 
+                                title="Открыть страницу сотрудника охраны (въезд и выезд машин)"
+                                href="/GuardPage">Въезд/выезд</a>
                         }
                 </div>
                 <div class="hide-on-print">Вы вошли как: <b>@userName</b></div>
@@ -166,11 +180,15 @@
         <div style="padding: 0; margin: auto; display: flex; justify-content: center">
             @if (canViewOperationalReportPage)
             {
-                <a class="nav-link text-dark hide-on-print" href="/OperationalReportPage">Оперативный отчёт</a>
+                <a class="nav-link text-dark hide-on-print" 
+                    title="Открыть страницу оперативного отчёта (отчёт по состояниям, корректности, объёмам товара операций двора за смену)"
+                    href="/OperationalReportPage">Оперативный отчёт</a>
             }
             @if (canViewDispatcherReportPage)
             {
-                <a class="nav-link text-dark hide-on-print" href="/DispatcherReportPage">Отчёт диспетчера</a>
+                <a class="nav-link text-dark hide-on-print" 
+                    title="Открыть страницу отчёта диспетчера (отчёт по количеству операций двора с теми или иными призаками, по дням)"
+                    href="/DispatcherReportPage">Отчёт диспетчера</a>
             }
             @if (canViewLaborReportPage)
             {
@@ -186,16 +204,24 @@
             }
             @if (canViewShiftLaborReportPage)
             {
-                <a class="nav-link text-dark hide-on-print" href="/ShiftPerfomanceReportPage">Производительность</a>
-                <a class="nav-link text-dark hide-on-print" href="/ShiftPerfomanceReportPage2">Производительность 2</a>
+                <a class="nav-link text-dark hide-on-print" 
+                    title="Открыть страницу отчёта по производительности (по конкретным операциям двора с распределением по воротам)"
+                    href="/ShiftPerfomanceReportPage">Производительность</a>
+                <a class="nav-link text-dark hide-on-print" 
+                    title="Открыть страницу отчёта по производительности 2 (по конкретным операциям двора с распределением по воротам, с графическим указанием плановой и фактической продолжительности операции двора)"
+                    href="/ShiftPerfomanceReportPage2">Производительность 2</a>
             }
             @if (canViewEcReportPage)
             {
-                <a class="nav-link text-dark hide-on-print" href="/ECReportPage">Затраты/Выручка</a>
+                <a class="nav-link text-dark hide-on-print" 
+                    title="Открыть страницу отчёта по затратам и выручке (отчёт по затратам по БоссКонтролю и по выручке из Биллинга по клиентам)"
+                    href="/ECReportPage">Затраты/Выручка</a>
             }
             @if (canViewWorkersPerfomanceReportPage)
             {
-                <a class="nav-link text-dark hide-on-print" href="/WorkersPerfomanceReportPage">Производительность работников</a>
+                <a class="nav-link text-dark hide-on-print" 
+                    title="Открыть страницу отчёта по производительности работников (с указанием основных должностей)"
+                    href="/WorkersPerfomanceReportPage">Производительность работников</a>
             }
         </div>
     </div>

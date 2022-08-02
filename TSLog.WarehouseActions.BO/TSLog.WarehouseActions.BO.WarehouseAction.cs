@@ -55,8 +55,8 @@ namespace TSLog.WarehouseActions.BO
         /// </summary>
         public DateTime PlanActionDate { get; set; }
         protected readonly IDictionary<Product, LineBase> _lines = new Dictionary<Product, LineBase>();
-        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, DateTime planActionDate,
-            bool isActive, string note)
+        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, 
+            DateTime planActionDate, bool isActive, string note)
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
             //if (string.IsNullOrWhiteSpace(number))
@@ -223,7 +223,7 @@ namespace TSLog.WarehouseActions.BO
             {
                 var count = 0.0;
                 foreach (var line in _lines.Values)
-                    count += line.PlanQuantity / line.PalletStandard;
+                    count += line.PalletStandard > 0 ? line.PlanQuantity / line.PalletStandard : 0.0;
                 return count;
             }
         }
@@ -236,7 +236,7 @@ namespace TSLog.WarehouseActions.BO
             {
                 var count = 0.0;
                 foreach (var line in _lines.Values)
-                    count += line.FactQuantity / line.PalletStandard;
+                    count += line.PalletStandard > 0 ? line.FactQuantity / line.PalletStandard : 0.0;
                 return count;
             }
         }
@@ -249,7 +249,7 @@ namespace TSLog.WarehouseActions.BO
             {
                 var count = 0.0;
                 foreach (var line in _lines.Values)
-                    count += line.PlanQuantity / line.BoxStandard;
+                    count += line.BoxStandard > 0 ? line.PlanQuantity / line.BoxStandard : 0.0;
                 return count;
             }
         }
@@ -262,10 +262,14 @@ namespace TSLog.WarehouseActions.BO
             {
                 var count = 0.0;
                 foreach (var line in _lines.Values)
-                    count += line.FactQuantity / line.BoxStandard;
+                    count += line.BoxStandard > 0 ? line.FactQuantity / line.BoxStandard : 0.0;
                 return count;
             }
         }
+        /// <summary>
+        /// Количество ТЕ в заказе (приходе)
+        /// </summary>
+        public int TusCount { get; set; } = 0;
         private static WarehouseAction? _null = null;
         /// <summary>
         /// Null object

@@ -2308,9 +2308,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.factPalletsCount = operation.FactPalletsCount;
                     element.factBoxesCount = operation.FactBoxesCount;
 
-                    data.Add(element);
+                    element.tusCount = operation.TusCount;
 
-                    // TODO: get pallets count, boxes count
+                    data.Add(element);
                 }
 
                 var text = JsonSerializer.Serialize(data);
@@ -2739,6 +2739,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {temp}";
                     toDate = toDate.AddDays(1).AddTicks(-1);
                 }
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
 
                 temp = Request.Query["partners_ids"];
                 var ids = string.IsNullOrWhiteSpace(temp) ? Array.Empty<string>() : temp.Split(",");
@@ -2788,7 +2790,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {temp}";
                     toDate = toDate.AddDays(1).AddTicks(-1);
                 }
-                
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
+
                 var operations = _storage.GetOperationsByFactWork(fromDate, toDate);
                 var data = new Dictionary<Employee, IDictionary<Operation, int>>();
                 foreach (var operation in operations)
@@ -2875,6 +2879,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {temp}";
                     toDate = toDate.AddDays(1).AddTicks(-1);
                 }
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
 
                 var operations = _storage.GetOperationsByFactWork(fromDate, toDate);
                 var data = new Dictionary<Employee, IDictionary<Operation, double>>();
@@ -2990,6 +2996,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong to date {temp}";
                     toDate = toDate.AddDays(1);
                 }
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
 
                 var operationStarts = new Dictionary<DateTime, List<Operation>>();
                 var operationFinishes = new Dictionary<DateTime, List<Operation>>();
