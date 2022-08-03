@@ -1,5 +1,4 @@
 ﻿@page "/ShiftPerfomanceReportPage2"
-@using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
 @inject IConfiguration Configuration
@@ -8,7 +7,7 @@
 }
 @model ShiftPerfomanceReportPage2Model
 @{
-    ViewData["Title"] = "Отчёт по трудозатратам (за смену)";
+    ViewData["Title"] = "Отчёт по производительности (за смену)";
     var rightsChecker = Model.RightsChecker;
 
     var viewGuardPage = !useAuthentication || 
@@ -19,34 +18,65 @@
         throw new UnauthorizedAccessException();
     }
 }
-<h2 id="header2">Отчёт по трудозатратам (за смену)</h2>
-<div class="row dates-div">
-    <label class="date-label" for="date-input">Дата:</label>
+
+<div class="row not-for-print" style="padding: 0; margin: 0">
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" for="date-input">Дата:</label>
     <input id="date-input" 
-        class="datepicker border border-secondary date-input2" 
+        class="datepicker border border-secondary"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />    
-
-    <label class="date-label" for="shift-select">Смена:</label>
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" for="shift-select">Смена:</label>
     <select id="shift-select" 
         class="form-select border-secondary" 
-        style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
+        style="width: 120px; padding: 0px; padding-left: 20px; margin: 0px">
         <option value="day" selected>Дневная</option>
         <option value="night">Ночная</option>
     </select>
-    <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
+    <div id="shift-info" style="width: 480px">Смена не определена!</div>
 </div>
-<div class="row button-div">
-    <button class="btn btn-outline-success hide-on-print col-4 mx-auto my-1 create-button" 
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button class="btn btn-outline-success" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
         type="button" 
-        onclick="shiftLaborReportPage2.createReport()">Применить</button>
+        onclick="shiftPerfomanceReportPage2.createReport()">Применить</button>
+    <button class="btn btn-outline-success" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
+        title="Выгрузить отчёт в Excel"
+        type="button" 
+        onclick="shiftPerfomanceReportPage2.exportToExcel()">В Excel</button>
+    <button class="btn btn-outline-secondary"
+        style="width: 120px; padding: 0; margin: 0"
+        title="Печать отчёта"
+        type="button"
+        onclick="shiftPerfomanceReportPage2.print()">Печать</button>
 </div>
-<div class="row" style="margin: 0.5% 0 !important; padding: 0 !important">
-    Формула рассчёта:&nbsp;<b style="margin: 0 !important; padding: 0 !important; width: fit-content">Эффективность равна отношению планового времени работ по ПРР к фактическому.</b>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button id="show-hide-description-button"
+        class="btn btn-outline-secondary"
+        style="width: 480px; padding: 0; margin: 0"
+        title="Показать порядок рассчёта и комментарии к отчёту"
+        type="button"
+        onclick="shiftPerfomanceReportPage2.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
 </div>
-<table class="table table-light table-bordered table-striped data-table">
+
+<div id="description-div"  
+    class="row not-for-print d-none" 
+    style="padding: 0; margin: 0; margin-top: 8px; display: flex; flex-direction: column">
+    Производительность равна отношению планового времени работ по ПРР к фактическому.
+</div>
+
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b id="report-header-b" style="padding: 0; margin: 0">Отчёт по производительности (за смену)</b>
+</div>
+
+<table id="report-table"
+    class="table table-light table-bordered table-striped data-table" 
+    style="padding: 0; margin: 0; margin-top: 16px">
     <thead class="thead-light">
         <tr id="header-row"></tr>
     </thead>

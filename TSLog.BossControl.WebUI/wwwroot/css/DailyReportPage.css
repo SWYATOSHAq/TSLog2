@@ -19,35 +19,12 @@
     }
 }
 
-.filters-div {
-    padding: 0px !important;
-    margin: 0px !important;
-}
-
-.filter-div {
-    margin: 0px !important;
-    padding: 4px !important;
-    padding-left: 0px !important;
-    padding-right: 8px !important;
-}
-
-.filter-input {
-    padding: 0px !important;
-    padding-left: 8px !important;
-    margin: 0px !important;
-}
-
-.open-operation-button {
-    margin: 8px !important;
-    margin-top: 0px !important;
-    width: -webkit-fill-available;
-}
-
 .header-cell {
     text-align: center !important;
     vertical-align: middle !important;
     padding: 2px !important;
 }
+
 .content-cell {
     text-align: center !important;
     vertical-align: middle !important;

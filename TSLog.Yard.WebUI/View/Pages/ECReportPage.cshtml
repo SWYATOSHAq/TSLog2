@@ -1,7 +1,4 @@
 ﻿@page "/ECReportPage"
-@using TSLog.Partners.BO
-@using TSLog.Yard.BO
-@using TSLog.Yard.Reporting
 @using TSLog.Yard.WebUI.Models
 
 @inject IConfiguration Configuration
@@ -44,9 +41,9 @@
         readonly="" />
     <div id="partners-div" 
         class="dropdown-check-list" 
-        style="position: absolute; margin-left: 32%; background-color: white">
-        <span id="partners-span" class="anchor" style="padding: 0; text-align: center; width: 240px; border-radius: 4px">Выберите клиентов</span>
-        <ul id="partners-ul" class="items">
+        style="width: fit-content; position: absolute; padding: 0; margin: 0; margin-left: 32%; background-color: white">
+        <span id="partners-span" class="anchor" style="width: 240px; padding: 0; text-align: center; border-radius: 4px">Выберите клиентов</span>
+        <ul id="partners-ul" class="items" style="width: 240px">
             @foreach (var partner in partners)
             {
                 <li id="partner-@partner.Id-li" partnerId="@partner.Id">
@@ -66,17 +63,17 @@
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success"
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
         type="button" 
         onclick="ecReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="ecReportPage.exportToExcel()">В Excel</button>
-    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 120px"
+    <button class="btn btn-outline-secondary"
+        style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
         onclick="ecReportPage.print()">Печать</button>
@@ -84,11 +81,11 @@
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
-        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 480px"
+        class="btn btn-outline-secondary"
+        style="width: 480px; padding: 0; margin: 0"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
-        onclick="ecReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+        onclick="ecReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
 </div>
 
 <div id="description-div"  

@@ -7,35 +7,36 @@
 }
 
 <div class="row not-for-print" style="padding: 0; margin: 0">
-    <label class="date-label" for="date-input">Дата:</label>
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px" for="date-input">Дата:</label>
     <input id="date-input" 
-        class="datepicker border border-secondary date-input" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />    
-    <label class="date-label" for="shift-select">Смена:</label>
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px" for="shift-select">Смена:</label>
     <select id="shift-select" 
         class="form-select border-secondary" 
-        style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
+        style="width: 120px; padding: 0px; padding-left: 20px; margin: 0px">
         <option value="day" selected>Дневная</option>
         <option value="night">Ночная</option>
     </select>
-    <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
+    <div id="shift-info" style="width: 480px">Смена не определена!</div>
 </div>
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
-    <button class="btn btn-outline-success hide-on-print" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+    <button class="btn btn-outline-success" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
         type="button" 
         onclick="positionsShiftReportPage.createReport()">Применить</button>
-    <button class="btn btn-outline-success not-for-print" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+    <button class="btn btn-outline-success" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="positionsShiftReportPage.exportToExcel()">В Excel</button>
-    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 120px"
+    <button class="btn btn-outline-secondary"
+        style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
         onclick="positionsShiftReportPage.print()">Печать</button>
@@ -43,11 +44,11 @@
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
-        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
+        class="btn btn-outline-secondary"
         style="padding: 0; margin: 0; width: 480px"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
-        onclick="positionsShiftReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+        onclick="positionsShiftReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
 </div>
 
 <div id="description-div"   

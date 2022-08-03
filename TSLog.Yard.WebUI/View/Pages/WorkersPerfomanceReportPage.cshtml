@@ -1,5 +1,4 @@
 ﻿@page "/WorkersPerfomanceReportPage"
-@using TSLog.Yard.BO
 @using TSLog.Yard.WebUI.Models
 
 @inject IConfiguration Configuration
@@ -43,17 +42,17 @@
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
         type="button" 
         onclick="workersPerfomanceReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="workersPerfomanceReportPage.exportToExcel()">В Excel</button>
     <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 120px"
+        style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
         onclick="workersPerfomanceReportPage.print()">Печать</button>
@@ -62,10 +61,10 @@
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
         class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 480px"
+        style="width: 480px; padding: 0; margin: 0"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
-        onclick="workersPerfomanceReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+        onclick="workersPerfomanceReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
 </div>
 
 <div id="description-div" 

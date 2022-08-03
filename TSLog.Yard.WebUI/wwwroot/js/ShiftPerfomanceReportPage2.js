@@ -6,7 +6,7 @@
 // Страница отчёта по трудозатратам за смену 2 - 
 // по конкретным операциям двора с распределением по воротам, 
 // с графическим указанием плановой и фактической продолжительности операции двора.
-class ShiftLaborReportPage2 {
+class ShiftPerfomanceReportPage2 {
     shortUrl;
 
     data = [];
@@ -27,6 +27,7 @@ class ShiftLaborReportPage2 {
         if (result.code === 0) {
             this.data = result.data;
         } else {
+            this.data = [];
             viewUtils.showError(result.message);
         }
     }
@@ -187,6 +188,16 @@ class ShiftLaborReportPage2 {
         }
     }
 
+    showReportTitle() {
+        const reportHeaderB = document.getElementById("report-header-b")
+        let date = utils.getUrlParameter("date");
+        if (date == "")
+            date = utils.getNowDate();
+        const shiftCode = utils.getUrlParameter("shift");
+        const shift = shiftCode === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
+        reportHeaderB.textContent = "Отчёт по производительности за " + date + " за " + shift + " смену";
+    }
+
     showShiftInfo() {
         const shiftDiv = document.getElementById("shift-info");
         if (document.getElementById("shift-select").value == "day") {
@@ -214,6 +225,40 @@ class ShiftLaborReportPage2 {
         this.clearReport();
         await this.getData(utils.getUrlParameter("date"), utils.getUrlParameter("shift"));
         this.showReport()
+        this.showReportTitle();
+    }
+
+    exportToExcel() {
+        const reportTable = document.getElementById("report-table");
+
+        let date = utils.getUrlParameter("date");
+        if (date === "")
+            date = utils.getNowDate();
+        let shift = utils.getUrlParameter("shift");
+        if (shift === "")
+            shift = "day";
+        const fileName = "ecReport_" + date + "_" + shift;
+        const sheetName = date + " - " + shift;
+
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    }
+
+    print() {
+        window.print();
+    }
+
+    showHideDescription() {
+        const showHideDescriptionButton = document.getElementById("show-hide-description-button");
+        const descriptionDiv = document.getElementById("description-div");
+        if (descriptionDiv.classList.contains("d-none")) {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (скрыть)";
+            showHideDescriptionButton.title = "Скрыть порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.remove("d-none");
+        } else {
+            showHideDescriptionButton.textContent = "Порядок рассчёта и комментарии к отчёту (показать)";
+            showHideDescriptionButton.title = "Показать порядок рассчёта и комментарии к отчёту";
+            descriptionDiv.classList.add("d-none");
+        }
     }
 
     async show() {        
@@ -222,18 +267,18 @@ class ShiftLaborReportPage2 {
             date = utils.getNowDate();
         let shift = utils.getUrlParameter("shift");
         if (shift == "")
-            shift = "day";
-        await this.getData(date, shift);        
+            shift = "day";        
         viewUtils.initDatePicker("date-input", date, this.onChangeParameters.bind(this));
         viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
-
-        this.showReport();
+        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
         this.showShiftInfo();
+
+        this.createReport();
     }
 }
 
-const shiftLaborReportPage2 = new ShiftLaborReportPage2();
+const shiftPerfomanceReportPage2 = new ShiftPerfomanceReportPage2();
 
-document.addEventListener('DOMContentLoaded', shiftLaborReportPage2.show.bind(shiftLaborReportPage2));
+document.addEventListener('DOMContentLoaded', shiftPerfomanceReportPage2.show.bind(shiftPerfomanceReportPage2));

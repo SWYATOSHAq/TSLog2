@@ -9,21 +9,21 @@
 }
 
 <partial name="../Blocks/_WorkersFiltersBlock" model="workersFiltersBlockModel" />
-<div class="row" style="padding: 0; margin: 0; margin-top: 8px">
-    <button class="btn btn-outline-success not-for-print" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <button class="btn btn-outline-success" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить данные в Excel"
         type="button" 
         onclick="freeShiftWorkersPage.exportToExcel()">В Excel</button>
-    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 120px"
+    <button class="btn btn-outline-secondary"
+        style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
         onclick="freeShiftWorkersPage.print()">Печать</button>
 </div>
 
-<div class="row" style="padding: 0; margin: 0; margin-top: 16px">
-    <b class="not-for-print" style="padding: 0; margin: 0">Свободные сотрудники</b>
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b style="padding: 0; margin: 0">Свободные сотрудники</b>
 </div>
 
 <table id="data-table"

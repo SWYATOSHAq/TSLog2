@@ -7,35 +7,39 @@
 }
 
 <div class="row not-for-print" style="padding: 0; margin: 0">
-    <label class="date-label" for="date-input">Начальная дата:</label>
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px"
+        for="from-date-input">Начальная дата:</label>
     <input id="from-date-input" 
-        class="datepicker border border-secondary date-input" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />    
-    <label class="date-label" for="date-input">Конечная дата <b>(включая!)</b>:</label>
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px"
+        for="to-date-input">Конечная дата <b>(включая!)</b>:</label>
     <input id="to-date-input" 
-        class="datepicker border border-secondary date-input" 
+        class="datepicker border border-secondary" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" />
-    <input id="only-linear-input" type="checkbox" style="width: fit-content; margin: 0; margin-right: 4px; padding: 0" />
+    <input id="only-linear-input" type="checkbox" style="width: fit-content; padding: 0; margin: 0; margin-right: 4px" />
     <label for="only-linear-input" style="width: fit-content; padding: 0; margin: 0">Только линейные</label>
 </div>
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
-    <button class="btn btn-outline-success hide-on-print" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+    <button class="btn btn-outline-success" 
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
         type="button" 
         onclick="staffReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="staffReportPage.exportToExcel()">В Excel</button>
-    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 120px"
+    <button class="btn btn-outline-secondary"
+        style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
         onclick="staffReportPage.print()">Печать</button>
@@ -43,11 +47,11 @@
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
-        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 480px"
+        class="btn btn-outline-secondary"
+        style="width: 480px; padding: 0; margin: 0"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
-        onclick="staffReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+        onclick="staffReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
 </div>
 
 <div id="description-div"

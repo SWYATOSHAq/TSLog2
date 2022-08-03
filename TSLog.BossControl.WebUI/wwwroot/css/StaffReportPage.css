@@ -19,28 +19,6 @@
     }
 }
 
-.date-label {
-    width: auto !important;
-    padding: 0px !important;
-    margin: 0px !important;
-    margin-right: 4px !important;
-}
-
-.date-input {
-    width: 120px !important;
-    padding: 0px !important;
-    margin: 0px;
-    margin-right: 16px;
-    text-align: center;
-    z-index: 10000 !important;
-}
-
-.data-table {
-    margin-top: 8px;
-    table-layout: auto;
-    width: 120%;
-}
-
 th {
     text-align: center;
 }

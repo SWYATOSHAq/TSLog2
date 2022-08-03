@@ -1,7 +1,5 @@
 ﻿@page "/OperationalReportPage"
-@using TSLog.Partners.BO
 @using TSLog.Yard.WebUI.Models
-@using TSLog.Yard.BO
 
 @inject IConfiguration Configuration
 @{
@@ -21,36 +19,36 @@
 }
 
 <div class="row not-for-print" style="padding: 0; margin: 0">
-    <label for="date-input" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Дата:</label>
+    <label for="date-input" style="width: fit-content; padding: 0; margin: 0; margin-right: 4px">Дата:</label>
     <input id="date-input" 
         class="datepicker border border-secondary" 
-        style="padding: 0; margin: 0; margin-right: 24px; width: 120px; text-align: center"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
         placeholder="Выберете дату" 
         ne="date" 
         readonly="" /> 
-    <label for="shift-select" style="padding: 0; margin: 0; margin-right: 4px; width: fit-content">Смена:</label>
+    <label for="shift-select" style="width: fit-content; padding: 0; margin: 0; margin-right: 4px">Смена:</label>
     <select id="shift-select" 
         class="form-select border-secondary" 
-        style="width: 120px !important; padding: 0px; padding-left: 20px; margin: 0px">
+        style="width: 120px; padding: 0px; padding-left: 20px; margin: 0px">
         <option value="day" selected>Дневная</option>
         <option value="night">Ночная</option>
     </select>
-    <div id="shift-info" style="width: 480px !important">Смена не определена!</div>
+    <div id="shift-info" style="width: 480px">Смена не определена!</div>
 </div>
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
         type="button" 
         onclick="operationalReportPage.createReport()">Применить</button>
     <button class="btn btn-outline-success" 
-        style="padding: 0; margin: 0; margin-right: 8px; width: 120px"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить отчёт в Excel"
         type="button" 
         onclick="operationalReportPage.exportToExcel()">В Excel</button>
-    <button class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 120px"
+    <button class="btn btn-outline-secondary"
+        style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
         onclick="operationalReportPage.print()">Печать</button>
@@ -58,11 +56,11 @@
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
     <button id="show-hide-description-button"
-        class="btn btn-outline-secondary hide-on-print print-button not-for-print"
-        style="padding: 0; margin: 0; width: 480px"
+        class="btn btn-outline-secondary"
+        style="width: 480px; padding: 0; margin: 0"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
-        onclick="operationalReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать):</button>
+        onclick="operationalReportPage.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
 </div>
 <div id="description-div"  
     class="row not-for-print d-none" 

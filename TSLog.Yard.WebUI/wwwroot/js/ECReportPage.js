@@ -63,7 +63,7 @@ class ECReportPage {
             this.data = result.data;
         } else {
             this.data = [];
-            viewUtils.showError(result.message);
+            viewUtils.showError(result.message, false);
         }
     }
 
