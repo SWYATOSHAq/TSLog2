@@ -122,9 +122,9 @@ class DispatcherReportPage {
             viewUtils.createCell(boxOutgoesTr, ["content-cell"], [element.boxOutgoes], cellStyle);
             viewUtils.createCell(totalOutgoesTr, ["content-cell"], [totalOutgoes], cellStyle);
 
-            viewUtils.createCell(gates1_6operationsTr, ["content-cell"], [utils.displayFloat(element.gates1_6Operations / 24 / 60 / 60 * 100)], cellStyle);
+            viewUtils.createCell(gates1_6operationsTr, ["content-cell"], [utils.displayFloat(element.gates1_6Operations / 24 / 60 / 60 / 6 * 100)], cellStyle);
             viewUtils.createCell(gate7operationsTr, ["content-cell"], [utils.displayFloat(element.gate7Operations / 24 / 60 / 60 * 100)], cellStyle);
-            viewUtils.createCell(gates8_16operationsTr, ["content-cell"], [utils.displayFloat(element.gates8_16Operations / 24 / 60 / 60 * 100)], cellStyle);
+            viewUtils.createCell(gates8_16operationsTr, ["content-cell"], [utils.displayFloat(element.gates8_16Operations / 24 / 60 / 60 / 8 * 100)], cellStyle);
 
             viewUtils.createCell(totalOperationsTr, ["content-cell"],
                 [element.palletIncomes + element.boxIncomes + element.palletOutgoues + element.boxOutgoes], cellStyle);
