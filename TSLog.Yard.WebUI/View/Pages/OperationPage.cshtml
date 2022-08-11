@@ -53,6 +53,7 @@
     }
 
     var setGate = !useAuthentication || rightsChecker.CheckRight("SET_OPERATION_GATE", User);
+    var viewGate = !useAuthentication || rightsChecker.CheckRight("VIEW_OPERATION_GATE", User);
     var editNote = !useAuthentication || rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
     var start = !useAuthentication || rightsChecker.CheckRight("START_OPERATION", User);
     var startWork = !useAuthentication || rightsChecker.CheckRight("START_OPERATION_WORK", User);
@@ -239,6 +240,32 @@
             </div>
         </fieldset>
         
+        <!-- Linked documents -->
+        <!--
+        <b>Связанные документы</b>       
+        <table>
+            <thead>
+                <tr>
+                    <th>Тип</th>
+                    <th>Файл</th>
+                </tr>
+            </thead>
+            <tbody id="documents-tbody">
+                <tr>
+                    <td>ТТН</td>
+                    <td><input type="file" id="test-input" multiple></td>
+                </tr>
+            </tbody>
+        </table>
+        <button id="test-button"
+            class="btn btn-outline-secondary" 
+            style="width: 320px; margin: auto; margin-top: 8px"
+            title="Тест"
+            onclick="operationPage.test()"
+            type="button">Тест</button>
+        -->
+
+
         <div class="row input-group input-div">
             <span class="input-group-text col-4">
                 <b>Менеджер (склад)*</b>
@@ -258,7 +285,7 @@
             <input id="editor-input" class="form-control" value="" disabled/>
         </div>
 
-        @if (setGate && !isPartnerUser && (action == "VIEW" || action == "VIEW_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
+        @if ((setGate || viewGate) && !isPartnerUser && (action == "VIEW" || action == "VIEW_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
         {
             <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
         }    

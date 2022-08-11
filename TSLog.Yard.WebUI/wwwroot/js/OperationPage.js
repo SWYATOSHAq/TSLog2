@@ -1575,6 +1575,36 @@ class OperationPage {
             alert(result.message);
         }
     }
+
+
+
+    async test() {
+        const testInput = document.getElementById("test-input");
+        const selectedFile = testInput.files[0];
+
+        //let data = document.getElementById("test-input").files[0];
+        //let entry = document.getElementById("test-input").files[0];
+        //console.log('doupload', entry, data)
+
+        const formData = new FormData();
+        const fileField = document.querySelector('input[type="file"]');
+        formData.append("fileName", "test");
+        formData.append("fileType", "jpg");
+        formData.append("documentFile", fileField.files[0]);
+
+        const url = "./api/v1/yard/UploadDocument";
+        const options = {
+            method: "PUT",
+            body: formData
+        };
+        const response = await fetch(url, options);
+
+        //fetch('uploads/' + encodeURIComponent(entry.name), { method: 'PUT', body: data });
+        //alert('your file has been uploaded');
+        //location.reload();
+
+        alert("AAAA");
+    }
 }
 
 const operationPage = new OperationPage();

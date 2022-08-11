@@ -147,6 +147,9 @@
 			<right code="GET_SELECTED_WAREHOUSE_ACTIONS" name="Получение складских действ (приходов, расходов), привязанных к указанной операции двора" note=""></right>
 		
 			<right code="GET_BOSSCONTROL_WORKS" name="Получение промежутков работ сотрудников на участках из системы БоссКонтроль" note=""></right>
+
+			<!-- Добавил в рамках задачи #2206 (2022.08.11) -->
+			<right code="VIEW_OPERATION_GATE" name="Просмотр ворот операции"></right>
 		</role>
 		<role code="LEAD" name="Руководящий состав" groupName="Leads" note="Руководящий состав">
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
@@ -177,6 +180,9 @@
 			<!-- Добавил права на просмотр назначенных работников начальнику склада, по требованию С. Башлыкова (задача #1791)-->
 			<right code="GET_OPERATION_WORKERS" name="Получение работников, нназначеных на конкрутную операцию двора" note=""></right>
 			<right code="VIEW_OPERATION_WORKERS" name="Просмотр сотрудников, назначенных на операцию"></right>
+
+			<!-- Добавил в рамках задачи #2206 (2022.08.11) -->
+			<right code="VIEW_OPERATION_GATE" name="Просмотр ворот операции"></right>
 
 			<right code="VIEW_STAFF_PLAN_PAGE" name="Просмотр плана по персоналу"></right>
 			<right code="VIEW_GATES_PLAN_PAGE" name="Просмотр плана по Воротам"></right>

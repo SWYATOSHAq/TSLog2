@@ -1850,6 +1850,42 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
         #endregion
 
+        #region Documents
+        [HttpPut("UploadDocument")]
+        async public Task<string> AddDocument()
+        {
+            try
+            {
+                var file = Request.Form.Files[0];
+                var reader = file.OpenReadStream();
+
+                //Request.EnableBuffering();
+                //var body = Request.Body;
+                //body.Seek(0, SeekOrigin.Begin);
+                //StreamReader reader = new StreamReader(body);                
+
+                StreamWriter output = new StreamWriter("C:\\test.jpg");                
+                byte[] buffer = new byte[8 * 1024];
+                int len;
+                while ((len = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    output.BaseStream.Write(buffer, 0, len);
+                output.Close();             
+
+                var text = "";
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        async public Task<string> RemoveDocument()
+        {
+            return "";
+        }
+        #endregion
+
         #region Operation workers
         private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false) 
         {
