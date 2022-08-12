@@ -1,6 +1,7 @@
 ﻿/*
     Страница по приходам/расходам (БоссКоннтроль + Биллинг).
-    2022.07.06 - добавлен выбор НЕСКОЛЬКИХ клиентов.
+    2022.07.06 - Буров Михаил, добавлен выбор НЕСКОЛЬКИХ клиентов.
+    2022.08.12 - Буров Михаил, поменял местами простои и итог, простои учёл в итогах (задача #2212 Доработка отчёта затраты.выручка. Первый приоритет.).
     Автор - Буров Михаил.
 */
 
@@ -92,7 +93,7 @@ class ECReportPage {
         const reportBody = document.getElementById("report-tbody");
         const reportFooter = document.getElementById("report-tfoot");
         for (let element of this.data) {
-            if (element.partnerId === "DOWN") {
+            if (element.partnerId.toUpperCase() === "DOWN") {
                 downtime = element.bcDuration;
                 downcost = element.bcCost;
                 continue;
@@ -121,16 +122,39 @@ class ECReportPage {
             totalBillingConsumablesIncome += element.billingConsumablesIncome;
             totalBillingHandlingIncome += element.billingHandlingIncome;            
         }
+        // 2022.08.12 Буров Михаил, задача #2212 Доработка отчёта затраты.выручка. Первый приоритет.
+        // Простои теперь учитываем в общей прибыли и марже, и в прибыли и марже по обработке
+        totalBcDuration += downtime;
+        totalBcCost += downcost;
         totalHandlingProfit = totalBillingHandlingIncome - totalBcCost;
-        totalTotalProfit = totalBillingTotalIncome - totalBcCost - downcost; // Простои учтены ТОЛЬКО в общеё прибыли и в общей марже, в обработке не учтены.
+        totalTotalProfit = totalBillingTotalIncome - totalBcCost;
+
+        //totalHandlingProfit = totalBillingHandlingIncome - totalBcCost;
+        //totalTotalProfit = totalBillingTotalIncome - totalBcCost - downcost; // Простои учтены ТОЛЬКО в общеё прибыли и в общей марже, в обработке не учтены.
+
         avgHandlingMargin = totalBillingHandlingIncome != 0.0 ? totalHandlingProfit / totalBillingHandlingIncome * 100.0 : 0.0;
         avgTotalMargin = totalBillingTotalIncome != 0.0 ? totalTotalProfit / totalBillingTotalIncome * 100.0 : 0.0;
 
         const boldStyleTitle = "font-weight: bold; width: 12%";
         const boldStyleContent = "font-weight: bold; width: 8.8%";
 
-        // Выводим итог
+        // Выводим простои
         let tr = document.createElement("tr");
+        viewUtils.createCell(tr, ["table-cell"], ["Простои:"], boldStyleTitle);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(downtime)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(downcost)], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        reportFooter.append(tr);
+
+        // Выводим итог
+        tr = document.createElement("tr");
         //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
         //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")], boldStyle);
         viewUtils.createCell(tr, ["table-cell"], ["Итого:"], boldStyleTitle);
@@ -144,21 +168,6 @@ class ECReportPage {
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(totalTotalProfit)], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgHandlingMargin)], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgTotalMargin)], boldStyleContent);
-        reportFooter.append(tr);
-
-        // Выводим простои
-        tr = document.createElement("tr");
-        viewUtils.createCell(tr, ["table-cell"], ["Простои:"], boldStyleTitle);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(downtime)], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(downcost)], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
         reportFooter.append(tr);
     }
 
