@@ -74,10 +74,18 @@ class PresentVehiclesPage {
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.note]);
 
-        let date = new Date(operation.startDate);
+        let date = new Date(operation.createDate);
+        const factStartTimeB = document.createElement("b");
+        factStartTimeB.textContent = date.toLocaleTimeString();
+        let contents = [factStartTimeB];
+        contents.push(document.createElement("br"));
+        contents.push(date.toLocaleDateString());
+        viewUtils.createCell(operationTr, ["table-cell"], contents);
+
+        date = new Date(operation.startDate);
         const startTimeB = document.createElement("b");
         startTimeB.textContent = date.toLocaleTimeString();
-        let contents = [startTimeB];
+        contents = [startTimeB];
         contents.push(document.createElement("br"));
         contents.push(date.toLocaleDateString());
         viewUtils.createCell(operationTr, ["table-cell"], contents);
