@@ -48,6 +48,7 @@ class OperationsPage {
 
         viewUtils.createCell(operationTr, ["table-cell"], contents, "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.typeShortName], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber], "box-shadow: none; background-color: " + operation.displayColor);

@@ -198,6 +198,8 @@ class PresentVehiclesPage {
                 return operation1.gateCode.localeCompare(operation2.gateCode);
             case "createDate":
                return (new Date(operation1.createDate)) - (new Date(operation2.createDate));
+            case "startDate":
+                return (new Date(operation1.startDate)) - (new Date(operation2.startDate));
             case "planWorkStartDate":
                 return (new Date(operation1.planWorkStartDate)) - (new Date(operation2.planWorkStartDate));
             case "factWorkStartDate":
