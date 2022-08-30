@@ -13,7 +13,7 @@
         <label for="sort-field-select" style="width: auto !important; margin: 0; padding: 0; margin-right: 8px">
             <b>Сортировать по:</b>
         </label>
-        <select class="form-select filter-select select_sort" id="sort-field-select" style="width: 220px !important">
+        <select class="form-select filter-select select_sort" id="sort-field-select" style="width: 270px !important">
             @foreach (var value in elements.Keys)
             {
                 @: <option value="@value"@((value != selectedValue) ? string.Empty : " selected")>@elements[value]</option>
