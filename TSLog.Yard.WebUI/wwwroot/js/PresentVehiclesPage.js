@@ -75,9 +75,9 @@ class PresentVehiclesPage {
         viewUtils.createCell(operationTr, ["table-cell"], [operation.note]);
 
         let date = new Date(operation.createDate);
-        const factStartTimeB = document.createElement("b");
-        factStartTimeB.textContent = date.toLocaleTimeString();
-        let contents = [factStartTimeB];
+        const createDate = document.createElement("b");
+        createDate.textContent = date.toLocaleTimeString();
+        let contents = [createDate];
         contents.push(document.createElement("br"));
         contents.push(date.toLocaleDateString());
         viewUtils.createCell(operationTr, ["table-cell"], contents);
