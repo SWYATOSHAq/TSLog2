@@ -4,4 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TSLog.Outgoes.BO\TSLog.Outgoes.BO.csproj" />
+  </ItemGroup>
+
 </Project>

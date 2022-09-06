@@ -851,7 +851,7 @@ namespace TSLog.Yard.Data
         }
         #endregion
 
-        #region Operations     
+        #region Operations
         private Interval CreateInterval(DbDataReader reader)
         {
             if (reader == null)
@@ -2323,8 +2323,8 @@ namespace TSLog.Yard.Data
                    select ow.worker_id,
                           ow.operation_id,
                           o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
-                          o.fact_work_start_date, o.fact_work_finish_date,          
-                          o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date         
+                          o.fact_work_start_date, o.fact_work_finish_date,
+                          o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date
                      from {YardSchema}.v_operation_worker ow
                 left join {YardSchema}.scheduler o on ow.operation_id = o.id
                     where ow.worker_id = :worker_id
@@ -2453,12 +2453,12 @@ namespace TSLog.Yard.Data
         {
             var result = 0.0;
             var currentInterval = new Interval(from, to);
-            var intervals = GetBisyIntervals(employee, from, to);            
+            var intervals = GetBisyIntervals(employee, from, to);
             foreach (var interval in intervals)
             {
                 var share = interval.IntervalShare(currentInterval);
                 result += share;
-            }            
+            }
             return result;
         }
         public Employee[] GetLeastBisyEmployees(DateTime from, DateTime to, Position position, Employee[] emplyees, short count = 1)
@@ -2467,7 +2467,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException($"Not enough employees (has - {emplyees.Length}, need - {count})!");
             var queue = new PriorityQueue<Employee, double>();
             foreach (var employee in emplyees)
-            {                
+            {
                 var bisyShare = GetEmployeeBisyShare(employee, from, to);
                 queue.Enqueue(employee, bisyShare);
             }
@@ -2484,7 +2484,7 @@ namespace TSLog.Yard.Data
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
-            //  Удаляем текущие связи работников с операциями двора (ПРР)
+            // Удаляем текущие связи работников с операциями двора (ПРР)
             var operationEmployees = GetOperationWorkers(operation);
             foreach (var operationEmployee in operationEmployees)
                 RemoveOperationWorker(operation, operationEmployee.Worker, operationEmployee.Position);
@@ -2735,7 +2735,7 @@ namespace TSLog.Yard.Data
                         line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
                         line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
                         lines.Add(line);
-                    }                       
+                    }
                     reader.Close();
                 }
                 connection.Close();
@@ -2934,6 +2934,8 @@ namespace TSLog.Yard.Data
                 {
                     var sql = 
                         $"   select o.id,\n" +
+                        $"          o.type_id,\n" +
+                        $"          o.vehicle_kind_id,\n" +
                         $"          o.vehicle_number,\n" +
                         $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
                         $"          greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
@@ -2972,7 +2974,21 @@ namespace TSLog.Yard.Data
 
                         operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
                         operation.gateName = Utils.DbValueToString(reader["gate_name"]);
-                        operation.planLaborCost = Utils.DbValueToDouble(reader["linear_labor_cost"]);
+
+                        // Скорректированы плановые трудозатарты в зависимости от заказов
+                        // В рамках задачи #2381 Сделать описание отчёта производительности смены.
+                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
+                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
+                        var operationType = GetOperationType(operationTypeId);
+                        var vehicleKind = GetVehicleKind(vehicleKindId);
+                        var standardPlanDuration = GetDuration(operationType, vehicleKind,
+                            out int standardConstantDuration, out int standardVariableDuration);
+                        var planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalSeconds;
+                        if (planDuration > standardPlanDuration)
+                            planDuration = standardPlanDuration;
+                        double k = planDuration / standardPlanDuration;
+                        operation.planLaborCost = k * Utils.DbValueToDouble(reader["linear_labor_cost"]);
+
                         data.Add(operation);
                     }
                     reader.Close();

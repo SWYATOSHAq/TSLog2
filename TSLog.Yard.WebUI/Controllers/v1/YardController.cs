@@ -374,10 +374,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         private double GetLaborCostK(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
         {
             var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
-                   out int standardConstantDuration, out int standardVariableDuration);
+                out int standardConstantDuration, out int standardVariableDuration);
             var duration = GetDuration2(operationType, vehicleKind, actions);
 
-            return (double)duration / (double)standardTotalDuration;
+            return (double)duration / standardTotalDuration;
         }
         [HttpPost("OperationLaborCost2")]
         async public Task<string> GetOperationLaborCost2()
@@ -547,6 +547,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     // TODO: check partner;
 
                     var dynamicOperation = OperationToDynamic(operation);
+
                     var dynamicActions = new List<dynamic>();
                     foreach (var action in operation.GetActions()) 
                     {
@@ -564,7 +565,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return text;
                 }
                 else
-                    return $"Wrong operation id {temp}~";
+                    return $"Wrong operation id {temp}!";
             }
             catch (Exception exception)
             {
@@ -1882,7 +1883,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
         async public Task<string> RemoveDocument()
         {
-            return "";
+            return string.Empty;
         }
         #endregion
 
