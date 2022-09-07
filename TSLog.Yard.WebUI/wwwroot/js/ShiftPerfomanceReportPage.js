@@ -139,7 +139,7 @@ class ShiftPerfomanceReportPage {
                 openButton.textContent = "Открыть";
                 cell.append(openButton);
 
-                cell.style.cssText = perfomance >= 100 ? "box-shadow: none; background-color: palegreen" : "box-shadow: none; background-color: #ffcccc"
+                cell.style.cssText = perfomance >= 90 ? "box-shadow: none; background-color: palegreen" : "box-shadow: none; background-color: #ffcccc"
             }
 
             // Выводим среднее значение по воротам
