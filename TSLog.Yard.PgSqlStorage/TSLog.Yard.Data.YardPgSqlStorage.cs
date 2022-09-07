@@ -2932,16 +2932,28 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
+                    /*
+                        2022.09.07 - Буров Михаил.
+                        В результате исправления ошибки нулевой плановой продолжительности операции двора было принято решение
+                        брать операцию двора ВСЕГДА ЦЕЛИКОМ (а не тольо время пересечения со сменой).
+                        Дату и время начала смены относить к УКАЗАННОЙ смене, 
+                        дату и время окончания смены относить к СЛЕД. смене (как дату и время начала след смены).
+                        Операцию двора относить к той смене, в которую попадает дата и время ФАКТИЧЕСКОГО окончания операции двора.
+                    */
                     var sql = 
                         $"   select o.id,\n" +
                         $"          o.type_id,\n" +
                         $"          o.vehicle_kind_id,\n" +
                         $"          o.vehicle_number,\n" +
                         $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
-                        $"          greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
-                        $"          least(o.plan_work_finish_date, :finish_date) plan_work_finish_date,\n" +
-                        $"          greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +
-                        $"          least(o.fact_work_finish_date, :finish_date) fact_work_finish_date,\n" +
+                        $"          --greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
+                        $"          --least(o.plan_work_finish_date, :finish_date) plan_work_finish_date,\n" +
+                        $"          --greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +
+                        $"          --least(o.fact_work_finish_date, :finish_date) fact_work_finish_date,\n" +
+                        $"          o.plan_work_start_date,\n" +
+                        $"          o.plan_work_finish_date,\n" +
+                        $"          o.fact_work_start_date,\n" +
+                        $"          o.fact_work_finish_date,\n" +
                         $"          o.gate_code, o.gate_name,\n" +
                         $"          otvkt.linear_labor_cost\n" +
                         $"     from {YardSchema}.v_operation o\n" +
@@ -2950,7 +2962,8 @@ namespace TSLog.Yard.Data
                         $"    where o.fact_work_start_date is not null\n" +
                         $"      and o.fact_work_finish_date is not null\n" +
                         $"      and (o.state_code = 'WORK_FINISHED' or o.state_code = 'FINISHED')\n" +
-                        $"      and not (o.fact_work_start_date > :finish_date or o.fact_work_finish_date < :start_date)" +
+                        $"      --and not (o.fact_work_start_date > :finish_date or o.fact_work_finish_date < :start_date)\n" +
+                        $"      and o.fact_work_finish_date >= :start_date and o.fact_work_finish_date < :finish_date\n" +
                         $" order by o.fact_work_start_date, o.fact_work_finish_date";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));

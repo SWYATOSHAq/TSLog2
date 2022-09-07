@@ -1,0 +1,64 @@
+﻿@using TSLog.Reports.WebUI.Pages
+@using System.Security.Principal
+
+@inject IConfiguration Configuration
+@{
+    var release = Configuration.GetValue<string>("Release");
+
+    var userName = "<Разработчик>";
+    if (User.Identity != null && !string.IsNullOrWhiteSpace(User.Identity.Name))
+        userName = User.Identity.Name.Split("\\").Last();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TSLog.Reports.WebUI</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TSLog.Reports.WebUI.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="hide-on-print" style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
+        <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+            <div style="margin: 0; padding: 0">
+                <a class="navbar-brand hide-on-print" href="/">
+                    <img src="/img/logo-min.png" alt="TSL">
+                </a>
+            </div>
+            <div style="display: flex; align-items: center">
+                <div style="margin-right: 48px; display: flex">
+                    <a class="nav-link text-dark" href="/Index">Home</a>                    
+                    <a class="nav-link text-dark" href="/WarehouseFillingReportPage">Отчёт о загрузке склада</a>
+                </div>
+                <div class="hide-on-print">Вы вошли как: <b>@userName</b></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <div class="hide-on-print" style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
+        <div style="margin: auto; padding: 0; width: fit-content">
+            <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+                Версия&nbsp;<b>@release</b>
+            </div>
+            <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
+                &copy; 2021-2022 - ТСЛ - <a href="/Privacy">Приватность</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/Common.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,12 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:5217",
-      "sslPort": 44306
-    }
-  },
   "profiles": {
     "TSLog.Staff.WebUI": {
       "commandName": "Project",
@@ -35,6 +27,14 @@
         "ASPNETCORE_URLS": "https://localhost:7019;http://localhost:5019"
       },
       "distributionName": ""
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:7019",
+      "sslPort": 44306
     }
   }
 }

@@ -80,7 +80,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.BossControl.BO", "TSL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.BossControl.OracleStorage", "TSLog.BossControl.OracleStorage\TSLog.BossControl.OracleStorage.csproj", "{02E4CFD0-F756-4D5F-9118-31905AD91B96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.KotonExport", "TSLog.Links.KotonExport\TSLog.Links.KotonExport.csproj", "{2FA4BDBB-2341-4D84-84B9-C73DD53DAED0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.KotonExport", "TSLog.Links.KotonExport\TSLog.Links.KotonExport.csproj", "{2FA4BDBB-2341-4D84-84B9-C73DD53DAED0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Reports.WebUI", "TSLog.Reports.WebUI\TSLog.Reports.WebUI.csproj", "{F4149D74-04FA-4DDD-8010-1B66ACB2E2AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -228,6 +230,10 @@ Global
 		{2FA4BDBB-2341-4D84-84B9-C73DD53DAED0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FA4BDBB-2341-4D84-84B9-C73DD53DAED0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FA4BDBB-2341-4D84-84B9-C73DD53DAED0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4149D74-04FA-4DDD-8010-1B66ACB2E2AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4149D74-04FA-4DDD-8010-1B66ACB2E2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4149D74-04FA-4DDD-8010-1B66ACB2E2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4149D74-04FA-4DDD-8010-1B66ACB2E2AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

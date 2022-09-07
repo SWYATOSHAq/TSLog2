@@ -157,6 +157,17 @@ class ShiftPerfomanceReportPage2 {
             const cell = document.getElementById(id);
 
             for (let operation of operations[gateCode]) {
+                if (operation.planStart < 0) {
+                    operation.planDuration += operation.planStart;
+                    operation.planStart = 0;
+                    operation.planDuration = operation.planDuration > 0 ? operation.planDuration : 0;
+                }
+                if (operation.factStart < 0) {
+                    operation.factDuration += operation.factStart;
+                    operation.factStart = 0;
+                    operation.factDuration = operation.factDuration > 0 ? operation.factDuration : 0;
+                }
+
                 if (Number(operation.factDuration) > 0) {
                     const factBlock = document.createElement("div");
                     factBlock.id = "fact-" + operation.id;
