@@ -1,0 +1,43 @@
+﻿.floor-caption {
+    text-align: center;
+    font-size: 1.4em;
+}
+
+.floor-div {
+    display: flex;
+    width: fit-content;
+    margin: auto;
+}
+
+.block-div {
+    width: 200px;
+    height: 200px;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    margin: 10px;
+}
+
+.block-caption-div {
+    position: absolute;
+    height: 200px;
+    width: 200px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.captions-div {
+    font-size: 1.4em;
+}
+
+.caption-div {
+    text-align: center;
+}
+
+.filling-block-div {    
+    width: 100%;    
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
