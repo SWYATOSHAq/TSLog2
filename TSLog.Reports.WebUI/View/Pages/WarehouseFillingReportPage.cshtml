@@ -1,9 +1,9 @@
 ﻿@page "/WarehouseFillingReportPage"
 @using TSLog.Reports.WebUI.Pages
 @model WarehouseFillingReportPageModel
-@{
-}
+@{ }
 
+<!--
 <div style="border-bottom: 1px solid lightgray; padding: 10px">
     <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" for="date-input">Дата:</label>
     <input id="date-input"
@@ -13,8 +13,10 @@
         ne="date"
         readonly="" />
 </div>
+-->
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
+    <!--
     <button class="btn btn-outline-success"
             style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
             title="Сформировать отчёт"
@@ -29,61 +31,116 @@
             onclick="shiftPerfomanceReportPage.exportToExcel()">
         В Excel
     </button>
+    -->
     <button class="btn btn-outline-secondary"
             style="width: 120px; padding: 0; margin: 0"
             title="Печать отчёта"
             type="button"
-            onclick="shiftPerfomanceReportPage.print()">
+            onclick="warehouseFillingReportPage.print()">
         Печать
     </button>
 </div>
 
-<div style="width: fit-content; height: fit-content; border: solid; border-width: 1px; border-color: lightgray; margin: auto; margin-top: 20px">
-    <div style="display: flex; width: fit-content; margin: auto">
-        <div class="shadow"
-            style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px">
-            <div style="background-color: lightskyblue; width: 100%; height: 70%; margin-top: 30%; display: flex; align-items: center; justify-content: center">HBW</div>
-        </div>
-        <div class="shadow"
-            style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: lightskyblue; width: 100%; height: 60%; margin-top: 40%; display: flex; align-items: center; justify-content: center">LBW</div>
-        </div>
-        <div class="shadow"
-            style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">            
-            <div style="background-color: lightskyblue; width: 100%; height: 41%; margin-top: 59%; display: flex; align-items: center; justify-content: center">LB1 1, 2</div>
-        </div>
-        <div class="shadow"
-            style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: lightskyblue; width: 100%; height: 81%; margin-top: 19%; display: flex; align-items: center; justify-content: center">P01 столы упаковки</div>
-        </div>
-    </div>
-
-    <div style="display: flex; width: fit-content; margin: auto">
-        <div class="shadow" style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: bisque; width: 100%; height: 42%; margin-top: 58%; display: flex; align-items: center; justify-content: center">VKU</div>
-        </div>
-        <div class="shadow" style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: bisque; width: 100%; height: 53%; margin-top: 47%; display: flex; align-items: center; justify-content: center">LM2</div>
-        </div>
-        <div class="shadow" style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: bisque; width: 100%; height: 21%; margin-top: 79%; display: flex; align-items: center; justify-content: center">LB1 3-&infin;</div>
-        </div>
-        <div class="shadow" style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: bisque; width: 100%; height: 92%; margin-top: 8%; display: flex; align-items: center; justify-content: center">P02 столы упаковки</div>
-        </div>
-    </div>
-
-    <div style="display: flex; width: fit-content; margin: auto">
-        <div class="shadow" style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: lightpink; width: 100%; height: 81%; margin-top: 19%; display: flex; align-items: center; justify-content: center">LF3</div>
-        </div>
-        <div class="shadow" style="width: 200px; height: 200px; border: solid; border-width: 1px; border-color: lightgray; margin: 10px; display: flex; align-items: center; justify-content: center">
-            <div style="background-color: lightpink; width: 100%; height: 61%; margin-top: 39%; display: flex; align-items: center; justify-content: center">
-                <div>
-                    <div style="text-align: center">P03 столы упаковки</div>
-                    <div style="text-align: center">61 %</div>
+<div style="width: fit-content; height: fit-content; /* border: solid; border-width: 1px; border-color: lightgray; */ margin: auto; margin-top: 20px">
+    <div class="floor-caption">Первый этаж</div>
+    <div class="floor-div">
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">HBW</div>
+                    <div id="HBW-caption-percent-div" class="caption-div"></div>
                 </div>
             </div>
+            <div id="HBW-filling-div" class="filling-block-div" style="background-color: lightskyblue; height: 70%; margin-top: 30%"></div>
+        </div>
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">LBW</div>
+                    <div id="LBW-caption-percent-div" class="caption-div"></div>
+                </div>                
+            </div>
+            <div id="LBW-filling-div" class="filling-block-div" style="background-color: lightskyblue; height: 60%; margin-top: 40%"></div>
+        </div>
+        <div class="shadow block-div">            
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">LB1 1, 2</div>
+                    <div id="LB1-1-2-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="LB1-1-2-filling-div" class="filling-block-div" style="background-color: lightskyblue; height: 41%; margin-top: 59%"></div>
+        </div>
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">P01 столы упаковки</div>
+                    <div id="P01-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="P01-filling-div" class="filling-block-div" style="background-color: lightskyblue; height: 81%; margin-top: 19%"></div>
+        </div>
+    </div>
+
+    <div class="floor-caption" style="margin-top: 36px">Второй этаж</div>
+    <div class="floor-div">
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">VKU</div>
+                    <div id="VKU-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="VKU-filling-div" class="filling-block-div" style="background-color: bisque; height: 42%; margin-top: 58%"></div>
+        </div>
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">LM2</div>
+                    <div id="LM2-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="LM2-filling-div" class="filling-block-div" style="background-color: bisque; height: 53%; margin-top: 47%"></div>
+        </div>
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">LB1 3-&infin;</div>
+                    <div id="LB1-3-E-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="LB1-3-E-filling-div" class="filling-block-div" style="background-color: bisque; height: 21%; margin-top: 79%"></div>
+        </div>
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">P02 столы упаковки</div>
+                    <div id="P02-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="P02-filling-div" class="filling-block-div" style="background-color: bisque; height: 92%; margin-top: 8%"></div>
+        </div>
+    </div>
+
+    <div class="floor-caption" style="margin-top: 36px">Третий этаж</div>
+    <div class="floor-div">
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">LF3</div>
+                    <div id="LF3-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="LF3-filling-div" class="filling-block-div" style="background-color: lightpink; height: 81%; margin-top: 19%"></div>
+        </div>
+        <div class="shadow block-div">
+            <div class="block-caption-div">
+                <div class="captions-div">
+                    <div class="caption-div">P03 столы упаковки</div>
+                    <div id="P03-caption-percent-div" class="caption-div"></div>
+                </div>
+            </div>
+            <div id="P03-filling-div" class="filling-block-div" style="background-color: lightpink; height: 61%; margin-top: 39%"></div>
         </div>
     </div>
 </div>
