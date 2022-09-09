@@ -91,6 +91,7 @@ namespace TSLog.Yard.BO
         public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId);
         public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern);
         public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
+        public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner);
         public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);

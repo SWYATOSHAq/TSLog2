@@ -21,6 +21,11 @@ namespace TSLog.Yard.Data
     /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
+        // Средее время (ПО УМОЛЧАНИЮ) погрузки паллеты/коробки/штуки
+        private const int PalletLoadTime = 93;
+        private const int BoxLoadTime = 20;
+        private const int PieceLoadTime = 25;
+
         private const int DefaultMaxRowsCount = 16;
         private const string DefaultStaffSchema = "staff";
         private const string DefaultLegalEntitiesSchema = "legal_entities";
@@ -529,6 +534,41 @@ namespace TSLog.Yard.Data
                 eachesCount = Utils.DbValueToDouble(reader["eaches_count"]);
             }
             reader.Close();
+        }
+        /// <summary>
+        /// Возвращает "ПЛАНОВОЕ ФАКТИЧЕСКОЕ" время отгрузки заказа (в зависимости от собранных позиций)
+        /// </summary>
+        /// <param name="outgoId">Идентификатор заказа (на отгрузку)</param>
+        /// <param name="isPallet">Признак паллетной отгрузки</param>
+        /// <param name="partner">Партнёр</param>
+        /// <returns>Время отгрузки заказа в секундах</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
+        {
+            if (partner == null)
+                throw new ArgumentNullException(nameof(partner));
+            var time = 0;
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = 
+                    $"select otu.outgo_id, otu.tu_id, otu.place_id, otu.place_id_prefix\n" +
+                    $"  from {CommonSchema}.o_outgo_tu#v otu\n" +
+                    $" where otu.outgo_id = :outgo_id";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var tuId = Utils.DbValueToString(reader["tu_id"]);
+                    var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
+                    if (placeIdPrefix != "AUS" && placeIdPrefix != "VRS" && placeIdPrefix != "TOR")
+                        return 0;
+                    // Для некоторых партнёров ВСЕГДА коробочная отгрузка
+                    time += isPallet && partner.Id != "0011" && partner.Id != "0017" && partner.Id != "0018" ? PalletLoadTime : BoxLoadTime;
+                }
+                reader.Close();
+            }
+            return time;
         }
         #endregion
 

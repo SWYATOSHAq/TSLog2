@@ -45,12 +45,12 @@ class WarehouseFillingReportPage {
     showReport() {
         this.showBlock("HBW-filling-div", "HBW-caption-percent-div", "HBW", "lightskyblue");
         this.showBlock("LBW-filling-div", "LBW-caption-percent-div", "LBW", "lightskyblue");
-        this.showBlock("LB1-1-2-filling-div", "LB1-1-2-caption-percent-div", "LB1_12", "lightskyblue");
+        this.showBlock("LB1-1-2-filling-div", "LB1-1-2-caption-percent-div", "LB1_1_2", "lightskyblue");
         this.showBlock("P01-filling-div", "P01-caption-percent-div", "P01", "lightskyblue");
 
         this.showBlock("VKU-filling-div", "VKU-caption-percent-div", "VKU", "bisque");
         this.showBlock("LM2-filling-div", "LM2-caption-percent-div", "LM2", "bisque");
-        this.showBlock("LB1-3-E-filling-div", "LB1-3-E-caption-percent-div", "LB1_3E", "bisque");
+        this.showBlock("LB1-3-E-filling-div", "LB1-3-E-caption-percent-div", "LB1_3_E", "bisque");
         this.showBlock("P02-filling-div", "P02-caption-percent-div", "P02", "bisque");
 
         this.showBlock("LF3-filling-div", "LF3-caption-percent-div", "LF3", "lightpink");

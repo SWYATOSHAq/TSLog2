@@ -409,6 +409,10 @@ namespace TSLog.Yard
         {
             _oracleStorage.GetAssembliedOutgo(id, out palletsCount, out eachesCount);
         }
+        public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
+        {
+            return _oracleStorage.GetOutgoPlanTime(outgoId, isPallet, partner);
+        }
         public void RemoveAction(Operation operation, WarehouseAction action)
         {
             _pgsqlStorage.RemoveAction(operation, action);

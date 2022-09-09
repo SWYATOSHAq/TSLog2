@@ -7,6 +7,7 @@
 		<right code="IS_MANAGER" name="Использование функционала модуля управления двором менеджером"></right>
 		
 		<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
+		<right code="GET_ACTION_DURATION" name="Получение продолжительности загрузки заказа" note="Получение продолжительности загрузки заказа"></right>
 		<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
 		<right code="GET_PARTNER_MANAGER" name="Получение менеджера указанного партнёра (манданта)" note=""></right>
 
@@ -338,6 +339,7 @@
 			<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
 
 			<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
+			<right code="GET_ACTION_DURATION" name="Получение продолжительности загрузки заказа" note="Получение продолжительности загрузки заказа"></right>
 			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
 			<right code="GET_PARTNER_MANAGER" name="Получение менеджера указанного партнёра (манданта)" note=""></right>
 

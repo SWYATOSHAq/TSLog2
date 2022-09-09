@@ -27,7 +27,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// </summary>
         private const int MaxReportPeriodDays = 45;
 
-        // Средее время выгрузки/погрузки паллеты/коробки/штуки
+        // Средее время (ПО УМОЛЧАНИЮ) выгрузки/погрузки паллеты/коробки/штуки
         private const int PalletUnloadTime = 93;
         private const int BoxUnloadTime = 20; 
         private const int PieceUnloadTime = 25;
@@ -268,6 +268,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var totalTime = 0.0;
             foreach (var action in actions)
             {
+                /*
+                    Автор - Буров Михаил.
+                    Определяем ПЛАНОВОЕ время операции двора в зависимости от состава заказов/приходов в операции двора.
+                    Смотрим все товарные позиции всех заказов/приходов в операции двора.
+                    Для каждой позиции смотрим сначала затарку, если затарка есть считаем количество паллет и коробок по затарке (от количества товаров),
+                    есть фиксированное время загрузки/выгрузки паллеты/коробки - из этого и складывается плановое время работ с конкретной товарной позицией.
+                    Если затарки нет, то пробуем определить плановое время по объёму или весу товара в товарной позицией.
+                    Сначала смотрим вес, потом объём.
+                    Смотри какую часть объёма (веса) занимает конкретная товарная позиция от ВСЕГО объёма (веса), 
+                    умножаем плановое максимальное время (при условии загрузки/выгрузки машины ЦЕЛИКОМ) на соответствующий коэффициент.
+                    Если не удалось рассчитать плановое время ни по затарке, ни по весу ни по объёму - считаем время по СОБРАННЫМ ТЕ заказа (ТОЛЬКО для отгрузок).
+                */
                 var kind = action.kind == "O" ? ActionKind.Outgo : ActionKind.Income;
                 var palletTime = action.kind == "O" ? PalletLoadTime : PalletUnloadTime;
                 var boxTime = action.kind == "O" ? BoxLoadTime : BoxUnloadTime;
@@ -277,19 +289,23 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var actionTime = 0.0;
                 foreach (var line in lines)
                 {
+                    // Смотрим по затарке
                     if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
                         actionTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
                     else
-                    {
-                        if (line.PlanVolume > 0.0)
-                            actionTime += line.PlanVolume / (vehicleKind.CargoVolume * 1000 * 1000 * 1000) * standardTotalDuration;
-                        else if (line.PlanGrossWeight > 0.0)
+                    {                    
+                        // Смотрим по весу
+                        if (line.PlanGrossWeight > 0.0)
                             // Килограммы переводим в милиграммы
                             actionTime += line.PlanGrossWeight / (vehicleKind.Capacity * 1000 * 1000) * standardTotalDuration;
+                        // Смотрим по объёму
+                        else if (line.PlanVolume > 0.0)
+                            actionTime += line.PlanVolume / (vehicleKind.CargoVolume * 1000 * 1000 * 1000) * standardTotalDuration;
                     }
                 }
                 if (actionTime <= 0.0 && action.kind == "O")
                 {
+                    // Смотри по собранным заказам (ТОЛЬКО отгрузки)
                     _storage.GetAssembliedOutgo(id, out double palletsCount, out double eachesCount);
                     actionTime = palletsCount * palletTime + eachesCount * pieceTime;
                 }
@@ -304,6 +320,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             //else
             //    totalTime += standardConstantDuration;
             return (int)totalTime;
+        }
+        private int GetDuration3(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions, Partner partner)
+        {
+            var time = 0;
+            foreach (var action in actions)
+                time += _storage.GetOutgoPlanTime(action.id, operationType.IsPallet, partner);
+            return time;
         }
         [HttpPost("OperationDuration2")]
         async public Task<string> GetOperationDuration2()
@@ -335,6 +358,75 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                
                 var timeSpan = GetDuration2(operationType, vehicleKind, actions);
                 var text = JsonSerializer.Serialize(timeSpan);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpPost("OperationDuration3")]
+        async public Task<string> GetOperationDuration3()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+                if (_useAuthentication && (!useYard || !getOperationDuration))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationType = data.operationTypeCode;
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                var operationType = _storage.GetOperationType(stringOperationType);
+                string stringVehicleKind = data.vehicleKindCode;
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+                dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+                Partner partner = null;
+
+                var timeSpan = GetDuration3(operationType, vehicleKind, actions, partner);
+                var text = JsonSerializer.Serialize(timeSpan);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        [HttpGet("ActionDuration3")]
+        public string GetActionDuration3()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_ACTION_DURATION", User);
+                if (_useAuthentication && (!useYard || !getOperationDuration))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string actionId = Request.Query["outgo_id"];
+                bool isPallet = Request.Query["is_pallet"] == "1";
+                string partnerId = Request.Query["partner_id"];
+                var partner = _storage.GetPartner(partnerId);
+                var timeSpan = _storage.GetOutgoPlanTime(actionId, isPallet, partner);
+                dynamic data = new ExpandoObject();
+                data.time = timeSpan;
+                var text = JsonSerializer.Serialize(data);
                 Response.StatusCode = 200;
                 return text;
             }

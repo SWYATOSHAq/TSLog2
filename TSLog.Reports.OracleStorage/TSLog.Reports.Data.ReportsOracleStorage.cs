@@ -91,7 +91,7 @@ namespace TSLog.Reports.Data
                             data.LBW = value;
                             break;
                         case "LB1_1_2":
-                            data.LB1_12 = value;
+                            data.LB1_1_2 = value;
                             break;
                         case "P01":
                             data.P01 = value;
@@ -102,8 +102,8 @@ namespace TSLog.Reports.Data
                         case "LM2":
                             data.LM2 = value;
                             break;
-                        case "LB1_3...":
-                            data.LB1_3E = value;
+                        case "LB1_3_E":
+                            data.LB1_3_E = value;
                             break;
                         case "P02":
                             data.P02 = value;
