@@ -33,12 +33,23 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         private const int PieceUnloadTime = 25;
         private const int PalletLoadTime = 93;
         private const int BoxLoadTime = 20;
-        private const int PieceLoadTime = 25; 
+        private const int PieceLoadTime = 25;
+
+        /// <summary>
+        /// "Постоянния" часть времени операции двора ПО УМОЛЧАНИЮ (не зависит от состава заказов/приходов),
+        /// 8 минут 15 секунд (получено от Алексея Охотникова 2022.09.09).
+        /// </summary>
+        private const int DefaultConstantOperationDuration = 8 * 60 + 15;
 
         private readonly IConfiguration _configuration;
         private readonly IYardStorage _storage;
         private readonly RightsChecker _rightsChecker;
         private readonly bool _useAuthentication;
+
+        /// <summary>
+        /// "Постоянния" часть времени операции двора (не зависит от состава заказов/приходов)
+        /// </summary>
+        public int ConstantOperationDuration { get; set; } = DefaultConstantOperationDuration;
         public YardController(IConfiguration configuration, IYardStorage storage, RightsChecker rightsChecker)
         {
             _configuration = configuration;
@@ -262,7 +273,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var boxTime = action.kind == "O" ? BoxLoadTime : BoxUnloadTime;
                 var pieceTime = action.kind == "O" ? PieceLoadTime : PieceUnloadTime;
                 string id = action.id;
-                LineBase[] lines = _storage.GetWarehouseActionLines(kind, id);
+                var lines = _storage.GetWarehouseActionLines(kind, id);
                 var actionTime = 0.0;
                 foreach (var line in lines)
                 {
@@ -284,8 +295,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
                 totalTime += actionTime;
             }
-
+            totalTime += ConstantOperationDuration;
             totalTime = Math.Round(totalTime);
+
             if (totalTime <= 0.0 || totalTime > standardTotalDuration)
                 totalTime = standardTotalDuration;
             // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
