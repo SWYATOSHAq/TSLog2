@@ -550,23 +550,45 @@ namespace TSLog.Yard.Data
             var time = 0;
             using (var command = _connection.CreateCommand())
             {
-                var sql = 
-                    $"select otu.outgo_id, otu.tu_id, otu.place_id, otu.place_id_prefix\n" +
-                    $"  from {CommonSchema}.o_outgo_tu#v otu\n" +
-                    $" where otu.outgo_id = :outgo_id";
-                command.CommandText = sql;
-                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
+                // Для партнёров (мандантов) 0011, 0017, 0018 ВСЕГДА коробочная отгрузка, единица измерения стоит ST
+                if (partner.Id == "0011" || partner.Id == "0017" || partner.Id == "0018")
                 {
-                    var tuId = Utils.DbValueToString(reader["tu_id"]);
-                    var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
-                    if (placeIdPrefix != "AUS" && placeIdPrefix != "VRS" && placeIdPrefix != "TOR")
-                        return 0;
-                    // Для некоторых партнёров ВСЕГДА коробочная отгрузка
-                    time += isPallet && partner.Id != "0011" && partner.Id != "0017" && partner.Id != "0018" ? PalletLoadTime : BoxLoadTime;
+                    var sql = 
+                        $"select tul.tul_outgo_id outgo_id, tul.quantity, tul.measure_unit_id, tul.tu_type_id \n" +
+                        $"  from {CommonSchema}.o_outgo_tu_line#v tul\n" +
+                        $" where tul.tul_outgo_id = :outgo_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var measureUnitId = Utils.DbValueToString(reader["measure_unit_id"]);
+                        var tuTypeId = Utils.DbValueToString(reader["tu_type_id"]);
+                        var quantity = Utils.DbValueToInt(reader["quantity"]);
+                        if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
+                            time += BoxLoadTime * quantity;
+                    }
                 }
-                reader.Close();
+                else
+                {
+                    var sql =
+                        $"select otu.outgo_id, otu.tu_id, otu.place_id, otu.place_id_prefix\n" +
+                        $"  from {CommonSchema}.o_outgo_tu#v otu\n" +
+                        $" where otu.outgo_id = :outgo_id";
+                    command.CommandText = sql;
+                    command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var tuId = Utils.DbValueToString(reader["tu_id"]);
+                        var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
+                        if (placeIdPrefix != "AUS" && placeIdPrefix != "VRS" && placeIdPrefix != "TOR")
+                            return 0;
+                        // Для некоторых партнёров ВСЕГДА коробочная отгрузка
+                        time += isPallet ? PalletLoadTime : BoxLoadTime;
+                    }
+                    reader.Close();
+                }
             }
             return time;
         }

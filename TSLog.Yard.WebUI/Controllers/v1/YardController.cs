@@ -37,9 +37,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
         /// <summary>
         /// "Постоянния" часть времени операции двора ПО УМОЛЧАНИЮ (не зависит от состава заказов/приходов),
-        /// 8 минут 15 секунд (получено от Алексея Охотникова 2022.09.09).
+        /// 8 минут 15 секунд на постановку машины,
+        /// 6 минут 16 секунд на снятие машины (получено от Алексея Охотникова 2022.09.09).
         /// </summary>
-        private const int DefaultConstantOperationDuration = 8 * 60 + 15;
+        private const int DefaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15);
 
         private readonly IConfiguration _configuration;
         private readonly IYardStorage _storage;
@@ -405,28 +406,26 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("ActionDuration3")]
-        public string GetActionDuration3()
+        [HttpGet("OutgoDuration")]
+        public string GetOutgoDuration()
         {
             try
             {
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_ACTION_DURATION", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_OUTGO_DURATION", User);
                 if (_useAuthentication && (!useYard || !getOperationDuration))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
                 }
 
-                string actionId = Request.Query["outgo_id"];
+                string outgoId = Request.Query["outgo_id"];
                 bool isPallet = Request.Query["is_pallet"] == "1";
                 string partnerId = Request.Query["partner_id"];
                 var partner = _storage.GetPartner(partnerId);
-                var timeSpan = _storage.GetOutgoPlanTime(actionId, isPallet, partner);
-                dynamic data = new ExpandoObject();
-                data.time = timeSpan;
-                var text = JsonSerializer.Serialize(data);
+                var timeSpan = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);                
+                var text = JsonSerializer.Serialize(timeSpan);
                 Response.StatusCode = 200;
                 return text;
             }

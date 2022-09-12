@@ -16,9 +16,9 @@ class Api {
         }
     }
 
-    // Возвращает плановою продолжительность операции двора типу операции и виду автомашины
+    // Возвращает плановую продолжительность операции двора типу операции и виду автомашины
     async getPlanDuration(operationTypeCode, vehicleKindCode) {
-        let response = await fetch("./api/v1/yard/OperationDuration" +
+        const response = await fetch("./api/v1/yard/OperationDuration" +
             "?operation_type=" + operationTypeCode +
             "&vehicle_kind=" + vehicleKindCode);
         if (response.status >= 200 && response.status < 300) {
@@ -29,7 +29,7 @@ class Api {
         }
     }
 
-    // Возвращает плановою продолжительность операции с учётом назначенных заказов
+    // Возвращает плановую продолжительность операции с учётом назначенных заказов
     async getPlanDuration2(operationTypeCode, vehicleKindCode, warehouseActions) {
         const data = {
             operationTypeCode: operationTypeCode,
@@ -45,6 +45,20 @@ class Api {
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("planDuration", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Возвращает плановую продолжительность загрузки заказа (на отгрузку)
+    async getOutgoDuration(outgoId, isPallet, partnerId) {
+        const response = await fetch("./api/v1/yard/OutgoDuration" +
+            "?outgo_id=" + outgoId +
+            "&is_pallet=" + isPallet + 
+            "&partner_id=" + partnerId);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("outgoDuration", await response.json());
         }
         else {
             return utils.createErrorObject(await response.text());
