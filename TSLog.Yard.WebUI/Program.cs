@@ -69,7 +69,7 @@ storage.SetPgsqlYardSchema(pgsqlYardSchema);
 builder.Services.AddSingleton<IYardStorage>(storage);
 
 var rightsChecker = new RightsChecker();
-builder.Services.AddSingleton<RightsChecker>(rightsChecker);
+builder.Services.AddSingleton(rightsChecker);
 var programFileName = Assembly.GetExecutingAssembly().Location;
 var programDirectory = Path.GetDirectoryName(programFileName) ?? throw new Exception("Rights file not found");
 var rightsFileName = Path.Combine(programDirectory, "rights.xml");

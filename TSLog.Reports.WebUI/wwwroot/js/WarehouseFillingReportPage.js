@@ -29,32 +29,35 @@ class WarehouseFillingReportPage {
         }
     }
 
-    showBlock(divId, captionPercentDivId, valueField, color) {
+    showBlock(area, color) {
         let fill = 0;
         let free = 0;
 
-        const blockFillingDiv = document.getElementById(divId)
-        fill = Math.round(this.data[valueField] * 100);
+        const blockFillingDiv = document.getElementById(area + "-filling-div")
+        fill = Math.round(this.data[area + "_percent"] * 100);
         free = 100 - fill;
         blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + fill + "%; margin-top: " + free + "%";
 
-        const captionPercentDiv = document.getElementById(captionPercentDivId)
+        const captionPercentDiv = document.getElementById(area + "-caption-percent-div");
         captionPercentDiv.textContent = fill + " %";
+
+        const captionValueDiv = document.getElementById(area + "-caption-value-div")
+        captionValueDiv.textContent = "";
     }
 
     showReport() {
-        this.showBlock("HBW-filling-div", "HBW-caption-percent-div", "HBW", "lightskyblue");
-        this.showBlock("LBW-filling-div", "LBW-caption-percent-div", "LBW", "lightskyblue");
-        this.showBlock("LB1-1-2-filling-div", "LB1-1-2-caption-percent-div", "LB1_1_2", "lightskyblue");
-        this.showBlock("P01-filling-div", "P01-caption-percent-div", "P01", "lightskyblue");
+        this.showBlock("HBW", "lightskyblue");
+        this.showBlock("LBW", "lightskyblue");
+        this.showBlock("LB1_1_2", "lightskyblue");
+        this.showBlock("P01", "lightskyblue");
 
-        this.showBlock("VKU-filling-div", "VKU-caption-percent-div", "VKU", "bisque");
-        this.showBlock("LM2-filling-div", "LM2-caption-percent-div", "LM2", "bisque");
-        this.showBlock("LB1-3-E-filling-div", "LB1-3-E-caption-percent-div", "LB1_3_E", "bisque");
-        this.showBlock("P02-filling-div", "P02-caption-percent-div", "P02", "bisque");
+        this.showBlock("VKU", "bisque");
+        this.showBlock("LM2", "bisque");
+        this.showBlock("LB1_3_E", "bisque");
+        this.showBlock("P02", "bisque");
 
-        this.showBlock("LF3-filling-div", "LF3-caption-percent-div", "LF3", "lightpink");
-        this.showBlock("P03-filling-div", "P03-caption-percent-div", "P03", "lightpink");
+        this.showBlock("LF3", "lightpink");
+        this.showBlock("P03", "lightpink");
     }
 
     print() {

@@ -57,7 +57,7 @@ namespace TSLog.Reports.Data
             _oracleStorage.Disconnect();
         }
 
-        public dynamic GetFillingReportData()
+        public dynamic[] GetFillingReportData()
         {
             return _oracleStorage.GetFillingReportData();
         }
