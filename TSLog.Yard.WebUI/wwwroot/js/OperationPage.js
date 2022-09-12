@@ -25,6 +25,7 @@ class OperationPage {
     planWorkFinishDate = utils.nullDate;
     factWorkFinishDate = utils.nullDate;
     planDuration = 0;
+    factPlanDuration = 0;
     factDuration = 0;
     planLaborCost = 0;
     planLinearLaborCost = 0;
@@ -180,14 +181,34 @@ class OperationPage {
         }
     }
 
+    // Вычисляем "План фактический"
+    async getFactPlanDuration() {
+        this.factPlanDuration = 0;
+        const operationTypesSelect = document.getElementById("operation-types-select");
+        const isPallet = operationTypesSelect.options[operationTypesSelect.selectedIndex].getAttribute("ispallet");
+        for (let actionId in this.selectedWarehouseActions) {
+            const action = this.selectedWarehouseActions[actionId];
+            if (action.kind === "O") {
+                const result = await api.getOutgoDuration(action.id, isPallet, action.partnerId);
+                if (result.code === 0) {
+                    this.factPlanDuration += result.outgoDuration;
+                } else {
+                    viewUtils.showError(result.message);
+                    break;
+                }
+            }
+        }
+    }
+
     showDuration() {
         const durationInput = document.getElementById("duration-input");
         if (this.planDuration <= 0)
             durationInput.value = "<Не определено>";
         else {
-            durationInput.value = utils.secondsToString(this.planDuration);
+            durationInput.value = "План: " + utils.secondsToString(this.planDuration);
+            durationInput.value += ", план фактический: " + utils.secondsToString(this.factPlanDuration);
             if (this.factDuration > 0) {
-                durationInput.value = durationInput.value + " (факт. " + utils.secondsToString(this.factDuration) + ")"
+                durationInput.value += ", факт: " + utils.secondsToString(this.factDuration);
             }
         }
     }
@@ -372,6 +393,7 @@ class OperationPage {
     async onChangeDuration() {
         await this.getPlanDuration();
         await this.getPlanLaborCost();
+        await this.getFactPlanDuration();
         this.showDuration();        
         await this.showLaborCost();
         if (this.planDuration <= 0) {
@@ -1316,9 +1338,20 @@ class OperationPage {
         }
         this.showWorkStartFinish();
 
+        // Warehouse actions (and partner)        
+        const partnersSelect = document.getElementById("partners-select");
+        partnersSelect.onchange = this.onChangePartner.bind(this);
+        if (this.id > 0) {
+            await this.displaySelectedWarehouseActions();
+            if (copy) {
+                this.clearSelectedWarehouseActions();
+            }
+        }
+
         // Duration
         this.planDuration = operation != null ? Number(operation.planDuration) : 0;
         this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
+        await this.getFactPlanDuration();
         this.showDuration();
         const timetableFieldset = document.getElementById("timetable-fieldset");
         const timeTableDisabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
@@ -1362,16 +1395,6 @@ class OperationPage {
         this.planLinearLaborCost = operation != null ? Number(operation.planLinearLaborCost) : 0;
         this.factLaborCost = operation != null && !copy ? Number(operation.factLaborCost) : 0;
         await this.showLaborCost();
-
-        // Warehouse actions (and partner)        
-        const partnersSelect = document.getElementById("partners-select");
-        partnersSelect.onchange = this.onChangePartner.bind(this);
-        if (this.id > 0) {
-            await this.displaySelectedWarehouseActions();
-            if (copy) {
-                this.clearSelectedWarehouseActions();
-            }
-        }
 
         // Manager        
         await this.showManager();
@@ -1575,7 +1598,6 @@ class OperationPage {
             alert(result.message);
         }
     }
-
 
 
     async test() {

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Dynamic;
+﻿using System.Dynamic;
 using TSLog.Common;
 using TSLog.Common.Data;
 using TSLog.Reports.BO;
@@ -67,7 +66,6 @@ namespace TSLog.Reports.Data
         {
             PartnersSchema = partnersSchema;
         }
-
         public dynamic GetFillingReportData()
         {
             dynamic data = new ExpandoObject();

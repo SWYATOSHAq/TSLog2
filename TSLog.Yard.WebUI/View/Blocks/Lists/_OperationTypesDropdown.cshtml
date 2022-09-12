@@ -19,12 +19,13 @@
         <b>Тип операции*</b>
     </span>
     <select id="operation-types-select" title="" class="@selectClasses"@(isEnabled ? string.Empty : " disabled")>
-        <option note="@defaultText" value="" direction="">@defaultText</option>
+        <option note="@defaultText" value="" direction="" isPallet="">@defaultText</option>
         @foreach (var type in types)
         {
             var noteText = type.Note;
             var direction = type.Direction == BO.OperationType.TypeDirection.Out ? "O" : "I";
-            @: <option title="@type.Note" note="@noteText" value="@type.Code"@((type.Code != selectedType) ? string.Empty : " selected") direction="@direction">@type</option>
+            var isPallet = type.IsPallet;
+            @: <option title="@type.Note" note="@noteText" value="@type.Code"@((type.Code != selectedType) ? string.Empty : " selected") direction="@direction" isPallet="@isPallet">@type</option>
         }        
     </select>
     @if (!isSmall)
