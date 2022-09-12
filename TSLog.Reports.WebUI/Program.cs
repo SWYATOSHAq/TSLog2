@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using System.Reflection;
+using TSLog.Authorization;
 using TSLog.Reports.BO;
 using TSLog.Reports.Data;
 
@@ -44,6 +46,13 @@ storage.SetOracleLegalEntitiesSchema(oracleLegalEntitiesSchema);
 storage.SetOraclePartnersSchema(oraclePartnersSchema);
 
 builder.Services.AddSingleton<IReportsStorage>(storage);
+
+var rightsChecker = new RightsChecker();
+builder.Services.AddSingleton(rightsChecker);
+var programFileName = Assembly.GetExecutingAssembly().Location;
+var programDirectory = Path.GetDirectoryName(programFileName) ?? throw new Exception("Rights file not found");
+var rightsFileName = Path.Combine(programDirectory, "rights.xml");
+rightsChecker.LoadRights(rightsFileName);
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())

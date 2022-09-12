@@ -2,7 +2,7 @@
 <data>
 	<!-- Весь список доступных прав и привилегий в модуле управления двором -->
 	<rights code="RIGHTS" name="Список всех доступых действий и привилегий">
-		<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение"></right>
+		<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение управления двором"></right>
 		<right code="IS_PARTNER_USER" name="Использование функционала модуля управления двором пользователем клиента"></right>
 		<right code="IS_MANAGER" name="Использование функционала модуля управления двором менеджером"></right>
 		
@@ -86,6 +86,11 @@
 		<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>	
 		<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
 		<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
+
+		<!-- Система отчётности -->
+		<right code="USE_REPORTS" name="Использование модуля отчётности (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение отчётности"></right>
+		<right code="GET_WAREHOUSE_FILLING_REPORT" name="Формирование отчёта по загруженности склада"></right>
+		<right code="VIEW_WAREHOUSE_FILLING_REPORT_PAGE" name="Просмотр отчёта по загружености склада"></right>
 	</rights>
 
 	<!-- Список ролей с набором прав по каждой роли -->
@@ -424,6 +429,11 @@
 			<right code="VIEW_EC_REPORT_PAGE" name="Просмотр отчёта выручке и затратам (БоссКонтроль, Биллинг)"></right>
 			<right code="GET_WORKERS_PERFOMANCE_REPORT" name="Формирование отчёта по производительности по работникам"></right>
 			<right code="VIEW_WORKERS_PERFOMANCE_REPORT_PAGE" name="Просмотр отчёта по производительности по работникам"></right>
+
+			<!-- Система отчётности -->
+			<right code="USE_REPORTS" name="Использование модуля отчётности (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение отчётности"></right>
+			<right code="GET_WAREHOUSE_FILLING_REPORT" name="Формирование отчёта по загруженности склада"></right>
+			<right code="VIEW_WAREHOUSE_FILLING_REPORT_PAGE" name="Просмотр отчёта по загружености склада"></right>
 		</role>
 	</roles>
 </data>

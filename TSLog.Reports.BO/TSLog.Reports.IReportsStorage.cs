@@ -4,7 +4,7 @@
     { }
     public interface IReportsOracleStorage
     {
-        public dynamic GetFillingReportData();
+        public dynamic[] GetFillingReportData();
     }
     public interface IReportsPgSqlStorage
     { }

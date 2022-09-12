@@ -66,57 +66,31 @@ namespace TSLog.Reports.Data
         {
             PartnersSchema = partnersSchema;
         }
-        public dynamic GetFillingReportData()
+        public dynamic[] GetFillingReportData()
         {
-            dynamic data = new ExpandoObject();
+            var data = new List<dynamic>();
             using (var command = _connection.CreateCommand())
             {
                 var sql = 
-                    $"select fr.lvl, fr.area, round(fr.filling, 8) filling\n  " +
+                    $"select fr.area, fr.busy, fr.total\n" +
                     $"  from {WmsExtensionsSchema}.wmsext_filling_report1#v fr";
                 command.CommandText = sql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     var area = Utils.DbValueToString(reader["area"]);
-                    var value = Utils.DbValueToDouble(reader["filling"]);
-                    switch (area)
-                    {
-                        case "HBW":
-                            data.HBW = value;
-                            break;
-                        case "LBW":
-                            data.LBW = value;
-                            break;
-                        case "LB1_1_2":
-                            data.LB1_1_2 = value;
-                            break;
-                        case "P01":
-                            data.P01 = value;
-                            break;
-                        case "VKU":
-                            data.VKU = value;
-                            break;
-                        case "LM2":
-                            data.LM2 = value;
-                            break;
-                        case "LB1_3_E":
-                            data.LB1_3_E = value;
-                            break;
-                        case "P02":
-                            data.P02 = value;
-                            break;
-                        case "LF3":
-                            data.LF3 = value;
-                            break;
-                        case "P03":
-                            data.P03 = value;
-                            break;
-                    }
+                    var busy = Utils.DbValueToDouble(reader["busy"]);
+                    var total = Utils.DbValueToDouble(reader["total"]);
+
+                    dynamic element = new ExpandoObject();
+                    element.area = area;
+                    element.busy = busy;
+                    element.total = total;
+                    data.Add(element);
                 }
                 reader.Close();
             }
-            return data;
+            return data.ToArray();
         }
     }
 }
