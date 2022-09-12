@@ -83,7 +83,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.typeCode = operation.Type.Code;
             result.typeName = operation.Type.Name;
             result.typeShortName = operation.Type.ShortName;
-            result.typeDisplayName = operation.Type.DisplayName;            
+            result.typeDisplayName = operation.Type.DisplayName;
             result.directionName = operation.Type.DirectionName;
 
             result.vehicleKindId = operation.VehicleKind.Id;
@@ -160,7 +160,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 result.creator = operation.Creator;
             }
-            
+
             result.editDate = operation.EditDate;
             try
             {
@@ -169,7 +169,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             catch
             {
                 result.editor = operation.Editor;
-            }            
+            }
 
             result.displayColor = operation.DisplayColor;
 
@@ -294,7 +294,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
                         actionTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
                     else
-                    {                    
+                    {
                         // Смотрим по весу
                         if (line.PlanGrossWeight > 0.0)
                             // Килограммы переводим в милиграммы
@@ -312,14 +312,17 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
                 totalTime += actionTime;
             }
-            totalTime += ConstantOperationDuration;
             totalTime = Math.Round(totalTime);
 
             if (totalTime <= 0.0 || totalTime > standardTotalDuration)
                 totalTime = standardTotalDuration;
+            //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов) времени операции по указанию Алексея Охотникова 
+            else
+                totalTime += ConstantOperationDuration;
             // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
             //else
             //    totalTime += standardConstantDuration;
+
             return (int)totalTime;
         }
         private int GetDuration3(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions, Partner partner)
@@ -421,10 +424,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 string outgoId = Request.Query["outgo_id"];
+                if (string.IsNullOrWhiteSpace(outgoId))
+                    return "Outgo id is empty";
                 bool isPallet = Request.Query["is_pallet"] == "1";
                 string partnerId = Request.Query["partner_id"];
+                if (string.IsNullOrWhiteSpace(partnerId))
+                    return "Partner id is empty";
                 var partner = _storage.GetPartner(partnerId);
-                var timeSpan = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);                
+                var timeSpan = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);
                 var text = JsonSerializer.Serialize(timeSpan);
                 Response.StatusCode = 200;
                 return text;
@@ -968,7 +975,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string vehicleNumber = data.vehicleNumber;
                 if (string.IsNullOrWhiteSpace(vehicleNumber))
                     vehicleNumber = "<Не указано>";
-                string trailerNumber = data.trailerNumber;                
+                string trailerNumber = data.trailerNumber;
 
                 string driverName = data.driverName;
                 if (string.IsNullOrWhiteSpace(driverName))
@@ -1015,7 +1022,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
                 // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
-                operation.Gate = _storage.SetOperationGate(operation, null, user);                
+                operation.Gate = _storage.SetOperationGate(operation, null, user);
                 _storage.SetResponsibleOfficer(operation, employee, user);
 
                 var text = OperationToJson(operation);
@@ -1178,8 +1185,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Wrong start date {temp}!";
                     planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, GetDuration2(operation.Type, vehicleKind, actions)));
                 }
-                
-                temp = data.finishDate;                
+
+                temp = data.finishDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -1196,7 +1203,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.DriverPhoneNumber = data.driverPhoneNumber;
 
                 var gate = operation.Gate;
-                temp = data.gateCode;                
+                temp = data.gateCode;
                 if (!string.IsNullOrWhiteSpace(temp))
                     gate = _storage.GetGate(temp);
 
@@ -1457,7 +1464,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
                 // неьзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(userName);
-                _storage.SetOperationGate(operation, gate, userName);                
+                _storage.SetOperationGate(operation, gate, userName);
                 _storage.SetResponsibleOfficer(operation, employee);
                 
                 var text = OperationToJson(operation);
@@ -1540,7 +1547,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 return exception.Message;
             }
-        }        
+        }
         [HttpPatch("StartOperationWork")]
         async public Task<string> StartOperationWork()
         {
@@ -1755,7 +1762,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
-                }                                
+                }
                 
                 string temp = Request.Query["kind"];
                 ActionKind actionKind;
@@ -1966,14 +1973,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 //Request.EnableBuffering();
                 //var body = Request.Body;
                 //body.Seek(0, SeekOrigin.Begin);
-                //StreamReader reader = new StreamReader(body);                
+                //StreamReader reader = new StreamReader(body);
 
-                StreamWriter output = new StreamWriter("C:\\test.jpg");                
+                StreamWriter output = new StreamWriter("C:\\test.jpg");
                 byte[] buffer = new byte[8 * 1024];
                 int len;
                 while ((len = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
                     output.BaseStream.Write(buffer, 0, len);
-                output.Close();             
+                output.Close();
 
                 var text = "";
                 Response.StatusCode = 200;
@@ -2439,7 +2446,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     element.planNetWeight = operation.PlanNetWeight;
                     element.planGrossWeight = operation.PlanGrossWeight;
                     element.factNetWeight = operation.FactNetWeight;
-                    element.factGrossWeight = operation.FactGrossWeight;                    
+                    element.factGrossWeight = operation.FactGrossWeight;
                     element.planVolume = operation.PlanVolume;
                     element.factVolume = operation.FactVolume;
 
@@ -2534,7 +2541,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     data.Add(key, element);
                 }
 
-                var operations = _storage.GetDispatcherReportData(fromDate, toDate);                
+                var operations = _storage.GetDispatcherReportData(fromDate, toDate);
                 foreach (var operation in operations)
                 {
                     // Смотрим удалённые операции (те, которые планировались на указанную дату, но были удалены)
@@ -2568,7 +2575,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                                 data[key].overPlanIncomes++;
                             else if (operation.Type.Direction == TypeDirection.Out)
                                 data[key].overPlanOutgoes++;
-                        }                            
+                        }
 
                         // Смотрим оформленные операции
                         key = operation.CreateDate.ToString("yyyy.MM.dd");
@@ -2576,7 +2583,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         if (operation.PlanWorkFinishDate.Date == operation.CreateDate.Date) // Заявка оформлена день в день
                             data[key].dayToDayOperations++;
                         else if (operation.CreateDate < operation.PlanWorkFinishDate.Date) // Заявка оформлена в указанную смену на последующие дни
-                            data[key].nextDayOperations++;                        
+                            data[key].nextDayOperations++;
 
                         // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не были удалены)
                         if (operation.FactWorkFinishDate > DateTime.MinValue)
@@ -2598,7 +2605,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                                     data[key].boxOutgoes++;
                             }
                         }
-                    }                    
+                    }
                 }
 
                 var elements = data.Values.OrderBy(e => e.key).ToArray();
@@ -2608,7 +2615,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     if (element.date < fromDate.Date || element.date >= toDate.AddTicks(-1).Date.AddDays(1))
                         continue;
                     element.dayToDayOperationsPercent = 100.0 * element.dayToDayOperations / element.dayOperations;
-                    result.Add(element);                    
+                    result.Add(element);
                 }
 
                 var text = JsonSerializer.Serialize(result);
@@ -2988,7 +2995,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// Вторая версия отчёта (детали смотри в комментариях в теле процедуры)
         /// </summary>
         /// <returns>Данные отчёта</returns>
-        //[HttpGet("WorkersPerfomanceReport2")]        
+        //[HttpGet("WorkersPerfomanceReport2")]
         public string GetWorkersPerfomanceReport20()
         {
             try
@@ -3029,7 +3036,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 // для каждой операции определяем список работников, которые по БоссКонтролю "задели" фактический промежуток работ по операции,
                 // определяем суммарное время всех работ (на данном участке) по БоссКонтролю, которые "задели" фактический промежуток работ по операции,
                 // определяем производительность каждого сотрудника на данной операции как:
-                // отношение плановой продолжительности работ по операции, умноженной на количество сотрудников  
+                // отношение плановой продолжительности работ по операции, умноженной на количество сотрудников
                 // и суммарного времени всех работ (на данном участке) по БоссКонтролю
                 foreach (var operation in operations)
                 {
@@ -3064,7 +3071,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         var workerOperations2 = data2[worker];
                         workerOperations2.Add(operation, perfomance2);
                     }
-                }                
+                }
 
                 // Вычисляем уже средневзвешенную производительность каждого работника:
                 // сумма производельностей по конкретной операции, умноженных на плановое время операции,
