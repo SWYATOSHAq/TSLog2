@@ -147,7 +147,7 @@ class ECReportPage {
         viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
-        viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
+        viewUtils.createCell(tr, ["table-cell"], ["-", utils.displayFloat(downcost)], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [""], boldStyleContent);
