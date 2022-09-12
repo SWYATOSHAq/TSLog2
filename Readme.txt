@@ -26,4 +26,22 @@
 
   Перечень проектов:
   - TSLog.AD.Test - проект для тестов;
-  - TSLog.Authorization 
+  - TSLog.Authorization - проект для разграничения прав в приложениях. Содержит настройки прав ролей и функционал работы с этими натсройками в xml;
+  - TSLog.BossControl.BO - классы бизнес-сущностей для приложения Boss Control;
+  - TSLog.BossControl.OracleStorage - хранилище данных для объектов БоссКонтроль в БД Oracle (здесь хранятся подключния и запросы к БД Oracle);
+  - TSLog.BossControl.WebUI - приложение Boss Control;
+  - TSLog.Common - общий функционал(шифрование, дешифрование, вычисление хэша,формирование адреса из элементов, преобразование полного ФИО в краткое, получение массива дат из 
+	заданного промежутка);
+  - TSLog.Common.BO - общие объекты для всех проектов
+  - TSLog.Common.OracleStorage - 
+  - TSLog.Common.PgSqlStorage - 
+  - TSLog.ExeptionHandler - 
+  - TSLog.Incomes.BO - 
+  - TSLog.LegalEntities.BO - 
+  - TSLog.Links - 
+  - TSLog.Links.Gs1EdXml - 
+  - TSLog.Links.KotonExport - 
+  - TSLog.Links.OracleStorage - 
+  - TSLog.Links.PSI.DataConveter - 
+  - TSLog.Links.Services - 
+  - TSLog.Links.Test
