@@ -45,52 +45,52 @@ namespace TSLog.Reports.WebUI.Controllers.v1
                         case "HBW":
                             data.HBW_busy = element.busy;
                             data.HBW_total = element.total;
-                            data.HBW_percent = (double)element.busy / element.total;                            
+                            data.HBW_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "LBW":
                             data.LBW_busy = element.busy;
                             data.LBW_total = element.total;
-                            data.LBW_percent = (double)element.busy / element.total;
+                            data.LBW_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "LB1_1_2":
                             data.LB1_1_2_busy = element.busy;
                             data.LB1_1_2_total = element.total;
-                            data.LB1_1_2_percent = (double)element.busy / element.total;
+                            data.LB1_1_2_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "P01":
                             data.P01_busy = element.busy;
                             data.P01_total = element.total;
-                            data.P01_percent = (double)element.busy / element.total;
+                            data.P01_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "VKU":
                             data.VKU_busy = element.busy;
                             data.VKU_total = element.total;
-                            data.VKU_percent = (double)element.busy / element.total;
+                            data.VKU_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "LM2":
                             data.LM2_busy = element.busy;
                             data.LM2_total = element.total;
-                            data.LM2_percent = (double)element.busy / element.total;
+                            data.LM2_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "LB1_3_E":
                             data.LB1_3_E_busy = element.busy;
                             data.LB1_3_E_total = element.total;
-                            data.LB1_3_E_percent = (double)element.busy / element.total;
+                            data.LB1_3_E_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "P02":
                             data.P02_busy = element.busy;
                             data.P02_total = element.total;
-                            data.P02_percent = (double)element.busy / element.total;
+                            data.P02_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "LF3":
                             data.LF3_busy = element.busy;
                             data.LF3_total = element.total;
-                            data.LF3_percent = (double)element.busy / element.total;
+                            data.LF3_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                         case "P03":
                             data.P03_busy = element.busy;
                             data.P03_total = element.total;
-                            data.P03_percent = (double)element.busy / element.total;
+                            data.P03_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
                             break;
                     }
                 }
