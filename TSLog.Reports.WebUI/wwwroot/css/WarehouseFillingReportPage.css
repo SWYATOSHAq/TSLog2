@@ -1,6 +1,6 @@
 ﻿.floor-caption {
     text-align: center;
-    font-size: 1.4em;
+    font-size: 1.2em;
 }
 
 .floor-div {
@@ -11,7 +11,7 @@
 
 .block-div {
     width: 200px;
-    height: 200px;
+    height: 272px;
     border: solid;
     border-width: 1px;
     border-color: lightgray;
@@ -28,7 +28,7 @@
 }
 
 .captions-div {
-    font-size: 1.4em;
+    font-size: 1.2em;
 }
 
 .caption-div {
