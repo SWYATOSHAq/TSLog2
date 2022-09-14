@@ -72,18 +72,20 @@ namespace TSLog.Reports.Data
             using (var command = _connection.CreateCommand())
             {
                 var sql = 
-                    $"select fr.area, fr.busy, fr.total\n" +
+                    $"select fr.area, fr.place_type, fr.busy, fr.total\n" +
                     $"  from {WmsExtensionsSchema}.wmsext_filling_report1#v fr";
                 command.CommandText = sql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     var area = Utils.DbValueToString(reader["area"]);
+                    var placeType = Utils.DbValueToString(reader["place_type"]);
                     var busy = Utils.DbValueToDouble(reader["busy"]);
-                    var total = Utils.DbValueToDouble(reader["total"]);
+                    var total = Utils.DbValueToDouble(reader["total"]);                    
 
                     dynamic element = new ExpandoObject();
                     element.area = area;
+                    element.placeType = placeType;
                     element.busy = busy;
                     element.total = total;
                     data.Add(element);

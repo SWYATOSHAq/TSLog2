@@ -38,62 +38,104 @@ namespace TSLog.Reports.WebUI.Controllers.v1
 
                 var elements = _storage.GetFillingReportData();
                 dynamic data = new ExpandoObject();
+
+                data.P01_busy = 0;
+                data.P01_total = 0;
+                data.P01_percent = 0.0;
+                data.P02_busy = 0;
+                data.P02_total = 0;
+                data.P02_percent = 0.0;
+                data.P03_busy = 0;
+                data.P03_total = 0;
+                data.P03_percent = 0.0;
+
+                var areas = new string[] { "HBW", "LBW", "LB1_1_2", "P01",
+                    "VKU", "LM2", "LF2", "LB1_3_E", "P02",
+                    "LF3", "P03" };
+                var dict = (IDictionary<string, object>)data;
+                void initArea(string area)
+                {
+                    dict[area + "_busy_pallets"] = 0;
+                    dict[area + "_busy_pieces"] = 0;
+                    dict[area + "_busy"] = 0;
+                    dict[area + "_total_pallets"] = 0;
+                    dict[area + "_total_pieces"] = 0;
+                    dict[area + "_total"] = 0;
+                    dict[area + "_percent"] = 0.0;
+                }
+                foreach (var area in areas)
+                    initArea(area);
+
+                void fillArea(string area, dynamic element)
+                {
+                    var suffix = element.placeType == "EACH" ? "pieces" : "pallets";
+                    var busy = Convert.ToInt32(dict[area + "_busy_" + suffix]);
+                    busy += Convert.ToInt32(element.busy);
+                    dict[area + "_busy_" + suffix] = busy;
+                    var total = Convert.ToInt32(dict[area + "_total_" + suffix]);
+                    total += Convert.ToInt32(element.total);
+                    dict[area + "_total_" + suffix] = total;
+                }
                 foreach (var element in elements)
                 {
                     switch (element.area)
                     {
                         case "HBW":
-                            data.HBW_busy = element.busy;
-                            data.HBW_total = element.total;
-                            data.HBW_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            element.total *= 0.95; // Убираем 5% мест в HBW (необходимо для корректной работы области)
+                            fillArea("HBW", element);
                             break;
                         case "LBW":
-                            data.LBW_busy = element.busy;
-                            data.LBW_total = element.total;
-                            data.LBW_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("LBW", element);
                             break;
                         case "LB1_1_2":
-                            data.LB1_1_2_busy = element.busy;
-                            data.LB1_1_2_total = element.total;
-                            data.LB1_1_2_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("LB1_1_2", element);
                             break;
                         case "P01":
-                            data.P01_busy = element.busy;
-                            data.P01_total = element.total;
-                            data.P01_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("P01", element);
+                            break;
+                        case "PC1":
+                            fillArea("P01", element);
                             break;
                         case "VKU":
-                            data.VKU_busy = element.busy;
-                            data.VKU_total = element.total;
-                            data.VKU_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("VKU", element);
                             break;
                         case "LM2":
-                            data.LM2_busy = element.busy;
-                            data.LM2_total = element.total;
-                            data.LM2_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("LM2", element);
+                            break;
+                        case "LF2":
+                            fillArea("LF2", element);
                             break;
                         case "LB1_3_E":
-                            data.LB1_3_E_busy = element.busy;
-                            data.LB1_3_E_total = element.total;
-                            data.LB1_3_E_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("LB1_3_E", element);
                             break;
                         case "P02":
-                            data.P02_busy = element.busy;
-                            data.P02_total = element.total;
-                            data.P02_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("P02", element);
+                            break;
+                        case "PC2":
+                            fillArea("P02", element);
                             break;
                         case "LF3":
-                            data.LF3_busy = element.busy;
-                            data.LF3_total = element.total;
-                            data.LF3_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("LF3", element);
                             break;
                         case "P03":
-                            data.P03_busy = element.busy;
-                            data.P03_total = element.total;
-                            data.P03_percent = element.total > 0 ? (double)element.busy / element.total : 0.0;
+                            fillArea("P03", element);
+                            break;
+                        case "PC3":
+                            fillArea("P03", element);
                             break;
                     }
                 }
+                
+                void calculateArea(string area)
+                {
+                    dict[area + "_busy"] = Convert.ToInt32(dict[area + "_busy_pallets"]) + Convert.ToInt32(dict[area + "_busy_pieces"]);
+                    dict[area + "_total"] = Convert.ToInt32(dict[area + "_total_pallets"]) + Convert.ToInt32(dict[area + "_total_pieces"]);
+                    dict[area + "_percent"] = Convert.ToInt32(dict[area + "_total"]) > 0 
+                        ? Convert.ToDouble(dict[area + "_busy"]) / Convert.ToDouble(dict[area + "_total"]) 
+                        : 0.0;
+                }
+                foreach (var area in areas)
+                    calculateArea(area);
 
                 var text = JsonSerializer.Serialize(data);
                 Response.StatusCode = 200;

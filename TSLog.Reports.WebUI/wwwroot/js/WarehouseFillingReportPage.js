@@ -9,8 +9,10 @@ class WarehouseFillingReportPage {
     shortUrl;
 
     data = [];
-    busy = 0;
-    total = 0;
+    busyPallets = 0;
+    busyPieces = 0;
+    totalPallets = 0;
+    totalPieces = 0;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -22,7 +24,6 @@ class WarehouseFillingReportPage {
     }
 
     async getData() {
-
         const result = await api.getWarehouseFillingReportData();
         if (result.code === 0) {
             this.data = result.data;
@@ -32,25 +33,27 @@ class WarehouseFillingReportPage {
     }
 
     showBlock(area, color) {
-        let fill = 0;
-        let free = 0;
+        let busyPercent = 0;
+        let freePercent = 0;
         let busy = 0;
         let total = 0;
-        let freePlaces = 0;
+        let free = 0;
 
         const blockFillingDiv = document.getElementById(area + "-filling-div")
-        fill = Math.round(this.data[area + "_percent"] * 100);
-        free = 100 - fill;
+        busyPercent = Math.round(this.data[area + "_percent"] * 100);
+        freePercent = 100 - busyPercent;
         busy = this.data[area + "_busy"];
         total = this.data[area + "_total"]
-        this.busy += busy;
-        this.total += total;        
-        freePlaces = total - busy;
+        this.busyPallets += this.data[area + "_busy_pallets"];
+        this.busyPieces += this.data[area + "_busy_pieces"];
+        this.totalPallets += this.data[area + "_total_pallets"];
+        this.totalPieces += this.data[area + "_total_pieces"];
+        free = total - busy;
 
-        blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + fill + "%; margin-top: " + free + "%";
+        blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + busyPercent + "%; margin-top: " + freePercent + "%";
 
         const captionPercentDiv = document.getElementById(area + "-caption-percent-div");
-        captionPercentDiv.textContent = fill + " %";
+        captionPercentDiv.textContent = busyPercent + " %";
 
         const loadCostInput = document.getElementById(area + "-load-cost-input");
         const turnoverKIput = document.getElementById(area + "-turnover-K-input");
@@ -58,37 +61,45 @@ class WarehouseFillingReportPage {
         const loadCost = Number(loadCostInput.value);
         const turnoverK = Number(turnoverKIput.value);
         const price = Number(priceIput.value);
-        const dayIncome = Math.round(busy * price + busy * loadCost * turnoverK / 30.0);
+        const dayIncome = Math.round(free * (price * 30.5 + loadCost * turnoverK));
         const captionIncomeDiv = document.getElementById(area + "-caption-income-div");
         captionIncomeDiv.textContent = utils.displayFloat(dayIncome) + " руб."; 
 
-        const captionValueDiv = document.getElementById(area + "-caption-value-div")
-        captionValueDiv.textContent = "свободно " + utils.displayFloat(freePlaces);
+        const captionPalletsDiv = document.getElementById(area + "-caption-pallets-div")
+        captionPalletsDiv.textContent = "св. палл. " + utils.displayFloat(this.data[area + "_total_pallets"] - this.data[area + "_busy_pallets"]);
+
+        const captionPiecesDiv = document.getElementById(area + "-caption-pieces-div")
+        captionPiecesDiv.textContent = "св. яч-к " + utils.displayFloat(this.data[area + "_total_pieces"] - this.data[area + "_busy_pieces"]);
         //captionValueDiv.textContent = utils.displayFloat(busy) + " из " + utils.displayFloat(total);
     }
 
     showAllBlock(color) {
-        let fill = 0;
-        let free = 0;        
-        let freePlaces = 0;
+        let busyPercent = 0;
+        let freePercent = 0;  
+        let busy = this.busyPallets + this.busyPieces;
+        let total = this.totalPallets + this.totalPieces;
 
-        fill = Math.round(this.busy / this.total * 100);
-        free = 100 - fill;
-        freePlaces = this.total - this.busy;
+        busyPercent = Math.round(busy / total * 100);
+        freePercent = 100 - busyPercent;
 
         const blockFillingDiv = document.getElementById("ALL-filling-div")
-        blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + fill + "%; margin-top: " + free + "%";
+        blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + busyPercent + "%; margin-top: " + freePercent + "%";
 
         const captionPercentDiv = document.getElementById("ALL-caption-percent-div");
-        captionPercentDiv.textContent = fill + " %";
+        captionPercentDiv.textContent = busyPercent + " %";
 
-        const captionValueDiv = document.getElementById("ALL-caption-value-div")
-        captionValueDiv.textContent = "свободно " + utils.displayFloat(freePlaces);
+        const captionPalletsDiv = document.getElementById("ALL-caption-pallets-div")
+        captionPalletsDiv.textContent = "св. палл. " + utils.displayFloat(this.totalPallets - this.busyPallets);
+
+        const captionPiecesDiv = document.getElementById("ALL-caption-pieces-div")
+        captionPiecesDiv.textContent = "св. яч-к " + utils.displayFloat(this.totalPieces - this.busyPieces);
     }
 
     showReport() {
-        this.busy = 0;
-        this.total = 0;   
+        this.busyPallets = 0;
+        this.busyPieces = 0;
+        this.totalPallets = 0;   
+        this.totalPieces = 0;   
 
         this.showBlock("HBW", "lightskyblue");
         this.showBlock("LBW", "lightskyblue");
@@ -97,6 +108,7 @@ class WarehouseFillingReportPage {
 
         this.showBlock("VKU", "bisque");
         this.showBlock("LM2", "bisque");
+        this.showBlock("LF2", "bisque");
         this.showBlock("LB1_3_E", "bisque");
         this.showBlock("P02", "bisque");
 
