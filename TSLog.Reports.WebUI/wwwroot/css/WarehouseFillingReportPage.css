@@ -11,11 +11,29 @@
 
 .block-div {
     width: 200px;
-    height: 272px;
+    height: 312px;
     border: solid;
     border-width: 1px;
     border-color: lightgray;
     margin: 10px;
+}
+
+.pallet-params-caption-div {
+    position: absolute;
+    margin-left: -64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+}
+
+.piece-params-caption-div {
+    position: absolute;
+    margin-left: -65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
 }
 
 .block-caption-div {

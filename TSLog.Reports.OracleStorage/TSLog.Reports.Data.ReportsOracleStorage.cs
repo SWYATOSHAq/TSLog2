@@ -5,6 +5,9 @@ using TSLog.Reports.BO;
 
 namespace TSLog.Reports.Data
 {
+    /// <summary>
+    /// Храниище данных для подсистемы отчётности
+    /// </summary>
     public class ReportsOracleStorage : OracleStorage, IReportsOracleStorage
     {
         private const int DefaultMaxRowsCount = 16;
@@ -66,6 +69,10 @@ namespace TSLog.Reports.Data
         {
             PartnersSchema = partnersSchema;
         }
+        /// <summary>
+        /// Возвращает данные для отчёта о загруженности склада
+        /// </summary>
+        /// <returns>Массив данных по загруженности склада (один элемент массива соответствует одной области склада)</returns>
         public dynamic[] GetFillingReportData()
         {
             var data = new List<dynamic>();
