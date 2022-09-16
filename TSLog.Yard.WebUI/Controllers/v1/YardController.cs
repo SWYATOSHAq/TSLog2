@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Globalization;
@@ -624,6 +625,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var partner = _storage.GetPartner(partnerId);
                 var managers =_storage.GetPartnerManagers(partner);
+                if (managers.Length <= 0)
+                    return $"Partner (client) {partnerId} has no managers!";
                 var text = JsonSerializer.Serialize(managers[0]);
                 Response.StatusCode = 200;
                 return text;

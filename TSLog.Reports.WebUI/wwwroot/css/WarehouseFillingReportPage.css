@@ -36,6 +36,12 @@
     height: 40px;
 }
 
+.param-input {
+    text-align: center;
+    border-radius: 0;
+    margin: 0;
+}
+
 .block-caption-div {
     position: absolute;
     height: 200px;

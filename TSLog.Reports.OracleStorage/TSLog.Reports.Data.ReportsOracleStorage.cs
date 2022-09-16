@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using Oracle.ManagedDataAccess.Client;
+using System.Dynamic;
 using TSLog.Common;
 using TSLog.Common.Data;
 using TSLog.Reports.BO;
@@ -73,7 +74,7 @@ namespace TSLog.Reports.Data
         /// Возвращает данные для отчёта о загруженности склада
         /// </summary>
         /// <returns>Массив данных по загруженности склада (один элемент массива соответствует одной области склада)</returns>
-        public dynamic[] GetFillingReportData()
+        public dynamic[] GetFillingReportData1()
         {
             var data = new List<dynamic>();
             using (var command = _connection.CreateCommand())
@@ -95,6 +96,36 @@ namespace TSLog.Reports.Data
                     element.placeType = placeType;
                     element.busy = busy;
                     element.total = total;
+                    data.Add(element);
+                }
+                reader.Close();
+            }
+            return data.ToArray();
+        }
+        public dynamic[] GetFillingReportData2(DateTime fromDate, DateTime toDate)
+        {
+            if (fromDate >= toDate)
+                throw new ArgumentException("Wrong dates!");
+            var data = new List<dynamic>();
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = 
+                    $"  select rd.dt, rd.busy\n" +
+                    $"    from {WmsExtensionsSchema}.wmsext_filling_report2#v rd\n" +
+                    $"   where rd.dt >= :from_date and rd.dt < :to_date\n" +
+                    $"order by rd.dt";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("from_date", fromDate));
+                command.Parameters.Add(new OracleParameter("to_date", toDate));
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var date = Utils.DbValueToDateTime(reader["dt"]);
+                    var busy = Utils.DbValueToInt(reader["busy"]);
+
+                    dynamic element = new ExpandoObject();
+                    element.date = date;
+                    element.busy = busy;
                     data.Add(element);
                 }
                 reader.Close();

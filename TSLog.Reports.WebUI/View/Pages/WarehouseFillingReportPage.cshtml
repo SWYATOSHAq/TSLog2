@@ -3,32 +3,37 @@
 @model WarehouseFillingReportPageModel
 @{ }
 
-<!--
-<div style="border-bottom: 1px solid lightgray; padding: 10px">
-    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" for="date-input">Дата:</label>
-    <input id="date-input"
+<div style="border-bottom: 1px solid lightgray; padding: 10px; display: flex; justify-content: center">
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" for="from-date-input">Начальная дата:</label>
+    <input id="from-date-input"
         class="datepicker border border-secondary"
         style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
         placeholder="Выберете дату"
         ne="date"
         readonly="" />
+    <label style="width: fit-content; padding: 0; margin: 0; margin-right: 4px;" for="to-date-input">Конечная дата (включая):</label>
+    <input id="to-date-input"
+           class="datepicker border border-secondary"
+           style="width: 120px; padding: 0; margin: 0; margin-right: 24px; text-align: center"
+           placeholder="Выберете дату"
+           ne="date"
+           readonly="" />
 </div>
--->
 
-<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px; justify-content: center">
-    <!--
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px; justify-content: center">    
     <button class="btn btn-outline-success"
             style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
             title="Сформировать отчёт"
             type="button"
-            onclick="shiftPerfomanceReportPage.createReport()">
+            onclick="warehouseFillingReportPage.createReport()">
         Применить
     </button>
+    <!--
     <button class="btn btn-outline-success"
             style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
             title="Выгрузить отчёт в Excel"
             type="button"
-            onclick="shiftPerfomanceReportPage.exportToExcel()">
+            onclick="warehouseFillingReportPage.exportToExcel()">
         В Excel
     </button>
     -->
@@ -53,15 +58,15 @@
                 </div>
                 <div style="height: 40px; display: flex">
                     <div class="pallet-params-caption-div">Паллет:</div>
-                    <input id="HBW-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="HBW-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="HBW-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="HBW-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="HBW-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="HBW-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
                     <div class="piece-params-caption-div">Ячейка:</div>
-                    <input id="HBW-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="HBW-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="HBW-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="HBW-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="HBW-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="HBW-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -85,14 +90,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LBW-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="LBW-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LBW-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="LBW-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="LBW-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LBW-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LBW-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="LBW-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LBW-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="LBW-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="LBW-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LBW-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -116,14 +121,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LB1_1_2-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="LB1_1_2-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LB1_1_2-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="LB1_1_2-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="LB1_1_2-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LB1_1_2-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LB1_1_2-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="LB1_1_2-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LB1_1_2-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="LB1_1_2-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="LB1_1_2-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LB1_1_2-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -147,14 +152,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="P01-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="P01-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="P01-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="P01-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="P01-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="P01-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="P01-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="P01-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="P01-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="P01-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="P01-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="P01-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -183,15 +188,15 @@
                 </div>
                 <div style="height: 40px; display: flex">
                     <div class="pallet-params-caption-div">Паллет:</div>
-                    <input id="VKU-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="VKU-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="VKU-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="VKU-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="VKU-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="VKU-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
                     <div class="piece-params-caption-div">Ячейка:</div>
-                    <input id="VKU-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="VKU-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="VKU-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="VKU-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="VKU-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="VKU-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -215,14 +220,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LM2-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="LM2-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LM2-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="LM2-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="LM2-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LM2-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LM2-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="LM2-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LM2-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="LM2-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="LM2-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LM2-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -246,14 +251,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LF2-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="LF2-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LF2-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="LF2-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="LF2-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LF2-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LF2-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="LF2-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LF2-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="LF2-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="LF2-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LF2-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -277,14 +282,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LB1_3_E-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="LB1_3_E-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LB1_3_E-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="LB1_3_E-pallet-load-cost-input" class="form-control param-input" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
+                    <input id="LB1_3_E-pallet-turnover-K-input" class="form-control param-input" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
+                    <input id="LB1_3_E-pallet-price-input" class="form-control param-input" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="LB1_3_E-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="LB1_3_E-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LB1_3_E-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="LB1_3_E-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="LB1_3_E-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LB1_3_E-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -308,14 +313,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="P02-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="P02-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="P02-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="P02-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="P02-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="P02-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="P02-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="P02-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="P02-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="P02-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="P02-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="P02-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -344,15 +349,15 @@
                 </div>
                 <div style="height: 40px; display: flex">
                     <div class="pallet-params-caption-div">Паллет:</div>
-                    <input id="LF3-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="LF3-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LF3-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="LF3-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="LF3-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LF3-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
                     <div class="piece-params-caption-div">Ячейка:</div>
-                    <input id="LF3-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="LF3-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="LF3-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="LF3-piece-load-cost-input" class="form-control param-input" style="width: 78px: 0" value="90" />
+                    <input id="LF3-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="LF3-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -376,14 +381,14 @@
                     <div style="width: 60px; display: flex; justify-content: center; align-items: center">Трф.</div>
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="P03-pallet-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="350" />
-                    <input id="P03-pallet-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="P03-pallet-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="18" />
+                    <input id="P03-pallet-load-cost-input" class="form-control param-input" style="width: 78px" value="350" />
+                    <input id="P03-pallet-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="P03-pallet-price-input" class="form-control param-input" style="width: 60px" value="18" />
                 </div>
                 <div style="height: 40px; display: flex">
-                    <input id="P03-piece-load-cost-input" class="form-control" style="width: 78px; text-align: center; border-radius: 0; margin: 0" value="90" />
-                    <input id="P03-piece-turnover-K-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="1" />
-                    <input id="P03-piece-price-input" class="form-control" style="width: 60px; text-align: center; border-radius: 0; margin: 0" value="12" />
+                    <input id="P03-piece-load-cost-input" class="form-control param-input" style="width: 78px" value="90" />
+                    <input id="P03-piece-turnover-K-input" class="form-control param-input" style="width: 60px" value="1" />
+                    <input id="P03-piece-price-input" class="form-control param-input" style="width: 60px" value="12" />
                 </div>
             </div>
             <div style="display: flex; height: 200px">
@@ -418,5 +423,8 @@
                 <div id="ALL-filling-div" class="filling-block-div"></div>
             </div>
         </div>        
+    </div>
+    <div style="height: fit-content; width: fit-content; background-color: lightgoldenrodyellow; margin: auto">
+        <canvas style="border: 1px solid black; width: 500px; height: 500px" id="canvas"></canvas>
     </div>
 </div>

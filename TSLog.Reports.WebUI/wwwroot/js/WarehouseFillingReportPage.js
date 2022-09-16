@@ -8,7 +8,9 @@
 class WarehouseFillingReportPage {
     shortUrl;
 
-    data = [];
+    capacity = 70 * 1000;
+    data1 = [];
+    data2 = [];
     busyPallets = 0;
     busyPieces = 0;
     totalPallets = 0;
@@ -22,14 +24,25 @@ class WarehouseFillingReportPage {
 
     createParameters() {
         let result = "";
+        result = utils.addParameter(result, "from_date", "from-date-input");
+        result = utils.addParameter(result, "to_date", "to-date-input");
         return result != "" ? "?" + result : "";
     }
 
     // Получение данных с сервера по rest api
-    async getData() {
-        const result = await api.getWarehouseFillingReportData();
+    async getData1() {
+        const result = await api.getWarehouseFillingReportData1();
         if (result.code === 0) {
-            this.data = result.data;
+            this.data1 = result.data;
+        } else {
+            viewUtils.showError(result.message);
+        }
+    }
+
+    async getData2(fromDate, toDate) {
+        const result = await api.getWarehouseFillingReportData2(fromDate, toDate);
+        if (result.code === 0) {
+            this.data2 = result.data;
         } else {
             viewUtils.showError(result.message);
         }
@@ -82,13 +95,13 @@ class WarehouseFillingReportPage {
         let freePieces = 0;
 
         const blockFillingDiv = document.getElementById(area + "-filling-div")
-        busyPercent = Math.round(this.data[area + "_percent"] * 100);
+        busyPercent = Math.round(this.data1[area + "_percent"] * 100);
         freePercent = 100 - busyPercent;
         
-        busyPallets = this.data[area + "_busy_pallets"];
-        busyPieces = this.data[area + "_busy_pieces"];
-        totalPallets = this.data[area + "_total_pallets"];
-        totalPieces = this.data[area + "_total_pieces"]
+        busyPallets = this.data1[area + "_busy_pallets"];
+        busyPieces = this.data1[area + "_busy_pieces"];
+        totalPallets = this.data1[area + "_total_pallets"];
+        totalPieces = this.data1[area + "_total_pieces"]
 
         this.busyPallets += busyPallets;
         this.busyPieces += busyPieces;
@@ -134,10 +147,10 @@ class WarehouseFillingReportPage {
         */
 
         const captionPalletsDiv = document.getElementById(area + "-caption-pallets-div")
-        captionPalletsDiv.textContent = "св. палл. " + utils.displayFloat(this.data[area + "_total_pallets"] - this.data[area + "_busy_pallets"]);
+        captionPalletsDiv.textContent = "св. палл. " + utils.displayFloat(this.data1[area + "_total_pallets"] - this.data1[area + "_busy_pallets"]);
 
         const captionPiecesDiv = document.getElementById(area + "-caption-pieces-div")
-        captionPiecesDiv.textContent = "св. яч-к " + utils.displayFloat(this.data[area + "_total_pieces"] - this.data[area + "_busy_pieces"]);
+        captionPiecesDiv.textContent = "св. яч-к " + utils.displayFloat(this.data1[area + "_total_pieces"] - this.data1[area + "_busy_pieces"]);
         //captionValueDiv.textContent = utils.displayFloat(busy) + " из " + utils.displayFloat(total);
     }
 
@@ -189,16 +202,121 @@ class WarehouseFillingReportPage {
         this.showBlock("P03", "lightpink");
 
         this.showAllBlock("lightpink");
+
+        const daysCount = this.data2.length;
+        const canvas = document.getElementById("canvas");
+        canvas.style.cssText = "border: 1px solid black; width: " + (daysCount * 5 + 80) + "px; height: 580px";
+        canvas.setAttribute("width", daysCount * 5 + 80);
+        canvas.setAttribute("height", 580);
+
+        const context = canvas.getContext('2d');
+        
+        context.fillStyle = "black";
+        context.font = context.font.replace(/\d+px/, "12px");
+        context.lineWidth = 2.0;
+        context.beginPath();
+        context.moveTo(40, 40);
+        context.lineTo(40, 540);
+        context.lineTo(40 + daysCount * 5, 540);
+        context.stroke();
+
+        context.fillStyle = "black";
+        for (let i = 0; i < 6; i++) {
+            context.fillText((5 - i) * 20 + "", 8, i * 100 + 44);
+            context.beginPath();
+            context.moveTo(32, i * 100 + 40);
+            context.lineTo(40, i * 100 + 40);
+            context.stroke();
+        }
+
+        /*
+        let labels = ["JAN", "FEB", "MAR", "APR", "MAY"];
+        for (let i = 0; i < 5; i++) {
+            context.fillText(labels[i], 50 + i * 100, 475);
+        }
+        */
+
+        let i = 0;
+        let x = 0;
+        let y = 0;
+        let prevX = 0;
+        let prevY = 0;        
+        for (let element of this.data2) {            
+            i++;
+            prevX = x;
+            prevY = y;
+            x = 40 + (i - 1) * 5;
+            y = (100 - Math.round(element.busy / this.capacity * 100)) * 5;
+            if (i > 1) {
+                context.beginPath();
+                context.moveTo(prevX, prevY);
+                context.lineTo(x, y);
+                context.stroke();
+            }
+        }
+
+        /*
+        let data = [10, 53, 39, 54, 21];
+        context.fillStyle = "green";
+        for (let i = 0; i < data.length; i++) {
+            let dp = data[i];
+            context.fillRect(40 + i * 100, 460 - dp * 5, 50, dp * 5);
+        }
+        */
+    }
+
+    async createReport() {
+        const fromDate = utils.getUrlParameter("from_date");
+        const toDate = utils.getUrlParameter("to_date");
+
+        await this.getData1();
+        await this.getData2(fromDate, toDate);
+
+        this.showReport();
     }
 
     print() {
         window.print();
     }
 
-    async show() {
-        await this.getData();
+    onChangeDate() {
+        const url = this.shortUrl + this.createParameters();
+        history.pushState({}, null, url);
+    }
 
-        this.showReport();
+    async show() {
+        const fromDatePicker = $("#from-date-input");
+        const toDatePicker = $("#to-date-input");
+        fromDatePicker.datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            language: "ru",
+            todayBtn: true,
+            todayHighlight: true,
+        });
+        toDatePicker.datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            language: "ru",
+            todayBtn: true,
+            todayHighlight: true,
+        });
+
+        let fromDate = utils.getUrlParameter("from_date");
+        let toDate = utils.getUrlParameter("to_date");
+        if (fromDate == "") {
+            fromDate = utils.getNowDate();
+        }
+        fromDatePicker.datepicker("setDate", fromDate);
+        fromDatePicker.on("changeDate", this.onChangeDate.bind(this));
+        if (toDate == "") {
+            toDate = fromDate;
+        }
+        toDatePicker.datepicker("setDate", toDate);
+        toDatePicker.on("changeDate", this.onChangeDate.bind(this));
+
+        await this.createReport();
+       
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }

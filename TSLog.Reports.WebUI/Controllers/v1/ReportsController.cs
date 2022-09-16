@@ -10,6 +10,10 @@ namespace TSLog.Reports.WebUI.Controllers.v1
     [ApiController]
     public class ReportsController : Controller
     {
+        /// <summary>
+        /// Максимальный период для отчёта по загружености склада (в сутках)
+        /// </summary>
+        private const int MaxReportPeriodDays = 180;
         private readonly IConfiguration _configuration;
         private readonly IReportsStorage _storage;
         private readonly RightsChecker _rightsChecker;
@@ -22,8 +26,8 @@ namespace TSLog.Reports.WebUI.Controllers.v1
             _useAuthentication = _configuration.GetValue<bool>("UseAuthentication");
         }
 
-        [HttpGet("WarehouseFillingReport")]
-        public string GetWarehouseFillingData()
+        [HttpGet("WarehouseFillingReport1")]
+        public string GetWarehouseFillingData1()
         {
             try
             {
@@ -36,7 +40,7 @@ namespace TSLog.Reports.WebUI.Controllers.v1
                     return "Forbidden";
                 }
 
-                var elements = _storage.GetFillingReportData();
+                var elements = _storage.GetFillingReportData1();
                 dynamic data = new ExpandoObject();
 
                 data.P01_busy = 0;
@@ -137,6 +141,53 @@ namespace TSLog.Reports.WebUI.Controllers.v1
                 foreach (var area in areas)
                     calculateArea(area);
 
+                var text = JsonSerializer.Serialize(data);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
+        [HttpGet("WarehouseFillingReport2")]
+        public string GetWarehouseFillingData2()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useReports = _rightsChecker.CheckRight("USE_REPORTS", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_WAREHOUSE_FILLING_REPORT", User);
+                if (_useAuthentication && (!useReports || !getOperationDuration))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["from_date"];
+                var fromDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out fromDate))
+                        return $"Wrong from date {temp}";
+                }
+                temp = Request.Query["to_date"];
+                var toDate = DateTime.Today.AddDays(1);
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out toDate))
+                        return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1);
+                }
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
+                if ((toDate - fromDate).TotalDays > MaxReportPeriodDays)
+                    toDate = fromDate.AddDays(MaxReportPeriodDays);
+
+                var data = _storage.GetFillingReportData2(fromDate, toDate);
                 var text = JsonSerializer.Serialize(data);
                 Response.StatusCode = 200;
                 return text;
