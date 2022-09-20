@@ -33,15 +33,37 @@
   - TSLog.Common - общий функционал(шифрование, дешифрование, вычисление хэша,формирование адреса из элементов, преобразование полного ФИО в краткое, получение массива дат из 
 	заданного промежутка);
   - TSLog.Common.BO - общие объекты для всех проектов
-  - TSLog.Common.OracleStorage - 
-  - TSLog.Common.PgSqlStorage - 
-  - TSLog.ExeptionHandler - 
-  - TSLog.Incomes.BO - 
-  - TSLog.LegalEntities.BO - 
-  - TSLog.Links - 
-  - TSLog.Links.Gs1EdXml - 
-  - TSLog.Links.KotonExport - 
-  - TSLog.Links.OracleStorage - 
-  - TSLog.Links.PSI.DataConveter - 
-  - TSLog.Links.Services - 
-  - TSLog.Links.Test
+  - TSLog.Common.OracleStorage - общие классы для работы с БД Oracle
+  - TSLog.Common.PgSqlStorage - общие классы для работы с БД Postgre
+  - TSLog.ExeptionHandler - общие классы для обработки исключений
+  - TSLog.Incomes.BO - классы для прихода
+  - TSLog.LegalEntities.BO - классы для юр.лиц
+  - TSLog.Links - интеграционный функционал (не внедрен)
+  - TSLog.Links.Gs1EdXml - интеграция с клиентами в качестве сообщения используется формат Gs1 (не внедрен)
+  - TSLog.Links.KotonExport - единоразовый экспорт данных для Коттона (не используется) 
+  - TSLog.Links.OracleStorage - хранилище для интеграции (не используется) 
+  - TSLog.Links.PSI.DataConveter - конвертация сообщений Gs1 в сообщения PSI (не внедрен)
+  - TSLog.Links.Services - API для пондянтия интеграционных веб-сервисов (не внедрен)
+  - TSLog.Links.Test - тестирование интеграции (не внедрен)
+  - TSLog.Log
+  - TSLog.Outgoes.BO
+  - TSLog.Partners.BO
+  - TSLog.Products.BO
+  - TSLog.Reports.BO
+  - TSLog.Reports.OracleStorage
+  - TSLog.Reports.Storage
+  - TSLog.Reports.WebUI
+  - TSLog.Staff.BO
+  - TSLog.Staff.OracleStorage
+  - TSLog.Staff.Test
+  - TSLog.Staff.WebUI
+  - TSLog.WarehouseActions.BO
+  - TSLog.Yard.BO
+  - TSLog.Yard.OracleStorage
+  - TSLog.Yard.PgSqlStorage
+  - TSLog.Yard.Reporting
+  - TSLog.Yard.Storage
+  - TSLog.Yard.Test
+  - TSLog.Yard.WebUI
+
+
