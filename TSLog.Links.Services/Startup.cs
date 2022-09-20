@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Security;
 using TSLog.Common.BO;
-using TSLog.LegalEntities.BO;
 using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
 using TSLog.Partners.BO;

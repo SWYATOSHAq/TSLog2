@@ -191,8 +191,7 @@ namespace TSLog.Links.Data
         {
             get
             {
-                if (_tslog == null)
-                    _tslog = new Partner("TSLOG", "TSL", "ТехСкладЛогистик");
+                _tslog ??= new Partner("TSLOG", "TSL", "ТехСкладЛогистик");
                 return _tslog;
             }
         }

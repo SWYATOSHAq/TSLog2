@@ -16,9 +16,9 @@ class Api {
         }
     }
 
-    // Возвращает плановую продолжительность операции двора типу операции и виду автомашины
-    async getPlanDuration(operationTypeCode, vehicleKindCode) {
-        const response = await fetch("./api/v1/yard/OperationDuration" +
+    // Возвращает плановую продолжительность операции двора типу операции и виду автомашины (стандартное значение для ПОЛНОЙ машины)
+    async getStandardPlanOperationDuration(operationTypeCode, vehicleKindCode) {
+        const response = await fetch("./api/v1/yard/StandardPlanOperationDuration" +
             "?operation_type=" + operationTypeCode +
             "&vehicle_kind=" + vehicleKindCode);
         if (response.status >= 200 && response.status < 300) {
@@ -29,14 +29,36 @@ class Api {
         }
     }
 
-    // Возвращает плановую продолжительность операции с учётом назначенных заказов
-    async getPlanDuration2(operationTypeCode, vehicleKindCode, warehouseActions) {
+    // Возвращает плановую продолжительность операции с учётом назначенных заказов (расходов)/приходов
+    async getFillingPlanOperationDuration(operationTypeCode, vehicleKindCode, warehouseActions) {
         const data = {
             operationTypeCode: operationTypeCode,
             vehicleKindCode: vehicleKindCode,
             warehouseActions: warehouseActions
         };
-        const url = "./api/v1/yard/OperationDuration2";
+        const url = "./api/v1/yard/FillingPlanOperationDuration";
+        const options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("planDuration", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Возвращает плановую продолжительность операции с учётом назначенных заказов (алгоритм Башлыкова)
+    async getHoodManPlanOperationDuration(operationTypeCode, vehicleKindCode, outgoes) {
+        const data = {
+            operationTypeCode: operationTypeCode,
+            vehicleKindCode: vehicleKindCode,
+            outgoes: outgoes
+        };
+        const url = "./api/v1/yard/HoodManPlanOperationDuration";
         const options = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -52,8 +74,8 @@ class Api {
     }
 
     // Возвращает плановую продолжительность загрузки заказа (на отгрузку)
-    async getOutgoDuration(outgoId, isPallet, partnerId) {
-        const response = await fetch("./api/v1/yard/OutgoDuration" +
+    async getHoodManPlanOutgoDuration(outgoId, isPallet, partnerId) {
+        const response = await fetch("./api/v1/yard/HoodManPlanOutgoDuration" +
             "?outgo_id=" + outgoId +
             "&is_pallet=" + isPallet + 
             "&partner_id=" + partnerId);
@@ -65,9 +87,10 @@ class Api {
         }
     }
 
-    // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
-    async getPlanLaborCost(operationTypeCode, vehicleKindCode) {
-        let response = await fetch("./api/v1/yard/OperationLaborCost?" +
+    // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины 
+    // (+ плановые трудозатраты только линейного персонала), стадартное значение плановых трудозатрат
+    async getStandardPlanOperationLaborCost(operationTypeCode, vehicleKindCode) {
+        let response = await fetch("./api/v1/yard/StandardPlanOperationLaborCost?" +
             "operation_type=" + operationTypeCode +
             "&vehicle_kind=" + vehicleKindCode);
         if (response.status >= 200 && response.status < 300) {
@@ -80,13 +103,39 @@ class Api {
 
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
     // с учётом назначенных заказов
-    async getPlanLaborCost2(operationTypeCode, vehicleKindCode, warehouseActions) {
+    async getFillingPlanOperationLaborCost(operationTypeCode, vehicleKindCode, warehouseActions) {
         const data = {
             operationTypeCode: operationTypeCode,
             vehicleKindCode: vehicleKindCode,
             warehouseActions: warehouseActions
         };
-        const url = "./api/v1/yard/OperationLaborCost2";
+        const url = "./api/v1/yard/FillingPlanOperationLaborCost";
+        const options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch(url, options);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
+    // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
+    // с учётом назначенных заказов (расширенный алгоритм Башлыкова)
+    async getHoodManPlanOperationLaborCost(operationTypeCode, vehicleKindCode, warehouseActions) {
+        const data = {
+            operationTypeCode: operationTypeCode,
+            vehicleKindCode: vehicleKindCode,
+            fromDate: fromDate,
+            toDate: toDate,
+            gateCode: gateCode,
+            warehouseActions: warehouseActions
+        };
+        const url = "./api/v1/yard/HoodManPlanOperationLaborCost";
         const options = {
             method: "POST",
             headers: { "Content-Type": "application/json" },

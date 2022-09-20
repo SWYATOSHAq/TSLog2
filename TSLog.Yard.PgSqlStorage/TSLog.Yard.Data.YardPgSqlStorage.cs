@@ -21,6 +21,7 @@ namespace TSLog.Yard.Data
     {
         private const int DefaultMaxRowsCount = 16;
         private const string DefaultYardSchema = "yard";
+        private const short DefaultWorkersCount = 1;
         /// <summary>
         /// Максимальное количество строк для вывода
         /// </summary>
@@ -1056,6 +1057,47 @@ namespace TSLog.Yard.Data
             if (actions == null)
                 throw new ArgumentNullException(nameof(actions));
             return 0;
+        }
+        /// <summary>
+        /// Возвращает плановое количество ЛИНЕЙНЫХ работников операции двора, в зависимости от типа операции и вида машины
+        /// </summary>
+        /// <param name="operationType">Тип операции двора</param>
+        /// <param name="vehicleKind">Вид машины</param>
+        /// <returns>Плановое количество сотрудников</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public short GetPlanLinearWorkersCount(OperationType operationType, VehicleKind vehicleKind)
+        {
+            if (operationType == null)
+                throw new ArgumentNullException(nameof(operationType));
+            if (vehicleKind == null)
+                throw new ArgumentNullException(nameof(vehicleKind));
+
+            var count = DefaultWorkersCount;
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"with positions_workers as (select t.position_id, max(workers_count) workers_count\n" +
+                        $"                             from {YardSchema}.v_ot_vk_work t\n" +
+                        $"                        left join {YardSchema}.v_position p on t.position_id = p.id\n" +
+                        $"                            where t.operation_type_id = :operation_type_id\n" +
+                        $"                              and t.vehicle_kind_id = :vehicle_kind_id\n" +
+                        $"                              and p.is_linear = 1\n" +
+                        $"                         group by t.position_id\n" +
+                        $")\n" +
+                        $"select sum(pw.workers_count) workers_count from positions_workers pw";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                    using var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        count = Utils.DbValueToShort(reader["workers_count"]);
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return count;
         }
         /// <summary>
         /// Возвращает плановые трудозатраты операции двора (ПРР) по указанному типу операции двора и виду автомашины
@@ -2990,10 +3032,12 @@ namespace TSLog.Yard.Data
 
                         // Скорректированы плановые трудозатарты в зависимости от заказов
                         // В рамках задачи #2381 Сделать описание отчёта производительности смены.
-                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
-                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
+                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);                        
+                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);                        
                         var operationType = GetOperationType(operationTypeId);
+                        operation.typeCode = operationType.Code;
                         var vehicleKind = GetVehicleKind(vehicleKindId);
+                        operation.vehicleKindCode = vehicleKind.Code;
                         var standardPlanDuration = GetDuration(operationType, vehicleKind,
                             out int standardConstantDuration, out int standardVariableDuration);
                         var planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalSeconds;

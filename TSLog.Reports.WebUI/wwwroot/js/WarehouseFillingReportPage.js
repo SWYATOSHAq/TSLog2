@@ -180,11 +180,11 @@ class WarehouseFillingReportPage {
         captionPiecesDiv.textContent = "св. яч-к " + utils.displayFloat(this.totalPieces - this.busyPieces);
     }
 
-    showReport() {
+    showPart1() {
         this.busyPallets = 0;
         this.busyPieces = 0;
-        this.totalPallets = 0;   
-        this.totalPieces = 0;   
+        this.totalPallets = 0;
+        this.totalPieces = 0;
         this.shortfall = 0;
 
         this.showBlock("HBW", "lightskyblue");
@@ -202,7 +202,9 @@ class WarehouseFillingReportPage {
         this.showBlock("P03", "lightpink");
 
         this.showAllBlock("lightpink");
+    }
 
+    showPart2() {
         const daysCount = this.data2.length;
         const canvas = document.getElementById("canvas");
         canvas.style.cssText = "border: 1px solid black; width: " + (daysCount * 5 + 80) + "px; height: 580px";
@@ -210,7 +212,7 @@ class WarehouseFillingReportPage {
         canvas.setAttribute("height", 580);
 
         const context = canvas.getContext('2d');
-        
+
         context.fillStyle = "black";
         context.font = context.font.replace(/\d+px/, "12px");
         context.lineWidth = 2.0;
@@ -229,19 +231,12 @@ class WarehouseFillingReportPage {
             context.stroke();
         }
 
-        /*
-        let labels = ["JAN", "FEB", "MAR", "APR", "MAY"];
-        for (let i = 0; i < 5; i++) {
-            context.fillText(labels[i], 50 + i * 100, 475);
-        }
-        */
-
         let i = 0;
         let x = 0;
         let y = 0;
         let prevX = 0;
-        let prevY = 0;        
-        for (let element of this.data2) {            
+        let prevY = 0;
+        for (let element of this.data2) {
             i++;
             prevX = x;
             prevY = y;
@@ -254,15 +249,11 @@ class WarehouseFillingReportPage {
                 context.stroke();
             }
         }
+    }
 
-        /*
-        let data = [10, 53, 39, 54, 21];
-        context.fillStyle = "green";
-        for (let i = 0; i < data.length; i++) {
-            let dp = data[i];
-            context.fillRect(40 + i * 100, 460 - dp * 5, 50, dp * 5);
-        }
-        */
+    showReport() {
+        this.showPart1();
+        this.showPart2();       
     }
 
     async createReport() {

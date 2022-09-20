@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Globalization;
@@ -13,6 +12,7 @@ using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 using TSLog.Yard.Reporting;
 using static TSLog.Yard.BO.OperationType;
+using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.WebUI.Pages.api.v1
 {
@@ -229,8 +229,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("OperationDuration")]
-        public string GetOperationDuration()
+        [HttpGet("StandardPlanOperationDuration")]
+        public string GetStandardPlanOperationDuration()
         {
             try
             {
@@ -263,7 +263,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        private int GetDuration2(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
+        private int GetDuration2(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
         {
             var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
                    out int standardConstantDuration, out int standardVariableDuration);
@@ -353,16 +353,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 totalTime = standardTotalDuration;
 
             return (int)totalTime;
-        }
-        private int GetDuration3(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions, Partner partner)
-        {
-            var time = 0;
-            foreach (var action in actions)
-                time += _storage.GetOutgoPlanTime(action.id, operationType.IsPallet, partner);
-            return time;
-        }
-        [HttpPost("OperationDuration2")]
-        async public Task<string> GetOperationDuration2()
+        }        
+        [HttpPost("FillingPlanOperationDuration")]
+        async public Task<string> GetFillingPlanOperationDuration()
         {
             try
             {
@@ -389,8 +382,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
                
-                var timeSpan = GetDuration2(operationType, vehicleKind, actions);
-                var text = JsonSerializer.Serialize(timeSpan);
+                var duration = GetDuration2(operationType, vehicleKind, actions);
+                var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -399,8 +392,23 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpPost("OperationDuration3")]
-        async public Task<string> GetOperationDuration3()
+        private int _GetHoodManPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind,
+            Partner partner, string[] outgoesIds)
+        {
+            var duration = 0;
+            foreach (var outgoId in outgoesIds)
+                duration += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
+            duration += DefaultConstantOperationDuration;
+
+            // Значение по умолчанию при максимальной загрузке машины
+            var defaultDuration = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
+            if (duration > defaultDuration)
+                duration = defaultDuration;
+
+            return duration;
+        }
+        [HttpPost("HoodManPlanOperationDuration")]
+        async public Task<string> GetHoodManPlanOperationDuration()
         {
             try
             {
@@ -425,11 +433,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (string.IsNullOrWhiteSpace(stringVehicleKind))
                     return "Vehicle kind is empty";
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-                Partner partner = null;
+                string partnerId = data.partnerId;
+                var partner = _storage.GetPartner(partnerId);
+                dynamic[] outgoes = ((JArray)data.warehouseActions).ToArray<dynamic>();
+                var outgoesIds = new List<string>();
+                foreach (var outgo in outgoes)
+                    outgoesIds.Add(outgo.id);
 
-                var timeSpan = GetDuration3(operationType, vehicleKind, actions, partner);
-                var text = JsonSerializer.Serialize(timeSpan);
+                var duration = _GetHoodManPlanOperationDuration(operationType, vehicleKind, partner, outgoesIds.ToArray());
+                
+                var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -438,11 +451,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("OutgoDuration")]
-        public string GetOutgoDuration()
+        [HttpGet("HoodManPlanOutgoDuration")]
+        public string GetHoodManPlanOutgoDuration()
         {
             try
             {
+                // Алгоритм Башлыкова
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperationDuration = _rightsChecker.CheckRight("GET_OUTGO_DURATION", User);
@@ -470,8 +484,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpGet("OperationLaborCost")]
-        public string GetOperationLaborCost()
+        [HttpGet("StandardPlanOperationLaborCost")]
+        public string GetStandardPlanOperationLaborCost()
         {
             try
             {
@@ -510,7 +524,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        private double GetLaborCostK(BO.OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
+        private double GetFillingPlanOperationK(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
         {
             var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
                 out int standardConstantDuration, out int standardVariableDuration);
@@ -518,8 +532,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             return (double)duration / standardTotalDuration;
         }
-        [HttpPost("OperationLaborCost2")]
-        async public Task<string> GetOperationLaborCost2()
+        [HttpPost("FillingPlanOperationLaborCost")]
+        async public Task<string> GetFillingPlanOperationLaborCost()
         {
             try
             {
@@ -546,7 +560,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
-                var k = GetLaborCostK(operationType, vehicleKind, actions);
+                var k = GetFillingPlanOperationK(operationType, vehicleKind, actions);
                 var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
                 var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
                
@@ -555,6 +569,90 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 result.linearLaborCost = Math.Round(linearLaborCost * k);
 
                 var text = JsonSerializer.Serialize(result);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+        /// <summary>
+        /// Функция определяем ПЛАНОВЫЕ трудозатраты операции двора по Алгоритму Башлыкова (HoodMan algorithm)
+        /// Трудозатраты определяются в зависимости от собранных ТЕ в заказах + 
+        /// фиксированное время (время постановки машины, ...) * количество работников (по БоссКонтролю или по плану)
+        /// </summary>
+        /// <param name="outgoes">Массив заказов</param>
+        /// <param name="operationType">Тип операции двора</param>
+        /// <param name="vehicleKind">Вид машины</param>
+        /// <param name="factWorkStartDate">Дата начала погрузки</param>
+        /// <param name="factWorkFinishDate">Дата окончания погрузки</param>
+        /// <param name="siteCode">Код участка работ</param>
+        /// <returns>Плановые трудозатраты</returns>
+        private int _GetHoodManPlanOperationLaborCost(OperationType operationType, VehicleKind vehicleKind, Partner partner,
+            DateTime factWorkStartDate, DateTime factWorkFinishDate, string siteCode, string[] outgoesIds)
+        {
+            var laborCost = 0;
+            // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
+            foreach (var outgoId in outgoesIds)
+                laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
+
+            // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
+            // Учитываем это в плановых трудозатратах.                
+            var workersCount = _storage.GetBcWorkersCount(factWorkStartDate, factWorkFinishDate, siteCode);
+            if (workersCount <= 0)
+                workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
+            laborCost += workersCount * DefaultConstantOperationDuration;
+
+            var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
+            if (laborCost > defaultLaborCost)
+                laborCost = defaultLaborCost;
+
+            return laborCost;
+        }
+        [HttpPost("HoodManPlanOperationLaborCost")]
+        async public Task<string> GetHoodManPlanOperationLaborCost()
+        {
+            try
+            {
+                // Расширенный алгоритм Башлыкова
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+                if (_useAuthentication && (!useYard || !getOperationDuration))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                string stringOperationType = data.operationTypeCode;
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                var operationType = _storage.GetOperationType(stringOperationType);
+                string stringVehicleKind = data.vehicleKindCode;
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+                string partnerId = data.partnerId;
+                var partner = _storage.GetPartner(partnerId);
+                dynamic[] outgoes = ((JArray)data.outgoes).ToArray<dynamic>();
+                var outgoesIds = new List<string>();
+                foreach (var outgo in outgoes)
+                    outgoesIds.Add(outgo.id);
+
+                DateTime factWorkStartDate = data.factWorkStartDate;
+                DateTime factWorkFinishDate = data.factWorkFinishDate;
+                string gateCode = data.gateCode;
+                var siteCode = _storage.GetSiteCodeByGateCode(gateCode);
+
+                var laborCost = _GetHoodManPlanOperationLaborCost(operationType, vehicleKind, partner,
+                    factWorkStartDate, factWorkFinishDate, siteCode, outgoesIds.ToArray());                
+
+                var text = JsonSerializer.Serialize(laborCost);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -697,7 +795,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         dynamicAction.id = action.Id;
                         dynamicActions.Add(dynamicAction);
                     }
-                    var k = GetLaborCostK(operation.Type, operation.VehicleKind, dynamicActions.ToArray());
+                    var k = GetFillingPlanOperationK(operation.Type, operation.VehicleKind, dynamicActions.ToArray());
                     dynamicOperation.planLaborCost = Math.Round(dynamicOperation.planLaborCost * k);
                     dynamicOperation.planLinearLaborCost = Math.Round(dynamicOperation.planLinearLaborCost * k);
                     
@@ -2859,10 +2957,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         var tempId = id.Trim();
                         if (!string.IsNullOrWhiteSpace(tempId) && !partners.Contains(tempId))
                         {
-                            var partner = _storage.GetPartner(tempId);
+                            var tempPartner = _storage.GetPartner(tempId);
                             if (partnerNames.Length > 0)
                                 partnerNames = partnerNames += ", ";
-                            partnerNames += partner.Name;
+                            partnerNames += tempPartner.Name;
                             partners.Add(tempId);
                         }
                     }
@@ -2873,7 +2971,26 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.factLaborCost = 0.0;
                     foreach (var work in operation.works) 
                         operation.factLaborCost += work.duration;
-                    operation.planLaborCost = operation.planLaborCost;
+
+                    // 2022.09.19 Буров Михаил.
+                    // Изменён алгоритм рассчёта производительности, теперь определяем прановые трудозатраты по алгоритму Башлыкова
+
+                    // Определяем заказы, которые относятся к данной операции двора
+                    Operation tempOperation = _storage.GetOperation(operation.id);
+                    if (tempOperation.Type.Direction == TypeDirection.Out)
+                    {
+                        var outgoesIds = new List<string>();
+                        foreach (var outgo in tempOperation.GetActions())
+                            outgoesIds.Add(outgo.Id);
+                        var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
+
+                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost(tempOperation.Type, tempOperation.VehicleKind,
+                            partner,
+                            tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate, siteCode, outgoesIds.ToArray());
+                    }
+                    else // Приходы - берём стадартный план
+                        operation.planLaborCost = operation.planLaborCost;
+
                     operation.factLaborCost = operation.factLaborCost;
                 }
 

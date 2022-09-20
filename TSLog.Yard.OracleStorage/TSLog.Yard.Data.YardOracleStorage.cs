@@ -1992,6 +1992,59 @@ namespace TSLog.Yard.Data
             return works.ToArray();
         }
         /// <summary>
+        /// Возвращает количество РАЗЛИЧНЫХ работников, которые по системе БоссКонтроль 
+        /// работали в указанный интервал времени на указанном участке
+        /// </summary>
+        /// <param name="fromDate">Дата и время начала интервала</param>
+        /// <param name="toDate">Дата и время окончания интервала</param>
+        /// <param name="siteCode">Код участка работ</param>
+        /// <returns>Количество различных работников</returns>
+        public int GetBcWorkersCount(DateTime fromDate, DateTime toDate, string siteCode)
+        {
+            var ids = new HashSet<int>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    $"with dates as (\n" +
+                    $"  select :start_date fact_work_start_date,\n" +
+                    $"         :finish_date fact_work_finish_date\n" +
+                    $"    from dual\n" +
+                    $"),\n" +
+                    $"data2 as (\n" +
+                    $"    select emp.position_id, emp.position_name,\n" +
+                    $"           d.worker_id, e.full_name worker_full_name\n" +
+                    $"      from dates dt\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works_wi(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $" left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $" left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $" left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"     where d.finish_date - d.start_date > 0\n" +
+                    $"       and s.kind <> 'AUXILIARY'\n" +
+                    $"       and s.code = :site_code\n" +
+                    $"       and s.kind = 'GATE' -- Только ворота\n" +
+                    $"       and e.id is not null\n" +
+                    $" )\n" +
+                    $"   select distinct d.worker_id\n" +
+                    $"     from data2 d\n" +
+                    $" order by d.worker_id";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("start_date", fromDate));
+                command.Parameters.Add(new OracleParameter("finish_date", toDate));
+                command.Parameters.Add(new OracleParameter("site_code", siteCode));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var id = Utils.DbValueToInt(reader["worker_id"]);
+                    if (!ids.Contains(id))
+                        ids.Add(id);
+                }
+                reader.Close();
+            }
+            return ids.Count;
+        }
+        /// <summary>
         /// Функция определения планового времени работы и простоя персонала за период (во времени и в деньгах).
         /// Период разбивается на смены по 12 часов.
         /// Для каждой смены определяются работники, которые в течение смены отработали хотя бы 10% времени от смены.

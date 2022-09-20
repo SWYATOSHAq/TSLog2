@@ -256,6 +256,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetDuration(operationType, vehicleKind, out constantDuration, out variableDuration);
         }
+        public short GetPlanLinearWorkersCount(OperationType operationType, VehicleKind vehicleKind)
+        {
+            return _pgsqlStorage.GetPlanLinearWorkersCount(operationType, vehicleKind);
+        }
         public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
         {
             return _pgsqlStorage.GetLaborCost(operationType, vehicleKind);
@@ -447,6 +451,10 @@ namespace TSLog.Yard
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
         {
             return _oracleStorage.GetBossControlWorks(startDate, finishDate, siteCode);
+        }
+        public int GetBcWorkersCount(DateTime fromDate, DateTime toDate, string siteCode)
+        {
+            return _oracleStorage.GetBcWorkersCount(fromDate, toDate, siteCode);
         }
         public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode)
         {

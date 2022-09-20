@@ -34,6 +34,7 @@ namespace TSLog.Yard.BO
         public Logist GetLogist(string code);
         public Logist[] GetLogists();
         public short GetDuration(OperationType operationType, VehicleKind vehicleKind, out int constantDuration, out int variableDuration);
+        public short GetPlanLinearWorkersCount(OperationType operationType, VehicleKind vehicleKind);
         public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind);
         public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind);
         public Interval[] GetAllIntervals(DateTime from, DateTime to);
@@ -112,6 +113,7 @@ namespace TSLog.Yard.BO
         public Position[] GetPositions();
         public Position[] GetLinePositions();
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode);
+        public int GetBcWorkersCount(DateTime fromDate, DateTime toDate, string siteCode);
         public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode);
     }
     public interface IYardReportingStorage

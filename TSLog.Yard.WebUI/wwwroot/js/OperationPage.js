@@ -157,17 +157,19 @@ class OperationPage {
     async getPlanDuration() {
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
+        const partnersSelect = document.getElementById("partners-select");
         this.planDuration = 0;
 
         if (operationTypeCode === "" || vehicleKindCode === "") {
             return;
         }
 
+        const partnerId = partnersSelect.value;
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
             actions.push({ kind: this.kind, id: warehouseActionId });
         }
-        const result = await api.getPlanDuration2(operationTypeCode, vehicleKindCode, actions);
+        const result = await api.getFillingPlanOperationDuration(operationTypeCode, vehicleKindCode, actions);
 
         if (result.code === 0) {
             this.planDuration = result.planDuration;
@@ -189,7 +191,7 @@ class OperationPage {
         for (let actionId in this.selectedWarehouseActions) {
             const action = this.selectedWarehouseActions[actionId];
             if (action.kind === "O") {
-                const result = await api.getOutgoDuration(action.id, isPallet, action.partnerId);
+                const result = await api.getHoodManPlanOutgoDuration(action.id, isPallet, action.partnerId);
                 if (result.code === 0) {
                     this.factPlanDuration += result.outgoDuration;
                 } else {
@@ -238,7 +240,7 @@ class OperationPage {
         for (let warehouseActionId in this.selectedWarehouseActions) {
             actions.push({ kind: this.kind, id: warehouseActionId });
         }
-        const result = await api.getPlanLaborCost2(operationTypeCode, vehicleKindCode, actions);
+        const result = await api.getFillingPlanOperationLaborCost(operationTypeCode, vehicleKindCode, actions);
         if (result.code === 0) {
             this.planLaborCost = result.data.laborCost;
             this.planLinearLaborCost = result.data.linearLaborCost;
@@ -1591,7 +1593,7 @@ class OperationPage {
         const vehicleKindCode = "5_TONS";
         const actions = [{ kind: "O", id: "00030000W0003N0003564" }, { kind: "O", id: "00030000W0003N0003563" }];
 
-        const result = await api.getPlanDuration2(operationTypeCode, vehicleKindCode, actions);
+        const result = await api.getFillingPlanOperationDuration(operationTypeCode, vehicleKindCode, actions);
         if (result.code === 0) {
             alert(result.planDuration);
         } else {
