@@ -45,25 +45,25 @@
   - TSLog.Links.PSI.DataConveter - конвертация сообщений Gs1 в сообщения PSI (не внедрен)
   - TSLog.Links.Services - API для пондянтия интеграционных веб-сервисов (не внедрен)
   - TSLog.Links.Test - тестирование интеграции (не внедрен)
-  - TSLog.Log
-  - TSLog.Outgoes.BO
-  - TSLog.Partners.BO
-  - TSLog.Products.BO
-  - TSLog.Reports.BO
-  - TSLog.Reports.OracleStorage
-  - TSLog.Reports.Storage
-  - TSLog.Reports.WebUI
-  - TSLog.Staff.BO
-  - TSLog.Staff.OracleStorage
-  - TSLog.Staff.Test
-  - TSLog.Staff.WebUI
-  - TSLog.WarehouseActions.BO
-  - TSLog.Yard.BO
-  - TSLog.Yard.OracleStorage
-  - TSLog.Yard.PgSqlStorage
-  - TSLog.Yard.Reporting
-  - TSLog.Yard.Storage
-  - TSLog.Yard.Test
-  - TSLog.Yard.WebUI
+  - TSLog.Log - журнал для логгирования
+  - TSLog.Outgoes.BO - расходы (убытие товара со склада)
+  - TSLog.Partners.BO - клиенты
+  - TSLog.Products.BO - справочник товаров
+  - TSLog.Reports.BO - система отчетности ООО "Техскладлогистик"
+  - TSLog.Reports.OracleStorage - хранилище данных для системы отчетности с интерфейсов под БД Oracle
+  - TSLog.Reports.Storage - общее хранилище данных для системы отчетности
+  - TSLog.Reports.WebUI - отчеты ООО "Техскладлогистик"
+  - TSLog.Staff.BO - бизнес-объекты по учету персонала (сотрудник, подразделение, должность, смена, и.т.д...)
+  - TSLog.Staff.OracleStorage - доступ к данным по персоналу из БД Oracle
+  - TSLog.Staff.Test - тесты для приложения по учету персонала
+  - TSLog.Staff.WebUI - веб-приложение по учету персонала
+  - TSLog.WarehouseActions.BO - складские действа (приход, расход, инвентаризация)
+  - TSLog.Yard.BO - бизнес-объекты двора(ворота, тип машины, тип операции, и.т.д...)
+  - TSLog.Yard.OracleStorage - доступ к данным по двору из БД Oracle
+  - TSLog.Yard.PgSqlStorage - доступ к данным по двору из БД Oracle
+  - TSLog.Yard.Reporting - отчеты двора
+  - TSLog.Yard.Storage - общее хранилище данных приложения "Умный двор"
+  - TSLog.Yard.Test - тесты для приложения "Умный двор"
+  - TSLog.Yard.WebUI -  веб-приложение "Умный двор"
 
 
