@@ -31,7 +31,7 @@ namespace TSLog.Yard.Reporting
                     return BcWorkersCount > 0 ? BcLaborCost / BcWorkersCount : BcWorkersCount;
                 }
             }
-            #endregion            
+            #endregion
 
             #region Yard by standard
             public double YSPlanLaborCost { get; set; } = 0;

@@ -8,7 +8,6 @@
 class WarehouseFillingReportPage {
     shortUrl;
 
-    capacity = 70 * 1000;
     data1 = [];
     data2 = [];
     busyPallets = 0;
@@ -16,7 +15,8 @@ class WarehouseFillingReportPage {
     totalPallets = 0;
     totalPieces = 0;
     shortfall = 0;
-    areas = ["HBW", "LBW", "LB1_1_2", "P01", "VKU", "LM2", "LF2", "LB1_3_E", "P02", "LF3", "P03"]
+    //areas = ["HBW", "LBW", "LB1_1_2", "P01", "VKU", "LM2", "LF2", "LB1_3_E", "P02", "LF3", "P03"]
+    areas = ["HBW", "LBW", "LB1_1_2", "P01", "VKU", "LF2", "LB1_3_E", "P02", "LF3", "P03"]
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -113,7 +113,7 @@ class WarehouseFillingReportPage {
         blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + busyPercent + "%; margin-top: " + freePercent + "%";
 
         const captionPercentDiv = document.getElementById(area + "-caption-percent-div");
-        captionPercentDiv.textContent = busyPercent + " %";
+        captionPercentDiv.textContent = "Занято - " + busyPercent + " %";
 
         const palletLoadCostInput = document.getElementById(area + "-pallet-load-cost-input");
         const palletTurnoverKIput = document.getElementById(area + "-pallet-turnover-K-input");
@@ -171,7 +171,7 @@ class WarehouseFillingReportPage {
         blockFillingDiv.style.cssText = "background-color: " + color + "; height: " + busyPercent + "%; margin-top: " + freePercent + "%";
 
         const captionPercentDiv = document.getElementById("ALL-caption-percent-div");
-        captionPercentDiv.textContent = busyPercent + " %";
+        captionPercentDiv.textContent = "Занято - " + busyPercent + " %";
 
         const captionPalletsDiv = document.getElementById("ALL-caption-pallets-div")
         captionPalletsDiv.textContent = "св. палл. " + utils.displayFloat(this.totalPallets - this.busyPallets);
@@ -193,7 +193,7 @@ class WarehouseFillingReportPage {
         this.showBlock("P01", "lightskyblue");
 
         this.showBlock("VKU", "bisque");
-        this.showBlock("LM2", "bisque");
+        //this.showBlock("LM2", "bisque");
         this.showBlock("LF2", "bisque");
         this.showBlock("LB1_3_E", "bisque");
         this.showBlock("P02", "bisque");
@@ -236,12 +236,13 @@ class WarehouseFillingReportPage {
         let y = 0;
         let prevX = 0;
         let prevY = 0;
+        const capacity = this.totalPallets + this.totalPieces;
         for (let element of this.data2) {
             i++;
             prevX = x;
             prevY = y;
             x = 40 + (i - 1) * 5;
-            y = (100 - Math.round(element.busy / this.capacity * 100)) * 5;
+            y = 40 + (100 - Math.round(element.busy / capacity * 100)) * 5;
             if (i > 1) {
                 context.beginPath();
                 context.moveTo(prevX, prevY);

@@ -123,10 +123,18 @@ class ShiftPerfomanceReportPage {
                 cell.append(operation.vehicleNumber);
                 cell.append(document.createElement("br"));
 
+                // 2022.09.20 15:00 Буров Михаил.
+                // Изменил формулу по указанию Алексея Охотникова (P - F) / P * 100% + 100%
+                // Задача #2496 Двор. Отчёт производительности.
+                const perfomance = operation.planLaborCost != 0
+                    ? Math.round((2 * operation.planLaborCost - operation.factLaborCost) / operation.planLaborCost * 100)
+                    : 0;                
+                //const perfomance = operation.planLaborCost != 0 ? Math.round(100 * operation.factLaborCost / operation.planLaborCost) : 0.0;
+
                 // 2022.09.20 Буров Михаил.
                 // Перевернул дробь по указанию Алексея Охотникова.
                 //const perfomance = operation.factLaborCost != 0 ? Math.round(100 * operation.planLaborCost / operation.factLaborCost) : 0.0;
-                const perfomance = operation.planLaborCost != 0 ? Math.round(100 * operation.factLaborCost / operation.planLaborCost) : 0.0;
+                
                 total += perfomance;
                 cell.append(perfomance + " %");
                 cell.append(document.createElement("br"));
