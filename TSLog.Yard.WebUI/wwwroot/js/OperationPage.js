@@ -16,6 +16,8 @@ class OperationPage {
     hourBlocksCount = 4;
     blockDuration = 0;
 
+    defaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15);
+
     id = -1;
     stateCode = "";
     stateName = "";
@@ -196,10 +198,11 @@ class OperationPage {
                     this.factPlanDuration += result.outgoDuration;
                 } else {
                     viewUtils.showError(result.message);
-                    break;
+                    return;
                 }
             }
         }
+        this.factPlanDuration += this.defaultConstantOperationDuration;
     }
 
     showDuration() {
@@ -207,8 +210,11 @@ class OperationPage {
         if (this.planDuration <= 0)
             durationInput.value = "<Не определено>";
         else {
-            durationInput.value = "План: " + utils.secondsToString(this.planDuration);
-            durationInput.value += ", план фактический: " + utils.secondsToString(this.factPlanDuration);
+            // 2022.09.20 Буров Михаил.
+            // Вместо плана выводим план фактический (уточнённый) по указанию Алексея Охотникова.
+            //durationInput.value = "План: " + utils.secondsToString(this.planDuration);
+            //durationInput.value += ", план фактический: " + utils.secondsToString(this.factPlanDuration);
+            durationInput.value += "План: " + utils.secondsToString(this.factPlanDuration);
             if (this.factDuration > 0) {
                 durationInput.value += ", факт: " + utils.secondsToString(this.factDuration);
             }
@@ -257,15 +263,15 @@ class OperationPage {
                 laborCostInput.value = "<Не определено>";
             else {
                 laborCostInput.value = "План - " + (this.planLaborCost / 60).toFixed();
+                /*
                 if (this.planLinearLaborCost > 0) {
                     laborCostInput.value = laborCostInput.value + ", только линейные - " + (this.planLinearLaborCost / 60).toFixed();
                 }
                 if (this.factLaborCost > 0) {
                     laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
                 }
-                if (this.factBcLaborCost > 0) {
-                    laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
-                }
+                */
+                
                 const bcWorksDiv = document.getElementById("bc-works-div");
                 if (this.factWorkStartDate > utils.nullDate
                     && this.factWorkFinishDate > utils.nullDate
@@ -285,7 +291,11 @@ class OperationPage {
                         closeBCWorksSpan.onclick = this.hideBCWorks.bind(this);
                     } else {
                         viewUtils.showError(result.message);
+                        return;
                     }
+                }
+                if (this.factBcLaborCost > 0) {
+                    laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
                 }
             }
         }
@@ -1219,6 +1229,8 @@ class OperationPage {
         const bcWorksTBody = document.getElementById("bc-works-tbody");
         bcWorksTBody.replaceChildren();
 
+        let workersIds = new Set();
+
         this.factBcLaborCost = 0;
         for (let work of this.bcWorks) {
             this.factBcLaborCost += work.duration;
@@ -1229,7 +1241,11 @@ class OperationPage {
             viewUtils.createCell(workTr, ["table-cell"], [utils.convertTimeHHMM(work.finishDate) + " (" + utils.convertTimeHHMM(work.clippedFinishDate) + ")"]);
             viewUtils.createCell(workTr, ["table-cell"], [Math.round(work.duration / 60) + " (" + Math.round(work.clippedDuration / 60) + ")"]);
             bcWorksTBody.append(workTr);
+
+            if (!workersIds.has(work.workerId))
+                workersIds.add(work.workerId);
         }
+        this.factBcLaborCost += workersIds.size * this.defaultConstantOperationDuration;
     }
 
     displayBCWorks() {

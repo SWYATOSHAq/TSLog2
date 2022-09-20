@@ -123,7 +123,10 @@ class ShiftPerfomanceReportPage {
                 cell.append(operation.vehicleNumber);
                 cell.append(document.createElement("br"));
 
-                const perfomance = operation.factLaborCost != 0 ? Math.round(100 * operation.planLaborCost / operation.factLaborCost) : 0.0;
+                // 2022.09.20 Буров Михаил.
+                // Перевернул дробь по указанию Алексея Охотникова.
+                //const perfomance = operation.factLaborCost != 0 ? Math.round(100 * operation.planLaborCost / operation.factLaborCost) : 0.0;
+                const perfomance = operation.planLaborCost != 0 ? Math.round(100 * operation.factLaborCost / operation.planLaborCost) : 0.0;
                 total += perfomance;
                 cell.append(perfomance + " %");
                 cell.append(document.createElement("br"));
