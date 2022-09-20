@@ -141,7 +141,7 @@ class WarehouseFillingReportPage {
         const turnoverK = Number(palletTurnoverKIput.value);
         const price = Number(palletPriceIput.value);
         const dayShortfall = Math.round(free * (price * 30.5 + loadCost * turnoverK));
-        this.shortfall += dayShortfall;        
+        this.shortfall += dayShortfall;
         captionShortfallDiv.textContent = utils.displayFloat(dayShortfall) + " руб."; 
         captionShortfallDiv.setAttribute("shortfall", dayShortfall);
         */
@@ -180,6 +180,7 @@ class WarehouseFillingReportPage {
         captionPiecesDiv.textContent = "св. яч-к " + utils.displayFloat(this.totalPieces - this.busyPieces);
     }
 
+    // Отображение заполняемости склада по областям
     showPart1() {
         this.busyPallets = 0;
         this.busyPieces = 0;
@@ -204,6 +205,7 @@ class WarehouseFillingReportPage {
         this.showAllBlock("lightpink");
     }
 
+    // Отображение графика заполняемости склада
     showPart2() {
         const daysCount = this.data2.length;
         const canvas = document.getElementById("canvas");
@@ -218,16 +220,17 @@ class WarehouseFillingReportPage {
         context.lineWidth = 2.0;
         context.beginPath();
         context.moveTo(40, 40);
-        context.lineTo(40, 540);
+        context.lineTo(40, 548);
+        context.moveTo(40, 540);
         context.lineTo(40 + daysCount * 5, 540);
         context.stroke();
 
         context.fillStyle = "black";
-        for (let i = 0; i < 6; i++) {
-            context.fillText((5 - i) * 20 + "", 8, i * 100 + 44);
+        for (let i = 0; i < 11; i++) {
+            context.fillText((10 - i) * 10 + "", 8, i * 50 + 44);
             context.beginPath();
-            context.moveTo(32, i * 100 + 40);
-            context.lineTo(40, i * 100 + 40);
+            context.moveTo(32, i * 50 + 40);
+            context.lineTo(40, i * 50 + 40);
             context.stroke();
         }
 
@@ -249,12 +252,37 @@ class WarehouseFillingReportPage {
                 context.lineTo(x, y);
                 context.stroke();
             }
+
+            // yyyy.MM.dd
+            const day = element.date.substring(8, 10);
+            if (day === "01") {
+                const caption = element.date.substring(5, 10)
+                context.fillText(caption, x - 15, 560);
+
+                context.beginPath();
+                context.moveTo(x, 540);
+                context.lineTo(x, 548);
+                context.stroke();
+            }
+        }
+
+        if (this.data2.length > 0) {
+            let caption = this.data2[0].date.substring(5, 10)
+            context.fillText(caption, 40 - 15, 574);
+
+            caption = this.data2[this.data2.length - 1].date.substring(5, 10)
+            context.fillText(caption, 40 + daysCount * 5 - 15, 574);
+
+            context.beginPath();
+            context.moveTo(40 + daysCount * 5, 540);
+            context.lineTo(40 + daysCount * 5, 548);
+            context.stroke();
         }
     }
 
     showReport() {
         this.showPart1();
-        this.showPart2();       
+        this.showPart2();
     }
 
     async createReport() {

@@ -124,7 +124,7 @@ namespace TSLog.Reports.Data
                     var busy = Utils.DbValueToInt(reader["busy"]);
 
                     dynamic element = new ExpandoObject();
-                    element.date = date;
+                    element.date = date.ToString("yyyy.MM.dd");
                     element.busy = busy;
                     data.Add(element);
                 }
