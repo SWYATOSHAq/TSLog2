@@ -29,8 +29,9 @@ class OperationPage {
     planDuration = 0;
     factPlanDuration = 0;
     factDuration = 0;
-    planLaborCost = 0;
-    planLinearLaborCost = 0;
+    fillingPlanLaborCost = 0;
+    hoodmanPlanLaborCost = 0;
+    //planLinearLaborCost = 0;
     factLaborCost = 0;
     factBcLaborCost = 0;
     finishDate = utils.nullDate;
@@ -159,19 +160,21 @@ class OperationPage {
     async getPlanDuration() {
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
-        const partnersSelect = document.getElementById("partners-select");
+        //const partnersSelect = document.getElementById("partners-select");
         this.planDuration = 0;
 
         if (operationTypeCode === "" || vehicleKindCode === "") {
             return;
         }
 
-        const partnerId = partnersSelect.value;
+        /*
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
             actions.push({ kind: this.kind, id: warehouseActionId });
         }
-        const result = await api.getFillingPlanOperationDuration(operationTypeCode, vehicleKindCode, actions);
+        */
+        //const result = await api.getFillingPlanOperationDuration(operationTypeCode, vehicleKindCode, actions);
+        const result = await api.getStandardPlanOperationDuration(operationTypeCode, vehicleKindCode);
 
         if (result.code === 0) {
             this.planDuration = result.planDuration;
@@ -185,9 +188,11 @@ class OperationPage {
         }
     }
 
+    // 2022.09.21 Буров Михаил - чепуха, переделано по указанию Алексея Охотникова.
     // Вычисляем "План фактический"
     async getFactPlanDuration() {
         this.factPlanDuration = 0;
+        /*
         const operationTypesSelect = document.getElementById("operation-types-select");
         const isPallet = operationTypesSelect.options[operationTypesSelect.selectedIndex].getAttribute("ispallet");
         for (let actionId in this.selectedWarehouseActions) {
@@ -203,6 +208,20 @@ class OperationPage {
             }
         }
         this.factPlanDuration += this.defaultConstantOperationDuration;
+
+        // Если продолжительость превышет стандартную, то берём стандартную
+        const operationTypeCode = document.getElementById("operation-types-select").value;
+        const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
+        const result2 = await api.getStandardPlanOperationDuration(operationTypeCode, vehicleKindCode);
+        if (result2.code === 0) {
+            const standardPlanDuration = result2.planDuration;
+            if (this.factPlanDuration > standardPlanDuration) {
+                this.factPlanDuration = standardPlanDuration;
+            }
+        } else {
+            viewUtils.showError(result.message);
+        }
+        */
     }
 
     showDuration() {
@@ -214,7 +233,10 @@ class OperationPage {
             // Вместо плана выводим план фактический (уточнённый) по указанию Алексея Охотникова.
             //durationInput.value = "План: " + utils.secondsToString(this.planDuration);
             //durationInput.value += ", план фактический: " + utils.secondsToString(this.factPlanDuration);
-            durationInput.value += "План: " + utils.secondsToString(this.factPlanDuration);
+
+            // 2022.09.21 Буров Михаил. Опять переделали по указанию Алексея Охотникова.
+            //durationInput.value = "План (уточн.): " + utils.secondsToString(this.factPlanDuration);
+            durationInput.value = "План: " + utils.secondsToString(this.planDuration);
             if (this.factDuration > 0) {
                 durationInput.value += ", факт: " + utils.secondsToString(this.factDuration);
             }
@@ -232,11 +254,13 @@ class OperationPage {
         }        
     }
 
-    async getPlanLaborCost() {
+    async getPlanLaborCosts() {
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
-        this.planLaborCost = 0;
-        this.planLinearLaborCos = 0;
+        const partnersSelect = document.getElementById("partners-select");
+        this.fillingPlanLaborCost = 0;
+        this.hoodmanPlanLaborCost = 0;
+        //this.planLinearLaborCost = 0;
 
         if (operationTypeCode === "" || vehicleKindCode === "") {
             return;
@@ -246,29 +270,40 @@ class OperationPage {
         for (let warehouseActionId in this.selectedWarehouseActions) {
             actions.push({ kind: this.kind, id: warehouseActionId });
         }
-        const result = await api.getFillingPlanOperationLaborCost(operationTypeCode, vehicleKindCode, actions);
+        let result = await api.getFillingPlanOperationLaborCost(operationTypeCode, vehicleKindCode, actions);
         if (result.code === 0) {
-            this.planLaborCost = result.data.laborCost;
-            this.planLinearLaborCost = result.data.linearLaborCost;
-            this.countOperationBlocks();
+            this.fillingPlanLaborCost = result.data.laborCost;
+            //this.planLinearLaborCost = result.data.linearLaborCost;
         } else {
             viewUtils.showError(result.message);
+            return;
+        }
+
+        const partnerId = partnersSelect.value;
+        if (partnerId != "") {
+            result = await api.getHoodManPlanOperationLaborCost(operationTypeCode, vehicleKindCode, partnerId, actions);
+            if (result.code === 0) {
+                this.hoodmanPlanLaborCost = result.laborCost;
+            } else {
+                viewUtils.showError(result.message);
+            }
         }
     }
 
     async showLaborCost() {
         const laborCostInput = document.getElementById("labor-cost-input");
         if (laborCostInput != undefined && laborCostInput != null) {
-            if (this.planLaborCost <= 0)
+            if (this.fillingPlanLaborCost <= 0)
                 laborCostInput.value = "<Не определено>";
             else {
-                laborCostInput.value = "План - " + (this.planLaborCost / 60).toFixed();
+                laborCostInput.value = "План (рассч.): " + (this.fillingPlanLaborCost / 60).toFixed();
+                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();;
                 /*
                 if (this.planLinearLaborCost > 0) {
-                    laborCostInput.value = laborCostInput.value + ", только линейные - " + (this.planLinearLaborCost / 60).toFixed();
+                    laborCostInput.value = laborCostInput.value + ", только линейные: " + (this.planLinearLaborCost / 60).toFixed();
                 }
                 if (this.factLaborCost > 0) {
-                    laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
+                    laborCostInput.value = laborCostInput.value + ", факт: " + (this.factLaborCost / 60).toFixed();
                 }
                 */
                 
@@ -295,7 +330,7 @@ class OperationPage {
                     }
                 }
                 if (this.factBcLaborCost > 0) {
-                    laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
+                    laborCostInput.value = laborCostInput.value + ", факт по БК: " + (this.factBcLaborCost / 60).toFixed();
                 }
             }
         }
@@ -404,7 +439,7 @@ class OperationPage {
 
     async onChangeDuration() {
         await this.getPlanDuration();
-        await this.getPlanLaborCost();
+        await this.getPlanLaborCosts();
         await this.getFactPlanDuration();
         this.showDuration();        
         await this.showLaborCost();
@@ -1245,7 +1280,7 @@ class OperationPage {
             if (!workersIds.has(work.workerId))
                 workersIds.add(work.workerId);
         }
-        this.factBcLaborCost += workersIds.size * this.defaultConstantOperationDuration;
+        //this.factBcLaborCost += workersIds.size * this.defaultConstantOperationDuration;
     }
 
     displayBCWorks() {
@@ -1366,10 +1401,11 @@ class OperationPage {
             }
         }
 
-        // Duration
-        this.planDuration = operation != null ? Number(operation.planDuration) : 0;
-        this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
+        // Duration        
+        await this.getPlanDuration();
         await this.getFactPlanDuration();
+        //this.planDuration = operation != null ? Number(operation.planDuration) : 0;
+        this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
         this.showDuration();
         const timetableFieldset = document.getElementById("timetable-fieldset");
         const timeTableDisabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
@@ -1409,8 +1445,9 @@ class OperationPage {
         this.showStartFinish();
 
         // Labor cost
-        this.planLaborCost = operation != null ? Number(operation.planLaborCost) : 0;
-        this.planLinearLaborCost = operation != null ? Number(operation.planLinearLaborCost) : 0;
+        //this.fillingPlanLaborCost = operation != null ? Number(operation.planLaborCost) : 0;
+        //this.planLinearLaborCost = operation != null ? Number(operation.planLinearLaborCost) : 0;
+        await this.getPlanLaborCosts();
         this.factLaborCost = operation != null && !copy ? Number(operation.factLaborCost) : 0;
         await this.showLaborCost();
 

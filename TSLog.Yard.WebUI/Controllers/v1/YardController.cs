@@ -253,8 +253,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operationType = _storage.GetOperationType(stringOperationType);
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                var timeSpan = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
-                var text = JsonSerializer.Serialize(timeSpan);
+                var duration = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
+                var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -263,7 +263,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        private int GetDuration2(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
+        private int _GetFillingPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
         {
             var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
                    out int standardConstantDuration, out int standardVariableDuration);
@@ -382,7 +382,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
                
-                var duration = GetDuration2(operationType, vehicleKind, actions);
+                var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
                 var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
                 return text;
@@ -474,8 +474,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (string.IsNullOrWhiteSpace(partnerId))
                     return "Partner id is empty";
                 var partner = _storage.GetPartner(partnerId);
-                var timeSpan = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);
-                var text = JsonSerializer.Serialize(timeSpan);
+                var duration = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);
+                var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
                 return text;
             }
@@ -528,7 +528,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
                 out int standardConstantDuration, out int standardVariableDuration);
-            var duration = GetDuration2(operationType, vehicleKind, actions);
+            var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
 
             return (double)duration / standardTotalDuration;
         }
@@ -590,7 +590,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// <param name="siteCode">Код участка работ</param>
         /// <returns>Плановые трудозатраты</returns>
         private int _GetHoodManPlanOperationLaborCost(OperationType operationType, VehicleKind vehicleKind, Partner partner,
-            DateTime factWorkStartDate, DateTime factWorkFinishDate, string siteCode, string[] outgoesIds)
+            string[] outgoesIds)
         {
             var laborCost = 0;
             // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
@@ -599,9 +599,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
             // Учитываем это в плановых трудозатратах.                
-            var workersCount = _storage.GetBcWorkersCount(factWorkStartDate, factWorkFinishDate, siteCode);
-            if (workersCount <= 0)
-                workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
+            var workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
             laborCost += workersCount * DefaultConstantOperationDuration;
 
             var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
@@ -642,15 +640,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 dynamic[] outgoes = ((JArray)data.outgoes).ToArray<dynamic>();
                 var outgoesIds = new List<string>();
                 foreach (var outgo in outgoes)
-                    outgoesIds.Add(outgo.id);
-
-                DateTime factWorkStartDate = data.factWorkStartDate;
-                DateTime factWorkFinishDate = data.factWorkFinishDate;
-                string gateCode = data.gateCode;
-                var siteCode = _storage.GetSiteCodeByGateCode(gateCode);
+                {
+                    string id = outgo.id;
+                    outgoesIds.Add(id);
+                }
 
                 var laborCost = _GetHoodManPlanOperationLaborCost(operationType, vehicleKind, partner,
-                    factWorkStartDate, factWorkFinishDate, siteCode, outgoesIds.ToArray());                
+                    outgoesIds.ToArray());                
 
                 var text = JsonSerializer.Serialize(laborCost);
                 Response.StatusCode = 200;
@@ -980,7 +976,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
                 temp = data.finishDate;
-                var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, GetDuration2(operationType, vehicleKind, actions)));
+                var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -1200,7 +1196,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
                 temp = data.finishDate;
-                var finishDate = startDate.Add(new TimeSpan(0, 0, GetDuration2(operationType, vehicleKind, actions)));
+                var finishDate = startDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
                     if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -1312,7 +1308,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (!DateTime.TryParse(temp, out planWorkStartDate))
                         return $"Wrong start date {temp}!";
-                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, GetDuration2(operation.Type, vehicleKind, actions)));
+                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
                 }
 
                 temp = data.finishDate;
@@ -1454,7 +1450,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     if (!DateTime.TryParse(temp, out planWorkStartDate))
                         return $"Wrong start date {temp}!";
-                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, GetDuration2(operation.Type, vehicleKind, actions)));
+                    planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
                 }
 
                 temp = data.finishDate;
@@ -2985,8 +2981,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
 
                         operation.planLaborCost = _GetHoodManPlanOperationLaborCost(tempOperation.Type, tempOperation.VehicleKind,
-                            partner,
-                            tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate, siteCode, outgoesIds.ToArray());
+                            partner, outgoesIds.ToArray());
                     }
                     else // Приходы - берём стадартный план
                         operation.planLaborCost = operation.planLaborCost;

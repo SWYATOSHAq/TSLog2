@@ -565,8 +565,20 @@ namespace TSLog.Yard.Data
                         var measureUnitId = Utils.DbValueToString(reader["measure_unit_id"]);
                         var tuTypeId = Utils.DbValueToString(reader["tu_type_id"]);
                         var quantity = Utils.DbValueToInt(reader["quantity"]);
-                        if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
-                            time += BoxLoadTime * quantity;
+
+                        // 2022.09.21 Буров Михаил.
+                        // Сделал отдельную проверку для 0011 манданта (партнёра)
+                        // #2510 Двор. Отчёт по производительности. Доработка алгоритма Башлыкова.
+                        if (partner.Id == "0011")
+                        {
+                            if (measureUnitId == "ST" && (tuTypeId == "EURO_TSL_V" || tuTypeId == "EURO" || tuTypeId == "EURO_TSL_1"))
+                                time += BoxLoadTime * quantity;
+                        }
+                        else 
+                        {
+                            if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
+                                time += BoxLoadTime * quantity;
+                        }                        
                     }
                 }
                 else

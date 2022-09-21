@@ -126,14 +126,12 @@ class Api {
 
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
     // с учётом назначенных заказов (расширенный алгоритм Башлыкова)
-    async getHoodManPlanOperationLaborCost(operationTypeCode, vehicleKindCode, warehouseActions) {
+    async getHoodManPlanOperationLaborCost(operationTypeCode, vehicleKindCode, partnerId, outgoes) {
         const data = {
             operationTypeCode: operationTypeCode,
             vehicleKindCode: vehicleKindCode,
-            fromDate: fromDate,
-            toDate: toDate,
-            gateCode: gateCode,
-            warehouseActions: warehouseActions
+            partnerId: partnerId,
+            outgoes: outgoes
         };
         const url = "./api/v1/yard/HoodManPlanOperationLaborCost";
         const options = {
@@ -143,7 +141,7 @@ class Api {
         };
         const response = await fetch(url, options);
         if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
+            return utils.createCorrectObject("laborCost", await response.json());
         }
         else {
             return utils.createErrorObject(await response.text());
