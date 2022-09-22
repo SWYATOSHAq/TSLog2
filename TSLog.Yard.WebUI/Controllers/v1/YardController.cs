@@ -589,9 +589,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// <param name="factWorkFinishDate">Дата окончания погрузки</param>
         /// <param name="siteCode">Код участка работ</param>
         /// <returns>Плановые трудозатраты</returns>
-        private int _GetHoodManPlanOperationLaborCost(OperationType operationType, VehicleKind vehicleKind, Partner partner,
-            string[] outgoesIds)
+        private int _GetHoodManPlanOperationLaborCost_Card(OperationType operationType, VehicleKind vehicleKind, 
+            Partner partner, string[] outgoesIds)
         {
+            // Для карточки
             var laborCost = 0;
             // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
             foreach (var outgoId in outgoesIds)
@@ -599,12 +600,37 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
             // Учитываем это в плановых трудозатратах.                
-            var workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
+            //var workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
+            var workersCount = 1;
             laborCost += workersCount * DefaultConstantOperationDuration;
 
-            var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
-            if (laborCost > defaultLaborCost)
-                laborCost = defaultLaborCost;
+            // 2022.09.22 Буров Михаил.
+            // Убрал отчёчку по указанию Алексея Охотникова
+            //var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
+            //if (laborCost > defaultLaborCost)
+            //    laborCost = defaultLaborCost;
+
+            return laborCost;
+        }
+        private int _GetHoodManPlanOperationLaborCost_Report(OperationType operationType, VehicleKind vehicleKind, 
+            Partner partner, DateTime factWorkStartDate, DateTime factWorkFinihDate, string siteCode, string[] outgoesIds)
+        {
+            // Для отчёта
+            var laborCost = 0;
+            // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
+            foreach (var outgoId in outgoesIds)
+                laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
+
+            // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
+            // Учитываем это в плановых трудозатратах.                
+            var workersCount = _storage.GetBcWorkersCount(factWorkStartDate, factWorkFinihDate, siteCode);            
+            laborCost += workersCount * DefaultConstantOperationDuration;
+
+            // 2022.09.22 Буров Михаил.
+            // Убрал отчёчку по указанию Алексея Охотникова
+            //var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
+            //if (laborCost > defaultLaborCost)
+            //    laborCost = defaultLaborCost;
 
             return laborCost;
         }
@@ -645,7 +671,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     outgoesIds.Add(id);
                 }
 
-                var laborCost = _GetHoodManPlanOperationLaborCost(operationType, vehicleKind, partner,
+                var laborCost = _GetHoodManPlanOperationLaborCost_Card(operationType, vehicleKind, partner,
                     outgoesIds.ToArray());                
 
                 var text = JsonSerializer.Serialize(laborCost);
@@ -2972,7 +2998,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     // Изменён алгоритм рассчёта производительности, теперь определяем прановые трудозатраты по алгоритму Башлыкова
 
                     // Определяем заказы, которые относятся к данной операции двора
-                    Operation tempOperation = _storage.GetOperation(operation.id);
+                    var tempOperation = _storage.GetOperation(operation.id);
                     if (tempOperation.Type.Direction == TypeDirection.Out)
                     {
                         var outgoesIds = new List<string>();
@@ -2980,13 +3006,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             outgoesIds.Add(outgo.Id);
                         var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
 
-                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost(tempOperation.Type, tempOperation.VehicleKind,
-                            partner, outgoesIds.ToArray());
+                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost_Report(tempOperation.Type, 
+                            tempOperation.VehicleKind, partner, 
+                            tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
+                            siteCode,
+                            outgoesIds.ToArray());
                     }
                     else // Приходы - берём стадартный план
                         operation.planLaborCost = operation.planLaborCost;
-
-                    operation.factLaborCost = operation.factLaborCost;
                 }
 
                 var text = JsonSerializer.Serialize(operations);
