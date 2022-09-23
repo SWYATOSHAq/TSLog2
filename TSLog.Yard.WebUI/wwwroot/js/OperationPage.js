@@ -11,43 +11,44 @@ class OperationPage {
         Всего промежуток 32 часа.
         Блоков в часе - 4.
     */
-    startHour = 0;
-    finishHour = 32;
-    hourBlocksCount = 4;
+    startHour = 0; // час начала работ
+    finishHour = 32; // час окончания работ
+    hourBlocksCount = 4; // кол-во временных блоков в одной строке
     blockDuration = 0;
 
-    defaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15);
+    defaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15); // время операции двора, не зависящая от состава
+                                                                      // груза(время на постановку и снятие машины) в сек.
 
-    id = -1;
-    stateCode = "";
-    stateName = "";
-    startDate = utils.nullDate;
-    planWorkStartDate = utils.nullDate;
-    factWorkStartDate = utils.nullDate;
-    planWorkFinishDate = utils.nullDate;
-    factWorkFinishDate = utils.nullDate;
-    planDuration = 0;
-    factPlanDuration = 0;
-    factDuration = 0;
-    fillingPlanLaborCost = 0;
-    hoodmanPlanLaborCost = 0;
+    id = -1; // идентификатор операции двора
+    stateCode = ""; // код статуса заявки операции двора
+    stateName = ""; // название статуса заявки
+    startDate = utils.nullDate; // дата и время заезда машины
+    planWorkStartDate = utils.nullDate; // плановая дата начала работы
+    factWorkStartDate = utils.nullDate; // фактическая дата начала работы
+    planWorkFinishDate = utils.nullDate; // плановая дата окончания работы (когда машина убыла за территорию)
+    factWorkFinishDate = utils.nullDate; // фактическая дата окончания работы (когда машина убыла за территорию)
+    planDuration = 0; // плановая продолжительность(сколько времени машина будет находится на воротах)
+    factPlanDuration = 0; // фактическая плановая продолжительность операция двора
+    factDuration = 0; // фактическое время на ворота
+    fillingPlanLaborCost = 0; // плановые трудозатраты (одни из...)
+    hoodmanPlanLaborCost = 0; // плановые трудозатраты, рассчитанные по алгоритму Башлыкова
     //planLinearLaborCost = 0;
-    factLaborCost = 0;
-    factBcLaborCost = 0;
-    finishDate = utils.nullDate;
-    availableIntervals = [];
-    operationBlocksCount = 0;
-    blocks = [];
+    factLaborCost = 0; // фактические трудозатраты
+    factBcLaborCost = 0; // фактические трудозатраты по Boss Control
+    finishDate = utils.nullDate; // дата и время отъезда машины
+    availableIntervals = []; // доступные интервалы времени для постановки машины на ворота
+    operationBlocksCount = 0; // кол-во временных блоков на конкретную операцию
+    blocks = []; // пустой массив для нужд заполнения
     doDisplay = false;
 
     kind = "";
-    warehouseActions = {};
-    selectedWarehouseActions = {};
+    warehouseActions = {}; // заказы или приходы (складские действа), привязанные к заявкам
+    selectedWarehouseActions = {}; // выбранные складские действа, привязанные к заявкам
 
-    linearWorkers = [];
-    selectedWorkers = [];
-    selectedWorkersIds = new Set([]);
-    bcWorks = [];
+    linearWorkers = []; //линенйные сотрудники
+    selectedWorkers = []; // назначенные сотрудники
+    selectedWorkersIds = new Set([]); // ID назначенных сотруников
+    bcWorks = []; // работы по Boss Control
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -58,6 +59,7 @@ class OperationPage {
         return $("#work-start-date-picker").datepicker('getDate');
     }
 
+    /*Связана с отображением временных блоков*/
     resetVisibility() {
         $(".btn-info").addClass("btn-outline-primary");
         $(".btn-info").removeClass("btn-info");
@@ -70,6 +72,7 @@ class OperationPage {
         this.resetVisibility();
     }
 
+    /*Связана с отображением временных блоков*/
     getBlockId(date) {
         if (date != null && date != undefined && date > utils.nullDate) {
             const time = date.getHours() * 60 * 60 + date.getMinutes() * 60 + date.getSeconds();
@@ -336,6 +339,7 @@ class OperationPage {
         }
     }
 
+    // возвращает доступные интревалы времения для назначения операций двора
     async getAvalibleIntervals() {
         this.availableIntervals = [];
         const workStartDatePicker = document.getElementById("work-start-date-picker");
@@ -351,6 +355,7 @@ class OperationPage {
         }
     }
 
+    // скрывает панель с выбором временных ячеек
     hideTimeTable() {
         const timeDiv = document.getElementById("time-div");
         let timeTable = document.getElementById("time-table-div");
@@ -430,6 +435,7 @@ class OperationPage {
         }
     }
 
+    // всплывающая подсказка по операции двора
     getOperationTypeHint() {
         const select = document.getElementById("operation-types-select");
         if (select.selectedIndex >= 0) {
@@ -437,6 +443,7 @@ class OperationPage {
         }
     }
 
+    // функция-обработчик события
     async onChangeDuration() {
         await this.getPlanDuration();
         await this.getPlanLaborCosts();
@@ -1679,8 +1686,6 @@ class OperationPage {
         //fetch('uploads/' + encodeURIComponent(entry.name), { method: 'PUT', body: data });
         //alert('your file has been uploaded');
         //location.reload();
-
-        alert("AAAA");
     }
 }
 
