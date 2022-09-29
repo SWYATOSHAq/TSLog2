@@ -123,25 +123,31 @@ class ShiftPerfomanceReportPage {
                 cell.append(operation.vehicleNumber);
                 cell.append(document.createElement("br"));
 
+                // 2022.09.29 Аввакумов Алексей
+                // #2567 Двор. Изменение в формуле производительности.
+                const perfomance = operation.factLaborCost != 0 ? Math.round(100 * operation.factLaborCost / operation.planLaborCost) : 0.0;
+          
+
                 // 2022.09.22 Буров Михаил
                 // #2530 Двор. Изменение в формуле производительности.
-                let perfomance = 0;
-                if (operation.planLaborCost != 0) {
-                    perfomance = Math.round((operation.planLaborCost - operation.factLaborCost) / operation.planLaborCost * 100 + 
-                        (operation.planLaborCost >= operation.factLaborCost ? 100 : -100));
-                }
+                //let perfomance = 0;
+                //if (operation.planLaborCost != 0) {
+                //    perfomance = Math.round((operation.planLaborCost - operation.factLaborCost) / operation.planLaborCost * 100 + 
+                //        (operation.planLaborCost >= operation.factLaborCost ? 100 : -100));
+                //}
 
                 // 2022.09.20 15:00 Буров Михаил.
                 // Изменил формулу по указанию Алексея Охотникова (P - F) / P * 100% + 100%
                 // Задача #2496 Двор. Отчёт производительности.
                 //const perfomance = operation.planLaborCost != 0
                 //    ? Math.round((2 * operation.planLaborCost - operation.factLaborCost) / operation.planLaborCost * 100)
-                //    : 0;                
+                //    : 0;
                 //const perfomance = operation.planLaborCost != 0 ? Math.round(100 * operation.factLaborCost / operation.planLaborCost) : 0.0;
 
                 // 2022.09.20 Буров Михаил.
                 // Перевернул дробь по указанию Алексея Охотникова.
                 //const perfomance = operation.factLaborCost != 0 ? Math.round(100 * operation.planLaborCost / operation.factLaborCost) : 0.0;
+                //operation.factLaborCost/operation.planLaborCost * 100
                 
                 total += perfomance;
                 cell.append(perfomance + " %");
@@ -158,7 +164,7 @@ class ShiftPerfomanceReportPage {
                 openButton.textContent = "Открыть";
                 cell.append(openButton);
 
-                cell.style.cssText = perfomance >= 90 ? "box-shadow: none; background-color: palegreen" : "box-shadow: none; background-color: #ffcccc"
+                cell.style.cssText = perfomance <= 100 ? "box-shadow: none; background-color: palegreen" : "box-shadow: none; background-color: #ffcccc"
             }
 
             // Выводим среднее значение по воротам
