@@ -90,7 +90,7 @@ namespace TSLog.Yard.Data
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = 
+                command.CommandText =
                     $"select p.id, p.code, p.gtin,\n" +
                     $"       p.name,\n" +
                     $"       p.note1," +
@@ -126,7 +126,7 @@ namespace TSLog.Yard.Data
                 return product;
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = 
+                command.CommandText =
                     $"select p.id, p.code, p.gtin,\n" +
                     $"       p.name,\n" +
                     $"       p.note1," +
@@ -320,7 +320,7 @@ namespace TSLog.Yard.Data
             var lines = new List<LineBase>();
             if (string.IsNullOrWhiteSpace(actionId))
                 throw new ArgumentException("action id is empty");
-            actionId = actionId.Trim();            
+            actionId = actionId.Trim();
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
@@ -333,7 +333,7 @@ namespace TSLog.Yard.Data
                     $"       al.plan_volume, al.fact_volume, al.volume_measure_unit_code,\n" +
                     $"       al.plan_pallets_count, al.plan_boxes_count,\n" +
                     $"       al.fact_pallets_count, al.fact_boxes_count\n" +
-                    $"  from {CommonSchema}.act_wa_line_ext#v al\n" + 
+                    $"  from {CommonSchema}.act_wa_line_ext#v al\n" +
                     $" where action_id = :action_id and action_kind = :action_kind";
                 command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("action_kind", actionKind == ActionKind.Outgo ? "O" : "I"));
@@ -386,14 +386,14 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(new OracleParameter("id", id));
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
-                if (reader.Read()) 
+                if (reader.Read())
                     action = CreateWarehouseAction(reader);
                 reader.Close();
 
                 // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых
                 if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
                 {
-                    var selectArchivedDeletedAction = 
+                    var selectArchivedDeletedAction =
                         $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
                         $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
                         $" where a.id = :id\n" +
@@ -445,7 +445,7 @@ namespace TSLog.Yard.Data
                     action = CreateWarehouseAction(reader);
                     //var lines = GetWarehouseActionLines(action);
                     //action.AddLines(lines);
-                }                    
+                }
                 reader.Close();
             }
             if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
@@ -481,11 +481,11 @@ namespace TSLog.Yard.Data
                     $"   and a.kind = :kind\n" +
                     $"   and a.state_code <= 100\n" +
                     $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
-                    $"   and rownum < {MaxRowsCount}";                    
-                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;                
+                    $"   and rownum < {MaxRowsCount}";
+                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
                 command.Parameters.Add(new OracleParameter("pattern", pattern));
-                command.Parameters.Add(new OracleParameter("partner_id", 
+                command.Parameters.Add(new OracleParameter("partner_id",
                     partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
@@ -543,63 +543,172 @@ namespace TSLog.Yard.Data
         /// <param name="partner">Партнёр</param>
         /// <returns>Время отгрузки заказа в секундах</returns>
         /// <exception cref="ArgumentNullException"></exception>
+        //Выведена в архив из-за неверного подсчета времени
+        //public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
+        //{
+        //    if (partner == null)
+        //        throw new ArgumentNullException(nameof(partner));
+        //    var time = 0;
+        //    using (var command = _connection.CreateCommand())
+        //    {
+        //        // Для партнёров (мандантов) 0011, 0017, 0018 ВСЕГДА коробочная отгрузка, единица измерения стоит ST
+        //        if (partner.Id == "0011" || partner.Id == "0017" || partner.Id == "0018")
+        //        {
+        //            var sql =
+        //                $"select tul.tul_outgo_id outgo_id, tul.quantity, tul.measure_unit_id, tul.tu_type_id \n" +
+        //                $"  from {CommonSchema}.o_outgo_tu_line#v tul\n" +
+        //                $" where tul.tul_outgo_id = :outgo_id";
+        //            command.CommandText = sql;
+        //            command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+        //            using var reader = command.ExecuteReader();
+        //            while (reader.Read())
+        //            {
+        //                var measureUnitId = Utils.DbValueToString(reader["measure_unit_id"]);
+        //                var tuTypeId = Utils.DbValueToString(reader["tu_type_id"]);
+        //                var quantity = Utils.DbValueToInt(reader["quantity"]);
+
+        //                // 2022.09.21 Буров Михаил.
+        //                // Сделал отдельную проверку для 0011 манданта (партнёра)
+        //                // #2510 Двор. Отчёт по производительности. Доработка алгоритма Башлыкова.
+        //                if (partner.Id == "0011")
+        //                {
+        //                    if (measureUnitId == "ST" && (tuTypeId == "EURO_TSL_V" || tuTypeId == "EURO" || tuTypeId == "EURO_TSL_1"))
+        //                        time += BoxLoadTime * quantity;
+        //                }
+        //                else
+        //                {
+        //                    if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
+        //                        time += BoxLoadTime * quantity;
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var sql =
+        //                $"select otu.outgo_id, otu.tu_id, otu.place_id, otu.place_id_prefix\n" +
+        //                $"  from {CommonSchema}.o_outgo_tu#v otu\n" +
+        //                $" where otu.outgo_id = :outgo_id";
+        //            command.CommandText = sql;
+        //            command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+        //            using var reader = command.ExecuteReader();
+        //            while (reader.Read())
+        //            {
+        //                var tuId = Utils.DbValueToString(reader["tu_id"]);
+        //                var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
+        //                if (placeIdPrefix != "AUS" && placeIdPrefix != "VRS" && placeIdPrefix != "TOR")
+        //                    return 0;
+        //                // Для некоторых партнёров ВСЕГДА коробочная отгрузка
+        //                time += isPallet ? PalletLoadTime : BoxLoadTime;
+        //            }
+        //            reader.Close();
+        //        }
+        //    }
+        //    return time;
+        //}
         public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
             var time = 0;
+            List<string> tu_counter = new List<string>();
             using (var command = _connection.CreateCommand())
             {
-                // Для партнёров (мандантов) 0011, 0017, 0018 ВСЕГДА коробочная отгрузка, единица измерения стоит ST
-                if (partner.Id == "0011" || partner.Id == "0017" || partner.Id == "0018")
+                var sql =
+                    $"select tul.tul_outgo_id outgo_id, tul.quantity, tul.measure_unit_id, tul.tu_type_id, tul.tu_id, tul.place_id_prefix \n" +
+                    $"  from {CommonSchema}.o_outgo_tu_line#v tul\n" +
+                    $" where tul.tul_outgo_id = :outgo_id";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    var sql = 
-                        $"select tul.tul_outgo_id outgo_id, tul.quantity, tul.measure_unit_id, tul.tu_type_id \n" +
-                        $"  from {CommonSchema}.o_outgo_tu_line#v tul\n" +
-                        $" where tul.tul_outgo_id = :outgo_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
+                    var tuId = Utils.DbValueToString(reader["tu_id"]);
+                    var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
+                    var measureUnitId = Utils.DbValueToString(reader["measure_unit_id"]);
+                    var tuTypeId = Utils.DbValueToString(reader["tu_type_id"]);
+                    var quantity = Utils.DbValueToInt(reader["quantity"]);
+                    if (placeIdPrefix == "AUS" || placeIdPrefix == "VRS" || placeIdPrefix == "TOR")
                     {
-                        var measureUnitId = Utils.DbValueToString(reader["measure_unit_id"]);
-                        var tuTypeId = Utils.DbValueToString(reader["tu_type_id"]);
-                        var quantity = Utils.DbValueToInt(reader["quantity"]);
-
-                        // 2022.09.21 Буров Михаил.
-                        // Сделал отдельную проверку для 0011 манданта (партнёра)
-                        // #2510 Двор. Отчёт по производительности. Доработка алгоритма Башлыкова.
-                        if (partner.Id == "0011")
+                        if (isPallet == true)
                         {
-                            if (measureUnitId == "ST" && (tuTypeId == "EURO_TSL_V" || tuTypeId == "EURO" || tuTypeId == "EURO_TSL_1"))
-                                time += BoxLoadTime * quantity;
+                            if (partner.Id == "0011" || partner.Id == "0017" || partner.Id == "0018")
+                            {
+                                if (partner.Id == "0011")
+                                {
+                                    if (measureUnitId == "ST" && (tuTypeId == "EURO_TSL_V" || tuTypeId == "EURO" || tuTypeId == "EURO_TSL_1"))
+                                    {
+                                        time += BoxLoadTime * quantity;
+                                    }
+                                    else
+                                    {
+                                        tu_counter.Add(tuId);
+                                    }
+                                }
+                                else
+                                {
+                                    if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
+                                    {
+                                        time += BoxLoadTime * quantity;
+                                    }
+                                    else
+                                    {
+                                        tu_counter.Add(tuId);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                tu_counter.Add(tuId);
+                            }
                         }
-                        else 
+                        else
                         {
-                            if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
-                                time += BoxLoadTime * quantity;
-                        }                        
+                            time += BoxLoadTime * quantity;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
                     }
                 }
-                else
+            }
+
+            if (tu_counter.Count != 0)
+            {
+                var uniqueTu = new HashSet<string>(tu_counter);
+                time = uniqueTu.Count * PalletLoadTime;
+            }
+            return time;
+        }
+        /// <summary>
+        /// Возвращает "ПЛАНОВОЕ ФАКТИЧЕСКОЕ" время приемки заказа 
+        /// </summary>
+        /// <param name="outgoId">Идентификатор заказа (на приемку)</param>
+        /// <param name="isPallet">Признак паллетной приемки</param>
+        /// <returns>Время приемки заказа в секундах</returns>
+        public int GetIngoPlanTime(string outgoId, bool isPallet, Partner partner)
+        {
+            var time = 0;
+            using (var command = _connection.CreateCommand())
+            {
+                var sql =
+                    $"select sum(PLAN_QUANTITY) AS quantity \n" +
+                    $"from {CommonSchema}.V_INCOME_LINE vil\n" +
+                    $"where vil.INCOME_ID = :outgoId";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    var sql =
-                        $"select otu.outgo_id, otu.tu_id, otu.place_id, otu.place_id_prefix\n" +
-                        $"  from {CommonSchema}.o_outgo_tu#v otu\n" +
-                        $" where otu.outgo_id = :outgo_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
+                    var quantity = Utils.DbValueToInt(reader["quantity"]);
+                    if (isPallet == true)
                     {
-                        var tuId = Utils.DbValueToString(reader["tu_id"]);
-                        var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
-                        if (placeIdPrefix != "AUS" && placeIdPrefix != "VRS" && placeIdPrefix != "TOR")
-                            return 0;
-                        // Для некоторых партнёров ВСЕГДА коробочная отгрузка
-                        time += isPallet ? PalletLoadTime : BoxLoadTime;
+                        time = PalletLoadTime * quantity;
                     }
-                    reader.Close();
+                    else
+                    {
+                        time = BoxLoadTime * quantity;
+                    }
                 }
             }
             return time;
@@ -2070,7 +2179,7 @@ namespace TSLog.Yard.Data
         /// <param name="planCost">Плановые затраты в деньгах</param>
         /// <param name="downTime">Простои</param>
         /// <param name="downCost">Потери из-за простоев в деньгах</param>
-        public void GetBcPlan(DateTime fromDate, DateTime toDate, 
+        public void GetBcPlan(DateTime fromDate, DateTime toDate,
             out double planTime, out double planCost, out double downTime, out double downCost)
         {
             downTime = 0.0;
@@ -2084,7 +2193,7 @@ namespace TSLog.Yard.Data
                 using var command = _connection.CreateCommand();
                 command.BindByName = true;
                 var sql =
-                    $"   select d.worker_id,\n" +                    
+                    $"   select d.worker_id,\n" +
                     $"          d.start_date, d.finish_date\n" +
                     $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
                     $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
@@ -2127,7 +2236,7 @@ namespace TSLog.Yard.Data
                     downTime += workerDownTime;
                     downCost += workerDownTime / 60 / 60 * cost;
                 }
-            }            
+            }
         }
         /// <summary>
         /// Функция формирования отчёта о затратах/выручке за период
@@ -2140,7 +2249,7 @@ namespace TSLog.Yard.Data
         {
             var partners = GetPartners();
             var ids = new StringBuilder();
-            if (partnersIds.Length > 0 && partnersIds.Length < partners.Length) 
+            if (partnersIds.Length > 0 && partnersIds.Length < partners.Length)
             {
                 foreach (var id in partnersIds)
                 {
@@ -2218,7 +2327,7 @@ namespace TSLog.Yard.Data
                     $"          round(nvl(d.total_cost, 0.0), 8) bc_cost,\n" +
                     $"          round(nvl(bd.store_income, 0.0), 8) billing_store_income,\n" +
                     $"          round(nvl(bd.consumables_income, 0.0), 8) billing_consumables_income,\n" +
-                    $"          round(nvl(bd.handling_income, 0.0), 8) billing_handling_income,\n" +                    
+                    $"          round(nvl(bd.handling_income, 0.0), 8) billing_handling_income,\n" +
                     $"          round(nvl(bd.total_income, 0.0), 8) billing_total_income,\n" +
                     $"          round(nvl(bd.handling_income, 0.0) - nvl(d.total_cost, 0.0), 8) handling_profit,\n" +
                     $"          round(nvl(bd.total_income, 0.0) - nvl(d.total_cost, 0.0), 8) total_profit,\n" +
@@ -2269,7 +2378,7 @@ namespace TSLog.Yard.Data
             element.partnerId = "DOWN";
             element.partnerName = "Простои";
             element.bcDuration = downTime / 60 / 60;
-            element.bcCost = downCost;            
+            element.bcCost = downCost;
             works.Add(element);
 
             return works.ToArray();

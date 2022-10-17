@@ -22,9 +22,9 @@ namespace TSLog.Yard
         /// <summary>
         /// Максимальное количество строк для вывода
         /// </summary>
-        public int MaxRowsCount 
+        public int MaxRowsCount
         {
-            set 
+            set
             {
                 _oracleStorage.MaxRowsCount = value > 0 ? value : DefaultMaxRowsCount;
             }
@@ -314,9 +314,9 @@ namespace TSLog.Yard
             string? partnerActionId,
             Employee[] workers)
         {
-            return _pgsqlStorage.GetOperations(id, from, to, type, vehicleKind, state, gate, partner, 
-                vehicleBrand, 
-                vehicleNumber, 
+            return _pgsqlStorage.GetOperations(id, from, to, type, vehicleKind, state, gate, partner,
+                vehicleBrand,
+                vehicleNumber,
                 driverName,
                 driverPhoneNumber,
                 partnerActionId,
@@ -417,6 +417,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetOutgoPlanTime(outgoId, isPallet, partner);
         }
+        public int GetIngoPlanTime(string outgoId, bool isPallet, Partner partner)
+        {
+            return _oracleStorage.GetIngoPlanTime(outgoId, isPallet, partner);
+        }
         public void RemoveAction(Operation operation, WarehouseAction action)
         {
             _pgsqlStorage.RemoveAction(operation, action);
@@ -475,7 +479,7 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetYardStandardLabocCosts(fromDate, toDate);
         }
-        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate) 
+        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate)
         {
             return _pgsqlStorage.GetYardAllocatedLabocCosts(fromDate, toDate);
         }
@@ -504,7 +508,7 @@ namespace TSLog.Yard
             return _oracleStorage.GetEcData(fromDate, toDate, partnersIds);
         }
         #endregion
-        
+
         public void Dispose()
         {
             _oracleStorage.Dispose();

@@ -30,7 +30,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
         // Средее время (ПО УМОЛЧАНИЮ) выгрузки/погрузки паллеты/коробки/штуки
         private const int PalletUnloadTime = 93;
-        private const int BoxUnloadTime = 20; 
+        private const int BoxUnloadTime = 20;
         private const int PieceUnloadTime = 25;
         private const int PalletLoadTime = 93;
         private const int BoxLoadTime = 20;
@@ -108,11 +108,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.gateId = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
                 operation.Gate.Code :
                 string.Empty;
-            result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
-                operation.Gate.Code : 
+            result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.Code :
                 string.Empty;
-            result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ? 
-                operation.Gate.ShortName : 
+            result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.ShortName :
                 string.Empty;
             result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
                 operation.Gate.ShortName :
@@ -132,7 +132,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             result.driverName = operation.DriverName;
             result.lowerDriverName = operation.DriverName.ToLower();
-            
+
             result.driverPhoneNumber = operation.DriverPhoneNumber;
             result.normalizedDriverPhoneNumber = operation.DriverPhoneNumber;
             result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace(" ", "");
@@ -207,7 +207,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return partnerIds.Contains(partnerId);
         }
         [HttpGet("IsPartnerUser")]
-        public string GetIsPartnerIser() 
+        public string GetIsPartnerIser()
         {
             try
             {
@@ -237,12 +237,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
                 var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration)) 
+                if (_useAuthentication && (!useYard || !getOperationDuration))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
                 }
-                
+
                 string stringOperationType = Request.Query["operation_type"];
                 string stringVehicleKind = Request.Query["vehicle_kind"];
 
@@ -353,7 +353,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 totalTime = standardTotalDuration;
 
             return (int)totalTime;
-        }        
+        }
         [HttpPost("FillingPlanOperationDuration")]
         async public Task<string> GetFillingPlanOperationDuration()
         {
@@ -381,7 +381,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return "Vehicle kind is empty";
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-               
+
                 var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
                 var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
@@ -441,7 +441,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     outgoesIds.Add(outgo.id);
 
                 var duration = _GetHoodManPlanOperationDuration(operationType, vehicleKind, partner, outgoesIds.ToArray());
-                
+
                 var text = JsonSerializer.Serialize(duration);
                 Response.StatusCode = 200;
                 return text;
@@ -563,7 +563,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var k = GetFillingPlanOperationK(operationType, vehicleKind, actions);
                 var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
                 var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
-               
+
                 dynamic result = new ExpandoObject();
                 result.laborCost = Math.Round(laborCost * k);
                 result.linearLaborCost = Math.Round(linearLaborCost * k);
@@ -589,30 +589,50 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// <param name="factWorkFinishDate">Дата окончания погрузки</param>
         /// <param name="siteCode">Код участка работ</param>
         /// <returns>Плановые трудозатраты</returns>
-        private int _GetHoodManPlanOperationLaborCost_Card(OperationType operationType, VehicleKind vehicleKind, 
+        private int _GetHoodManPlanOperationLaborCost_Card(OperationType operationType, VehicleKind vehicleKind,
             Partner partner, string[] outgoesIds)
         {
             // Для карточки
             var laborCost = 0;
-            // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
-            foreach (var outgoId in outgoesIds)
-                laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
+            var direction = operationType.Direction.ToString();
+            if (direction == "Out")
+            {
+                // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
+                foreach (var outgoId in outgoesIds)
+                    laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
 
-            // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
-            // Учитываем это в плановых трудозатратах.                
-            //var workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
-            var workersCount = 1;
-            laborCost += workersCount * DefaultConstantOperationDuration;
+                // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
+                // Учитываем это в плановых трудозатратах.                
+                //var workersCount = _storage.GetPlanLinearWorkersCount(operationType, vehicleKind);
+                //var direction = operationType.Direction;
+                //var xar = direction.ToString();
+                var workersCount = 1;
+                laborCost += workersCount * DefaultConstantOperationDuration;
 
-            // 2022.09.22 Буров Михаил.
-            // Убрал отчёчку по указанию Алексея Охотникова
-            //var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
-            //if (laborCost > defaultLaborCost)
-            //    laborCost = defaultLaborCost;
+                // 2022.09.22 Буров Михаил.
+                // Убрал отчёчку по указанию Алексея Охотникова
+                //var defaultLaborCost = _storage.GetLaborCost(operationType, vehicleKind);
+                //if (laborCost > defaultLaborCost)
+                //    laborCost = defaultLaborCost;
+            }
+            else
+            {
+                if (partner.Id == "0004" || partner.Id == "0017" || partner.Id == "0018" || partner.Id == "0025")
+                {
+                    foreach (var outgoId in outgoesIds)
+                        laborCost += _storage.GetIngoPlanTime(outgoId, operationType.IsPallet, partner);
+                }
+                else
+                {
+                    //var temp = JsonSerializer.Deserialize<ExpandoObject>(GetFillingPlanOperationLaborCost<string>());
+                    laborCost = 0;
+                }
+            }
+
 
             return laborCost;
         }
-        private int _GetHoodManPlanOperationLaborCost_Report(OperationType operationType, VehicleKind vehicleKind, 
+        private int _GetHoodManPlanOperationLaborCost_Report(OperationType operationType, VehicleKind vehicleKind,
             Partner partner, DateTime factWorkStartDate, DateTime factWorkFinihDate, string siteCode, string[] outgoesIds)
         {
             // Для отчёта
@@ -623,7 +643,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
             // Учитываем это в плановых трудозатратах.                
-            var workersCount = _storage.GetBcWorkersCount(factWorkStartDate, factWorkFinihDate, siteCode);            
+            var workersCount = _storage.GetBcWorkersCount(factWorkStartDate, factWorkFinihDate, siteCode);
             laborCost += workersCount * DefaultConstantOperationDuration;
 
             // 2022.09.22 Буров Михаил.
@@ -672,7 +692,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var laborCost = _GetHoodManPlanOperationLaborCost_Card(operationType, vehicleKind, partner,
-                    outgoesIds.ToArray());                
+                    outgoesIds.ToArray());
 
                 var text = JsonSerializer.Serialize(laborCost);
                 Response.StatusCode = 200;
@@ -768,7 +788,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
-                }                
+                }
                 var text = "";
                 Response.StatusCode = 200;
                 return text;
@@ -810,7 +830,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     var dynamicOperation = OperationToDynamic(operation);
 
                     var dynamicActions = new List<dynamic>();
-                    foreach (var action in operation.GetActions()) 
+                    foreach (var action in operation.GetActions())
                     {
                         dynamic dynamicAction = new ExpandoObject();
                         dynamicAction.kind = action.Kind == ActionKind.Outgo ? "O" : "I";
@@ -820,7 +840,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     var k = GetFillingPlanOperationK(operation.Type, operation.VehicleKind, dynamicActions.ToArray());
                     dynamicOperation.planLaborCost = Math.Round(dynamicOperation.planLaborCost * k);
                     dynamicOperation.planLinearLaborCost = Math.Round(dynamicOperation.planLinearLaborCost * k);
-                    
+
                     var text = JsonSerializer.Serialize(dynamicOperation);
                     Response.StatusCode = 200;
                     return text;
@@ -885,9 +905,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var workers = Array.Empty<Employee>();
                 if (!string.IsNullOrWhiteSpace(stringWorker))
                     workers = _storage.FindEmployees(stringWorker.Trim());
-                
+
                 var span = 1;
-                var operations = _storage.GetOperations(stringId, 
+                var operations = _storage.GetOperations(stringId,
                     fromDate.Date, toDate.AddDays(span).AddTicks(-1),
                     operationType,
                     vehicleKind,
@@ -914,7 +934,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return text;
             }
             catch (Exception exception)
-            {                
+            {
                 return exception.Message;
             }
         }
@@ -1107,7 +1127,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Wrong start date {temp}!";
 
                 temp = data.finishDate;
-                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind, 
+                var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind,
                     out int constantDuration, out int variableDuration)));
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
@@ -1116,7 +1136,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     if (tempFinishDate > finishDate)
                         finishDate = tempFinishDate;
                 }
-                
+
                 string vehicleBrand = data.vehicleBrand;
                 if (string.IsNullOrWhiteSpace(vehicleBrand))
                     vehicleBrand = "<Не указано>";
@@ -1169,7 +1189,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var user = RightsChecker.GetUserName(User);
                 operation = _storage.AddOperation(operation, user);
-                
+
                 // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
                 // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
@@ -1376,7 +1396,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.partnerId;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Partner id is empty";
-                                
+
                 var manager = operation.Manager;
                 temp = data.partnerId;
                 if (!string.IsNullOrWhiteSpace(temp))
@@ -1391,7 +1411,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return "Partner id is empty!";
 
                 // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
-                var changeGate = operation.Type.Code != operation.Type.Code 
+                var changeGate = operation.Type.Code != operation.Type.Code
                     || operation.VehicleKind.Code != vehicleKind.Code
                     || operation.PlanWorkStartDate != planWorkStartDate
                     || operation.PlanWorkFinishDate != planWorkFinishDate;
@@ -1415,7 +1435,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     }
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-                else if (changeGate) 
+                else if (changeGate)
                 {
                     _storage.SetOperationGate(operation, null, userName);
                     _storage.SetResponsibleOfficer(operation, employee);
@@ -1561,7 +1581,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 operation.Note = data.note;
-                
+
                 _storage.SetOperationNote(operation, RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
@@ -1617,7 +1637,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetOperationGate(operation, gate, userName);
                 _storage.SetResponsibleOfficer(operation, employee);
-                
+
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1894,7 +1914,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             return result;
         }
-        private static dynamic[] WarehouseActionsToDynamic(WarehouseAction[] actions) 
+        private static dynamic[] WarehouseActionsToDynamic(WarehouseAction[] actions)
         {
             var result = new List<dynamic>();
             foreach (var action in actions)
@@ -1914,7 +1934,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     Response.StatusCode = 403;
                     return "Forbidden";
                 }
-                
+
                 string temp = Request.Query["kind"];
                 ActionKind actionKind;
                 if (!string.IsNullOrWhiteSpace(temp))
@@ -2015,7 +2035,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 if (!long.TryParse(stringOperationId, out long operationId))
                     return $"Wrong operation id {stringOperationId}!";
-                
+
                 var operation = _storage.GetOperation(operationId);
                 var action = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
                 _storage.AddAction(operation, action);
@@ -2095,7 +2115,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 if (string.IsNullOrWhiteSpace(stringOperationId))
                     return "Operation id is empty!";
-                
+
                 if (!long.TryParse(stringOperationId, out long operationId))
                     return $"Wrong operation id {stringOperationId}!";
 
@@ -2149,7 +2169,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         #endregion
 
         #region Operation workers
-        private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false) 
+        private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false)
         {
             dynamic result = new ExpandoObject();
             result.id = employee.Id;
@@ -2160,13 +2180,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.fullName = employee.FullName;
             result.lowerFullName = employee.FullName.ToLower();
             result.positionId = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
-                employee.MajorPosition.Id : 
+                employee.MajorPosition.Id :
                 -1;
-            result.positionCode = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ? 
-                employee.MajorPosition.Code : 
+            result.positionCode = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
+                employee.MajorPosition.Code :
                 string.Empty;
-            result.positionName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ? 
-                employee.MajorPosition.Name : 
+            result.positionName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
+                employee.MajorPosition.Name :
                 string.Empty;
             result.positionShortName = employee.MajorPosition != null && employee.MajorPosition != Position.Null && employee.MajorPosition != Position.Empty ?
                 employee.MajorPosition.ShortName :
@@ -2183,7 +2203,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
         private static dynamic OperationWorkerToDynamic(Operation.OperationWorker operationWorker)
         {
-            dynamic result = new ExpandoObject();            
+            dynamic result = new ExpandoObject();
             result.id = operationWorker.Worker.Id;
             result.surname = operationWorker.Worker.Surname;
             result.firstName = operationWorker.Worker.FirstName;
@@ -2202,7 +2222,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             foreach (var operationWorker in operationWorkers)
                 result.Add(YardController.OperationWorkerToDynamic(operationWorker));
             return result.ToArray();
-        }        
+        }
         [HttpGet("PositionWorkers")]
         public string GetPositionWorkers()
         {
@@ -2307,7 +2327,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
                 var workers = _storage.GetEmployees();
-                
+
                 var objects = new List<dynamic>();
                 foreach (var worker in workers)
                     objects.Add(EmployeeToDynamic(worker, _storage.IsWorkerBusy(worker)));
@@ -2401,7 +2421,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        [HttpPatch("RemoveOperationWorker")]        
+        [HttpPatch("RemoveOperationWorker")]
         async public Task<string> RemoveOperationWorker()
         {
             try
@@ -2991,7 +3011,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     var siteCode = _storage.GetSiteCodeByGateCode(operation.gateCode);
                     operation.works = _storage.GetBcPerfomanceData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
                     operation.factLaborCost = 0.0;
-                    foreach (var work in operation.works) 
+                    foreach (var work in operation.works)
                         operation.factLaborCost += work.duration;
 
                     // 2022.09.19 Буров Михаил.
@@ -3006,8 +3026,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             outgoesIds.Add(outgo.Id);
                         var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
 
-                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost_Report(tempOperation.Type, 
-                            tempOperation.VehicleKind, partner, 
+                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost_Report(tempOperation.Type,
+                            tempOperation.VehicleKind, partner,
                             tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
                             siteCode,
                             outgoesIds.ToArray());
@@ -3154,7 +3174,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var text = JsonSerializer.Serialize(elements.ToArray());
                 Response.StatusCode = 200;
-                return text; 
+                return text;
             }
             catch (Exception exception)
             {

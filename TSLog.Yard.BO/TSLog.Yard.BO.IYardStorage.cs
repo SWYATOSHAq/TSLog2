@@ -73,7 +73,7 @@ namespace TSLog.Yard.BO
         public void FinishOperation(Operation operation, string user = "");
         public void CancelOperation(Operation operation, string user = "");
         public void DeleteOperation(Operation operation, string user = "");
-        public void AddAction(Operation operation, WarehouseAction action);       
+        public void AddAction(Operation operation, WarehouseAction action);
         public void RemoveAction(Operation operation, WarehouseAction action);
         public void RemoveActions(Operation operation);
         public bool IsWorkerBusy(Employee employee);
@@ -93,6 +93,7 @@ namespace TSLog.Yard.BO
         public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern);
         public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
         public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner);
+        public int GetIngoPlanTime(string outgoId, bool isPallet, Partner partner);
         public LegalEntity GetLegalEntity(string id);
         public Partner GetPartner(string id);
         public Employee[] GetPartnerManagers(Partner partner);
