@@ -183,6 +183,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 result.Add(OperationToDynamic(operation));
             return result.ToArray();
         }
+        private dynamic DoGetFillingPlanOperationLC(OperationType ot, VehicleKind vk, dynamic[] actions)
+        {
+            var k = GetFillingPlanOperationK(ot, vk, actions);
+            var laborCost = _storage.GetLaborCost(ot, vk);
+            var linearLaborCost = _storage.GetLinearLaborCost(ot, vk);
+
+            dynamic result = new ExpandoObject();
+            result.laborCost = Math.Round(laborCost * k);
+            result.linearLaborCost = Math.Round(linearLaborCost * k);
+
+            return result;
+        }
         private string OperationToJson(Operation operation)
         {
             var temp = OperationToDynamic(operation);
@@ -593,7 +605,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             Partner partner, string[] outgoesIds)
         {
             // Для карточки
-            var laborCost = 0;
+            int laborCost = 0;
+            var listActions = new List<dynamic>();
             var direction = operationType.Direction.ToString();
             if (direction == "Out")
             {
@@ -624,11 +637,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
                 else
                 {
-                    //var temp = JsonSerializer.Deserialize<ExpandoObject>(GetFillingPlanOperationLaborCost<string>());
-                    laborCost = 0;
+                    foreach (var outgoId in outgoesIds)
+                    {
+                        dynamic element = new ExpandoObject();
+                        element.kind = "I";
+                        element.id = outgoId;
+                        listActions.Add(element);
+                    }
+
+                    dynamic[] arrayActions = listActions.ToArray();
+                    var getLaborCost = DoGetFillingPlanOperationLC(operationType, vehicleKind, arrayActions);
+                    laborCost = Convert.ToInt32(getLaborCost.laborCost);
                 }
             }
-
 
             return laborCost;
         }
@@ -764,7 +785,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return "Partner code is empty!";
 
                 var partner = _storage.GetPartner(partnerId);
-                var managers =_storage.GetPartnerManagers(partner);
+                var managers = _storage.GetPartnerManagers(partner);
                 if (managers.Length <= 0)
                     return $"Partner (client) {partnerId} has no managers!";
                 var text = JsonSerializer.Serialize(managers[0]);
@@ -1561,8 +1582,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var startOperationWork = _rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
-                if (_useAuthentication && (!useYard || !startOperationWork))
+                var editOperationNote = _rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
+                if (_useAuthentication && (!useYard || !editOperationNote))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
@@ -1762,8 +1783,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = 500;
                 var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var startOperationWork = _rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
-                if (_useAuthentication && (!useYard || !startOperationWork))
+                var finishOperationWork = _rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
+                if (_useAuthentication && (!useYard || !finishOperationWork))
                 {
                     Response.StatusCode = 403;
                     return "Forbidden";
