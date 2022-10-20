@@ -3066,6 +3066,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+
         [HttpGet("ECReport")]
         public string GetECReport()
         {

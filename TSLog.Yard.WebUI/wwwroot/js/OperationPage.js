@@ -300,7 +300,7 @@ class OperationPage {
                 laborCostInput.value = "<Не определено>";
             else {
                 laborCostInput.value = "План (рассч.): " + (this.fillingPlanLaborCost / 60).toFixed();
-                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();;
+                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();
                 /*
                 if (this.planLinearLaborCost > 0) {
                     laborCostInput.value = laborCostInput.value + ", только линейные: " + (this.planLinearLaborCost / 60).toFixed();
