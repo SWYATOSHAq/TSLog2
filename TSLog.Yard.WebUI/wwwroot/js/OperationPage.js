@@ -564,7 +564,11 @@ class OperationPage {
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                const result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                if (result2.code != 0) {
+                    viewUtils.showError(result2.message);
+                    break;
+                }
             }
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
@@ -609,7 +613,11 @@ class OperationPage {
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                const result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                if (result2.code != 0) {
+                    viewUtils.showError(result2.message);
+                    break;
+                }
             }
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
@@ -652,7 +660,11 @@ class OperationPage {
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                const result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                if (result2.code != 0) {
+                    viewUtils.showError(result2.message);
+                    break;
+                }
             }
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW_BY_PARTNER";
         } else {
@@ -700,19 +712,23 @@ class OperationPage {
         };
 
         const result = await api.editOperation(data);
-        if (result.code === 0) {
-            const result2 = await api.removeOperationWarehouseActions(this.id);
-            if (result2.code === 0) {
-                for (let warehouseActionId in this.selectedWarehouseActions) {
-                    api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
-                }
-                location.reload();
-            } else {
-                viewUtils.showError(result2.message);
-            }            
-        } else {
+        if (result.code != 0) {
             viewUtils.showError(result.message);
+            return;
         }
+        result = await api.removeOperationWarehouseActions(this.id);
+        if (result.code != 0) {
+            viewUtils.showError(result.message);
+            return;
+        }
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+           result = await api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
+           if (result.code != 0) {
+               viewUtils.showError(result.message);
+               return;
+           }
+        }
+
     }
 
     async editOperationByPartner() {
@@ -751,20 +767,24 @@ class OperationPage {
             warehouseActions: actions
         };
 
-        const result = await api.editOperationByPartner(data);
-        if (result.code === 0) {
-            const result2 = await api.removeOperationWarehouseActions(this.id);
-            if (result2.code === 0) {
-                for (let warehouseActionId in this.selectedWarehouseActions) {
-                    api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
-                }
-                location.reload();
-            } else {
-                viewUtils.showError(result.message);
-            }            
-        } else {
+        let result = await api.editOperationByPartner(data);
+        if (result.code != 0) {
             viewUtils.showError(result.message);
+            return;
         }
+        result = await api.removeOperationWarehouseActions(this.id);
+        if (result.code != 0) {
+            viewUtils.showError(result.message);
+            return;
+        }
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            result = await api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
+            if (result.code != 0) {
+                viewUtils.showError(result.message);
+                return;
+            }
+        }
+        location.reload();
     }
 
     copyOperation() {
