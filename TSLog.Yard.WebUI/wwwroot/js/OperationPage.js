@@ -560,11 +560,11 @@ class OperationPage {
             warehouseActions: actions
         };
 
-        const result = await api.createOperation(data);
+        let result = await api.createOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                const result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                let result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
                 if (result2.code != 0) {
                     viewUtils.showError(result2.message);
                     break;
@@ -609,11 +609,11 @@ class OperationPage {
             warehouseActions: actions
         };
 
-        const result = await api.createConfirmOperation(data);
+        let result = await api.createConfirmOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                const result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                let result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
                 if (result2.code != 0) {
                     viewUtils.showError(result2.message);
                     break;
@@ -656,11 +656,11 @@ class OperationPage {
             warehouseActions: actions
         };
 
-        const result = await api.createOperationByPartner(data);
+        let result = await api.createOperationByPartner(data);
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                const result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                let result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
                 if (result2.code != 0) {
                     viewUtils.showError(result2.message);
                     break;
@@ -711,7 +711,7 @@ class OperationPage {
             warehouseActions: actions
         };
 
-        const result = await api.editOperation(data);
+        let result = await api.editOperation(data);
         if (result.code != 0) {
             viewUtils.showError(result.message);
             return;
