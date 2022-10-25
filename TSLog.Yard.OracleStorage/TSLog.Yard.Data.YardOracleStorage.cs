@@ -47,7 +47,7 @@ namespace TSLog.Yard.Data
         /// Схема для партнёров (покупателей наших складских и логистических услуг)
         /// </summary>
         public string PartnersSchema { protected get; set; } = DefaultPartnersSchema;
-        public YardOracleStorage(string dataSource): base(dataSource)
+        public YardOracleStorage(string dataSource) : base(dataSource)
         { }
 
         #region Products
@@ -605,11 +605,11 @@ namespace TSLog.Yard.Data
         //    }
         //    return time;
         //}
-        public int GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
+        public long GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
-            var time = 0;
+            long time = 0;
             List<string> tu_counter = new List<string>();
             using (var command = _connection.CreateCommand())
             {
@@ -626,7 +626,7 @@ namespace TSLog.Yard.Data
                     var placeIdPrefix = Utils.DbValueToString(reader["place_id_prefix"]);
                     var measureUnitId = Utils.DbValueToString(reader["measure_unit_id"]);
                     var tuTypeId = Utils.DbValueToString(reader["tu_type_id"]);
-                    var quantity = Utils.DbValueToInt(reader["quantity"]);
+                    var quantity = Utils.DbValueToLong(reader["quantity"]);
                     if (placeIdPrefix == "AUS" || placeIdPrefix == "VRS" || placeIdPrefix == "TOR")
                     {
                         if (isPallet == true)

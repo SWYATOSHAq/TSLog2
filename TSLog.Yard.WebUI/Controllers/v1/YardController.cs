@@ -404,10 +404,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
-        private int _GetHoodManPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind,
+        private long _GetHoodManPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind,
             Partner partner, string[] outgoesIds)
         {
-            var duration = 0;
+            long duration = 0;
             foreach (var outgoId in outgoesIds)
                 duration += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
             duration += DefaultConstantOperationDuration;
@@ -601,11 +601,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// <param name="factWorkFinishDate">Дата окончания погрузки</param>
         /// <param name="siteCode">Код участка работ</param>
         /// <returns>Плановые трудозатраты</returns>
-        private int _GetHoodManPlanOperationLaborCost_Card(OperationType operationType, VehicleKind vehicleKind,
+        private long _GetHoodManPlanOperationLaborCost_Card(OperationType operationType, VehicleKind vehicleKind,
             Partner partner, string[] outgoesIds)
         {
             // Для карточки
-            int laborCost = 0;
+            long laborCost = 0;
             var listActions = new List<dynamic>();
             var direction = operationType.Direction.ToString();
             if (direction == "Out")
@@ -653,11 +653,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             return laborCost;
         }
-        private int _GetHoodManPlanOperationLaborCost_Report(OperationType operationType, VehicleKind vehicleKind,
+        private long _GetHoodManPlanOperationLaborCost_Report(OperationType operationType, VehicleKind vehicleKind,
             Partner partner, DateTime factWorkStartDate, DateTime factWorkFinihDate, string siteCode, string[] outgoesIds)
         {
             // Для отчёта
-            var laborCost = 0;
+            long laborCost = 0;
             // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
             foreach (var outgoId in outgoesIds)
                 laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
