@@ -72,6 +72,7 @@ class GuardPage {
         contents.push(openButton);
 
         viewUtils.createCell(operationTr, ["table-cell"], contents);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
