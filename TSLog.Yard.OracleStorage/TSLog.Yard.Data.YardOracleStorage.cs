@@ -1362,7 +1362,8 @@ namespace TSLog.Yard.Data
                     $"          e.note" +
                     $"     from {StaffSchema}.stf_employee#v e\n" +
                     $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id" +
-                    $"    where emp.is_linear = 1";
+                    //                    $"    where emp.is_linear = 1"; было изначально
+                    $"    where POSITION_CODE IN ('WH_AREA_MANAGER', 'WH_SHIFT_HEAD', 'WH_OUTGO_SECTION_HEAD') OR emp.is_linear = 1";
                 command.CommandText = SelectEmployeesSql;
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
