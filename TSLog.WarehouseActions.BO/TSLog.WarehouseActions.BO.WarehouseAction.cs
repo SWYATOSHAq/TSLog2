@@ -84,7 +84,7 @@ namespace TSLog.WarehouseActions.BO
                 throw new ArgumentNullException(nameof(line));
             if (!_lines.ContainsKey(line.Product))
                 _lines.Add(line.Product, line);
-            else 
+            else
             {
                 var sameLine = _lines[line.Product];
                 sameLine.PlanQuantity += line.PlanQuantity;
@@ -94,12 +94,12 @@ namespace TSLog.WarehouseActions.BO
                 sameLine.PlanGrossWeight += line.PlanGrossWeight;
                 sameLine.FactGrossWeight += line.FactGrossWeight;
                 sameLine.PlanVolume += line.PlanVolume;
-                sameLine.FactVolume += line.FactVolume;                
+                sameLine.FactVolume += line.FactVolume;
                 sameLine.PlanBoxesCount += line.PlanBoxesCount;
                 sameLine.FactBoxesCount += line.FactBoxesCount;
                 sameLine.PlanPalletsCount += line.PlanPalletsCount;
                 sameLine.FactPalletsCount += line.FactPalletsCount;
-            }                
+            }
         }
         /// <summary>
         /// Добавляет товарные позиции
@@ -245,7 +245,7 @@ namespace TSLog.WarehouseActions.BO
         /// </summary>
         public double PlanBoxeCount
         {
-            get 
+            get
             {
                 var count = 0.0;
                 foreach (var line in _lines.Values)
