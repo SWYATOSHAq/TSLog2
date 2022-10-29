@@ -9,7 +9,7 @@
 	<user name="Оператор Аквариус" login="operatorakvarius">
 		<partner code="0011" name="0011. Аквариус"/>
 	</user>
-	<user name="Оператор Дендро-Тех" login="Metrot_Operator">
-		<partner code="0027" name="0027. Дендро-Тех"/>
+	<user name="Оператор Метрот" login="Metrot_Operator">
+		<partner code="0028" name="0028. Метрот"/>
 	</user>
 </userPartners>
