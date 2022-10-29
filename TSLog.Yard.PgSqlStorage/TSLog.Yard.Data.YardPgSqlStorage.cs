@@ -839,7 +839,8 @@ namespace TSLog.Yard.Data
             { "GATE_13", "EIN13" },
             { "GATE_14", "EIN14" },
             { "GATE_15", "EIN15" },
-            { "GATE_16", "EIN16" }
+            { "GATE_16", "EIN16" },
+            { "GATE_17", "EIN17" }
         };
         /// <summary>
         /// Возвращает код ворот по коду участка (соответствующего воротам)
@@ -1357,11 +1358,11 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
 
                     operation.Id = Convert.ToInt64(command.ExecuteScalar());
-                }                
+                }
                 connection.Close();
             }
             return operation;
-        }        
+        }
         /// <summary>
         /// Возвращает операцию двора (ПРР) по идентификатору
         /// </summary>
@@ -1426,7 +1427,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(vehicleKind));
             if (GetPositionById == null)
                 throw new ArgumentException($"{nameof(GetPositionById)} is null");
-            
+
             var key = $"{operationType.Code}_{vehicleKind.Code}";
             if (_operationWorks.ContainsKey(key))
                 return _operationWorks[key];
@@ -1698,10 +1699,10 @@ namespace TSLog.Yard.Data
                        $"   and (trim(coalesce(:driver_phone_number, '')) = '' or upper(replace(replace(replace(replace(replace(po.driver_phone_number, '(', ''), ')', ''), ' ', ''), '+', ''), '-', '')) like '%' || upper(:driver_phone_number) || '%')\n" +
                        $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
 
-                    if (workers.Length > 0) 
+                    if (workers.Length > 0)
                     {
                         var ids = string.Empty;
-                        foreach (var worker in workers) 
+                        foreach (var worker in workers)
                         {
                             if (ids.Length > 0)
                                 ids += ", ";
@@ -1778,9 +1779,9 @@ namespace TSLog.Yard.Data
                        $"         or :from_date is not null and o.fact_work_finish_date < :from_date);";
 
                     command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, 
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp,
                         from == null || from == DateTime.MinValue ? DBNull.Value : from));
-                    command.Parameters.Add(CreateParameter("to_date", 
+                    command.Parameters.Add(CreateParameter("to_date",
                         NpgsqlDbType.Timestamp, to == null || to == DateTime.MinValue ? DBNull.Value : to));
 
                     using var reader = command.ExecuteReader();
@@ -1944,7 +1945,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var sql =
                         $"select {YardSchema}.set_operation_gate(:p_id,\n" +
                         $"   :p_gate_code,\n" +
                         $"   :p_user);";
@@ -1995,7 +1996,7 @@ namespace TSLog.Yard.Data
             using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
-                var sql = 
+                var sql =
                     $"select {YardSchema}.edit_operation(:p_id,\n" +
                     $"    :p_type_code,\n" +
                     $"    :p_plan_work_start_date,\n" +
@@ -2078,7 +2079,7 @@ namespace TSLog.Yard.Data
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = 
+            var sql =
                 $"select {YardSchema}.set_operation_responsible_officer(:p_id, \n" +
                 $":p_responsible_officer_id,\n" +
                 $":p_user);";
@@ -2255,7 +2256,7 @@ namespace TSLog.Yard.Data
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = 
+            var sql =
                 $"select {YardSchema}.add_action(:p_operation_id,\n" +
                 $"    :p_action_kind,\n" +
                 $"    :p_action_id,\n" +
@@ -2332,7 +2333,7 @@ namespace TSLog.Yard.Data
 
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = 
+            var sql =
                 $"select {YardSchema}.remove_action(:p_operation_id,\n" +
                 $"    :p_action_kind,\n" +
                 $"    :p_action_id);";
@@ -2376,7 +2377,7 @@ namespace TSLog.Yard.Data
             */
             // По результатм обсуждений был приянто решене считать занятыми тех работников,
             // которые привязаны к операциям, которые находятся на данный момент в работе.
-            var sql = 
+            var sql =
                 $"   select ow.worker_id,\n" +
                 $"          ow.operation_id,\n" +
                 $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
@@ -2411,7 +2412,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(costCurrency));
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = 
+            var sql =
                 $"select {YardSchema}.add_operation_worker(:p_operation_id,\n" +
                 $"    :p_worker_id,\n" +
                 $"    :p_position_id,\n" +
@@ -2576,7 +2577,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentNullException(nameof(position));
             using var connection = CloneConnection();
             using var command = connection.CreateCommand();
-            var sql = 
+            var sql =
                 $"select {YardSchema}.remove_operation_worker(:p_operation_id,\n" +
                 $"    :p_worker_id,\n" +
                 $"    :p_position_id);";
@@ -2706,7 +2707,7 @@ namespace TSLog.Yard.Data
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var sql = 
+                    var sql =
                         $"with operation_labor as (\n" +
                         $"   select o.id,\n" +
                         $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
@@ -2829,7 +2830,7 @@ namespace TSLog.Yard.Data
                         $"    from data d\n" +
                         $"group by d.partner_id, d.partner_name,\n" +
                         $"         d.position_id, d.position_name\n" +
-                        $"  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" + 
+                        $"  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" +
                         $"order by d.partner_id,\n" +
                         $"         d.position_id";
                     command.CommandText = sql;
@@ -2982,7 +2983,7 @@ namespace TSLog.Yard.Data
                         дату и время окончания смены относить к СЛЕД. смене (как дату и время начала след смены).
                         Операцию двора относить к той смене, в которую попадает дата и время ФАКТИЧЕСКОГО окончания операции двора.
                     */
-                    var sql = 
+                    var sql =
                         $"   select o.id,\n" +
                         $"          o.type_id,\n" +
                         $"          o.vehicle_kind_id,\n" +
@@ -3032,8 +3033,8 @@ namespace TSLog.Yard.Data
 
                         // Скорректированы плановые трудозатарты в зависимости от заказов
                         // В рамках задачи #2381 Сделать описание отчёта производительности смены.
-                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);                        
-                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);                        
+                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
+                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
                         var operationType = GetOperationType(operationTypeId);
                         operation.typeCode = operationType.Code;
                         var vehicleKind = GetVehicleKind(vehicleKindId);
