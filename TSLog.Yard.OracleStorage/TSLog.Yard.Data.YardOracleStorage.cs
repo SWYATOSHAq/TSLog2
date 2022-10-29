@@ -796,7 +796,8 @@ namespace TSLog.Yard.Data
             { "EIN13", "GATE_13" },
             { "EIN14", "GATE_14" },
             { "EIN15", "GATE_15" },
-            { "EIN16", "GATE_16" }
+            { "EIN16", "GATE_16" },
+            { "EIN17", "GATE_17" }
         };
         /// <summary>
         /// Возвращает код участка работ по коду ворот

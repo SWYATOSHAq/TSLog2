@@ -80,6 +80,7 @@ class ShiftPerfomanceReportPage {
         gatesNames["EIN14"] = "Ворота 14";
         gatesNames["EIN15"] = "Ворота 15";
         gatesNames["EIN16"] = "Ворота 16";
+        gatesNames["EIN17"] = "Ворота 17";
 
         const headerRow = document.getElementById("header-row");
         headerRow.replaceChildren();
