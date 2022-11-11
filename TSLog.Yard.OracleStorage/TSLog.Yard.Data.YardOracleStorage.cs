@@ -2287,7 +2287,7 @@ namespace TSLog.Yard.Data
                     $"    --left join {CommonSchema}.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
                     $"    left join {CommonSchema}.bl_services_def bsd on bsd.bsd_id = bsl.bl_bsd_id\n" +
                     $"    left join {CommonSchema}.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
-                    $"   where bsl.adddate between :start_date and :finish_date\n" +
+                    $"   where bsl.BL_DATE between :start_date and :finish_date\n" +
                     (ids.Length <= 0 ? "" : $"         and bsl.bl_mndnr in ({ids.ToString()})\n") +
                     $"group by bsl.bl_mndnr\n" +
                     $"order by partner_id\n" +
