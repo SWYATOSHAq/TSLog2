@@ -118,6 +118,18 @@ class ShiftPerfomanceReportPage {
                 const id = gateCode + "-" + index.toString();
                 const cell = document.getElementById(id);
 
+                const el = document.createElement('span');
+                if (["O_PALLET", "O_BOX_MIX", "O_BOX_MONO"].includes((operation.typeCode))) {
+                    el.textContent = 'О ';
+                  
+                } else {
+                    el.textContent = 'П ';
+                }
+                el.style.color = 'red';
+                el.style.fontWeight = 'bold';
+                cell.appendChild(el);
+
+
                 cell.append(operation.partnerNames);
                 cell.append(document.createElement("br"));
 
