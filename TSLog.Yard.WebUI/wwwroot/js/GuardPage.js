@@ -42,6 +42,8 @@ class GuardPage {
     clearOperations() {
         const operationsTbody = document.getElementById("guard-operations-tbody");
         operationsTbody.replaceChildren();
+        const carsCounter = document.getElementById("carsCounter");
+        carsCounter.replaceChildren();
     }
 
     createOpenOperationFunction(id) {
@@ -157,6 +159,8 @@ class GuardPage {
             }            
             this.filteredOperations.push(operation);
         }
+        const carsCounter = document.getElementById("carsCounter");
+        carsCounter.textContent = " (всего машин - " + this.filteredOperations.length + ")";
     }
 
     sortCompare(operation1, operation2) {
@@ -297,9 +301,7 @@ class GuardPage {
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
-        const header = document.getElementById("header2");
-        header.textContent = header.textContent + " (всего машин - " + this.operations.length + ")";
-        
+       
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
     }

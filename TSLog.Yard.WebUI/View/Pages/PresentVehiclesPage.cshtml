@@ -55,8 +55,11 @@
 }
 <meta id="refresh-meta"
     http-equiv="refresh" 
-    content="60; URL='/PresentVehiclesPage'">  
-<h1 id="header1">Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1>
+    content="60; URL='/PresentVehiclesPage'">
+<div class="d-flex" id="header1">
+    <h1>Машины во дворе @DateTime.Now.ToString(@"HH\:mm - dd.MM.yyyy")</h1> 
+    <span id="carsCounter"></span>
+</div>
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
 <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
 <table class="table table-light table-bordered table-striped operations-table">

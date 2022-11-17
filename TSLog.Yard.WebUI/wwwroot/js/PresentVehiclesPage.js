@@ -51,7 +51,9 @@ class PresentVehiclesPage {
 
     clearOperations() {
         const operationsTbody = document.getElementById("active-operations-tbody");
+        const carsCounter = document.getElementById("carsCounter");
         operationsTbody.replaceChildren();
+        carsCounter.replaceChildren();
     }
 
     createOpenOperationFunction(id) {
@@ -124,6 +126,7 @@ class PresentVehiclesPage {
 
         viewUtils.createCell(operationTr, ["table-cell"], contents,
             "background-color: " + operation.displayColor + " !important; box-shadow:none");
+
     }
 
     filterOperations() {
@@ -180,6 +183,10 @@ class PresentVehiclesPage {
 
             this.filteredOperations.push(operation);
         }
+
+        const carsCounter = document.getElementById("carsCounter");
+        carsCounter.textContent = " (всего машин - " + this.filteredOperations.length + ")";
+
     }
 
     sortCompare(operation1, operation2) {
@@ -319,8 +326,6 @@ class PresentVehiclesPage {
         this.filterOperations();
         this.sortOperations(this.sortCompare.bind(this));
         this.showOperations();
-        const header = document.getElementById("header1");
-        header.textContent = header.textContent + " (всего машин - " + this.operations.length + ")";
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);

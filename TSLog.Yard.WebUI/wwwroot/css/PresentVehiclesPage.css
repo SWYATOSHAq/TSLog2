@@ -71,3 +71,8 @@
 .btn-outline-secondary {
     padding-top: 0px;
 }
+
+#carsCounter {
+    font-size: 2rem;
+    padding-left:10px;
+}
