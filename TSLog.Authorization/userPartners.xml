@@ -12,4 +12,10 @@
 	<user name="Оператор Метрот" login="Metrot_Operator">
 		<partner code="0028" name="0028. Метрот"/>
 	</user>
+	<user name="Оператор Юмайнерс" login="Uminersoper">
+		<partner code="0017" name="0017. ИП Зейнетдинов"/>
+	</user>
+	<user name="Оператор Вкусная жизнь" login="vkzhoper">
+		<partner code="0014" name="0014. Вкусная жизнь"/>
+	</user>
 </userPartners>
