@@ -259,12 +259,14 @@ namespace TSLog.Yard.Data
             var isActive = true;
             var note = string.Empty;
             var planActionDate = Utils.DbValueToDateTime(reader["plan_action_date"]);
+            var insertDate = Utils.DbValueToDateTime(reader["insert_date"]);
             var action = new WarehouseAction(kind,
                 id,
                 number,
                 partner,
                 partnerActionId,
                 planActionDate,
+                insertDate,
                 isActive,
                 note);
             action.TusCount = Utils.DbValueToInt(reader["tu_count"]);
@@ -378,7 +380,7 @@ namespace TSLog.Yard.Data
             {
                 command.BindByName = true;
                 var SelectWarehouseActionByIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
+                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
                     $"   and a.kind = :kind";
@@ -394,7 +396,7 @@ namespace TSLog.Yard.Data
                 if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
                 {
                     var selectArchivedDeletedAction =
-                        $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
+                        $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
                         $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
                         $" where a.id = :id\n" +
                         $"   and a.kind = :kind";

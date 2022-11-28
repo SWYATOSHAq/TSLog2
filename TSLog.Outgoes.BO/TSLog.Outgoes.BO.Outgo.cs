@@ -43,7 +43,7 @@ namespace TSLog.Outgoes.BO
             /// <summary>
             /// Плановое количество
             /// </summary>
-            public new double PlanQuantity 
+            public new double PlanQuantity
             {
                 get
                 {
@@ -216,8 +216,8 @@ namespace TSLog.Outgoes.BO
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
         public Outgo(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "")
-            : base(ActionKind.Outgo, number, id, partner, partnerNumber, DateTime.MinValue, true, note)
-        {            
+            : base(ActionKind.Outgo, number, id, partner, partnerNumber, DateTime.MinValue, DateTime.MinValue, true, note)
+        {
             Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));
             if (string.IsNullOrWhiteSpace(partnerNumber))

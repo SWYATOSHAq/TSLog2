@@ -1932,6 +1932,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.partnerId = action.Partner.Id;
             result.partnerName = action.Partner.Name;
             result.planActionDate = action.PlanActionDate;
+            result.insertDate = action.InsertDate;
 
             return result;
         }

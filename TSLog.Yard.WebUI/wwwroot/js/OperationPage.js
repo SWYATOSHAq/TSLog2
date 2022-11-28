@@ -909,13 +909,14 @@ class OperationPage {
         button.dataset.partnerActionId = action.partnerActionId;
         button.dataset.actionPartnerId = action.partnerId;
         button.dataset.actionPartnerName = action.partnerName;
-        button.dataset.actionPlanActionDate = action.planActionDate;        
+        button.dataset.actionPlanActionDate = action.planActionDate;
+        button.dataset.actionInsertDate = action.insertDate;
 
         const workerFullNameB = document.createElement("b");
         workerFullNameB.textContent = action.partnerActionId != "" ? action.partnerActionId : "Б/Н";
         button.append(workerFullNameB);
 
-        const date = utils.stringToDate(action.planActionDate);
+        const date = utils.stringToDate(action.insertDate);
         if (date > utils.nullDate) {
             button.append(" (" + utils.dateToString(date) + ") ");
         }        

@@ -54,9 +54,10 @@ namespace TSLog.WarehouseActions.BO
         /// Плановая дата (и время) складского действа
         /// </summary>
         public DateTime PlanActionDate { get; set; }
+        public DateTime InsertDate { get; set; }
         protected readonly IDictionary<Product, LineBase> _lines = new Dictionary<Product, LineBase>();
-        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId, 
-            DateTime planActionDate, bool isActive, string note)
+        public WarehouseAction(ActionKind kind, string id, string number, Partner partner, string partnerActionId,
+            DateTime planActionDate, DateTime insertDate, bool isActive, string note)
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
             //if (string.IsNullOrWhiteSpace(number))
@@ -66,6 +67,7 @@ namespace TSLog.WarehouseActions.BO
             Partner = partner;
             PartnerActionId = partnerActionId;
             PlanActionDate = planActionDate;
+            InsertDate = insertDate;
         }
         private WarehouseAction() : base()
         {
@@ -279,7 +281,7 @@ namespace TSLog.WarehouseActions.BO
             get
             {
                 if (_null == null)
-                    _null = new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", DateTime.MinValue, true, "NULL");
+                    _null = new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", DateTime.MinValue, DateTime.MinValue, true, "NULL");
                 return _null;
             }
         }

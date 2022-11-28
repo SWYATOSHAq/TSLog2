@@ -192,7 +192,7 @@ namespace TSLog.Incomes.BO
 
         private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
-        public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "") : base(ActionKind.Income, id, number, partner, partnerNumber, DateTime.MinValue, true, note)
+        public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "") : base(ActionKind.Income, id, number, partner, partnerNumber, DateTime.MinValue, DateTime.MinValue, true, note)
         {
             Date = date;
             Partner = partner ?? throw new ArgumentNullException(nameof(partner));

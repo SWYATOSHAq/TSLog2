@@ -2282,6 +2282,7 @@ namespace TSLog.Yard.Data
             var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
             var partnerId = Utils.DbValueToString(reader["partner_action_id"]);
             var planActionDate = DateTime.MinValue;
+            var insertDate = DateTime.MinValue;
             var note = string.Empty;
             var action = new WarehouseAction(kind,
                 id,
@@ -2289,6 +2290,7 @@ namespace TSLog.Yard.Data
                 partner,
                 partnerId,
                 planActionDate,
+                insertDate,
                 true,
                 note);
             return action;
