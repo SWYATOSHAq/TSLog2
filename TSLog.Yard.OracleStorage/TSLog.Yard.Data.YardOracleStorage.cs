@@ -475,6 +475,7 @@ namespace TSLog.Yard.Data
                     $"       a.partner_number,\n" +
                     $"       a.state_code,\n" +
                     $"       a.plan_action_date,\n" +
+                    $"       a.insert_date,\n" +
                     $"       a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where (upper(trim(a.id)) like :pattern\n" +
