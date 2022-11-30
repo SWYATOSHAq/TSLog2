@@ -18,4 +18,7 @@
 	<user name="Оператор Вкусная жизнь" login="vkzhoper">
 		<partner code="0014" name="0014. Вкусная жизнь"/>
 	</user>
+	<user name="Оператор Манипула" login="Manipula">
+		<partner code="0029" name="0029. Манипула"/>
+	</user>
 </userPartners>
