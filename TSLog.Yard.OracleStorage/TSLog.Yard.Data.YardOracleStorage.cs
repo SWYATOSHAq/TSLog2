@@ -461,14 +461,39 @@ namespace TSLog.Yard.Data
         /// <param name="partner">Клиент (мандант)</param>
         /// <param name="pattern">Шаблон идентификатора/номера/клиентского идентификатора</param>
         /// <returns>Массив складских действ</returns>
-        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern)
+        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser = false)
         {
             var actions = new List<WarehouseAction>();
             pattern = !string.IsNullOrWhiteSpace(pattern) ? $"%{pattern.Trim().ToUpper()}%" : "%";
+
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
-                var SelectWarehouseActionByPartnerActionIdSql =
+                var SelectWarehouseActionByPartnerActionIdSql = String.Empty;
+                if (isPartnerUser)
+                {
+                    SelectWarehouseActionByPartnerActionIdSql =
+                    $"select a.kind,\n" +
+                    $"       a.id, a.action_number,\n" +
+                    $"       a.partner_id,\n" +
+                    $"       a.partner_number,\n" +
+                    $"       a.state_code,\n" +
+                    $"       a.plan_action_date,\n" +
+                    $"       a.insert_date,\n" +
+                    $"       a.tu_count\n" +
+                    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
+                    $" where (upper(trim(a.id)) like :pattern\n" +
+                    $"     or upper(trim(a.action_number)) like :pattern\n" +
+                    $"     or upper(trim(a.partner_number)) like :pattern)\n" +
+                    $"   and a.kind = :kind\n" +
+                    $"   and a.state_code <= 100\n" +
+                    $"   and a.state_code > 0\n" +
+                    $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
+                    $"   and rownum < {MaxRowsCount}";
+                }
+                else
+                {
+                    SelectWarehouseActionByPartnerActionIdSql =
                     $"select a.kind,\n" +
                     $"       a.id, a.action_number,\n" +
                     $"       a.partner_id,\n" +
@@ -485,6 +510,8 @@ namespace TSLog.Yard.Data
                     $"   and a.state_code <= 100\n" +
                     $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
                     $"   and rownum < {MaxRowsCount}";
+                }
+
                 command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
                 command.Parameters.Add(new OracleParameter("pattern", pattern));

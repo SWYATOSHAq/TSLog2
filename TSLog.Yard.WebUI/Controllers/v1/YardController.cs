@@ -1982,7 +1982,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     partner = _storage.GetPartner(temp);
                 }
 
-                var actions = _storage.FindWarehouseActions(actionKind, partner, pattern);
+                var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
+
+                var actions = _storage.FindWarehouseActions(actionKind, partner, pattern, isPartnerUser);
                 var objects = WarehouseActionsToDynamic(actions);
 
                 var text = JsonSerializer.Serialize(objects);

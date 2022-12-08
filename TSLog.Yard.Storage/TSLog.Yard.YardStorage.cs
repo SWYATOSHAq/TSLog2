@@ -405,9 +405,9 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetActions(operation);
         }
-        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern)
+        public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser)
         {
-            return _oracleStorage.FindWarehouseActions(kind, partner, pattern);
+            return _oracleStorage.FindWarehouseActions(kind, partner, pattern, isPartnerUser);
         }
         public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount)
         {
