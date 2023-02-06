@@ -22,6 +22,6 @@
 		<partner code="0029" name="0029. Манипула"/>
 	</user>
 	<user name="Оператор MVI" login="mvi">
-		<partner code="0025" name="0025. MVI"/>
+		<partner code="0031" name="0031. MVI"/>
 	</user>
 </userPartners>
