@@ -728,7 +728,7 @@ class OperationPage {
                return;
            }
         }
-
+        location.reload();
     }
 
     async editOperationByPartner() {
@@ -1645,7 +1645,7 @@ class OperationPage {
                 else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
                     saveButton.onclick = this.editOperationNote.bind(this);
                 }
-            }
+            }            
         }
 
         viewUtils.removeElement("copy-button", this.id <= 0 || copy,
