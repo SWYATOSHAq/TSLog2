@@ -161,9 +161,9 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetGates();
         }
-        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startTime, DateTime finishTime)
+        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startDate, DateTime finishDate, long operationId)
         {
-            return _pgsqlStorage.GetAvalibleGates(operationType, vehicleKind, startTime, finishTime);
+            return _pgsqlStorage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate, operationId);
         }
         public Logist GetLogist(int id)
         {

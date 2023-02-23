@@ -162,6 +162,22 @@ class Api {
         }
     }
 
+    // Возвращает свободные или зарезервированные (НЕ ЗАНЯТЫЕ) ворота по дате, типу операции двора, виду автомашины.
+    async getAvalibleGates(startDate, finishDate, operationTypeCode, vehicleKindCode, operationId) {
+        let response = await fetch("./api/v1/yard/AvalibleGates?" +            
+            "operation_type=" + operationTypeCode +
+            "&vehicle_kind=" + vehicleKindCode +
+            "&start_date=" + startDate +
+            "&finish_date=" + finishDate + 
+            "&operation_id=" + operationId);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("avalibleGates", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
     // Возвращает клиентского менеджера (основного)
     async getPartnerManager(partnerId) {
         let response = await fetch("./api/v1/yard/PartnerManager" +

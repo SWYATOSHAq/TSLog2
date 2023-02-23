@@ -811,8 +811,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }                
                 string stringOperationType = Request.Query["operation_type"];
                 string stringVehicleKind = Request.Query["vehicle_kind"];
-                string stringStartDate = Request.Query["start_time"];
-                string finishStringFinishDate = Request.Query["finish_time"];
+                string stringStartDate = Request.Query["start_date"];
+                string finishStringFinishDate = Request.Query["finish_date"];
+                string stringOperationId = Request.Query["operation_id"];
 
                 if (string.IsNullOrWhiteSpace(stringOperationType))
                     return "Operation type is empty";
@@ -825,11 +826,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var finishDate = DateTime.Today;
                 if (!string.IsNullOrWhiteSpace(finishStringFinishDate) && !DateTime.TryParse(finishStringFinishDate.Trim(), out finishDate))
                     return $"Wrong date {finishStringFinishDate}";
+                if (!long.TryParse(stringOperationId, out long operationId))
+                    return $"Wrong operationId {stringOperationId}";
 
                 var operationType = _storage.GetOperationType(stringOperationType);
                 var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
 
-                var gates = _storage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate);
+                var gates = _storage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate, operationId);
                 var dynamicGates = GatesToDynamic(gates);
                 var text = JsonSerializer.Serialize(dynamicGates);
                 Response.StatusCode = 200;

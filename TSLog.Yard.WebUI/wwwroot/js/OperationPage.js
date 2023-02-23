@@ -59,7 +59,7 @@ class OperationPage {
         return $("#work-start-date-picker").datepicker('getDate');
     }
 
-    /*Связана с отображением временных блоков*/
+    /* Связана с отображением временных блоков */
     resetVisibility() {
         $(".btn-info").addClass("btn-outline-primary");
         $(".btn-info").removeClass("btn-info");
@@ -72,7 +72,7 @@ class OperationPage {
         this.resetVisibility();
     }
 
-    /*Связана с отображением временных блоков*/
+    /* Связана с отображением временных блоков */
     getBlockId(date) {
         if (date != null && date != undefined && date > utils.nullDate) {
             const time = date.getHours() * 60 * 60 + date.getMinutes() * 60 + date.getSeconds();
@@ -443,6 +443,48 @@ class OperationPage {
         }
     }
 
+    /*
+        Метод отрабатывает всякий раз когда меняются параметры, влияющие на подбор ворот (время, тип, вид машины, заказы, ...).
+        Мы получаем с сервера вороты которые НЕ ЗАНЯТЫ (но могут быть зарезервированы) для указанного промежутка времени,
+        и мы отображаем только эти ворота.
+        Если вдруг машина по плану должна встать на конкретные ворота, а они заняты, то ворота сбрасываются и система по просит выбрать другие
+        (или определить автоматически - пункт "Ворота не выбраны").
+        При открытии карточек, в которых 
+    */
+    async changeGates() {
+        const operationTypesSelect = document.getElementById("operation-types-select");
+        const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
+        const result = await api.getAvalibleGates(utils.dateTimeToString(this.planWorkStartDate),
+            utils.dateTimeToString(this.planWorkFinishDate),
+            operationTypesSelect.value,
+            vehiclekindsSelect.value,
+            this.id);
+        if (result.code === 0) {
+            const gates = new Set([]);
+            for (let gate of result.avalibleGates) {
+                gates.add("gate-" + gate.id.toString());
+            }
+            const gatesSelect = document.getElementById("gates-select");
+            for (let option of gatesSelect.children) {
+                if (option.value === "") {
+                    continue;
+                }
+                const id = option.id;
+                if (!gates.has(id)) {
+                    option.hidden = true;
+                    if (option.value === gatesSelect.value) {
+                        alert("Ворота " + gatesSelect.value + " для этой заявки недоступны.\nВыберите другие.");
+                        gatesSelect.value = "";
+                    }
+                }
+            }
+        }
+        else {
+            viewUtils.showError(result.message);
+            return;
+        }
+    }
+
     // функция-обработчик события
     async onChangeDuration() {
         await this.getPlanDuration();
@@ -467,6 +509,7 @@ class OperationPage {
             this.showSelectedBlocks(blockId);
             this.doDisplay = false;
         }
+        await this.changeGates();
     }
 
     getKind() {
@@ -1529,13 +1572,7 @@ class OperationPage {
             if (!copy && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
                 gatesSelect.disabled = true;
             } else {
-                // TODO: hide unavalible
-                // 1. Get bisy
-                // 2. Get reserved
-                // 3. Hide bisy
-                // 4. If select reserved gate then show message
-
-                // 5. On work start check busy gate
+                await this.changeGates();
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using Npgsql;
 using NpgsqlTypes;
+using System.Data;
 using System.Data.Common;
 using System.Dynamic;
 using TSLog.Common;
@@ -43,6 +44,18 @@ namespace TSLog.Yard.Data
             return parameter;
         }
 
+        private static bool HasColumn(DbDataReader reader, string columnName)
+        {
+            try
+            {
+                return reader.GetOrdinal(columnName) >= 0;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return false;
+            }
+        }
+
         #region Domains
         private readonly Catalog<Gate> _gates = new("GATES", "Ворота");
         private static Gate CreateGate(DbDataReader reader)
@@ -60,7 +73,8 @@ namespace TSLog.Yard.Data
             var isHookan = Utils.DbValueToShort(reader["is_hookan"]) == 1;
             var note = Utils.DbValueToString(reader["note"]);            
             Gate.GateState state = Gate.GateState.Free;
-            if (reader["state_code"] != null)
+
+            if (HasColumn(reader, "state_code"))
             {
                 var stateCode = Utils.DbValueToString(reader["state_code"]).Trim().ToUpper();
                 if (stateCode == "F")
@@ -102,7 +116,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectGateByIdSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note\n" +
+                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
                         $"  from {YardSchema}.v_gate g where g.id = :id order by g.display_order";
                     command.CommandText = SelectGateByIdSql;
                     command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
@@ -140,7 +154,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectGateByCodeSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note\n" +
+                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
                         $"  from {YardSchema}.v_gate g where g.code = :code order by g.display_order";
                     command.CommandText = SelectGateByCodeSql;
                     command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
@@ -170,7 +184,7 @@ namespace TSLog.Yard.Data
                 using (var command = connection.CreateCommand())
                 {
                     var SelectGatesSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note\n" +
+                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
                         $"  from {YardSchema}.v_gate g order by g.display_order";
                     command.CommandText = SelectGatesSql;
                     using var reader = command.ExecuteReader();
@@ -186,30 +200,32 @@ namespace TSLog.Yard.Data
             gates.Sort();
             return gates.ToArray();
         }
-        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startTime, DateTime finishTime)
+        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startDate, DateTime finishDate, long operationId)
         {
             var gates = new List<Gate>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
-                    // TODO: call get avalible gates!
                     var SelectAvalibleGates =
                          $"select ({YardSchema}.get_avalible_gates(:p_operation_type_code,\n" +
                          $"    :p_vehicle_kind_code,\n" +
-                         $"    :p_start_time,\n" +
-                         $"    :p_finish_time)).*;";
+                         $"    :p_start_date,\n" +
+                         $"    :p_finish_date,\n" +
+                         $"    :p_operation_id)).*;";
                     command.CommandText = SelectAvalibleGates;
                     command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
                     command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
-                    command.Parameters.Add(CreateParameter("p_start_time", NpgsqlDbType.Date, startTime));
-                    command.Parameters.Add(CreateParameter("p_finish_time", NpgsqlDbType.Date, finishTime));
+                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, startDate));
+                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, finishDate));
+                    command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operationId));
 
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
                         var gate = CreateGate(reader);
-                        gates.Add(gate);
+                        if (gate.State == Gate.GateState.Free)
+                            gates.Add(gate);
                     }
                     reader.Close();
                 }

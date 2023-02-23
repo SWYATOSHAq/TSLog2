@@ -19,7 +19,8 @@
         <option value="">@defaultText</option>
         @foreach (var gate in gates)
         {
-           @: <option value="@gate.Code"@((gate.Code != selectedGate) ? string.Empty : " selected")>@gate.DisplayName</option>
+            var gateId = $"gate-{gate.Id}";
+            @: <option id="@gateId" value="@gate.Code"@((gate.Code != selectedGate) ? string.Empty : " selected")>@gate.DisplayName</option>
         }
     </select>
 </div>
