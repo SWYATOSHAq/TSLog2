@@ -29,6 +29,7 @@ namespace TSLog.Yard.BO
         public Gate GetGate(short id);
         public Gate GetGate(string code);
         public Gate[] GetGates();
+        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startTime, DateTime finishTime);
         public string GetGateCodeBySiteCode(string siteCode);
         public Logist GetLogist(int id);
         public Logist GetLogist(string code);

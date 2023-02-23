@@ -57,7 +57,22 @@ namespace TSLog.Yard.Data
             var displayName = Utils.DbValueToString(reader["display_name"]);
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var note = Utils.DbValueToString(reader["note"]);
+            var isHookan = Utils.DbValueToShort(reader["is_hookan"]) == 1;
+            var note = Utils.DbValueToString(reader["note"]);            
+            Gate.GateState state = Gate.GateState.Free;
+            if (reader["state_code"] != null)
+            {
+                var stateCode = Utils.DbValueToString(reader["state_code"]).Trim().ToUpper();
+                if (stateCode == "F")
+                    state = Gate.GateState.Free;
+                else if (stateCode == "R")
+                    state = Gate.GateState.Reserved;
+                else if (stateCode == "B")
+                    state = Gate.GateState.Busy;
+                else
+                    throw new Exception($"Unknown gate state code {stateCode}!");
+            }
+
             return new Gate(id,
                 code,
                 name,
@@ -66,6 +81,8 @@ namespace TSLog.Yard.Data
                 displayName,
                 isActive,
                 displayOrder,
+                isHookan,
+                state,
                 note);
         }
         /// <summary>
@@ -88,7 +105,7 @@ namespace TSLog.Yard.Data
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note\n" +
                         $"  from {YardSchema}.v_gate g where g.id = :id order by g.display_order";
                     command.CommandText = SelectGateByIdSql;
-                    command.Parameters.Add(new NpgsqlParameter("id", id));
+                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
                     {
@@ -126,7 +143,7 @@ namespace TSLog.Yard.Data
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note\n" +
                         $"  from {YardSchema}.v_gate g where g.code = :code order by g.display_order";
                     command.CommandText = SelectGateByCodeSql;
-                    command.Parameters.Add(new NpgsqlParameter("code", code));
+                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
                     using var reader = command.ExecuteReader();
                     if (reader.Read())
                     {
@@ -156,6 +173,38 @@ namespace TSLog.Yard.Data
                         $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.note\n" +
                         $"  from {YardSchema}.v_gate g order by g.display_order";
                     command.CommandText = SelectGatesSql;
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var gate = CreateGate(reader);
+                        gates.Add(gate);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            gates.Sort();
+            return gates.ToArray();
+        }
+        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startTime, DateTime finishTime)
+        {
+            var gates = new List<Gate>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    // TODO: call get avalible gates!
+                    var SelectAvalibleGates =
+                         $"select ({YardSchema}.get_avalible_gates(:p_operation_type_code,\n" +
+                         $"    :p_vehicle_kind_code,\n" +
+                         $"    :p_start_time,\n" +
+                         $"    :p_finish_time)).*;";
+                    command.CommandText = SelectAvalibleGates;
+                    command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
+                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
+                    command.Parameters.Add(CreateParameter("p_start_time", NpgsqlDbType.Date, startTime));
+                    command.Parameters.Add(CreateParameter("p_finish_time", NpgsqlDbType.Date, finishTime));
+
                     using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {

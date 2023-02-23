@@ -1528,6 +1528,14 @@ class OperationPage {
             gatesSelect.value = operation != null && !copy ? operation.gateCode : "";
             if (!copy && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
                 gatesSelect.disabled = true;
+            } else {
+                // TODO: hide unavalible
+                // 1. Get bisy
+                // 2. Get reserved
+                // 3. Hide bisy
+                // 4. If select reserved gate then show message
+
+                // 5. On work start check busy gate
             }
         }
 

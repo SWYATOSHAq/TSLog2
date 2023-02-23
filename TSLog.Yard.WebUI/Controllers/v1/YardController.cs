@@ -69,6 +69,35 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string json = await reader.ReadToEndAsync();
             return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
         }
+
+        private dynamic GateToDynamic(Gate gate)
+        {
+            dynamic result = new ExpandoObject();
+            result.id = gate.Id;
+            result.code = gate.Code;
+            result.name = gate.Name;
+            result.shortName = gate.ShortName;
+            result.altName = gate.AltName;
+            result.displayName = gate.DisplayName;
+            result.isActive = gate.IsActive;
+            result.distplayOrder = gate.DisplayOrder;
+            result.isHookan = gate.IsHookan;
+            result.stateCode = "F";
+            if (gate.State == Gate.GateState.Reserved)
+                result.stateCode = "R";
+            else if (gate.State == Gate.GateState.Busy)
+                result.stateCode = "B";
+            result.node = gate.Note;
+            return result;
+        }
+        private dynamic[] GatesToDynamic(Gate[] gates)
+        { 
+            var result = new List<dynamic>();
+            foreach (Gate gate in gates)
+                result.Add(GateToDynamic(gate));
+            return result.ToArray();
+        }
+
         private dynamic OperationToDynamic(Operation operation)
         {
             dynamic result = new ExpandoObject();
@@ -766,6 +795,52 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+
+        [HttpGet("AvalibleGates")]
+        public string GetAvalibleGates() 
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getAvalibleGates = _rightsChecker.CheckRight("GET_AVALIBLE_GATES", User);
+                if (_useAuthentication && (!useYard || !getAvalibleGates))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }                
+                string stringOperationType = Request.Query["operation_type"];
+                string stringVehicleKind = Request.Query["vehicle_kind"];
+                string stringStartDate = Request.Query["start_time"];
+                string finishStringFinishDate = Request.Query["finish_time"];
+
+                if (string.IsNullOrWhiteSpace(stringOperationType))
+                    return "Operation type is empty";
+                if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                    return "Vehicle kind is empty";
+
+                var startDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(stringStartDate) && !DateTime.TryParse(stringStartDate.Trim(), out startDate))
+                    return $"Wrong date {stringStartDate}";
+                var finishDate = DateTime.Today;
+                if (!string.IsNullOrWhiteSpace(finishStringFinishDate) && !DateTime.TryParse(finishStringFinishDate.Trim(), out finishDate))
+                    return $"Wrong date {finishStringFinishDate}";
+
+                var operationType = _storage.GetOperationType(stringOperationType);
+                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+
+                var gates = _storage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate);
+                var dynamicGates = GatesToDynamic(gates);
+                var text = JsonSerializer.Serialize(dynamicGates);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
         [HttpGet("PartnerManager")]
         public string GetPartnerManager()
         {

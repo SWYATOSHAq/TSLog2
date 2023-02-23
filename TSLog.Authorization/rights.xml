@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>	
 <data>
-	<!-- Весь список доступных прав и привилегий в модуле управления двором -->
+	<!-- Весь список доступных прав и привилегий во всех модулях и подсистемах -->
 	<rights code="RIGHTS" name="Список всех доступых действий и привилегий">
+		<!-- Модуль управления двором -->
 		<right code="USE_YARD" name="Использование модуля управления двором (хотя бы в каком то виде)" note="Это базовое право, без него нельзя использовать приложение управления двором"></right>
 		<right code="IS_PARTNER_USER" name="Использование функционала модуля управления двором пользователем клиента"></right>
 		<right code="IS_MANAGER" name="Использование функционала модуля управления двором менеджером"></right>
@@ -9,6 +10,7 @@
 		<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
 		<right code="GET_OUTGO_DURATION" name="Получение продолжительности загрузки заказа на отгрузку" note="Получение продолжительности загрузки заказа на отгрузку"></right>
 		<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+		<right code="GET_AVALIBLE_GATES" name="Получение доступных ворот" note="Получение доступных ворот"></right>
 		<right code="GET_PARTNER_MANAGER" name="Получение менеджера указанного партнёра (манданта)" note=""></right>
 
 		<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>		
@@ -265,6 +267,7 @@
 			<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
 			<right code="GET_OUTGO_DURATION" name="Получение продолжительности загрузки заказа на отгрузку" note="Получение продолжительности загрузки заказа на отгрузку"></right>
 			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+			<right code="GET_AVALIBLE_GATES" name="Получение доступных ворот" note="Получение доступных ворот"></right>
 			<right code="GET_PARTNER_MANAGER" name="Получение менеджера указанного партнёра (манданта)" note=""></right>
 
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
@@ -339,6 +342,7 @@
 			<right code="GET_OPERATION_DURATION" name="Получение продолжительности операции двора" note="Получение продолжительности операции двора"></right>
 			<right code="GET_OUTGO_DURATION" name="Получение продолжительности загрузки заказа на отгрузку" note="Получение продолжительности загрузки заказа на отгрузку"></right>
 			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+			<right code="GET_AVALIBLE_GATES" name="Получение доступных ворот" note="Получение доступных ворот"></right>
 			<right code="GET_PARTNER_MANAGER" name="Получение менеджера указанного партнёра (манданта)" note=""></right>
 
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
@@ -435,6 +439,7 @@
 			<right code="GET_OUTGO_DURATION" name="Получение продолжительности загрузки заказа на отгрузку" note="Получение продолжительности загрузки заказа на отгрузку"></right>
 			<right code="GET_ACTION_DURATION" name="Получение продолжительности загрузки заказа" note="Получение продолжительности загрузки заказа"></right>
 			<right code="GET_BUSY_INTERVALS" name="Получение занятых интервалов" note="Получение занятых интервалов"></right>
+			<right code="GET_AVALIBLE_GATES" name="Получение доступных ворот" note="Получение доступных ворот"></right>
 			<right code="GET_PARTNER_MANAGER" name="Получение менеджера указанного партнёра (манданта)" note=""></right>
 
 			<right code="GET_OPERATIONS" name="Получение операций двора" note="Получение операций двора"></right>
