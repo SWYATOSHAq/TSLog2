@@ -143,7 +143,7 @@ class OperationPage {
 
         if (hasError) {
             $("#error-div").removeClass("d-none");
-            $("#error-p").text("Время недоступно из за типа операции, выберите другой промежуток времени или тип операции");
+            $("#error-p").text("Время недоступно из-за типа операции, типа машины (и других параметров), выберите другой промежуток времени или тип операции");
             this.planWorkStartDate = utils.nullDate;
             this.planWorkFinishDate = utils.nullDate;
         }
@@ -1441,13 +1441,13 @@ class OperationPage {
             h1.textContent = "#" + this.id + " (" + this.stateName + ")";
         }
 
-        // Признак АКТУАЛЬНОЙ операции двора.
-        const isActual = this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED";
+        // Признак АКТУАЛЬНОЙ операции двора, но которая ещё не пошла в работу (на ворота).
+        const isPreparing = this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED";
 
         // Operation type
         const operationTypesSelect = document.getElementById("operation-types-select");
         operationTypesSelect.value = operation != null ? operation.typeCode : "";
-        if (isActual) {
+        if (isPreparing) {
             if (!operationTypesSelect.disabled) {
                 operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
             }
@@ -1464,7 +1464,7 @@ class OperationPage {
         // Vehicle kind
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
         vehiclekindsSelect.value = operation != null ? operation.vehicleKindCode : "";
-        if (isActual) {
+        if (isPreparing) {
             vehiclekindsSelect.onchange = this.onChangeDuration.bind(this);
         } else {
             vehiclekindsSelect.disabled = true;
@@ -1480,9 +1480,14 @@ class OperationPage {
         }
         this.showWorkStartFinish();
 
-        if (isActual && this.factWorkStartDate <= utils.nullDate && this.planWorkFinishDate < new Date()) {
+        // Если заявка просрочена, выводим предупеждение.
+        const isLate = isPreparing && !copy && this.factWorkStartDate <= utils.nullDate && this.planWorkFinishDate < new Date();
+        if (isLate) {
             this.showDialogBlock();
+            this.planWorkStartDate = utils.nullDate;
+            this.factWorkStartDate = utils.nullDate;
         }
+        
 
         // Warehouse actions (and partner)        
         const partnersSelect = document.getElementById("partners-select");
@@ -1504,7 +1509,7 @@ class OperationPage {
         const timeTableDisabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
             this.stateCode === "CANCELED" || operationTypesSelect.disabled;
         timetableFieldset.disabled = timeTableDisabled;
-        let tempDate = operation != null && !copy ? new Date(this.planWorkStartDate) : new Date();
+        let tempDate = operation != null && !copy && !isLate ? new Date(this.planWorkStartDate) : new Date();
         tempDate.setHours(0, 0, 0, 0);
         const workStartDatePicker = $("#work-start-date-picker");
         workStartDatePicker.datepicker({
@@ -1550,7 +1555,7 @@ class OperationPage {
         const warehouseActionsFieldset = document.getElementById("warehouse-actions-fieldset");
         const actionFiltersDiv = document.getElementById("action-filter-div");
         const allActionsDiv = document.getElementById("all-actions-div");
-        if (isActual) {
+        if (isPreparing) {
             warehouseActionsFieldset.disabled = operationTypesSelect.disabled;
             const actionsFilterInput = document.getElementById("action-filter-input");
             if (actionsFilterInput != undefined && actionsFilterInput != null) {
@@ -1590,8 +1595,9 @@ class OperationPage {
         // Gates
         const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined) {
-            gatesSelect.value = operation != null && !copy ? operation.gateCode : "";
-            if (!copy && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED") {
+            const gateCode = operation != null && !copy && !isLate ? operation.gateCode : "";
+            gatesSelect.value = gateCode;
+            if (!copy && !isPreparing) {
                 gatesSelect.disabled = true;
             } else {
                 await this.changeGates();
@@ -1612,8 +1618,7 @@ class OperationPage {
         document.getElementById("partner-manager-email-input").value = operation != null ? operation.partnerManagerEmail : "";
         document.getElementById("note-textarea").value = operation != null ? operation.note : "";
 
-        const disableAdditionalAttributes = operationTypesSelect.disabled ||
-            this.stateCode != "" && this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED";
+        const disableAdditionalAttributes = operationTypesSelect.disabled || !isPreparing;
         document.getElementById("vehicle-brand-input").disabled = disableAdditionalAttributes;
         document.getElementById("vehicle-model-input").disabled = disableAdditionalAttributes;
         document.getElementById("vehicle-number-input").disabled = disableAdditionalAttributes;
@@ -1718,7 +1723,7 @@ class OperationPage {
         viewUtils.removeElement("copy-button", this.id <= 0 || copy,
             isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
         viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
-        viewUtils.removeElement("set-gate-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED" && this.stateCode != "STARTED");
+        viewUtils.removeElement("set-gate-button", !isPreparing);
         viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
         viewUtils.removeElement("start-work-button", this.stateCode != "STARTED");
         viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED");
