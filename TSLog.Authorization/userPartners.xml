@@ -24,4 +24,7 @@
 	<user name="Оператор MVI" login="mvi">
 		<partner code="0031" name="0031. MVI"/>
 	</user>
+	<user name="Оператор БЛС2" login="testblcoper">
+		<partner code="0021" name="0045. БЛС2"/>
+	</user>
 </userPartners>

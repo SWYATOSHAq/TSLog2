@@ -452,6 +452,11 @@ class OperationPage {
         При открытии карточек, в которых уже работа начата (или уже закончена) ничего не делаем, они не редактируются, какие ворота есть такие есть.
     */
     async changeGates() {
+        const create = this.action === "CREATE" || this.action === "CREATE_CONFIRM" || this.action === "CREATE_BY_PARTNER";
+        const copy = this.action === "COPY" || this.action === "COPY_CONFIRM" || this.action === "COPY_BY_PARTNER";
+        if (create || copy) {
+            return;
+        }
         const operationTypesSelect = document.getElementById("operation-types-select");
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
         const result = await api.getAvalibleGates(utils.dateTimeToString(this.planWorkStartDate),
