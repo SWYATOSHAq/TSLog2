@@ -16,7 +16,7 @@ class OperationPage {
     hourBlocksCount = 4; // кол-во временных блоков в одной строке
     blockDuration = 0;
 
-    defaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15); // время операции двора, не зависящая от состава
+    defaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15); // Время операции двора, не зависящая от состава
                                                                       // груза(время на постановку и снятие машины) в сек.
 
     id = -1; // идентификатор операции двора
@@ -435,7 +435,7 @@ class OperationPage {
         }
     }
 
-    // всплывающая подсказка по операции двора
+    /* Всплывающая подсказка по тиипу операции двора. */
     getOperationTypeHint() {
         const select = document.getElementById("operation-types-select");
         if (select.selectedIndex >= 0) {
@@ -1365,13 +1365,28 @@ class OperationPage {
     }
     // #endregion
 
+    showDialogBlock() {        
+        const p = document.getElementById("dialog-block-p");
+        p.innerText = "Работы по заявке по ПРР ПО ПЛАНУ должны были быть уже выполнены.\nАктуализируйте плановое время работ по заявке!";
+        const dialogBlockDiv = document.getElementById("dialog-block-div");
+        dialogBlockDiv.style.display = "block";
+    }
+
+    hideDialogBlock() {
+        const dialogBlockDiv = document.getElementById("dialog-block-div");
+        dialogBlockDiv.style.display = "none";
+    }
+
     windowClick(event) {
         const noteDiv = document.getElementById("operation-type-note-div");
         const bcWorksDiv = document.getElementById("bc-works-div");
+        const dialogBlockDiv = document.getElementById("dialog-block-div");
         if (event.target == noteDiv) {
             this.hideOperationTypeNote();
         } else if (event.target == bcWorksDiv) {
             this.hideBCWorks();
+        } else if (event.target == dialogBlockDiv) {
+            this.hideDialogBlock();
         }
     }
 
@@ -1426,10 +1441,13 @@ class OperationPage {
             h1.textContent = "#" + this.id + " (" + this.stateName + ")";
         }
 
+        // Признак АКТУАЛЬНОЙ операции двора.
+        const isActual = this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED";
+
         // Operation type
         const operationTypesSelect = document.getElementById("operation-types-select");
         operationTypesSelect.value = operation != null ? operation.typeCode : "";
-        if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
+        if (isActual) {
             if (!operationTypesSelect.disabled) {
                 operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
             }
@@ -1446,7 +1464,7 @@ class OperationPage {
         // Vehicle kind
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
         vehiclekindsSelect.value = operation != null ? operation.vehicleKindCode : "";
-        if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
+        if (isActual) {
             vehiclekindsSelect.onchange = this.onChangeDuration.bind(this);
         } else {
             vehiclekindsSelect.disabled = true;
@@ -1461,6 +1479,10 @@ class OperationPage {
             this.countOperationBlocks();
         }
         this.showWorkStartFinish();
+
+        if (isActual && this.factWorkStartDate <= utils.nullDate && this.planWorkFinishDate < new Date()) {
+            this.showDialogBlock();
+        }
 
         // Warehouse actions (and partner)        
         const partnersSelect = document.getElementById("partners-select");
@@ -1528,7 +1550,7 @@ class OperationPage {
         const warehouseActionsFieldset = document.getElementById("warehouse-actions-fieldset");
         const actionFiltersDiv = document.getElementById("action-filter-div");
         const allActionsDiv = document.getElementById("all-actions-div");
-        if (this.stateCode === "" || this.stateCode === "CREATED" || this.stateCode === "CONFIRMED" || this.stateCode === "STARTED") {
+        if (isActual) {
             warehouseActionsFieldset.disabled = operationTypesSelect.disabled;
             const actionsFilterInput = document.getElementById("action-filter-input");
             if (actionsFilterInput != undefined && actionsFilterInput != null) {
