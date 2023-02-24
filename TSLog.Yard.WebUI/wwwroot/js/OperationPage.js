@@ -1393,6 +1393,7 @@ class OperationPage {
     async show() {
         // CREATE, CREATE_CONFIRM, CREATE_BY_PARTNER, COPY, COPY_BY_PARTNER, VIEW, VIEW_BY_PARTNER
         this.action = utils.getUrlParameter("action");
+        const create = this.action === "CREATE" || this.action === "CREATE_CONFIRM" || this.action === "CREATE_BY_PARTNER";
         const copy = this.action === "COPY" || this.action === "COPY_CONFIRM" || this.action === "COPY_BY_PARTNER";
 
         const response2 = await api.getIsPartnerUser();
@@ -1481,7 +1482,7 @@ class OperationPage {
         this.showWorkStartFinish();
 
         // Если заявка просрочена, выводим предупеждение.
-        const isLate = isPreparing && !copy && this.factWorkStartDate <= utils.nullDate && this.planWorkFinishDate < new Date();
+        const isLate = isPreparing && !copy && !create && this.factWorkStartDate <= utils.nullDate && this.planWorkFinishDate < new Date();
         if (isLate) {
             this.showDialogBlock();
             this.planWorkStartDate = utils.nullDate;
