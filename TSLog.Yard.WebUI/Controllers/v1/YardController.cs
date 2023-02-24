@@ -1338,6 +1338,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (!DateTime.TryParse(temp, out DateTime startDate))
                     return $"Wrong start date {temp}!";
 
+                // Плановая дата и время начало работ не должно быть "день в день"!
+                var now = DateTime.Now;
+                var today = DateTime.Today;
+                var today900 = today.AddHours(9);
+                if (now >= today900 && startDate <= today.AddHours(24 + 9))
+                    return $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                if (now < today900 && startDate < today900)
+                    return $"Too early start time (start time must be later then 9:00 today)!";
+
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
                 temp = data.finishDate;
@@ -1593,8 +1602,21 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    if (!DateTime.TryParse(temp, out planWorkStartDate))
+                    if (!DateTime.TryParse(temp, out DateTime tempPlanWorkStartDate))
                         return $"Wrong start date {temp}!";
+
+                    // Если редактируем плановую дату и время начало работ то новое значение не должно быть "день в день"!
+                    if (planWorkStartDate != tempPlanWorkStartDate)
+                    {
+                        var now = DateTime.Now;
+                        var today = DateTime.Today;
+                        var today900 = today.AddHours(9);
+                        if (now >= today900 && tempPlanWorkStartDate <= today.AddHours(24 + 9))
+                            return $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                        if (now < today900 && tempPlanWorkStartDate < today900)
+                            return $"Too early start time (start time must be later then 9:00 today)!";
+                    }
+                    planWorkStartDate = tempPlanWorkStartDate;
                     planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
                 }
 
