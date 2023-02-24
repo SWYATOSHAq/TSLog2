@@ -1,6 +1,6 @@
 ﻿/*
     Страница - карточка операции двора.
-    Автор - Буров Михаил.
+    Автор - Буров Михаил (m.burov@tslog.ru).
 */
 class OperationPage {
     shortUrl;
@@ -339,7 +339,7 @@ class OperationPage {
         }
     }
 
-    // возвращает доступные интревалы времения для назначения операций двора
+    /* Возвращает доступные интревалы времения для назначения операций двора. */
     async getAvalibleIntervals() {
         this.availableIntervals = [];
         const workStartDatePicker = document.getElementById("work-start-date-picker");
@@ -355,7 +355,7 @@ class OperationPage {
         }
     }
 
-    // скрывает панель с выбором временных ячеек
+    /* Скрывает панель с выбором временных ячеек. */
     hideTimeTable() {
         const timeDiv = document.getElementById("time-div");
         let timeTable = document.getElementById("time-table-div");
@@ -449,7 +449,7 @@ class OperationPage {
         и мы отображаем только эти ворота.
         Если вдруг машина по плану должна встать на конкретные ворота, а они заняты, то ворота сбрасываются и система по просит выбрать другие
         (или определить автоматически - пункт "Ворота не выбраны").
-        При открытии карточек, в которых 
+        При открытии карточек, в которых уже работа начата (или уже закончена) ничего не делаем, они не редактируются, какие ворота есть такие есть.
     */
     async changeGates() {
         const operationTypesSelect = document.getElementById("operation-types-select");

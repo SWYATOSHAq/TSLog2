@@ -1,6 +1,6 @@
 ﻿/*
     Страница отчёта по трудозатратам
-    Автор - Буров Михаил.
+    Автор - Буров Михаил (m.burov@tslog.ru).
 */
 class LaborReportPage {
     shortUrl;

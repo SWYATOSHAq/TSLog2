@@ -1,6 +1,6 @@
 ﻿/*
     Страница списка операций двора.
-    Автор - Буров Михаил.
+    Автор - Буров Михаил (m.burov@tslog.ru).
 */
 class OperationsPage {
     shortUrl;
