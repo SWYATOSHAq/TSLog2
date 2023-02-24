@@ -68,7 +68,7 @@ namespace TSLog.Yard.Data
             product.Height = Utils.DbValueToDouble(reader["height"]);
             product.UnitLinerial = Utils.DbValueToString(reader["length_measure"]);
             product.NetWeight = Utils.DbValueToDouble(reader["net_weight"]);
-            product.NetWeight = Utils.DbValueToDouble(reader["gross_weight"]);
+            product.GrossWeight = Utils.DbValueToDouble(reader["gross_weight"]);
             product.UnitWeight = Utils.DbValueToString(reader["weight_measure"]);
             product.Volume = Utils.DbValueToDouble(reader["volume"]);
             product.UnitVolume = Utils.DbValueToString(reader["volume_measure"]);
