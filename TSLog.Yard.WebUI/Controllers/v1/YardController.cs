@@ -1342,9 +1342,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var now = DateTime.Now;
                 var today = DateTime.Today;
                 var today900 = today.AddHours(9);
-                if (now >= today900 && startDate <= today.AddHours(24 + 9))
+                if (now >= today900 && startDate < today.AddHours(24 + 9))
                     return $"Too early start time (start time must be later then 9:00 tomorrow)!";
-                if (now < today900 && startDate < today900)
+                if (startDate < today900)
                     return $"Too early start time (start time must be later then 9:00 today)!";
 
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
@@ -1611,9 +1611,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         var now = DateTime.Now;
                         var today = DateTime.Today;
                         var today900 = today.AddHours(9);
-                        if (now >= today900 && tempPlanWorkStartDate <= today.AddHours(24 + 9))
+                        if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
                             return $"Too early start time (start time must be later then 9:00 tomorrow)!";
-                        if (now < today900 && tempPlanWorkStartDate < today900)
+                        if (tempPlanWorkStartDate < today900)
                             return $"Too early start time (start time must be later then 9:00 today)!";
                     }
                     planWorkStartDate = tempPlanWorkStartDate;
