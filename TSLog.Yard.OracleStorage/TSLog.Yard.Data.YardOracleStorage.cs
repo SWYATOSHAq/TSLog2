@@ -2309,9 +2309,9 @@ namespace TSLog.Yard.Data
                     $"    -- 1.2 складывается результат умножения всех начисленных услуг на их стоимость по данному клиенту за указанный период -\n" +
                     $"    -- это есть вся выручка по клиенту за период.\n" +
                     $"  select bsl.bl_mndnr partner_id,\n" +
-                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' and lower(bsd.bsd_name) not like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) store_income,\n" +
+                    $"         sum(case when bst.bst_doc_type = 'SYSTEM' and lower(bsd.bsd_name) not like '%редост%поддон%' and bsd.BSD_BST_CODE not like '%K%' then bsl.bl_qty * bsl.bl_price end) store_income,\n" +
                     $"         sum(case when lower(bsd.bsd_name) like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) consumables_income,\n" +
-                    $"         sum(case when bst.bst_doc_type != 'SYSTEM' and lower(bsd.bsd_name) not like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) handling_income,\n" +
+                    $"         sum(case when bsd.BSD_BST_CODE NOT LIKE '%STG%' and lower(bsd.bsd_name) not like '%редост%поддон%' then bsl.bl_qty * bsl.bl_price end) handling_income,\n" +
                     $"         sum(bsl.bl_qty * bsl.bl_price) total_income\n" +
                     $"    from {CommonSchema}.bl_service_log bsl\n" +
                     $"    --left join {CommonSchema}.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
