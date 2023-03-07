@@ -171,7 +171,7 @@ class ShiftPerfomanceReportPage {
                 openButton.classList.add("btn-outline-info");
                 openButton.classList.add("table-cell-button"); 
                 openButton.classList.add("not-for-print"); 
-                openButton.title = "Открыть карточку операции двора";
+                openButton.title = `Открыть карточку операции двора\n\n План (уточн.): ${Math.round(operation.planLaborCost / 60)}; Факт: ${Math.round(operation.factLaborCost /60)}`;
                 openButton.style.cssText = "width: 100px";
                 openButton.onclick = this.createOpenOperationFunction(operation.id);
                 openButton.textContent = "Открыть";
