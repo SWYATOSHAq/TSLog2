@@ -40,6 +40,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// "Постоянния" часть времени операции двора ПО УМОЛЧАНИЮ (не зависит от состава заказов/приходов),
         /// 8 минут 15 секунд на постановку машины,
         /// 6 минут 16 секунд на снятие машины (получено от Алексея Охотникова 2022.09.09).
+        /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД
         /// </summary>
         private const int DefaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15);
 
@@ -50,6 +51,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
         /// <summary>
         /// "Постоянния" часть времени операции двора (не зависит от состава заказов/приходов)
+        /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД
         /// </summary>
         public int ConstantOperationDuration { get; set; } = DefaultConstantOperationDuration;
         public YardController(IConfiguration configuration, IYardStorage storage, RightsChecker rightsChecker)
@@ -439,10 +441,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             long duration = 0;
             foreach (var outgoId in outgoesIds)
                 duration += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
-            duration += DefaultConstantOperationDuration;
+            
+            //15.03.2023 Аввакумов Алексей
+            // Убрал из расчета DefaultConstantOperationDuration. Вместо этого берутся данные из БД.
+            //duration += DefaultConstantOperationDuration;
 
             // Значение по умолчанию при максимальной загрузке машины
             var defaultDuration = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
+            duration += constantDuration;
             if (duration > defaultDuration)
                 duration = defaultDuration;
 
@@ -639,6 +645,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var direction = operationType.Direction.ToString();
             if (direction == "Out")
             {
+                //Получаем значение constantDuration
+                _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
+
                 // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
                 foreach (var outgoId in outgoesIds)
                     laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
@@ -649,7 +658,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 //var direction = operationType.Direction;
                 //var xar = direction.ToString();
                 var workersCount = 1;
-                laborCost += workersCount * DefaultConstantOperationDuration;
+                
+                //15.03.2023 Аввакумов Алексей
+                // Убрал из расчета DefaultConstantOperationDuration. Вместо этого берутся данные из БД.
+                //laborCost += workersCount * DefaultConstantOperationDuration; 
+                laborCost += workersCount * constantDuration;
 
                 // 2022.09.22 Буров Михаил.
                 // Убрал отчёчку по указанию Алексея Охотникова
@@ -687,6 +700,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             // Для отчёта
             long laborCost = 0;
+            //Получаем значение constantDuration
+            _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
             // Проходим по заказам (только заказам) и считаем время погрузки каждого заказа по алгоритму Башлыкова
             foreach (var outgoId in outgoesIds)
                 laborCost += _storage.GetOutgoPlanTime(outgoId, operationType.IsPallet, partner);
@@ -694,7 +709,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             // При учёте трудозатрат предполагаем, что выделенные люди простаивают пока происходит постановка/снятие машины.
             // Учитываем это в плановых трудозатратах.                
             var workersCount = _storage.GetBcWorkersCount(factWorkStartDate, factWorkFinihDate, siteCode);
-            laborCost += workersCount * DefaultConstantOperationDuration;
+            
+            //15.03.2023 Аввакумов Алексей
+            // Убрал из расчета DefaultConstantOperationDuration. Вместо этого берутся данные из БД.
+            //laborCost += workersCount * DefaultConstantOperationDuration;
+            
+            laborCost += workersCount * constantDuration;
 
             // 2022.09.22 Буров Михаил.
             // Убрал отчёчку по указанию Алексея Охотникова
