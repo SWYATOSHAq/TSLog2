@@ -128,7 +128,7 @@
             else if (fromDate < fromDate.Date.AddHours(21))
                 shiftFinish = fromDate.Date.AddHours(21); // 21:00
             else
-                shiftFinish = fromDate.Date.AddMinutes(33); // 9:00 след. суток
+                shiftFinish = fromDate.Date.AddHours(33); // 9:00 след. суток
 
             do
             {                

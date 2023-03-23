@@ -2226,6 +2226,7 @@ namespace TSLog.Yard.Data
                 command.BindByName = true;
                 var sql =
                     $"   select d.worker_id,\n" +
+                    $"          d.site_id,\n" +
                     $"          d.start_date, d.finish_date\n" +
                     $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
                     $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
@@ -2240,13 +2241,38 @@ namespace TSLog.Yard.Data
                 while (reader.Read())
                 {
                     var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    var site_id = Utils.DbValueToInt(reader["site_id"]);
+                    var startTime = Utils.DbValueToDateTime(reader["start_date"]);
+                    var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
                     if (!planWorks.ContainsKey(workerId))
                     {
                         var employee = GetEmployee(workerId);
+                        // Нижеприведенный блок IF реализован для исключения простоев в случае сокращенных смен
+                        // site_id - это участок на котором нужно отметиться в случае окончания рабочего времени раньше срока
+                        if (site_id == 1053 && employee.ShiftLength == 28800) // дневной сотрудник
+                        {
+                            finishTime = startTime.Date.AddHours(18); // 18:00
+                        }
+                        else if (site_id == 1053 && employee.ShiftLength == 37800) // сменный сотрудник
+                        {
+                            if (shift.Kind == "D") // для дневной смены
+                            {
+                                finishTime = startTime.Date.AddHours(21); // 21:00
+                            }
+                            else // для ночной смены
+                            {
+                                if (startTime >= startTime.Date.AddHours(21)) // в случае окончания работы до 23:59
+                                {
+                                    finishTime = startTime.Date.AddHours(33); // 9:00 след. суток
+                                }
+                                else // в случае окончания работы после 00:00
+                                {
+                                    finishTime = startTime.Date.AddHours(9); // 9:00
+                                }
+                            }
+                        }
                         planWorks.Add(workerId, employee.ShiftLength * k);
                     }
-                    var startTime = Utils.DbValueToDateTime(reader["start_date"]);
-                    var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
                     if (!factWorks.ContainsKey(workerId))
                         factWorks.Add(workerId, 0.0);
                     var span = finishTime - startTime;
