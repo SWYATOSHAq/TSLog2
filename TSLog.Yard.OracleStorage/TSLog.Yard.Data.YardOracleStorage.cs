@@ -2200,7 +2200,7 @@ namespace TSLog.Yard.Data
         /// <summary>
         /// Функция определения планового времени работы и простоя персонала за период (во времени и в деньгах).
         /// Период разбивается на смены по 12 часов.
-        /// Для каждой смены определяются работники, которые в течение смены отработали хотя бы 10% времени от смены.
+        /// Для каждой смены определяются работники, которые в течение смены отработали хотя бы 1% времени от смены.
         /// Для всех таких работников определяется их общее время работы на смене и нормативное время смены.
         /// Из нормативного времени смены вычитаем время работы сотрудника на смене - это и будет простой.
         /// Все такие простои суммируем по всем работникам по всем сменам.
@@ -2244,33 +2244,33 @@ namespace TSLog.Yard.Data
                     var site_id = Utils.DbValueToInt(reader["site_id"]);
                     var startTime = Utils.DbValueToDateTime(reader["start_date"]);
                     var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
+                    var employee = GetEmployee(workerId);
+                    // Нижеприведенный блок IF реализован для исключения простоев в случае сокращенных смен
+                    // site_id - это участок на котором нужно отметиться в случае окончания рабочего времени раньше срока
+                    if (site_id == 1053 && employee.ShiftLength == 28800) // дневной сотрудник
+                    {
+                        finishTime = startTime.Date.AddHours(18); // 18:00
+                    }
+                    else if (site_id == 1053 && employee.ShiftLength == 37800) // сменный сотрудник
+                    {
+                        if (shift.Kind == "D") // для дневной смены
+                        {
+                            finishTime = startTime.Date.AddHours(21); // 21:00
+                        }
+                        else // для ночной смены
+                        {
+                            if (startTime >= startTime.Date.AddHours(21)) // в случае окончания работы до 23:59
+                            {
+                                finishTime = startTime.Date.AddHours(33); // 9:00 след. суток
+                            }
+                            else // в случае окончания работы после 00:00
+                            {
+                                finishTime = startTime.Date.AddHours(9); // 9:00
+                            }
+                        }
+                    }
                     if (!planWorks.ContainsKey(workerId))
                     {
-                        var employee = GetEmployee(workerId);
-                        // Нижеприведенный блок IF реализован для исключения простоев в случае сокращенных смен
-                        // site_id - это участок на котором нужно отметиться в случае окончания рабочего времени раньше срока
-                        if (site_id == 1053 && employee.ShiftLength == 28800) // дневной сотрудник
-                        {
-                            finishTime = startTime.Date.AddHours(18); // 18:00
-                        }
-                        else if (site_id == 1053 && employee.ShiftLength == 37800) // сменный сотрудник
-                        {
-                            if (shift.Kind == "D") // для дневной смены
-                            {
-                                finishTime = startTime.Date.AddHours(21); // 21:00
-                            }
-                            else // для ночной смены
-                            {
-                                if (startTime >= startTime.Date.AddHours(21)) // в случае окончания работы до 23:59
-                                {
-                                    finishTime = startTime.Date.AddHours(33); // 9:00 след. суток
-                                }
-                                else // в случае окончания работы после 00:00
-                                {
-                                    finishTime = startTime.Date.AddHours(9); // 9:00
-                                }
-                            }
-                        }
                         planWorks.Add(workerId, employee.ShiftLength * k);
                     }
                     if (!factWorks.ContainsKey(workerId))
@@ -2281,7 +2281,7 @@ namespace TSLog.Yard.Data
                 reader.Close();
                 foreach (var workerId in planWorks.Keys)
                 {
-                    if (factWorks[workerId] / planWorks[workerId] < 0.1)
+                    if (factWorks[workerId] / planWorks[workerId] < 0.01)
                         continue;
                     var workerDownTime = planWorks[workerId] - factWorks[workerId];
                     if (workerDownTime <= 0.0)
