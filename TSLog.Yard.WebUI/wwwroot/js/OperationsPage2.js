@@ -9,6 +9,11 @@ class OperationsPage {
     sortField = "driverName";
     sortDirection = "forward";
     header = document.getElementById("header3");
+    onParkingHeader = document.getElementById("onParkingHeader");
+    onGatesCarsHeader = document.getElementById("onGatesCarsHeader");
+    onParkingCarsCounter = 0;
+    onGatesCarsCounter = 0;
+    refreshTime = 60;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -138,11 +143,17 @@ class OperationsPage {
         return result != "" ? "?" + result : "";
     }
 
-    async getOperations() {        
+    changeRefreshMeta() {
+        const refreshMeta = document.getElementById("refresh-meta")
+        const url = this.shortUrl + this.createParameters();
+        refreshMeta.content = this.refreshTime.toString() + "; URL='" + url + "'"
+    }
+
+    async getOperations() {
         const parameters = this.createParameters();
 
         this.operations = [];
-        const result = await api.getOperations(parameters);        
+        const result = await api.getOperations(parameters);
         if (result.code === 0) {
             this.operations = result.operations;
         } else {
@@ -157,6 +168,10 @@ class OperationsPage {
         const container = document.getElementById("operations-table-body");
         container.replaceChildren();
         this.header.textContent = "Всего заявок";
+        this.onParkingHeader.textContent = "Машин на парковке";
+        this.onGatesCarsHeader.textContent = "Машин на воротах";
+        this.onParkingCarsCounter = 0;
+        this.onGatesCarsCounter = 0;
     }
 
     async showOperations() {
@@ -167,23 +182,35 @@ class OperationsPage {
         } else {
             viewUtils.showError(response.message);
         }
-        
+
         const operationsTbody = document.getElementById("operations-table-body");
         let operationTr = null;
         if (this.sortDirection === "forward") {
             for (let operation of this.sortedOperations) {
+                if (operation.stateCode === "STARTED" || operation.stateCode === "WORK_FINISHED") {
+                    this.onParkingCarsCounter++;
+                } else if (operation.stateCode === "WORK_STARTED") {
+                    this.onGatesCarsCounter++;
+                }
                 operationTr = document.createElement("tr");
                 this.showOperation(operation, operationTr, isPartnerUser);
                 operationsTbody.append(operationTr);
             }
         } else if (this.sortDirection === "reverse") {
             for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
+                if (this.sortedOperations[i].stateCode === "STARTED" || this.sortedOperations[i].stateCode === "WORK_FINISHED") {
+                    this.onParkingCarsCounter++;
+                } else if (this.sortedOperations[i].stateCode === "WORK_STARTED") {
+                    this.onGatesCarsCounter++;
+                }
                 operationTr = document.createElement("tr");
                 this.showOperation(this.sortedOperations[i], operationTr, isPartnerUser);
                 operationsTbody.append(operationTr);
             }
         }
         this.header.textContent = this.header.textContent + ": " + this.sortedOperations.length;
+        this.onParkingHeader.textContent = this.onParkingHeader.textContent + ": " + this.onParkingCarsCounter;
+        this.onGatesCarsHeader.textContent = this.onGatesCarsHeader.textContent + ": " + this.onGatesCarsCounter; 
     }
 
     async onChangeFilter() {
@@ -191,6 +218,7 @@ class OperationsPage {
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
         await this.showOperations();
+        this.changeRefreshMeta();
     }
 
     async onChangeSortField() {
@@ -200,6 +228,7 @@ class OperationsPage {
         await this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 
     async onChangeSortDirection() {
@@ -213,18 +242,19 @@ class OperationsPage {
         await this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 
     getOperationTypeHint() {
         const select = document.getElementById("operation-types-select");
         if (select.selectedIndex >= 0) {
             select.title = select.options[select.selectedIndex].getAttribute("note");
-        }        
+        }
     }
 
     async onChangeOperationType() {
         await this.onChangeFilter();
-        this.getOperationTypeHint();        
+        this.getOperationTypeHint();
     }
 
     async show() {
@@ -266,17 +296,15 @@ class OperationsPage {
             document.getElementById("forward-sort-input").checked = true;
         else
             document.getElementById("reverse-sort-input").checked = true;
-        
+
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
         await this.showOperations();
-        //const header = document.getElementById("header3");
-        //header.textContent = header.textContent + ": " + this.sortedOperations.length;
-        //console.log('Length ', this.sortedOperations.length);
 
         this.getOperationTypeHint();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
+        this.changeRefreshMeta();
     }
 }
 

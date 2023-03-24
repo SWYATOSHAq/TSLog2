@@ -71,3 +71,8 @@
 .btn-outline-secondary {
     padding-top: 0px;
 }
+
+.infoHeaders > h5 {
+    display: inline-block;
+    margin-right: 30px;
+}

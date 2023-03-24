@@ -90,6 +90,10 @@
     var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";
 }
 
+<meta id="refresh-meta"
+      http-equiv="refresh"
+      content="60; URL='/OperationsPage2'">
+
 @if (createOperation)
 {
     <div class="row create-operation-div">
@@ -112,5 +116,9 @@
 }
 <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
 <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
-<h5 id="header3">Всего заявок</h5>
+<div class="infoHeaders">
+    <h5 id="header3">Всего заявок</h5>
+    <h5 id="onParkingHeader">Машин на парковке</h5>
+    <h5 id="onGatesCarsHeader">Машин на воротах</h5>
+</div>
 <partial name="Blocks/Lists/_OperationsTable" model="operationsModel" />
