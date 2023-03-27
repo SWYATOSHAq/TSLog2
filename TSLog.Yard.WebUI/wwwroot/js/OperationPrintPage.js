@@ -17,6 +17,7 @@ class OperationPrintPage {
     factDuration = 0;
     planLaborCost = 0;
     planLinearLaborCost = 0;
+    hoodmanPlanLaborCost = 0;
     factLaborCost = 0;
     factBcLaborCost = 0;
     finishDate = utils.nullDate;
@@ -43,7 +44,7 @@ class OperationPrintPage {
     showWorkStartFinish() {
         this.showDate(this.planWorkStartDate, this.factWorkStartDate, document.getElementById("work-start-input"))
         this.showDate(this.planWorkFinishDate, this.factWorkFinishDate, document.getElementById("work-finish-input"))
-    }    
+    }
 
     showStartFinish() {
         const startFinishInput = document.getElementById("start-finish-input");
@@ -73,16 +74,26 @@ class OperationPrintPage {
         if (this.planLaborCost <= 0)
             laborCostInput.value = "<Не определено>";
         else {
-            laborCostInput.value = "План - " + (this.planLaborCost / 60).toFixed();
+            laborCostInput.value = "План (рассч.): " + (this.planLaborCost / 60).toFixed();
             if (this.planLinearLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + ", только линейные - " + (this.planLinearLaborCost / 60).toFixed();
+                laborCostInput.value = laborCostInput.value + ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();
             }
-            if (this.factLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + ", факт - " + (this.factLaborCost / 60).toFixed();
+
+            const result = await api.getBossControlWorks(this.id)
+            if (result.code === 0) {
+                this.bcWorks = result.works;
+                for (let work of this.bcWorks) {
+                    this.factBcLaborCost += work.duration;
+                }
+
+            } else {
+                viewUtils.showError(result.message);
+                return;
             }
+
             if (this.factBcLaborCost > 0) {
-                laborCostInput.value = laborCostInput.value + ", факт БК - " + (this.factBcLaborCost / 60).toFixed();
-            }            
+                laborCostInput.value = laborCostInput.value + ", факт по БК: " + (this.factBcLaborCost / 60).toFixed();
+            }
         }
     }
 
@@ -241,6 +252,32 @@ class OperationPrintPage {
         }
     }
 
+    async getPlanLaborCosts() {
+        const operationTypeCode = document.getElementById("operation-types-select").value;
+        const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
+        const partnersSelect = document.getElementById("partners-select");
+        this.hoodmanPlanLaborCost = 0;
+
+        if (operationTypeCode === "" || vehicleKindCode === "") {
+            return;
+        }
+
+        let actions = [];
+        for (let warehouseActionId in this.selectedWarehouseActions) {
+            actions.push({ kind: this.kind, id: warehouseActionId });
+        }
+
+        const partnerId = partnersSelect.value;
+        if (partnerId != "") {
+            let result = await api.getHoodManPlanOperationLaborCost(operationTypeCode, vehicleKindCode, partnerId, actions);
+            if (result.code === 0) {
+                this.hoodmanPlanLaborCost = result.laborCost;
+            } else {
+                viewUtils.showError(result.message);
+            }
+        }
+    }
+
     async show() {
         const id = utils.getUrlParameter("id");
         let operation = null;
@@ -283,18 +320,12 @@ class OperationPrintPage {
         // Duration
         this.planDuration = Number(operation.planDuration);
         this.factDuration = Number(operation.factDuration);
-        this.showDuration();        
+        this.showDuration();
 
         // Start and finish
         this.startDate = new Date(operation.startDate);
         this.finishDate = new Date(operation.finishDate);
         this.showStartFinish();
-
-        // Labor cost
-        this.planLaborCost = Number(operation.planLaborCost);
-        this.planLinearLaborCost = Number(operation.planLinearLaborCost);
-        this.factLaborCost = Number(operation.factLaborCost);
-        await this.showLaborCost();
 
         // Warehouse actions (and partner)
         const warehouseActionsB = document.getElementById("warehouse-actions-b");
@@ -307,6 +338,13 @@ class OperationPrintPage {
         await this.getSelectedWarehouseActions();
         this.showSelectedWarehouseActions();
 
+        // Labor cost
+        this.planLaborCost = Number(operation.planLaborCost);
+        this.planLinearLaborCost = Number(operation.planLinearLaborCost);
+        this.factLaborCost = Number(operation.factLaborCost);
+        await this.getPlanLaborCosts();
+        await this.showLaborCost();
+
         // Manager        
         await this.showManager();
 
@@ -316,7 +354,7 @@ class OperationPrintPage {
         // Gates
         const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined) {
-            gatesSelect.value = operation.gateCode;            
+            gatesSelect.value = operation.gateCode;
         }
 
         // Additional attributes
@@ -335,14 +373,14 @@ class OperationPrintPage {
         const workersFilterDiv = document.getElementById("workers-filter-div");
         if (workersFilterDiv != undefined && workersFilterDiv != null) {
             workersFilterDiv.remove();
-        }        
+        }
         const workersDiv = document.getElementById("workers-div");
         if (workersDiv != null && workersDiv != undefined) {
             const linearWorkersDiv = document.getElementById("linear-workers-div");
             linearWorkersDiv.remove();
             await this.getSelectedWorkers();
             this.showSelectedWorkers();
-            const workersFieldset = document.getElementById("workers-fieldset");                                                
+            const workersFieldset = document.getElementById("workers-fieldset");
             workersFieldset.disabled = true;
         }
 
@@ -355,7 +393,7 @@ class OperationPrintPage {
         closeButton.onclick = this.closeOperation.bind(this);
 
         window.onafterprint = window.close;
-        window.print();        
+        window.print();
     }
 }
 
