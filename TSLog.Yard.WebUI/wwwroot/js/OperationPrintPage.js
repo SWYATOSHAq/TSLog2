@@ -79,17 +79,20 @@ class OperationPrintPage {
                 laborCostInput.value = laborCostInput.value + ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();
             }
 
-            const result = await api.getBossControlWorks(this.id)
-            if (result.code === 0) {
-                this.bcWorks = result.works;
-                for (let work of this.bcWorks) {
-                    this.factBcLaborCost += work.duration;
+            if (this.factWorkStartDate > utils.nullDate
+                && this.factWorkFinishDate > utils.nullDate
+                && this.stateCode != "CANCELED") {
+                const result = await api.getBossControlWorks(this.id)
+                if (result.code === 0) {
+                    this.bcWorks = result.works;
+                    for (let work of this.bcWorks) {
+                        this.factBcLaborCost += work.duration;
+                    }
+                } else {
+                    viewUtils.showError(result.message);
+                    return;
                 }
-
-            } else {
-                viewUtils.showError(result.message);
-                return;
-            }
+            }                     
 
             if (this.factBcLaborCost > 0) {
                 laborCostInput.value = laborCostInput.value + ", факт по БК: " + (this.factBcLaborCost / 60).toFixed();
