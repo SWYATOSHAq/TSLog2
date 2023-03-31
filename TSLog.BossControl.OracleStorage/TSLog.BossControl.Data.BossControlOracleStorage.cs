@@ -998,7 +998,7 @@ namespace TSLog.BossControl.Data
                     command.BindByName = true;
                     var sql = 
                         $"   select emp.employee_id, emp.employee_surname, emp.employee_first_name, emp.employee_patronymic,\n" +
-                        $"          emp.position_id, emp.position_name,\n" +
+                        $"          emp.position_id, emp.position_name, d.site_id,\n" +
                         $"          emp.work_mode worker_work_mode, -- Режим работы\n" +
                         $"          case\n" +
                         $"              when emp.work_mode = '5/2-40' then 8.0\n" +
@@ -1021,8 +1021,35 @@ namespace TSLog.BossControl.Data
                     while (reader.Read())
                     {
                         var workerId = Utils.DbValueToInt(reader["employee_id"]);
+                        var site_id = Utils.DbValueToInt(reader["site_id"]);
                         var startTime = Utils.DbValueToDateTime(reader["start_date"]);
                         var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
+                        var employee = GetEmployee(workerId);
+                        // Нижеприведенный блок IF реализован для исключения простоев в случае сокращенных смен
+                        // site_id - это участок на котором нужно отметиться в случае окончания рабочего времени раньше срока
+                        if (site_id == 1053 && employee.ShiftLength == 28800) // дневной сотрудник
+                        {
+                            finishTime = startTime.Date.AddHours(18); // 18:00
+                        }
+                        else if (site_id == 1053 && employee.ShiftLength == 37800) // сменный сотрудник
+                        {
+                            if (shift.Kind == "D") // для дневной смены
+                            {
+                                finishTime = startTime.Date.AddHours(21); // 21:00
+                            }
+                            else // для ночной смены
+                            {
+                                if (startTime >= startTime.Date.AddHours(21)) // в случае окончания работы до 23:59
+                                {
+                                    finishTime = startTime.Date.AddHours(33); // 9:00 след. суток
+                                }
+                                else // в случае окончания работы после 00:00
+                                {
+                                    finishTime = startTime.Date.AddHours(9); // 9:00
+                                }
+                            }
+                        }
+                        
                         if (!workers.ContainsKey(workerId))
                             workers.Add(workerId, 0);
                         var span = finishTime - startTime;
@@ -1044,7 +1071,7 @@ namespace TSLog.BossControl.Data
                 foreach (var workerId in shiftWorkers.Keys)
                 {
                     var factor = shiftWorkers[workerId] / (double)shiftData.length;
-                    if (factor < 0.1)
+                    if (factor < 0.01)
                         continue;
 
                     if (!employees.ContainsKey(workerId))
@@ -1070,6 +1097,12 @@ namespace TSLog.BossControl.Data
                         worker.downCost = 0.0;
                         employees.Add(workerId, worker);
                     }
+                    else
+                    {
+                        var employee = GetEmployee(workerId);
+                        employees[workerId].shiftLength = employee.ShiftLength * shiftData.k;
+                    }
+
                     employees[workerId].planTime += employees[workerId].shiftLength;
                     employees[workerId].factTime += shiftWorkers[workerId];
                     employees[workerId].planCost += (double)employees[workerId].shiftLength / 60 / 60 * employees[workerId].laborCost;

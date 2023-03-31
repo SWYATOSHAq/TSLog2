@@ -86,9 +86,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.WebUI", "TSLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.OracleStorage", "TSLog.Reports.OracleStorage\TSLog.Reports.OracleStorage.csproj", "{85BB5E18-5FA1-4EB8-AE1A-C92F122FDF0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Reports.BO", "TSLog.Reports.BO\TSLog.Reports.BO.csproj", "{D24AC2D3-92BB-417B-8932-97FD44A260DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.BO", "TSLog.Reports.BO\TSLog.Reports.BO.csproj", "{D24AC2D3-92BB-417B-8932-97FD44A260DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Reports.Storage", "TSLog.Reports.Storage\TSLog.Reports.Storage.csproj", "{7DF480A1-163D-44B2-A623-E8ED15D65958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.Storage", "TSLog.Reports.Storage\TSLog.Reports.Storage.csproj", "{7DF480A1-163D-44B2-A623-E8ED15D65958}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

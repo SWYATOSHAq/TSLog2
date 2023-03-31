@@ -1,0 +1,22 @@
+﻿@page "/ECReportDetailedPage"
+@using TSLog.Yard.WebUI.Models
+
+@inject IConfiguration Configuration
+@{
+    var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
+}
+@model ECReportDetailedPageModel
+@{
+    ViewData["Title"] = "Детализированный отчет по трудозатратам";
+    var storage = Model.Storage;
+    var rightsChecker = Model.RightsChecker;
+    var viewDetailedClientReportPage = !useAuthentication 
+                               || (rightsChecker.CheckRight("USE_YARD", User) && rightsChecker.CheckRight("VIEW_EC_REPORT_PAGE", User));
+    if (!viewDetailedClientReportPage)
+    {        
+        Response.StatusCode = 403;
+        throw new UnauthorizedAccessException();
+    }    
+    var partners = storage.GetPartners();
+}
+<span>HELLO</span>
