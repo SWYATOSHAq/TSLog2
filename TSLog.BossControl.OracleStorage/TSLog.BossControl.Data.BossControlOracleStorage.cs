@@ -1071,7 +1071,7 @@ namespace TSLog.BossControl.Data
                 foreach (var workerId in shiftWorkers.Keys)
                 {
                     var factor = shiftWorkers[workerId] / (double)shiftData.length;
-                    if (factor < 0.01)
+                    if (factor < 0.1)
                         continue;
 
                     if (!employees.ContainsKey(workerId))
