@@ -149,6 +149,47 @@
 
             return shifts.ToArray();
         }
+        /// <summary>
+        /// Возвращает скорректированную плановую длину смены на случай сокращенной смены. Сокращенная смена формируется
+        /// при привязке и последующей отвязке на участке 1053 "Сокращенная смена"
+        /// </summary>
+        /// <param name="startTime">Начало работы по БК</param>
+        /// <param name="finishTime">Окончание работы по БК</param>
+        /// <param name="siteId">Участок(укороченная смена на участке 1053)</param>
+        /// <param name="employeeShiftLength">Стандартная длина рабочей смены сотрудника</param>
+        /// <param name="shiftKind">Дневная или ночная типы смен</param>
+        /// <returns></returns>
+        public static int GetShortShiftLength(DateTime startTime, DateTime finishTime, int siteId, int employeeShiftLength, string shiftKind) {
+            int shortShiftLengthSeconds = 0;
+            if (siteId == 1053 && employeeShiftLength == 28800) // дневной сотрудник
+            {
+                shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(9)).TotalSeconds); // 18:00
+            }
+            else if (siteId == 1053 && employeeShiftLength == 37800) // сменный сотрудник
+            {
+                if (shiftKind == "D") // для дневной смены
+                {
+                    shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(9)).TotalSeconds); // 21:00
+                }
+                else // для ночной смены
+                {
+                    if (startTime >= startTime.Date.AddHours(21)) // в случае окончания работы до 23:59
+                    {
+                        shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(21)).TotalSeconds); // 9:00 след. суток
+                    }
+                    else // в случае окончания работы после 00:00
+                    {
+                        shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(-3)).TotalSeconds); // 9:00
+                    }
+                }
+            }
+            else
+            {
+                shortShiftLengthSeconds = employeeShiftLength;
+            }
+            return shortShiftLengthSeconds;
+        }
+        
         public static string GetKey(DateTime date)
         {
             var day = date.Date;
