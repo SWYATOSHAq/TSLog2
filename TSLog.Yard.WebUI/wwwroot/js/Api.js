@@ -697,6 +697,18 @@ class Api {
         }
     }
 
+    // Формирует детализированный отчёт по трудозатратам персонала на конктретном клиенте (манданте) за выбранный период
+    async createECReportDetailed(fromDate, toDate, id) {
+        let url = "./api/v1/yard/ECReportDetailed?from_date=" + fromDate + "&to_date=" + toDate + "&partners_id=" + id;
+        const response = await fetch(url);
+        if (response.status >= 200 && response.status < 300) {
+            return utils.createCorrectObject("data", await response.json());
+        }
+        else {
+            return utils.createErrorObject(await response.text());
+        }
+    }
+
     // Формирует отчёт производительности по работникам (за период), первая версия
     async createWorkersPerfomanceReport(fromDate, toDate) {
         let url = "./api/v1/yard/WorkersPerfomanceReport?from_date=" + fromDate + "&to_date=" + toDate;

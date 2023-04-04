@@ -2430,6 +2430,90 @@ namespace TSLog.Yard.Data
 
             return works.ToArray();
         }
+        /// <summary>
+        /// Функция формирования детализированного отчёта по трудозатратам персонала на конктретном клиенте (манданте) за выбранный период
+        /// </summary>
+        /// <param name="fromDate">Дата (+ время) начала периода</param>
+        /// <param name="toDate">Дата (+ время) окончания периода</param>
+        /// <param name="partnersId">Идентификатор клиента (манданта)</param>
+        /// <returns></returns>
+        public dynamic GetEcDetailedData(DateTime fromDate, DateTime toDate, string partnersId)
+        {
+            //var partners = GetPartners();
+            //var id = Array.Find(partners, p => p.Id == partnersId);
+            var works = new List<dynamic>();
+            dynamic element;
+            using (var command = _connection.CreateCommand())
+            {
+                command.BindByName = true;
+                var sql =
+                    $"--Отчёт должен показывать за период, какой сотрудник, сколько отработал на клиенте, по всем участкам. Участки тоже можно вывести.\r\n" +
+                    $"with dates as (\n" +
+                    $"  select :start_date fact_work_start_date,\n" +
+                    $"         :finish_date fact_work_finish_date\n" +
+                    $"  from dual),\n" +
+                    $"data2 as (\n" +
+                    $"  select emp.position_id, emp.position_name,\n" +
+                    $"         d.worker_id, e.full_name worker_full_name,\n" +
+                    $"         d.start_date,\n" +
+                    $"         greatest(d.start_date, dt.fact_work_start_date) clipped_start_date,\n" +
+                    $"         d.finish_date,\n" +
+                    $"         least(d.finish_date, dt.fact_work_finish_date) clipped_finish_date,\n" +
+                    $"         d.finish_date - d.start_date duration, -- Продолжительность\n" +
+                    $"         least(d.finish_date, dt.fact_work_finish_date) - greatest(d.start_date, dt.fact_work_start_date) clipped_duration, -- Продолжительность\n" +
+                    $"         d.site_id, s.name site_name, d.PARTNER_ID, par.name partner_name\n" +
+                    $"  from dates dt\n" +
+                    $"cross join table({StaffSchema}.stf_get_all_works_wi(dt.fact_work_start_date, dt.fact_work_finish_date)) d\n" +
+                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                    $"left join {StaffSchema}.stf_employee#v e on d.worker_id = e.id\n" +
+                    $"left join {PartnersSchema}.par_partner#v par on d.partner_id = par.id\n" +
+                    $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                    $"where d.finish_date - d.start_date > 0\n" +
+                    $"      and s.kind <> 'AUXILIARY'\n" +
+                    $"  --     and (:site_code is null or s.code = :site_code)\n" +
+                    $"  --     and s.kind = 'GATE' --Только ворота\n" +
+                    $"      and e.id is not null\n " +
+                    $"      and par.id = :partnersId)\n" +
+                    $"select --d.position_id, \n" +
+                    $"  d.position_name, --d.worker_id,\n" +
+                    $"  d.worker_full_name, --d.site_id,\n" +
+                    $"  d.site_name,\n" +
+                    $"  D.PARTNER_ID,\n" +
+                    $"  d.partner_name,\n" +
+                    $"  d.start_date, \n" +
+                    $"  d.finish_date,\n" +
+                    $"  d.clipped_start_date,\n" +
+                    $"  d.clipped_finish_date,\n" +
+                    $"  round(d.duration * 24 * 60 * 60) duration,\n" +
+                    $"  round(d.duration * 24 * 60 * 60) clipped_duration\n" +
+                    $"from data2 d\n" +
+                    $"order by --d.worker_full_name,\n" +
+                    $"d.START_DATE";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("start_date", fromDate));
+                command.Parameters.Add(new OracleParameter("finish_date", toDate));
+                command.Parameters.Add(new OracleParameter("partnersId", partnersId));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    element = new ExpandoObject();
+                    element.partnerId = Utils.DbValueToString(reader["partner_id"]);
+                    element.partnerName = Utils.DbValueToString(reader["partner_name"]);
+                    element.startWork = Utils.DbValueToDateTime(reader["clipped_start_date"]);
+                    element.finishWork = Utils.DbValueToDateTime(reader["clipped_finish_date"]);
+                    element.duration = Utils.DbValueToDouble(reader["clipped_duration"]);
+                    element.workerFullName =  Utils.DbValueToString(reader["worker_full_name"]);
+                    element.siteName =  Utils.DbValueToString(reader["site_name"]);
+                    element.positionName = Utils.DbValueToString(reader["position_name"]);
+                    //element.bcCost = Utils.DbValueToDouble(reader["bc_cost"]);
+                    works.Add(element);
+                }
+                reader.Close();
+            }
+            return works.ToArray();
+        }
+
         #endregion
     }
 }

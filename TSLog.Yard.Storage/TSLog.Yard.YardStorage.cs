@@ -511,6 +511,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetEcData(fromDate, toDate, partnersIds);
         }
+        public dynamic GetEcDetailedData(DateTime fromDate, DateTime toDate, string partnersId)
+        {
+            return _oracleStorage.GetEcDetailedData(fromDate, toDate, partnersId);
+        }
         #endregion
 
         public void Dispose()

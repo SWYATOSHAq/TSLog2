@@ -3237,6 +3237,55 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+
+        [HttpGet("ECReportDetailed")]
+        public string GetECReportDetailed()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_EC_REPORT", User);
+                if (_useAuthentication && (!useYard || !getData))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string temp = Request.Query["from_date"];
+                var fromDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out fromDate))
+                        return $"Wrong to date {temp}";
+                }
+                temp = Request.Query["to_date"];
+                var toDate = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    temp = temp.Trim();
+                    if (!DateTime.TryParse(temp, out toDate))
+                        return $"Wrong to date {temp}";
+                    toDate = toDate.AddDays(1).AddTicks(-1);
+                }
+                if (fromDate >= toDate)
+                    throw new ArgumentException("Wrong dates!");
+
+                temp = Request.Query["partners_id"];
+                string id = string.IsNullOrWhiteSpace(temp) ? string.Empty : temp;
+
+                var elements = _storage.GetEcDetailedData(fromDate, toDate, id);
+                var text = JsonSerializer.Serialize(elements);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
         /// <summary>
         /// Первая версия отчёта 
         /// </summary>

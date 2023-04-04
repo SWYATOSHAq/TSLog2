@@ -133,5 +133,6 @@ namespace TSLog.Yard.BO
         public dynamic[] GetBcShiftLabocCosts(DateTime date);
         public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode);
         public dynamic[] GetEcData(DateTime fromDate, DateTime toDate, string[] partnersIds);
+        public dynamic GetEcDetailedData(DateTime fromDate, DateTime toDate, string partnersId);
     }
 }
