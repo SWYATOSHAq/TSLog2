@@ -4,6 +4,7 @@
 */
 
 class ECReportDetailedPage {
+
     shortUrl;
 
     data = [];
@@ -11,15 +12,6 @@ class ECReportDetailedPage {
     constructor() {
         this.shortUrl = location.href.split('?')[0];
     }
-
-    //createParameters() {
-    //    let result = "";
-    //    result = utils.addParameter(result, "from_date", "from-date-input");
-    //    result = utils.addParameter(result, "to_date", "to-date-input");
-    //    const id = this.getIds(",")
-    //    result = utils.addParameterValue(result, "partners_id", id);
-    //    return result != "" ? "?" + result : "";
-    //}
 
     async getData(fromDate, toDate, id) {
         const result = await api.createECReportDetailed(fromDate, toDate, id);
@@ -33,10 +25,16 @@ class ECReportDetailedPage {
 
     clearReport() {
         const reportBody = document.getElementById("detailed-report-tbody");
-        //const reportFooter = document.getElementById("detailed-report-tfoot");
         reportBody.replaceChildren();
-        //reportFooter.replaceChildren();
         this.data = [];
+    }
+
+    showReportTitle() {
+        const reportHeaderB = document.getElementById("report-header-b")
+        reportHeaderB.textContent = "Детализированный отчёт по трудозатратам персонала (БоссКонтроль)" +
+            " с " + utils.getUrlParameter("from_date") +
+            " по " + utils.getUrlParameter("to_date") +
+            " (ВКЛЮЧАЯ!)";
     }
 
     async createReport() {
@@ -45,23 +43,32 @@ class ECReportDetailedPage {
             utils.getUrlParameter("to_date"),
             utils.getUrlParameter("partners_id"));
         this.showReport();
-        //this.showReportTitle();
+        this.showReportTitle();
+    }
 
-        //const partnerIdTh = document.getElementById("partner-id-th");
-        //partnerIdTh.click();
+    exportToExcel() {
+        const reportTable = document.getElementById("detailed-report-table");
+
+        let fromDate = utils.getUrlParameter("from_date");
+        if (fromDate == "")
+            fromDate = utils.getNowDate();
+        let toDate = utils.getUrlParameter("to_date");
+        if (toDate == "")
+            toDate = utils.getNowDate();
+        const fileName = "ecReport_" + fromDate + "_" + toDate;
+        const sheetName = fromDate + " - " + toDate;
+
+        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
     }
 
     showReport() {
         const reportBody = document.getElementById("detailed-report-tbody");
-        //const reportFooter = document.getElementById("detailedreport-tfoot");
         for (let element of this.data) {
 
             const tr = document.createElement("tr");
             viewUtils.createCell(tr, ["table-cell"], [element.partnerName]);
-            //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")]);
             viewUtils.createCell(tr, ["table-cell"], [element.workerFullName]);
             viewUtils.createCell(tr, ["table-cell"], [element.positionName]);
-            //viewUtils.createCell(tr, ["table-cell"], [element.startWork]);
             let date = new Date(element.startWork);
             const startDate = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString();
             viewUtils.createCell(tr, ["table-cell"], [startDate]);
@@ -76,7 +83,6 @@ class ECReportDetailedPage {
         }        
     }
     show() {
-        alert("Привет!");
         this.createReport();
     }
 }
@@ -84,5 +90,3 @@ class ECReportDetailedPage {
 const ecReportDetailedPage = new ECReportDetailedPage();
 
 document.addEventListener('DOMContentLoaded', ecReportDetailedPage.show.bind(ecReportDetailedPage));
-//document.onclick = ecReportDetailedPage.onPageClick.bind(ecReportDetailedPage);
-//document.addEventListener('DOMContentLoaded', gatesPage.show.bind(gatesPage));

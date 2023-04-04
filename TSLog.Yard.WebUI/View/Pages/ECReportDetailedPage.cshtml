@@ -19,20 +19,31 @@
     }    
     var partners = storage.GetPartners();
 }
-<span>HELLO</span>
+
+<button class="btn btn-outline-success"
+        style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
+        title="Выгрузить отчёт в Excel"
+        type="button"
+        onclick="ecReportDetailedPage.exportToExcel()">
+    В Excel
+</button>
+<div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
+    <b id="report-header-b" style="padding: 0; margin: 0">Отчёт по трудозатратам из Босс Контроля по конктретному клиенту за выбранный период</b>
+</div>
+
 <table id="detailed-report-table"
        class="table table-light table-bordered table-striped table-sortable"
        style="padding: 0; margin: 0; margin-top: 16px">
     <thead class="thead-light">
         <tr>
-            <th id="partner-id-th" class="table-header datatype-text" style="width: 12%">Мандант</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Сотрудник (Ф.И.О.)</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Должность</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Время начала работы</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Время окончания работы</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Продолжительность работы по БК (мин.)</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Трудозатраты с налогами (руб.)</th>
-            <th class="table-header datatype-integer" style="width: 8.8%">Участок работы</th>
+            <th id="partner-id-th" class="table-header datatype-text" style="width: 11%">Мандант</th>
+            <th class="table-header datatype-integer" style="width: 15%">Сотрудник (Ф.И.О.)</th>
+            <th class="table-header datatype-integer" style="width: 15%">Должность</th>
+            <th class="table-header datatype-integer" style="width: 11%">Время начала работы</th>
+            <th class="table-header datatype-integer" style="width: 11%">Время окончания работы</th>
+            <th class="table-header datatype-integer" style="width: 11%">Продолжительность работы по БК (мин.)</th>
+            <th class="table-header datatype-integer" style="width: 11%">Трудозатраты с налогами (руб.)</th>
+            <th class="table-header datatype-integer" style="width: 15%">Участок работы</th>
         </tr>
     </thead>
     <tfoot id="detailed-report-tfoot">

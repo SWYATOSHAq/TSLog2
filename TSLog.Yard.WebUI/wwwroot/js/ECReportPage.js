@@ -99,10 +99,21 @@ class ECReportPage {
                 continue;
             }
 
+            const openButton = document.createElement("button");
+            openButton.classList.add("btn");
+            openButton.classList.add("btn-outline-info");
+            openButton.classList.add("table-cell-button");
+            //openButton.style.cssText = "width: 100px !important";
+            openButton.onclick = this.goToDetailedReport(element.partnerId);
+            openButton.textContent = "Подробнее";
+            openButton.title = "Открыть подробный отчет трудозатрат";
+            //contents.push(openButton);
+
             const tr = document.createElement("tr");
             //viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
             //viewUtils.createCell(tr, ["table-cell"], [utils.getUrlParameter("from_date") + " - " + utils.getUrlParameter("to_date")]);
-            viewUtils.createCell(tr, ["table-cell"], [element.partnerName]);
+            //viewUtils.createCell(operationTr, ["table-cell"], contents);
+            viewUtils.createCell(tr, ["table-cell"], [element.partnerName, openButton]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcDuration)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcCost)]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.billingTotalIncome)]);
@@ -169,6 +180,17 @@ class ECReportPage {
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgHandlingMargin)], boldStyleContent);
         viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(avgTotalMargin)], boldStyleContent);
         reportFooter.append(tr);
+    }
+
+    goToDetailedReport(partenrId) {
+        return function () {
+            let fromDate = utils.getUrlParameter("from_date");
+            let toDate = utils.getUrlParameter("to_date");
+            sessionStorage.setItem("EC_REPORT_DETAILED_PAGE_URL", location.href);
+           // location.href = "/OperationPage?id=" + id + "&action=VIEW";
+            //location.href = "/ECReportDetailedPage?from_date=01.04.2023&to_date=03.04.2023&partners_id=0021";
+            location.href = "/ECReportDetailedPage?from_date=" + fromDate + "&to_date=" + toDate + "&partners_id=" + partenrId;
+        }
     }
 
     showReportTitle() {
