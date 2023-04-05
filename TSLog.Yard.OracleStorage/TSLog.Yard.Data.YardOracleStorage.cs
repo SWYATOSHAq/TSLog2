@@ -2455,6 +2455,7 @@ namespace TSLog.Yard.Data
                     $"data2 as (\n" +
                     $"  select emp.position_id, emp.position_name,\n" +
                     $"         d.worker_id, e.full_name worker_full_name,\n" +
+                    $"         emp.cost position_cost,\n" +
                     $"         d.start_date,\n" +
                     $"         greatest(d.start_date, dt.fact_work_start_date) clipped_start_date,\n" +
                     $"         d.finish_date,\n" +
@@ -2484,8 +2485,9 @@ namespace TSLog.Yard.Data
                     $"  d.finish_date,\n" +
                     $"  d.clipped_start_date,\n" +
                     $"  d.clipped_finish_date,\n" +
+                    $"  round(nvl(d.position_cost * d.clipped_duration * 24, 0.0), 8) bc_cost,\n" +
                     $"  round(d.duration * 24 * 60 * 60) duration,\n" +
-                    $"  round(d.duration * 24 * 60 * 60) clipped_duration\n" +
+                    $"  round(d.clipped_duration * 24 * 60 * 60) clipped_duration\n" +
                     $"from data2 d\n" +
                     $"order by --d.worker_full_name,\n" +
                     $"d.START_DATE";
@@ -2506,7 +2508,7 @@ namespace TSLog.Yard.Data
                     element.workerFullName =  Utils.DbValueToString(reader["worker_full_name"]);
                     element.siteName =  Utils.DbValueToString(reader["site_name"]);
                     element.positionName = Utils.DbValueToString(reader["position_name"]);
-                    //element.bcCost = Utils.DbValueToDouble(reader["bc_cost"]);
+                    element.bcCost = Utils.DbValueToDouble(reader["bc_cost"]);
                     works.Add(element);
                 }
                 reader.Close();

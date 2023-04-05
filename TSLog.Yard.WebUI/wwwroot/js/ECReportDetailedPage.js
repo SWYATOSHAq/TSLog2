@@ -76,7 +76,7 @@ class ECReportDetailedPage {
             const finishDate = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + date.toLocaleDateString();
             viewUtils.createCell(tr, ["table-cell"], [finishDate]);
             viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.duration / 60)]);
-            viewUtils.createCell(tr, ["table-cell"], [element.partnerId]);
+            viewUtils.createCell(tr, ["table-cell"], [utils.displayFloat(element.bcCost)]);
             viewUtils.createCell(tr, ["table-cell"], [element.siteName]);
 
             reportBody.append(tr);
