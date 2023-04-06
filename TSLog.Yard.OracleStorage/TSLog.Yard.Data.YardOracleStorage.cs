@@ -2485,7 +2485,7 @@ namespace TSLog.Yard.Data
                     $"  d.finish_date,\n" +
                     $"  d.clipped_start_date,\n" +
                     $"  d.clipped_finish_date,\n" +
-                    $"  round(nvl(d.position_cost * d.clipped_duration * 24, 0.0), 8) bc_cost,\n" +
+                    $"  round(nvl(d.position_cost * d.clipped_duration * 24 * 1.305, 0.0), 8) bc_cost,\n" +
                     $"  round(d.duration * 24 * 60 * 60) duration,\n" +
                     $"  round(d.clipped_duration * 24 * 60 * 60) clipped_duration\n" +
                     $"from data2 d\n" +
