@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Globalization;
 using System.Text.Json;
+using TSLog.LegalEntities.BO;
 using TSLog.Staff.BO;
 
 namespace TSLog.Staff.WebUI.Controllers
@@ -35,6 +38,16 @@ namespace TSLog.Staff.WebUI.Controllers
          * delete department
          * 
          */
+
+        private static async Task<dynamic?> GetInputData(HttpRequest request)
+        {
+            request.EnableBuffering();
+            var body = request.Body;
+            body.Seek(0, SeekOrigin.Begin);
+            var reader = new StreamReader(body);
+            string json = await reader.ReadToEndAsync();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+        }
 
         #region get lists of data
 
@@ -113,23 +126,53 @@ namespace TSLog.Staff.WebUI.Controllers
             return JsonSerializer.Serialize(retShift);
         }
 
-        [HttpPost("Employee")]
+        [HttpPost("Employee")]       
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public string PostCreateUpdateEmployee(Employee employee)
+        //public string PostCreateUpdateEmployee(Employee employee)
+        //{
+        //    var retEmployee = employee;
+        //    if (employee.Id > 0)
+        //    {
+        //        // update
+        //        retEmployee = _storage.EditEmployee(employee);
+        //    }
+        //    else
+        //    {
+        //        //create new
+        //        retEmployee = _storage.AddEmployee(employee);
+        //    }
+        //    return JsonSerializer.Serialize(retEmployee);
+        //}
+        async public Task<string> PostCreateUpdateEmployee()
         {
-            var retEmployee = employee;
-            if (employee.Id > 0)
+            try
             {
-                // update
-                retEmployee = _storage.EditEmployee(employee);
+                Response.StatusCode = 500;
+                dynamic? data = await GetInputData(Request);
+                if (data == null)
+                    return "Input data is null!";
+
+                Employee newEmployee = new Employee
+                {
+                    FirstName = data.FirstName,
+                    Surname = data.Surname,
+                    Patronymic = data.Patronymic,
+                    Sex = data.Sex,
+                    Nationality = data.Nationality, 
+                    Company = data.Company?.ToObject<LegalEntity>(),
+                    BirthDate = data.BirthDate
+                    //BirthDate = DateTime.ParseExact(Convert.ToString(data.BirthDate), "yyyy-MM-dd", CultureInfo.InvariantCulture)
+                };
+
+                _storage.AddEmployee(newEmployee);
+
+                return "";
             }
-            else
+            catch (Exception exception)
             {
-                //create new
-                retEmployee = _storage.AddEmployee(employee);
+                return exception.Message; 
             }
-            return JsonSerializer.Serialize(retEmployee);
         }
 
         [HttpPost("Position")]

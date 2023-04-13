@@ -89,10 +89,18 @@ export class Card extends Component {
                                     inputType = (<textarea rows="1" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></textarea>);
                                     break;
                                 case "datetime":
-                                    inputType = (<input type="datetime-local" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    if (this.state.cardType === "Работник") {
+                                        inputType = (<input type="date" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    } else {
+                                        inputType = (<input type="datetime-local" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    }
                                     break;
                                 case "date":
-                                    inputType = (<input type="datetime-local" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    if (this.state.cardType === "Работник") {
+                                        inputType = (<input type="date" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    } else {
+                                        inputType = (<input type="datetime-local" className="form-control" value={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);
+                                    }
                                     break;
                                 case "bool":
                                     inputType = (<input type="checkbox" className="form-check-input m-2" checked={inputValue} onChange={(e) => this.handleChange(curRowKey, e)}></input>);

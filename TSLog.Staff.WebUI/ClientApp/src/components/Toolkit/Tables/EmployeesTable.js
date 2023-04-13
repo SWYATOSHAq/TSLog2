@@ -8,6 +8,7 @@ export class EmployeesTable extends Table {
     updateSetValCallback = (childData) => {
         console.log('-----------------------------------');
         console.log(childData);
+        console.log(JSON.stringify(childData));
         console.log('-----------------------------------');
         //this.setState({ name: childData });
 
@@ -21,21 +22,26 @@ export class EmployeesTable extends Table {
             .then(response => response.json())
             .then(newData => {
                 console.log(newData);
-                this.setState(state => {
-                    const headers = state.headers;
-                    const dataTypes = state.dataTypes;
-                    const activeRowIndex = state.activeRowIndex;
-                    const body = state.body;
-                    body[activeRowIndex] = newData;
+                console.log("УУУУУУРРРРРРРРРРАААААААААА")                    ;
+                //this.setState(state => {
+                //    const headers = state.headers;
+                //    const dataTypes = state.dataTypes;
+                //    const activeRowIndex = state.activeRowIndex;
+                //    const body = state.body;
+                //    body[activeRowIndex] = newData;
 
-                    const selectRow = state.selectRow;
-                    const deleteRow = state.deleteRow;
+                //    const selectRow = state.selectRow;
+                //    const deleteRow = state.deleteRow;
 
-                    return ({
-                        headers, dataTypes, body, selectRow, deleteRow, activeRowIndex,
-                    });
-                });
-            });
+                //    return ({
+                //        headers, dataTypes, body, selectRow, deleteRow, activeRowIndex,
+                //    });
+                //});
+            })
+            .catch((e) => {
+                console.error(e.message); // "oh, no!"
+            })        
+
     }
 
     selectRowCallback = (index, e) => {
@@ -58,7 +64,7 @@ export class EmployeesTable extends Table {
             const dataTypes = state.dataTypes;
             const body = state.body;
 
-            body.unshift({ Company: {DisplayName:""}}); // pre append empty object
+            body.unshift({ Company: { DisplayName: "" } }); // pre append empty object
 
             const selectRow = state.selectRow;
             const deleteRow = state.deleteRow;
@@ -100,7 +106,7 @@ export class EmployeesTable extends Table {
             <div>
                 <h1 id="tabelLabel" >Сотрудники</h1>
                 <EmployeesCard selectedData={this.state.activeRowIndex >= 0 ? this.state.body[this.state.activeRowIndex] : {}} key={this.state.activeRowIndex} updateSetValCallback={this.updateSetValCallback} />
-                <CreateNewButton CreateNew={this.createNewCallback}/>
+                <CreateNewButton CreateNew={this.createNewCallback} />
                 {table}
             </div>
         );
@@ -114,7 +120,7 @@ export class EmployeesTable extends Table {
         super.setState({
             headers: {
                 Surname: "Фамилия",
-                Name: "Имя",
+                FirstName: "Имя",
                 Patronymic: "Отчество",
                 Company: "Компания",
                 Sex: "Пол",
@@ -122,7 +128,7 @@ export class EmployeesTable extends Table {
             },
             dataTypes: {
                 Surname: "string",
-                Name: "string",
+                FirstName: "string",
                 Patronymic: "string",
                 Company: "company",
                 Sex: "string",

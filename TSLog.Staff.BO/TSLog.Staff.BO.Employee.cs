@@ -34,7 +34,7 @@ namespace TSLog.Staff.BO
         /// <summary>
         /// Фамилия
         /// </summary>
-        public string Surname { get; private set; }
+        public string Surname { get; set; }
         /// <summary>
         /// Имя
         /// </summary>
@@ -77,7 +77,7 @@ namespace TSLog.Staff.BO
         /// <summary>
         /// Дата рождения
         /// </summary>
-        public DateTime BirthDate { get; private set; }
+        public DateTime BirthDate { get; set; }
         /// <summary>
         /// Гражданство (подданство)
         /// </summary>
@@ -121,7 +121,7 @@ namespace TSLog.Staff.BO
         /// <summary>
         /// Компания (ТСЛ или подрядчик)
         /// </summary>
-        public LegalEntity Company { get; private set; }
+        public LegalEntity Company { get; set; }
         /// <summary>
         /// Подразделение
         /// </summary>
@@ -133,7 +133,7 @@ namespace TSLog.Staff.BO
         /// <summary>
         /// Валюта стоимости часа работы
         /// </summary>
-        public MeasureUnit CostMeasureUnit { get; set; } = MeasureUnit.Null;
+        public MeasureUnit CostMeasureUnit { get; set; } = MeasureUnit.Empty;
         private const string DefaultWorkMode = "5/2-40";
         /// <summary>
         /// Режим работы (номер смены)
@@ -173,7 +173,7 @@ namespace TSLog.Staff.BO
             BirthDate = birthDate;
             Company = company ?? throw new ArgumentNullException(nameof(company));
         }
-        private Employee() : base()
+        public Employee() : base()
         {
             Surname = string.Empty;
             BirthDate = DateTime.MinValue;

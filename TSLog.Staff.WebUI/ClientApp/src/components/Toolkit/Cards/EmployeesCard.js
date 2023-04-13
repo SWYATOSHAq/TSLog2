@@ -26,7 +26,7 @@ export class EmployeesCard extends Card {
             isNew: isNew,
             fieldList: {
                 Surname: "Фамилия",
-                Name: "Имя",
+                FirstName: "Имя",
                 Patronymic: "Отчество",
                 Sex: "Пол",
                 Company: "Компания",
@@ -43,7 +43,7 @@ export class EmployeesCard extends Card {
             fieldTypes: {
 
                 Surname: "text",
-                Name: "text",
+                FirstName: "text",
                 Patronymic: "text",
                 Nationality: "text",
                 Sex: "text",

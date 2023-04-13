@@ -811,12 +811,15 @@ namespace TSLog.Staff.Data
         {
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
+
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
                 var AddEmployeeSql =
                     $"begin\n" +
-                    $"    :l_id := {StaffSchema}.api_staff.create_employee(:p_sex,\n" +
+                    $"    :l_id := {StaffSchema}.api_staff.create_employee(:p_wms_login,\n" +
+                    $"        :p_ad_login," +
+                    $"        :p_sex," +
                     $"        :p_surname,\n" +
                     $"        :p_first_name,\n" +
                     $"        :p_patronymic,\n" +
@@ -839,6 +842,8 @@ namespace TSLog.Staff.Data
                     $"        :p_note);\n" +
                     $"end;";
                 command.CommandText = AddEmployeeSql;
+                command.Parameters.Add(new OracleParameter("p_wms_login", employee.WmsLogin));
+                command.Parameters.Add(new OracleParameter("p_ad_login", employee.AdLogin));
                 command.Parameters.Add(new OracleParameter("p_sex", employee.Sex));
                 command.Parameters.Add(new OracleParameter("p_surname", employee.Surname.Trim()));
                 command.Parameters.Add(new OracleParameter("p_first_name", employee.FirstName.Trim()));
@@ -857,7 +862,7 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("p_document_number",
                     !string.IsNullOrWhiteSpace(employee.DocumentNumber) ? employee.DocumentNumber.Trim() : DBNull.Value));
                 command.Parameters.Add(new OracleParameter("p_document_issue_date",
-                    employee.DocumentIssueDate != DateTime.MinValue ? employee.DocumentIssueDate : DBNull.Value));
+                    employee.DocumentIssueDate != DateTime.MinValue ? employee.DocumentIssueDate : DateTime.Today));
                 command.Parameters.Add(new OracleParameter("p_document_issue_organization",
                     !string.IsNullOrWhiteSpace(employee.DocumentIssueOrganization) ? employee.DocumentIssueOrganization.Trim() : DBNull.Value));
                 command.Parameters.Add(new OracleParameter("p_employment_date",
