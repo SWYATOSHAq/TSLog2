@@ -165,6 +165,7 @@ namespace TSLog.Staff.WebUI.Controllers
                     //BirthDate = DateTime.ParseExact(Convert.ToString(data.BirthDate), "yyyy-MM-dd", CultureInfo.InvariantCulture)
                 };
 
+
                 _storage.AddEmployee(newEmployee);
 
                 return "";

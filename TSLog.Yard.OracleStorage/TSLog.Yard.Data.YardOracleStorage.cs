@@ -2264,13 +2264,10 @@ namespace TSLog.Yard.Data
                 reader.Close();
                 foreach (var workerId in planWorks.Keys)
                 {
-                    //30.03.23 Убрал по распоряжению Охотникова А.А. 
-                    // if (factWorks[workerId] / planWorks[workerId] < 0.1)
-                    //     continue;
-                    
                     // в случае случайной переработки необходимо отметься на участе 1053 и таким образом игнорировать
-                    // это время при подсчете планового времени смены и простоев
-                    if (site_id == 1053 && factWorks[workerId] / planWorks[workerId] < 0.5)
+                    // это время при подсчете планового времени смены и простоев.
+                    // Проверку || factWorks[workerId] / planWorks[workerId] < 0.1 - Вернул по заявке 4760 по распоряжению Охотникова А.А.
+                    if (site_id == 1053 && factWorks[workerId] / planWorks[workerId] < 0.5 || factWorks[workerId] / planWorks[workerId] < 0.1)
                         continue;
                     var workerDownTime = planWorks[workerId] - factWorks[workerId];
                     if (workerDownTime <= 0.0)
