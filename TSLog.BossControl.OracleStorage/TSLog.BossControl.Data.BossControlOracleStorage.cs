@@ -992,8 +992,7 @@ namespace TSLog.BossControl.Data
                 shiftData.from = shift.From;
                 shiftData.to = shift.To;
                 //shiftData.length = shift.Length;
-                shiftData.length = 0;
-                shiftData.k = k;
+                //shiftData.k = k;
                 using (var command = _connection.CreateCommand())
                 {
                     command.BindByName = true;
@@ -1019,17 +1018,26 @@ namespace TSLog.BossControl.Data
                     command.Parameters.Add(new OracleParameter("from_date", shift.From));
                     command.Parameters.Add(new OracleParameter("to_date", shift.To));
                     using var reader = command.ExecuteReader();
-                    var workers = new Dictionary<int, int>();
-                    shiftData.site_id =0;
+                    var planWorks = new Dictionary<int, double>();
+                    var factWorks = new Dictionary<int, double>();
                     while (reader.Read())
                     {
                         var workerId = Utils.DbValueToInt(reader["employee_id"]);
-                        shiftData.site_id = Utils.DbValueToInt(reader["site_id"]);
+                        int site_id = Utils.DbValueToInt(reader["site_id"]);
                         var startTime = Utils.DbValueToDateTime(reader["start_date"]);
                         var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
                         var employee = GetEmployee(workerId);
-                        int planShiftLengthSeconds = Shift.GetShortShiftLength(startTime, finishTime, shiftData.site_id, employee.ShiftLength, shift.Kind); //проверка на случай сокращенной смены
-                        shiftData.length = planShiftLengthSeconds * k;
+                        int planShiftLengthSeconds = Shift.GetShortShiftLength(startTime, finishTime, site_id, employee.ShiftLength, shift.Kind); //проверка на случай сокращенной смены
+                        if (!planWorks.ContainsKey(workerId))
+                        {
+                            planWorks.Add(workerId, planShiftLengthSeconds * k);
+                        }
+                        else
+                        {
+                            if (site_id == 1053)
+                                planWorks[workerId] = planShiftLengthSeconds * k;
+                        }
+                        //shiftData.length = planShiftLengthSeconds * k;
                         // Нижеприведенный блок IF реализован для исключения простоев в случае сокращенных смен
                         // site_id - это участок на котором нужно отметиться в случае окончания рабочего времени раньше срока
                         // if (site_id == 1053 && employee.ShiftLength == 28800) // дневной сотрудник
@@ -1055,13 +1063,14 @@ namespace TSLog.BossControl.Data
                         //     }
                         // }
                         
-                        if (!workers.ContainsKey(workerId))
-                            workers.Add(workerId, 0);
+                        if (!factWorks.ContainsKey(workerId))
+                            factWorks.Add(workerId, 0);
                         var span = finishTime - startTime;
-                        workers[workerId] += (int)Math.Round(span.TotalSeconds);
+                        factWorks[workerId] += (int)Math.Round(span.TotalSeconds);
                     }                    
                     reader.Close();
-                    shiftData.workers = workers;
+                    shiftData.factWorks = factWorks;
+                    shiftData.planWorks = planWorks;
                 }                
                 var key = $"{shift.From:yyyy.MM.dd HH.mm.ss}-{shift.To:yyyy.MM.dd HH.mm.ss}";                
                 shiftsData.Add(key, shiftData);
@@ -1072,14 +1081,16 @@ namespace TSLog.BossControl.Data
             foreach (var key in shiftsData.Keys)
             {
                 var shiftData = shiftsData[key];
-                var shiftWorkers = (Dictionary<int, int>)shiftData.workers;
-                foreach (var workerId in shiftWorkers.Keys)
+                var shiftFactWorks = (Dictionary<int, double>)shiftData.factWorks;
+                var shiftPlanWorks = (Dictionary<int, double>)shiftData.planWorks;
+                foreach (var workerId in shiftFactWorks.Keys)
                 {
-                    // var factor = shiftWorkers[workerId] / (double)shiftData.length;
+                    // var factor = shiftWorkers[workerId] / (double)shiftData.length;  
                     // if (factor < 0.1)
                     //     continue;
-                    var factor = shiftWorkers[workerId] / (double)shiftData.length;
-                    if (factor < 0.5 && shiftData.site_id == 1053 || factor < 0.1)
+                    //var factor = shiftFactWorks[workerId] / (double)shiftData.length;
+                    var factor = shiftFactWorks[workerId] / (double)shiftPlanWorks[workerId];
+                    if (factor < 0.1)
                         continue;
 
                     if (!employees.ContainsKey(workerId))
@@ -1095,7 +1106,8 @@ namespace TSLog.BossControl.Data
                         worker.fullName = employee.FullName;
                         worker.workMode = employee.WorkMode;
                         //worker.shiftLength = employee.ShiftLength * shiftData.k;
-                        worker.shiftLength = shiftData.length;
+                        //worker.shiftLength = shiftData.length;
+                        worker.shiftLength = shiftPlanWorks[workerId];
                         worker.laborCost = employee.Cost;
                         worker.laborCostCurrencyCode = employee.CostMeasureUnit.Code;
                         worker.planTime = 0;
@@ -1110,13 +1122,14 @@ namespace TSLog.BossControl.Data
                     {
                         var employee = GetEmployee(workerId);
                         //employees[workerId].shiftLength = employee.ShiftLength * shiftData.k;
-                        employees[workerId].shiftLength = shiftData.length;
+                        //employees[workerId].shiftLength = shiftData.length;
+                        employees[workerId].shiftLength = shiftPlanWorks[workerId];
                     }
 
                     employees[workerId].planTime += employees[workerId].shiftLength;
-                    employees[workerId].factTime += shiftWorkers[workerId];
+                    employees[workerId].factTime += shiftFactWorks[workerId];
                     employees[workerId].planCost += (double)employees[workerId].shiftLength / 60 / 60 * employees[workerId].laborCost;
-                    employees[workerId].factCost += (double)shiftWorkers[workerId] / 60 / 60 * employees[workerId].laborCost;
+                    employees[workerId].factCost += (double)shiftFactWorks[workerId] / 60 / 60 * employees[workerId].laborCost;
                 }
             }
             var positions = new Dictionary<short, dynamic>();
