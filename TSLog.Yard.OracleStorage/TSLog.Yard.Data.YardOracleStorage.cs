@@ -2253,7 +2253,8 @@ namespace TSLog.Yard.Data
                     }
                     else
                     {
-                        planWorks[workerId] = planShiftLengthSeconds * k;
+                        if (site_id == 1053)
+                            planWorks[workerId] = planShiftLengthSeconds * k;
                     }
                     
                     if (!factWorks.ContainsKey(workerId))
@@ -2264,10 +2265,10 @@ namespace TSLog.Yard.Data
                 reader.Close();
                 foreach (var workerId in planWorks.Keys)
                 {
-                    // в случае случайной переработки необходимо отметься на участе 1053 и таким образом игнорировать
-                    // это время при подсчете планового времени смены и простоев.
-                    // Проверку || factWorks[workerId] / planWorks[workerId] < 0.1 - Вернул по заявке 4760 по распоряжению Охотникова А.А.
-                    if (site_id == 1053 && factWorks[workerId] / planWorks[workerId] < 0.5 || factWorks[workerId] / planWorks[workerId] < 0.1)
+                    // в случае случайной переработки необходимо отметиться на участке 1053 и таким образом игнорировать
+                    // это время при подсчете планового времени смены и простоев. Сейчас это не работает из-за условия ниже.
+                    // Проверку factWorks[workerId] / planWorks[workerId] < 0.1 - Вернул по заявке 4760 по распоряжению Охотникова А.А.
+                    if (factWorks[workerId] / planWorks[workerId] < 0.1)
                         continue;
                     var workerDownTime = planWorks[workerId] - factWorks[workerId];
                     if (workerDownTime <= 0.0)
