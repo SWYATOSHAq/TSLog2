@@ -1089,7 +1089,7 @@ namespace TSLog.BossControl.Data
                     // if (factor < 0.1)
                     //     continue;
                     //var factor = shiftFactWorks[workerId] / (double)shiftData.length;
-                    var factor = shiftFactWorks[workerId] / (double)shiftPlanWorks[workerId];
+                    var factor = shiftFactWorks[workerId] / shiftPlanWorks[workerId];
                     if (factor < 0.1)
                         continue;
 
@@ -1129,7 +1129,7 @@ namespace TSLog.BossControl.Data
                     employees[workerId].planTime += employees[workerId].shiftLength;
                     employees[workerId].factTime += shiftFactWorks[workerId];
                     employees[workerId].planCost += (double)employees[workerId].shiftLength / 60 / 60 * employees[workerId].laborCost;
-                    employees[workerId].factCost += (double)shiftFactWorks[workerId] / 60 / 60 * employees[workerId].laborCost;
+                    employees[workerId].factCost += shiftFactWorks[workerId] / 60 / 60 * employees[workerId].laborCost;
                 }
             }
             var positions = new Dictionary<short, dynamic>();
