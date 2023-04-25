@@ -161,11 +161,11 @@
         /// <returns></returns>
         public static int GetShortShiftLength(DateTime startTime, DateTime finishTime, int siteId, int employeeShiftLength, string shiftKind) {
             int shortShiftLengthSeconds = 0;
-            if (siteId == 1053 && employeeShiftLength == 28800) // дневной сотрудник
+            if (siteId == 1053 && employeeShiftLength == 27612) // дневной сотрудник
             {
                 shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(9)).TotalSeconds); // 18:00
             }
-            else if (siteId == 1053 && employeeShiftLength == 37800) // сменный сотрудник
+            else if (siteId == 1053 && employeeShiftLength == 38412) // сменный сотрудник
             {
                 if (shiftKind == "D") // для дневной смены
                 {

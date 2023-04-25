@@ -809,9 +809,9 @@ namespace TSLog.BossControl.Data
                     $"          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
                     $"          e.work_mode worker_work_mode,\n" +
                     $"          case\n" +
-                    $"              when e.work_mode = '5/2-40' then 8.0\n" +
-                    $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
-                    $"              else 8.0\n" +
+                    $"              when e.work_mode = '5/2-40' then 7.67\n" +
+                    $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.67\n" +
+                    $"              else 7.67\n" +
                     $"          end worker_standard,\n" +
                     $"          sum((d.finish_date - d.start_date) * 24) worker_labor_cost,\n" +
                     $"          case\n" +
@@ -904,9 +904,9 @@ namespace TSLog.BossControl.Data
                         $"          emp.position_id worker_position_id, emp.position_name worker_position_name,\n" +
                         $"          e.work_mode worker_work_mode,\n" +
                         $"          case\n" +
-                        $"              when e.work_mode = '5/2-40' then 8.0\n" +
-                        $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
-                        $"              else 8.0\n" +
+                        $"              when e.work_mode = '5/2-40' then 7.67\n" +
+                        $"              when e.work_mode in ('I', 'II', 'III', 'IV') then 10.67\n" +
+                        $"              else 7.67\n" +
                         $"          end worker_standard,\n" +
                         $"          d.start_date, d.finish_date,\n" +
                         $"          d.site_id, -- Идентификатор участка\n" +
@@ -1001,9 +1001,9 @@ namespace TSLog.BossControl.Data
                         $"          emp.position_id, emp.position_name, d.site_id,\n" +
                         $"          emp.work_mode worker_work_mode, -- Режим работы\n" +
                         $"          case\n" +
-                        $"              when emp.work_mode = '5/2-40' then 8.0\n" +
-                        $"              when emp.work_mode in ('I', 'II', 'III', 'IV') then 10.5\n" +
-                        $"              else 8.0\n" +
+                        $"              when emp.work_mode = '5/2-40' then 7.67\n" +
+                        $"              when emp.work_mode in ('I', 'II', 'III', 'IV') then 10.67\n" +
+                        $"              else 7.67\n" +
                         $"          end worker_standard, -- Нормы выработки\n" +
                         $"          d.start_date, d.finish_date\n" +
                         $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +

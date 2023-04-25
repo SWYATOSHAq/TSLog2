@@ -147,8 +147,8 @@ namespace TSLog.Staff.BO
             get
             {
                 return WorkMode == "I" || WorkMode == "II" || WorkMode == "III" || WorkMode == "IV" ? 
-                    (int)Math.Round(10.5 * 60 * 60) :
-                    8 * 60 * 60;
+                    (int)Math.Round(10.67 * 60 * 60) :
+                    (int)(7.67 * 60 * 60);
             }
         }
         /// <summary>
