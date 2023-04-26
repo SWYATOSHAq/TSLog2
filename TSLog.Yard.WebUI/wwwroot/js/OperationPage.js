@@ -940,12 +940,14 @@ class OperationPage {
 
     async onSelectedWarehouseActionClick(selectedButton) {
         const id = selectedButton.dataset.actionId;
-        delete this.selectedWarehouseActions[id];
-        selectedButton.remove();
-        await this.showAllWarehouseActions();
+        if (confirm("Подтверждаете удаление заказа из назначенных?")) {
+            delete this.selectedWarehouseActions[id];
+            selectedButton.remove();
+            await this.showAllWarehouseActions();
 
-        this.resizeWarehouseActionsDivs();
-        await this.onChangeDuration();
+            this.resizeWarehouseActionsDivs();
+            await this.onChangeDuration();
+        }        
     }
 
     async showWarehouseAction(action, button, direction) {
