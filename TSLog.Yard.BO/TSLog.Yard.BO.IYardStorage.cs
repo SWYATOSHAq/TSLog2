@@ -21,6 +21,7 @@ namespace TSLog.Yard.BO
         public Entity GetOperationState(string code);
         public Entity[] GetOperationStates();
         public VehicleKind GetVehicleKind(short id);
+        public void AddOperationLog(Operation operation, string status, string user);
         public VehicleKind GetVehicleKind(string code);
         public VehicleKind[] GetVehicleKinds();
         public Work GetWorkById(short id);

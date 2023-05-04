@@ -1202,6 +1202,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var user = RightsChecker.GetUserName(User);
                 _storage.AddOperation(operation, user);
+                _storage.AddOperationLog(operation, "Создана", user); 
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
@@ -1313,6 +1314,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
                 operation.Gate = _storage.SetOperationGate(operation, null, user);
+                _storage.AddOperationLog(operation, "Создана", user);
                 _storage.SetResponsibleOfficer(operation, employee, user);
 
                 var text = OperationToJson(operation);
@@ -1426,6 +1428,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     Note = note
                 };
                 operation = _storage.AddOperation(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Создана (партнером)", user);
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
@@ -1568,7 +1571,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     _storage.SetOperationGate(operation, null, userName);
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-
+                string editStatus = operation.State.DisplayName + "(отредактирована)";
+                _storage.AddOperationLog(operation, editStatus, userName); 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1686,6 +1690,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.PlanWorkStartDate = planWorkStartDate;
                 operation.PlanWorkFinishDate = planWorkFinishDate;
                 _storage.EditOperation(operation, user);
+                string editStatus = operation.State.DisplayName + "(отредактирована партнером)";
+                _storage.AddOperationLog(operation, editStatus, user);
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1722,8 +1728,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 operation.Note = data.note;
-
+                var user = RightsChecker.GetUserName(User);
                 _storage.SetOperationNote(operation, RightsChecker.GetUserName(User));
+                string editStatus = "(записано примечение)";
+                _storage.AddOperationLog(operation, editStatus, user);
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1773,11 +1781,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var operation = _storage.GetOperation(id);
                 var userName = RightsChecker.GetUserName(User);
 
-                // Эту строку (по плиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
-                // неьзя было присвоить ворота
+                // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
+                // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetOperationGate(operation, gate, userName);
                 _storage.SetResponsibleOfficer(operation, employee);
+                _storage.AddOperationLog(operation, "Подтверждена", userName);
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
@@ -1815,6 +1824,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.CancelOperationGate(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "CancelOperationGate", RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1851,6 +1861,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.StartOperation(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Прибыла",RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1887,6 +1898,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.StartOperationWork(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Работа начата", RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1923,6 +1935,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Работа завершена", RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1959,6 +1972,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.FinishOperation(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Убыла", RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1995,6 +2009,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.CancelOperation(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Отменена", RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -2031,6 +2046,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 var operation = _storage.GetOperation(id);
                 _storage.DeleteOperation(operation, RightsChecker.GetUserName(User));
+                _storage.AddOperationLog(operation, "Удалена", RightsChecker.GetUserName(User));
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;

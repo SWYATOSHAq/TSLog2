@@ -4,6 +4,7 @@
     [Оператор СУС] testwhoperator - Qwerty2
 
     [Пользователь клиента (партнёра)] blcoper - Qwerty1
+    [Пользователь клиента2 (партнёра)] testblcoper - Qwerty1
     [Диспетчер двора] testyarddisp - Qwerty2
     [Сотрудник охраны] testguard - Qwerty2
 

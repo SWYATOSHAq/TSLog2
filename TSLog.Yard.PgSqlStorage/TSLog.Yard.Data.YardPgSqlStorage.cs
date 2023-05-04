@@ -1,8 +1,10 @@
-﻿using Npgsql;
+﻿using Newtonsoft.Json.Linq;
+using Npgsql;
 using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
 using System.Dynamic;
+using System.Xml;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
@@ -71,7 +73,7 @@ namespace TSLog.Yard.Data
             var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
             var displayOrder = Utils.DbValueToShort(reader["display_order"]);
             var isHookan = Utils.DbValueToShort(reader["is_hookan"]) == 1;
-            var note = Utils.DbValueToString(reader["note"]);            
+            var note = Utils.DbValueToString(reader["note"]);
             Gate.GateState state = Gate.GateState.Free;
 
             if (HasColumn(reader, "state_code"))
@@ -929,6 +931,7 @@ namespace TSLog.Yard.Data
             var interval = new Interval(from, to, gate);
             return interval;
         }
+
         private Operation CreateOperation(DbDataReader reader)
         {
             if (reader == null)
@@ -1366,6 +1369,63 @@ namespace TSLog.Yard.Data
             }
             return intervals.ToArray();
         }
+        /// <summary>
+        /// Логгирует жизненный цикл заявок в таблицу operation_log
+        /// </summary>
+        /// <param name="operation">Объект операции двора с соответствующими свойствами</param>
+        /// <param name="status">Статус заявки</param>
+        /// <param name="user">Пользователь, внесший измения</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddOperationLog(Operation operation, string status, string user = "")
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var info = new JObject(
+                        new JProperty("plan_work_start_date", operation.PlanWorkStartDate),
+                        new JProperty("plan_work_finish_date", operation.PlanWorkFinishDate),
+                        new JProperty("vehicle_kind_code", operation.VehicleKind.Code),
+                        new JProperty("vehicle_brand", operation.VehicleBrand),
+                        new JProperty("vehicle_model", operation.VehicleModel),
+                        new JProperty("vehicle_number", operation.VehicleNumber),
+                        new JProperty("trailer_number", operation.TrailerNumber),
+                        new JProperty("driver_name", operation.DriverName),
+                        new JProperty("driver_phone_number", operation.DriverPhoneNumber),
+                        new JProperty("partner_name", operation.PartnersNames),
+                        new JProperty("gate", operation.Gate.Name),
+                        new JProperty("actions_ids", operation.ActionsIds),
+                        new JProperty("parner_actions_ids", operation.PartnerActionsIds),
+                        new JProperty("logist_id", operation.Logist?.Id ?? (object)DBNull.Value),
+                        new JProperty("priority", operation.Priority),
+                        new JProperty("partner_manager_name", operation.PartnerManagerName),
+                        new JProperty("partner_manager_phone_number", operation.PartnerManagerPhoneNumber),
+                        new JProperty("partner_manager_email", operation.PartnerManagerEmail),
+                        new JProperty("manager_id", operation.Manager.Id)
+                    );
+
+                    var sql = $"select {YardSchema}.add_operation_log(:p_operation_id,\n" +
+                        ":p_operation_type,\n" +
+                        ":p_status,\n" +
+                        ":p_info::json,\n" +
+                        ":p_user);";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Integer, operation.Id));
+                    command.Parameters.Add(CreateParameter("p_operation_type", NpgsqlDbType.Varchar, operation.Type.DisplayName));
+                    //command.Parameters.Add(CreateParameter("p_status", NpgsqlDbType.Varchar, operation.State.DisplayName));
+                    command.Parameters.Add(CreateParameter("p_status", NpgsqlDbType.Varchar, status));
+                    command.Parameters.Add(CreateParameter("p_info", NpgsqlDbType.Json, info.ToString((Newtonsoft.Json.Formatting)Formatting.None)));
+                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }        
+
         /// <summary>
         /// Создаёт и сохраняет новую операцию двора (ПРР)
         /// </summary>

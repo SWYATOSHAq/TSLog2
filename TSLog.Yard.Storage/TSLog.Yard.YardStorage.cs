@@ -189,6 +189,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetOperationStates();
         }
+        public void AddOperationLog(Operation operation, string status, string user)
+        {
+            _pgsqlStorage.AddOperationLog(operation, status, user);
+        }
         public OperationType GetOperationType(short id)
         {
             return _pgsqlStorage.GetOperationType(id);
