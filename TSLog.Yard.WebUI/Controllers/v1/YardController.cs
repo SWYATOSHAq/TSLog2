@@ -689,7 +689,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                     dynamic[] arrayActions = listActions.ToArray();
                     var getLaborCost = DoGetFillingPlanOperationLC(operationType, vehicleKind, arrayActions);
-                    laborCost = Convert.ToInt32(getLaborCost.laborCost);
+                    //#5075 убрано по заявке. laborCost = Convert.ToInt32(getLaborCost.laborCost);
+                    laborCost = Convert.ToInt32(getLaborCost.linearLaborCost);
                 }
             }
 
