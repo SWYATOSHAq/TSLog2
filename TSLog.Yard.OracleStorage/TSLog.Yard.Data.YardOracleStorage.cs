@@ -693,7 +693,17 @@ namespace TSLog.Yard.Data
                         }
                         else
                         {
-                            time += BoxLoadTime * quantity;
+                            /// #3153 Для коректного подсчета плановой расч. производительности товара клинета "Белнефтехим". 1 короб в среднем 25-30 кг. Вес в базе данных указан в граммах. 
+                            if (partner.Id == "0007")
+                            {
+                                double boxQuantity = quantity/(30*1000);
+                                time += BoxLoadTime * (long)Math.Round(boxQuantity);
+                            }
+                            else 
+                            {
+                                time += BoxLoadTime * quantity;
+                            }
+                            
                         }
                     }
                     else
