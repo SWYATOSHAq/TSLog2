@@ -677,6 +677,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     foreach (var outgoId in outgoesIds)
                         laborCost += _storage.GetIngoPlanTime(outgoId, operationType.IsPallet, partner);
                 }
+                else if (partner.Id == "0130") {
+                    laborCost = 46800; //добавлено по заявке #5073
+                }
                 else
                 {
                     foreach (var outgoId in outgoesIds)
