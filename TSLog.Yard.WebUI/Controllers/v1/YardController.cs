@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient.Server;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Globalization;
@@ -1139,7 +1140,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Start date is empty!";
-                if (!DateTime.TryParse(temp, out DateTime planWorkStartDate))
+                //if (!DateTime.TryParse(temp, out DateTime planWorkStartDate))
+                string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+                if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime planWorkStartDate)) // #5278 - изменено по заявке.
                     return $"Wrong start date {temp}!";
 
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
@@ -1247,7 +1250,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Start date is empty!";
-                if (!DateTime.TryParse(temp, out DateTime startDate))
+                //if (!DateTime.TryParse(temp, out DateTime startDate))
+                string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+                if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate)) // #5278 - изменено по заявке.
                     return $"Wrong start date {temp}!";
 
                 temp = data.finishDate;
@@ -1361,7 +1366,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Start date is empty!";
-                if (!DateTime.TryParse(temp, out DateTime startDate))
+                //if (!DateTime.TryParse(temp, out DateTime startDate))
+                string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+                if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate)) // #5278 - изменено по заявке.
                     return $"Wrong start date {temp}!";
 
                 // Плановая дата и время начало работ не должно быть "день в день"!
@@ -1487,7 +1494,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    if (!DateTime.TryParse(temp, out planWorkStartDate))
+                    //if (!DateTime.TryParse(temp, out planWorkStartDate))
+                    string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime planWorkStartDate)) // #5278 - изменено по заявке.
                         return $"Wrong start date {temp}!";
                     planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
                 }
@@ -1630,7 +1639,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    if (!DateTime.TryParse(temp, out DateTime tempPlanWorkStartDate))
+                    //if (!DateTime.TryParse(temp, out DateTime tempPlanWorkStartDate))
+                    string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempPlanWorkStartDate)) // #5278 - изменено по заявке.
                         return $"Wrong start date {temp}!";
 
                     // Если редактируем плановую дату и время начало работ то новое значение не должно быть "день в день"!
@@ -1651,7 +1662,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.finishDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
+                    //if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
+                    string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempFinishDate)) // #5278 - изменено по заявке.
                         return $"Wrong finish date {temp}";
                     if (tempFinishDate > planWorkFinishDate)
                         planWorkFinishDate = tempFinishDate;
