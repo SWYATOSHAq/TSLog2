@@ -1371,12 +1371,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate)) // #5278 - изменено по заявке.
                     return $"Wrong start date {temp}!";
 
+                var user = RightsChecker.GetUserName(User);
                 // Плановая дата и время начало работ не должно быть "день в день"!
                 var now = DateTime.Now;
                 var today = DateTime.Today;
                 var today900 = today.AddHours(9);
-                if (now >= today900 && startDate < today.AddHours(24 + 9))
-                    return $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                if (user != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+                {
+                    if (now >= today900 && startDate < today.AddHours(24 + 9))
+                        return $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                };                
                 if (startDate < today900)
                     return $"Too early start time (start time must be later then 9:00 today)!";
 
@@ -1422,8 +1426,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
                 string partnerManagerEmail = data.partnerManagerEmail;
                 string note = data.note;
-
-                var user = RightsChecker.GetUserName(User);
+                
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
                 var manager = _storage.GetPartnerManagers(partner)[0];
@@ -1496,7 +1499,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     //if (!DateTime.TryParse(temp, out planWorkStartDate))
                     string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime planWorkStartDate)) // #5278 - изменено по заявке.
+                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out planWorkStartDate)) // #5278 - изменено по заявке.
                         return $"Wrong start date {temp}!";
                     planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
                 }
