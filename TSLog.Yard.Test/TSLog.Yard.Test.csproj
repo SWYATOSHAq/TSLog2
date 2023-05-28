@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TSLog.Common\TSLog.Common.csproj" />
     <ProjectReference Include="..\TSLog.Yard.Storage\TSLog.Yard.Storage.csproj" />
+    <ProjectReference Include="..\TSLog.Yard.WebUI\TSLog.Yard.WebUI.csproj" />
   </ItemGroup>
 
 </Project>

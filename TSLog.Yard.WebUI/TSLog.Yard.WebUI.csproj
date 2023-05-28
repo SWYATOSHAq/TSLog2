@@ -29,7 +29,6 @@
 		<ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
 		<ProjectReference Include="..\TSLog.Yard.Reporting\TSLog.Yard.Reporting.csproj" />
 		<ProjectReference Include="..\TSLog.Yard.Storage\TSLog.Yard.Storage.csproj" />
-		<ProjectReference Include="..\TSLog.Yard.Test\TSLog.Yard.Test.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
