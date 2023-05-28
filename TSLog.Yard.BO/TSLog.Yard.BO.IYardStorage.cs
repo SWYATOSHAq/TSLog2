@@ -151,6 +151,7 @@ namespace TSLog.Yard.BO
 
     public interface IYardTestingStorage
     {
+        public void TruncateReferenceTables();
         public void TruncateDataTables();
     }
 }

@@ -523,6 +523,14 @@ namespace TSLog.Yard
 
         #region Testing
 
+        public void TruncateReferenceTables()
+        {
+            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+            if (_pgsqlStorage.Host == "10.50.254.14")
+                throw new ApplicationException("You can't truncate tables on production database!");
+
+            _pgsqlStorage.TruncateReferenceTables();
+        }
         public void TruncateDataTables()
         {
             // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!

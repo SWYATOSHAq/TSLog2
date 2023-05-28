@@ -3217,6 +3217,14 @@ namespace TSLog.Yard.Data
             command.ExecuteScalar();
             connection.Close();
         }
+        public void TruncateReferenceTables()
+        {
+            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+            if (_host == "10.50.254.14")
+                throw new ApplicationException("You can't truncate tables on production database!");
+
+            TruncateTables(ReferenceTables);
+        }
         public void TruncateDataTables()
         {
             // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
