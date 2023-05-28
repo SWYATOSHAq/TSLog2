@@ -12,7 +12,7 @@ using OperationType = TSLog.Yard.BO.OperationType;
 namespace TSLog.Yard
 {
     /// <summary>
-    /// Хранилище данных для модуля двора
+    /// Хранилище данных для модуля двора.
     /// </summary>
     public class YardStorage : IDisposable, IYardStorage
     {
@@ -20,7 +20,7 @@ namespace TSLog.Yard
         private readonly YardOracleStorage _oracleStorage;
         private readonly YardPgSqlStorage _pgsqlStorage;
         /// <summary>
-        /// Максимальное количество строк для вывода
+        /// Максимальное количество строк для вывода.
         /// </summary>
         public int MaxRowsCount
         {
@@ -521,6 +521,18 @@ namespace TSLog.Yard
         }
         #endregion
 
+        #region Testing
+
+        public void TruncateDataTables()
+        {
+            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+            if (_pgsqlStorage.Host == "10.50.254.14")
+                throw new ApplicationException("You can't truncate tables on production database!");
+
+            _pgsqlStorage.TruncateDataTables();
+        }
+
+        # endregion
         public void Dispose()
         {
             _oracleStorage.Dispose();

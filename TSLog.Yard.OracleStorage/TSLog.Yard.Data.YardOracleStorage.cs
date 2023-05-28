@@ -379,12 +379,12 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
-                var SelectWarehouseActionByIdSql =
+                var selectWarehouseActionByIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
                     $"   and a.kind = :kind";
-                command.CommandText = SelectWarehouseActionByIdSql;
+                command.CommandText = selectWarehouseActionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                 using var reader = command.ExecuteReader();
@@ -392,15 +392,15 @@ namespace TSLog.Yard.Data
                     action = CreateWarehouseAction(reader);
                 reader.Close();
 
-                // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых
+                // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых.
                 if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
                 {
-                    var selectArchivedDeletedAction =
+                    var selectArchivedWarehouseDeletedActionByIdSql =
                         $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
                         $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
                         $" where a.id = :id\n" +
                         $"   and a.kind = :kind";
-                    command.CommandText = selectArchivedDeletedAction;
+                    command.CommandText = selectArchivedWarehouseDeletedActionByIdSql;
                     command.Parameters.Add(new OracleParameter("id", id));
                     command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
                     using var reader2 = command.ExecuteReader();
@@ -431,13 +431,13 @@ namespace TSLog.Yard.Data
             var action = WarehouseAction.Null;
             using (var command = _connection.CreateCommand())
             {
-                var SelectWarehouseActionByPartnerActionIdSql =
-                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.tu_count\n" +
+                var selectWarehouseActionByPartnerActionIdSql =
+                    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
                     $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.partner_number = :partner_number\n" +
                     $"   and a.partner_id = :partner_id\n" +
                     $"   and a.kind = :kind";
-                command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
+                command.CommandText = selectWarehouseActionByPartnerActionIdSql;
                 command.Parameters.Add(new OracleParameter("partner_number", partnerActionId));
                 command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
@@ -449,6 +449,25 @@ namespace TSLog.Yard.Data
                     //action.AddLines(lines);
                 }
                 reader.Close();
+
+                // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых.
+                if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
+                {
+                    var selectArchivedDeletedWarehouseActionByPartnerActionIdSql =
+                        $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
+                        $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
+                        $" where a.partner_number = :partner_number\n" +
+                        $"   and a.partner_id = :partner_id\n" +
+                        $"   and a.kind = :kind";
+                    command.CommandText = selectArchivedDeletedWarehouseActionByPartnerActionIdSql;
+                    command.Parameters.Add(new OracleParameter("partner_number", partnerActionId));
+                    command.Parameters.Add(new OracleParameter("partner_id", partner.Id));
+                    command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
+                    using var reader2 = command.ExecuteReader();
+                    if (reader2.Read())
+                        action = CreateWarehouseAction(reader2);
+                    reader2.Close();
+                }
             }
             if (action != null && action != WarehouseAction.Null && action != WarehouseAction.Empty)
                 return action;

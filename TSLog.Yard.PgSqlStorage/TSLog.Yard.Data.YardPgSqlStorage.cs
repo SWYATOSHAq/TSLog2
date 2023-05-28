@@ -4,6 +4,7 @@ using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
 using System.Dynamic;
+using System.Text;
 using System.Xml;
 using TSLog.Common;
 using TSLog.Common.BO;
@@ -18,19 +19,19 @@ using OperationType = TSLog.Yard.BO.OperationType;
 namespace TSLog.Yard.Data
 {
     /// <summary>
-    /// Класс для работы с данными в БД PostgreSQL
+    /// Класс для работы с данными в БД PostgreSQL.
     /// </summary>
-    public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage
+    public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage, IYardTestingStorage
     {
         private const int DefaultMaxRowsCount = 16;
         private const string DefaultYardSchema = "yard";
         private const short DefaultWorkersCount = 1;
         /// <summary>
-        /// Максимальное количество строк для вывода
+        /// Максимальное количество строк для вывода.
         /// </summary>
         public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
         /// <summary>
-        /// Схема в БД для хранение объектов модуля управления двором
+        /// Схема в БД для хранение объектов модуля управления двором.
         /// </summary>
         public string YardSchema { private get; set; } = DefaultYardSchema;
 
@@ -3181,6 +3182,48 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             return data.ToArray();
+        }
+        #endregion
+
+        #region Testing
+        private static readonly string[] ReferenceTables = {
+            "operation_state", "operation_type", "partner_operation_type", "vehicle_kind", "gate", "logist",
+            "work", "ot_vk_gate", "ot_vk_work"
+        };
+        private static readonly string[] DataTables = {
+            "operation_log", "operation_action", "operation_worker", "scheduler" 
+        };
+        private void TruncateTables(string[] tables)
+        {
+            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+            if (_host == "10.50.254.14")
+                throw new ApplicationException("You can't truncate tables on production database!");
+
+            using var connection = CloneConnection();
+            using var command = connection.CreateCommand();
+            var sql = new StringBuilder("truncate");
+            bool first = true;
+            foreach (var table in tables)
+            {
+                if (first)
+                    first = !first;
+                else
+                    sql.Append(",");
+                sql.Append($" {YardSchema}.{table}");
+            }
+                
+            sql.Append(" restart identity;");
+            command.CommandText = sql.ToString();
+            command.ExecuteScalar();
+            connection.Close();
+        }
+        public void TruncateDataTables()
+        {
+            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+            if (_host == "10.50.254.14")
+                throw new ApplicationException("You can't truncate tables on production database!");
+
+            TruncateTables(DataTables);
         }
         #endregion
     }

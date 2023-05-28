@@ -6,7 +6,7 @@ namespace TSLog.Authorization
     /// <summary>
     /// Класс для проверки прав пользователя
     /// </summary>
-    public class RightsChecker
+    public class RightsChecker : IRightsChecker
     {
         private readonly IDictionary<string, Role> _roles = new Dictionary<string, Role>();
         private readonly IDictionary<string, User> _users = new Dictionary<string, User>();
