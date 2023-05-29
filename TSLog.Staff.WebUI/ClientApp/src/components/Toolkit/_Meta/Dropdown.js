@@ -36,7 +36,11 @@ export class Dropdown extends Component {
                 <option value="">Выберите значение</option>
                 {
                     data.map((row, i) => {
-                        return (<option key={i} value={JSON.stringify(row)}>{row.DisplayName}</option>)
+                        if (row.hasOwnProperty('DisplayName') && typeof row.DisplayName === 'string') {
+                            return (<option key={i} value={JSON.stringify(row)}>{row.DisplayName}</option>)
+                        } else {
+                            return (<option key={i} value={JSON.stringify(row)}>{row}</option>)
+                        }
                     })
                 }
             </select>

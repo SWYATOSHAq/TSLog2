@@ -19,7 +19,7 @@ namespace TSLog.Yard.Test
         public void CreateOperationByPartner_StartDateParsing_Success()
         {
             // Arrange
-            //var configurationMock = new Mock<IConfiguration>();
+            var configurationMock = new Mock<IConfiguration>();
             //var storageMock = new Mock<IYardStorage>();
             //var rightsCheckerMock = new Mock<RightsChecker>();
 

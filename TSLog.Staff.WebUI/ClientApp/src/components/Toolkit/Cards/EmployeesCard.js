@@ -20,7 +20,7 @@ export class EmployeesCard extends Card {
     async SelectData() {
         const selCard = this.props.selectedData;
 
-        const isNew = selCard === {};
+        const isNew = Object.keys(selCard).length === 0;
         super.setState({
             cardType: "Работник",
             isNew: isNew,
@@ -46,7 +46,7 @@ export class EmployeesCard extends Card {
                 FirstName: "text",
                 Patronymic: "text",
                 Nationality: "text",
-                Sex: "text",
+                Sex: "gender",
                 Company: "company",
                 BirthDate: "date",
                 Email: "text",

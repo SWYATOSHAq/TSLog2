@@ -131,7 +131,7 @@ export class EmployeesTable extends Table {
                 FirstName: "string",
                 Patronymic: "string",
                 Company: "company",
-                Sex: "string",
+                Sex: "gender",
                 BirthDate: "date",
             },
             body: data,

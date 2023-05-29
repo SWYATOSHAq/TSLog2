@@ -3,6 +3,7 @@ import { DropdownCompanies } from '../Dropdown/DropdownCompanies';
 import { DropdownDepartments } from '../Dropdown/DropdownDepartments';
 import { MultiselectWorkers } from '../Multiselect/MultiselectWorkers';
 import { MultiselectPositions } from '../Multiselect/MultiselectPositions';
+import { DropdownGenders } from '../Dropdown/DropdownGenders';
 
 export class Card extends Component {
     static displayName = Card.name;
@@ -107,6 +108,9 @@ export class Card extends Component {
                                     break;
                                 case "company":
                                     inputType = (<DropdownCompanies JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)} />);
+                                    break;
+                                case "gender":
+                                    inputType = (<DropdownGenders JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)} />);
                                     break;
                                 case "department":
                                     inputType = (<DropdownDepartments JsonSelectedValue={JSON.stringify(inputValue)} CallbackSelectValue={(newVal) => this.handleDropdownChange(newVal, curRowKey)} />);
