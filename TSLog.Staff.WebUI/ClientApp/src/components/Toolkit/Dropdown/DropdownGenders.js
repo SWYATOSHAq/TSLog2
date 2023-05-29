@@ -19,6 +19,4 @@ export class DropdownGenders extends Component {
                 CallbackSelectValue={this.props.CallbackSelectValue} />
         );
     }
-
-
 }
