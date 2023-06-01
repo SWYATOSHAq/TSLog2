@@ -1639,6 +1639,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var planWorkStartDate = operation.StartDate;
                 var planWorkFinishDate = operation.FinishDate;
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+                var user = RightsChecker.GetUserName(User);
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
@@ -1653,8 +1654,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         var now = DateTime.Now;
                         var today = DateTime.Today;
                         var today900 = today.AddHours(9);
-                        if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
-                            return $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                        if (user != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+                        {
+                            if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
+                                return $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                        }                        
                         if (tempPlanWorkStartDate < today900)
                             return $"Too early start time (start time must be later then 9:00 today)!";
                     }
@@ -1697,7 +1701,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.PartnerManagerEmail = data.partnerManagerEmail;
                 operation.Note = data.note;
 
-                var user = RightsChecker.GetUserName(User);
                 var partnerId = _rightsChecker.GetPartnerIdByUser(user);
                 var partner = _storage.GetPartner(partnerId);
                 var managers = _storage.GetPartnerManagers(partner);
@@ -3165,7 +3168,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Unknown shift {shift}";
 
                 var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
-                var toDate = fromDate.AddHours(12);
+                //var fromDate = date.Date;
+                var toDate = fromDate.AddHours(23).AddMinutes(59);
 
                 var operations = _storage.GetYardPerfomanceData(fromDate, toDate);
                 foreach (dynamic operation in operations)

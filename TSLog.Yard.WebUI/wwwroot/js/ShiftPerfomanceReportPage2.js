@@ -18,12 +18,12 @@ class ShiftPerfomanceReportPage2 {
     createParameters() {
         let result = "";
         result = utils.addParameter(result, "date", "date-input");
-        result = utils.addParameter(result, "shift", "shift-select");
+        //result = utils.addParameter(result, "shift", "shift-select");
         return result != "" ? "?" + result : "";
     }
 
-    async getData(date, shift) {
-        const result = await api.createShiftPerfomanceReport2(date, shift);
+    async getData(date) {
+        const result = await api.createShiftPerfomanceReport(date);
         if (result.code === 0) {
             this.data = result.data;
         } else {
@@ -59,10 +59,17 @@ class ShiftPerfomanceReportPage2 {
         }
     }
 
+    formatTime(hour, minutes) {
+        const hourString = hour.toString().padStart(2, "0");
+        const minuteString = minutes.toString().padStart(2, "0");
+        return hourString + ":" + minuteString;
+    }
+
     showReport() {
         let operations = { };
-        let intervalsCount = 12;
+        let intervalsCount = 96;
         for (let operation of this.data) {
+            if (operation.factWorkStartDate < operation.planWorkStartDate) continue;
             if (operations[operation.gateCode] == undefined) {
                 operations[operation.gateCode] = [];
             }
@@ -89,6 +96,7 @@ class ShiftPerfomanceReportPage2 {
         gates["EIN14"] = "Ворота 14";
         gates["EIN15"] = "Ворота 15";
         gates["EIN16"] = "Ворота 16";
+        gates["EIN17"] = "Ворота 17";
         const headerRow = document.getElementById("header-row");
         headerRow.replaceChildren();
         let columnHeader = document.createElement("th");
@@ -106,24 +114,36 @@ class ShiftPerfomanceReportPage2 {
         const tbody = document.getElementById("elements-tbody");
         tbody.replaceChildren();
         const gatesCount = gatesCodes.length;
-        const shift = document.getElementById("shift-select").value;         
-        let startHour = 9;
-        let finishHour = 10;
-        if (shift === "night") {
-            startHour = 21;
-            finishHour = 22;
-        }
+        //const shift = document.getElementById("shift-select").value;         
+        let startHour = 0;
+        //let finishHour = 10;
+        let finishHour = 24;
+        let startMinutes = 0;
+        let finishMinutes = 15;
+        //if (shift === "night") {
+        //    startHour = 21;
+        //    finishHour = 21;
+        //}
         for (let rowIndex = 0; rowIndex < intervalsCount; rowIndex++) {
             const row = document.createElement("tr");
-            row.style.cssText = "height: 120px";
+            row.style.cssText = "height: 40px";
 
             const cell = document.createElement("td");
             cell.classList.add("row-header");
-            startHour = startHour > 24 ? startHour - 24 : startHour;
-            finishHour = finishHour > 24 ? finishHour - 24 : finishHour;
-            cell.textContent = startHour.toString() + ":00-" + finishHour.toString() + ":00";
-            startHour++;
-            finishHour++;
+            startHour = startHour >= 24 ? startHour - 24 : startHour;
+            finishHour = finishHour >= 24 ? finishHour - 24 : finishHour;
+            //cell.textContent = startHour.toString() + ":00-" + finishHour.toString() + ":00";
+            cell.textContent = this.formatTime(startHour, startMinutes) + "-" + this.formatTime(finishHour, finishMinutes);
+            startMinutes += 15;
+            finishMinutes += 15;
+            if (finishMinutes === 60) {
+                finishMinutes = 0;
+                finishHour++;
+            }
+            if (startMinutes === 60) {
+                startMinutes = 0;
+                startHour++;
+            }
             row.append(cell);
 
             for (let columnIndex = 0; columnIndex < gatesCount; columnIndex++) {
@@ -135,21 +155,20 @@ class ShiftPerfomanceReportPage2 {
             }
             tbody.append(row);
         }
-        const row = document.createElement("tr");
-        row.style.cssText = "height: 120px";
-        const cell = document.createElement("td");
-        cell.classList.add("row-header");
-        cell.textContent = "Итого:";
-        row.append(cell);
-        for (let columnIndex = 0; columnIndex < gatesCount; columnIndex++) {
-            const cell = document.createElement("td");
-            cell.classList.add("table-cell");
-            cell.textContent = "";
-            cell.id = gatesCodes[columnIndex] + "-total";
-            row.append(cell);
-        }
-        tbody.append(row);
-
+        //const row = document.createElement("tr");
+        //row.style.cssText = "height: 40px";
+        //const cell = document.createElement("td");
+        //cell.classList.add("row-header");
+        //cell.textContent = "Итого:";
+        //row.append(cell);
+        //for (let columnIndex = 0; columnIndex < gatesCount; columnIndex++) {
+        //    const cell = document.createElement("td");
+        //    cell.classList.add("table-cell");
+        //    cell.textContent = "";
+        //    cell.id = gatesCodes[columnIndex] + "-total";
+        //    row.append(cell);
+        //}
+        //tbody.append(row);
 
         // Выводим непосредствено данные
         for (let gateCode in operations) {
@@ -162,25 +181,25 @@ class ShiftPerfomanceReportPage2 {
                     operation.planStart = 0;
                     operation.planDuration = operation.planDuration > 0 ? operation.planDuration : 0;
                 }
-                if (operation.factStart < 0) {
-                    operation.factDuration += operation.factStart;
-                    operation.factStart = 0;
-                    operation.factDuration = operation.factDuration > 0 ? operation.factDuration : 0;
-                }
+                //if (operation.factStart < 0) {
+                //    operation.factDuration += operation.factStart;
+                //    operation.factStart = 0;
+                //    operation.factDuration = operation.factDuration > 0 ? operation.factDuration : 0;
+                //}
 
-                if (Number(operation.factDuration) > 0) {
-                    const factBlock = document.createElement("div");
-                    factBlock.id = "fact-" + operation.id;
-                    factBlock.onclick = this.createBlockClick(operation.id);
-                    factBlock.style.cssText = "height: " + Math.round(operation.factDuration * 2).toString() + "px; " +
-                        "width: 100px; " +
-                        "background-color: dodgerblue; " +
-                        "opacity: 50%; " +
-                        "position: absolute; " +
-                        "margin-top: " + Math.round(operation.factStart * 2).toString() + "px; " + 
-                        "border: 2px solid";
-                    cell.append(factBlock);
-                }                
+                //if (Number(operation.factDuration) > 0) {
+                //    const factBlock = document.createElement("div");
+                //    factBlock.id = "fact-" + operation.id;
+                //    factBlock.onclick = this.createBlockClick(operation.id);
+                //    factBlock.style.cssText = "height: " + Math.round(operation.factDuration * 2).toString() + "px; " +
+                //        "width: 100px; " +
+                //        "background-color: dodgerblue; " +
+                //        "opacity: 50%; " +
+                //        "position: absolute; " +
+                //        "margin-top: " + Math.round(operation.factStart * 2).toString() + "px; " + 
+                //        "border: 2px solid";
+                //    cell.append(factBlock);
+                //}                
 
                 if (Number(operation.planDuration) > 0) {
                     const planBlock = document.createElement("div");
@@ -191,7 +210,7 @@ class ShiftPerfomanceReportPage2 {
                         "background-color: coral; " +
                         "opacity: 50%; " +
                         "position: absolute; " +
-                        "margin-top: " + Math.round(operation.planStart * 2).toString() + "px; " +
+                        "margin-top: " + Math.round(operation.planStart * 2.66).toString() + "px; " +
                         "border: 2px solid";
                     cell.append(planBlock);
                 }                
@@ -204,37 +223,39 @@ class ShiftPerfomanceReportPage2 {
         let date = utils.getUrlParameter("date");
         if (date == "")
             date = utils.getNowDate();
-        const shiftCode = utils.getUrlParameter("shift");
-        const shift = shiftCode === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
-        reportHeaderB.textContent = "Отчёт по производительности за " + date + " за " + shift + " смену";
+        //const shiftCode = utils.getUrlParameter("shift");
+        //const shift = shiftCode === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
+        //reportHeaderB.textContent = "Отчёт по производительности за " + date + " за " + shift + " смену";
+        reportHeaderB.textContent = "Отчёт по производительности за " + date;
     }
 
-    showShiftInfo() {
-        const shiftDiv = document.getElementById("shift-info");
-        if (document.getElementById("shift-select").value == "day") {
-            const date = utils.getUrlParameter("date");
-            shiftDiv.innerHTML = "Дневная смена с <b>9:00</b> (" + date + ") по <b>21:00</b> (" + date + ")";
-        }
-        else if (document.getElementById("shift-select").value == "night") {
-            const fromDate = utils.stringToDate(utils.getUrlParameter("date"));
-            let toDate = utils.stringToDate(utils.getUrlParameter("date"));
-            toDate.setDate(toDate.getDate() + 1);
-            shiftDiv.innerHTML = "Ночная смена с <b>21:00</b> (" + fromDate.toLocaleDateString() + ") по <b>9:00</b> (" + toDate.toLocaleDateString() + ")";
-        }
-        else {
-            shiftDiv.textContent = "Смена не определена!";
-        }
-    }
+    //showShiftInfo() {
+    //    const shiftDiv = document.getElementById("shift-info");
+    //    if (document.getElementById("shift-select").value == "day") {
+    //        const date = utils.getUrlParameter("date");
+    //        shiftDiv.innerHTML = "Дневная смена с <b>9:00</b> (" + date + ") по <b>21:00</b> (" + date + ")";
+    //    }
+    //    else if (document.getElementById("shift-select").value == "night") {
+    //        const fromDate = utils.stringToDate(utils.getUrlParameter("date"));
+    //        let toDate = utils.stringToDate(utils.getUrlParameter("date"));
+    //        toDate.setDate(toDate.getDate() + 1);
+    //        shiftDiv.innerHTML = "Ночная смена с <b>21:00</b> (" + fromDate.toLocaleDateString() + ") по <b>9:00</b> (" + toDate.toLocaleDateString() + ")";
+    //    }
+    //    else {
+    //        shiftDiv.textContent = "Смена не определена!";
+    //    }
+    //}
 
     onChangeParameters() {        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.showShiftInfo();
+        //this.showShiftInfo();
     }
 
     async createReport() {
         this.clearReport();
-        await this.getData(utils.getUrlParameter("date"), utils.getUrlParameter("shift"));
+        //await this.getData(utils.getUrlParameter("date"), utils.getUrlParameter("shift"));
+        await this.getData(utils.getUrlParameter("date"));
         this.showReport()
         this.showReportTitle();
     }
@@ -276,15 +297,15 @@ class ShiftPerfomanceReportPage2 {
         let date = utils.getUrlParameter("date");
         if (date == "")
             date = utils.getNowDate();
-        let shift = utils.getUrlParameter("shift");
-        if (shift == "")
-            shift = "day";        
+        //let shift = utils.getUrlParameter("shift");
+        //if (shift == "")
+        //    shift = "day";        
         viewUtils.initDatePicker("date-input", date, this.onChangeParameters.bind(this));
-        viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
+        //viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
         
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.showShiftInfo();
+        //this.showShiftInfo();
 
         this.createReport();
     }
