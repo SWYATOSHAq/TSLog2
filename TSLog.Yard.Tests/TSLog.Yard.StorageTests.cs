@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
@@ -7,11 +8,13 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Yard.Tests
 {
+    [TestClass]
     public class StorageTests
     {
+        private readonly string DefaultUser = "m.burov";
         private IYardStorage _storage;
 
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             Connect(true);
@@ -19,7 +22,7 @@ namespace TSLog.Yard.Tests
             Disconnect();
             Connect();
         }
-        [TearDown]
+        [TestCleanup]
         public void TearDown()
         {
             Disconnect();
@@ -73,140 +76,141 @@ namespace TSLog.Yard.Tests
             _storage.Dispose();
         }
 
-        [Test]
+        [TestMethod]
         public void OperationFiltering()
         {
             // Фильтрация операций двора (ПРР) в БД по различным параметрам.
-            CreateSomeOperation();
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
 
             var filterFromDate = DateTime.Now.AddDays(+1);
             var filterToDate = DateTime.Now.AddDays(+8);
             var filteredOperations = _storage.GetOperations(string.Empty, filterFromDate, filterToDate, null, null, null, null, null,
                 string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<Employee>());
-            Assert.That(filteredOperations, Is.Not.Empty);
+            Assert.IsTrue(filteredOperations.Length > 0);
         }
         private Entity GetOperationStateById(short id)
         {
             var operationState = _storage.GetOperationState(id);
-            Assert.That(operationState.Id, Is.EqualTo(id));
+            Assert.IsTrue(operationState.Id == id);
             return operationState;
         }
         private Entity GetOperationStateByCode(string code)
         {
-            Assert.That(!string.IsNullOrWhiteSpace(code), Is.True);
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(code));
             var operationState = _storage.GetOperationState(code);
-            Assert.That(operationState.Code, Is.EqualTo(code));
+            Assert.IsTrue(operationState.Code == code);
             return operationState;
         }
         private BO.OperationType GetOperationTypeById(short id)
         {
             var operationType = _storage.GetOperationType(id);
-            Assert.That(operationType.Id, Is.EqualTo(id));
+            Assert.IsTrue(operationType.Id == id);
             return operationType;
         }
         private BO.OperationType GetOperationTypeByCode(string code)
         {
-            Assert.That(!string.IsNullOrWhiteSpace(code), Is.True);
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(code));
             var operationType = _storage.GetOperationType(code);
-            Assert.That(operationType.Code, Is.EqualTo(code));
+            Assert.IsTrue(operationType.Code == code);
             return operationType;
         }
         private VehicleKind GetVehicleKindById(short id)
         {
             var vehicleKind = _storage.GetVehicleKind(id);
-            Assert.That(vehicleKind.Id, Is.EqualTo(id));
+            Assert.IsTrue(vehicleKind.Id == id);
             return vehicleKind;
         }
         private VehicleKind GetVehicleKindByCode(string code)
         {
-            Assert.That(!string.IsNullOrWhiteSpace(code), Is.True);
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(code));
             var vehicleKind = _storage.GetVehicleKind(code);
-            Assert.That(vehicleKind.Code, Is.EqualTo(code));
+            Assert.IsTrue(vehicleKind.Code == code);
             return vehicleKind;
         }
         private Gate GetGateById(short id)
         {
             var gate = _storage.GetGate(id);
-            Assert.That(gate.Id, Is.EqualTo(id));
+            Assert.IsTrue(gate.Id == id);
             return gate;
-        }                
+        }
         private Gate GetGateByCode(string code)
         {
             var gate = _storage.GetGate(code);
-            Assert.That(gate.Code, Is.EqualTo(code) );
+            Assert.IsTrue(gate.Code == code);
             return gate;
         }
         private Employee GetEmployee(int id)
         {
             var employee = _storage.GetEmployee(id);
-            Assert.That(employee, Is.Not.EqualTo(null));
+            Assert.IsTrue(employee != null);
             return employee;
         }
         private short GetDuration(BO.OperationType operationType, VehicleKind vehicleKind)
         {
             var duration = _storage.GetDuration(operationType, vehicleKind, out _, out _);
-            Assert.That(duration, Is.GreaterThan(0));
+            Assert.IsTrue(duration > 0);
             return duration;
         }
         private Partner GetPartnerById(string id)
         {
-            Assert.That(!string.IsNullOrWhiteSpace(id), Is.True);
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(id));
             var partner = _storage.GetPartner(id);
-            Assert.That(partner.Code, Is.EqualTo(id));
+            Assert.IsTrue(partner.Code == id);
             return partner;
         }
         private WarehouseAction GetWarehouseAction(ActionKind kind, Partner partner, string number)
         {
             var action = _storage.GetWarehouseAction(kind, partner, number);
-            Assert.That(action, Is.Not.EqualTo(null));
+            Assert.IsTrue(action != null);
             return action;
         }
-        [Test]
+        [TestMethod]
         public void GetOperationState()
         {
             // Загрузка состояния операций по id и по коду.
             var operationState1 = GetOperationStateById(1001);
             var operationState2 = GetOperationStateByCode(operationState1.Code);
-            Assert.That(operationState1, Is.EqualTo(operationState2));
+            Assert.IsTrue(operationState1 == operationState2);
         }
-        [Test]
+        [TestMethod]
         public void GetOperationType()
         {
             // Загрузка типа операций по id и по коду.
             var operationType1 = GetOperationTypeById(1001);
             var operationType2 = GetOperationTypeByCode(operationType1.Code);
-            Assert.That(operationType1, Is.EqualTo(operationType2));
+            Assert.IsTrue(operationType1 == operationType2);
         }
-        [Test]
+        [TestMethod]
         public void GetVehicleKind()
         {
             // Загрузка типа тип машины по id и по коду.
             var vehicleKind1 = GetVehicleKindById(1001);
             var vehicleKind2 = GetVehicleKindByCode(vehicleKind1.Code);
-            Assert.That(vehicleKind1, Is.EqualTo(vehicleKind2));
+            Assert.IsTrue(vehicleKind1 == vehicleKind2);
         }
-        [Test]
+        [TestMethod]
         public void GetGate()
         {
             // Загрузка ворота по id и по коду.
             var gate1 = GetGateById(1001);
             var gate2 = GetGateByCode(gate1.Code);
-            Assert.That(gate1, Is.EqualTo(gate2));
+            Assert.IsTrue(gate1 == gate2);
         }
-        [Test]
+        [TestMethod]
         public void GetEmployee()
         {
             // Загрузка сотрудника по id.
             GetEmployee(100004);
         }
-        [Test]
+        [TestMethod]
         public void GetDuration()
         {
             var operationType = GetOperationTypeByCode("O_BOX_MIX");
             var vehicleKind = GetVehicleKindByCode("20_TONS");
             GetDuration(operationType, vehicleKind);
         }
-        [Test]
+        [TestMethod]
         public void GetIntervals()
         {
             // Проверка выгрузки свободных интервалов.
@@ -214,42 +218,45 @@ namespace TSLog.Yard.Tests
             var vehicleKind = GetVehicleKindById(1001);
             var gate = GetGateById(1001);
 
-            var intervals = _storage.GetAvalibleIntervals(DateTime.Now.AddDays(-20), DateTime.Now.AddDays(+20), 
+            var intervals = _storage.GetAvalibleIntervals(DateTime.Now.AddDays(-20), DateTime.Now.AddDays(+20),
                 operationType, vehicleKind);
-            Assert.That(intervals, Is.Not.Empty);
+            Assert.IsTrue(intervals.Length > 0);
 
             intervals = _storage.GetGateIntervals(gate, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
-            Assert.That(intervals, Is.Not.Empty);
+            Assert.IsTrue(intervals.Length > 0);
 
             intervals = _storage.GetAllIntervals(DateTime.Now.AddDays(-5), DateTime.Now.AddDays(+5));
-            Assert.That(intervals, Is.Not.Empty);
+            Assert.IsTrue(intervals.Length > 0);
 
             var union = Interval.Union(intervals);
-            Assert.That(union, Has.Length.EqualTo(1));
+            Assert.IsTrue(union.Length == 1);
         }
-        [Test]
+        [TestMethod]
         public void GetPartner()
         {
             // Загрузка клиента по id.
             GetPartnerById("0003");
         }
-        [Test]
+        [TestMethod]
         public void GetPartnerWithManagers()
         {
             // Загрузка партнера по mndnr и информации по партнеру.
             var partner = GetPartnerById("0003");
             var managers = _storage.GetPartnerManagers(partner);
-            Assert.That(managers, Is.Not.Empty);
+            Assert.IsTrue(managers.Length > 0);
         }
-        [Test]        
+        [TestMethod]
         public void GetOperations()
         {
             // Проверка выгрузки операций.
-            CreateSomeOperation();
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
 
             var operations = _storage.GetOperations(DateTime.Now.AddDays(+1), DateTime.Now.AddDays(+8), null);
-            Assert.That(operations, Is.Not.Empty);
+            Assert.IsTrue(operations.Length > 0);
         }
+
+
         private Operation CreateSomeOperation()
         {
             var state = GetOperationStateByCode("CREATED");
@@ -257,12 +264,10 @@ namespace TSLog.Yard.Tests
             var vehicleKind = GetVehicleKindByCode("20_TONS");
             var manager = GetEmployee(100004);
             var duration = GetDuration(type, vehicleKind);
-            var partner = GetPartnerById("0003");
-            var action = GetWarehouseAction(ActionKind.Outgo, partner, "ВБ00-008867");
 
             var startDate = DateTime.Now.AddDays(3);
-            var finishDate = startDate;            
-            finishDate = finishDate.Add(new TimeSpan(0, 0, duration));            
+            var finishDate = startDate;
+            finishDate = finishDate.Add(new TimeSpan(0, 0, duration));
 
             var operation = new Operation(-1, null, type, startDate, finishDate,
                 vehicleKind, "some brand", "some model", "ABCDEF", "trailer number",
@@ -271,96 +276,632 @@ namespace TSLog.Yard.Tests
                 "Ivanov", "Ivan", "Ivanovich",
                 manager);
 
-            operation.AddAction(action);
-            var actions = operation.GetActions();
-            Assert.That(actions, Has.Length.EqualTo(1));
-            var partners = operation.GetPartners();
-            Assert.That(partners, Has.Length.EqualTo(1));
-
-            var user = "m.burov";
-            operation = _storage.AddOperation(operation, user);
-            Assert.That(operation.Id, Is.GreaterThan(0));
-
-            foreach (var warehouseAction in operation.GetActions())
-                _storage.AddAction(operation, warehouseAction);
-
-            var addedOpereation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.ActionsCount, Is.EqualTo(addedOpereation.ActionsCount));
-
-            foreach (var warehouseAction in operation.GetActions())
-            {
-                var addedWarehouseAction = addedOpereation.GetAction(warehouseAction.Kind, warehouseAction.Id);
-                Assert.That(addedWarehouseAction != null, Is.True);
-                Assert.That(addedWarehouseAction.Kind, Is.EqualTo(warehouseAction.Kind));
-                Assert.That(addedWarehouseAction.Id, Is.EqualTo(warehouseAction.Id));
-                Assert.That(addedWarehouseAction.Partner, Is.EqualTo(warehouseAction.Partner));
-                Assert.That(addedWarehouseAction.PartnerActionId, Is.EqualTo(warehouseAction.PartnerActionId));
-            }
+            operation = _storage.AddOperation(operation, DefaultUser);
+            Assert.IsTrue(operation.Id > 0);
 
             return operation;
         }
-        [Test]
-        public void CreateOperation()
+        private void AddSomeOperationWarehouseActions_Ok(Operation operation, string partnerActionNumber = "ВБ00-008867")
+        {
+            operation = _storage.GetOperation(operation.Id);
+            var partner = GetPartnerById("0003");
+            var newAction = GetWarehouseAction(ActionKind.Outgo, partner, partnerActionNumber);
+            var oldActionsCount = operation.GetActions().Length;
+            operation.AddAction(newAction);
+
+            var actions = operation.GetActions();
+            Assert.IsTrue(actions.Length == oldActionsCount + 1);
+            var partners = operation.GetPartners();
+            Assert.IsTrue(partners.Length > 0);
+
+            _storage.AddAction(operation, newAction);
+
+            var updatedOperation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.ActionsCount == updatedOperation.ActionsCount);
+
+            foreach (var warehouseAction in actions)
+            {
+                var addedWarehouseAction = updatedOperation.GetAction(warehouseAction.Kind, warehouseAction.Id);
+                Assert.IsTrue(addedWarehouseAction != null);
+                Assert.IsTrue(addedWarehouseAction.Kind == warehouseAction.Kind);
+                Assert.IsTrue(addedWarehouseAction.Id == warehouseAction.Id);
+                Assert.IsTrue(addedWarehouseAction.Partner == warehouseAction.Partner);
+                Assert.IsTrue(addedWarehouseAction.PartnerActionId == warehouseAction.PartnerActionId);
+            }
+        }
+        private void AddSomeOperationWarehouseActions_Error(Operation operation, string partnerActionNumber = "ВБ00-008867")
+        {
+            operation = _storage.GetOperation(operation.Id);
+            var partner = GetPartnerById("0003");
+            var action = GetWarehouseAction(ActionKind.Outgo, partner, partnerActionNumber);
+
+            Assert.ThrowsException<PostgresException>(() => _storage.AddAction(operation, action));
+        }
+        private void EditSomeOperation_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+
+            var oldDriverName = operation.DriverName;
+            var newDriverName = "Petrov Petr Petrovich";
+            var oldDriverPhoneNumber = operation.DriverPhoneNumber;
+            var newDriverPhoneNumber = "987-654-321";
+
+            operation.DriverName = newDriverName;
+            Assert.IsTrue(operation.DriverName != oldDriverName);
+            Assert.IsTrue(operation.DriverName == newDriverName);
+            operation.DriverPhoneNumber = newDriverPhoneNumber;
+            Assert.IsTrue(operation.DriverPhoneNumber != oldDriverPhoneNumber);
+            Assert.IsTrue(operation.DriverPhoneNumber == newDriverPhoneNumber);
+
+            _storage.EditOperation(operation);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.DriverName == newDriverName);
+            Assert.IsTrue(operation.DriverPhoneNumber == newDriverPhoneNumber);
+
+            // Проверяем, что не создался дубликат запси.
+            var operations = _storage.GetOperations(DateTime.Now.AddYears(-64), DateTime.Now.AddYears(64),
+                Array.Empty<Partner>());
+            Assert.IsTrue(operations.Length == 1);
+        }
+        private void EditSomeOperation_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+
+            var oldDriverName = operation.DriverName;
+            var newDriverName = "Petrov Petr Petrovich";
+            var oldDriverPhoneNumber = operation.DriverPhoneNumber;
+            var newDriverPhoneNumber = "987-654-321";
+
+            operation.DriverName = newDriverName;
+            Assert.IsTrue(operation.DriverName != oldDriverName);
+            Assert.IsTrue(operation.DriverName == newDriverName);
+            operation.DriverPhoneNumber = newDriverPhoneNumber;
+            Assert.IsTrue(operation.DriverPhoneNumber != oldDriverPhoneNumber);
+            Assert.IsTrue(operation.DriverPhoneNumber == newDriverPhoneNumber);
+
+            Assert.ThrowsException<PostgresException>(() => _storage.EditOperation(operation));
+
+            // Проверяем, что не создался дубликат запси.
+            var operations = _storage.GetOperations(DateTime.Now.AddYears(-64), DateTime.Now.AddYears(64),
+                Array.Empty<Partner>());
+            Assert.IsTrue(operations.Length == 1);
+        }
+        private void SetSomeOperationGate_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.SetOperationGate(operation, null, DefaultUser);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.State.Code == "CONFIRMED");
+            Assert.IsTrue(operation.Gate != null);
+        }
+        private void SetSomeOperationGate_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.SetOperationGate(operation, null, DefaultUser));
+        }
+        private void StartSomeOperation_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.StartOperation(operation, DefaultUser);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.State.Code == "STARTED");
+            Assert.IsTrue(operation.StartDate != DateTime.MinValue);
+        }
+        private void StartSomeOperation_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.StartOperation(operation, DefaultUser));
+
+        }
+        private void AddSomeOperationWorkers_Ok(Operation operation, int workerId = 100065)
+        {
+            //var workerId = 100065; // Алимардонов Шахром Хушназаррвич.
+            var stringPositionCode = "EXT_LOADER";
+
+            operation = _storage.GetOperation(operation.Id);
+            int oldCount = _storage.GetOperationWorkers(operation).Length;
+            var worker = _storage.GetEmployee(workerId);
+            var position = _storage.GetPosition(stringPositionCode);
+            _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null);
+            var workers = _storage.GetOperationWorkers(operation);
+            Assert.IsTrue(oldCount == workers.Length - 1);
+        }
+        private void AddSomeOperationWorkers_Error(Operation operation, int workerId = 100065)
+        {
+            //var workerId = 100065; // Алимардонов Шахром Хушназаррвич.
+            var stringPositionCode = "EXT_LOADER";
+
+            operation = _storage.GetOperation(operation.Id);
+            var worker = _storage.GetEmployee(workerId);
+            var position = _storage.GetPosition(stringPositionCode);
+            Assert.ThrowsException<PostgresException>(() => _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null));
+        }
+        private void RemoveSomeOperationWorkers_Ok(Operation operation, int workerId = 100065)
+        {
+            //var workerId = 100065; // Алимардонов Шахром Хушназаррвич.
+            var stringPositionCode = "EXT_LOADER";
+
+            operation = _storage.GetOperation(operation.Id);
+            int oldCount = _storage.GetOperationWorkers(operation).Length;
+            var worker = _storage.GetEmployee(workerId);
+            var position = _storage.GetPosition(stringPositionCode);
+            _storage.RemoveOperationWorker(operation, worker, position);
+            var workers = _storage.GetOperationWorkers(operation);
+            Assert.IsTrue(oldCount == workers.Length + 1);
+        }
+        private void RemoveSomeOperationWorkers_Error(Operation operation, int workerId = 100065)
+        {
+            //var workerId = 100065; // Алимардонов Шахром Хушназаррвич.
+            var stringPositionCode = "EXT_LOADER";
+
+            operation = _storage.GetOperation(operation.Id);
+            var worker = _storage.GetEmployee(workerId);
+            var position = _storage.GetPosition(stringPositionCode);
+            Assert.ThrowsException<PostgresException>(() => _storage.RemoveOperationWorker(operation, worker, position));
+        }
+        private void StartSomeOperationWork_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.StartOperationWork(operation, DefaultUser);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.State.Code == "WORK_STARTED");
+            Assert.IsTrue(operation.FactWorkStartDate !=DateTime.MinValue);
+        }
+        private void StartSomeOperationWork_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
+        }
+        private void FinishSomeOperationWork_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.FinishOperationWork(operation, DefaultUser);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.State.Code == "WORK_FINISHED");
+            Assert.IsTrue(operation.FactWorkFinishDate != DateTime.MinValue);
+        }
+        private void FinishSomeOperationWork_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.FinishOperationWork(operation, DefaultUser));
+        }
+        private void FinishSomeOperation_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.FinishOperation(operation, DefaultUser);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.State.Code == "FINISHED");
+            Assert.IsTrue(operation.FinishDate != DateTime.MinValue);
+        }
+        private void FinishSomeOperation_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.FinishOperation(operation, DefaultUser));
+        }
+        private void CancelSomeOperation_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.CancelOperation(operation, DefaultUser);
+            operation = _storage.GetOperation(operation.Id);
+            Assert.IsTrue(operation.State.Code == "CANCELED");
+        }
+        private void CancelSomeOperation_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.CancelOperation(operation, DefaultUser));
+        }
+        private void DeleteSomeOperation_Ok(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            _storage.DeleteOperation(operation, DefaultUser);
+        }
+        private void DeleteSomeOperation_Error(Operation operation)
+        {
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.DeleteOperation(operation, DefaultUser));
+        }
+
+        [TestMethod]
+        public void CreateOperationWithWarehouseActions()
         {
             // Сборка тестовой операции.
-            CreateSomeOperation();
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
         }
-        [Test]
+        [TestMethod]
+        public void AddCreatedOperationWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+        }
+        [TestMethod]
+        public void AddCreatedOperationSameWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008867");
+            AddSomeOperationWarehouseActions_Error(operation, "ВБ00-008867");
+        }
+        [TestMethod]
+        public void AddConfirmedOperationWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008867");
+            SetSomeOperationGate_Ok(operation);
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008864");
+        }
+        [TestMethod]
+        public void AddStartedOperationWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008867");
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008864");
+        }
+        [TestMethod]
+        public void AddWorkStartedOperationWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008867");
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            AddSomeOperationWarehouseActions_Error(operation, "ВБ00-008864");
+        }
+        [TestMethod]
+        public void AddWorkFinishedOperationWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008867");
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            FinishSomeOperationWork_Ok(operation);
+            AddSomeOperationWarehouseActions_Error(operation, "ВБ00-008864");
+        }
+        [TestMethod]
+        public void AddFinishedOperationWarehouseAction()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation, "ВБ00-008867");
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            FinishSomeOperationWork_Ok(operation);
+            FinishSomeOperation_Ok(operation);
+            AddSomeOperationWarehouseActions_Error(operation, "ВБ00-008864");
+        }
+
+        [TestMethod]
+        public void EditOperation()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            EditSomeOperation_Ok(operation);
+        }
+        [TestMethod]
+        public void EditConfirmedOperation()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            EditSomeOperation_Ok(operation);
+        }
+        [TestMethod]
+        public void EditStartedOperation()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            EditSomeOperation_Ok(operation);
+        }
+        [TestMethod]
+        public void EditWorkStartedOperation()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            EditSomeOperation_Error(operation);
+        }
+        [TestMethod]
+        public void AddCreatedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            AddSomeOperationWorkers_Error(operation);
+        }
+        [TestMethod]
+        public void AddConfirmedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            AddSomeOperationWorkers_Error(operation);
+        }
+        [TestMethod]
+        public void AddStartedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+        }
+        [TestMethod]
+        public void RemoveStartedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation, 100065);
+            RemoveSomeOperationWorkers_Ok(operation, 100065);
+        }
+        [TestMethod]
+        public void AddStartedOperationSameWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            AddSomeOperationWorkers_Error(operation);
+        }
+        [TestMethod]
+        public void RemoveStartedOperationSameWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation, 100065);
+            RemoveSomeOperationWorkers_Ok(operation, 100065);
+            RemoveSomeOperationWorkers_Error(operation, 100065);
+        }
+        [TestMethod]
+        public void AddWorkStartedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            // Аллашукуров Уктам Мухаммедович id = 100066
+            AddSomeOperationWorkers_Error(operation, 100066);
+        }
+        [TestMethod]
+        public void RemoveWorkStartedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation, 100066);
+            StartSomeOperationWork_Ok(operation);
+            // Аллашукуров Уктам Мухаммедович id = 100066
+            RemoveSomeOperationWorkers_Error(operation, 100066);
+        }
+        [TestMethod]
+        public void AddWorkFinishedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            FinishSomeOperationWork_Ok(operation);
+            // Аллашукуров Уктам Мухаммедович id = 100066
+            AddSomeOperationWorkers_Error(operation, 100066);
+        }
+        [TestMethod]
+        public void RemoveWorkFinishedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation, 100066);
+            StartSomeOperationWork_Ok(operation);
+            FinishSomeOperationWork_Ok(operation);
+            // Аллашукуров Уктам Мухаммедович id = 100066
+            RemoveSomeOperationWorkers_Error(operation, 100066);
+        }
+        [TestMethod]
+        public void AddFinishedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation, 100065);
+            StartSomeOperationWork_Ok(operation);
+            FinishSomeOperationWork_Ok(operation);
+            FinishSomeOperation_Ok(operation);
+            // Аллашукуров Уктам Мухаммедович id = 100066
+            AddSomeOperationWorkers_Error(operation, 100066);
+        }
+        [TestMethod]
+        public void RemoveFinishedOperationWorker()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation, 100066);
+            StartSomeOperationWork_Ok(operation);
+            FinishSomeOperationWork_Ok(operation);
+            FinishSomeOperation_Ok(operation);
+            // Аллашукуров Уктам Мухаммедович id = 100066
+            RemoveSomeOperationWorkers_Error(operation, 100066);
+        }
+        [TestMethod]
+        [Ignore("")]
+        public void AllocateOperationWorkers()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            _storage.AllocateOperationWorkers(operation);
+            operation = _storage.GetOperation(operation.Id);
+            var workers = _storage.GetOperationWorkers(operation);
+            Assert.IsTrue(workers.Length > 0);
+        }
+        [TestMethod]
+        public void StartOperationWorkWithoutWarehouseActions()
+        {
+            var operation = CreateSomeOperation();
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+
+            operation = _storage.GetOperation(operation.Id);
+            Assert.ThrowsException<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
+        }
+        [TestMethod]
+        public void StartOperationWorkWithoutWorkers()
+        {
+            var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperation_Ok(operation);
+            Assert.ThrowsException<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
+        }
+        [TestMethod]
         public void ChangeOperationsStates()
         {
             // Сборка тестовой операции и проход по состояниям.
             var operation = CreateSomeOperation();
+            StartSomeOperation_Error(operation);
+            StartSomeOperationWork_Error(operation);
+            FinishSomeOperationWork_Error(operation);
+            FinishSomeOperation_Error(operation);
+            AddSomeOperationWarehouseActions_Ok(operation);
 
-            var user = "m.burov";
-            _storage.AddOperation(operation, user);
-            operation = _storage.AddOperation(operation, user);
-            foreach (var warehouseAction in operation.GetActions())
-                _storage.AddAction(operation, warehouseAction);
-            Assert.That(operation.Id, Is.GreaterThan(0));
+            SetSomeOperationGate_Ok(operation);
+            StartSomeOperationWork_Error(operation);
+            FinishSomeOperationWork_Error(operation);
+            FinishSomeOperation_Error(operation);
 
-            _storage.SetOperationGate(operation, null, user);
-            operation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.Gate, Is.Not.EqualTo(null));
-            Assert.That(operation.State.Code, Is.EqualTo("CONFIRMED"));
+            StartSomeOperation_Ok(operation);
+            StartSomeOperation_Error(operation);
+            FinishSomeOperationWork_Error(operation);
+            FinishSomeOperation_Error(operation);
+            AddSomeOperationWorkers_Ok(operation);
 
-            _storage.StartOperation(operation, user);
-            operation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.State.Code, Is.EqualTo("STARTED"));
-            Assert.That(operation.StartDate, Is.Not.EqualTo(DateTime.MinValue));
+            StartSomeOperationWork_Ok(operation);
+            SetSomeOperationGate_Error(operation);
+            StartSomeOperation_Error(operation);
+            StartSomeOperationWork_Error(operation);
+            FinishSomeOperation_Error(operation);
 
-            _storage.StartOperationWork(operation, user);
-            operation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.State.Code, Is.EqualTo("WORK_STARTED"));
-            Assert.That(operation.FactWorkStartDate, Is.Not.EqualTo(DateTime.MinValue));
+            FinishSomeOperationWork_Ok(operation);
+            SetSomeOperationGate_Error(operation);
+            StartSomeOperation_Error(operation);
+            StartSomeOperationWork_Error(operation);
+            FinishSomeOperationWork_Error(operation);
 
-            _storage.FinishOperationWork(operation, user);
-            operation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.State.Code, Is.EqualTo("WORK_FINISHED"));
-            Assert.That(operation.FactWorkFinishDate, Is.Not.EqualTo(DateTime.MinValue));
-
-            _storage.FinishOperation(operation, user);
-            operation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.State.Code, Is.EqualTo("FINISHED"));
-            Assert.That(operation.FinishDate, Is.Not.EqualTo(DateTime.MinValue));
+            FinishSomeOperation_Ok(operation);
+            SetSomeOperationGate_Error(operation);
+            StartSomeOperation_Error(operation);
+            StartSomeOperationWork_Error(operation);
+            FinishSomeOperationWork_Error(operation);
+            FinishSomeOperation_Error(operation);
         }
-        [Test]
+        [TestMethod]
         public void CancelAndDeleteOperation()
         {
             // Сборка тестовой операции и её отмена и удаление.
             var operation = CreateSomeOperation();
+            AddSomeOperationWarehouseActions_Ok(operation);
+            CancelSomeOperation_Ok(operation);
 
-            var user = "m.burov";
-            _storage.AddOperation(operation, user);
-            operation = _storage.AddOperation(operation, user);
-            foreach (var warehouseAction in operation.GetActions())
-                _storage.AddAction(operation, warehouseAction);
-            Assert.That(operation.Id, Is.GreaterThan(0));
-
-            _storage.CancelOperation(operation, user);
             operation = _storage.GetOperation(operation.Id);
-            Assert.That(operation.State.Code, Is.EqualTo("CANCELED"));
+            DeleteSomeOperation_Ok(operation);
+        }
 
-            _storage.DeleteOperation(operation, user);
+        [TestMethod]
+        public void GetGuardOperations()
+        {
+            var operation = CreateSomeOperation();
+            var operations = _storage.GetGuardOperations();
+            Assert.IsTrue(operations.Length == 0);
+
+            SetSomeOperationGate_Ok(operation);
+            operation = _storage.GetOperation(operation.Id);
+            operations = _storage.GetGuardOperations();
+            Assert.IsTrue(operations.Length == 1);
+            Assert.IsTrue(operations[0].Id == operation.Id);
+            Assert.IsTrue(operations[0].State.Code == "CONFIRMED");
+
+            StartSomeOperation_Ok(operation);
+            operations = _storage.GetGuardOperations();
+            Assert.IsTrue(operations.Length == 0);
+
+            AddSomeOperationWarehouseActions_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            operations = _storage.GetGuardOperations();
+            Assert.IsTrue(operations.Length == 0);
+
+            FinishSomeOperationWork_Ok(operation);
+            operation = _storage.GetOperation(operation.Id);
+            operations = _storage.GetGuardOperations();
+            Assert.IsTrue(operations.Length == 1);
+            Assert.IsTrue(operations[0].Id == operation.Id);
+            Assert.IsTrue(operations[0].State.Code == "WORK_FINISHED");
+
+            FinishSomeOperation_Ok(operation);
+            operations = _storage.GetGuardOperations();
+            Assert.IsTrue(operations.Length == 0);
+        }
+        [TestMethod]
+        public void GetActiveOperations()
+        {
+            var operation = CreateSomeOperation();
+            var operations = _storage.GetActiveOperations();
+            Assert.AreEqual(operations.Length, 0);
+
+            SetSomeOperationGate_Ok(operation);
+            operation = _storage.GetOperation(operation.Id);
+            operations = _storage.GetActiveOperations();
+            Assert.IsTrue(operations.Length == 0);
+
+            StartSomeOperation_Ok(operation);
+            operation = _storage.GetOperation(operation.Id);
+            operations = _storage.GetActiveOperations();
+            Assert.IsTrue(operations.Length == 1);
+            Assert.IsTrue(operations[0].Id == operation.Id);
+            Assert.IsTrue(operations[0].State.Code == "STARTED");
+
+            AddSomeOperationWarehouseActions_Ok(operation);
+            AddSomeOperationWorkers_Ok(operation);
+            StartSomeOperationWork_Ok(operation);
+            operation = _storage.GetOperation(operation.Id);
+            operations = _storage.GetActiveOperations();
+            Assert.IsTrue(operations.Length == 1);
+            Assert.IsTrue(operations[0].Id == operation.Id);
+            Assert.IsTrue(operations[0].State.Code == "WORK_STARTED");
+
+            FinishSomeOperationWork_Ok(operation);
+            operation = _storage.GetOperation(operation.Id);
+            operations = _storage.GetActiveOperations();
+            Assert.IsTrue(operations.Length == 1);
+            Assert.IsTrue(operations[0].Id == operation.Id);
+            Assert.IsTrue(operations[0].State.Code == "WORK_FINISHED");
+
+            FinishSomeOperation_Ok(operation);
+            operations = _storage.GetActiveOperations();
+            Assert.IsTrue(operations.Length == 0);
         }
         /*
         [Test]

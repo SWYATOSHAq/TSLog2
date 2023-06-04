@@ -88,7 +88,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.BO", "TSLog.R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.Storage", "TSLog.Reports.Storage\TSLog.Reports.Storage.csproj", "{7DF480A1-163D-44B2-A623-E8ED15D65958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.Tests", "TSLog.Yard.Tests\TSLog.Yard.Tests.csproj", "{9480B3AD-3525-401B-87D5-EC9F6C616B29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.Tests", "TSLog.Yard.Tests\TSLog.Yard.Tests.csproj", "{648A06C5-A50D-477C-AB92-0A065BCC2D62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -248,10 +248,10 @@ Global
 		{7DF480A1-163D-44B2-A623-E8ED15D65958}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DF480A1-163D-44B2-A623-E8ED15D65958}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DF480A1-163D-44B2-A623-E8ED15D65958}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9480B3AD-3525-401B-87D5-EC9F6C616B29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9480B3AD-3525-401B-87D5-EC9F6C616B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9480B3AD-3525-401B-87D5-EC9F6C616B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9480B3AD-3525-401B-87D5-EC9F6C616B29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{648A06C5-A50D-477C-AB92-0A065BCC2D62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{648A06C5-A50D-477C-AB92-0A065BCC2D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{648A06C5-A50D-477C-AB92-0A065BCC2D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{648A06C5-A50D-477C-AB92-0A065BCC2D62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
