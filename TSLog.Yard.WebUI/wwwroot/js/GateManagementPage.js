@@ -1,12 +1,12 @@
 ﻿/*
-    Страница отчёта по трудозатратам за смену 2.
-    Автор - Буров Михаил (m.burov@tslog.ru).
+    Страница по управлению воротами.
+    Автор - Аввакумов Алексей (avvakumov@tslog.ru).
 */
 
-// Страница отчёта по трудозатратам за смену 2 - 
+// Страница по управлению воротами - 
 // по конкретным операциям двора с распределением по воротам, 
-// с графическим указанием плановой и фактической продолжительности операции двора.
-class ShiftPerfomanceReportPage2 {
+// с графическим указанием плановой продолжительности операции двора.
+class GateManagementPage {
     shortUrl;
 
     data = [];
@@ -23,7 +23,7 @@ class ShiftPerfomanceReportPage2 {
     }
 
     async getData(date) {
-        const result = await api.createShiftPerfomanceReport(date);
+        const result = await api.createGateManagement(date);
         if (result.code === 0) {
             this.data = result.data;
         } else {
@@ -226,7 +226,7 @@ class ShiftPerfomanceReportPage2 {
         //const shiftCode = utils.getUrlParameter("shift");
         //const shift = shiftCode === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
         //reportHeaderB.textContent = "Отчёт по производительности за " + date + " за " + shift + " смену";
-        reportHeaderB.textContent = "Отчёт по производительности за " + date;
+        reportHeaderB.textContent = "Управление воротами за " + date;
     }
 
     //showShiftInfo() {
@@ -311,6 +311,6 @@ class ShiftPerfomanceReportPage2 {
     }
 }
 
-const shiftPerfomanceReportPage2 = new ShiftPerfomanceReportPage2();
+const gateManagementPage = new GateManagementPage();
 
-document.addEventListener('DOMContentLoaded', shiftPerfomanceReportPage2.show.bind(shiftPerfomanceReportPage2));
+document.addEventListener('DOMContentLoaded', gateManagementPage.show.bind(gateManagementPage));

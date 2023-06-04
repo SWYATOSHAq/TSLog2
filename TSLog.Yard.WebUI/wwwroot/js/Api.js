@@ -686,8 +686,8 @@ class Api {
     }
 
     // Формирует отчёт по трудозатратам за смену 3
-    async createShiftPerfomanceReport3(date) {
-        let url = "./api/v1/yard/ShiftPerfomanceReport?date=" + date;
+    async createGateManagement(date) {
+        let url = "./api/v1/yard/GateManagement?date=" + date;
         const response = await fetch(url);
         if (response.status >= 200 && response.status < 300) {
             return utils.createCorrectObject("data", await response.json());

@@ -3138,6 +3138,92 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return exception.Message;
             }
         }
+
+        [HttpGet("GateManagement")]
+        public string GetGateManagement()
+        {
+            try
+            {
+                Response.StatusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+                var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
+                if (_useAuthentication && (!useYard || !getData))
+                {
+                    Response.StatusCode = 403;
+                    return "Forbidden";
+                }
+
+                string stringDate = Request.Query["date"];
+                var date = DateTime.Now;
+                if (!string.IsNullOrWhiteSpace(stringDate))
+                {
+                    stringDate = stringDate.Trim();
+                    if (!DateTime.TryParse(stringDate, out date))
+                        return $"Wrong to date {stringDate}";
+                }
+                
+                var fromDate = date.Date;
+                var toDate = fromDate.AddHours(23).AddMinutes(59);
+
+                var operations = _storage.GetYardPerfomanceData(fromDate, toDate);
+                foreach (dynamic operation in operations)
+                {
+                    string partnerIds = operation.partnerIds;
+                    var ids = partnerIds.Split(",");
+                    var partnerNames = string.Empty;
+                    var partners = new HashSet<string>();
+                    foreach (var id in ids)
+                    {
+                        var tempId = id.Trim();
+                        if (!string.IsNullOrWhiteSpace(tempId) && !partners.Contains(tempId))
+                        {
+                            var tempPartner = _storage.GetPartner(tempId);
+                            if (partnerNames.Length > 0)
+                                partnerNames = partnerNames += ", ";
+                            partnerNames += tempPartner.Name;
+                            partners.Add(tempId);
+                        }
+                    }
+                    operation.partnerNames = partnerNames;
+
+                    var siteCode = _storage.GetSiteCodeByGateCode(operation.gateCode);
+                    operation.works = _storage.GetBcPerfomanceData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
+                    operation.factLaborCost = 0.0;
+                    foreach (var work in operation.works)
+                        operation.factLaborCost += work.duration;
+
+                    // 2022.09.19 Буров Михаил.
+                    // Изменён алгоритм рассчёта производительности, теперь определяем прановые трудозатраты по алгоритму Башлыкова
+
+                    // Определяем заказы, которые относятся к данной операции двора
+                    var tempOperation = _storage.GetOperation(operation.id);
+                    if (tempOperation.Type.Direction == TypeDirection.Out)
+                    {
+                        var outgoesIds = new List<string>();
+                        foreach (var outgo in tempOperation.GetActions())
+                            outgoesIds.Add(outgo.Id);
+                        var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
+
+                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost_Report(tempOperation.Type,
+                            tempOperation.VehicleKind, partner,
+                            tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
+                            siteCode,
+                            outgoesIds.ToArray());
+                    }
+                    else // Приходы - берём стадартный план
+                        operation.planLaborCost = operation.planLaborCost;
+                }
+
+                var text = JsonSerializer.Serialize(operations);
+                Response.StatusCode = 200;
+                return text;
+            }
+            catch (Exception exception)
+            {
+                return exception.Message;
+            }
+        }
+
         [HttpGet("ShiftPerfomanceReport")]
         public string GetShiftPerfomanceReport()
         {
@@ -3168,7 +3254,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     return $"Unknown shift {shift}";
 
                 var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
-                //var fromDate = date.Date;
                 var toDate = fromDate.AddHours(23).AddMinutes(59);
 
                 var operations = _storage.GetYardPerfomanceData(fromDate, toDate);

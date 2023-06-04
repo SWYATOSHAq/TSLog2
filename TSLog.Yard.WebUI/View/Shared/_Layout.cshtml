@@ -110,9 +110,9 @@
     {
         <link rel="stylesheet" href="~/css/ShiftPerfomanceReportPage.css" asp-append-version="true" />
     }
-    else if (page == "ShiftPerfomanceReportPage2")
+    else if (page == "GateManagementPage")
     {
-        <link rel="stylesheet" href="~/css/ShiftPerfomanceReportPage2.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/GateManagementPage.css" asp-append-version="true" />
     } 
     else if (page == "ECReportPage")
     {
@@ -207,9 +207,9 @@
                 <a class="nav-link text-dark hide-on-print" 
                     title="Открыть страницу отчёта по производительности (по конкретным операциям двора с распределением по воротам)"
                     href="/ShiftPerfomanceReportPage">Производительность</a>
-                <a class="nav-link text-dark hide-on-print" 
-                    title="Открыть страницу отчёта по производительности 2 (по конкретным операциям двора с распределением по воротам, с графическим указанием плановой и фактической продолжительности операции двора)"
-                    href="/ShiftPerfomanceReportPage2">Производительность 2</a>
+                <a class="nav-link text-dark hide-on-print"
+                    title="Открыть страницу по упралвению воротами (по конкретным операциям двора с распределением по воротам, с графическим указанием плановой продолжительности операции двора)"
+                    href="/GateManagementPage">Управление воротами</a>
             }
             @if (canViewEcReportPage)
             {
@@ -326,9 +326,9 @@
             <script type="text/javascript" src="~/js/ShiftPerfomanceReportPage.js"></script>
             <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
-        else if (page == "ShiftPerfomanceReportPage2")
-        {        
-            <script type="text/javascript" src="~/js/ShiftPerfomanceReportPage2.js"></script>
+        else if (page == "GateManagementPage")
+        {
+            <script type="text/javascript" src="~/js/GateManagementPage.js"></script>
             <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
         }
         else if (page == "ECReportPage")

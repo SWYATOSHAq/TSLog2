@@ -1,13 +1,13 @@
-﻿@page "/ShiftPerfomanceReportPage2"
+﻿@page "/GateManagementPage"
 @using TSLog.Yard.WebUI.Models
 
 @inject IConfiguration Configuration
 @{
     var useAuthentication = Configuration.GetValue<bool>("UseAuthentication");
 }
-@model ShiftPerfomanceReportPage2Model
+@model GateManagementPageModel
 @{
-    ViewData["Title"] = "Отчёт по производительности (за смену)";
+    ViewData["Title"] = "Управление воротами";
     var rightsChecker = Model.RightsChecker;
 
     var viewGuardPage = !useAuthentication || 
@@ -38,21 +38,22 @@
 </div>
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
-    <button class="btn btn-outline-success" 
+    <button class="btn btn-outline-success"
         style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Сформировать отчёт"
-        type="button" 
-        onclick="shiftPerfomanceReportPage2.createReport()">Применить</button>
-    <button class="btn btn-outline-success" 
+        type="button"
+        onclick="gateManagementPage.createReport()">Применить
+    </button>
+    <button class="btn btn-outline-success"
         style="width: 120px; padding: 0; margin: 0; margin-right: 8px"
         title="Выгрузить отчёт в Excel"
-        type="button" 
-        onclick="shiftPerfomanceReportPage2.exportToExcel()">В Excel</button>
+        type="button"
+        onclick="gateManagementPage.exportToExcel()">В Excel</button>
     <button class="btn btn-outline-secondary"
         style="width: 120px; padding: 0; margin: 0"
         title="Печать отчёта"
         type="button"
-        onclick="shiftPerfomanceReportPage2.print()">Печать</button>
+        onclick="gateManagementPage.print()">Печать</button>
 </div>
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 8px">
@@ -61,7 +62,9 @@
         style="width: 480px; padding: 0; margin: 0"
         title="Показать порядок рассчёта и комментарии к отчёту"
         type="button"
-        onclick="shiftPerfomanceReportPage2.showHideDescription()">Порядок рассчёта и комментарии к отчёту (показать)</button>
+        onclick="gateManagementPage.showHideDescription()">
+        Порядок рассчёта и комментарии к отчёту (показать)
+    </button>
 </div>
 
 <div id="description-div"  
@@ -77,7 +80,7 @@
 </div>
 
 <div class="row not-for-print" style="padding: 0; margin: 0; margin-top: 16px">
-    <b id="report-header-b" style="padding: 0; margin: 0">Отчёт по производительности</b>
+    <b id="report-header-b" style="padding: 0; margin: 0">Управление воротами</b>
 </div>
 
 <table id="report-table"

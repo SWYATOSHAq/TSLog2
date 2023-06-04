@@ -4,9 +4,9 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Yard.WebUI.Models
 {
-    public class ShiftPerfomanceReportPage2Model : PageModel
+    public class GateManagementPageModel : PageModel
     {
-        private readonly ILogger<ShiftPerfomanceReportPage2Model> _logger;
+        private readonly ILogger<GateManagementPageModel> _logger;
         /// <summary>
         /// Хранилище объектов
         /// </summary>
@@ -15,7 +15,7 @@ namespace TSLog.Yard.WebUI.Models
         /// Объект для проверки прав
         /// </summary>
         public RightsChecker RightsChecker { get; private set; }
-        public ShiftPerfomanceReportPage2Model(ILogger<ShiftPerfomanceReportPage2Model> logger, 
+        public GateManagementPageModel(ILogger<GateManagementPageModel> logger, 
             IYardStorage storage, RightsChecker rightsChecker)
         {
             _logger = logger;
