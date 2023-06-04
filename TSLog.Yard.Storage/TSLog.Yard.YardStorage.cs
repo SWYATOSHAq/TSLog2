@@ -507,6 +507,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetYardPerfomanceData(fromDate, toDate);
         }
+        public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
+        {
+            return _pgsqlStorage.GetGateManagementData(fromDate, toDate);
+        }
         public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode)
         {
             return _oracleStorage.GetBcWorks(fromDate, toDate, siteCode);

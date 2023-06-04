@@ -3155,7 +3155,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var fromDate = date.Date;
                 var toDate = fromDate.AddHours(23).AddMinutes(59);
 
-                var operations = _storage.GetYardPerfomanceData(fromDate, toDate);
+                var operations = _storage.GetGateManagementData(fromDate, toDate);
                 foreach (dynamic operation in operations)
                 {
                     string partnerIds = operation.partnerIds;
@@ -3177,31 +3177,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     operation.partnerNames = partnerNames;
 
                     var siteCode = _storage.GetSiteCodeByGateCode(operation.gateCode);
-                    operation.works = _storage.GetBcPerfomanceData(operation.factWorkStartDate, operation.factWorkFinishDate, siteCode);
-                    operation.factLaborCost = 0.0;
-                    foreach (var work in operation.works)
-                        operation.factLaborCost += work.duration;
-
-                    // 2022.09.19 Буров Михаил.
-                    // Изменён алгоритм рассчёта производительности, теперь определяем прановые трудозатраты по алгоритму Башлыкова
-
-                    // Определяем заказы, которые относятся к данной операции двора
-                    var tempOperation = _storage.GetOperation(operation.id);
-                    if (tempOperation.Type.Direction == TypeDirection.Out)
-                    {
-                        var outgoesIds = new List<string>();
-                        foreach (var outgo in tempOperation.GetActions())
-                            outgoesIds.Add(outgo.Id);
-                        var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
-
-                        operation.planLaborCost = _GetHoodManPlanOperationLaborCost_Report(tempOperation.Type,
-                            tempOperation.VehicleKind, partner,
-                            tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
-                            siteCode,
-                            outgoesIds.ToArray());
-                    }
-                    else // Приходы - берём стадартный план
-                        operation.planLaborCost = operation.planLaborCost;
                 }
 
                 var text = JsonSerializer.Serialize(operations);
