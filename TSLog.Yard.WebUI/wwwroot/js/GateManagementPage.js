@@ -69,7 +69,6 @@ class GateManagementPage {
         let operations = { };
         let intervalsCount = 96;
         for (let operation of this.data) {
-            if (operation.factWorkStartDate < operation.planWorkStartDate) continue;
             if (operations[operation.gateCode] == undefined) {
                 operations[operation.gateCode] = [];
             }

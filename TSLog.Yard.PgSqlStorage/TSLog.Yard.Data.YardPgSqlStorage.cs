@@ -3183,6 +3183,92 @@ namespace TSLog.Yard.Data
             }
             return data.ToArray();
         }
+
+        public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
+        {
+            var data = new List<dynamic>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"   select o.id,\n" +
+                        $"          o.type_id,\n" +
+                        $"          o.vehicle_kind_id,\n" +
+                        $"          o.vehicle_number,\n" +
+                        $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
+                        $"          o.plan_work_start_date,\n" +
+                        $"          o.plan_work_finish_date,\n" +
+                        $"          o.fact_work_start_date,\n" +
+                        $"          o.fact_work_finish_date,\n" +
+                        $"          o.gate_code, o.gate_name,\n" +
+                        $"          otvkt.linear_labor_cost\n" +
+                        $"     from {YardSchema}.v_operation o\n" +
+                        $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
+                        $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
+                        $"    where o.state_code in ('CONFIRMED', 'WORK_STARTED', 'STARTED','WORK_FINISHED', 'FINISHED')\n" +
+                        $"      and ((o.plan_work_start_date >= :start_date and o.plan_work_finish_date <= :finish_date) or (o.fact_work_start_date >= :start_date and o.fact_work_finish_date <= :finish_date))\n" +
+                        $" order by o.fact_work_start_date, o.fact_work_finish_date";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
+                    command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, toDate));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        dynamic operation = new ExpandoObject();
+                        operation.id = Utils.DbValueToLong(reader["id"]);
+                        operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+                        operation.partnerIds = Utils.DbValueToString(reader["partner_ids"]);
+                        operation.planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+                        operation.planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+                        operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
+                        operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
+                        var planDurationRef = (operation.planWorkFinishDate - operation.planWorkStartDate); // для расчета скорректированного планового времени окончания работ
+
+                        if ((operation.planWorkStartDate.Date == fromDate.Date) && (operation.planWorkStartDate.Date < operation.factWorkStartDate.Date)) // отфильтровываем заявки с планом на выбранную дату, но фактом на день и более позже
+                            continue;
+
+                        if (operation.planWorkStartDate < DateTime.Now && operation.factWorkStartDate == DateTime.MinValue) //отфильтровываем просроченные заявки с устаревшим планом и без факта
+                            continue;
+
+                        if (operation.factWorkStartDate != DateTime.MinValue && operation.factWorkFinishDate != DateTime.MinValue)
+                        {
+                            operation.planWorkStartDate = operation.factWorkStartDate;
+                            operation.planWorkFinishDate = operation.factWorkFinishDate;
+                        } else if ((operation.factWorkStartDate != DateTime.MinValue) && (operation.factWorkFinishDate == DateTime.MinValue))
+                        {
+                            operation.planWorkStartDate = operation.factWorkStartDate;
+                            operation.planWorkFinishDate = operation.planWorkStartDate + planDurationRef;
+                        }
+                        operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
+                        operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
+                        operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
+                        operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
+
+                        operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
+                        operation.gateName = Utils.DbValueToString(reader["gate_name"]);
+                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
+                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
+                        var operationType = GetOperationType(operationTypeId);
+                        operation.typeCode = operationType.Code;
+                        var vehicleKind = GetVehicleKind(vehicleKindId);
+                        operation.vehicleKindCode = vehicleKind.Code;
+                        var standardPlanDuration = GetDuration(operationType, vehicleKind,
+                            out int standardConstantDuration, out int standardVariableDuration);
+                        var planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalSeconds;
+                        if (planDuration > standardPlanDuration)
+                            planDuration = standardPlanDuration;
+                        double k = planDuration / standardPlanDuration;
+                        operation.planLaborCost = k * Utils.DbValueToDouble(reader["linear_labor_cost"]);
+
+                        data.Add(operation);
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return data.ToArray();
+        }
         #endregion
 
         #region Testing
