@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.BossControl.BO;
+using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
@@ -47,7 +48,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
         private readonly IConfiguration _configuration;
         private readonly IYardStorage _storage;
-        private readonly RightsChecker _rightsChecker;
+        private readonly IRightsChecker _rightsChecker;
         private readonly bool _useAuthentication;
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД
         /// </summary>
         public int ConstantOperationDuration { get; set; } = DefaultConstantOperationDuration;
-        public YardController(IConfiguration configuration, IYardStorage storage, RightsChecker rightsChecker)
+        public YardController(IConfiguration configuration, IYardStorage storage, IRightsChecker rightsChecker)
         {
             _configuration = configuration;
             _storage = storage;
@@ -73,7 +74,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
         }
 
-        private dynamic GateToDynamic(Gate gate)
+        private static dynamic GateToDynamic(Gate gate)
         {
             dynamic result = new ExpandoObject();
             result.id = gate.Id;
@@ -93,11 +94,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.node = gate.Note;
             return result;
         }
-        private dynamic[] GatesToDynamic(Gate[] gates)
+        private static dynamic[] GatesToDynamic(Gate[] gates)
         { 
             var result = new List<dynamic>();
             foreach (Gate gate in gates)
-                result.Add(GateToDynamic(gate));
+                result.Add(YardController.GateToDynamic(gate));
             return result.ToArray();
         }
 
@@ -1140,10 +1141,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Start date is empty!";
-                //if (!DateTime.TryParse(temp, out DateTime planWorkStartDate))
-                string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime planWorkStartDate)) // #5278 - изменено по заявке.
-                    return $"Wrong start date {temp}!";
+                if (!Utils.DateFromString(temp, out DateTime planWorkStartDate, out string message))
+                    return message;
 
                 dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
@@ -1250,10 +1249,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Start date is empty!";
-                //if (!DateTime.TryParse(temp, out DateTime startDate))
-                string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate)) // #5278 - изменено по заявке.
-                    return $"Wrong start date {temp}!";
+                if (!Utils.DateFromString(temp, out DateTime startDate, out string message))
+                    return message;
 
                 temp = data.finishDate;
                 var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind,
@@ -1366,10 +1363,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (string.IsNullOrWhiteSpace(temp))
                     return "Start date is empty!";
-                //if (!DateTime.TryParse(temp, out DateTime startDate))
-                string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate)) // #5278 - изменено по заявке.
-                    return $"Wrong start date {temp}!";
+                if (!Utils.DateFromString(temp, out DateTime startDate, out string message))
+                    return message;
 
                 var user = RightsChecker.GetUserName(User);
                 // Плановая дата и время начало работ не должно быть "день в день"!
@@ -1497,10 +1492,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    //if (!DateTime.TryParse(temp, out planWorkStartDate))
-                    string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out planWorkStartDate)) // #5278 - изменено по заявке.
-                        return $"Wrong start date {temp}!";
+                    if (!Utils.DateFromString(temp, out planWorkStartDate, out string message))
+                        return message;
                     planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
                 }
 
@@ -1643,10 +1636,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.startDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    //if (!DateTime.TryParse(temp, out DateTime tempPlanWorkStartDate))
-                    string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempPlanWorkStartDate)) // #5278 - изменено по заявке.
-                        return $"Wrong start date {temp}!";
+                    if (!Utils.DateFromString(temp, out DateTime tempPlanWorkStartDate, out string message))
+                        return message;
 
                     // Если редактируем плановую дату и время начало работ то новое значение не должно быть "день в день"!
                     if (planWorkStartDate != tempPlanWorkStartDate)
@@ -1669,10 +1660,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 temp = data.finishDate;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {
-                    //if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
-                    string[] formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
-                    if (!DateTime.TryParseExact(temp, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempFinishDate)) // #5278 - изменено по заявке.
-                        return $"Wrong finish date {temp}";
+                    if (!Utils.DateFromString(temp, out DateTime tempFinishDate, out string message))
+                        return message;
+
                     if (tempFinishDate > planWorkFinishDate)
                         planWorkFinishDate = tempFinishDate;
                 }

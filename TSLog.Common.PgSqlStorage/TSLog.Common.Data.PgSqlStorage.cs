@@ -14,6 +14,10 @@ namespace TSLog.Common.Data
     {
         protected readonly DbConnection _connection = new NpgsqlConnection();
         protected readonly string _host = string.Empty;
+        public string Host
+        {
+            get { return _host; }
+        }
         protected readonly string _database = string.Empty;
         public PgSqlStorage(string host, string database)
         {

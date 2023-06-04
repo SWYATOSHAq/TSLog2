@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -10,7 +11,7 @@ using System.Text.RegularExpressions;
 namespace TSLog.Common
 {
     /// <summary>
-    /// Общий функционал
+    /// Общий функционал.
     /// </summary>
     public static class Utils
     {
@@ -228,7 +229,7 @@ namespace TSLog.Common
         }
 
         /// <summary>
-        /// Преобразует полное Ф. И. О. (Фамилия Имя Отчество) в краткое (Фамилия И. О.)
+        /// Преобразует полное Ф. И. О. (Фамилия Имя Отчество) в краткое (Фамилия И. О.).
         /// </summary>
         /// <param name="fullName">Полное Ф. И. О.</param>
         /// <returns>Краткое Ф. И. О.</returns>
@@ -247,11 +248,11 @@ namespace TSLog.Common
             return shortName;
         }
         /// <summary>
-        /// Возвращает массив дней (дат), которые попадают в заданный промежуток (начало включено, окончание не включено)
+        /// Возвращает массив дней (дат), которые попадают в заданный промежуток (начало включено, окончание не включено).
         /// </summary>
-        /// <param name="fromDate">Дата и время начала промежутка</param>
-        /// <param name="toDate">Дата и время окончания промежутка</param>
-        /// <returns>Массив дней (дат)</returns>
+        /// <param name="fromDate">Дата и время начала промежутка.</param>
+        /// <param name="toDate">Дата и время окончания промежутка.</param>
+        /// <returns>Массив дней (дат).</returns>
         public static DateTime[] GetDates(DateTime fromDate, DateTime toDate)
         {
             if (fromDate > toDate)
@@ -264,6 +265,18 @@ namespace TSLog.Common
                 tempDate.AddDays(1);
             }
             return dates.ToArray();
+        }
+
+        private static readonly string[] Formats = { "M/d/yyyy hh:mm:ss tt", "dd.MM.yyyy HH:mm:ss" };
+        public static bool DateFromString(string dateString, out DateTime date, out string message)
+        {
+            message = string.Empty;
+            if (!DateTime.TryParseExact(dateString, Formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            {
+                message = $"Wrong start date {dateString}!";
+                return false;
+            }
+            return true;    
         }
     }
 }
