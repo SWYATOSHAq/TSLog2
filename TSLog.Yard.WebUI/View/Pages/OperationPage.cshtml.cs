@@ -7,9 +7,9 @@ namespace TSLog.Yard.WebUI.Models
     public class OperationPageModel : PageModel
     {
         private readonly ILogger<OperationPageModel> _logger;
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         public IYardStorage Storage { get; private set; }        
-        public OperationPageModel(ILogger<OperationPageModel> logger, RightsChecker rightsChecker, IYardStorage storage)
+        public OperationPageModel(ILogger<OperationPageModel> logger, IRightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
             RightsChecker = rightsChecker;

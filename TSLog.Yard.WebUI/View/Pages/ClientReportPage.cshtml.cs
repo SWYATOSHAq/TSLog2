@@ -8,14 +8,14 @@ namespace TSLog.Yard.WebUI.Models
     {
         private readonly ILogger<ClientReportPageModel> _logger;
         /// <summary>
-        /// Хранилище объектов
+        /// Хранилище объектов.
         /// </summary>
         public IYardStorage Storage { get; private set; }
         /// <summary>
-        /// Объект для проверки прав
+        /// Объект для проверки прав.
         /// </summary>
-        public RightsChecker RightsChecker { get; private set; }
-        public ClientReportPageModel(ILogger<ClientReportPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public IRightsChecker RightsChecker { get; private set; }
+        public ClientReportPageModel(ILogger<ClientReportPageModel> logger, IYardStorage storage, IRightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

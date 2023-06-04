@@ -14,9 +14,9 @@ namespace TSLog.Yard.WebUI.Models
         /// <summary>
         /// Объект для проверки прав
         /// </summary>
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         public GateManagementPageModel(ILogger<GateManagementPageModel> logger, 
-            IYardStorage storage, RightsChecker rightsChecker)
+            IYardStorage storage, IRightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

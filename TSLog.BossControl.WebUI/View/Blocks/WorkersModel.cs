@@ -8,7 +8,7 @@ namespace TSLog.BossControl.WebUI.Models
         /// <summary>
         /// Объект для проверки прав
         /// </summary>
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         /// <summary>
         /// Хранилище данных
         /// </summary>
@@ -21,7 +21,7 @@ namespace TSLog.BossControl.WebUI.Models
         /// HTTP запрос
         /// </summary>
         public HttpRequest Request { get; private set; }
-        public WorkersModel(RightsChecker rightsChecker, IBossControlStorage storage,
+        public WorkersModel(IRightsChecker rightsChecker, IBossControlStorage storage,
             bool displayAdditoonalInfo, HttpRequest request)
         {
             RightsChecker = rightsChecker;

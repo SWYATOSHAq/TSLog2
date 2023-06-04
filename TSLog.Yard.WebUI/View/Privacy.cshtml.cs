@@ -7,9 +7,9 @@ namespace TSLog.Yard.WebUI.Models
     public class PrivacyModel : PageModel
     {
         private readonly ILogger<PrivacyModel> _logger;
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         public IYardStorage Storage { get; private set; }
-        public PrivacyModel(ILogger<PrivacyModel> logger, RightsChecker rightsChecker, IYardStorage storage)
+        public PrivacyModel(ILogger<PrivacyModel> logger, IRightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
             RightsChecker = rightsChecker;

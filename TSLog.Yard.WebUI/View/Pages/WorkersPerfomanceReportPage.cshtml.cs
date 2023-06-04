@@ -14,8 +14,10 @@ namespace TSLog.Yard.WebUI.Models
         /// <summary>
         /// Объект для проверки прав
         /// </summary>
-        public RightsChecker RightsChecker { get; private set; }
-        public WorkersPerfomanceReportPageModel(ILogger<WorkersPerfomanceReportPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public IRightsChecker RightsChecker { get; private set; }
+        public WorkersPerfomanceReportPageModel(ILogger<WorkersPerfomanceReportPageModel> logger,
+            IYardStorage storage,
+            IRightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

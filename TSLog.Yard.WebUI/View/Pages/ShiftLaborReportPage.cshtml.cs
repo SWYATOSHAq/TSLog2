@@ -14,8 +14,8 @@ namespace TSLog.Yard.WebUI.Models
         /// <summary>
         /// Объект для проверки прав
         /// </summary>
-        public RightsChecker RightsChecker { get; private set; }
-        public ShiftLaborReportPageModel(ILogger<ShiftLaborReportPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public IRightsChecker RightsChecker { get; private set; }
+        public ShiftLaborReportPageModel(ILogger<ShiftLaborReportPageModel> logger, IYardStorage storage, IRightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

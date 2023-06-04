@@ -69,7 +69,7 @@ storage.SetPgsqlYardSchema(pgsqlYardSchema);
 builder.Services.AddSingleton<IYardStorage>(storage);
 
 var rightsChecker = new RightsChecker();
-builder.Services.AddSingleton(rightsChecker);
+builder.Services.AddSingleton<IRightsChecker>(rightsChecker);
 var programFileName = Assembly.GetExecutingAssembly().Location;
 var programDirectory = Path.GetDirectoryName(programFileName) ?? throw new Exception("Rights file not found");
 var rightsFileName = Path.Combine(programDirectory, "rights.xml");
@@ -99,7 +99,7 @@ if (useAuthentication)
     app.UseAuthorization();
 }
 
-// map api
+// Map api.
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

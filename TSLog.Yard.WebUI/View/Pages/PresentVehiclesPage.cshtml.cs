@@ -8,8 +8,8 @@ namespace TSLog.Yard.WebUI.Models
     {
         private readonly ILogger<PresentVehiclesPageModel> _logger;
         public IYardStorage Storage { get; private set; }
-        public RightsChecker RightsChecker { get; private set; }
-        public PresentVehiclesPageModel(ILogger<PresentVehiclesPageModel> logger, IYardStorage storage, RightsChecker rightsChecker)
+        public IRightsChecker RightsChecker { get; private set; }
+        public PresentVehiclesPageModel(ILogger<PresentVehiclesPageModel> logger, IYardStorage storage, IRightsChecker rightsChecker)
         {
             _logger = logger;
             Storage = storage;

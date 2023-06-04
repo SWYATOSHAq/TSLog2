@@ -8,7 +8,7 @@ namespace TSLog.Yard.WebUI.Models
         /// <summary>
         /// Объект для проверки прав
         /// </summary>
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         /// <summary>
         /// Хранилище данных
         /// </summary>
@@ -25,7 +25,7 @@ namespace TSLog.Yard.WebUI.Models
         /// HTTP запрос
         /// </summary>
         public HttpRequest Request { get; private set; }
-        public OperationsModel(RightsChecker rightsChecker, IYardStorage storage, Operation[] operations, 
+        public OperationsModel(IRightsChecker rightsChecker, IYardStorage storage, Operation[] operations, 
             bool displayAdditoonalInfo, HttpRequest request)
         {
             RightsChecker = rightsChecker;

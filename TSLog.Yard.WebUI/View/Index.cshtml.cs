@@ -7,9 +7,9 @@ namespace TSLog.Yard.WebUI.Models
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         public IYardStorage Storage { get; private set; }
-        public IndexModel(ILogger<IndexModel> logger, RightsChecker rightsChecker, IYardStorage storage)
+        public IndexModel(ILogger<IndexModel> logger, IRightsChecker rightsChecker, IYardStorage storage)
         {
             _logger = logger;
             RightsChecker = rightsChecker;

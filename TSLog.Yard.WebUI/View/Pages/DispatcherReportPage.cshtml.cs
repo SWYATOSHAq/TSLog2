@@ -8,11 +8,11 @@ namespace TSLog.Yard.WebUI.Models
     {
         private readonly ILogger<DispatcherReportPageModel> _logger;
         public IYardStorage Storage { get; private set; }
-        public RightsChecker RightsChecker { get; private set; }
+        public IRightsChecker RightsChecker { get; private set; }
         public List<Endpoint> Endpoints { get; private set; }
         public DispatcherReportPageModel(ILogger<DispatcherReportPageModel> logger, 
             IYardStorage storage, 
-            RightsChecker rightsChecker,
+            IRightsChecker rightsChecker,
             IEnumerable<EndpointDataSource> endpointSources)
         {
             _logger = logger;
