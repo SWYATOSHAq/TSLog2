@@ -3187,6 +3187,7 @@ namespace TSLog.Yard.Data
         public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
         {
             var data = new List<dynamic>();
+            var splittedData = new List<dynamic>();
             using (var connection = CloneConnection())
             {
                 using (var command = connection.CreateCommand())
@@ -3207,7 +3208,10 @@ namespace TSLog.Yard.Data
                         $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
                         $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
                         $"    where o.state_code in ('CONFIRMED', 'WORK_STARTED', 'STARTED','WORK_FINISHED', 'FINISHED')\n" +
-                        $"      and ((o.plan_work_start_date >= :start_date and o.plan_work_finish_date <= :finish_date) or (o.fact_work_start_date >= :start_date and o.fact_work_finish_date <= :finish_date))\n" +
+                        $"      and ((o.plan_work_start_date >= :start_date and o.plan_work_start_date <= :finish_date) or " +
+                        $"      (o.fact_work_start_date >= :start_date and o.fact_work_start_date <= :finish_date) or (o.plan_work_finish_date <= :finish_date and " +
+                        $"      o.plan_work_finish_date >= :start_date) or (o.fact_work_finish_date <= :finish_date and o.fact_work_finish_date >= :start_date))\n" +
+                        $"--      and o.id = 10025468\n" +
                         $" order by o.fact_work_start_date, o.fact_work_finish_date";
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
@@ -3216,6 +3220,7 @@ namespace TSLog.Yard.Data
                     while (reader.Read())
                     {
                         dynamic operation = new ExpandoObject();
+                        dynamic splitOperation = new ExpandoObject();
                         operation.id = Utils.DbValueToLong(reader["id"]);
                         operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
                         operation.partnerIds = Utils.DbValueToString(reader["partner_ids"]);
@@ -3253,13 +3258,17 @@ namespace TSLog.Yard.Data
                         operation.typeCode = operationType.Code;
                         var vehicleKind = GetVehicleKind(vehicleKindId);
                         operation.vehicleKindCode = vehicleKind.Code;
-                        var standardPlanDuration = GetDuration(operationType, vehicleKind,
-                            out int standardConstantDuration, out int standardVariableDuration);
-                        var planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalSeconds;
-                        if (planDuration > standardPlanDuration)
-                            planDuration = standardPlanDuration;
-                        double k = planDuration / standardPlanDuration;
-                        operation.planLaborCost = k * Utils.DbValueToDouble(reader["linear_labor_cost"]);
+
+                        if (operation.planWorkFinishDate.Date > fromDate.Date) //условие для обрезания заявок с переходом через день
+                        {
+                            operation.planWorkFinishDate = operation.planWorkStartDate.Date.AddHours(23).AddMinutes(59);
+                            operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;                     
+                        } else if (operation.planWorkFinishDate.Date == fromDate.Date && operation.planWorkStartDate.Date < fromDate.Date) //условие для обрезания заявок с переходом через день
+                        {
+                            operation.planWorkStartDate = operation.planWorkFinishDate.Date;
+                            operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
+                            operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
+                        }
 
                         data.Add(operation);
                     }

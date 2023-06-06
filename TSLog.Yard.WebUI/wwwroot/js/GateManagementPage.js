@@ -204,12 +204,12 @@ class GateManagementPage {
                     const planBlock = document.createElement("div");
                     planBlock.id = "plan-" + operation.id;
                     planBlock.onclick = this.createBlockClick(operation.id);
-                    planBlock.style.cssText = "height: " + Math.round(operation.planDuration * 2).toString() + "px; " +
+                    planBlock.style.cssText = "height: " + Math.round(operation.planDuration * 2.67).toString() + "px; " +
                         "width: 100px; " +
                         "background-color: coral; " +
                         "opacity: 50%; " +
                         "position: absolute; " +
-                        "margin-top: " + Math.round(operation.planStart * 2.66).toString() + "px; " +
+                        "margin-top: " + Math.round(operation.planStart * 2.665).toString() + "px; " +
                         "border: 2px solid";
                     cell.append(planBlock);
                 }                
