@@ -51,11 +51,13 @@ class GateManagementPage {
             let block = document.getElementById("plan-" + id);
             if (block != undefined) {
                 block.classList.add("plan-selected-block");
-            }            
-            block = document.getElementById("fact-" + id);
-            if (block != undefined) {
-                block.classList.add("fact-selected-block");
             }
+            location.href = `/OperationPage?id=${id}&action=VIEW`;
+          
+          //block = document.getElementById("fact-" + id);
+          //if (block != undefined) {
+          //    block.classList.add("fact-selected-block");
+          //}
         }
     }
 
@@ -203,13 +205,29 @@ class GateManagementPage {
                 if (Number(operation.planDuration) > 0) {
                     const planBlock = document.createElement("div");
                     planBlock.id = "plan-" + operation.id;
+                    planBlock.onmouseover = function (event) {
+                        let target = event.target;
+                        target.style.background = 'darkred';
+                        target.style.cursor = "pointer";
+                        //target.сlassList.add("plan-selected-block");
+                        text.value += "mouseover " + target.tagName + "\n";
+                        text.scrollTop = text.scrollHeight;
+                    };
+                    planBlock.onmouseout = function (event) {
+                        let target = event.target;
+                        //target.сlassList.remove("plan-selected-block");
+                        target.style.cursor = "default";
+                        target.style.background = 'coral';
+                        text.value += "mouseout " + target.tagName + "\n";
+                        text.scrollTop = text.scrollHeight;
+                    };
                     planBlock.onclick = this.createBlockClick(operation.id);
-                    planBlock.style.cssText = "height: " + Math.round(operation.planDuration * 2).toString() + "px; " +
+                    planBlock.style.cssText = "height: " + Math.round(operation.planDuration * 2.67).toString() + "px; " +
                         "width: 100px; " +
                         "background-color: coral; " +
                         "opacity: 50%; " +
                         "position: absolute; " +
-                        "margin-top: " + Math.round(operation.planStart * 2.66).toString() + "px; " +
+                        "margin-top: " + Math.round(operation.planStart * 2.665).toString() + "px; " +
                         "border: 2px solid";
                     cell.append(planBlock);
                 }                
@@ -259,20 +277,20 @@ class GateManagementPage {
         this.showReportTitle();
     }
 
-    exportToExcel() {
-        const reportTable = document.getElementById("report-table");
+    //exportToExcel() {
+    //    const reportTable = document.getElementById("report-table");
 
-        let date = utils.getUrlParameter("date");
-        if (date === "")
-            date = utils.getNowDate();
-        let shift = utils.getUrlParameter("shift");
-        if (shift === "")
-            shift = "day";
-        const fileName = "ecReport_" + date + "_" + shift;
-        const sheetName = date + " - " + shift;
+    //    let date = utils.getUrlParameter("date");
+    //    if (date === "")
+    //        date = utils.getNowDate();
+    //    let shift = utils.getUrlParameter("shift");
+    //    if (shift === "")
+    //        shift = "day";
+    //    const fileName = "ecReport_" + date + "_" + shift;
+    //    const sheetName = date + " - " + shift;
 
-        viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
-    }
+    //    viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
+    //}
 
     print() {
         window.print();
