@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient.Server;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Globalization;
+using System.Linq;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.BossControl.BO;
@@ -12,6 +12,7 @@ using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using TSLog.Yard.Logic;
 using TSLog.Yard.Reporting;
 using static TSLog.Yard.BO.OperationType;
 using OperationType = TSLog.Yard.BO.OperationType;
@@ -19,18 +20,18 @@ using OperationType = TSLog.Yard.BO.OperationType;
 namespace TSLog.Yard.WebUI.Pages.api.v1
 {
     /// <summary>
-    /// Контроллер api модуля управления двором 
+    /// Контроллер api модуля управления двором.
     /// </summary>
     [Route("/api/v1/[controller]")]
     [ApiController]
     public class YardController : ControllerBase
     {
         /// <summary>
-        /// Максимальное количество дней для некоторых отчётов (по дням)
+        /// Максимальное количество дней для некоторых отчётов (по дням).
         /// </summary>
         private const int MaxReportPeriodDays = 45;
 
-        // Средее время (ПО УМОЛЧАНИЮ) выгрузки/погрузки паллеты/коробки/штуки
+        // Средее время (ПО УМОЛЧАНИЮ) выгрузки/погрузки паллеты/коробки/штуки.
         private const int PalletUnloadTime = 93;
         private const int BoxUnloadTime = 20;
         private const int PieceUnloadTime = 25;
@@ -42,18 +43,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         /// "Постоянния" часть времени операции двора ПО УМОЛЧАНИЮ (не зависит от состава заказов/приходов),
         /// 8 минут 15 секунд на постановку машины,
         /// 6 минут 16 секунд на снятие машины (получено от Алексея Охотникова 2022.09.09).
-        /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД
+        /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД.
         /// </summary>
         private const int DefaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15);
 
         private readonly IConfiguration _configuration;
         private readonly IYardStorage _storage;
         private readonly IRightsChecker _rightsChecker;
+        private readonly Processor _processor;
         private readonly bool _useAuthentication;
 
         /// <summary>
-        /// "Постоянния" часть времени операции двора (не зависит от состава заказов/приходов)
-        /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД
+        /// "Постоянния" часть времени операции двора (не зависит от состава заказов/приходов),
+        /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД.
         /// </summary>
         public int ConstantOperationDuration { get; set; } = DefaultConstantOperationDuration;
         public YardController(IConfiguration configuration, IYardStorage storage, IRightsChecker rightsChecker)
@@ -62,6 +64,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage = storage;
             _rightsChecker = rightsChecker;
             _useAuthentication = _configuration.GetValue<bool>("UseAuthentication");
+            _processor = new Processor(configuration, storage, rightsChecker);
         }
 
         private static async Task<dynamic?> GetInputData(HttpRequest request)
@@ -72,6 +75,23 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var reader = new StreamReader(body);
             string json = await reader.ReadToEndAsync();
             return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+        }
+        /// <summary>
+        /// Формирует хэштаблицу из параметров HTTP запроса.
+        /// </summary>
+        /// <param name="request">HTTP запрос.</param>
+        /// <param name="keys">Массив имён параметров.</param>
+        /// <returns>Хэштаблица параметров HTTP запроса.</returns>
+        private static IDictionary<string, string> GetRequestParameters(HttpRequest request, string[] keys)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (var key in keys)
+            {
+                string? value = request.Query[key];
+                if (!string.IsNullOrWhiteSpace(value))
+                    result.Add(key, value);
+            }
+            return result;
         }
 
         private static dynamic GateToDynamic(Gate gate)
@@ -2401,29 +2421,25 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             try
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getWorkers = _rightsChecker.CheckRight("GET_WORKERS", User);
-                if (_useAuthentication && (!useYard || !getWorkers))
+                var namePattern = Request.Query["name_pattern"].ToString();
+                var positionCode = Request.Query["position_code"].ToString();
+                var objects = _processor.GetPositionWorkers(namePattern, positionCode, User, 
+                    out int statusCode, out string response);
+                if (statusCode == 200)
                 {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
+                    response = JsonSerializer.Serialize(objects);
+                    Response.StatusCode = 200;
+                    return response;
                 }
-
-                string stringNamePattern = Request.Query["name_pattern"];
-                string stringPositionCode = Request.Query["position_code"];
-                if (string.IsNullOrWhiteSpace(stringPositionCode))
-                    return "Position code is empty";
-
-                var position = _storage.GetPosition(stringPositionCode);
-                var workers = _storage.FindEmployees(position, stringNamePattern);
-                var objects = EmployeesToDynamic(workers);
-                var text = JsonSerializer.Serialize(objects);
-                Response.StatusCode = 200;
-                return text;
+                else
+                {
+                    Response.StatusCode = statusCode;
+                    return response;
+                }
             }
             catch (Exception exception)
             {
+                Response.StatusCode = 500;
                 return exception.Message;
             }
         }
