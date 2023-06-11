@@ -88,7 +88,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.BO", "TSLog.R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.Storage", "TSLog.Reports.Storage\TSLog.Reports.Storage.csproj", "{7DF480A1-163D-44B2-A623-E8ED15D65958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.Tests", "TSLog.Yard.Tests\TSLog.Yard.Tests.csproj", "{648A06C5-A50D-477C-AB92-0A065BCC2D62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Tests", "TSLog.Yard.Tests\TSLog.Yard.Tests.csproj", "{648A06C5-A50D-477C-AB92-0A065BCC2D62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{96C2A60D-648A-4129-BC07-9676D1E83819}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Db", "Db", "{B5F9287F-94BA-45B0-9CF9-024659D35E69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{42D2BE86-A34C-4F46-B26B-FA51F00E52FB}"
+	ProjectSection(SolutionItems) = preProject
+		Db\Documents\Резеовирование и восстановление PostgreSQL.docx = Db\Documents\Резеовирование и восстановление PostgreSQL.docx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -255,6 +264,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42D2BE86-A34C-4F46-B26B-FA51F00E52FB} = {B5F9287F-94BA-45B0-9CF9-024659D35E69}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88714E8B-587C-4203-A934-34F97D6D11C1}
