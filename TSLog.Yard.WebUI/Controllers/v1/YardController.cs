@@ -137,6 +137,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.planLaborCost = operation.PlanLaborCost;
             result.planLinearLaborCost = operation.PlanLinearLaborCost;
             result.factLaborCost = operation.FactLaborCost;
+            result.onParking = operation.Parking;
 
             result.gateId = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
                 operation.Gate.Code :
@@ -1206,6 +1207,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     Note = note
                 };
 
+                operation.Parking = data.onParking ?? false;
                 var user = RightsChecker.GetUserName(User);
                 _storage.AddOperation(operation, user);
                 _storage.AddOperationLog(operation, "Создана", user); 
@@ -1312,7 +1314,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-
+                operation.Parking = data.onParking ?? false;
                 var user = RightsChecker.GetUserName(User);
                 operation = _storage.AddOperation(operation, user);
 
@@ -1436,6 +1438,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
+                operation.Parking = data.onParking ?? false;
                 operation = _storage.AddOperation(operation, RightsChecker.GetUserName(User));
                 _storage.AddOperationLog(operation, "Создана (партнером)", user);
 
@@ -1512,6 +1515,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.TrailerNumber = data.trailerNumber;
                 operation.DriverName = data.driverName;
                 operation.DriverPhoneNumber = data.driverPhoneNumber;
+                operation.Parking = data.onParking ?? false;
 
                 var gate = operation.Gate;
                 temp = data.gateCode;

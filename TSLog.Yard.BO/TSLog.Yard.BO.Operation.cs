@@ -111,6 +111,10 @@ namespace TSLog.Yard.BO
         /// </summary>
         public string DriverPhoneNumber { get; set; }
         /// <summary>
+        /// Признак парковки
+        /// </summary>
+        public bool Parking { get; set; } = false;
+        /// <summary>
         /// Логист (транспортно-логистическая компания)
         /// </summary>
         public Logist Logist { get; set; } = Logist.Null;
