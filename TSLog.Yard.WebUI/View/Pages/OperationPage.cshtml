@@ -285,8 +285,12 @@
             <input id="editor-input" class="form-control" value="" disabled/>
         </div>
 
+
         @if ((setGate || viewGate) && !isPartnerUser && (action == "VIEW" || action == "VIEW_BY_PARTNER" || action == "COPY" || action == "COPY_BY_PARTNER"))
         {
+            <div id="parking-div" class="row input-group input-div parking-input">
+                <span class="input-group-text col-4">Паркинг<input class="form-check-input parking-checkbox" type="checkbox" id="parkingCheck" value="parking"></span>
+            </div>
             <partial name="Blocks/Lists/_GatesDropdown" model="gatesModel" />
         }    
         <div class="row fields-container">

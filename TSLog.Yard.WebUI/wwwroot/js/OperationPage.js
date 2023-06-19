@@ -575,6 +575,21 @@ class OperationPage {
         await this.onChangeDuration();
     }
 
+    onChangeParking() {
+        const parkingCheckBox = document.getElementById("parkingCheck");
+        const parkingActive = parkingCheckBox != null ? document.getElementById("parkingCheck").checked : false;
+        const gatesSelect = document.getElementById("gates-select");
+        const setGateButton = document.getElementById("set-gate-button");
+        if (parkingActive) {
+            gatesSelect.disabled = true;
+            setGateButton.style.display = 'none';
+            gatesSelect.selectedIndex = 0;
+        } else {
+            gatesSelect.disabled = false;
+            setGateButton.style.display = 'inline-block';
+        }
+    }
+
     async createOperation() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
@@ -598,6 +613,7 @@ class OperationPage {
             vehicleModel: document.getElementById("vehicle-model-input").value,
             vehicleNumber: document.getElementById("vehicle-number-input").value,
             trailerNumber: document.getElementById("trailer-number-input").value,
+            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
             driverName: document.getElementById("driver-name-input").value,
             driverPhoneNumber: document.getElementById("driver-phone-number-input").value,
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
@@ -648,6 +664,7 @@ class OperationPage {
             vehicleNumber: document.getElementById("vehicle-number-input").value,
             trailerNumber: document.getElementById("trailer-number-input").value,
             driverName: document.getElementById("driver-name-input").value,
+            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
             driverPhoneNumber: document.getElementById("driver-phone-number-input").value,
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
@@ -693,6 +710,7 @@ class OperationPage {
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
             vehicleBrand: document.getElementById("vehicle-brand-input").value,
             vehicleModel: document.getElementById("vehicle-model-input").value,
+            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
             vehicleNumber: document.getElementById("vehicle-number-input").value,
             trailerNumber: document.getElementById("trailer-number-input").value,
             driverName: document.getElementById("driver-name-input").value,
@@ -744,6 +762,7 @@ class OperationPage {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
+            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
             gateCode: document.getElementById("gates-select") != undefined ? document.getElementById("gates-select").value : "",
             vehicleBrand: document.getElementById("vehicle-brand-input").value,
             vehicleModel: document.getElementById("vehicle-model-input").value,
@@ -1257,6 +1276,11 @@ class OperationPage {
             alert("Работники не назначены!");
             return;
         }
+        const gatesSelect = document.getElementById("gates-select");
+        if (gatesSelect.selectedIndex === 0) {
+            alert("Ворота не выбраны!");
+            return;
+        }
         const result = await api.startOperationWork(this.id);
         if (result.code === 0) {
             location.reload();
@@ -1600,13 +1624,28 @@ class OperationPage {
             document.getElementById("editor-div").remove();
         }        
 
-        // Gates
+        // Gates and parking
+        const parkingCheckBox = document.getElementById("parkingCheck");
+        //if (operation.onParking && parkingCheckBox != null) {
+        //    parkingCheckBox.checked = true;
+        //    this.onChangeParking();
+        //}            
+        let parkingActive = parkingCheckBox != null ? document.getElementById("parkingCheck").checked : false;
+        if (parkingCheckBox != null) {
+            if (operation.onParking) {
+                parkingCheckBox.checked = true;
+                this.onChangeParking();
+            }                            
+            parkingCheckBox.onchange = this.onChangeParking.bind(this);
+        }
+                    
         const gatesSelect = document.getElementById("gates-select");
-        if (gatesSelect != undefined) {
+        if (gatesSelect != undefined && parkingActive != undefined && !parkingActive) {
             const gateCode = operation != null && !copy && !isLate ? operation.gateCode : "";
             gatesSelect.value = gateCode;
             if (!copy && !isPreparing) {
                 gatesSelect.disabled = true;
+                parkingCheckBox.disabled = true;
             } else {
                 await this.changeGates();
             }
@@ -1649,7 +1688,7 @@ class OperationPage {
         const workersFilterDiv = document.getElementById("workers-filter-div");
         if (workersDiv != null && workersDiv != undefined) {
             const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
-            if (states.includes(this.stateCode)) {
+            if (states.includes(this.stateCode) && gatesSelect.selectedIndex != 0) {
                 workersDiv.classList.remove("d-none");
 
                 await this.getSelectedWorkers();
@@ -1733,8 +1772,8 @@ class OperationPage {
         viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
         viewUtils.removeElement("set-gate-button", !isPreparing);
         viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
-        viewUtils.removeElement("start-work-button", this.stateCode != "STARTED");
-        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED");
+        viewUtils.removeElement("start-work-button", this.stateCode != "STARTED" || gatesSelect.selectedIndex === 0);
+        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED" || gatesSelect.selectedIndex === 0);
         viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
         viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
         viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");

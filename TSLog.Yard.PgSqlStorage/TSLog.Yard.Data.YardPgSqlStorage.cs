@@ -984,6 +984,16 @@ namespace TSLog.Yard.Data
 
             var gateId = Utils.DbValueToShort(reader["gate_id"]);
             operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
+            bool parking;
+            if (Convert.IsDBNull(reader["on_parking"]))
+            {
+                parking = false; 
+            }
+            else
+            {
+                parking = Convert.ToBoolean(reader["on_parking"]); 
+            }
+            operation.Parking = parking;
 
             var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
             operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
@@ -1455,6 +1465,7 @@ namespace TSLog.Yard.Data
                         ":p_driver_phone_number,\n" +
                         ":p_logist_id,\n" +
                         ":p_priority,\n" +
+                        ":p_parking,\n" +
                         ":p_partner_manager_name,\n" +
                         ":p_partner_manager_phone_number,\n" +
                         ":p_partner_manager_email,\n" +
@@ -1476,6 +1487,7 @@ namespace TSLog.Yard.Data
                     command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
                         operation.Logist != null ? operation.Logist.Id : DBNull.Value));
                     command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+                    command.Parameters.Add(CreateParameter("p_parking", NpgsqlDbType.Boolean, operation.Parking));
                     command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
                     command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
                     command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
@@ -1514,7 +1526,7 @@ namespace TSLog.Yard.Data
                         $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, o.trailer_number,\n" +
                         $"       o.driver_name, o.driver_phone_number,\n" +
                         $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                        $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                        $"       o.gate_id, o.gate_code, o.gate_name, o.on_parking,\n" +
                         $"       o.state_id, o.state_code, o.state_name,\n" +
                         $"       o.priority,\n" +
                         $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email,\n" +
@@ -1652,7 +1664,7 @@ namespace TSLog.Yard.Data
                         $"       po.manager_id,\n" +
                         $"       po.responsible_officer_id,\n" +
                         $"       po.note,\n" +
-                        $"       po.created, po.creator, po.edited, po.editor\n" +
+                        $"       po.created, po.creator, po.edited, po.editor, po.on_parking\n" +
                         $"  from {YardSchema}.v_partner_operation po\n" +
                         $" where not (po.plan_work_start_date > :to_date\n" +
                         $"    or po.plan_work_finish_date < :from_date)\n" +
@@ -1711,7 +1723,7 @@ namespace TSLog.Yard.Data
                         $"       o.manager_id,\n" +
                         $"       o.responsible_officer_id,\n" +
                         $"       o.note,\n" +
-                        $"       o.created, o.creator, o.edited, o.editor\n" +
+                        $"       o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
                         $"  from {YardSchema}.v_operation o\n" +
                         $" where not (o.plan_work_start_date > :to_date\n" +
                         $"    or o.plan_work_finish_date < :from_date)";
@@ -1782,7 +1794,7 @@ namespace TSLog.Yard.Data
                        $"       po.trailer_number,\n" +
                        $"       po.driver_name, po.driver_phone_number,\n" +
                        $"       po.logist_id, po.logist_code, po.logist_name,\n" +
-                       $"       po.gate_id, po.gate_code, po.gate_name,\n" +
+                       $"       po.gate_id, po.gate_code, po.gate_name, po.on_parking,\n" +
                        $"       po.state_id, po.state_code, po.state_name,\n" +
                        $"       po.priority,\n" +
                        $"       po.partner_manager_name,\n" +
@@ -1955,7 +1967,7 @@ namespace TSLog.Yard.Data
                        $"         ao.manager_id,\n" +
                        $"         ao.responsible_officer_id,\n" +
                        $"         ao.note,\n" +
-                       $"         ao.created, ao.creator, ao.edited, ao.editor\n" +
+                       $"         ao.created, ao.creator, ao.edited, ao.editor, ao.on_parking\n" +
                        $"    from {YardSchema}.v_active_operation ao\n" +
                        $"order by ao.plan_work_start_date, ao.plan_work_finish_date, ao.fact_work_start_date, ao.fact_work_finish_date";
                     command.CommandText = SelectActiveOperationsSql;
@@ -2005,7 +2017,7 @@ namespace TSLog.Yard.Data
                        $"         o.manager_id,\n" +
                        $"         o.responsible_officer_id,\n" +
                        $"         o.note,\n" +
-                       $"         o.created, o.creator, o.edited, o.editor\n" +
+                       $"         o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
                        $"    from {YardSchema}.v_operation_for_guard o\n" +
                        $"order by o.vehicle_number";
                     command.CommandText = SelectOperationsForGuardSql;
@@ -2136,6 +2148,7 @@ namespace TSLog.Yard.Data
                     $"    :p_driver_phone_number,\n" +
                     $"    :p_logist_id,\n" +
                     $"    :p_priority,\n" +
+                    $"    :p_parking, \n" +
                     $"    :p_partner_manager_name,\n" +
                     $"    :p_partner_manager_phone_number,\n" +
                     $"    :p_partner_manager_email,\n" +
@@ -2158,6 +2171,7 @@ namespace TSLog.Yard.Data
                 command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
                     operation.Logist != null ? operation.Logist.Id : DBNull.Value));
                 command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+                command.Parameters.Add(CreateParameter("p_parking", NpgsqlDbType.Boolean, operation.Parking));
                 command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
                 command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
                 command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
@@ -2746,7 +2760,7 @@ namespace TSLog.Yard.Data
                        $"       o.manager_id,\n" +
                        $"       o.responsible_officer_id,\n" +
                        $"       o.note,\n" +
-                       $"       o.created, o.creator, o.edited, o.editor\n" +
+                       $"       o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
                        $"  from {YardSchema}.v_operation o\n" +
                        $"    /*\n" +
                        $"    Важное пояснение по фильтру по датам.\n" +
@@ -2808,7 +2822,7 @@ namespace TSLog.Yard.Data
                        $"       o.manager_id,\n" +
                        $"       o.responsible_officer_id,\n" +
                        $"       o.note,\n" +
-                       $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter\n" +
+                       $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter, o.on_parking\n" +
                        $"  from {YardSchema}.v_dr_operation o\n" +
                        $"    /*\n" +
                        $"    */\n" +

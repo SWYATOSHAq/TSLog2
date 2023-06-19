@@ -146,3 +146,11 @@
     text-decoration: none;
     cursor: pointer;
 }
+
+.parking-checkbox {
+    margin-left: 100px;
+}
+
+.parking-input {
+    width: 300%;
+}
