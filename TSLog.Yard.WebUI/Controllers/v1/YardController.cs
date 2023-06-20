@@ -1567,6 +1567,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var userName = RightsChecker.GetUserName(User);
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.EditOperation(operation, userName);
+                _storage.SetResponsibleOfficer(operation, employee);
                 if (operation.Gate.Code != gate.Code)
                 {
                     try
