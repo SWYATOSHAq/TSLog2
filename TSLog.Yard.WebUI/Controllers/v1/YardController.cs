@@ -1580,12 +1580,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     }
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-                else if (changeGate)
+                else if (changeGate && !operation.Parking)
                 {
                     _storage.SetOperationGate(operation, null, userName);
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-                string editStatus = operation.State.DisplayName + "(отредактирована)";
+                else if (changeGate)
+                {
+                    _storage.SetResponsibleOfficer(operation, employee);
+                }
+                    string editStatus = operation.State.DisplayName + "(отредактирована)";
                 _storage.AddOperationLog(operation, editStatus, userName); 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
