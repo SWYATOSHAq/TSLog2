@@ -1314,16 +1314,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation.Parking = data.onParking ?? false;
+                operation.Parking = true;
                 var user = RightsChecker.GetUserName(User);
                 operation = _storage.AddOperation(operation, user);
 
                 // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
                 // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
-                operation.Gate = _storage.SetOperationGate(operation, null, user);
-                _storage.AddOperationLog(operation, "Создана", user);
+                //operation.Gate = _storage.SetOperationGate(operation, null, user);  до 26.06.23 подтверждение было на воротах
                 _storage.SetResponsibleOfficer(operation, employee, user);
+                _storage.AddOperationLog(operation, "Создана с подтверждением", user);
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
@@ -1808,7 +1808,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetOperationGate(operation, gate, userName);
                 _storage.SetResponsibleOfficer(operation, employee);
-                _storage.AddOperationLog(operation, "Подтверждена", userName);
+                _storage.AddOperationLog(operation, "Подтверждена, назначены ворота", userName);
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
