@@ -1589,8 +1589,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-                    string editStatus = operation.State.DisplayName + "(отредактирована)";
-                _storage.AddOperationLog(operation, editStatus, userName); 
+                var operationForLog = _storage.GetOperation(id);
+                string editStatus = operationForLog.State.DisplayName + "(отредактирована)";
+                _storage.AddOperationLog(operationForLog, editStatus, userName); 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
