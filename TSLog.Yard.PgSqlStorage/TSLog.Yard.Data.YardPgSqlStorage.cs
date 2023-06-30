@@ -1426,7 +1426,6 @@ namespace TSLog.Yard.Data
                     command.CommandText = sql;
                     command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Integer, operation.Id));
                     command.Parameters.Add(CreateParameter("p_operation_type", NpgsqlDbType.Varchar, operation.Type.DisplayName));
-                    //command.Parameters.Add(CreateParameter("p_status", NpgsqlDbType.Varchar, operation.State.DisplayName));
                     command.Parameters.Add(CreateParameter("p_status", NpgsqlDbType.Varchar, status));
                     command.Parameters.Add(CreateParameter("p_info", NpgsqlDbType.Json, info.ToString((Newtonsoft.Json.Formatting)Formatting.None)));
                     command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
@@ -2097,6 +2096,33 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             return operation.Gate;
+        }
+        /// <summary>
+        /// Назначает парковкинг на операцию двора (ПРР) и сохраняе ее в статусе "Подтверждено"
+        /// </summary>
+        /// <param name="operation">Операция двора (ПРР)</param>
+        /// <param name="user">Имя полльзователя</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void SetOperationParking(Operation operation, string user = "")
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    var sql =
+                        $"select {YardSchema}.set_operation_parking(:p_id,\n" +
+                        $"   :p_user);";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
         }
         /// <summary>
         /// Сбрасывает ворота у операции двора (снимает назначение)

@@ -1334,16 +1334,16 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 {
                     Note = note
                 };
-                operation.Parking = data.onParking ?? false;
+                operation.Parking = true;
                 var user = RightsChecker.GetUserName(User);
                 operation = _storage.AddOperation(operation, user);
 
                 // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
                 // нельзя было присвоить ворота
                 var employee = _storage.GetEmployeeByAdLogin(user);
-                operation.Gate = _storage.SetOperationGate(operation, null, user);
-                _storage.AddOperationLog(operation, "Создана", user);
+                //operation.Gate = _storage.SetOperationGate(operation, null, user);  до 26.06.23 подтверждение было на воротах
                 _storage.SetResponsibleOfficer(operation, employee, user);
+                _storage.AddOperationLog(operation, "Создана с подтверждением", user);
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 201;
@@ -1587,6 +1587,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var userName = RightsChecker.GetUserName(User);
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.EditOperation(operation, userName);
+                _storage.SetResponsibleOfficer(operation, employee);
                 if (operation.Gate.Code != gate.Code)
                 {
                     try
@@ -1599,13 +1600,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     }
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-                else if (changeGate)
+                else if (changeGate && !operation.Parking)
                 {
                     _storage.SetOperationGate(operation, null, userName);
                     _storage.SetResponsibleOfficer(operation, employee);
                 }
-                string editStatus = operation.State.DisplayName + "(отредактирована)";
-                _storage.AddOperationLog(operation, editStatus, userName); 
+                else if (changeGate)
+                {
+                    _storage.SetResponsibleOfficer(operation, employee);
+                }
+                var operationForLog = _storage.GetOperation(id);
+                string editStatus = operationForLog.State.DisplayName + "(отредактирована)";
+                _storage.AddOperationLog(operationForLog, editStatus, userName); 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
@@ -1823,7 +1829,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var employee = _storage.GetEmployeeByAdLogin(userName);
                 _storage.SetOperationGate(operation, gate, userName);
                 _storage.SetResponsibleOfficer(operation, employee);
-                _storage.AddOperationLog(operation, "Подтверждена", userName);
+                _storage.AddOperationLog(operation, "Подтверждена, назначены ворота", userName);
 
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;

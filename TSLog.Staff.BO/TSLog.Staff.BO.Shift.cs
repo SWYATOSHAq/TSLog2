@@ -165,6 +165,14 @@
             {
                 shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(9)).TotalSeconds); // 18:00
             }
+            else if (siteId == 1053 && employeeShiftLength == 13800) // костыль под Петрова Никиту
+            {
+                shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(13)).TotalSeconds); 
+            }
+            else if (siteId == 1053 && employeeShiftLength == 21000) // костыль под Охотникова Святослава
+            {
+                shortShiftLengthSeconds = (int)Math.Round((finishTime - finishTime.Date.AddHours(12)).TotalSeconds); 
+            }
             else if (siteId == 1053 && employeeShiftLength == 38412) // сменный сотрудник
             {
                 if (shiftKind == "D") // для дневной смены

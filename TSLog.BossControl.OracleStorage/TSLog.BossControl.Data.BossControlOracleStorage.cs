@@ -1030,39 +1030,30 @@ namespace TSLog.BossControl.Data
                         int planShiftLengthSeconds = Shift.GetShortShiftLength(startTime, finishTime, site_id, employee.ShiftLength, shift.Kind); //проверка на случай сокращенной смены
                         if (!planWorks.ContainsKey(workerId))
                         {
-                            planWorks.Add(workerId, planShiftLengthSeconds * k);
+                            if (workerId == 100421 || workerId == 100424) // костыль под Петрова Никиту и Охотникова Святослава
+                            {
+                                planWorks.Add(workerId, planShiftLengthSeconds);
+                            }
+                            else
+                            {
+                                planWorks.Add(workerId, planShiftLengthSeconds * k);
+                            }
                         }
                         else
                         {
                             if (site_id == 1053)
-                                planWorks[workerId] = planShiftLengthSeconds * k;
+                            {
+                                if (workerId == 100421 || workerId == 100424) // костыль под Петрова Никиту и Охотникова Святослава
+                                {
+                                    planWorks[workerId] = planShiftLengthSeconds;
+                                }
+                                else
+                                {
+                                    planWorks[workerId] = planShiftLengthSeconds * k;
+                                }
+                            }
                         }
-                        //shiftData.length = planShiftLengthSeconds * k;
-                        // Нижеприведенный блок IF реализован для исключения простоев в случае сокращенных смен
-                        // site_id - это участок на котором нужно отметиться в случае окончания рабочего времени раньше срока
-                        // if (site_id == 1053 && employee.ShiftLength == 28800) // дневной сотрудник
-                        // {
-                        //     finishTime = startTime.Date.AddHours(18); // 18:00
-                        // }
-                        // else if (site_id == 1053 && employee.ShiftLength == 37800) // сменный сотрудник
-                        // {
-                        //     if (shift.Kind == "D") // для дневной смены
-                        //     {
-                        //         finishTime = startTime.Date.AddHours(21); // 21:00
-                        //     }
-                        //     else // для ночной смены
-                        //     {
-                        //         if (startTime >= startTime.Date.AddHours(21)) // в случае окончания работы до 23:59
-                        //         {
-                        //             finishTime = startTime.Date.AddHours(33); // 9:00 след. суток
-                        //         }
-                        //         else // в случае окончания работы после 00:00
-                        //         {
-                        //             finishTime = startTime.Date.AddHours(9); // 9:00
-                        //         }
-                        //     }
-                        // }
-                        
+                       
                         if (!factWorks.ContainsKey(workerId))
                             factWorks.Add(workerId, 0);
                         var span = finishTime - startTime;

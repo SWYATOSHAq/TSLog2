@@ -146,9 +146,20 @@ namespace TSLog.Staff.BO
         {
             get
             {
-                return WorkMode == "I" || WorkMode == "II" || WorkMode == "III" || WorkMode == "IV" ? 
-                    (int)Math.Round(10.67 * 60 * 60) :
-                    (int)(7.67 * 60 * 60);
+                if (Id == 100421 && Surname == "Петров")
+                {
+                    return 13800;
+                }
+                else if (Id == 100424 && Surname == "Охотников")
+                {
+                    return 21000;
+                }
+                else
+                {
+                    return WorkMode == "I" || WorkMode == "II" || WorkMode == "III" || WorkMode == "IV" ? 
+                        (int)Math.Round(10.67 * 60 * 60) :
+                        (int)(7.67 * 60 * 60);
+                }
             }
         }
         /// <summary>

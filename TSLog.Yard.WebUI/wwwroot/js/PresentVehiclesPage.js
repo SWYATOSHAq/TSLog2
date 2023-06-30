@@ -68,6 +68,7 @@ class PresentVehiclesPage {
 
         viewUtils.createRowHeader(operationTr, ["table-cell"], [operation.id]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.trailerNumber]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber]);
