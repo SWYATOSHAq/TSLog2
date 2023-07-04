@@ -781,16 +781,23 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 string partnerId = data.partnerId;
                 var partner = _storage.GetPartner(partnerId);
                 dynamic[] outgoes = ((JArray)data.outgoes).ToArray<dynamic>();
-                var outgoesIds = new List<string>();
-                foreach (var outgo in outgoes)
+                long laborCost;
+                if (partnerId == "0031") // #5367 04.07.23 добавлено по заявкке Башлыкова из-зи неправильного рассчета норматива
                 {
-                    string id = outgo.id;
-                    outgoesIds.Add(id);
+                    laborCost = _GetFillingPlanOperationDuration(operationType, vehicleKind, outgoes);
                 }
+                else
+                {
+                    var outgoesIds = new List<string>();
+                    foreach (var outgo in outgoes)
+                    {
+                        string id = outgo.id;
+                        outgoesIds.Add(id);
+                    }
 
-                var laborCost = _GetHoodManPlanOperationLaborCost_Card(operationType, vehicleKind, partner,
-                    outgoesIds.ToArray());
-
+                    laborCost = _GetHoodManPlanOperationLaborCost_Card(operationType, vehicleKind, partner, outgoesIds.ToArray());
+                }
+                
                 var text = JsonSerializer.Serialize(laborCost);
                 Response.StatusCode = 200;
                 return text;
