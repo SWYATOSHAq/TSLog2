@@ -2616,6 +2616,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var operation = _storage.GetOperation(operationId);
                 var worker = _storage.GetEmployee(workerId);
                 var position = _storage.GetPosition(stringPositionCode);
+                bool isBusy = _storage.IsWorkerBusy(worker);
+                if (isBusy)
+                {
+                    Response.StatusCode = 409;
+                    return "Данный сотрудник уже занят! Выберите другого. Для просмотра актуального перечня незанятых сотрудников обновите страницу.";
+                }                   
 
                 _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null);
                 var text = JsonSerializer.Serialize(operation);

@@ -1178,7 +1178,7 @@ class OperationPage {
 
         const workerFullNameB = document.createElement("b");
         workerFullNameB.textContent = worker.fullName;
-        button.append(workerFullNameB);
+        button.append(workerFullNameB); getSelectedWorkers
         button.onclick = () => {
             this.onLinearWorkerClick(button);
         }

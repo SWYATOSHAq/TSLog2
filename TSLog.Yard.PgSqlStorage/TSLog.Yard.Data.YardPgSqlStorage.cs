@@ -2544,7 +2544,8 @@ namespace TSLog.Yard.Data
                             or o.fact_work_start_date is not null and (o.fact_work_start_date >= :finish_date or greatest(o.plan_work_finish_date, now() + interval'15 minutes') <= :start_date))
             */
             // По результатм обсуждений был приянто решене считать занятыми тех работников,
-            // которые привязаны к операциям, которые находятся на данный момент в работе.
+            // которые привязаны к операциям, которые находятся на данный момент в работе. 
+            // 04.07.23 #5416 сотрудник считается занятым с момента добавления его в список назначенных в заявке в статусе "Прибыла"
             var sql =
                 $"   select ow.worker_id,\n" +
                 $"          ow.operation_id,\n" +
@@ -2554,7 +2555,9 @@ namespace TSLog.Yard.Data
                 $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
                 $"    where ow.worker_id = :worker_id\n" +
                 $"      and o.fact_work_finish_date is null\n" +
-                $"      and o.fact_work_start_date is not null";
+                $"      and o.fact_work_start_date is not null\n" +
+                $"      or state_id = 1003\n" +
+                $"      and ow.worker_id = :worker_id";
             command.CommandText = sql;
             command.Parameters.Add(CreateParameter("worker_id", NpgsqlDbType.Integer, employee.Id));
 
