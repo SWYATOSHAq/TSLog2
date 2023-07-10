@@ -56,7 +56,7 @@ string pgsqlDatabase = pgsqlConnectionSettings.GetValue<string>("Database");
 string pgsqlYardSchema = pgsqlConnectionSettings.GetValue<string>("YardSchema");
 
 var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);
-storage.MaxRowsCount = builder.Configuration.GetValue<int>("MaxRowsCount"); ;
+storage.MaxRowsCount = builder.Configuration.GetValue<int>("MaxRowsCount");
 
 storage.ConnectOracle(oracleUserName, oraclePassword);
 storage.SetOracleCommonSchema(oracleCommonSchema);
