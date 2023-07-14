@@ -1740,8 +1740,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 operation.PlanWorkStartDate = planWorkStartDate;
                 operation.PlanWorkFinishDate = planWorkFinishDate;
                 _storage.EditOperation(operation, user);
-                string editStatus = operation.State.DisplayName + "(отредактирована партнером)";
-                _storage.AddOperationLog(operation, editStatus, user);
+                var operationForLog = _storage.GetOperation(id);
+                string editStatus = operationForLog.State.DisplayName + "(отредактирована партнером)";
+                _storage.AddOperationLog(operationForLog, editStatus, user);
                 var text = OperationToJson(operation);
                 Response.StatusCode = 200;
                 return text;
