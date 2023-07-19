@@ -52,19 +52,21 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         private readonly IRightsChecker _rightsChecker;
         private readonly Processor _processor;
         private readonly bool _useAuthentication;
+        private readonly ILogger<YardController> _logger;
 
         /// <summary>
         /// "Постоянния" часть времени операции двора (не зависит от состава заказов/приходов),
         /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД.
         /// </summary>
         public int ConstantOperationDuration { get; set; } = DefaultConstantOperationDuration;
-        public YardController(IConfiguration configuration, IYardStorage storage, IRightsChecker rightsChecker)
+        public YardController(IConfiguration configuration, IYardStorage storage, IRightsChecker rightsChecker, ILogger<YardController> logger)
         {
             _configuration = configuration;
             _storage = storage;
             _rightsChecker = rightsChecker;
             _useAuthentication = _configuration.GetValue<bool>("UseAuthentication");
             _processor = new Processor(configuration, storage, rightsChecker);
+            _logger=logger;
         }
 
         private static async Task<dynamic?> GetInputData(HttpRequest request)
