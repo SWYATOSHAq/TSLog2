@@ -7,6 +7,8 @@ using TSLog.Yard;
 using TSLog.Yard.BO;
 using TSLog.Yard.WebUI.Data;
 using Serilog;
+using Microsoft.AspNetCore.Diagnostics;
+using TSLog.Common.Middleware;
 
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -113,6 +115,7 @@ try
         app.UseHsts();
     }
 
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseHttpsRedirection();
     app.UseStaticFiles();
     app.UseRouting();
