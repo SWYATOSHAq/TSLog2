@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using TSLog.ExceptionHandler;
 using TSLog.Common.Dto;
+using System.Diagnostics;
 
 namespace TSLog.Common.Middleware
 {
@@ -31,42 +32,111 @@ namespace TSLog.Common.Middleware
             }
             catch (DepartmentNotFoundException ex)
             {
+                _logger.LogError("DepartmentNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
                 await HandleExceptionAsync(httpContext,
                     ex.Message,
-                    HttpStatusCode.NotFound,
-                    "Department not found!");
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
             }
             catch (EmployeeNotFoundException ex)
             {
+                _logger.LogError("EmployeeNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
                 await HandleExceptionAsync(httpContext,
                     ex.Message,
-                    HttpStatusCode.NotFound,
-                    "Employee not found!");
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
             }
             catch (EntityNotFoundException ex)
             {
+                _logger.LogError("EntityNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
                 await HandleExceptionAsync(httpContext,
                     ex.Message,
-                    HttpStatusCode.NotFound,
-                    "Entity not found!");
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
             }
             catch (LegalEntityNotFoundException ex)
             {
+                _logger.LogError("LegalEntityNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
                 await HandleExceptionAsync(httpContext,
                     ex.Message,
-                    HttpStatusCode.NotFound,
-                    "LegalEntity not found!");
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (OperationNotFoundException ex)
+            {
+                _logger.LogError("OperationNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (PartnerNotFoundException ex)
+            {
+                _logger.LogError("PartnerNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (PositionNotFoundException ex)
+            {
+                _logger.LogError("PositionNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (ProductNotFoundException ex)
+            {
+                _logger.LogError("ProductNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (ShiftNotFoundException ex)
+            {
+                _logger.LogError("ShiftNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (SiteNotFoundException ex)
+            {
+                _logger.LogError("SiteNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
+            }
+            catch (WarehouseActionNotFoundException ex)
+            {
+                _logger.LogError("WarehouseActionNotFoundException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.InternalServerError,
+                    ex.Message);
             }
             catch (NullReferenceException ex)
             {
-                _logger.LogWarning("NullReferenceException with {stackTrace} and {targetSite}", ex.StackTrace, ex.TargetSite);
+                _logger.LogError("NullReferenceException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
                 await HandleExceptionAsync(httpContext,
                     ex.Message,
                     HttpStatusCode.ServiceUnavailable,
-                    $"NullReferenceException has happened!");
+                    ex.Message);
+            }
+            catch (Oracle.ManagedDataAccess.Client.OracleException ex)
+            {
+                _logger.LogError("OracleException {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
+                await HandleExceptionAsync(httpContext,
+                    ex.Message,
+                    HttpStatusCode.ServiceUnavailable,
+                    $"Таблица или представление пользователя не существует!");
             }
             catch (Exception ex)
             {
+                _logger.LogError("Exception {Message} with {stackTrace} and {targetSite}", ex.Message, ex.StackTrace, ex.TargetSite);
                 await HandleExceptionAsync(httpContext,
                     ex.Message,
                     HttpStatusCode.InternalServerError,
@@ -76,7 +146,7 @@ namespace TSLog.Common.Middleware
 
         private async Task HandleExceptionAsync(HttpContext context, string exMsg, HttpStatusCode httpStatusCode, string message)
         {
-            _logger.LogError(exMsg);
+            //_logger.LogError(exMsg);
 
             HttpResponse response = context.Response;
 

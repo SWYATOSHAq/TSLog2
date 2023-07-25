@@ -98,10 +98,10 @@ class Utils {
     }
 
     // Создаёт объект, возвращаемый Api функциями в случае ошибки
-    createErrorObject(message, code = 9999) {
+    createErrorObject(errorObj) {
         return {
-            code: code,
-            message: message
+            code: errorObj.statusCode,
+            message: errorObj.message
         }
     }
 

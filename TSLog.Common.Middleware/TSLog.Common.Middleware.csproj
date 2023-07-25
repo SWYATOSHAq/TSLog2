@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TSLog.Common.Dto\TSLog.Common.Dto.csproj" />
     <ProjectReference Include="..\TSLog.ExceptionHandler\TSLog.ExceptionHandler.csproj" />
+    <ProjectReference Include="..\TSLog.Yard.OracleStorage\TSLog.Yard.OracleStorage.csproj" />
   </ItemGroup>
 
 </Project>

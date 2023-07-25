@@ -8,6 +8,7 @@ using TSLog.Authorization;
 using TSLog.BossControl.BO;
 using TSLog.Common;
 using TSLog.Common.BO;
+using TSLog.ExceptionHandler;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -277,59 +278,45 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("IsPartnerUser")]
         public string GetIsPartnerIser()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            if (_useAuthentication && !useYard)
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                if (_useAuthentication && !useYard)
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
+                Response.StatusCode = 403;
+                return "Forbidden";
+            }
 
-                var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
-                var text = JsonSerializer.Serialize(isPartnerUser);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
+            var text = JsonSerializer.Serialize(isPartnerUser);
+            Response.StatusCode = 200;
+            return text;
         }
         [HttpGet("StandardPlanOperationDuration")]
         public string GetStandardPlanOperationDuration()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                string stringOperationType = Request.Query["operation_type"];
-                string stringVehicleKind = Request.Query["vehicle_kind"];
-
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-
-                var operationType = _storage.GetOperationType(stringOperationType);
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                var duration = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
-                var text = JsonSerializer.Serialize(duration);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            string stringOperationType = Request.Query["operation_type"];
+            string stringVehicleKind = Request.Query["vehicle_kind"];
+
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+
+            var operationType = _storage.GetOperationType(stringOperationType);
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            var duration = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
+            var text = JsonSerializer.Serialize(duration);
+            Response.StatusCode = 200;
+            return text;
         }
         private int _GetFillingPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
         {
@@ -425,40 +412,33 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("FillingPlanOperationDuration")]
         async public Task<string> GetFillingPlanOperationDuration()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string stringOperationType = data.operationTypeCode;
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                var operationType = _storage.GetOperationType(stringOperationType);
-                string stringVehicleKind = data.vehicleKindCode;
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-
-                var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
-                var text = JsonSerializer.Serialize(duration);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            dynamic? data = await GetInputData(Request);
+            if (data == null)
+                return "Input data is null!";
+
+            string stringOperationType = data.operationTypeCode;
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            var operationType = _storage.GetOperationType(stringOperationType);
+            string stringVehicleKind = data.vehicleKindCode;
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+
+            var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
+            var text = JsonSerializer.Serialize(duration);
+            Response.StatusCode = 200;
+            return text;
         }
         private long _GetHoodManPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind,
             Partner partner, string[] outgoesIds)
@@ -482,119 +462,98 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("HoodManPlanOperationDuration")]
         async public Task<string> GetHoodManPlanOperationDuration()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string stringOperationType = data.operationTypeCode;
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                var operationType = _storage.GetOperationType(stringOperationType);
-                string stringVehicleKind = data.vehicleKindCode;
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                string partnerId = data.partnerId;
-                var partner = _storage.GetPartner(partnerId);
-                dynamic[] outgoes = ((JArray)data.warehouseActions).ToArray<dynamic>();
-                var outgoesIds = new List<string>();
-                foreach (var outgo in outgoes)
-                    outgoesIds.Add(outgo.id);
-
-                var duration = _GetHoodManPlanOperationDuration(operationType, vehicleKind, partner, outgoesIds.ToArray());
-
-                var text = JsonSerializer.Serialize(duration);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            dynamic? data = await GetInputData(Request);
+            if (data == null)
+                return "Input data is null!";
+
+            string stringOperationType = data.operationTypeCode;
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            var operationType = _storage.GetOperationType(stringOperationType);
+            string stringVehicleKind = data.vehicleKindCode;
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            string partnerId = data.partnerId;
+            var partner = _storage.GetPartner(partnerId);
+            dynamic[] outgoes = ((JArray)data.warehouseActions).ToArray<dynamic>();
+            var outgoesIds = new List<string>();
+            foreach (var outgo in outgoes)
+                outgoesIds.Add(outgo.id);
+
+            var duration = _GetHoodManPlanOperationDuration(operationType, vehicleKind, partner, outgoesIds.ToArray());
+
+            var text = JsonSerializer.Serialize(duration);
+            Response.StatusCode = 200;
+            return text;
         }
         [HttpGet("HoodManPlanOutgoDuration")]
         public string GetHoodManPlanOutgoDuration()
         {
-            try
+            // Алгоритм Башлыкова
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OUTGO_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                // Алгоритм Башлыкова
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OUTGO_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
+                Response.StatusCode = 403;
+                return "Forbidden";
+            }
 
-                string outgoId = Request.Query["outgo_id"];
-                if (string.IsNullOrWhiteSpace(outgoId))
-                    return "Outgo id is empty";
-                bool isPallet = Request.Query["is_pallet"] == "1";
-                string partnerId = Request.Query["partner_id"];
-                if (string.IsNullOrWhiteSpace(partnerId))
-                    return "Partner id is empty";
-                var partner = _storage.GetPartner(partnerId);
-                var duration = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);
-                var text = JsonSerializer.Serialize(duration);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            string outgoId = Request.Query["outgo_id"];
+            if (string.IsNullOrWhiteSpace(outgoId))
+                return "Outgo id is empty";
+            bool isPallet = Request.Query["is_pallet"] == "1";
+            string partnerId = Request.Query["partner_id"];
+            if (string.IsNullOrWhiteSpace(partnerId))
+                return "Partner id is empty";
+            var partner = _storage.GetPartner(partnerId);
+            var duration = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);
+            var text = JsonSerializer.Serialize(duration);
+            Response.StatusCode = 200;
+            return text;
         }
         [HttpGet("StandardPlanOperationLaborCost")]
         public string GetStandardPlanOperationLaborCost()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                string stringOperationType = Request.Query["operation_type"];
-                string stringVehicleKind = Request.Query["vehicle_kind"];
-
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-
-                var operationType = _storage.GetOperationType(stringOperationType);
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
-                var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
-
-                dynamic result = new ExpandoObject();
-                result.laborCost = laborCost;
-                result.linearLaborCost = linearLaborCost;
-
-                var text = JsonSerializer.Serialize(result);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            string stringOperationType = Request.Query["operation_type"];
+            string stringVehicleKind = Request.Query["vehicle_kind"];
+
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+
+            var operationType = _storage.GetOperationType(stringOperationType);
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
+            var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
+
+            dynamic result = new ExpandoObject();
+            result.laborCost = laborCost;
+            result.linearLaborCost = linearLaborCost;
+
+            var text = JsonSerializer.Serialize(result);
+            Response.StatusCode = 200;
+            return text;
         }
         private double GetFillingPlanOperationK(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
         {
@@ -607,47 +566,40 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("FillingPlanOperationLaborCost")]
         async public Task<string> GetFillingPlanOperationLaborCost()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string stringOperationType = data.operationTypeCode;
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                var operationType = _storage.GetOperationType(stringOperationType);
-                string stringVehicleKind = data.vehicleKindCode;
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-
-                var k = GetFillingPlanOperationK(operationType, vehicleKind, actions);
-                var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
-                var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
-
-                dynamic result = new ExpandoObject();
-                result.laborCost = Math.Round(laborCost * k);
-                result.linearLaborCost = Math.Round(linearLaborCost * k);
-
-                var text = JsonSerializer.Serialize(result);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            dynamic? data = await GetInputData(Request);
+            if (data == null)
+                return "Input data is null!";
+
+            string stringOperationType = data.operationTypeCode;
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            var operationType = _storage.GetOperationType(stringOperationType);
+            string stringVehicleKind = data.vehicleKindCode;
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+
+            var k = GetFillingPlanOperationK(operationType, vehicleKind, actions);
+            var laborCost = _storage.GetLaborCost(operationType, vehicleKind);
+            var linearLaborCost = _storage.GetLinearLaborCost(operationType, vehicleKind);
+
+            dynamic result = new ExpandoObject();
+            result.laborCost = Math.Round(laborCost * k);
+            result.linearLaborCost = Math.Round(linearLaborCost * k);
+
+            var text = JsonSerializer.Serialize(result);
+            Response.StatusCode = 200;
+            return text;
         }
         /// <summary>
         /// Функция определяем ПЛАНОВЫЕ трудозатраты операции двора по Алгоритму Башлыкова (HoodMan algorithm)
@@ -757,202 +709,167 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("HoodManPlanOperationLaborCost")]
         async public Task<string> GetHoodManPlanOperationLaborCost()
         {
-            try
+            // Расширенный алгоритм Башлыкова
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
+            if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                // Расширенный алгоритм Башлыкова
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
-                if (_useAuthentication && (!useYard || !getOperationDuration))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string stringOperationType = data.operationTypeCode;
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                var operationType = _storage.GetOperationType(stringOperationType);
-                string stringVehicleKind = data.vehicleKindCode;
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-                string partnerId = data.partnerId;
-                var partner = _storage.GetPartner(partnerId);
-                dynamic[] outgoes = ((JArray)data.outgoes).ToArray<dynamic>();
-                long laborCost;
-                if (partnerId == "0031") // #5367 04.07.23 добавлено по заявкке Башлыкова из-зи неправильного рассчета норматива
-                {
-                    laborCost = _GetFillingPlanOperationDuration(operationType, vehicleKind, outgoes);
-                }
-                else
-                {
-                    var outgoesIds = new List<string>();
-                    foreach (var outgo in outgoes)
-                    {
-                        string id = outgo.id;
-                        outgoesIds.Add(id);
-                    }
-
-                    laborCost = _GetHoodManPlanOperationLaborCost_Card(operationType, vehicleKind, partner, outgoesIds.ToArray());
-                }
-
-                var text = JsonSerializer.Serialize(laborCost);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
+
+            dynamic? data = await GetInputData(Request);
+            if (data == null)
+                return "Input data is null!";
+
+            string stringOperationType = data.operationTypeCode;
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            var operationType = _storage.GetOperationType(stringOperationType);
+            string stringVehicleKind = data.vehicleKindCode;
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+            string partnerId = data.partnerId;
+            var partner = _storage.GetPartner(partnerId);
+            dynamic[] outgoes = ((JArray)data.outgoes).ToArray<dynamic>();
+            long laborCost;
+            if (partnerId == "0031") // #5367 04.07.23 добавлено по заявкке Башлыкова из-зи неправильного рассчета норматива
             {
-                return exception.Message;
+                laborCost = _GetFillingPlanOperationDuration(operationType, vehicleKind, outgoes);
             }
+            else
+            {
+                var outgoesIds = new List<string>();
+                foreach (var outgo in outgoes)
+                {
+                    string id = outgo.id;
+                    outgoesIds.Add(id);
+                }
+
+                laborCost = _GetHoodManPlanOperationLaborCost_Card(operationType, vehicleKind, partner, outgoesIds.ToArray());
+            }
+
+            var text = JsonSerializer.Serialize(laborCost);
+            Response.StatusCode = 200;
+            return text;
         }
         [HttpGet("AvalibleIntervals")]
         public string GetAvalibleIntervals()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getBusyIntervals = _rightsChecker.CheckRight("GET_BUSY_INTERVALS", User);
+            if (_useAuthentication && (!useYard || !getBusyIntervals))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getBusyIntervals = _rightsChecker.CheckRight("GET_BUSY_INTERVALS", User);
-                if (_useAuthentication && (!useYard || !getBusyIntervals))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                string stringDate = Request.Query["date"];
-                string stringOperationType = Request.Query["operation_type"];
-                string stringVehicleKind = Request.Query["vehicle_kind"];
-
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-
-                var date = DateTime.Today;
-                if (!string.IsNullOrWhiteSpace(stringDate) && !DateTime.TryParse(stringDate.Trim(), out date))
-                    return $"Wrong date {stringDate}";
-
-                var operationType = _storage.GetOperationType(stringOperationType);
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-
-                var span = 2;
-                var periods = _storage.GetAvalibleIntervals(date, date.AddDays(span), operationType, vehicleKind);
-                var intervals = Interval.Union(periods);
-                var text = JsonSerializer.Serialize(intervals);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            string stringDate = Request.Query["date"];
+            string stringOperationType = Request.Query["operation_type"];
+            string stringVehicleKind = Request.Query["vehicle_kind"];
+
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+
+            var date = DateTime.Today;
+            if (!string.IsNullOrWhiteSpace(stringDate) && !DateTime.TryParse(stringDate.Trim(), out date))
+                return $"Wrong date {stringDate}";
+
+            var operationType = _storage.GetOperationType(stringOperationType);
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+
+            var span = 2;
+            var periods = _storage.GetAvalibleIntervals(date, date.AddDays(span), operationType, vehicleKind);
+            var intervals = Interval.Union(periods);
+            var text = JsonSerializer.Serialize(intervals);
+            Response.StatusCode = 200;
+            return text;
         }
 
         [HttpGet("AvalibleGates")]
         public string GetAvalibleGates()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getAvalibleGates = _rightsChecker.CheckRight("GET_AVALIBLE_GATES", User);
+            if (_useAuthentication && (!useYard || !getAvalibleGates))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getAvalibleGates = _rightsChecker.CheckRight("GET_AVALIBLE_GATES", User);
-                if (_useAuthentication && (!useYard || !getAvalibleGates))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-                string stringOperationType = Request.Query["operation_type"];
-                string stringVehicleKind = Request.Query["vehicle_kind"];
-                string stringStartDate = Request.Query["start_date"];
-                string finishStringFinishDate = Request.Query["finish_date"];
-                string stringOperationId = Request.Query["operation_id"];
-
-                if (string.IsNullOrWhiteSpace(stringOperationType))
-                    return "Operation type is empty";
-                if (string.IsNullOrWhiteSpace(stringVehicleKind))
-                    return "Vehicle kind is empty";
-
-                var startDate = DateTime.Today;
-                if (!string.IsNullOrWhiteSpace(stringStartDate) && !DateTime.TryParse(stringStartDate.Trim(), out startDate))
-                    return $"Wrong date {stringStartDate}";
-                var finishDate = DateTime.Today;
-                if (!string.IsNullOrWhiteSpace(finishStringFinishDate) && !DateTime.TryParse(finishStringFinishDate.Trim(), out finishDate))
-                    return $"Wrong date {finishStringFinishDate}";
-                if (!long.TryParse(stringOperationId, out long operationId))
-                    return $"Wrong operationId {stringOperationId}";
-
-                var operationType = _storage.GetOperationType(stringOperationType);
-                var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
-
-                var gates = _storage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate, operationId);
-                var dynamicGates = GatesToDynamic(gates);
-                var text = JsonSerializer.Serialize(dynamicGates);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            string stringOperationType = Request.Query["operation_type"];
+            string stringVehicleKind = Request.Query["vehicle_kind"];
+            string stringStartDate = Request.Query["start_date"];
+            string finishStringFinishDate = Request.Query["finish_date"];
+            string stringOperationId = Request.Query["operation_id"];
+
+            if (string.IsNullOrWhiteSpace(stringOperationType))
+                return "Operation type is empty";
+            if (string.IsNullOrWhiteSpace(stringVehicleKind))
+                return "Vehicle kind is empty";
+
+            var startDate = DateTime.Today;
+            if (!string.IsNullOrWhiteSpace(stringStartDate) && !DateTime.TryParse(stringStartDate.Trim(), out startDate))
+                return $"Wrong date {stringStartDate}";
+            var finishDate = DateTime.Today;
+            if (!string.IsNullOrWhiteSpace(finishStringFinishDate) && !DateTime.TryParse(finishStringFinishDate.Trim(), out finishDate))
+                return $"Wrong date {finishStringFinishDate}";
+            if (!long.TryParse(stringOperationId, out long operationId))
+                return $"Wrong operationId {stringOperationId}";
+
+            var operationType = _storage.GetOperationType(stringOperationType);
+            var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
+
+            var gates = _storage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate, operationId);
+            var dynamicGates = GatesToDynamic(gates);
+            var text = JsonSerializer.Serialize(dynamicGates);
+            Response.StatusCode = 200;
+            return text;
         }
 
         [HttpGet("PartnerManager")]
         public string GetPartnerManager()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getPartnermanager = _rightsChecker.CheckRight("GET_PARTNER_MANAGER", User);
+            if (_useAuthentication && (!useYard || !getPartnermanager))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getPartnermanager = _rightsChecker.CheckRight("GET_PARTNER_MANAGER", User);
-                if (_useAuthentication && (!useYard || !getPartnermanager))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-
-                string partnerId = Request.Query["partner_id"];
-                if (string.IsNullOrWhiteSpace(partnerId))
-                    return "Partner code is empty!";
-
-                var partner = _storage.GetPartner(partnerId);
-                var managers = _storage.GetPartnerManagers(partner);
-                if (managers.Length <= 0)
-                    return $"Partner (client) {partnerId} has no managers!";
-                var text = JsonSerializer.Serialize(managers[0]);
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+
+            string partnerId = Request.Query["partner_id"];
+            if (string.IsNullOrWhiteSpace(partnerId))
+                return "Partner code is empty!";
+
+            var partner = _storage.GetPartner(partnerId);
+            var managers = _storage.GetPartnerManagers(partner);
+            if (managers.Length <= 0)
+                return $"Partner (client) {partnerId} has no managers!";
+            var text = JsonSerializer.Serialize(managers[0]);
+            Response.StatusCode = 200;
+            return text;
         }
         [HttpGet("ManagerByPartner")]
         public string GetManagerByPartner()
         {
-            try
+            Response.StatusCode = 500;
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var getPartnermanager = _rightsChecker.CheckRight("GET_MANAGER_BY_PARTNER", User);
+            if (_useAuthentication && (!useYard || !getPartnermanager))
             {
-                Response.StatusCode = 500;
-                var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-                var getPartnermanager = _rightsChecker.CheckRight("GET_MANAGER_BY_PARTNER", User);
-                if (_useAuthentication && (!useYard || !getPartnermanager))
-                {
-                    Response.StatusCode = 403;
-                    return "Forbidden";
-                }
-                var text = "";
-                Response.StatusCode = 200;
-                return text;
+                Response.StatusCode = 403;
+                return "Forbidden";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            var text = "";
+            Response.StatusCode = 200;
+            return text;
         }
         #endregion
 

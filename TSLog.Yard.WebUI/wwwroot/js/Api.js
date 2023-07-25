@@ -12,7 +12,7 @@ class Api {
             return utils.createCorrectObject("isPartnerUser", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -25,7 +25,7 @@ class Api {
             return utils.createCorrectObject("planDuration", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -47,7 +47,7 @@ class Api {
             return utils.createCorrectObject("planDuration", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -69,7 +69,7 @@ class Api {
             return utils.createCorrectObject("planDuration", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -83,7 +83,7 @@ class Api {
             return utils.createCorrectObject("outgoDuration", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -97,7 +97,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -120,7 +120,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -144,7 +144,7 @@ class Api {
             return utils.createCorrectObject("laborCost", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -158,7 +158,7 @@ class Api {
             return utils.createCorrectObject("avalibleIntervals", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -174,7 +174,7 @@ class Api {
             return utils.createCorrectObject("avalibleGates", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -186,7 +186,7 @@ class Api {
             return utils.createCorrectObject("manager", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -197,7 +197,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -209,7 +209,7 @@ class Api {
             return utils.createCorrectObject("operations", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -221,7 +221,7 @@ class Api {
             return utils.createCorrectObject("operations", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -233,7 +233,7 @@ class Api {
             return utils.createCorrectObject("operations", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -250,7 +250,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -267,7 +267,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -284,7 +284,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -301,7 +301,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -318,7 +318,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -339,7 +339,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -362,7 +362,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -382,7 +382,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -396,7 +396,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -408,7 +408,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -420,7 +420,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -432,7 +432,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -444,7 +444,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -466,7 +466,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -488,7 +488,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -508,7 +508,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -521,7 +521,7 @@ class Api {
             return utils.createCorrectObject("works", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -541,7 +541,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -561,7 +561,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -581,7 +581,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -601,7 +601,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -621,7 +621,7 @@ class Api {
             return utils.createCorrectObject("operation", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -633,7 +633,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -645,7 +645,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -657,7 +657,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -669,7 +669,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -681,7 +681,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -693,7 +693,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -705,7 +705,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -717,7 +717,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -729,7 +729,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -741,7 +741,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -756,7 +756,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -769,7 +769,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -791,7 +791,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -813,7 +813,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 
@@ -833,7 +833,7 @@ class Api {
             return utils.createCorrectObject("data", await response.json());
         }
         else {
-            return utils.createErrorObject(await response.text());
+            return utils.createErrorObject(await response.json());
         }
     }
 }
