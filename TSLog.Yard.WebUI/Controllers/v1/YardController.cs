@@ -912,7 +912,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var k = GetFillingPlanOperationK(operation.Type, operation.VehicleKind, dynamicActions.ToArray());
                 dynamicOperation.planLaborCost = Math.Round(dynamicOperation.planLaborCost * k);
                 dynamicOperation.planLinearLaborCost = Math.Round(dynamicOperation.planLinearLaborCost * k);
-                _logger.LogWarning("Отработал метод Operation заявки {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
+                var user = RightsChecker.GetUserName(User);
+                _logger.LogWarning("Отработал метод Operation заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
                 var text = JsonSerializer.Serialize(dynamicOperation);
                 Response.StatusCode = 200;
                 return text;
@@ -1128,7 +1129,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             operation.Parking = data.onParking ?? false;
             var user = RightsChecker.GetUserName(User);
             _storage.AddOperation(operation, user);
-            _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
+            _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Создана", user); //логирование в бд
 
             var text = OperationToJson(operation);
@@ -1235,7 +1236,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var employee = _storage.GetEmployeeByAdLogin(user);
             //operation.Gate = _storage.SetOperationGate(operation, null, user);  до 26.06.23 подтверждение было на воротах
             _storage.SetResponsibleOfficer(operation, employee, user);
-            _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
+            _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Создана с подтверждением", user); //логирование в бд
 
             var text = OperationToJson(operation);
@@ -1346,7 +1347,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             };
             operation.Parking = data.onParking ?? false;
             operation = _storage.AddOperation(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
+            _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Создана (партнером)", user); //логирование в бд
 
             var text = OperationToJson(operation);
@@ -1464,25 +1465,25 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             operation.VehicleKind = vehicleKind;
             operation.PlanWorkStartDate = planWorkStartDate;
             operation.PlanWorkFinishDate = planWorkFinishDate;
-            var userName = RightsChecker.GetUserName(User);
-            var employee = _storage.GetEmployeeByAdLogin(userName);
-            _storage.EditOperation(operation, userName);
+            var user = RightsChecker.GetUserName(User);
+            var employee = _storage.GetEmployeeByAdLogin(user);
+            _storage.EditOperation(operation, user);
             _storage.SetResponsibleOfficer(operation, employee);
             if (operation.Gate.Code != gate.Code)
             {
                 try
                 {
-                    _storage.SetOperationGate(operation, gate, userName);
+                    _storage.SetOperationGate(operation, gate, user);
                 }
                 catch
                 {
-                    _storage.SetOperationGate(operation, null, userName);
+                    _storage.SetOperationGate(operation, null, user);
                 }
                 _storage.SetResponsibleOfficer(operation, employee);
             }
             else if (changeGate && !operation.Parking)
             {
-                _storage.SetOperationGate(operation, null, userName);
+                _storage.SetOperationGate(operation, null, user);
                 _storage.SetResponsibleOfficer(operation, employee);
             }
             else if (changeGate)
@@ -1491,8 +1492,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
             var operationForLog = _storage.GetOperation(id);
             string editStatus = operationForLog.State.DisplayName + "(отредактирована)";
-            _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}", operationForLog, operationForLog.Id);
-            _storage.AddOperationLog(operationForLog, editStatus, userName); //логирование в бд
+            _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
+            _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1608,7 +1609,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             operation.PlanWorkFinishDate = planWorkFinishDate;
             _storage.EditOperation(operation, user);
             var operationForLog = _storage.GetOperation(id);
-            _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}", operationForLog, operationForLog.Id);
+            _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
             string editStatus = operationForLog.State.DisplayName + "(отредактирована партнером)";
             _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
             var text = OperationToJson(operation);
@@ -1643,7 +1644,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var user = RightsChecker.GetUserName(User);
             _storage.SetOperationNote(operation, RightsChecker.GetUserName(User));
             string editStatus = "(записано примечение)";
-            _logger.LogWarning("Записано примечание в заявку {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
+            _logger.LogWarning("Записано примечание в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, editStatus, user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
@@ -1685,15 +1686,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
 
             var operation = _storage.GetOperation(id);
-            var userName = RightsChecker.GetUserName(User);
+            var user = RightsChecker.GetUserName(User);
 
             // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найся сотрудника (ответственного)
             // нельзя было присвоить ворота
-            var employee = _storage.GetEmployeeByAdLogin(userName);
-            _storage.SetOperationGate(operation, gate, userName);
+            var employee = _storage.GetEmployeeByAdLogin(user);
+            _storage.SetOperationGate(operation, gate, user);
             _storage.SetResponsibleOfficer(operation, employee);
-            _logger.LogWarning("Назначены ворота в заявку {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Подтверждена, назначены ворота", userName); //логирование в бд
+            _logger.LogWarning("Назначены ворота в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Подтверждена, назначены ворота", user); //логирование в бд
 
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
@@ -1723,9 +1724,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.CancelOperationGate(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Отменены ворота в заявку {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "CancelOperationGate", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Отменены ворота в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "CancelOperationGate", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1754,9 +1756,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.StartOperation(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Прибыла в заявке {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Прибыла", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Прибыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Прибыла", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1785,9 +1788,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.StartOperationWork(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Работа начата в заявке {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Работа начата", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Работа начата в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Работа начата", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1816,9 +1820,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Работа завершена", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Работа завершена", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1847,9 +1852,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.FinishOperation(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Убыла в заявке {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Убыла", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Убыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Убыла", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1878,9 +1884,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.CancelOperation(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Отменена в заявке {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Отменена", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Отменена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Отменена", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -1909,9 +1916,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            var user = RightsChecker.GetUserName(User);
             _storage.DeleteOperation(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Удалена заявка {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
-            _storage.AddOperationLog(operation, "Удалена", RightsChecker.GetUserName(User)); //логирование в бд
+            _logger.LogWarning("Удалена заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+            _storage.AddOperationLog(operation, "Удалена", user); //логирование в бд
             var text = OperationToJson(operation);
             Response.StatusCode = 200;
             return text;
@@ -2006,7 +2014,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var operation = _storage.GetOperation(id);
             var actions = operation.GetActions();
             var objects = WarehouseActionsToDynamic(actions);
-            _logger.LogWarning("Отработал метод GetSelectedWarehouseActions заявки {@Заявка}, с номером {Номер заявки}.", operation, operation.Id);
+            var user = RightsChecker.GetUserName(User);
+            _logger.LogWarning("Отработал метод GetSelectedWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             var text = JsonSerializer.Serialize(objects);
             Response.StatusCode = 200;
             return text;
@@ -2043,9 +2052,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var operation = _storage.GetOperation(operationId);
             var action = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            var user = RightsChecker.GetUserName(User);
             _storage.AddAction(operation, action);
             var operationForLog = _storage.GetOperation(operationId);
-            _logger.LogWarning("Отработал метод AddOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}", operationForLog, operation.Id, action.Code);
+            _logger.LogWarning("Отработал метод AddOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operation.Id, action.Code, user);
             var text = JsonSerializer.Serialize(operation);
             Response.StatusCode = 200;
             return text;
@@ -2082,7 +2092,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringOperationId}!";
 
             var operation = _storage.GetOperation(operationId);
-            _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}.", operation, operation.Id);
+            var user = RightsChecker.GetUserName(User);
+            _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             var text = JsonSerializer.Serialize(operation);
             Response.StatusCode = 200;
             return text;
@@ -2112,8 +2123,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringOperationId}!";
 
             var operation = _storage.GetOperation(operationId);
+            var user = RightsChecker.GetUserName(User);
             _storage.RemoveActions(operation);
-            _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}.", operation, operation.Id);
+            _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             var text = JsonSerializer.Serialize(operation);
             Response.StatusCode = 200;
             return text;
