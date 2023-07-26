@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
@@ -911,7 +912,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var k = GetFillingPlanOperationK(operation.Type, operation.VehicleKind, dynamicActions.ToArray());
                 dynamicOperation.planLaborCost = Math.Round(dynamicOperation.planLaborCost * k);
                 dynamicOperation.planLinearLaborCost = Math.Round(dynamicOperation.planLinearLaborCost * k);
-
+                _logger.LogWarning("Отработал метод Operation заявки {@Заявка}, с номером {Номер заявки}", operation, operation.Id);
                 var text = JsonSerializer.Serialize(dynamicOperation);
                 Response.StatusCode = 200;
                 return text;
@@ -2002,9 +2003,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             if (!long.TryParse(temp, out long id))
                 return $"Wrong operation id {temp}";
 
-            var actions = _storage.GetOperation(id).GetActions();
+            var operation = _storage.GetOperation(id);
+            var actions = operation.GetActions();
             var objects = WarehouseActionsToDynamic(actions);
-
+            _logger.LogWarning("Отработал метод GetSelectedWarehouseActions заявки {@Заявка}, с номером {Номер заявки}.", operation, operation.Id);
             var text = JsonSerializer.Serialize(objects);
             Response.StatusCode = 200;
             return text;
@@ -2042,7 +2044,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var operation = _storage.GetOperation(operationId);
             var action = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
             _storage.AddAction(operation, action);
-
+            var operationForLog = _storage.GetOperation(operationId);
+            _logger.LogWarning("Отработал метод AddOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}", operationForLog, operation.Id, action.Code);
             var text = JsonSerializer.Serialize(operation);
             Response.StatusCode = 200;
             return text;
@@ -2079,7 +2082,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringOperationId}!";
 
             var operation = _storage.GetOperation(operationId);
-
+            _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}.", operation, operation.Id);
             var text = JsonSerializer.Serialize(operation);
             Response.StatusCode = 200;
             return text;
@@ -2110,6 +2113,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var operation = _storage.GetOperation(operationId);
             _storage.RemoveActions(operation);
+            _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}.", operation, operation.Id);
             var text = JsonSerializer.Serialize(operation);
             Response.StatusCode = 200;
             return text;
