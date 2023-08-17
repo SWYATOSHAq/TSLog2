@@ -1098,7 +1098,7 @@ class OperationPage {
         const result = await api.addOperationWorker(operationId, workerId, positionCode);
         if (result.code === 0) {
             await this.getSelectedWorkers();
-            this.showSelectedWorkers();
+            await this.showSelectedWorkers();
             this.showLinearFreeWorkers();
             this.showWorkersDivs();
         } else {
@@ -1168,7 +1168,7 @@ class OperationPage {
         const result = await api.removeOperationWorker(operationId, workerId, positionCode);
         if (result.code === 0) {
             await this.getSelectedWorkers();
-            this.showSelectedWorkers();
+            await this.showSelectedWorkers();
             this.showLinearFreeWorkers();
             this.showWorkersDivs();
         } else {
@@ -1176,7 +1176,7 @@ class OperationPage {
         }
     }
 
-    showSelectedWorker(worker, button) {
+    async showSelectedWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important; width: 100%";
@@ -1187,17 +1187,17 @@ class OperationPage {
         workerFullNameB.textContent = worker.fullName;
         button.append(workerFullNameB);
         button.onclick = () => {
-            this.onSelectedWorkerClick(button);
+            await this.onSelectedWorkerClick(button);
         }
     }
 
-    showSelectedWorkers() {
+    async showSelectedWorkers() {
         const selectedWorkersContentDiv = document.getElementById("selected-workers-content-div");
         selectedWorkersContentDiv.replaceChildren();
         for (let operationWorker of this.selectedWorkers) {
             const operationWorkerButton = document.createElement("button");
-            this.showSelectedWorker(operationWorker, operationWorkerButton);
-            selectedWorkersContentDiv.append(operationWorkerButton);
+            await this.showSelectedWorker(operationWorker, operationWorkerButton);
+            await selectedWorkersContentDiv.append(operationWorkerButton);
         }
     }
 
@@ -1624,7 +1624,7 @@ class OperationPage {
                 workersDiv.classList.remove("d-none");
 
                 await this.getSelectedWorkers();
-                this.showSelectedWorkers();
+                await this.showSelectedWorkers();
                 const workersFieldset = document.getElementById("workers-fieldset");                
                 const linearWorkersDiv = document.getElementById("linear-workers-div");
                 if ((this.stateCode === "STARTED" || this.stateCode === "WORK_STARTED")
