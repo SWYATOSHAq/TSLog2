@@ -163,20 +163,12 @@ class OperationPage {
     async getPlanDuration() {
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
-        //const partnersSelect = document.getElementById("partners-select");
         this.planDuration = 0;
 
         if (operationTypeCode === "" || vehicleKindCode === "") {
             return;
         }
 
-        /*
-        let actions = [];
-        for (let warehouseActionId in this.selectedWarehouseActions) {
-            actions.push({ kind: this.kind, id: warehouseActionId });
-        }
-        */
-        //const result = await api.getFillingPlanOperationDuration(operationTypeCode, vehicleKindCode, actions);
         const result = await api.getStandardPlanOperationDuration(operationTypeCode, vehicleKindCode);
 
         if (result.code === 0) {
@@ -195,36 +187,6 @@ class OperationPage {
     // Вычисляем "План фактический"
     async getFactPlanDuration() {
         this.factPlanDuration = 0;
-        /*
-        const operationTypesSelect = document.getElementById("operation-types-select");
-        const isPallet = operationTypesSelect.options[operationTypesSelect.selectedIndex].getAttribute("ispallet");
-        for (let actionId in this.selectedWarehouseActions) {
-            const action = this.selectedWarehouseActions[actionId];
-            if (action.kind === "O") {
-                const result = await api.getHoodManPlanOutgoDuration(action.id, isPallet, action.partnerId);
-                if (result.code === 0) {
-                    this.factPlanDuration += result.outgoDuration;
-                } else {
-                    viewUtils.showError(result.message);
-                    return;
-                }
-            }
-        }
-        this.factPlanDuration += this.defaultConstantOperationDuration;
-
-        // Если продолжительость превышет стандартную, то берём стандартную
-        const operationTypeCode = document.getElementById("operation-types-select").value;
-        const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
-        const result2 = await api.getStandardPlanOperationDuration(operationTypeCode, vehicleKindCode);
-        if (result2.code === 0) {
-            const standardPlanDuration = result2.planDuration;
-            if (this.factPlanDuration > standardPlanDuration) {
-                this.factPlanDuration = standardPlanDuration;
-            }
-        } else {
-            viewUtils.showError(result.message);
-        }
-        */
     }
 
     showDuration() {
@@ -232,13 +194,6 @@ class OperationPage {
         if (this.planDuration <= 0)
             durationInput.value = "<Не определено>";
         else {
-            // 2022.09.20 Буров Михаил.
-            // Вместо плана выводим план фактический (уточнённый) по указанию Алексея Охотникова.
-            //durationInput.value = "План: " + utils.secondsToString(this.planDuration);
-            //durationInput.value += ", план фактический: " + utils.secondsToString(this.factPlanDuration);
-
-            // 2022.09.21 Буров Михаил. Опять переделали по указанию Алексея Охотникова.
-            //durationInput.value = "План (уточн.): " + utils.secondsToString(this.factPlanDuration);
             durationInput.value = "План: " + utils.secondsToString(this.planDuration);
             if (this.factDuration > 0) {
                 durationInput.value += ", факт: " + utils.secondsToString(this.factDuration);
@@ -263,7 +218,6 @@ class OperationPage {
         const partnersSelect = document.getElementById("partners-select");
         this.fillingPlanLaborCost = 0;
         this.hoodmanPlanLaborCost = 0;
-        //this.planLinearLaborCost = 0;
 
         if (operationTypeCode === "" || vehicleKindCode === "") {
             return;
@@ -276,7 +230,6 @@ class OperationPage {
         let result = await api.getFillingPlanOperationLaborCost(operationTypeCode, vehicleKindCode, actions);
         if (result.code === 0) {
             this.fillingPlanLaborCost = result.data.laborCost;
-            //this.planLinearLaborCost = result.data.linearLaborCost;
         } else {
             viewUtils.showError(result.message);
             return;
@@ -300,16 +253,7 @@ class OperationPage {
                 laborCostInput.value = "<Не определено>";
             else {
                 laborCostInput.value = "План (рассч.): " + (this.fillingPlanLaborCost / 60).toFixed();
-                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();
-                /*
-                if (this.planLinearLaborCost > 0) {
-                    laborCostInput.value = laborCostInput.value + ", только линейные: " + (this.planLinearLaborCost / 60).toFixed();
-                }
-                if (this.factLaborCost > 0) {
-                    laborCostInput.value = laborCostInput.value + ", факт: " + (this.factLaborCost / 60).toFixed();
-                }
-                */
-                
+                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();              
                 const bcWorksDiv = document.getElementById("bc-works-div");
                 if (this.factWorkStartDate > utils.nullDate
                     && this.factWorkFinishDate > utils.nullDate
@@ -347,7 +291,7 @@ class OperationPage {
         const operationTypeCode = document.getElementById("operation-types-select").value;
         const vehicleKindCode = document.getElementById("vehicle-kinds-select").value;
 
-        const result = await api.getAvalibleIntervals(workStartDate, operationTypeCode, vehicleKindCode);
+        const result = await api.getAvailableIntervals(workStartDate, operationTypeCode, vehicleKindCode);
         if (result.code === 0) {
             this.availableIntervals = result.avalibleIntervals;
         } else {
@@ -459,7 +403,7 @@ class OperationPage {
         }
         const operationTypesSelect = document.getElementById("operation-types-select");
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
-        const result = await api.getAvalibleGates(utils.dateTimeToString(this.planWorkStartDate),
+        const result = await api.getAvailableGates(utils.dateTimeToString(this.planWorkStartDate),
             utils.dateTimeToString(this.planWorkFinishDate),
             operationTypesSelect.value,
             vehiclekindsSelect.value,
@@ -490,7 +434,7 @@ class OperationPage {
         }
     }
 
-    // функция-обработчик события
+    // функция-обработчик события изменения временного интревала операции двора
     async onChangeDuration() {
         await this.getPlanDuration();
         await this.getPlanLaborCosts();
@@ -628,9 +572,9 @@ class OperationPage {
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                let result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
-                if (result2.code != 0) {
-                    viewUtils.showError(result2.message);
+                result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                if (result.code != 0) {
+                    viewUtils.showError(result.message);
                     break;
                 }
             }
@@ -678,9 +622,9 @@ class OperationPage {
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                let result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
-                if (result2.code != 0) {
-                    viewUtils.showError(result2.message);
+                const result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                if (result.code != 0) {
+                    viewUtils.showError(result.message);
                     break;
                 }
             }
@@ -726,9 +670,9 @@ class OperationPage {
         if (result.code === 0) {
             const operation = result.operation;
             for (let warehouseActionId in this.selectedWarehouseActions) {
-                let result2 = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
-                if (result2.code != 0) {
-                    viewUtils.showError(result2.message);
+                result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+                if (result.code != 0) {
+                    viewUtils.showError(result.message);
                     break;
                 }
             }
@@ -749,7 +693,7 @@ class OperationPage {
             document.getElementById("driver-name-input").value == "" ||
             Object.keys(this.selectedWarehouseActions).length <= 0)
         {            
-                alert("Не все обязательные поля заполнены!");
+            alert("Не все обязательные поля заполнены!");
             return;
         }
 
@@ -1020,15 +964,12 @@ class OperationPage {
         if (allWarehouseActionDiv != undefined && allWarehouseActionDiv != null) {
             const operationTypesSelect = document.getElementById("operation-types-select");
             const partnersSelect = document.getElementById("partners-select");
-            //const warehouseActionsTitleDiv = document.getElementById("warehouse-actions-title-div");
             if (partnersSelect.value != "" && operationTypesSelect.value != "") {
-                //warehouseActionsTitleDiv.classList.remove("d-none");
                 document.getElementById("action-filter-div").classList.remove("d-none");
                 document.getElementById("actions-div").classList.remove("d-none");
                 await this.getAllWarehouseActions();
                 await this.showAllWarehouseActions();
             } else {
-                //warehouseActionsTitleDiv.classList.add("d-none");
                 document.getElementById("action-filter-div").classList.add("d-none");
                 document.getElementById("actions-div").classList.add("d-none");
             }        
@@ -1059,7 +1000,6 @@ class OperationPage {
     }
 
     changeWarehouseActionsTitle() {
-        //const warehouseActionsB = document.getElementById("warehouse-actions-b");
         const allWarehouseActionsTitleB = document.getElementById("all-warehouse-actions-title-b");
         const selectedWarehouseActionsTitleB = document.getElementById("selected-warehouse-actions-title-b");
         const actionsFilterSpan = document.getElementById("action-filter-span");
@@ -1382,7 +1322,6 @@ class OperationPage {
             if (!workersIds.has(work.workerId))
                 workersIds.add(work.workerId);
         }
-        //this.factBcLaborCost += workersIds.size * this.defaultConstantOperationDuration;
     }
 
     displayBCWorks() {
@@ -1534,7 +1473,6 @@ class OperationPage {
         // Duration        
         await this.getPlanDuration();
         await this.getFactPlanDuration();
-        //this.planDuration = operation != null ? Number(operation.planDuration) : 0;
         this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
         this.showDuration();
         const timetableFieldset = document.getElementById("timetable-fieldset");
@@ -1575,8 +1513,6 @@ class OperationPage {
         this.showStartFinish();
 
         // Labor cost
-        //this.fillingPlanLaborCost = operation != null ? Number(operation.planLaborCost) : 0;
-        //this.planLinearLaborCost = operation != null ? Number(operation.planLinearLaborCost) : 0;
         await this.getPlanLaborCosts();
         this.factLaborCost = operation != null && !copy ? Number(operation.factLaborCost) : 0;
         await this.showLaborCost();
@@ -1625,11 +1561,7 @@ class OperationPage {
         }        
 
         // Gates and parking
-        const parkingCheckBox = document.getElementById("parkingCheck");
-        //if (operation.onParking && parkingCheckBox != null) {
-        //    parkingCheckBox.checked = true;
-        //    this.onChangeParking();
-        //}            
+        const parkingCheckBox = document.getElementById("parkingCheck");        
         let parkingActive = parkingCheckBox != null ? document.getElementById("parkingCheck").checked : false;
         if (parkingCheckBox != null) {
             if (operation.onParking) {
@@ -1783,9 +1715,6 @@ class OperationPage {
         closeButton.onclick = this.closeOperation.bind(this);
 
         window.onclick = this.windowClick.bind(this);
-
-        //const recalculateStandardButton = document.getElementById("recalculate-standard-button");
-        //recalculateStandardButton.onclick = this.recalculateStandard.bind(this);
     }
 
     async recalculateStandard() {
@@ -1805,11 +1734,6 @@ class OperationPage {
     async test() {
         const testInput = document.getElementById("test-input");
         const selectedFile = testInput.files[0];
-
-        //let data = document.getElementById("test-input").files[0];
-        //let entry = document.getElementById("test-input").files[0];
-        //console.log('doupload', entry, data)
-
         const formData = new FormData();
         const fileField = document.querySelector('input[type="file"]');
         formData.append("fileName", "test");
@@ -1822,10 +1746,6 @@ class OperationPage {
             body: formData
         };
         const response = await fetch(url, options);
-
-        //fetch('uploads/' + encodeURIComponent(entry.name), { method: 'PUT', body: data });
-        //alert('your file has been uploaded');
-        //location.reload();
     }
 }
 

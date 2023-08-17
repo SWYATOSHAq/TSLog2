@@ -523,8 +523,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             Response.StatusCode = 200;
             return text;
         }
-        [HttpGet("StandardPlanOperationLaborCost")]
-        public string GetStandardPlanOperationLaborCost()
+        [HttpGet("StandartPlanOperationLaborCost")]
+        public string GetStandartPlanOperationLaborCost()
         {
             Response.StatusCode = 500;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
@@ -756,8 +756,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             Response.StatusCode = 200;
             return text;
         }
-        [HttpGet("AvalibleIntervals")]
-        public string GetAvalibleIntervals()
+        [HttpGet("AvailableIntervals")]
+        public string GetAvailableIntervals()
         {
             Response.StatusCode = 500;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
@@ -792,8 +792,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return text;
         }
 
-        [HttpGet("AvalibleGates")]
-        public string GetAvalibleGates()
+        [HttpGet("AvailableGates")]
+        public string GetAvailableGates()
         {
             Response.StatusCode = 500;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);

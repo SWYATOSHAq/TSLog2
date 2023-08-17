@@ -5,28 +5,32 @@
 
 // Класс для доступа к внешним программным интерфейсам по протоколу http
 class Api {
-    // Возвращает признак пользователя партнёра (клиента)
-    async getIsPartnerUser() {
-        let response = await fetch("./api/v1/yard/IsPartnerUser");
+
+    // Возвращает результат HTTP запроса
+    async getHttpResult(fieldName, url, options = null) {
+        // TODO: check fieldName not empty!
+        const response = options != null ?
+            await fetch(url, options) :
+            await fetch(url);
+
         if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("isPartnerUser", await response.json());
+            return utils.createCorrectObject(fieldName, await response.json());
         }
         else {
             return utils.createErrorObject(await response.json());
         }
     }
 
+    // Возвращает признак пользователя партнёра (клиента)
+    async getIsPartnerUser() {
+        const url = "./api/v1/yard/IsPartnerUser";
+        return await this.getHttpResult("isPartnerUser", url);
+    }
+
     // Возвращает плановую продолжительность операции двора типу операции и виду автомашины (стандартное значение для ПОЛНОЙ машины)
     async getStandardPlanOperationDuration(operationTypeCode, vehicleKindCode) {
-        const response = await fetch("./api/v1/yard/StandardPlanOperationDuration" +
-            "?operation_type=" + operationTypeCode +
-            "&vehicle_kind=" + vehicleKindCode);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("planDuration", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/StandardPlanOperationDuration" + "?operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode;
+        return await this.getHttpResult("planDuration", url);
     }
 
     // Возвращает плановую продолжительность операции с учётом назначенных заказов (расходов)/приходов
@@ -42,13 +46,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("planDuration", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("planDuration", url, options);
     }
 
     // Возвращает плановую продолжительность операции с учётом назначенных заказов (алгоритм Башлыкова)
@@ -64,41 +62,20 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("planDuration", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("planDuration", url, options);
     }
 
     // Возвращает плановую продолжительность загрузки заказа (на отгрузку)
     async getHoodManPlanOutgoDuration(outgoId, isPallet, partnerId) {
-        const response = await fetch("./api/v1/yard/HoodManPlanOutgoDuration" +
-            "?outgo_id=" + outgoId +
-            "&is_pallet=" + isPallet + 
-            "&partner_id=" + partnerId);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("outgoDuration", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/HoodManPlanOutgoDuration" + "?outgo_id=" + outgoId + "&is_pallet=" + isPallet + "&partner_id=" + partnerId;
+        return await this.getHttpResult("outgoDuration", url);
     }
 
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины 
     // (+ плановые трудозатраты только линейного персонала), стадартное значение плановых трудозатрат
-    async getStandardPlanOperationLaborCost(operationTypeCode, vehicleKindCode) {
-        let response = await fetch("./api/v1/yard/StandardPlanOperationLaborCost?" +
-            "operation_type=" + operationTypeCode +
-            "&vehicle_kind=" + vehicleKindCode);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+    async getStandartPlanOperationLaborCost(operationTypeCode, vehicleKindCode) {
+        const url = "./api/v1/yard/StandartPlanOperationLaborCost?" + "operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode;
+        return await this.getHttpResult("data", url);
     }
 
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
@@ -115,13 +92,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 
     // Возвращает плановые трудозатраты операции двора типу операции и виду автомашины (+ плановые трудозатраты только линейного персонала)
@@ -139,102 +110,50 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("laborCost", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("laborCost", url, options);
     }
 
     // Возвращает допустимые интервалы по дате, типу операции двора, виду автомашины
-    async getAvalibleIntervals(date, operationTypeCode, vehicleKindCode) {
-        let response = await fetch("./api/v1/yard/AvalibleIntervals?" +
-            "date=" + date +
-            "&operation_type=" + operationTypeCode +
-            "&vehicle_kind=" + vehicleKindCode);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("avalibleIntervals", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+    async getAvailableIntervals(date, operationTypeCode, vehicleKindCode) {
+        const url = "./api/v1/yard/AvailableIntervals?" + "date=" + date + "&operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode;
+        return await this.getHttpResult("availableIntervals", url);
     }
 
     // Возвращает свободные или зарезервированные (НЕ ЗАНЯТЫЕ) ворота по дате, типу операции двора, виду автомашины.
-    async getAvalibleGates(startDate, finishDate, operationTypeCode, vehicleKindCode, operationId) {
-        let response = await fetch("./api/v1/yard/AvalibleGates?" +            
-            "operation_type=" + operationTypeCode +
-            "&vehicle_kind=" + vehicleKindCode +
-            "&start_date=" + startDate +
-            "&finish_date=" + finishDate + 
-            "&operation_id=" + operationId);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("avalibleGates", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+    async getAvailableGates(startDate, finishDate, operationTypeCode, vehicleKindCode, operationId) {
+        const url = "./api/v1/yard/AvailableGates?" + "operation_type=" + operationTypeCode + "&vehicle_kind=" + vehicleKindCode + "&start_date=" + startDate + "&finish_date=" + finishDate + "&operation_id="
+            + operationId;
+        return await this.getHttpResult("availableGates", url);
     }
 
     // Возвращает клиентского менеджера (основного)
     async getPartnerManager(partnerId) {
-        let response = await fetch("./api/v1/yard/PartnerManager" +
-            "?partner_id=" + partnerId);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("manager", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/PartnerManager" + "?partner_id=" + partnerId;
+        return await this.getHttpResult("manager", url);
     }
 
     // Возвращает операцию двора по идентификатору
     async getOperation(id) {
-        let response = await fetch("./api/v1/yard/Operation?id=" + id);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/Operation?id=" + id;
+        return await this.getHttpResult("operation", url);
     }
 
     // Возвращает массив операций двора по заданным параметрам поиска
     async getOperations(parameters) {
-        let url = "./api/v1/yard/Operations" + parameters;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operations", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/Operations" + parameters;
+        return await this.getHttpResult("operations", url);
     }
 
     // Возвращает активные (машины на территории складского комплекса) операции двора
     async getActiveOperations() {
-        let url = "./api/v1/yard/ActiveOperations";
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operations", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/ActiveOperations";
+        return await this.getHttpResult("operations", url);
     }
 
     // Возвращает массив операций двора для охраны (которые должны приехать или могут уехать)
     async getGuardOperations() {
-        let url = "./api/v1/yard/GuardOperations";
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operations", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/GuardOperations";
+        return await this.getHttpResult("operations", url);
     }
 
     // Создайт операцию двора и возвращает созданную (для сотрудника ТСЛ) без подтверждения
@@ -245,13 +164,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Создайт операцию двора и возвращает созданную (для сотрудника ТСЛ) с подтверждением
@@ -262,13 +175,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Создайт операцию двора и возвращает созданную (для сотрудника партнёра)
@@ -279,13 +186,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Правит операцию двора и возвращает исправленную (для сотрудника ТСЛ)
@@ -296,13 +197,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Правит операцию двора и возвращает исправленную (для сотрудника партнёра)
@@ -313,13 +208,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Правит примечание  операции двора
@@ -334,13 +223,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Устанавливает ворота для операции двора
@@ -356,14 +239,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Стартует операцию двора (автомашина заезжает на территорию складского комплекса)
@@ -377,75 +253,37 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // // Возвращает массив работников, которые могут быть назначены на данную должность, по шаблону поиска
     async getPositionWorkers(positionCode, pattern) {
-        const url = "./api/v1/yard/PositionWorkers?" +
-            "name_pattern=" + pattern +
-            "&position_code=" + positionCode;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/PositionWorkers?" + "name_pattern=" + pattern + "&position_code=" + positionCode;
+        return await this.getHttpResult("data", url, options);
     }
 
     // Возвращает массов линейных сотрудников (всех)
     async getLinearWorkers() {
         const url = "./api/v1/yard/LinearWorkers";
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url);
     }
 
     // Возвращает массов линейных сотрудников (только свободных)
     async getLinearFreeWorkers() {
         const url = "./api/v1/yard/LinearFreeWorkers";
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url);
     }
 
     // Возвращает массов всех работников
     async getAllWorkers() {
         const url = "./api/v1/yard/AllWorkers";
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url);
     }
 
     // Возвращает массив работников, назначенных на операцию двора
     async getOperationWorkers(operationId) {
         const url = "./api/v1/yard/OperationWorkers?operation_id=" + operationId;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url);
     }
 
     // Назначает работника на операцию двора
@@ -461,13 +299,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 
     // Снимает назначенного работника с операции двора
@@ -483,13 +315,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 
     // Автоматически распределяет работников на операцию двора в зависимости от нормативов (потребностей в персонале)
@@ -503,26 +329,13 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 
     // Возвращает массив промежутков работ сотрудников из систем БоссКонтролль
     async getBossControlWorks(operationId) {
-        const url = "./api/v1/yard/BossControlWorks?" +
-            "operation_id=" + operationId
-        let response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("works", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/BossControlWorks?" + "operation_id=" + operationId;
+        return await this.getHttpResult("works", url);
     }
 
     // Начинает работы по операции двора (ставит машину на ворота)
@@ -536,13 +349,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Заканчивает работы по операции двора (снимает машину с ворот)
@@ -556,13 +363,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Завершает операцию двора (выпускает машину за территорию)
@@ -576,13 +377,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Отменяет операуию двора
@@ -596,13 +391,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Удаляет операию двора
@@ -616,161 +405,79 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("operation", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("operation", url, options);
     }
 
     // Формирует оперативный отчёт (за смену)
     async createOperationalReport(date, shift) {
-        let url = "./api/v1/yard/OperationalReport?date=" + date + "&shift=" + shift;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/OperationalReport?date=" + date + "&shift=" + shift;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт диспетчера (за период)
     async createDispatcherReport(fromDate, toDate) {
-        let url = "./api/v1/yard/DispatcherReport?from_date=" + fromDate + "&to_date=" + toDate;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/DispatcherReport?from_date=" + fromDate + "&to_date=" + toDate;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт по трудозатратам
     async createLaborReport(fromDate, toDate) {
-        let url = "./api/v1/yard/LaborReport?from_date=" + fromDate + "&to_date=" + toDate;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/LaborReport?from_date=" + fromDate + "&to_date=" + toDate;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт по производительности за смену
     async createShiftPerfomanceReport(date, shift) {
-        let url = "./api/v1/yard/ShiftPerfomanceReport?date=" + date + "&shift=" + shift;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/ShiftPerfomanceReport?date=" + date + "&shift=" + shift;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт по трудозатратам за смену 2
     async createShiftPerfomanceReport2(date, shift) {
-        let url = "./api/v1/yard/ShiftPerfomanceReport?date=" + date + "&shift=" + shift;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/ShiftPerfomanceReport?date=" + date + "&shift=" + shift;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт по трудозатратам за смену 3
     async createGateManagement(date) {
-        let url = "./api/v1/yard/GateManagement?date=" + date;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/GateManagement?date=" + date;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт по выручке/расходам (БоссКоннтроль + Биллинг)
     async createECReport(fromDate, toDate, ids) {
-        let url = "./api/v1/yard/ECReport?from_date=" + fromDate + "&to_date=" + toDate + "&partners_ids=" + ids;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/ECReport?from_date=" + fromDate + "&to_date=" + toDate + "&partners_ids=" + ids;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует детализированный отчёт по трудозатратам персонала на конктретном клиенте (манданте) за выбранный период
     async createECReportDetailed(fromDate, toDate, id) {
-        let url = "./api/v1/yard/ECReportDetailed?from_date=" + fromDate + "&to_date=" + toDate + "&partners_id=" + id;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/ECReportDetailed?from_date=" + fromDate + "&to_date=" + toDate + "&partners_id=" + id;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт производительности по работникам (за период), первая версия
     async createWorkersPerfomanceReport(fromDate, toDate) {
-        let url = "./api/v1/yard/WorkersPerfomanceReport?from_date=" + fromDate + "&to_date=" + toDate;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/WorkersPerfomanceReport?from_date=" + fromDate + "&to_date=" + toDate;
+        return await this.getHttpResult("data", url);
     }
 
     // Формирует отчёт производительности по работникам (за период), вторая версия
     async createWorkersPerfomanceReport2(fromDate, toDate) {
-        let url = "./api/v1/yard/WorkersPerfomanceReport2?from_date=" + fromDate + "&to_date=" + toDate;
-        const response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/WorkersPerfomanceReport2?from_date=" + fromDate + "&to_date=" + toDate;
+        return await this.getHttpResult("data", url);
     }
 
     // Возвращает складские действа (приходы, расходы) по подобию номера
     async findWarehouseActions(kind, pattern, partnerId = "") {
-        const url = "./api/v1/yard/WarehouseActions?" +
-            "kind=" + kind +
-            "&pattern=" + pattern + 
-            "&partner_id=" + partnerId;
-        let response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/WarehouseActions?" + "kind=" + kind + "&pattern=" + pattern + "&partner_id=" + partnerId;
+        return await this.getHttpResult("data", url);
     }
 
     // Возвращает складские действа (приходы, расходы), которые привязаны к указанной операции двора
     async getSelectedWarehouseActions(operationId) {
-        const url = "./api/v1/yard/SelectedWarehouseActions?" +
-            "operation_id=" + operationId;
-        let response = await fetch(url);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        const url = "./api/v1/yard/SelectedWarehouseActions?" + "operation_id=" + operationId;
+        return await this.getHttpResult("data", url);
     }
 
     // Добавление складского действа (прихода, расхода) в операцию двора
@@ -786,13 +493,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 
     // Удаление складского действа (прихода, расхода) из операции двора
@@ -808,13 +509,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 
     // Удаление ВСЕХ складских действ (приходов, расходов) из операции двора
@@ -828,13 +523,7 @@ class Api {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         };
-        const response = await fetch(url, options);
-        if (response.status >= 200 && response.status < 300) {
-            return utils.createCorrectObject("data", await response.json());
-        }
-        else {
-            return utils.createErrorObject(await response.json());
-        }
+        return await this.getHttpResult("data", url, options);
     }
 }
 

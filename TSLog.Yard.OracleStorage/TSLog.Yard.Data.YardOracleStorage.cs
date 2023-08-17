@@ -1,4 +1,6 @@
-﻿using Oracle.ManagedDataAccess.Client;
+﻿using Microsoft.Extensions.Logging;
+using Oracle.ManagedDataAccess.Client;
+using Serilog.Core;
 using System.Data.Common;
 using System.Dynamic;
 using System.Text;
@@ -31,6 +33,7 @@ namespace TSLog.Yard.Data
         private const string DefaultLegalEntitiesSchema = "legal_entities";
         private const string DefaultPartnersSchema = "partners";
         private const string DefaultProductsSchema = "products";
+        //private readonly ILogger<YardOracleStorage> _logger;
         /// <summary>
         /// Максимальное количество строк для вывода
         /// </summary>
@@ -47,8 +50,12 @@ namespace TSLog.Yard.Data
         /// Схема для партнёров (покупателей наших складских и логистических услуг)
         /// </summary>
         public string PartnersSchema { protected get; set; } = DefaultPartnersSchema;
+        //public YardOracleStorage(string dataSource, ILogger<YardOracleStorage> logger) : base(dataSource)
+        //{
+        //    _logger=logger;
+        //}
         public YardOracleStorage(string dataSource) : base(dataSource)
-        { }
+        {}
 
         #region Products
         public ProductCatalog<Product> Products { private get; set; } = new ProductCatalog<Product>("PRODUCTS_CATALOG", "Справочник товаров");
@@ -1239,6 +1246,7 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("Login is empty!");
             login = login.Trim().ToLower();
             var employees = _employees.Entities.ToList();
+            //_logger.LogWarning("Отработал метод GetEmployeeByAdLogin с логином {Login} и массивом {employees} и переменной {_employees}", login, employees, _employees);
             var employee = employees.Find(e => e.AdLogin.Trim().ToLower() == login);
             if (employee != null && employee != Employee.Null && employee != Employee.Empty)
                 return employee;
