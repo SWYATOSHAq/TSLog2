@@ -1176,7 +1176,7 @@ class OperationPage {
         }
     }
 
-    async showSelectedWorker(worker, button) {
+    showSelectedWorker(worker, button) {
         button.type = "button";
         button.classList.add("list-group-item");
         button.style.cssText = "text-align: left !important; width: 100%";
@@ -1186,7 +1186,7 @@ class OperationPage {
         const workerFullNameB = document.createElement("b");
         workerFullNameB.textContent = worker.fullName;
         button.append(workerFullNameB);
-        button.onclick = () => {
+        button.onclick = async () => {
             await this.onSelectedWorkerClick(button);
         }
     }
@@ -1704,8 +1704,8 @@ class OperationPage {
         viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
         viewUtils.removeElement("set-gate-button", !isPreparing);
         viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
-        viewUtils.removeElement("start-work-button", this.stateCode != "STARTED" || gatesSelect.selectedIndex === 0);
-        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED" || gatesSelect.selectedIndex === 0);
+        viewUtils.removeElement("start-work-button", this.stateCode != "STARTED" || gatesSelect === null || gatesSelect.selectedIndex === 0);
+        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED" || gatesSelect === null || gatesSelect.selectedIndex === 0);
         viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
         viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
         viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");

@@ -17,7 +17,8 @@ class Api {
             return utils.createCorrectObject(fieldName, await response.json());
         }
         else {
-            return utils.createErrorObject(await response.json());
+            //return utils.createErrorObject(await response.json());
+            return utils.createErrorObject(await response.text());
         }
     }
 

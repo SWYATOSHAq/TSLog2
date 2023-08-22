@@ -297,6 +297,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             Response.StatusCode = 500;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            throw new SiteNotFoundException(13);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
