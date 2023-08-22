@@ -4,6 +4,7 @@ using System;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.BossControl.BO;
@@ -279,29 +280,28 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("IsPartnerUser")]
         public string GetIsPartnerIser()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             if (_useAuthentication && !useYard)
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
             var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
             var text = JsonSerializer.Serialize(isPartnerUser);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("StandardPlanOperationDuration")]
         public string GetStandardPlanOperationDuration()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            throw new SiteNotFoundException(13);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -317,7 +317,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
             var duration = _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int VariableDuration);
             var text = JsonSerializer.Serialize(duration);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         private int _GetFillingPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
@@ -414,12 +414,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("FillingPlanOperationDuration")]
         async public Task<string> GetFillingPlanOperationDuration()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -439,7 +439,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
             var text = JsonSerializer.Serialize(duration);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         private long _GetHoodManPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind,
@@ -464,12 +464,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("HoodManPlanOperationDuration")]
         async public Task<string> GetHoodManPlanOperationDuration()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -495,19 +495,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var duration = _GetHoodManPlanOperationDuration(operationType, vehicleKind, partner, outgoesIds.ToArray());
 
             var text = JsonSerializer.Serialize(duration);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("HoodManPlanOutgoDuration")]
         public string GetHoodManPlanOutgoDuration()
         {
             // Алгоритм Башлыкова
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OUTGO_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -521,18 +521,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var partner = _storage.GetPartner(partnerId);
             var duration = _storage.GetOutgoPlanTime(outgoId, isPallet, partner);
             var text = JsonSerializer.Serialize(duration);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("StandartPlanOperationLaborCost")]
         public string GetStandartPlanOperationLaborCost()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -554,7 +554,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.linearLaborCost = linearLaborCost;
 
             var text = JsonSerializer.Serialize(result);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         private double GetFillingPlanOperationK(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
@@ -568,12 +568,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPost("FillingPlanOperationLaborCost")]
         async public Task<string> GetFillingPlanOperationLaborCost()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -600,7 +600,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.linearLaborCost = Math.Round(linearLaborCost * k);
 
             var text = JsonSerializer.Serialize(result);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         /// <summary>
@@ -712,12 +712,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         async public Task<string> GetHoodManPlanOperationLaborCost()
         {
             // Расширенный алгоритм Башлыкова
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -754,18 +754,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(laborCost);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("AvailableIntervals")]
         public string GetAvailableIntervals()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getBusyIntervals = _rightsChecker.CheckRight("GET_BUSY_INTERVALS", User);
             if (_useAuthentication && (!useYard || !getBusyIntervals))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -789,19 +789,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var periods = _storage.GetAvalibleIntervals(date, date.AddDays(span), operationType, vehicleKind);
             var intervals = Interval.Union(periods);
             var text = JsonSerializer.Serialize(intervals);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
         [HttpGet("AvailableGates")]
         public string GetAvailableGates()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getAvalibleGates = _rightsChecker.CheckRight("GET_AVALIBLE_GATES", User);
             if (_useAuthentication && (!useYard || !getAvalibleGates))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
             string stringOperationType = Request.Query["operation_type"];
@@ -830,19 +830,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var gates = _storage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate, operationId);
             var dynamicGates = GatesToDynamic(gates);
             var text = JsonSerializer.Serialize(dynamicGates);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
         [HttpGet("PartnerManager")]
         public string GetPartnerManager()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getPartnermanager = _rightsChecker.CheckRight("GET_PARTNER_MANAGER", User);
             if (_useAuthentication && (!useYard || !getPartnermanager))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -855,22 +855,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             if (managers.Length <= 0)
                 return $"Partner (client) {partnerId} has no managers!";
             var text = JsonSerializer.Serialize(managers[0]);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("ManagerByPartner")]
         public string GetManagerByPartner()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getPartnermanager = _rightsChecker.CheckRight("GET_MANAGER_BY_PARTNER", User);
             if (_useAuthentication && (!useYard || !getPartnermanager))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
             var text = "";
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         #endregion
@@ -879,13 +879,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("Operation")]
         public string GetOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperation = _rightsChecker.CheckRight("GET_OPERATION", User);
             var getOperationByPartner = _rightsChecker.CheckRight("GET_OPERATION_BY_PARTNER", User);
             if (_useAuthentication && (!useYard || !(getOperation || getOperationByPartner)))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -916,7 +916,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var user = RightsChecker.GetUserName(User);
                 _logger.LogWarning("Отработал метод Operation заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
                 var text = JsonSerializer.Serialize(dynamicOperation);
-                Response.StatusCode = 200;
+                Response.StatusCode = (int)HttpStatusCode.OK;
                 return text;
             }
             else
@@ -925,12 +925,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("Operations")]
         public string GetOperations()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperations = _rightsChecker.CheckRight("GET_OPERATIONS", User);
             if (_useAuthentication && (!useYard || !getOperations))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -997,52 +997,52 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     list.Add(operation);
 
             var text = OperationsToJson(list.ToArray());
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("ActiveOperations")]
         public string GetActiveOperations()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperations = _rightsChecker.CheckRight("GET_ACTIVE_OPERATIONS", User);
             if (_useAuthentication && (!useYard || !getOperations))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
             var operations = _storage.GetActiveOperations();
             var text = OperationsToJson(operations);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("GuardOperations")]
         public string GetGuardOperations()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperations = _rightsChecker.CheckRight("GET_GUARD_OPERATIONS", User);
             if (_useAuthentication && (!useYard || !getOperations))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
             var operations = _storage.GetGuardOperations();
             var text = OperationsToJson(operations);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPut("CreateOperation")]
         async public Task<string> CreateOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION", User);
             if (_useAuthentication && (!useYard || !createOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
             dynamic? data = await GetInputData(Request);
@@ -1134,18 +1134,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.AddOperationLog(operation, "Создана", user); //логирование в бд
 
             var text = OperationToJson(operation);
-            Response.StatusCode = 201;
+            Response.StatusCode = (int)HttpStatusCode.Created;
             return text;
         }
         [HttpPut("CreateConfirmOperation")]
         async public Task<string> CreateConfirmOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var createOperation = _rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", User);
             if (_useAuthentication && (!useYard || !createOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
             dynamic? data = await GetInputData(Request);
@@ -1241,18 +1241,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.AddOperationLog(operation, "Создана с подтверждением", user); //логирование в бд
 
             var text = OperationToJson(operation);
-            Response.StatusCode = 201;
+            Response.StatusCode = (int)HttpStatusCode.Created;
             return text;
         }
         [HttpPut("CreateOperationByPartner")]
         async public Task<string> CreateOperationByPartner()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
             if (_useAuthentication && (!useYard || !createOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1352,18 +1352,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.AddOperationLog(operation, "Создана (партнером)", user); //логирование в бд
 
             var text = OperationToJson(operation);
-            Response.StatusCode = 201;
+            Response.StatusCode = (int)HttpStatusCode.Created;
             return text;
         }
         [HttpPost("EditOperation")]
         async public Task<string> EditOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION", User);
             if (_useAuthentication && (!useYard || !editOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
             dynamic? data = await GetInputData(Request);
@@ -1496,18 +1496,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
             _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPost("EditOperationByPartner")]
         async public Task<string> EditOperationByPartner()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
             if (_useAuthentication && (!useYard || !editOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
             dynamic? data = await GetInputData(Request);
@@ -1614,18 +1614,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string editStatus = operationForLog.State.DisplayName + "(отредактирована партнером)";
             _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("SetOperationNote")]
         async public Task<string> SetOperationNote()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var editOperationNote = _rightsChecker.CheckRight("EDIT_OPERATION_NOTE", User);
             if (_useAuthentication && (!useYard || !editOperationNote))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1648,18 +1648,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Записано примечание в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, editStatus, user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("SetOperationGate")]
         async public Task<string> SetOperationGate()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var setOperationGate = _rightsChecker.CheckRight("SET_OPERATION_GATE", User);
             if (_useAuthentication && (!useYard || !setOperationGate))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1698,18 +1698,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.AddOperationLog(operation, "Подтверждена, назначены ворота", user); //логирование в бд
 
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("CancelOperationGate")]
         async public Task<string> CancelOperationGate()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var cancelOperationGate = _rightsChecker.CheckRight("CANCEL_OPERATION_GATE", User);
             if (_useAuthentication && (!useYard || !cancelOperationGate))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1730,18 +1730,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Отменены ворота в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "CancelOperationGate", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("StartOperation")]
         async public Task<string> StartOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var startOperation = _rightsChecker.CheckRight("START_OPERATION", User);
             if (_useAuthentication && (!useYard || !startOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1762,18 +1762,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Прибыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Прибыла", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("StartOperationWork")]
         async public Task<string> StartOperationWork()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var startOperationWork = _rightsChecker.CheckRight("START_OPERATION_WORK", User);
             if (_useAuthentication && (!useYard || !startOperationWork))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1794,18 +1794,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Работа начата в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Работа начата", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("FinishOperationWork")]
         async public Task<string> FinishOperationWork()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var finishOperationWork = _rightsChecker.CheckRight("FINISH_OPERATION_WORK", User);
             if (_useAuthentication && (!useYard || !finishOperationWork))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1826,18 +1826,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Работа завершена", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("FinishOperation")]
         async public Task<string> FinishOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var startOperation = _rightsChecker.CheckRight("FINISH_OPERATION", User);
             if (_useAuthentication && (!useYard || !startOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1858,18 +1858,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Убыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Убыла", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("CancelOperation")]
         async public Task<string> CancelOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var cancelOperation = _rightsChecker.CheckRight("CANCEL_OPERATION", User);
             if (_useAuthentication && (!useYard || !cancelOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1890,18 +1890,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Отменена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Отменена", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpDelete("DeleteOperation")]
         async public Task<string> DeleteOperation()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var deleteOperation = _rightsChecker.CheckRight("DELETE_OPERATION", User);
             if (_useAuthentication && (!useYard || !deleteOperation))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1922,7 +1922,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Удалена заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Удалена", user); //логирование в бд
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         #endregion
@@ -1951,12 +1951,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("WarehouseActions")]
         public string GetWarehouseActions()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getWarehouseActions = _rightsChecker.CheckRight("GET_WAREHOUSE_ACTIONS", User);
             if (_useAuthentication && (!useYard || !getWarehouseActions))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -1991,18 +1991,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var objects = WarehouseActionsToDynamic(actions);
 
             var text = JsonSerializer.Serialize(objects);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("SelectedWarehouseActions")]
         public string GetSelectedWarehouseActions()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getWarehouseActions = _rightsChecker.CheckRight("GET_SELECTED_WAREHOUSE_ACTIONS", User);
             if (_useAuthentication && (!useYard || !getWarehouseActions))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2018,18 +2018,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var user = RightsChecker.GetUserName(User);
             _logger.LogWarning("Отработал метод GetSelectedWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             var text = JsonSerializer.Serialize(objects);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("AddOperationWarehouseAction")]
         async public Task<string> AddOperationWarehouseAction()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
             if (_useAuthentication && (!useYard || !manageWarehouseActions))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2058,18 +2058,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var operationForLog = _storage.GetOperation(operationId);
             _logger.LogWarning("Отработал метод AddOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operation.Id, action.Code, user);
             var text = JsonSerializer.Serialize(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("RemoveOperationWarehouseAction")]
         async public Task<string> RemoveOperationWarehouseAction()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
             if (_useAuthentication && (!useYard || !manageWarehouseActions))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2096,18 +2096,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var user = RightsChecker.GetUserName(User);
             _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             var text = JsonSerializer.Serialize(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("RemoveOperationWarehouseActions")]
         async public Task<string> RemoveOperationWarehouseActions()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageWarehouseActions = _rightsChecker.CheckRight("MANAGE_WAREHOUSE_ACTIONS", User);
             if (_useAuthentication && (!useYard || !manageWarehouseActions))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2128,7 +2128,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.RemoveActions(operation);
             _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             var text = JsonSerializer.Serialize(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         #endregion
@@ -2153,7 +2153,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             output.Close();
 
             var text = "";
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         async public Task<string> RemoveDocument()
@@ -2229,7 +2229,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (statusCode == 200)
                 {
                     response = JsonSerializer.Serialize(objects);
-                    Response.StatusCode = 200;
+                    Response.StatusCode = (int)HttpStatusCode.OK;
                     return response;
                 }
                 else
@@ -2240,19 +2240,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
             catch (Exception exception)
             {
-                Response.StatusCode = 500;
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return exception.Message;
             }
         }
         [HttpGet("LinearWorkers")]
         public string GetLinearWorkers()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getWorkers = _rightsChecker.CheckRight("GET_LINEAR_WORKERS", User);
             if (_useAuthentication && (!useYard || !getWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2263,18 +2263,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 objects.Add(EmployeeToDynamic(worker, _storage.IsWorkerBusy(worker)));
 
             var text = JsonSerializer.Serialize(objects.ToArray());
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("LinearFreeWorkers")]
         public string GetLinearFreeWorkers()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getWorkers = _rightsChecker.CheckRight("GET_LINEAR_FREE_WORKERS", User);
             if (_useAuthentication && (!useYard || !getWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2285,18 +2285,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     temp.Add(worker);
             var objects = EmployeesToDynamic(temp.ToArray());
             var text = JsonSerializer.Serialize(objects);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("AllWorkers")]
         public string GetAllWorkers()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getWorkers = _rightsChecker.CheckRight("GET_ALL_WORKERS", User);
             if (_useAuthentication && (!useYard || !getWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2307,18 +2307,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 objects.Add(EmployeeToDynamic(worker, _storage.IsWorkerBusy(worker)));
 
             var text = JsonSerializer.Serialize(objects.ToArray());
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("OperationWorkers")]
         public string GetOperationWorkers()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getWorkers = _rightsChecker.CheckRight("GET_OPERATION_WORKERS", User);
             if (_useAuthentication && (!useYard || !getWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2332,18 +2332,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var operationWorkers = _storage.GetOperationWorkers(operation);
             var objects = OperationWorkersToDynamic(operationWorkers);
             var text = JsonSerializer.Serialize(objects);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("AddOperationWorker")]
         async public Task<string> AddOperationWorker()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
             if (_useAuthentication && (!useYard || !manageOperationWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2379,18 +2379,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null);
             var text = JsonSerializer.Serialize(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("RemoveOperationWorker")]
         async public Task<string> RemoveOperationWorker()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
             if (_useAuthentication && (!useYard || !manageOperationWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2420,18 +2420,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             _storage.RemoveOperationWorker(operation, worker, position);
             var text = JsonSerializer.Serialize(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpPatch("AllocateOperationWorkers")]
         async public Task<string> AllocateOperationWorkers()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
             if (_useAuthentication && (!useYard || !manageOperationWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2449,18 +2449,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var operation = _storage.GetOperation(id);
             _storage.AllocateOperationWorkers(operation);
             var text = OperationToJson(operation);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("BossControlWorks")]
         public string GetBossControlWorks()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var manageOperationWorkers = _rightsChecker.CheckRight("GET_BOSSCONTROL_WORKS", User);
             if (_useAuthentication && (!useYard || !manageOperationWorkers))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2476,7 +2476,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var works = _storage.GetBossControlWorks(operation.FactWorkStartDate, operation.FactWorkFinishDate, siteCode);
 
             var text = JsonSerializer.Serialize(works);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         #endregion
@@ -2485,12 +2485,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("OperationalReport")]
         public string GetOperationalReport()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_OPERATIONAL_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2570,18 +2570,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(data);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("DispatcherReport")]
         public string GetDispatcherReport()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_DISPATCHER_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2721,7 +2721,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(result);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         private static dynamic LaborReportElementToDynamic(LaborReport.Element element)
@@ -2754,12 +2754,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("LaborReport")]
         public string GetLaborReport()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_LABOR_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2788,7 +2788,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var result = LaborReportElementsToDynamic(elements);
 
             var text = JsonSerializer.Serialize(result);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         private static dynamic ShiftLaborReportElementToDynamic(ShiftLaborReport.Element element)
@@ -2831,12 +2831,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("ShiftLaborReport2")]
         public string GetShiftLaborReport2()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2864,19 +2864,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var result = ShiftLaborReportElementsToDynamic(elements);
 
             var text = JsonSerializer.Serialize(result);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
         [HttpGet("GateManagement")]
         public string GetGateManagement()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -2917,19 +2917,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(operations);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
         [HttpGet("ShiftPerfomanceReport")]
         public string GetShiftPerfomanceReport()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_SHIFT_LABOR_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -3001,19 +3001,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(operations);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
         [HttpGet("ECReport")]
         public string GetECReport()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_EC_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -3042,19 +3042,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var elements = _storage.GetEcData(fromDate, toDate, ids);
             var text = JsonSerializer.Serialize(elements);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
         [HttpGet("ECReportDetailed")]
         public string GetECReportDetailed()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_EC_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -3083,7 +3083,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var elements = _storage.GetEcDetailedData(fromDate, toDate, id);
             var text = JsonSerializer.Serialize(elements);
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
 
@@ -3094,12 +3094,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("WorkersPerfomanceReport")]
         public string GetWorkersPerfomanceReport()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -3166,7 +3166,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(elements.ToArray());
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         /// <summary>
@@ -3176,12 +3176,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         //[HttpGet("WorkersPerfomanceReport2")]
         public string GetWorkersPerfomanceReport20()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -3282,18 +3282,18 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(elements.ToArray());
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         [HttpGet("WorkersPerfomanceReport2")]
         public string GetWorkersPerfomanceReport21()
         {
-            Response.StatusCode = 500;
+            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getData = _rightsChecker.CheckRight("GET_WORKERS_PERFOMANCE_REPORT", User);
             if (_useAuthentication && (!useYard || !getData))
             {
-                Response.StatusCode = 403;
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
 
@@ -3453,7 +3453,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
 
             var text = JsonSerializer.Serialize(result.ToArray());
-            Response.StatusCode = 200;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
         #endregion
