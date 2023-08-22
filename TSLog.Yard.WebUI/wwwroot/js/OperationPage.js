@@ -92,7 +92,7 @@ class OperationPage {
     }
 
     setPlanStartDate(blockId) {
-        let block = document.getElementById(blockId);
+        const block = document.getElementById(blockId);
         const time = Number(block.dataset.starttime);
         const date = this.getSelectedDate();
         this.planWorkStartDate = new Date(date.setSeconds(time));
@@ -156,7 +156,6 @@ class OperationPage {
 
     selectPlanStartDate(blockId) {
         this.setPlanStartDate(blockId);
-
         this.showSelectedBlocks(blockId);
     }
 
@@ -293,7 +292,7 @@ class OperationPage {
 
         const result = await api.getAvailableIntervals(workStartDate, operationTypeCode, vehicleKindCode);
         if (result.code === 0) {
-            this.availableIntervals = result.avalibleIntervals;
+            this.availableIntervals = result.availableIntervals;
         } else {
             viewUtils.showError(result.message);
         }
@@ -410,7 +409,7 @@ class OperationPage {
             this.id);
         if (result.code === 0) {
             const gates = new Set([]);
-            for (let gate of result.avalibleGates) {
+            for (let gate of result.availableGates) {
                 gates.add("gate-" + gate.id.toString());
             }
             const gatesSelect = document.getElementById("gates-select");
@@ -557,7 +556,7 @@ class OperationPage {
             vehicleModel: document.getElementById("vehicle-model-input").value,
             vehicleNumber: document.getElementById("vehicle-number-input").value,
             trailerNumber: document.getElementById("trailer-number-input").value,
-            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
+            onParking: document.getElementById("parkingCheck") !== null && document.getElementById("parkingCheck").checked,
             driverName: document.getElementById("driver-name-input").value,
             driverPhoneNumber: document.getElementById("driver-phone-number-input").value,
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
@@ -608,7 +607,7 @@ class OperationPage {
             vehicleNumber: document.getElementById("vehicle-number-input").value,
             trailerNumber: document.getElementById("trailer-number-input").value,
             driverName: document.getElementById("driver-name-input").value,
-            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
+            onParking: document.getElementById("parkingCheck") !== null && document.getElementById("parkingCheck").checked,
             driverPhoneNumber: document.getElementById("driver-phone-number-input").value,
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
@@ -654,7 +653,7 @@ class OperationPage {
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
             vehicleBrand: document.getElementById("vehicle-brand-input").value,
             vehicleModel: document.getElementById("vehicle-model-input").value,
-            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
+            onParking: document.getElementById("parkingCheck") !== null && document.getElementById("parkingCheck").checked,
             vehicleNumber: document.getElementById("vehicle-number-input").value,
             trailerNumber: document.getElementById("trailer-number-input").value,
             driverName: document.getElementById("driver-name-input").value,
@@ -706,7 +705,7 @@ class OperationPage {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
             operationTypeCode: document.getElementById("operation-types-select").value,
             vehicleKindCode: document.getElementById("vehicle-kinds-select").value,
-            onParking: document.getElementById("parkingCheck") !== null ? document.getElementById("parkingCheck").checked : false,
+            onParking: document.getElementById("parkingCheck") !== null && document.getElementById("parkingCheck").checked,
             gateCode: document.getElementById("gates-select") != undefined ? document.getElementById("gates-select").value : "",
             vehicleBrand: document.getElementById("vehicle-brand-input").value,
             vehicleModel: document.getElementById("vehicle-model-input").value,
@@ -1005,7 +1004,6 @@ class OperationPage {
         const actionsFilterSpan = document.getElementById("action-filter-span");
         //Назначенные заказы (приходы):
         if (this.kind === "O") {
-            //warehouseActionsB.textContent = "Заказы:";
             if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
                 actionsFilterSpan.textContent = "Поиск заказа:";
             }
@@ -1014,7 +1012,6 @@ class OperationPage {
             }            
             selectedWarehouseActionsTitleB.textContent = "Назначенные заказы:";
         } else if (this.kind === "I") {
-            //warehouseActionsB.textContent = "Приходы:";
             if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
                 actionsFilterSpan.textContent = "Поиск прихода:";
             }
@@ -1023,7 +1020,6 @@ class OperationPage {
             }
             selectedWarehouseActionsTitleB.textContent = "Назначенные приходы:";
         } else {
-            //warehouseActionsB.textContent = "Заказы (приходы):";
             if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
                 actionsFilterSpan.textContent = "Поиск заказа (прихода):";
             }
@@ -1035,20 +1031,22 @@ class OperationPage {
     }
 
     resizeWarehouseActionsDivs() {
+        const ACTIONS_CONTENT_DIV_TEXT_STYLE_SHORT = "width: 100%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
+        const ACTIONS_CONTENT_DIV_TEXT_STYLE_LONG = "width: 100%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
         let actionsContentDiv = document.getElementById("all-actions-content-div");
         if (actionsContentDiv != undefined && actionsContentDiv != null) {
             if (actionsContentDiv.childElementCount < 5) {
-                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
+                actionsContentDiv.style.cssText = ACTIONS_CONTENT_DIV_TEXT_STYLE_SHORT;
             } else {
-                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
+                actionsContentDiv.style.cssText = ACTIONS_CONTENT_DIV_TEXT_STYLE_LONG;
             }
         }        
         actionsContentDiv = document.getElementById("selected-actions-content-div");
         if (actionsContentDiv != undefined && actionsContentDiv != null) {
             if (actionsContentDiv.childElementCount < 5) {
-                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; padding: 0; margin: 0";
+                actionsContentDiv.style.cssText = ACTIONS_CONTENT_DIV_TEXT_STYLE_SHORT;
             } else {
-                actionsContentDiv.style.cssText = "width: 100%; height: fit-content; max-height: 180px; overflow-y: scroll; padding: 0; margin: 0";
+                actionsContentDiv.style.cssText = ACTIONS_CONTENT_DIV_TEXT_STYLE_LONG;
             }
         }           
     }
@@ -1056,21 +1054,23 @@ class OperationPage {
 
     // #region Workers
     showWorkersDivs() {
+        const WORKERS_DIV_TEXT_STYLE_SHORT = "width: 100%; height: fit-content; max-height: 320px; padding: 0; margin: 0; border-radius: 0";
+        const WORKERS_DIV_TEXT_STYLE_LONG = "width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0";
         let workersDiv = document.getElementById("linear-workers-content-div");
         if (workersDiv != undefined && workersDiv != null) {
             if (workersDiv.childElementCount < 8) {
-                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; padding: 0; margin: 0; border-radius: 0";
+                workersDiv.style.cssText = WORKERS_DIV_TEXT_STYLE_SHORT;
             } else {
-                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0";
+                workersDiv.style.cssText = WORKERS_DIV_TEXT_STYLE_LONG;
             }
         }
         
         workersDiv = document.getElementById("selected-workers-content-div");
         if (workersDiv != undefined && workersDiv != null) {
             if (workersDiv.childElementCount < 8) {
-                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; padding: 0; margin: 0; border-radius: 0";
+                workersDiv.style.cssText = WORKERS_DIV_TEXT_STYLE_SHORT;
             } else {
-                workersDiv.style.cssText = "width: 100%; height: fit-content; max-height: 320px; overflow-y: scroll; padding: 0; margin: 0; border-radius: 0";
+                workersDiv.style.cssText = WORKERS_DIV_TEXT_STYLE_LONG;
             }
         }        
     }
@@ -1197,7 +1197,7 @@ class OperationPage {
         for (let operationWorker of this.selectedWorkers) {
             const operationWorkerButton = document.createElement("button");
             await this.showSelectedWorker(operationWorker, operationWorkerButton);
-            await selectedWorkersContentDiv.append(operationWorkerButton);
+            selectedWorkersContentDiv.append(operationWorkerButton);
         }
     }
 
@@ -1306,7 +1306,7 @@ class OperationPage {
         const bcWorksTBody = document.getElementById("bc-works-tbody");
         bcWorksTBody.replaceChildren();
 
-        let workersIds = new Set();
+        const workersIds = new Set();
 
         this.factBcLaborCost = 0;
         for (let work of this.bcWorks) {
@@ -1728,24 +1728,6 @@ class OperationPage {
         } else {
             alert(result.message);
         }
-    }
-
-
-    async test() {
-        const testInput = document.getElementById("test-input");
-        const selectedFile = testInput.files[0];
-        const formData = new FormData();
-        const fileField = document.querySelector('input[type="file"]');
-        formData.append("fileName", "test");
-        formData.append("fileType", "jpg");
-        formData.append("documentFile", fileField.files[0]);
-
-        const url = "./api/v1/yard/UploadDocument";
-        const options = {
-            method: "PUT",
-            body: formData
-        };
-        const response = await fetch(url, options);
     }
 }
 
