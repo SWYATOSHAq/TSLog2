@@ -297,7 +297,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         public string GetStandardPlanOperationDuration()
         {
             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            var useYard = _rightsChecker.CheckRight("USE_YARD", User);            
             var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
             if (_useAuthentication && (!useYard || !getOperationDuration))
             {
