@@ -1,11 +1,7 @@
-﻿using System.Net.Http;
-using System.Net;
+﻿using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using TSLog.ExceptionHandler;
-using TSLog.Common.Dto;
-using System.Diagnostics;
-using System.Net.Mail;
 
 namespace TSLog.Common.Middleware
 {

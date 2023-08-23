@@ -960,17 +960,19 @@ class OperationPage {
 
     async displayWarehouseActions() {        
         const allWarehouseActionDiv = document.getElementById("all-actions-div");
+        const actionFilterDiv = document.getElementById("action-filter-div");
+        const actionsDiv = document.getElementById("actions-div");
         if (allWarehouseActionDiv != undefined && allWarehouseActionDiv != null) {
             const operationTypesSelect = document.getElementById("operation-types-select");
             const partnersSelect = document.getElementById("partners-select");
             if (partnersSelect.value != "" && operationTypesSelect.value != "") {
-                document.getElementById("action-filter-div").classList.remove("d-none");
-                document.getElementById("actions-div").classList.remove("d-none");
+                actionFilterDiv.classList.remove("d-none");
+                actionsDiv.classList.remove("d-none");
                 await this.getAllWarehouseActions();
                 await this.showAllWarehouseActions();
             } else {
-                document.getElementById("action-filter-div").classList.add("d-none");
-                document.getElementById("actions-div").classList.add("d-none");
+                actionFilterDiv.classList.add("d-none");
+                actionsDiv.classList.add("d-none");
             }        
         }        
     }
