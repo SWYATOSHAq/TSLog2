@@ -525,11 +525,15 @@ class OperationPage {
         const setGateButton = document.getElementById("set-gate-button");
         if (parkingActive) {
             gatesSelect.disabled = true;
-            setGateButton.style.display = 'none';
+            if (setGateButton !== null) {
+                setGateButton.style.display = 'none';
+            }                
             gatesSelect.selectedIndex = 0;
         } else {
             gatesSelect.disabled = false;
-            setGateButton.style.display = 'inline-block';
+            if (setGateButton !== null) {
+                setGateButton.style.display = 'inline-block';
+            }            
         }
     }
 
