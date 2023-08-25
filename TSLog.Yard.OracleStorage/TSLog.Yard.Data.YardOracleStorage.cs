@@ -840,6 +840,20 @@ namespace TSLog.Yard.Data
             return site;
         }
         /// <summary>
+        /// Возвращает результат проверки ворот на отсутствие зарегистрированных сотрудников
+        /// </summary>
+        /// <param name="gateCode">Код ворот</param>
+        /// <returns>Булево значение (true, если ворота свободны)</returns>
+        public bool CheckGateForFreeBeforeFinishWork(string gateCode)
+        {
+            using var command = _connection.CreateCommand();
+            string sql = $"SELECT COUNT(*) FROM {StaffSchema}.STF_BUSY_WORKER#V WHERE SITE_CODE = :gate_code";           
+            command.CommandText = sql;
+            command.Parameters.Add(new OracleParameter("gate_code", gateCode));
+            int countRows = Convert.ToInt32(command.ExecuteScalar());
+            return countRows == 0;
+        }       
+        /// <summary>
         /// Возвращает участок работ по идентификатору
         /// </summary>
         /// <param name="id">Идентификатор</param>

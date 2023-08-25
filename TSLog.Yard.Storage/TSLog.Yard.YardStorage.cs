@@ -257,6 +257,10 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetSiteCodeByGateCode(gateCode);
         }
+        public bool CheckGateForFreeBeforeFinishWork(string gateCode)
+        {
+            return _oracleStorage.CheckGateForFreeBeforeFinishWork(gateCode);
+        }
         #endregion
 
         #region Operations

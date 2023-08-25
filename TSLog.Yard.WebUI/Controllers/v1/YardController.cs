@@ -1004,8 +1004,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         public string GetActiveOperations()
         {
             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            var getOperations = _rightsChecker.CheckRight("GET_ACTIVE_OPERATIONS", User);
+            bool useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            bool getOperations = _rightsChecker.CheckRight("GET_ACTIVE_OPERATIONS", User);
             if (_useAuthentication && (!useYard || !getOperations))
             {
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -1821,12 +1821,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Wrong operation id {stringId}";
 
             var operation = _storage.GetOperation(id);
+            string siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
+            bool isGateFree = _storage.CheckGateForFreeBeforeFinishWork(siteCode);
             var user = RightsChecker.GetUserName(User);
-            _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
-            _storage.AddOperationLog(operation, "Работа завершена", user); //логирование в бд
-            var text = OperationToJson(operation);
-            Response.StatusCode = (int)HttpStatusCode.OK;
+            string text = String.Empty;
+            if (isGateFree)
+            {
+                _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
+                _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+                _storage.AddOperationLog(operation, "Работа завершена", user); //логирование в бд
+                text = OperationToJson(operation);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+            } else
+            {
+                Response.StatusCode = (int)HttpStatusCode.PreconditionFailed;
+                text = "Precondition Failed. Сотрудникам сначала нужно покинуть ворота.";
+            }
             return text;
         }
         [HttpPatch("FinishOperation")]
@@ -1854,6 +1864,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var operation = _storage.GetOperation(id);
             var user = RightsChecker.GetUserName(User);
+            //var gate = _storage.GetGate(stringGateCode);
             _storage.FinishOperation(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Убыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Убыла", user); //логирование в бд
