@@ -179,6 +179,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.gateDiaplayName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
                 operation.Gate.DisplayName :
                 string.Empty;
+            result.gateStatus = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
+                operation.Gate.State.ToString() :
+                string.Empty;
 
             result.vehicleBrand = operation.VehicleBrand;
             result.lowerVehicleBrand = operation.VehicleBrand.ToLower();
@@ -1012,7 +1015,20 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            var operations = _storage.GetActiveOperations();
+            Operation[] operations = _storage.GetActiveOperations();
+            DateTime now = DateTime.Now;
+            foreach (Operation operation in operations)
+            {
+                string siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
+                bool isGateFree = _storage.CheckGateForFreeBeforeFinishWork(siteCode);
+                DateTime factWorkNotFinishDate = DateTime.MinValue;
+                TimeSpan timeToStartWork = now - operation.FactWorkStartDate;
+                TimeSpan maxTimeSpanBeforeStartWork = TimeSpan.FromMinutes(10); 
+                if ((timeToStartWork > maxTimeSpanBeforeStartWork) && isGateFree && (operation.FactWorkFinishDate == factWorkNotFinishDate) && operation.State.Code != "STARTED")
+                {
+                    operation.Gate.State = Gate.GateState.Reserved;
+                }
+            }
             var text = OperationsToJson(operations);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
