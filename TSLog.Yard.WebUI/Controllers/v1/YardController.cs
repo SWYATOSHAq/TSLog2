@@ -1024,9 +1024,20 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 DateTime factWorkNotFinishDate = DateTime.MinValue;
                 TimeSpan timeToStartWork = now - operation.FactWorkStartDate;
                 TimeSpan maxTimeSpanBeforeStartWork = TimeSpan.FromMinutes(10); 
-                if ((timeToStartWork > maxTimeSpanBeforeStartWork) && isGateFree && (operation.FactWorkFinishDate == factWorkNotFinishDate) && operation.State.Code != "STARTED")
+                if ((timeToStartWork > maxTimeSpanBeforeStartWork) && isGateFree && (operation.FactWorkFinishDate == factWorkNotFinishDate) && (operation.State.Code != "STARTED"))
                 {
-                    operation.Gate.State = Gate.GateState.Reserved;
+                    if (operation.Gate.State == Gate.GateState.Busy)
+                    {
+                        operation.Gate.State = Gate.GateState.Free;
+                    } else
+                    {
+                        operation.Gate.State = Gate.GateState.Reserved;
+                    }                        
+                } else if (((timeToStartWork > maxTimeSpanBeforeStartWork) && !isGateFree && (operation.FactWorkFinishDate == factWorkNotFinishDate) && (operation.State.Code != "STARTED"))) {
+                    operation.Gate.State = Gate.GateState.Busy;
+                } else
+                {
+                    operation.Gate.State = Gate.GateState.Free;
                 }
             }
             var text = OperationsToJson(operations);
