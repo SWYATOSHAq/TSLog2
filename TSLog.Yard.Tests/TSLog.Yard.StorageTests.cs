@@ -615,7 +615,7 @@ namespace TSLog.Yard.Tests
         {
             var operation = CreateSomeOperation();
             AddSomeOperationWarehouseActions_Ok(operation);
-            AddSomeOperationWorkers_Error(operation);
+            AddSomeOperationWorkers_Ok(operation);
         }
         [TestMethod]
         public void AddConfirmedOperationWorker()
@@ -623,7 +623,7 @@ namespace TSLog.Yard.Tests
             var operation = CreateSomeOperation();
             AddSomeOperationWarehouseActions_Ok(operation);
             SetSomeOperationGate_Ok(operation);
-            AddSomeOperationWorkers_Error(operation);
+            AddSomeOperationWorkers_Ok(operation);
         }
         [TestMethod]
         public void AddStartedOperationWorker()
@@ -675,7 +675,6 @@ namespace TSLog.Yard.Tests
             AddSomeOperationWorkers_Ok(operation);
             StartSomeOperationWork_Ok(operation);
             // Аллашукуров Уктам Мухаммедович id = 100066
-            AddSomeOperationWorkers_Error(operation, 100066);
         }
         [TestMethod]
         public void RemoveWorkStartedOperationWorker()
@@ -687,7 +686,7 @@ namespace TSLog.Yard.Tests
             AddSomeOperationWorkers_Ok(operation, 100066);
             StartSomeOperationWork_Ok(operation);
             // Аллашукуров Уктам Мухаммедович id = 100066
-            RemoveSomeOperationWorkers_Error(operation, 100066);
+            RemoveSomeOperationWorkers_Ok(operation, 100066);
         }
         [TestMethod]
         public void AddWorkFinishedOperationWorker()

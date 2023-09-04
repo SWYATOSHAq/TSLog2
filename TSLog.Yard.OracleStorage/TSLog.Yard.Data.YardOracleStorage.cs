@@ -1314,7 +1314,7 @@ namespace TSLog.Yard.Data
                     $"select ep.employee_id\n" +
                     $"  from {StaffSchema}.stf_employee_position_ext#v ep\n" +
                     $" where ep.position_id = :position_id\n" +
-                    $"   and ep.dismissal_date is null\n" +
+                    $"   and ep.dismissal_date is NULL\n" +
                     $"   and (:work_mode is null or upper(trim(ep.work_mode)) = :work_mode)\n" +
                     $"   and (upper(trim(ep.employee_surname)) like :pattern\n" +
                     $"     or upper(trim(ep.employee_first_name)) like :pattern\n" +
