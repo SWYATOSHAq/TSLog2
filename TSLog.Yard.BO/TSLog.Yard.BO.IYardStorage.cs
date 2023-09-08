@@ -99,6 +99,8 @@ namespace TSLog.Yard.BO
     public interface IYardWmsStorage
     {
         public string GetSiteCodeByGateCode(string gateCode);
+        public int GetSiteIdBySiteCode(string siteCode);
+        public bool CheckWorkerLeaveSite(int workerId, int siteId, string partnerId, DateTime factStartWorkDate);
         public bool CheckGateForFreeBeforeFinishWork(string gateCode);
         public MeasureUnit GetMeasureUnit(string code);
         public MeasureUnit[] GetMeasureUnits();

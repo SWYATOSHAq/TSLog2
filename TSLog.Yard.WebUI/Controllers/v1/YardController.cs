@@ -1021,24 +1021,43 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 string siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
                 bool isGateFree = _storage.CheckGateForFreeBeforeFinishWork(siteCode);
+                int siteId = _storage.GetSiteIdBySiteCode(siteCode);
+                bool isAllWorkFinished = true;
+                if (operation.FactWorkStartDate != DateTime.MinValue)
+                {
+                    foreach (var worker in operation.OperationWorkers)
+                    {
+                        bool isWorkFinished = _storage.CheckWorkerLeaveSite(worker.Worker.Id, siteId, operation.PartnersIds, operation.FactWorkStartDate);
+                        if (!isWorkFinished)
+                        {
+                            isAllWorkFinished = false;
+                            break;
+                        }
+                    }
+                }                
+
                 DateTime factWorkNotFinishDate = DateTime.MinValue;
                 TimeSpan timeToStartWork = now - operation.FactWorkStartDate;
-                TimeSpan maxTimeSpanBeforeStartWork = TimeSpan.FromMinutes(10); 
-                if ((timeToStartWork > maxTimeSpanBeforeStartWork) && isGateFree && (operation.FactWorkFinishDate == factWorkNotFinishDate) && (operation.State.Code != "STARTED"))
+                TimeSpan maxTimeSpanBeforeStartWork = TimeSpan.FromMinutes(10);
+                bool mainConditions = timeToStartWork > maxTimeSpanBeforeStartWork
+                          && operation.FactWorkFinishDate == factWorkNotFinishDate
+                          && operation.State.Code != "STARTED";
+
+                if (mainConditions && isGateFree)
                 {
-                    if (operation.Gate.State == Gate.GateState.Busy)
-                    {
-                        operation.Gate.State = Gate.GateState.Free;
-                    } else
-                    {
-                        operation.Gate.State = Gate.GateState.Reserved;
-                    }                        
-                } else if (((timeToStartWork > maxTimeSpanBeforeStartWork) && !isGateFree && (operation.FactWorkFinishDate == factWorkNotFinishDate) && (operation.State.Code != "STARTED"))) {
+                    operation.Gate.State = operation.Gate.State == Gate.GateState.Busy || isAllWorkFinished
+                                           ? Gate.GateState.Free
+                                           : Gate.GateState.Reserved;
+                }
+                else if (mainConditions && !isGateFree)
+                {
                     operation.Gate.State = Gate.GateState.Busy;
-                } else
+                }
+                else
                 {
                     operation.Gate.State = Gate.GateState.Free;
                 }
+
             }
             var text = OperationsToJson(operations);
             Response.StatusCode = (int)HttpStatusCode.OK;

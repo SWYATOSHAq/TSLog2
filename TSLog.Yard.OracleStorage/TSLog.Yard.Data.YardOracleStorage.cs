@@ -55,7 +55,7 @@ namespace TSLog.Yard.Data
         //    _logger=logger;
         //}
         public YardOracleStorage(string dataSource) : base(dataSource)
-        {}
+        { }
 
         #region Products
         public ProductCatalog<Product> Products { private get; set; } = new ProductCatalog<Product>("PRODUCTS_CATALOG", "Справочник товаров");
@@ -663,11 +663,11 @@ namespace TSLog.Yard.Data
                                 double boxQuantity = quantity/(30*1000);
                                 time += BoxLoadTime * (long)Math.Round(boxQuantity);
                             }
-                            else 
+                            else
                             {
                                 time += BoxLoadTime * quantity;
                             }
-                            
+
                         }
                     }
                     else
@@ -840,6 +840,63 @@ namespace TSLog.Yard.Data
             return site;
         }
         /// <summary>
+        /// Возвращает ID площадки из вьюхи STF_SITE#V по значению CODE
+        /// </summary>
+        /// <param name="siteCode">Код участка</param>
+        /// <returns>ID площадки в формате int</returns>
+        public int GetSiteIdBySiteCode(string siteCode)
+        {
+            using var command = _connection.CreateCommand();
+            string sql = $"SELECT ID FROM {StaffSchema}.STF_SITE#V WHERE CODE = :code";
+            command.CommandText = sql;
+            command.Parameters.Add(new OracleParameter("code", siteCode));
+            int siteId = Convert.ToInt32(command.ExecuteScalar());
+            return siteId;
+        }
+        /// <summary>
+        /// Возвращаем результат проверки на предмет того, что сотрудник покинул ворота.
+        /// </summary>
+        /// <param name="workerId">ID сотрудника</param>
+        /// <param name="siteId"> ID участка работ(ворот)</param>
+        /// <param name="partnerId">ID партнера(клиента)</param>
+        /// <param name="factStartWorkDate">Фактическое время начала работ</param>
+        /// <returns>Булево значение (true, если сотрудник покинул ворота)</returns>
+        public bool CheckWorkerLeaveSite(int workerId, int siteId, string partnerId, DateTime factStartWorkDate)
+        {
+            bool result = false;
+            using (var command = _connection.CreateCommand())
+            {
+                string query =
+                    $"SELECT KIND\n" +
+                    $"FROM (\n" +
+                    $"    SELECT *\n" +
+                    $"    FROM {StaffSchema}.STF_SITE_WORKER#V ssv\n" +
+                    $"    WHERE Worker_id = :workerId\n" +
+                    $"      AND PARTNER_ID = :partnerId\n" +
+                    $"      AND SITE_ID = :siteId\n" +
+                    $"      AND DATE_TIME > :factStartWorkDate\n" +
+                    $"    ORDER BY DATE_TIME DESC\n" +
+                    $")\n" +
+                    $"WHERE ROWNUM = 1";
+
+                command.CommandText = query;
+                command.Parameters.Add(new OracleParameter("workerId", workerId));
+                command.Parameters.Add(new OracleParameter("partnerId", partnerId));
+                command.Parameters.Add(new OracleParameter("siteId", siteId));
+                command.Parameters.Add(new OracleParameter("factStartWorkDate", factStartWorkDate));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    string kind = reader["KIND"].ToString();
+                    if (kind == "L")
+                    {
+                        result = true;
+                    };
+                };
+            };
+            return result;
+        }
+        /// <summary>
         /// Возвращает результат проверки ворот на отсутствие зарегистрированных сотрудников
         /// </summary>
         /// <param name="gateCode">Код ворот</param>
@@ -847,12 +904,12 @@ namespace TSLog.Yard.Data
         public bool CheckGateForFreeBeforeFinishWork(string gateCode)
         {
             using var command = _connection.CreateCommand();
-            string sql = $"SELECT COUNT(*) FROM {StaffSchema}.STF_BUSY_WORKER#V WHERE SITE_CODE = :gate_code";           
+            string sql = $"SELECT COUNT(*) FROM {StaffSchema}.STF_BUSY_WORKER#V WHERE SITE_CODE = :gate_code";
             command.CommandText = sql;
             command.Parameters.Add(new OracleParameter("gate_code", gateCode));
             int countRows = Convert.ToInt32(command.ExecuteScalar());
             return countRows == 0;
-        }       
+        }
         /// <summary>
         /// Возвращает участок работ по идентификатору
         /// </summary>
@@ -2227,7 +2284,7 @@ namespace TSLog.Yard.Data
                 using var reader = command.ExecuteReader();
                 var planWorks = new Dictionary<int, double>();
                 var factWorks = new Dictionary<int, double>();
-                int site_id =0;
+                int site_id = 0;
                 while (reader.Read())
                 {
                     var workerId = Utils.DbValueToInt(reader["worker_id"]);
@@ -2245,7 +2302,7 @@ namespace TSLog.Yard.Data
                         if (site_id == 1053)
                             planWorks[workerId] = planShiftLengthSeconds * k;
                     }
-                    
+
                     if (!factWorks.ContainsKey(workerId))
                         factWorks.Add(workerId, 0.0);
                     var span = finishTime - startTime;

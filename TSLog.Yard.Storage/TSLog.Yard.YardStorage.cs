@@ -257,6 +257,14 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetSiteCodeByGateCode(gateCode);
         }
+        public int GetSiteIdBySiteCode(string siteCode)
+        {
+            return _oracleStorage.GetSiteIdBySiteCode(siteCode);
+        }
+        public bool CheckWorkerLeaveSite(int workerId, int siteId, string partnerId, DateTime factStartWorkDate)
+        {
+            return _oracleStorage.CheckWorkerLeaveSite(workerId, siteId, partnerId, factStartWorkDate);
+        }
         public bool CheckGateForFreeBeforeFinishWork(string gateCode)
         {
             return _oracleStorage.CheckGateForFreeBeforeFinishWork(gateCode);
