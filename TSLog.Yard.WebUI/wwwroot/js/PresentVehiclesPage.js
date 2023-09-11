@@ -65,7 +65,7 @@ class PresentVehiclesPage {
 
     showOperation(operation, operationTr) {
         operationTr.classList.add("table-row");   
-        const reservedGateColor = operation.gateStatus === "Reserved" ? "background-color: orange; box-shadow: none" : "";
+        const reservedGateColor = (operation.gateStatus === "Reserved" && operation.stateId !== 1005) ? "background-color: orange; box-shadow: none" : "";
         viewUtils.createRowHeader(operationTr, ["table-cell"], [operation.id], `${reservedGateColor}`);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], `${reservedGateColor}`);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.trailerNumber], `${reservedGateColor}`);
