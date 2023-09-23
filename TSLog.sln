@@ -105,6 +105,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Common.Dto", "TSLog.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Common.Middleware", "TSLog.Common.Middleware\TSLog.Common.Middleware.csproj", "{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.ConnectionDbTest", "TSLog.Yard.ConnectionDbTest\TSLog.Yard.ConnectionDbTest.csproj", "{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -279,6 +281,10 @@ Global
 		{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
