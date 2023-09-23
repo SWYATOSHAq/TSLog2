@@ -42,7 +42,7 @@ namespace TSLog.Yard.BO
         }
 
         /// <summary>
-        /// Общее количество работников
+        /// Общее количество работников.
         /// </summary>
         /// <returns>Количество работников</returns>
         public short GetWorkersCount(bool showLinear = true)
@@ -56,7 +56,7 @@ namespace TSLog.Yard.BO
         }
 
         /// <summary>
-        /// Количество задействованных работников по должностям
+        /// Количество задействованных работников по должностям.
         /// </summary>
         /// <returns></returns>
         public IDictionary<Position, short> PositionsWorkersCount()

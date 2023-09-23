@@ -2,6 +2,11 @@ using Microsoft.AspNetCore.Authentication.Negotiate;
 using TSLog.BossControl.BO;
 using TSLog.BossControl.Data;
 
+const string DefaultCommonSchema = "common";
+const string DefaultStaffSchema = "staff";
+const string DefaultLegalEntitiesSchema = "legal_entities";
+const string DefaultPartnersSchema = "partners";
+
 var builder = WebApplication.CreateBuilder(args);
 
 var useAuthentication = builder.Configuration.GetValue<bool>("UseAuthentication");
@@ -26,13 +31,13 @@ var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
 var oracleConnectionSettings = isDebug
     ? builder.Configuration.GetSection("OracleConnectionDebugSettings")
     : builder.Configuration.GetSection("OracleConnectionSettings");
-string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
-string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
-string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
-string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
-string oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema");
-string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema");
-string oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema");
+var oracleTns = oracleConnectionSettings.GetValue<string>("DataSource") ?? string.Empty;
+var oracleUserName = oracleConnectionSettings.GetValue<string>("UserName") ?? string.Empty;
+var oraclePassword = oracleConnectionSettings.GetValue<string>("Password") ?? string.Empty;
+var oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema") ?? DefaultCommonSchema;
+var oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema") ?? DefaultStaffSchema;
+var oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema") ?? DefaultLegalEntitiesSchema;
+var oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema") ?? DefaultPartnersSchema;
 
 var storage = new BossControlOracleStorage(oracleTns);
 storage.Connect(oracleUserName, oraclePassword);

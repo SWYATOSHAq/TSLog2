@@ -232,7 +232,7 @@ namespace TSLog.Incomes.BO
         /// <summary>
         /// Товарные позиции прихода
         /// </summary>
-        public Line[] Lines
+        public new Line[] Lines
         {
             get
             {

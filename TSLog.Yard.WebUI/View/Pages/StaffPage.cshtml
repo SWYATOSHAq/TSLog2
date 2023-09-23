@@ -23,7 +23,7 @@
     int startTime = 9;
     int endTime = 21;
 
-    string _date = Request.Query["date"];
+    string? _date = Request.Query["date"];
     var date = string.IsNullOrWhiteSpace(_date) ? DateTime.Today : DateTime.Parse(_date);
 
     var dayStart = date.AddHours(startTime);
@@ -189,15 +189,8 @@
             }
             @foreach (var operation in interval.Operations)
             {
-                var pageBreakClass = "";
                 if (j < interval.OperationsCount)
-                {
-                    pageBreakClass = "page-break-after";
-                }
-                //var operationModel = new OperationModel(rightsChecker, storage, operation, false);
-                //<div class="operation @pageBreakClass">
-                //    <partial name="Blocks/_OperationBlock" model="null" />
-                //</div>
+                { }
                 j++;
             }
         </div>

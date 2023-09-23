@@ -36,15 +36,15 @@
     var canFilterOperationsByPartnerActionId = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PARTNER_ACTION_ID", User);
     var canFilterOperationsByPhone = !useAuthentication || rightsChecker.CheckRight("FILTER_OPERATIONS_BY_PHONE_NUMBER", User);
 
-    string requestFromDate = request.Query["from_date"];
+    string? requestFromDate = request.Query["from_date"];
     var fromDate = requestFromDate != null ? DateTime.Parse(requestFromDate) : DateTime.Today;
-    string requestToDate = request.Query["to_date"];
+    string? requestToDate = request.Query["to_date"];
     var toDate = requestToDate != null ? DateTime.Parse(requestToDate) : DateTime.Today;
-    string selectedGate = request.Query["gate_code"];
-    string selectedType = request.Query["operation_type_code"];
-    string selectedPartner = request.Query["partner_id"];
-    string selectedVehicleKind = request.Query["vehicle_kind_code"];
-    string selectedState = request.Query["state_code"];
+    string? selectedGate = request.Query["gate_code"];
+    string? selectedType = request.Query["operation_type_code"];
+    string? selectedPartner = request.Query["partner_id"];
+    string? selectedVehicleKind = request.Query["vehicle_kind_code"];
+    string? selectedState = request.Query["state_code"];
 
     Partner[] partners;
     var isPartnerUser = rightsChecker.CheckRight("IS_PARTNER_USER", User);
@@ -54,21 +54,20 @@
         var partnerId = rightsChecker.GetPartnerIdByUser(userName);
         var partner = storage.GetPartner(partnerId);
         partners = new Partner[] { partner };
-        //selectedPartner = partner.Id;
     }
     else
         partners = storage.GetPartners();
 
     var divClasses = "col-md-3 col-6 filter-div";
     var selectClasses = "form-select filter-select";
-    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType, true, true, "Все типы операций", divClasses, selectClasses);
-    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind, true, true, "Все типы машин", divClasses, selectClasses);
+    var operationTypesModel = new OperationTypesModel(storage.GetOperationTypes(), selectedType ?? string.Empty, true, true, "Все типы операций", divClasses, selectClasses);
+    var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind ?? string.Empty, true, true, "Все типы машин", divClasses, selectClasses);
     LogistsModel? logistsModel = null;
-    var gatesModel = new GatesModel(storage.GetGates(), selectedGate, true, true, "Все ворота", divClasses, selectClasses);
-    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState, true, true, "Все состояния", divClasses, selectClasses);
+    var gatesModel = new GatesModel(storage.GetGates(), selectedGate ?? string.Empty, true, true, "Все ворота", divClasses, selectClasses);
+    var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState ?? string.Empty, true, true, "Все состояния", divClasses, selectClasses);
     PartnersModel? partnersModel = null;
     if (!isPartnerUser)
-        partnersModel = new PartnersModel(partners, selectedPartner, !isPartnerUser, true, "Все партнеры", divClasses, selectClasses);
+        partnersModel = new PartnersModel(partners, selectedPartner ?? string.Empty, !isPartnerUser, true, "Все партнеры", divClasses, selectClasses);
 
     var operationsModel = new OperationsModel(rightsChecker, storage, Array.Empty<Operation>(), true, request);
     var filtersModel = new OperationsFiltersBlockModel(canFilterOperationsByDate, 

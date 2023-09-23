@@ -24,7 +24,7 @@
     int endTime = 21;
     // 9-21 period
 
-    string stringDate = Request.Query["date"];
+    string? stringDate = Request.Query["date"];
     var date = string.IsNullOrWhiteSpace(stringDate) ? DateTime.Today : DateTime.Parse(stringDate);
 
     var dayStart = date.AddHours(startTime);

@@ -10,7 +10,7 @@ namespace TSLog.Yard.BO
     /// <summary>
     /// Интерфейс хранилища данных для модуля упраления двором
     /// </summary>
-    public interface IYardStorage: IYardCommonStorage, IYardReportingStorage, IYardWmsStorage, IBcReportingStorage, IYardTestingStorage
+    public interface IYardStorage : IYardCommonStorage, IYardReportingStorage, IYardWmsStorage, IBcReportingStorage, IYardTestingStorage
     {
         public void ConnectOracle(string userName, string password);
         public void SetOracleCommonSchema(string commonSchema);

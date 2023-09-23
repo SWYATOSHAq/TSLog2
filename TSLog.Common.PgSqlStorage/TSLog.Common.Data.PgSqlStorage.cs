@@ -1,4 +1,6 @@
-﻿using Npgsql;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Npgsql;
+using System.Collections.Immutable;
 using System.Data;
 using System.Data.Common;
 using System.Security;
@@ -8,10 +10,14 @@ using TSLog.ExceptionHandler;
 namespace TSLog.Common.Data
 {
     /// <summary>
-    /// Класс для работы с данными из БД PostgreSQL
+    /// Класс для работы с данными из БД PostgreSQL.
     /// </summary>
     public class PgSqlStorage : IDisposable
     {
+        private const bool DefaultPooling = true;
+        private const int DefaultMaxPoolSize = 100;
+        private const int DefaultConnectionIdleLifetime = 300;
+        private const int DefaultonnectionPruningInterval = 10;
         protected readonly DbConnection _connection = new NpgsqlConnection();
         protected readonly string _host = string.Empty;
         public string Host
@@ -19,10 +25,36 @@ namespace TSLog.Common.Data
             get { return _host; }
         }
         protected readonly string _database = string.Empty;
-        public PgSqlStorage(string host, string database)
+        // Использовать пулинг соединений
+        // (соединения не уничтожаются при закрытии в переходят в idle состояния и могут использоваться повторно).
+        protected readonly bool _pooling = DefaultPooling;
+
+        // Максимальный размер пула соединений (работает только при Pooling=true),
+        // не может быть больше чем анаогичный параметр на сервере.
+        protected readonly int _maxPoolSize = DefaultMaxPoolSize;
+
+        // Время ожидания idle соединения (в секундах).
+        protected readonly int _connectionIdleLifetime = DefaultConnectionIdleLifetime;
+
+        // Время ожидания idle соединения (в секундах), пока пул его не закроет.
+        protected readonly int _connectionPruningInterval = DefaultonnectionPruningInterval;
+
+        public PgSqlStorage(string host, string database,
+            IDictionary<string, object>? extensionParameters = null)
         {
             _host = host;
             _database = database;
+            if (extensionParameters != null)
+            {
+                if (extensionParameters.ContainsKey("Pooling"))
+                    _pooling = (bool)extensionParameters["Pooling"];
+                if (extensionParameters.ContainsKey("MaxPoolSize"))
+                    _maxPoolSize = (int)extensionParameters["MaxPoolSize"];
+                if (extensionParameters.ContainsKey("ConnectionIdleLifetime"))
+                    _connectionIdleLifetime = (int)extensionParameters["ConnectionIdleLifetime"];
+                if (extensionParameters.ContainsKey("ConnectionPruningInterval"))
+                    _connectionPruningInterval = (int)extensionParameters["ConnectionPruningInterval"];
+            }
         }
         public DbConnection CloneConnection()
         {
@@ -35,7 +67,7 @@ namespace TSLog.Common.Data
         }
 
         /// <summary>
-        /// Установить соединение с БД
+        /// Установить соединение с БД.
         /// </summary>
         /// <param name="user">Имя пользователя БД</param>
         /// <param name="password">Пароль</param>
@@ -45,6 +77,10 @@ namespace TSLog.Common.Data
             {
                 Host = _host,
                 Database = _database,
+                Pooling = _pooling,
+                MaxPoolSize = _maxPoolSize,
+                ConnectionLifetime = _connectionIdleLifetime,
+                ConnectionPruningInterval = _connectionPruningInterval,
                 Username = user,
                 Password = Utils.SecureStringToString(password)
             };
@@ -54,7 +90,7 @@ namespace TSLog.Common.Data
             stringBuilder.Clear();
         }
         /// <summary>
-        /// Выполнить SQL запрос
+        /// Выполнить SQL запрос.
         /// </summary>
         /// <param name="sql">Текст SQL запроса</param>
         /// <exception cref="ArgumentException"></exception>
@@ -92,7 +128,7 @@ namespace TSLog.Common.Data
             return entity;
         }
         /// <summary>
-        /// Возвращает сущность по идентификатору
+        /// Возвращает сущность по идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор</param>
         /// <param name="sql">SQL запрос для получения сущности</param>
@@ -134,7 +170,7 @@ namespace TSLog.Common.Data
             throw new EntityNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает сущность по коду
+        /// Возвращает сущность по коду.
         /// </summary>
         /// <param name="code">Код</param>
         /// <param name="sql">SQL запрос для получеия сущности</param>
@@ -178,7 +214,7 @@ namespace TSLog.Common.Data
             throw new EntityNotFoundException(code);
         }
         /// <summary>
-        /// Возвращает сущности, которые возвращаются указанным SQL запросом
+        /// Возвращает сущности, которые возвращаются указанным SQL запросом.
         /// </summary>
         /// <param name="sql">Текст SQL запроса</param>
         /// <returns>Массив сущностей</returns>
@@ -205,7 +241,7 @@ namespace TSLog.Common.Data
         }
 
         /// <summary>
-        /// Отсоединиться от БД
+        /// Отсоединиться от БД.
         /// </summary>
         public void Disconnect()
         {

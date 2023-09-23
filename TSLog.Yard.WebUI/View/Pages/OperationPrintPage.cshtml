@@ -11,7 +11,8 @@
 @{
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
-    string stringId = Request.Query["id"];
+
+    string? stringId = Request.Query["id"];
     if (string.IsNullOrWhiteSpace(stringId))
         throw new Exception("Operation id is empty!");
 

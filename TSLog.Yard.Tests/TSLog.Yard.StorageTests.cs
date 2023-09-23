@@ -1,18 +1,85 @@
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using System.Reflection;
 using TSLog.Common.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using TSLog.Yard.Data;
 
 namespace TSLog.Yard.Tests
 {
     [TestClass]
-    public class StorageTests
+    public class StorageTests : IDisposable
     {
+        private readonly string _oracleTns = string.Empty;
+        private readonly string _oracleUserName = string.Empty;
+        private readonly string _oraclePassword = string.Empty;
+        private readonly string _oracleCommonSchema;
+        private readonly string _oracleStaffSchema;
+        private readonly string _oracleLegalEntitiesSchema;
+        private readonly string _oraclePartnersSchema;
+
+        private readonly string _pgsqlHost = string.Empty;
+        private readonly string _pgsqlAdminUserName = string.Empty;
+        private readonly string _pgsqlUserName = string.Empty;
+        private readonly string _pgsqlPassword = string.Empty;
+        private readonly string _pgsqlDatabase = string.Empty;
+        private readonly bool _pgsqlPooling;
+        private readonly int _pgsqlMaxPoolSize;
+        private readonly int _pgsqlConnectionIdleLifetime;
+        private readonly int _pgsqlConnectionPruningInterval;
+        private readonly string _pgsqlYardSchema;
+
         private readonly string DefaultUser = "m.burov";
-        private IYardStorage _storage;
+        private readonly IYardStorage _storage;
+
+        public StorageTests()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false);
+
+            var configuration = builder.Build();
+
+            var oracleSection = configuration.GetSection("OracleConnectionDebugSettings");
+            _oracleTns = GetStringValue(oracleSection, "DataSource");
+            _oracleUserName = GetStringValue(oracleSection, "UserName");
+            _oraclePassword = GetStringValue(oracleSection, "Password");
+            _oracleCommonSchema = GetStringValue(oracleSection, "CommonSchema");
+            _oracleStaffSchema = GetStringValue(oracleSection, "StaffSchema");
+            _oracleLegalEntitiesSchema = GetStringValue(oracleSection, "LegalEntitiesSchema");
+            _oraclePartnersSchema = GetStringValue(oracleSection, "PartnersSchema");
+
+            var pgsqlSection = configuration.GetSection("PostgreSqlConnectionDebugSettings");
+            _pgsqlHost = GetStringValue(pgsqlSection, "Host");
+            _pgsqlAdminUserName = GetStringValue(pgsqlSection, "AdminUserName");
+            _pgsqlUserName = GetStringValue(pgsqlSection, "UserName");
+            _pgsqlPassword = GetStringValue(pgsqlSection, "Password");
+            _pgsqlDatabase = GetStringValue(pgsqlSection, "Database");
+            _pgsqlPooling = GetBoolValue(pgsqlSection, "Pooling");
+            _pgsqlMaxPoolSize = GetIntValue(pgsqlSection, "MaxPoolSize");
+            _pgsqlConnectionIdleLifetime = GetIntValue(pgsqlSection, "ConnectionIdleLifetime");
+            _pgsqlConnectionPruningInterval = GetIntValue(pgsqlSection, "ConnectionPruningInterval");
+            _pgsqlYardSchema = GetStringValue(pgsqlSection, "YardSchema");
+
+            var extensionParameters = new Dictionary<string, object>
+            {
+                { "Pooling", _pgsqlPooling },
+                { "MaxPoolSize", _pgsqlMaxPoolSize },
+                { "ConnectionIdleLifetime", _pgsqlConnectionIdleLifetime },
+                { "ConnectionPruningInterval", _pgsqlConnectionPruningInterval }
+            };
+
+            _storage = new YardStorage(_oracleTns, _pgsqlHost, _pgsqlDatabase, extensionParameters);
+            _storage.SetOracleCommonSchema(_oracleCommonSchema);
+            _storage.SetOracleStaffSchema(_oracleStaffSchema);
+            _storage.SetOracleLegalEntitiesSchema(_oracleLegalEntitiesSchema);
+            _storage.SetOraclePartnersSchema(_oraclePartnersSchema);
+            
+            _storage.SetPgsqlYardSchema(_pgsqlYardSchema);
+        }
 
         [TestInitialize]
         public void Setup()
@@ -32,50 +99,77 @@ namespace TSLog.Yard.Tests
         {
             return section.GetValue<string>(name) ?? string.Empty;
         }
+        private static bool GetBoolValue(IConfigurationSection section, string name)
+        {
+            return section.GetValue<bool>(name);
+        }
+        private static int GetIntValue(IConfigurationSection section, string name)
+        {
+            return section.GetValue<int>(name);
+        }
 
         private void Connect(bool isAdmin = false)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false);
-
-            var configuration = builder.Build();
-
-            var oracleSection = configuration.GetSection("OracleConnectionDebugSettings");
-            var oracleTns = GetStringValue(oracleSection, "DataSource");
-            var oracleUserName = GetStringValue(oracleSection, "UserName");
-            var oraclePassword = GetStringValue(oracleSection, "Password");
-            var oracleCommonSchema = GetStringValue(oracleSection, "CommonSchema");
-            var oracleStaffSchema = GetStringValue(oracleSection, "StaffSchema");
-            var oracleLegalEntitiesSchema = GetStringValue(oracleSection, "LegalEntitiesSchema");
-            var oraclePartnersSchema = GetStringValue(oracleSection, "PartnersSchema");
-
-            var pgsqlSection = configuration.GetSection("PostgreSqlConnectionDebugSettings");
-            var pgsqlHost = GetStringValue(pgsqlSection, "Host");
-            var pgsqlAdminUserName = GetStringValue(pgsqlSection, "AdminUserName");
-            var pgsqlUserName = GetStringValue(pgsqlSection, "UserName");
-            var pgsqlPassword = GetStringValue(pgsqlSection, "Password");
-            var pgsqlDatabase = GetStringValue(pgsqlSection, "Database");
-            var pgsqlYardSchema = GetStringValue(pgsqlSection, "YardSchema");
-
-            _storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);
-            _storage.ConnectOracle(oracleUserName, oraclePassword);
-            _storage.SetOracleCommonSchema(oracleCommonSchema);
-            _storage.SetOracleStaffSchema(oracleStaffSchema);
-            _storage.SetOracleLegalEntitiesSchema(oracleLegalEntitiesSchema);
-            _storage.SetOraclePartnersSchema(oraclePartnersSchema);
-
-            _storage.ConnectPgSql(isAdmin ? pgsqlAdminUserName : pgsqlUserName, pgsqlPassword);
-            _storage.SetPgsqlYardSchema(pgsqlYardSchema);
+            _storage.ConnectOracle(_oracleUserName, _oraclePassword);
+            _storage.ConnectPgSql(isAdmin ? _pgsqlAdminUserName : _pgsqlUserName, _pgsqlPassword);
         }
 
         private void Disconnect()
         {
             _storage.DisconnectOracle();
             _storage.DisconnectPgsql();
-            _storage.Dispose();
         }
 
+        private string GetPgSqlConnectionString(IYardStorage storage)
+        {
+            var type = typeof(YardStorage);
+            var fieldInfo = type.GetField("_pgsqlStorage", BindingFlags.NonPublic | BindingFlags.Instance);
+            var pgSqlStorage = (YardPgSqlStorage)fieldInfo.GetValue(storage);
+
+            type = typeof(YardPgSqlStorage);
+            fieldInfo = type.GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance);
+            var connection = (NpgsqlConnection)fieldInfo.GetValue(pgSqlStorage);
+
+            return connection.ConnectionString ?? string.Empty;
+        }
+        [TestMethod]
+        public void CheckPgSqlConnectionSettings()
+        {
+            var pgsqlConnectionString = GetPgSqlConnectionString(_storage);
+            var pgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder(pgsqlConnectionString);
+            Assert.IsTrue(pgsqlConnectionStringBuilder.Pooling == _pgsqlPooling);
+            Assert.IsTrue(pgsqlConnectionStringBuilder.MaxPoolSize == _pgsqlMaxPoolSize);
+            //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
+            Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionPruningInterval == _pgsqlConnectionPruningInterval);
+
+        }
+        [TestMethod]
+        public void CheckPgSqlCustomConnectionSettings()
+        {
+            var extensionParameters = new Dictionary<string, object>
+            {
+                { "Pooling", false },
+                { "MaxPoolSize", 100 },
+                { "ConnectionIdleLifetime", 300 },
+                { "ConnectionPruningInterval", 10 }
+            };
+
+            using var storage = new YardStorage(_oracleTns, _pgsqlHost, _pgsqlDatabase, extensionParameters);
+            storage.SetOracleCommonSchema(_oracleCommonSchema);
+            storage.SetOracleStaffSchema(_oracleStaffSchema);
+            storage.SetOracleLegalEntitiesSchema(_oracleLegalEntitiesSchema);
+            storage.SetOraclePartnersSchema(_oraclePartnersSchema);
+            storage.SetPgsqlYardSchema(_pgsqlYardSchema);
+            storage.ConnectPgSql(_pgsqlUserName, _pgsqlPassword);
+
+            var pgsqlConnectionString = GetPgSqlConnectionString(storage);
+            var pgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder(pgsqlConnectionString);
+            Assert.IsFalse(pgsqlConnectionStringBuilder.Pooling);
+            Assert.IsTrue(pgsqlConnectionStringBuilder.MaxPoolSize == 100);
+            //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
+            Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionPruningInterval == 10);
+            storage.DisconnectPgsql();
+        }
         [TestMethod]
         public void OperationFiltering()
         {
@@ -743,7 +837,6 @@ namespace TSLog.Yard.Tests
             RemoveSomeOperationWorkers_Error(operation, 100066);
         }
         [TestMethod]
-        [Ignore("")]
         public void AllocateOperationWorkers()
         {
             var operation = CreateSomeOperation();
@@ -902,31 +995,7 @@ namespace TSLog.Yard.Tests
             operations = _storage.GetActiveOperations();
             Assert.IsTrue(operations.Length == 0);
         }
-        /*
-        [Test]
-        public void Test1()
-        {
-            var testConfiguration = new Dictionary<string, string> {
-                {"UseAuthentication", "true"},
-            };
-            IConfiguration configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(testConfiguration)
-                .Build();
 
-            var storageMock = new Mock<IYardStorage>();
-            var rightsCheckerMock = new Mock<IRightsChecker>();
-            rightsCheckerMock.Setup(rc => rc.CheckRight("USE_YARD", It.IsAny<ClaimsPrincipal>())).Returns(true);
-            rightsCheckerMock.Setup(rc => rc.CheckRight("CREATE_OPERATION_BY_PARTNER", It.IsAny<ClaimsPrincipal>())).Returns(true);
-
-            var controller = new YardController(configuration, storageMock.Object, rightsCheckerMock.Object);
-
-
-            // Act
-            var result = controller.CreateOperationByPartner().GetAwaiter().GetResult();
-
-            // Assert
-            Assert.That(result, Does.Not.StartWith("Wrong start date"));
-        }
-        */
+        public void Dispose() => _storage.Dispose();
     }
 }

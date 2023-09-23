@@ -23,13 +23,13 @@
         throw new UnauthorizedAccessException();
     }    
 
-    string stringFromDate = Request.Query["from_date"];
-    string stringToDate = Request.Query["to_date"];
+    string? stringFromDate = Request.Query["from_date"];
+    string? stringToDate = Request.Query["to_date"];
     var fromDate = string.IsNullOrWhiteSpace(stringFromDate) ? DateTime.Today : DateTime.Parse(stringFromDate);
     var toDate = string.IsNullOrWhiteSpace(stringToDate) ? DateTime.Today : DateTime.Parse(stringToDate);
     toDate = toDate.AddDays(1).AddSeconds(-1);
 
-    string stringPartner = Request.Query["partner"];
+    string? stringPartner = Request.Query["partner"];
     var partner = string.IsNullOrWhiteSpace(stringPartner) ? Partner.Null : storage.GetPartner(stringPartner);
 
     var report = new ClientReport(storage, partner, fromDate, toDate);

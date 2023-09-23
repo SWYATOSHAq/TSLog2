@@ -17,16 +17,16 @@
 
     var use = !useAuthentication || rightsChecker.CheckRight("USE_YARD", User);
     
-    string stringFromDate = request.Query["from_date"];
-    string stringToDate = request.Query["to_date"];
+    string? stringFromDate = request.Query["from_date"];
+    string? stringToDate = request.Query["to_date"];
     var fromDate = string.IsNullOrWhiteSpace(stringFromDate) ? DateTime.Today : DateTime.Parse(stringFromDate);
     var toDate = string.IsNullOrWhiteSpace(stringToDate) ? DateTime.Today : DateTime.Parse(stringToDate);
 
-    string selectedGate = request.Query["gate"];
-    string selectedType = request.Query["type"];
-    string selectedPartner = request.Query["partner"];
-    string selectedVehicleKind = request.Query["vehicleKind"];
-    string selectedState = request.Query["state"];
+    string? selectedGate = request.Query["gate"];
+    string? selectedType = request.Query["type"];
+    string? selectedPartner = request.Query["partner"];
+    string? selectedVehicleKind = request.Query["vehicleKind"];
+    string? selectedState = request.Query["state"];
 
     var filter = new StringBuilder();
     if (!string.IsNullOrWhiteSpace(selectedGate))

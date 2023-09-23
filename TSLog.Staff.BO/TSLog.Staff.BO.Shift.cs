@@ -210,6 +210,8 @@
         }
         public int CompareTo(Shift? other)
         {
+            if (other == null)
+                return 1;
             var key = Kind != "TOTAL" ? GetKey(From) : Kind;
             var otherKey = other.Kind != "TOTAL" ? GetKey(other.From) : other.Kind;
             return key.CompareTo(otherKey);

@@ -13,7 +13,7 @@
     var rightsChecker = Model.RightsChecker;
     var storage = Model.Storage;
 
-    string action = Request.Query["action"];
+    string? action = Request.Query["action"];
     if (string.IsNullOrWhiteSpace(action))
         throw new Exception("Action is empty!");
     action = action.Trim().ToUpper();

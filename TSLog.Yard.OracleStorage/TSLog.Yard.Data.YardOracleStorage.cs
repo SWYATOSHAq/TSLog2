@@ -887,7 +887,7 @@ namespace TSLog.Yard.Data
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
                 {
-                    string kind = reader["KIND"].ToString();
+                    string? kind = reader["KIND"].ToString();
                     if (kind == "L")
                     {
                         result = true;

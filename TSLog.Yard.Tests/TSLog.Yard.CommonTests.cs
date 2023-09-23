@@ -10,7 +10,7 @@ namespace TSLog.Yard.Tests
         public void DateParsing()
         {
             // "M/d/yyyy hh:mm:ss tt".
-            DateTime trueDate = new DateTime(1985, 4, 16, 18, 12, 53, 0);
+            DateTime trueDate = new(1985, 4, 16, 18, 12, 53, 0);
 
             bool result = Utils.DateFromString("4/16/1985 06:12:53 PM", out DateTime date, out string message);
             Assert.IsTrue(result && string.IsNullOrWhiteSpace(message) && date == trueDate);

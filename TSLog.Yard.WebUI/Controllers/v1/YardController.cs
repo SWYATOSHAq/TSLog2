@@ -308,8 +308,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringOperationType = Request.Query["operation_type"];
-            string stringVehicleKind = Request.Query["vehicle_kind"];
+            string? stringOperationType = Request.Query["operation_type"];
+            string? stringVehicleKind = Request.Query["vehicle_kind"];
 
             if (string.IsNullOrWhiteSpace(stringOperationType))
                 return "Operation type is empty";
@@ -504,7 +504,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpGet("HoodManPlanOutgoDuration")]
         public string GetHoodManPlanOutgoDuration()
         {
-            // Алгоритм Башлыкова
+            // Алгоритм Башлыкова (HoodMan algorithm).
             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var useYard = _rightsChecker.CheckRight("USE_YARD", User);
             var getOperationDuration = _rightsChecker.CheckRight("GET_OUTGO_DURATION", User);
@@ -514,11 +514,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string outgoId = Request.Query["outgo_id"];
+            string? outgoId = Request.Query["outgo_id"];
             if (string.IsNullOrWhiteSpace(outgoId))
                 return "Outgo id is empty";
             bool isPallet = Request.Query["is_pallet"] == "1";
-            string partnerId = Request.Query["partner_id"];
+            string? partnerId = Request.Query["partner_id"];
             if (string.IsNullOrWhiteSpace(partnerId))
                 return "Partner id is empty";
             var partner = _storage.GetPartner(partnerId);
@@ -539,8 +539,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringOperationType = Request.Query["operation_type"];
-            string stringVehicleKind = Request.Query["vehicle_kind"];
+            string? stringOperationType = Request.Query["operation_type"];
+            string? stringVehicleKind = Request.Query["vehicle_kind"];
 
             if (string.IsNullOrWhiteSpace(stringOperationType))
                 return "Operation type is empty";
@@ -772,9 +772,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringDate = Request.Query["date"];
-            string stringOperationType = Request.Query["operation_type"];
-            string stringVehicleKind = Request.Query["vehicle_kind"];
+            string? stringDate = Request.Query["date"];
+            string? stringOperationType = Request.Query["operation_type"];
+            string? stringVehicleKind = Request.Query["vehicle_kind"];
 
             if (string.IsNullOrWhiteSpace(stringOperationType))
                 return "Operation type is empty";
@@ -807,11 +807,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return "Forbidden";
             }
-            string stringOperationType = Request.Query["operation_type"];
-            string stringVehicleKind = Request.Query["vehicle_kind"];
-            string stringStartDate = Request.Query["start_date"];
-            string finishStringFinishDate = Request.Query["finish_date"];
-            string stringOperationId = Request.Query["operation_id"];
+            string? stringOperationType = Request.Query["operation_type"];
+            string? stringVehicleKind = Request.Query["vehicle_kind"];
+            string? stringStartDate = Request.Query["start_date"];
+            string? finishStringFinishDate = Request.Query["finish_date"];
+            string? stringOperationId = Request.Query["operation_id"];
 
             if (string.IsNullOrWhiteSpace(stringOperationType))
                 return "Operation type is empty";
@@ -849,7 +849,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string partnerId = Request.Query["partner_id"];
+            string? partnerId = Request.Query["partner_id"];
             if (string.IsNullOrWhiteSpace(partnerId))
                 return "Partner code is empty!";
 
@@ -892,7 +892,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["id"];
+            string? temp = Request.Query["id"];
             if (string.IsNullOrWhiteSpace(temp))
                 return "Operation id is empty";
 
@@ -937,19 +937,19 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringFromDate = Request.Query["from_date"];
-            string stringToDate = Request.Query["to_date"];
-            string stringGateCode = Request.Query["gate_code"];
-            string stringPartnerId = Request.Query["partner_id"];
-            string stringOperationTypeCode = Request.Query["operation_type_code"];
-            string stringVehicleKindCode = Request.Query["vehicle_kind_code"];
-            string stringStateCode = Request.Query["state_code"];
-            string stringId = Request.Query["id"];
-            string stringVehicleNumber = Request.Query["vehicle_number"];
-            string stringDriverName = Request.Query["driver_name"];
-            string stringDriverPhoneNumber = Request.Query["driver_phone_number"];
-            string stringPartnerActionId = Request.Query["partner_action_id"];
-            string stringWorker = Request.Query["worker"];
+            string? stringFromDate = Request.Query["from_date"];
+            string? stringToDate = Request.Query["to_date"];
+            string? stringGateCode = Request.Query["gate_code"];
+            string? stringPartnerId = Request.Query["partner_id"];
+            string? stringOperationTypeCode = Request.Query["operation_type_code"];
+            string? stringVehicleKindCode = Request.Query["vehicle_kind_code"];
+            string? stringStateCode = Request.Query["state_code"];
+            string? stringId = Request.Query["id"];
+            string? stringVehicleNumber = Request.Query["vehicle_number"];
+            string? stringDriverName = Request.Query["driver_name"];
+            string? stringDriverPhoneNumber = Request.Query["driver_phone_number"];
+            string? stringPartnerActionId = Request.Query["partner_action_id"];
+            string? stringWorker = Request.Query["worker"];
 
             var partner = !string.IsNullOrWhiteSpace(stringPartnerId) ? _storage.GetPartner(stringPartnerId) : Partner.Null;
             var gate = !string.IsNullOrWhiteSpace(stringGateCode) ? _storage.GetGate(stringGateCode) : Gate.Null;
@@ -991,7 +991,9 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 stringPartnerActionId,
                 workers);
             operations = Operation.Filter(operations, partner, operationType, vehicleKind, gate, state,
-                stringVehicleNumber, stringDriverName, stringPartnerActionId);
+                stringVehicleNumber ?? string.Empty,
+                stringDriverName ?? string.Empty,
+                stringPartnerActionId ?? string.Empty);
 
             var list = new List<Operation>();
             var partnersIds = GetPartnersIds();
@@ -2017,7 +2019,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["kind"];
+            string? temp = Request.Query["kind"];
             ActionKind actionKind;
             if (!string.IsNullOrWhiteSpace(temp))
             {
@@ -2044,7 +2046,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
 
-            var actions = _storage.FindWarehouseActions(actionKind, partner, pattern, isPartnerUser);
+            var actions = _storage.FindWarehouseActions(actionKind, partner, pattern ?? string.Empty, isPartnerUser);
             var objects = WarehouseActionsToDynamic(actions);
 
             var text = JsonSerializer.Serialize(objects);
@@ -2063,7 +2065,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["operation_id"];
+            string? temp = Request.Query["operation_id"];
             if (string.IsNullOrWhiteSpace(temp))
                 return "Operation id is empty";
             if (!long.TryParse(temp, out long id))
@@ -2215,6 +2217,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         }
         async public Task<string> RemoveDocument()
         {
+            await Task.Delay(0);
             return string.Empty;
         }
         #endregion
@@ -2283,7 +2286,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var positionCode = Request.Query["position_code"].ToString();
                 var objects = _processor.GetPositionWorkers(namePattern, positionCode, User,
                     out int statusCode, out string response);
-                if (statusCode == 200)
+                if (statusCode == (int)HttpStatusCode.OK)
                 {
                     response = JsonSerializer.Serialize(objects);
                     Response.StatusCode = (int)HttpStatusCode.OK;
@@ -2379,7 +2382,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["operation_id"];
+            string? temp = Request.Query["operation_id"];
             if (string.IsNullOrWhiteSpace(temp))
                 return "Operation id is empty";
             if (!long.TryParse(temp, out long id))
@@ -2521,7 +2524,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["operation_id"];
+            string? temp = Request.Query["operation_id"];
             if (string.IsNullOrWhiteSpace(temp))
                 return "Operation id is empty!";
 
@@ -2551,7 +2554,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringDate = Request.Query["date"];
+            string? stringDate = Request.Query["date"];
             var date = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(stringDate))
             {
@@ -2559,7 +2562,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (!DateTime.TryParse(stringDate, out date))
                     return $"Wrong date {stringDate}";
             }
-            string shift = Request.Query["shift"];
+            string? shift = Request.Query["shift"];
             if (string.IsNullOrWhiteSpace(shift))
                 shift = "day";
             shift = shift.Trim().ToLower();
@@ -2642,7 +2645,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["from_date"];
+            string? temp = Request.Query["from_date"];
             var fromDate = DateTime.Today;
             if (!string.IsNullOrWhiteSpace(temp))
             {
@@ -2675,9 +2678,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 element.stringDate = date.ToString("dd.MM.yyyy");
                 element.day = date.ToString("dd.MM");
 
-                //var dayOfWeek = DateTimeFormatInfo.CurrentInfo.GetDayName(date.DayOfWeek);
                 var dayOfWeek2 = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(date.DayOfWeek);
-                //var dayOfWeek3 = DateTimeFormatInfo.CurrentInfo.GetShortestDayName(date.DayOfWeek);
                 element.dayOfWeek = dayOfWeek2;
                 element.isHoliday = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
 
@@ -2703,22 +2704,22 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var operations = _storage.GetDispatcherReportData(fromDate, toDate);
             foreach (var operation in operations)
             {
-                // Смотрим удалённые операции (те, которые планировались на указанную дату, но были удалены)
+                // Смотрим удалённые операции (те, которые планировались на указанную дату, но были удалены).
                 var key = operation.PlanWorkFinishDate.ToString("yyyy.MM.dd");
                 addElement(key, operation.PlanWorkFinishDate.Date);
                 if (operation.IsDeleted)
                     data[key].deletedOperations++;
                 else if (operation.State.Code != "CREATED" && operation.State.Code != "CANCELED")
                 {
-                    // Все заявки, запланированные на указанный день
+                    // Все заявки, запланированные на указанный день.
                     data[key].dayOperations++;
 
-                    // Опоздавшие машины (на сутки) или не приехавшие
+                    // Опоздавшие машины (на сутки) или не приехавшие.
                     if (operation.PlanWorkFinishDate.Date < operation.FactWorkFinishDate.Date
                         || operation.FactWorkFinishDate <= DateTime.MinValue)
                         data[key].idleOperations++;
 
-                    // Количество операций двора по группам ворот
+                    // Количество операций двора по группам ворот.
                     if (operation.Gate.Code is "EIN01" or "EIN02" or "EIN03" or "EIN04" or "EIN05" or "EIN06")
                         data[key].gates1_6Operations += operation.FactDuration;
                     else if (operation.Gate.Code == "EIN07")
@@ -2726,7 +2727,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                     else if (operation.Gate.Code is "EIN08" or "EIN09" or "EIN10" or "EIN11" or "EIN12" or "EIN13" or "EIN14" or "EIN15" or "EIN16")
                         data[key].gates8_16Operations += operation.FactDuration;
 
-                    // Операции, с превышением плана
+                    // Операции, с превышением плана.
                     if (operation.FactDuration > 0 && operation.PlanDuration < operation.FactDuration ||
                         operation.FactLaborCost > 0 && operation.PlanLaborCost < operation.FactLaborCost)
                     {
@@ -2736,15 +2737,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             data[key].overPlanOutgoes++;
                     }
 
-                    // Смотрим оформленные операции
+                    // Смотрим оформленные операции.
                     key = operation.CreateDate.ToString("yyyy.MM.dd");
                     addElement(key, operation.CreateDate.Date);
-                    if (operation.PlanWorkFinishDate.Date == operation.CreateDate.Date) // Заявка оформлена день в день
+                    if (operation.PlanWorkFinishDate.Date == operation.CreateDate.Date) // Заявка оформлена день в день.
                         data[key].dayToDayOperations++;
-                    else if (operation.CreateDate < operation.PlanWorkFinishDate.Date) // Заявка оформлена в указанную смену на последующие дни
+                    else if (operation.CreateDate < operation.PlanWorkFinishDate.Date) // Заявка оформлена в указанную смену на последующие дни.
                         data[key].nextDayOperations++;
 
-                    // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не были удалены)
+                    // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не были удалены).
                     if (operation.FactWorkFinishDate > DateTime.MinValue)
                     {
                         key = operation.FactWorkFinishDate.ToString("yyyy.MM.dd");
@@ -2820,8 +2821,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringFromDate = Request.Query["from_date"];
-            string stringToDate = Request.Query["to_date"];
+            string? stringFromDate = Request.Query["from_date"];
+            string? stringToDate = Request.Query["to_date"];
 
             var fromDate = DateTime.Today;
             if (!string.IsNullOrWhiteSpace(stringFromDate))
@@ -2897,7 +2898,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringDate = Request.Query["date"];
+            string? stringDate = Request.Query["date"];
             var date = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(stringDate))
             {
@@ -2905,7 +2906,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (!DateTime.TryParse(stringDate, out date))
                     return $"Wrong to date {stringDate}";
             }
-            string shift = Request.Query["shift"];
+            string? shift = Request.Query["shift"];
             if (string.IsNullOrWhiteSpace(shift))
                 shift = "day";
             shift = shift.Trim().ToLower();
@@ -2937,7 +2938,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringDate = Request.Query["date"];
+            string? stringDate = Request.Query["date"];
             var date = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(stringDate))
             {
@@ -2990,7 +2991,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string stringDate = Request.Query["date"];
+            string? stringDate = Request.Query["date"];
             var date = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(stringDate))
             {
@@ -2998,7 +2999,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (!DateTime.TryParse(stringDate, out date))
                     return $"Wrong to date {stringDate}";
             }
-            string shift = Request.Query["shift"];
+            string? shift = Request.Query["shift"];
             if (string.IsNullOrWhiteSpace(shift))
                 shift = "day";
             shift = shift.Trim().ToLower();
@@ -3074,7 +3075,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["from_date"];
+            string? temp = Request.Query["from_date"];
             var fromDate = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(temp))
             {
@@ -3115,7 +3116,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["from_date"];
+            string? temp = Request.Query["from_date"];
             var fromDate = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(temp))
             {
@@ -3160,7 +3161,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["from_date"];
+            string? temp = Request.Query["from_date"];
             var fromDate = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(temp))
             {
@@ -3227,7 +3228,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             return text;
         }
         /// <summary>
-        /// Вторая версия отчёта (детали смотри в комментариях в теле процедуры)
+        /// Вторая версия отчёта (детали смотри в комментариях в теле процедуры).
         /// </summary>
         /// <returns>Данные отчёта</returns>
         //[HttpGet("WorkersPerfomanceReport2")]
@@ -3242,7 +3243,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["from_date"];
+            string? temp = Request.Query["from_date"];
             var fromDate = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(temp))
             {
@@ -3279,8 +3280,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var siteCode = _storage.GetSiteCodeByGateCode(operation.Gate.Code);
                 var works = _storage.GetBossControlWorks(operation.FactWorkStartDate, operation.FactWorkFinishDate, siteCode);
 
-                var bcDuration = 0; // Длительность всех работ по БК для конкретной операции двора
-                var workers = new HashSet<Employee>(); // Работники, зарегистрированные на данном участке в течение работ по данной операции
+                var bcDuration = 0; // Длительность всех работ по БК для конкретной операции двора.
+                var workers = new HashSet<Employee>(); // Работники, зарегистрированные на данном участке в течение работ по данной операции.
                 foreach (var work in works)
                 {
                     bcDuration += work.duration;
@@ -3290,7 +3291,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 }
                 var workersCount = workers.Count;
                 var perfomance = bcDuration > 0 ? (operation.PlanDuration * workersCount / bcDuration) : 0.0;
-                var perfomance2 = operation.PlanDuration / operation.FactDuration; // Для производительности = План. продолжительность / Факт. продолжительность
+                var perfomance2 = operation.PlanDuration / operation.FactDuration; // Для производительности = План. продолжительность / Факт. продолжительность.
                 foreach (var worker in workers)
                 {
                     if (!data.ContainsKey(worker))
@@ -3354,7 +3355,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return "Forbidden";
             }
 
-            string temp = Request.Query["from_date"];
+            string? temp = Request.Query["from_date"];
             var fromDate = DateTime.Now;
             if (!string.IsNullOrWhiteSpace(temp))
             {

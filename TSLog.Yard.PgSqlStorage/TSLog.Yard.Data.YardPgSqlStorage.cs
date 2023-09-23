@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Npgsql;
 using NpgsqlTypes;
-using System.Data;
 using System.Data.Common;
 using System.Dynamic;
 using System.Text;
@@ -35,7 +34,8 @@ namespace TSLog.Yard.Data
         /// </summary>
         public string YardSchema { private get; set; } = DefaultYardSchema;
 
-        public YardPgSqlStorage(string host, string database) : base(host, database)
+        public YardPgSqlStorage(string host, string database,
+            IDictionary<string, object>? extensionParameters = null) : base(host, database, extensionParameters)
         { }
 
         private static NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
@@ -1128,16 +1128,6 @@ namespace TSLog.Yard.Data
             }
             return time;
         }
-        public short GetDuration2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-            if (actions == null)
-                throw new ArgumentNullException(nameof(actions));
-            return 0;
-        }
         /// <summary>
         /// Возвращает плановое количество ЛИНЕЙНЫХ работников операции двора, в зависимости от типа операции и вида машины
         /// </summary>
@@ -1216,16 +1206,6 @@ namespace TSLog.Yard.Data
             }
             return laborCost;
         }
-        public int GetLaborCost2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-            if (actions == null)
-                throw new ArgumentNullException(nameof(actions));
-            return 0;
-        }
         /// <summary>
         /// Возвращает плановые трудозатраты ЛИНЕЙНОГО персонала операции двора (ПРР) по указанному типу операции двора и виду автомашины
         /// </summary>
@@ -1264,16 +1244,6 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             return laborCost;
-        }
-        public int GetLinearLaborCost2(OperationType operationType, VehicleKind vehicleKind, WarehouseAction[] actions)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-            if (actions == null)
-                throw new ArgumentNullException(nameof(actions));
-            return 0;
         }
         /// <summary>
         /// Возвращает ВСЕ свободные интервалы времени в указанном промежутке
@@ -2528,47 +2498,49 @@ namespace TSLog.Yard.Data
         {
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
-            using var connection = CloneConnection();
-            using var command = connection.CreateCommand();
-            /*
-                   select ow.worker_id,
-                          ow.operation_id,
-                          o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
-                          o.fact_work_start_date, o.fact_work_finish_date,
-                          o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date
-                     from {YardSchema}.v_operation_worker ow
-                left join {YardSchema}.scheduler o on ow.operation_id = o.id
-                    where ow.worker_id = :worker_id
-                      and o.fact_work_finish_date is null
-                      and not (o.fact_work_start_date is null and (o.plan_work_start_date >= :finish_date or o.plan_work_finish_date <= :start_date)
-                            or o.fact_work_start_date is not null and (o.fact_work_start_date >= :finish_date or greatest(o.plan_work_finish_date, now() + interval'15 minutes') <= :start_date))
-            */
-            // По результатм обсуждений был приянто решене считать занятыми тех работников,
-            // которые привязаны к операциям, которые находятся на данный момент в работе. 
-            // 04.07.23 #5416 сотрудник считается занятым с момента добавления его в список назначенных в заявке в статусе "Прибыла"
-            var sql =
-                $"   select ow.worker_id,\n" +
-                $"          ow.operation_id,\n" +
-                $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                $"          o.fact_work_start_date, o.fact_work_finish_date\n" +
-                $"     from {YardSchema}.v_operation_worker ow\n" +
-                $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
-                $"    where ow.worker_id = :worker_id\n" +
-                $"      and o.fact_work_finish_date is null\n" +
-                $"      and o.fact_work_start_date is not null\n" +
-                $"      or state_id = 1003\n" +
-                $"      and ow.worker_id = :worker_id";
-            command.CommandText = sql;
-            command.Parameters.Add(CreateParameter("worker_id", NpgsqlDbType.Integer, employee.Id));
-
             var result = false;
-            using (var reader = command.ExecuteReader())
+            using (var connection = CloneConnection())
             {
-                if (reader.Read())
-                    result = true;
-                reader.Close();
+                using var command = connection.CreateCommand();
+                /*
+                       select ow.worker_id,
+                              ow.operation_id,
+                              o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
+                              o.fact_work_start_date, o.fact_work_finish_date,
+                              o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date
+                         from {YardSchema}.v_operation_worker ow
+                    left join {YardSchema}.scheduler o on ow.operation_id = o.id
+                        where ow.worker_id = :worker_id
+                          and o.fact_work_finish_date is null
+                          and not (o.fact_work_start_date is null and (o.plan_work_start_date >= :finish_date or o.plan_work_finish_date <= :start_date)
+                                or o.fact_work_start_date is not null and (o.fact_work_start_date >= :finish_date or greatest(o.plan_work_finish_date, now() + interval'15 minutes') <= :start_date))
+                */
+                // По результатм обсуждений был приянто решене считать занятыми тех работников,
+                // которые привязаны к операциям, которые находятся на данный момент в работе. 
+                // 04.07.23 #5416 сотрудник считается занятым с момента добавления его в список назначенных в заявке в статусе "Прибыла"
+                var sql =
+                    $"   select ow.worker_id,\n" +
+                    $"          ow.operation_id,\n" +
+                    $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                    $"          o.fact_work_start_date, o.fact_work_finish_date\n" +
+                    $"     from {YardSchema}.v_operation_worker ow\n" +
+                    $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                    $"    where ow.worker_id = :worker_id\n" +
+                    $"      and o.fact_work_finish_date is null\n" +
+                    $"      and o.fact_work_start_date is not null\n" +
+                    $"      or state_id = 1003\n" +
+                    $"      and ow.worker_id = :worker_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("worker_id", NpgsqlDbType.Integer, employee.Id));
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        result = true;
+                    reader.Close();
+                }
+                connection.Close();
             }
-            connection.Close();
             return result;
         }
         public void AddOperationWorker(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
@@ -2698,7 +2670,7 @@ namespace TSLog.Yard.Data
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
-            // Удаляем текущие связи работников с операциями двора (ПРР)
+            // Удаляем текущие связи работников с операциями двора (ПРР).
             var operationEmployees = GetOperationWorkers(operation);
             foreach (var operationEmployee in operationEmployees)
                 RemoveOperationWorker(operation, operationEmployee.Worker, operationEmployee.Position);
@@ -2709,15 +2681,24 @@ namespace TSLog.Yard.Data
             using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
-                // Получить смену, которая соответствует началу операции
+                // Получить смену, которая соответствует началу операции.
                 var shift = GetShift((DateTime)date);
 
-                // Определеить сотрудников данной смены, по указанным должностям
+                // Определеить сотрудников данной смены, по указанным должностям.
                 //var employees = GetShiftEmployees(shift);
                 var employees = GetAllEmployees();
 
-                // Определить должности, с нужным количеством сотрудников по каждой должности
-                var workersCounts = operation.PositionsWorkersCount();
+                // Определить должности, с нужным количеством сотрудников по каждой должности.
+                var operationWorks = GetOperationWorks(operation.Type, operation.VehicleKind);
+                var workersCounts = new Dictionary<Position, short>();
+                foreach (var operationWork in operationWorks)
+                {
+                    if (!workersCounts.ContainsKey(operationWork.Position))
+                        workersCounts.Add(operationWork.Position, 0);
+                    workersCounts[operationWork.Position] =
+                        Math.Max(operationWork.WorkersCount, workersCounts[operationWork.Position]);
+                }
+
                 foreach (var pair in workersCounts)
                 {
                     if (!pair.Key.IsLinear)
@@ -2765,109 +2746,117 @@ namespace TSLog.Yard.Data
         public Operation[] GetOperationalReportData(DateTime? fromDate, DateTime? toDate)
         {
             var operations = new List<Operation>();
-            using (var command = _connection.CreateCommand())
+            using (var connection = CloneConnection())
             {
-                var sql =
-                       $"select o.id,\n" +
-                       $"       o.type_id, o.type_code, o.type_name,\n" +
-                       $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
-                       $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                       $"       o.start_date, o.finish_date,\n" +
-                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                       $"       o.vehicle_brand,\n" +
-                       $"       o.vehicle_model,\n" +
-                       $"       o.vehicle_number,\n" +
-                       $"       o.trailer_number,\n" +
-                       $"       o.driver_name, o.driver_phone_number,\n" +
-                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
-                       $"       o.state_id, o.state_code, o.state_name,\n" +
-                       $"       o.priority,\n" +
-                       $"       o.partner_manager_name,\n" +
-                       $"       o.partner_manager_phone_number,\n" +
-                       $"       o.partner_manager_email,\n" +
-                       $"       o.manager_id,\n" +
-                       $"       o.responsible_officer_id,\n" +
-                       $"       o.note,\n" +
-                       $"       o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
-                       $"  from {YardSchema}.v_operation o\n" +
-                       $"    /*\n" +
-                       $"    Важное пояснение по фильтру по датам.\n" +
-                       $"    Мы смотрим пересечение целевого временнОго окна с плановым и с фактическим окном операции двора.\n" +
-                       $"    Если плановое окно операции двора пересекается с целевым то всё хорошо - такая операция нам подходит.\n" +
-                       $"    Если плановое окно операции двора не песекается с целевым, то смотрим фактическое окно операции двора.\n" +
-                       $"    Фактическое окно операции двора существует если фактическая дата (+ время) начала работ по операции двора не пустое.\n" +
-                       $"    Фактическая дата окончания работ по операции двора определяется след. образом: если она заполнена (поле fact_work_finish_date), то берём её,\n" +
-                       $"    это говорит о том что работы по операции двора закончены; если она не заполнена, то значит сейчас операция двора в работе,\n" +
-                       $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительности операции двора),\n" +
-                       $"    если операция двора не просрочена, то к фактической дате (+ время) начала работ добавляем плановую продолжительность,\n" +
-                       $"    и берём эту дату (+ время) как фактическую дату окончания работ (по сути это план с учётом корректировки по фактическому началу работ),\n" +
-                       $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
-                       $"    и эту дату (+ время) считаем фактичской датой окончания работ по операции двора.\n" +
-                       $"    */\n" +
-                       $" where (not (:to_date is not null and o.plan_work_start_date >= :to_date\n" +
-                       $"         or :from_date is not null and o.plan_work_finish_date < :from_date)\n" +
-                       $"       or\n" +
-                       $"       o.fact_work_start_date is not null\n" +
-                       $"           and not (:to_date is not null and o.fact_work_start_date >= :to_date\n" +
-                       $"                 or :from_date is not null and coalesce(o.fact_work_finish_date, greatest(o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
-                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var command = connection.CreateCommand())
                 {
-                    var operation = CreateOperation(reader);
-                    operations.Add(operation);
+                    var sql =
+                           $"select o.id,\n" +
+                           $"       o.type_id, o.type_code, o.type_name,\n" +
+                           $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
+                           $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                           $"       o.start_date, o.finish_date,\n" +
+                           $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                           $"       o.vehicle_brand,\n" +
+                           $"       o.vehicle_model,\n" +
+                           $"       o.vehicle_number,\n" +
+                           $"       o.trailer_number,\n" +
+                           $"       o.driver_name, o.driver_phone_number,\n" +
+                           $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                           $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                           $"       o.state_id, o.state_code, o.state_name,\n" +
+                           $"       o.priority,\n" +
+                           $"       o.partner_manager_name,\n" +
+                           $"       o.partner_manager_phone_number,\n" +
+                           $"       o.partner_manager_email,\n" +
+                           $"       o.manager_id,\n" +
+                           $"       o.responsible_officer_id,\n" +
+                           $"       o.note,\n" +
+                           $"       o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
+                           $"  from {YardSchema}.v_operation o\n" +
+                           $"    /*\n" +
+                           $"    Важное пояснение по фильтру по датам.\n" +
+                           $"    Мы смотрим пересечение целевого временнОго окна с плановым и с фактическим окном операции двора.\n" +
+                           $"    Если плановое окно операции двора пересекается с целевым то всё хорошо - такая операция нам подходит.\n" +
+                           $"    Если плановое окно операции двора не песекается с целевым, то смотрим фактическое окно операции двора.\n" +
+                           $"    Фактическое окно операции двора существует если фактическая дата (+ время) начала работ по операции двора не пустое.\n" +
+                           $"    Фактическая дата окончания работ по операции двора определяется след. образом: если она заполнена (поле fact_work_finish_date), то берём её,\n" +
+                           $"    это говорит о том что работы по операции двора закончены; если она не заполнена, то значит сейчас операция двора в работе,\n" +
+                           $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительности операции двора),\n" +
+                           $"    если операция двора не просрочена, то к фактической дате (+ время) начала работ добавляем плановую продолжительность,\n" +
+                           $"    и берём эту дату (+ время) как фактическую дату окончания работ (по сути это план с учётом корректировки по фактическому началу работ),\n" +
+                           $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
+                           $"    и эту дату (+ время) считаем фактичской датой окончания работ по операции двора.\n" +
+                           $"    */\n" +
+                           $" where (not (:to_date is not null and o.plan_work_start_date >= :to_date\n" +
+                           $"         or :from_date is not null and o.plan_work_finish_date < :from_date)\n" +
+                           $"       or\n" +
+                           $"       o.fact_work_start_date is not null\n" +
+                           $"           and not (:to_date is not null and o.fact_work_start_date >= :to_date\n" +
+                           $"                 or :from_date is not null and coalesce(o.fact_work_finish_date, greatest(o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
                 }
-                reader.Close();
+                connection.Close();
             }
             return operations.ToArray();
         }
         public Operation[] GetDispatcherReportData(DateTime? fromDate, DateTime? toDate)
         {
             var operations = new List<Operation>();
-            using (var command = _connection.CreateCommand())
+            using (var connection = CloneConnection())
             {
-                var sql =
-                       $"select o.id,\n" +
-                       $"       o.type_id, o.type_code, o.type_name,\n" +
-                       $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
-                       $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                       $"       o.start_date, o.finish_date,\n" +
-                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                       $"       o.vehicle_brand,\n" +
-                       $"       o.vehicle_model,\n" +
-                       $"       o.vehicle_number,\n" +
-                       $"       o.trailer_number,\n" +
-                       $"       o.driver_name, o.driver_phone_number,\n" +
-                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
-                       $"       o.state_id, o.state_code, o.state_name,\n" +
-                       $"       o.priority,\n" +
-                       $"       o.partner_manager_name,\n" +
-                       $"       o.partner_manager_phone_number,\n" +
-                       $"       o.partner_manager_email,\n" +
-                       $"       o.manager_id,\n" +
-                       $"       o.responsible_officer_id,\n" +
-                       $"       o.note,\n" +
-                       $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter, o.on_parking\n" +
-                       $"  from {YardSchema}.v_dr_operation o\n" +
-                       $"    /*\n" +
-                       $"    */\n" +
-                       $" where o.created >= :from_date and o.created < :to_date\n" +
-                       $"    or o.plan_work_finish_date >= :from_date and o.plan_work_finish_date < :to_date\n" +
-                       $"    or o.fact_work_finish_date >= :from_date and o.fact_work_finish_date < :to_date\n";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
-                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
+                using (var command = connection.CreateCommand())
                 {
-                    var operation = CreateOperation(reader);
-                    operations.Add(operation);
+                    var sql =
+                           $"select o.id,\n" +
+                           $"       o.type_id, o.type_code, o.type_name,\n" +
+                           $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
+                           $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                           $"       o.start_date, o.finish_date,\n" +
+                           $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                           $"       o.vehicle_brand,\n" +
+                           $"       o.vehicle_model,\n" +
+                           $"       o.vehicle_number,\n" +
+                           $"       o.trailer_number,\n" +
+                           $"       o.driver_name, o.driver_phone_number,\n" +
+                           $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                           $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                           $"       o.state_id, o.state_code, o.state_name,\n" +
+                           $"       o.priority,\n" +
+                           $"       o.partner_manager_name,\n" +
+                           $"       o.partner_manager_phone_number,\n" +
+                           $"       o.partner_manager_email,\n" +
+                           $"       o.manager_id,\n" +
+                           $"       o.responsible_officer_id,\n" +
+                           $"       o.note,\n" +
+                           $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter, o.on_parking\n" +
+                           $"  from {YardSchema}.v_dr_operation o\n" +
+                           $"    /*\n" +
+                           $"    */\n" +
+                           $" where o.created >= :from_date and o.created < :to_date\n" +
+                           $"    or o.plan_work_finish_date >= :from_date and o.plan_work_finish_date < :to_date\n" +
+                           $"    or o.fact_work_finish_date >= :from_date and o.fact_work_finish_date < :to_date\n";
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
                 }
-                reader.Close();
+                connection.Close();
             }
             return operations.ToArray();
         }

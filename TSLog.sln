@@ -70,8 +70,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Authorization", "TSLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Staff.Test", "TSLog.Staff.Test\TSLog.Staff.Test.csproj", "{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.AD.Test", "TSLog.AD.Test\TSLog.AD.Test.csproj", "{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.BossControl.WebUI", "TSLog.BossControl.WebUI\TSLog.BossControl.WebUI.csproj", "{A9B7A5F4-A735-4EDC-B409-8DFE5F90528B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.BossControl.BO", "TSLog.BossControl.BO\TSLog.BossControl.BO.csproj", "{FCB5CA1F-940B-4CAD-A398-E99B49BDED87}"
@@ -90,8 +88,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Reports.Storage", "TS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.Tests", "TSLog.Yard.Tests\TSLog.Yard.Tests.csproj", "{648A06C5-A50D-477C-AB92-0A065BCC2D62}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{96C2A60D-648A-4129-BC07-9676D1E83819}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Db", "Db", "{B5F9287F-94BA-45B0-9CF9-024659D35E69}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{42D2BE86-A34C-4F46-B26B-FA51F00E52FB}"
@@ -105,7 +101,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Common.Dto", "TSLog.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Common.Middleware", "TSLog.Common.Middleware\TSLog.Common.Middleware.csproj", "{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.ConnectionDbTest", "TSLog.Yard.ConnectionDbTest\TSLog.Yard.ConnectionDbTest.csproj", "{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.DbConnectionTester", "Tools\TSLog.Yard.DbConnectionTester\TSLog.Yard.DbConnectionTester.csproj", "{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{DD933F70-3534-42E8-85B9-33E398B48EC4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.AD.Test", "Tools\TSLog.AD.Test\TSLog.AD.Test.csproj", "{FD6993C7-DFF6-4516-B846-17939AE13DCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -229,10 +229,6 @@ Global
 		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7594735-5FBD-44D1-B71F-AB3C21C6DEFD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD4F6598-4461-4CA9-97C2-E91746DAFEE2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A9B7A5F4-A735-4EDC-B409-8DFE5F90528B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A9B7A5F4-A735-4EDC-B409-8DFE5F90528B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9B7A5F4-A735-4EDC-B409-8DFE5F90528B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -281,16 +277,22 @@ Global
 		{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63FBEDA0-A0BE-4265-AAB6-6612416E5DBF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EF742ABD-0C4B-474D-BCDC-F43E76CD7869}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{42D2BE86-A34C-4F46-B26B-FA51F00E52FB} = {B5F9287F-94BA-45B0-9CF9-024659D35E69}
+		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
+		{FD6993C7-DFF6-4516-B846-17939AE13DCA} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88714E8B-587C-4203-A934-34F97D6D11C1}

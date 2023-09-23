@@ -165,7 +165,7 @@ namespace TSLog.Reports.WebUI.Controllers.v1
                     return "Forbidden";
                 }
 
-                string temp = Request.Query["from_date"];
+                string? temp = Request.Query["from_date"];
                 var fromDate = DateTime.Today;
                 if (!string.IsNullOrWhiteSpace(temp))
                 {

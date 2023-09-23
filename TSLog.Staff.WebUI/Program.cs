@@ -2,6 +2,10 @@ using TSLog.Common;
 using TSLog.Staff.BO;
 using TSLog.Staff.Data;
 
+const string DefaultCommonSchema = "common";
+const string DefaultStaffSchema = "staff";
+const string DefaultLegalEntitiesSchema = "legal_entities";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
@@ -11,14 +15,12 @@ var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
 var oracleConnectionSettings = isDebug
     ? builder.Configuration.GetSection("OracleConnectionDebugSettings")
     : builder.Configuration.GetSection("OracleConnectionSettings");
-string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
-
-string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
-string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
-
-string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
-string oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema");
-string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema");
+var oracleTns = oracleConnectionSettings.GetValue<string>("DataSource") ?? string.Empty;
+var oracleUserName = oracleConnectionSettings.GetValue<string>("UserName") ?? string.Empty;
+var oraclePassword = oracleConnectionSettings.GetValue<string>("Password") ?? string.Empty;
+var oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema") ?? DefaultCommonSchema;
+var oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema") ?? DefaultStaffSchema;
+var oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema") ?? DefaultLegalEntitiesSchema;
 
 var storage = new StaffOracleStorage(oracleTns);
 storage.Connect(oracleUserName, Utils.StringToSecureString(oraclePassword));

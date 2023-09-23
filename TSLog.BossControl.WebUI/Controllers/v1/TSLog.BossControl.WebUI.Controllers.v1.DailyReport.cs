@@ -22,6 +22,8 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             }
             public int CompareTo(Mark? other)
             {
+                if (other == null)
+                    return 1;
                 return Key.CompareTo(other.Key);
             }
         }

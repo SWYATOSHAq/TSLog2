@@ -129,21 +129,7 @@ namespace TSLog.Staff.WebUI.Controllers
         [HttpPost("Employee")]       
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public string PostCreateUpdateEmployee(Employee employee)
-        //{
-        //    var retEmployee = employee;
-        //    if (employee.Id > 0)
-        //    {
-        //        // update
-        //        retEmployee = _storage.EditEmployee(employee);
-        //    }
-        //    else
-        //    {
-        //        //create new
-        //        retEmployee = _storage.AddEmployee(employee);
-        //    }
-        //    return JsonSerializer.Serialize(retEmployee);
-        //}
+
         async public Task<string> PostCreateUpdateEmployee()
         {
             try
@@ -162,7 +148,6 @@ namespace TSLog.Staff.WebUI.Controllers
                     Nationality = data.Nationality, 
                     Company = data.Company?.ToObject<LegalEntity>(),
                     BirthDate = data.BirthDate
-                    //BirthDate = DateTime.ParseExact(Convert.ToString(data.BirthDate), "yyyy-MM-dd", CultureInfo.InvariantCulture)
                 };
 
 

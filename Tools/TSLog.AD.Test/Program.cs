@@ -8,27 +8,13 @@ DirectoryEntry CurrentDomain = new DirectoryEntry();
 var domain = Domain.GetCurrentDomain();
 Console.WriteLine(domain.Name);
 
-//var domains = domain.Children;
-//var controllers = domain.DomainControllers;
-
-//var AD = new DirectoryEntry();
-//string QWRY = @"(&(objectCategory=person)(objectClass=user))";
-//DirectorySearcher searchInAD = new DirectorySearcher(AD, QWRY);
-//searchInAD.PageSize = 1001;
-//SearchResultCollection results = searchInAD.FindAll();
-
-//int I = 0;
-//foreach (SearchResult searchResult in results)
-//    Console.WriteLine(I++ + ") " + searchResult.Properties["name"][0]);
-
-
-// set up domain context
+// set up domain context.
 PrincipalContext ctx = new PrincipalContext(ContextType.Domain, domain.Name);
 
-// find a user
+// find a user.
 UserPrincipal user = UserPrincipal.FindByIdentity(ctx, "m.burov");
 
-// find the group in question
+// find the group in question.
 GroupPrincipal group = GroupPrincipal.FindByIdentity(ctx, "Managers");
 GroupPrincipal group2 = GroupPrincipal.FindByIdentity(ctx, "YardAdministrators");
 

@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Reflection;
 using TSLog.Authorization;
+using TSLog.Common.Middleware;
 using TSLog.Yard;
 using TSLog.Yard.BO;
 using TSLog.Yard.WebUI.Data;
-using Serilog;
-using Microsoft.AspNetCore.Diagnostics;
-using TSLog.Common.Middleware;
+
+const string DefaultCommonSchema = "common";
+const string DefaultStaffSchema = "staff";
+const string DefaultLegalEntitiesSchema = "legal_entities";
+const string DefaultPartnersSchema = "partners";
+const string DefaultYardSchema = "yard";
 
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -25,12 +30,6 @@ try
     Log.Information("Starting web application");
 
     var builder = WebApplication.CreateBuilder(args);
-
-    //builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
-    //{
-    //    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
-    //});
-
     builder.Host.UseSerilog();
 
     // Add services to the container.
@@ -62,22 +61,26 @@ try
     var oracleConnectionSettings = isDebug
         ? builder.Configuration.GetSection("OracleConnectionDebugSettings")
         : builder.Configuration.GetSection("OracleConnectionSettings");
-    string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
-    string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
-    string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
-    string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
-    string oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema");
-    string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema");
-    string oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema");
+    var oracleTns = oracleConnectionSettings.GetValue<string>("DataSource") ?? string.Empty;
+    var oracleUserName = oracleConnectionSettings.GetValue<string>("UserName") ?? string.Empty;
+    var oraclePassword = oracleConnectionSettings.GetValue<string>("Password") ?? string.Empty;
+    var oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema") ?? DefaultCommonSchema;
+    var oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema") ?? DefaultStaffSchema;
+    var oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema")?? DefaultLegalEntitiesSchema;
+    var oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema") ?? DefaultPartnersSchema;
 
     var pgsqlConnectionSettings = isDebug
         ? builder.Configuration.GetSection("PostgreSqlConnectionDebugSettings")
         : builder.Configuration.GetSection("PostgreSqlConnectionSettings");
-    string pgsqlHost = pgsqlConnectionSettings.GetValue<string>("Host");
-    string pgsqlUserName = pgsqlConnectionSettings.GetValue<string>("UserName");
-    string pgsqlPassword = pgsqlConnectionSettings.GetValue<string>("Password");
-    string pgsqlDatabase = pgsqlConnectionSettings.GetValue<string>("Database");
-    string pgsqlYardSchema = pgsqlConnectionSettings.GetValue<string>("YardSchema");
+    var pgsqlHost = pgsqlConnectionSettings.GetValue<string>("Host") ?? string.Empty;
+    var pgsqlUserName = pgsqlConnectionSettings.GetValue<string>("UserName") ?? string.Empty;
+    var pgsqlPassword = pgsqlConnectionSettings.GetValue<string>("Password") ?? string.Empty;
+    var pgsqlDatabase = pgsqlConnectionSettings.GetValue<string>("Database") ?? string.Empty;
+    var pgsqlPooling = pgsqlConnectionSettings.GetValue<bool>("Pooling");
+    var pgsqlMaxPoolSize = pgsqlConnectionSettings.GetValue<int>("MaxPoolSize");
+    var pgsqlConnectionIdleLifetime = pgsqlConnectionSettings.GetValue<int>("ConnectionIdleLifetime");
+    var pgsqlConnectionPruningInterval = pgsqlConnectionSettings.GetValue<int>("ConnectionPruningInterval");
+    var pgsqlYardSchema = pgsqlConnectionSettings.GetValue<string>("YardSchema") ?? DefaultYardSchema;
 
     var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);
     storage.MaxRowsCount = builder.Configuration.GetValue<int>("MaxRowsCount");
@@ -136,9 +139,9 @@ try
     app.MapRazorPages();
     app.Run();
 }
-catch (Exception ex)
+catch (Exception exception)
 {
-    Log.Fatal(ex, "Application terminated unexpectedly");
+    Log.Fatal(exception, "Application terminated unexpectedly");
 }
 finally
 {

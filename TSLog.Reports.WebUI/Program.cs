@@ -4,6 +4,12 @@ using TSLog.Authorization;
 using TSLog.Reports.BO;
 using TSLog.Reports.Data;
 
+const string DefaultCommonSchema = "common";
+const string DefaultWmsExtensionsSchema = "wms_ext";
+const string DefaultStaffSchema = "staff";
+const string DefaultLegalEntitiesSchema = "legal_entities";
+const string DefaultPartnersSchema = "partners";
+
 var builder = WebApplication.CreateBuilder(args);
 
 var useAuthentication = builder.Configuration.GetValue<bool>("UseAuthentication");
@@ -24,14 +30,14 @@ var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
 var oracleConnectionSettings = isDebug
     ? builder.Configuration.GetSection("OracleConnectionDebugSettings")
     : builder.Configuration.GetSection("OracleConnectionSettings");
-string oracleTns = oracleConnectionSettings.GetValue<string>("DataSource");
-string oracleUserName = oracleConnectionSettings.GetValue<string>("UserName");
-string oraclePassword = oracleConnectionSettings.GetValue<string>("Password");
-string oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema");
-string oracleWmsExtensionsSchema = oracleConnectionSettings.GetValue<string>("WmsExtensionsSchema");
-string oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema");
-string oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema");
-string oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema");
+var oracleTns = oracleConnectionSettings.GetValue<string>("DataSource") ?? string.Empty;
+var oracleUserName = oracleConnectionSettings.GetValue<string>("UserName") ?? string.Empty;
+var oraclePassword = oracleConnectionSettings.GetValue<string>("Password") ?? string.Empty;
+var oracleCommonSchema = oracleConnectionSettings.GetValue<string>("CommonSchema") ?? DefaultCommonSchema;
+var oracleWmsExtensionsSchema = oracleConnectionSettings.GetValue<string>("WmsExtensionsSchema") ?? DefaultWmsExtensionsSchema;
+var oracleStaffSchema = oracleConnectionSettings.GetValue<string>("StaffSchema") ?? DefaultStaffSchema;
+var oracleLegalEntitiesSchema = oracleConnectionSettings.GetValue<string>("LegalEntitiesSchema") ?? DefaultLegalEntitiesSchema;
+var oraclePartnersSchema = oracleConnectionSettings.GetValue<string>("PartnersSchema") ?? DefaultPartnersSchema;
 
 var storage = new ReportsStorage(oracleTns) 
 { 

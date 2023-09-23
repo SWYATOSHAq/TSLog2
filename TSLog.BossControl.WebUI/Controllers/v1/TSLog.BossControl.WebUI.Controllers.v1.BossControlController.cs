@@ -234,7 +234,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             try
             {
                 Response.StatusCode = 500;
-                string stringDate = Request.Query["date"];
+                string? stringDate = Request.Query["date"];
                 var date = DateTime.Now;
                 if (!string.IsNullOrWhiteSpace(stringDate))
                 {
@@ -242,7 +242,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
                     if (!DateTime.TryParse(stringDate, out date))
                         return $"Wrong to date {stringDate}";
                 }
-                string shift = Request.Query["shift"];
+                string? shift = Request.Query["shift"];
                 if (string.IsNullOrWhiteSpace(shift))
                     shift = "day";
                 shift = shift.Trim().ToLower();
@@ -267,7 +267,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             try
             {
                 Response.StatusCode = 500;
-                string temp = Request.Query["from_date"];
+                string? temp = Request.Query["from_date"];
                 if (string.IsNullOrWhiteSpace(temp))
                     return "From date is empty!";
                 if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
@@ -303,7 +303,7 @@ namespace TSLog.BossControl.WebUI.Controllers.v1
             try
             {
                 Response.StatusCode = 500;
-                string temp = Request.Query["from_date"];
+                string? temp = Request.Query["from_date"];
                 if (string.IsNullOrWhiteSpace(temp))
                     return "From date is empty!";
                 if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))

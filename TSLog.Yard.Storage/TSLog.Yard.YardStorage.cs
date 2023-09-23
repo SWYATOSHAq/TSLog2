@@ -19,6 +19,7 @@ namespace TSLog.Yard
         private const int DefaultMaxRowsCount = 16;
         private readonly YardOracleStorage _oracleStorage;
         private readonly YardPgSqlStorage _pgsqlStorage;
+
         /// <summary>
         /// Максимальное количество строк для вывода.
         /// </summary>
@@ -30,10 +31,11 @@ namespace TSLog.Yard
             }
         }
 
-        public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase)
+        public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase,
+            IDictionary<string, object>? pgsqlExtensionParameters = null)
         {
             _oracleStorage = new YardOracleStorage(oracleDataSource);
-            _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase)
+            _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase, pgsqlExtensionParameters)
             {
                 GetEmployeeById = _oracleStorage.GetEmployee,
                 GetPartnerById = _oracleStorage.GetPartner,
