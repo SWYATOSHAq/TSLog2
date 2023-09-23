@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Dynamic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.BossControl.BO;
 using TSLog.Common;
 using TSLog.Common.BO;
-using TSLog.ExceptionHandler;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -69,7 +66,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _rightsChecker = rightsChecker;
             _useAuthentication = _configuration.GetValue<bool>("UseAuthentication");
             _processor = new Processor(configuration, storage, rightsChecker);
-            _logger=logger;
+            _logger = logger;
         }
 
         private static async Task<dynamic?> GetInputData(HttpRequest request)
@@ -2486,31 +2483,28 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPatch("AllocateOperationWorkers")]
         async public Task<string> AllocateOperationWorkers()
         {
-            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", User);
-            if (_useAuthentication && (!useYard || !manageOperationWorkers))
+            try
             {
-                Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return "Forbidden";
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                dynamic? data = await GetInputData(Request);
+                var operation = _processor.AllocateOperationWorkers(data, User, out int statusCode, out string response);
+                if (statusCode == (int)HttpStatusCode.OK)
+                {
+                    response = OperationToJson(operation);
+                    Response.StatusCode = (int)HttpStatusCode.OK;
+                    return response;
+                }
+                else
+                {
+                    Response.StatusCode = statusCode;
+                    return response;
+                }
             }
-
-            dynamic? data = await GetInputData(Request);
-            if (data == null)
-                return "Input data is null!";
-
-            string stringId = data.id;
-            if (string.IsNullOrWhiteSpace(stringId))
-                return "Operation id is empty";
-
-            if (!long.TryParse(stringId, out long id))
-                return $"Wrong operation id {stringId}";
-
-            var operation = _storage.GetOperation(id);
-            _storage.AllocateOperationWorkers(operation);
-            var text = OperationToJson(operation);
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return text;
+            catch (Exception exception)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return exception.Message;
+            }
         }
         [HttpGet("BossControlWorks")]
         public string GetBossControlWorks()

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using TSLog.Authorization;
 using TSLog.Staff.BO;
 using TSLog.Yard.BO;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TSLog.Yard.Logic
 {
@@ -97,6 +98,56 @@ namespace TSLog.Yard.Logic
                 statusCode = 500;
                 statusMessage = exception.Message;                
                 return Array.Empty<dynamic>();
+            }
+        }
+
+        public Operation? AllocateOperationWorkers(dynamic? data, ClaimsPrincipal user,
+            out int statusCode, out string statusMessage)
+        {
+            try
+            {
+                statusCode = 500;
+                var useYard = _rightsChecker.CheckRight("USE_YARD", user);
+                var manageOperationWorkers = _rightsChecker.CheckRight("MANAGE_OPERATION_WORKERS", user);
+                if (_useAuthentication && (!useYard || !manageOperationWorkers))
+                {
+                    statusCode = 403;
+                    statusMessage = "Forbidden";
+                    return null;
+                }
+                if (data == null)
+                {
+                    statusCode = 500;
+                    statusMessage = "Input data is null!";
+                    return null;
+                }
+
+                string stringId = data.id;
+                if (string.IsNullOrWhiteSpace(stringId))
+                {
+                    statusCode = 500;
+                    statusMessage = "Operation id is empty";
+                    return null;
+                }
+
+                if (!long.TryParse(stringId, out long id))
+                {
+                    statusCode = 500;
+                    statusMessage = $"Wrong operation id {stringId}";
+                    return null;
+                }
+
+                var operation = _storage.GetOperation(id);
+                _storage.AllocateOperationWorkers(operation);
+                statusCode = 200;
+                statusMessage = string.Empty;
+                return operation;
+            }
+            catch (Exception exception)
+            {
+                statusCode = 500;
+                statusMessage = exception.Message;
+                return null;
             }
         }
     }

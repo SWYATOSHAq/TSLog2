@@ -8,7 +8,7 @@ using TSLog.WarehouseActions.BO;
 namespace TSLog.Yard.BO
 {
     /// <summary>
-    /// Интерфейс хранилища данных для модуля упраления двором
+    /// Интерфейс хранилища данных для модуля упраления двором.
     /// </summary>
     public interface IYardStorage : IYardCommonStorage, IYardReportingStorage, IYardWmsStorage, IBcReportingStorage, IYardTestingStorage
     {

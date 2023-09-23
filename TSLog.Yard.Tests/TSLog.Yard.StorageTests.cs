@@ -120,7 +120,7 @@ namespace TSLog.Yard.Tests
             _storage.DisconnectPgsql();
         }
 
-        private string GetPgSqlConnectionString(IYardStorage storage)
+        private static string GetPgSqlConnectionString(IYardStorage storage)
         {
             var type = typeof(YardStorage);
             var fieldInfo = type.GetField("_pgsqlStorage", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -135,17 +135,23 @@ namespace TSLog.Yard.Tests
         [TestMethod]
         public void CheckPgSqlConnectionSettings()
         {
+            // Этот тест проверяет, что дополнительные параметры PGSQL соединения корректно применились.
+            // Речь идёт о параметрах: Pooling, MaxPoolSize, ConnectionPruningInterval.
             var pgsqlConnectionString = GetPgSqlConnectionString(_storage);
             var pgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder(pgsqlConnectionString);
             Assert.IsTrue(pgsqlConnectionStringBuilder.Pooling == _pgsqlPooling);
             Assert.IsTrue(pgsqlConnectionStringBuilder.MaxPoolSize == _pgsqlMaxPoolSize);
-            //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
-            Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionPruningInterval == _pgsqlConnectionPruningInterval);
 
+            // TODO: Fix it!
+            //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
+            
+            Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionPruningInterval == _pgsqlConnectionPruningInterval);
         }
         [TestMethod]
         public void CheckPgSqlCustomConnectionSettings()
         {
+            // Этот тест создаёт отдельный YardStorage с особыми параметрами подключения к PGSQL (Pooling = false, и не только ...)
+            // и проверяет что доп. параметры корректно применились.
             var extensionParameters = new Dictionary<string, object>
             {
                 { "Pooling", false },
@@ -166,7 +172,10 @@ namespace TSLog.Yard.Tests
             var pgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder(pgsqlConnectionString);
             Assert.IsFalse(pgsqlConnectionStringBuilder.Pooling);
             Assert.IsTrue(pgsqlConnectionStringBuilder.MaxPoolSize == 100);
+
+            // TODO: Fix it!
             //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
+            
             Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionPruningInterval == 10);
             storage.DisconnectPgsql();
         }
