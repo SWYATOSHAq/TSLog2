@@ -13,7 +13,7 @@ using TSLog.Staff.BO;
 namespace TSLog.Staff.Data
 {
     /// <summary>
-    ///  Класс для работ с даннми в БД Oracle
+    ///  Класс для работ с даннми в БД Oracle.
     /// </summary>
     public class StaffOracleStorage : OracleStorage, IStaffStorage
     {
@@ -1193,7 +1193,7 @@ namespace TSLog.Staff.Data
                 command.Parameters.Add(new OracleParameter("l_id", OracleDbType.Int32, ParameterDirection.Output));
                 command.ExecuteScalar();
 
-                // TODO: синхронизировать сотрудников
+                // TODO: синхронизировать сотрудников.
             }
             return shift;
         }

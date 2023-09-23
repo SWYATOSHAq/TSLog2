@@ -19,11 +19,11 @@ using TSLog.Yard.BO;
 namespace TSLog.Yard.Data
 {
     /// <summary>
-    /// Класс для работ с даннми в БД Oracle
+    /// Класс для работ с даннми в БД Oracle.
     /// </summary>
     public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
-        // Средее время (ПО УМОЛЧАНИЮ) погрузки паллеты/коробки/штуки
+        // Средее время (ПО УМОЛЧАНИЮ) погрузки паллеты/коробки/штуки.
         private const int PalletLoadTime = 93;
         private const int BoxLoadTime = 20;
         private const int PieceLoadTime = 25;
@@ -33,27 +33,22 @@ namespace TSLog.Yard.Data
         private const string DefaultLegalEntitiesSchema = "legal_entities";
         private const string DefaultPartnersSchema = "partners";
         private const string DefaultProductsSchema = "products";
-        //private readonly ILogger<YardOracleStorage> _logger;
         /// <summary>
-        /// Максимальное количество строк для вывода
+        /// Максимальное количество строк для вывода.
         /// </summary>
         public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
         /// <summary>
-        /// Схема для объектов учёта персонала
+        /// Схема для объектов учёта персонала.
         /// </summary>
         public string StaffSchema { protected get; set; } = DefaultStaffSchema;
         /// <summary>
-        /// Схема для организаций (юр. лиц)
+        /// Схема для организаций (юр. лиц).
         /// </summary>
         public string LegalEntitiesSchema { protected get; set; } = DefaultLegalEntitiesSchema;
         /// <summary>
-        /// Схема для партнёров (покупателей наших складских и логистических услуг)
+        /// Схема для партнёров (покупателей наших складских и логистических услуг).
         /// </summary>
         public string PartnersSchema { protected get; set; } = DefaultPartnersSchema;
-        //public YardOracleStorage(string dataSource, ILogger<YardOracleStorage> logger) : base(dataSource)
-        //{
-        //    _logger=logger;
-        //}
         public YardOracleStorage(string dataSource) : base(dataSource)
         { }
 
@@ -84,10 +79,10 @@ namespace TSLog.Yard.Data
             return product;
         }
         /// <summary>
-        /// Возвращает товар по идентификатору
+        /// Возвращает товар по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Товар</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Товар.</returns>
         /// <exception cref="ProductNotFoundException"></exception>
         public Product GetProduct(string id)
         {
@@ -120,10 +115,10 @@ namespace TSLog.Yard.Data
             throw new ProductNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает товар по GTIN (EAN) номеру
+        /// Возвращает товар по GTIN (EAN) номеру.
         /// </summary>
-        /// <param name="gtin">GTIN (EAN) номер</param>
-        /// <returns>Товар</returns>
+        /// <param name="gtin">GTIN (EAN) номер.</param>
+        /// <returns>Товар.</returns>
         /// <exception cref="ProductNotFoundException"></exception>
         public Product GetProductByGtin(string gtin)
         {
@@ -156,11 +151,11 @@ namespace TSLog.Yard.Data
             throw new ProductNotFoundException(gtin);
         }
         /// <summary>
-        /// Возвращает товар по идентификатору в системе партнёра (клиента)
+        /// Возвращает товар по идентификатору в системе партнёра (клиента).
         /// </summary>
-        /// <param name="partner">Партнёр (клиент)</param>
-        /// <param name="partnerProductId">Идентификатор в системе партнёра</param>
-        /// <returns>Товар</returns>
+        /// <param name="partner">Партнёр (клиент).</param>
+        /// <param name="partnerProductId">Идентификатор в системе партнёра.</param>
+        /// <returns>Товар.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public Product GetProduct(Partner partner, string partnerProductId)
@@ -172,10 +167,11 @@ namespace TSLog.Yard.Data
             return Product.Null;
         }
         /// <summary>
-        /// Возвращает ВСЕ товраы, которые относятся к указанным мандантам (клиентам), если не указан ни один клиент, то возвращает вообще ВСЕ товары
+        /// Возвращает ВСЕ товраы, которые относятся к указанным мандантам (клиентам),
+        /// если не указан ни один клиент, то возвращает вообще ВСЕ товары.
         /// </summary>
-        /// <param name="partners">Клиенты (манданты)</param>
-        /// <returns>Массиы товаров</returns>
+        /// <param name="partners">Клиенты (манданты).</param>
+        /// <returns>Массиы товаров.</returns>
         public Product[] GetProducts(Partner[]? partners = null)
         {
             var products = new List<Product>();
@@ -228,15 +224,13 @@ namespace TSLog.Yard.Data
             var factQuantity = Utils.DbValueToDouble(reader["fact_quantity"]);
             var quantityMeasureUnitCode = Utils.DbValueToString(reader["quantity_measure_unit_code"]);
             var quantityMeasureunit = GetMeasureUnit(quantityMeasureUnitCode);
-            var line = new LineBase(-1, product, plaQuantity, factQuantity, quantityMeasureunit);
-
-            //line.PalletStandard = Utils.DbValueToDouble(reader["pallet_standard"]);
-            //line.BoxStandard = Utils.DbValueToDouble(reader["box_standard"]);
-
-            line.PlanNetWeight = Utils.DbValueToDouble(reader["plan_net_weight"]);
-            line.PlanGrossWeight = Utils.DbValueToDouble(reader["plan_gross_weight"]);
-            line.FactNetWeight = Utils.DbValueToDouble(reader["fact_net_weight"]);
-            line.FactGrossWeight = Utils.DbValueToDouble(reader["fact_gross_weight"]);
+            var line = new LineBase(-1, product, plaQuantity, factQuantity, quantityMeasureunit)
+            {
+                PlanNetWeight = Utils.DbValueToDouble(reader["plan_net_weight"]),
+                PlanGrossWeight = Utils.DbValueToDouble(reader["plan_gross_weight"]),
+                FactNetWeight = Utils.DbValueToDouble(reader["fact_net_weight"]),
+                FactGrossWeight = Utils.DbValueToDouble(reader["fact_gross_weight"])
+            };
             var weightMeasureUnitCode = Utils.DbValueToString(reader["weight_measure_unit_code"]);
             var weightMeasureUnit = GetMeasureUnit(weightMeasureUnitCode);
             line.WeightMeasureUnit = weightMeasureUnit;
@@ -280,12 +274,13 @@ namespace TSLog.Yard.Data
             return action;
         }
         /// <summary>
-        /// Возвращает товарную позицию складского действа по виду складского действа, идентификатору складского действа и номеру позиции
+        /// Возвращает товарную позицию складского действа по виду складского действа,
+        /// идентификатору складского действа и номеру позиции.
         /// </summary>
-        /// <param name="actionKind">Вид складского действа (приход, расход)</param>
-        /// <param name="actionId">Идентификатор складского действа</param>
-        /// <param name="number">Номер товарной позиции</param>
-        /// <returns>Товарная позиция</returns>
+        /// <param name="actionKind">Вид складского действа (приход, расход).</param>
+        /// <param name="actionId">Идентификатор складского действа.</param>
+        /// <param name="number">Номер товарной позиции.</param>
+        /// <returns>Товарная позиция.</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Exception"></exception>
         public LineBase GetWarehouseActionLine(ActionKind actionKind, string actionId, int number)
@@ -318,11 +313,11 @@ namespace TSLog.Yard.Data
             return line;
         }
         /// <summary>
-        /// Возвращает товарные позиции складского действа (прихода, расхода, ...)
+        /// Возвращает товарные позиции складского действа (прихода, расхода, ...).
         /// </summary>
-        /// <param name="actionKind">Вид складского действа (прихода, расхода, ...)</param>
-        /// <param name="actionId">Идентификатор складского действа (прихода, расхода, ...)</param>
-        /// <returns>Массив товарных позиций</returns>
+        /// <param name="actionKind">Вид складского действа (прихода, расхода, ...).</param>
+        /// <param name="actionId">Идентификатор складского действа (прихода, расхода, ...).</param>
+        /// <returns>Массив товарных позиций.</returns>
         /// <exception cref="ArgumentException"></exception>
         public LineBase[] GetWarehouseActionLines(ActionKind actionKind, string actionId)
         {
@@ -358,10 +353,10 @@ namespace TSLog.Yard.Data
             return lines.ToArray();
         }
         /// <summary>
-        /// Возвращает товарные позиции складского действа (прихода, расхода, ...)
+        /// Возвращает товарные позиции складского действа (прихода, расхода, ...).
         /// </summary>
-        /// <param name="action">Складское действо</param>
-        /// <returns>Массив товарных позиций</returns>
+        /// <param name="action">Складское действо.</param>
+        /// <returns>Массив товарных позиций.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public LineBase[] GetWarehouseActionLines(WarehouseAction action)
         {
@@ -370,11 +365,11 @@ namespace TSLog.Yard.Data
             return GetWarehouseActionLines(action.Kind, action.Id);
         }
         /// <summary>
-        /// Возвращает складское дейтсво по виду действа (приход, расход) и идентификатору
+        /// Возвращает складское дейтсво по виду действа (приход, расход) и идентификатору.
         /// </summary>
-        /// <param name="actionKind">Вид складского действа (приход, расход)</param>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Складское действо</returns>
+        /// <param name="actionKind">Вид складского действа (приход, расход).</param>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Складское действо.</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="WarehouseActionNotFoundException"></exception>
         public WarehouseAction GetWarehouseAction(ActionKind actionKind, string id)
@@ -422,12 +417,13 @@ namespace TSLog.Yard.Data
             throw new WarehouseActionNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает складское действо по виду складского действа (приход, расход), клиенту (манданту) и идентификатору в системе клиента
+        /// Возвращает складское действо по виду складского действа (приход, расход),
+        /// клиенту (манданту) и идентификатору в системе клиента.
         /// </summary>
-        /// <param name="actionKind">Вид (приход, расход)</param>
-        /// <param name="partner">Клиент (мандант)</param>
-        /// <param name="partnerActionId">Идентификатор в системе клиента</param>
-        /// <returns>Складское действо</returns>
+        /// <param name="actionKind">Вид (приход, расход).</param>
+        /// <param name="partner">Клиент (мандант).</param>
+        /// <param name="partnerActionId">Идентификатор в системе клиента.</param>
+        /// <returns>Складское действо.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="WarehouseActionNotFoundException"></exception>
         public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId)
@@ -481,12 +477,13 @@ namespace TSLog.Yard.Data
             throw new WarehouseActionNotFoundException(partner.Id, partnerActionId);
         }
         /// <summary>
-        /// Ищет складское действа по виду складского действа (приход, расход), партнёру и "шаблону" идентификатора/номера/клиентского идентификатора
+        /// Ищет складское действа по виду складского действа (приход, расход),
+        /// партнёру и "шаблону" идентификатора/номера/клиентского идентификатора.
         /// </summary>
-        /// <param name="kind">Вид (приход, расход)</param>
-        /// <param name="partner">Клиент (мандант)</param>
-        /// <param name="pattern">Шаблон идентификатора/номера/клиентского идентификатора</param>
-        /// <returns>Массив складских действ</returns>
+        /// <param name="kind">Вид (приход, расход).</param>
+        /// <param name="partner">Клиент (мандант).</param>
+        /// <param name="pattern">Шаблон идентификатора/номера/клиентского идентификатора.</param>
+        /// <returns>Массив складских действ.</returns>
         public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser = false)
         {
             var actions = new List<WarehouseAction>();
@@ -556,11 +553,11 @@ namespace TSLog.Yard.Data
             return actions.ToArray();
         }
         /// <summary>
-        /// Возвращает информацию по собранному расходу (заказу) - количество собранных паллет и штук
+        /// Возвращает информацию по собранному расходу (заказу) - количество собранных паллет и штук.
         /// </summary>
-        /// <param name="id">Идкнтификатор расхода (заказа) = auf_t.aufid</param>
-        /// <param name="palletsCount">Количество собранных паллет</param>
-        /// <param name="eachesCount">Количество собранных штук</param>
+        /// <param name="id">Идкнтификатор расхода (заказа) = auf_t.aufid.</param>
+        /// <param name="palletsCount">Количество собранных паллет.</param>
+        /// <param name="eachesCount">Количество собранных штук.</param>
         /// <exception cref="ArgumentException"></exception>
         public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount)
         {
@@ -569,7 +566,7 @@ namespace TSLog.Yard.Data
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("outgo id is empty!");
 
-            // Пытаемся получить заказ, что бы проверить существование такого заказа
+            // Пытаемся получить заказ, что бы проверить существование такого заказа.
             GetWarehouseAction(ActionKind.Outgo, id);
 
             id = id.Trim();
@@ -592,19 +589,19 @@ namespace TSLog.Yard.Data
             reader.Close();
         }
         /// <summary>
-        /// Возвращает "ПЛАНОВОЕ ФАКТИЧЕСКОЕ" время отгрузки заказа (в зависимости от собранных позиций)
+        /// Возвращает "ПЛАНОВОЕ ФАКТИЧЕСКОЕ" время отгрузки заказа (в зависимости от собранных позиций).
         /// </summary>
-        /// <param name="outgoId">Идентификатор заказа (на отгрузку)</param>
-        /// <param name="isPallet">Признак паллетной отгрузки</param>
-        /// <param name="partner">Партнёр</param>
-        /// <returns>Время отгрузки заказа в секундах</returns>
+        /// <param name="outgoId">Идентификатор заказа (на отгрузку).</param>
+        /// <param name="isPallet">Признак паллетной отгрузки.</param>
+        /// <param name="partner">Партнёр.</param>
+        /// <returns>Время отгрузки заказа в секундах.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public long GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
         {
             if (partner == null)
                 throw new ArgumentNullException(nameof(partner));
             long time = 0;
-            List<string> tu_counter = new List<string>();
+            var tuCounter = new List<string>();
             using (var command = _connection.CreateCommand())
             {
                 var sql =
@@ -630,66 +627,52 @@ namespace TSLog.Yard.Data
                                 if (partner.Id == "0011")
                                 {
                                     if (measureUnitId == "ST" && (tuTypeId == "EURO_TSL_V" || tuTypeId == "EURO" || tuTypeId == "EURO_TSL_1"))
-                                    {
                                         time += BoxLoadTime * quantity;
-                                    }
                                     else
-                                    {
-                                        tu_counter.Add(tuId);
-                                    }
+                                        tuCounter.Add(tuId);
                                 }
                                 else
                                 {
                                     if (measureUnitId == "ST" && tuTypeId == "EURO_TSL_V")
-                                    {
                                         time += BoxLoadTime * quantity;
-                                    }
                                     else
-                                    {
-                                        tu_counter.Add(tuId);
-                                    }
+                                        tuCounter.Add(tuId);
                                 }
                             }
                             else
-                            {
-                                tu_counter.Add(tuId);
-                            }
+                                tuCounter.Add(tuId);
                         }
                         else
                         {
-                            // #3153 Для коректного подсчета плановой расч. производительности товара клинета "Белнефтехим". 1 короб в среднем 25-30 кг. Вес в базе данных указан в граммах. 
+                            // #3153 Для коректного подсчета плановой расч. производительности товара клинета "Белнефтехим".
+                            // 1 короб в среднем 25-30 кг. Вес в базе данных указан в граммах. 
                             if (partner.Id == "0007")
                             {
                                 double boxQuantity = quantity/(30*1000);
                                 time += BoxLoadTime * (long)Math.Round(boxQuantity);
                             }
                             else
-                            {
                                 time += BoxLoadTime * quantity;
-                            }
-
                         }
                     }
                     else
-                    {
                         return 0;
-                    }
                 }
             }
 
-            if (tu_counter.Count != 0)
+            if (tuCounter.Count != 0)
             {
-                var uniqueTu = new HashSet<string>(tu_counter);
+                var uniqueTu = new HashSet<string>(tuCounter);
                 time = uniqueTu.Count * PalletLoadTime;
             }
             return time;
         }
         /// <summary>
-        /// Возвращает "ПЛАНОВОЕ ФАКТИЧЕСКОЕ" время приемки заказа 
+        /// Возвращает "ПЛАНОВОЕ ФАКТИЧЕСКОЕ" время приемки заказа. 
         /// </summary>
-        /// <param name="outgoId">Идентификатор заказа (на приемку)</param>
-        /// <param name="isPallet">Признак паллетной приемки</param>
-        /// <returns>Время приемки заказа в секундах</returns>
+        /// <param name="outgoId">Идентификатор заказа (на приемку).</param>
+        /// <param name="isPallet">Признак паллетной приемки.</param>
+        /// <returns>Время приемки заказа в секундах.</returns>
         public int GetIngoPlanTime(string outgoId, bool isPallet, Partner partner)
         {
             var time = 0;
@@ -706,14 +689,11 @@ namespace TSLog.Yard.Data
                 {
                     var quantity = Utils.DbValueToInt(reader["quantity"]);
                     if (isPallet == true)
-                    {
                         time = PalletLoadTime * quantity;
-                    }
                     else
-                    {
                         time = BoxLoadTime * quantity;
-                    }
                 }
+                reader.Close();
             }
             return time;
         }
@@ -743,10 +723,10 @@ namespace TSLog.Yard.Data
             return legalEntity;
         }
         /// <summary>
-        /// Возвращает юридическое лицо (gp_t) по идентификатору
+        /// Возвращает юридическое лицо (gp_t) по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Юридическое лицо (gp_t)</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Юридическое лицо (gp_t).</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="LegalEntityNotFoundException"></exception>
         public LegalEntity GetLegalEntity(string id)
@@ -804,10 +784,10 @@ namespace TSLog.Yard.Data
             { "EIN17", "GATE_17" }
         };
         /// <summary>
-        /// Возвращает код участка работ по коду ворот
+        /// Возвращает код участка работ по коду ворот.
         /// </summary>
-        /// <param name="gateCode">Код ворот</param>
-        /// <returns>Код участка</returns>
+        /// <param name="gateCode">Код ворот.</param>
+        /// <returns>Код участка.</returns>
         public string GetSiteCodeByGateCode(string gateCode)
         {
             return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
@@ -840,33 +820,36 @@ namespace TSLog.Yard.Data
             return site;
         }
         /// <summary>
-        /// Возвращает ID площадки из вьюхи STF_SITE#V по значению CODE
+        /// Возвращает ID площадки из вьюхи STF_SITE#V по значению CODE.
         /// </summary>
-        /// <param name="siteCode">Код участка</param>
-        /// <returns>ID площадки в формате int</returns>
+        /// <param name="siteCode">Код участка.</param>
+        /// <returns>ID площадки в формате int.</returns>
         public int GetSiteIdBySiteCode(string siteCode)
         {
-            using var command = _connection.CreateCommand();
-            string sql = $"SELECT ID FROM {StaffSchema}.STF_SITE#V WHERE CODE = :code";
-            command.CommandText = sql;
-            command.Parameters.Add(new OracleParameter("code", siteCode));
-            int siteId = Convert.ToInt32(command.ExecuteScalar());
+            var siteId = -1;
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = $"SELECT ID FROM {StaffSchema}.STF_SITE#V WHERE CODE = :code";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("code", siteCode));
+                siteId = Convert.ToInt32(command.ExecuteScalar());
+            }
             return siteId;
         }
         /// <summary>
         /// Возвращаем результат проверки на предмет того, что сотрудник покинул ворота.
         /// </summary>
-        /// <param name="workerId">ID сотрудника</param>
-        /// <param name="siteId"> ID участка работ(ворот)</param>
-        /// <param name="partnerId">ID партнера(клиента)</param>
-        /// <param name="factStartWorkDate">Фактическое время начала работ</param>
-        /// <returns>Булево значение (true, если сотрудник покинул ворота)</returns>
+        /// <param name="workerId">ID сотрудника.</param>
+        /// <param name="siteId"> ID участка работ(ворот).</param>
+        /// <param name="partnerId">ID партнера(клиента).</param>
+        /// <param name="factStartWorkDate">Фактическое время начала работ.</param>
+        /// <returns>Булево значение (true, если сотрудник покинул ворота).</returns>
         public bool CheckWorkerLeaveSite(int workerId, int siteId, string partnerId, DateTime factStartWorkDate)
         {
-            bool result = false;
+            var result = false;
             using (var command = _connection.CreateCommand())
             {
-                string query =
+                var sql =
                     $"SELECT KIND\n" +
                     $"FROM (\n" +
                     $"    SELECT *\n" +
@@ -879,7 +862,7 @@ namespace TSLog.Yard.Data
                     $")\n" +
                     $"WHERE ROWNUM = 1";
 
-                command.CommandText = query;
+                command.CommandText = sql;
                 command.Parameters.Add(new OracleParameter("workerId", workerId));
                 command.Parameters.Add(new OracleParameter("partnerId", partnerId));
                 command.Parameters.Add(new OracleParameter("siteId", siteId));
@@ -889,32 +872,34 @@ namespace TSLog.Yard.Data
                 {
                     string? kind = reader["KIND"].ToString();
                     if (kind == "L")
-                    {
                         result = true;
-                    };
-                };
-            };
+                }
+                reader.Close();
+            }
             return result;
         }
         /// <summary>
-        /// Возвращает результат проверки ворот на отсутствие зарегистрированных сотрудников
+        /// Возвращает результат проверки ворот на отсутствие зарегистрированных сотрудников.
         /// </summary>
-        /// <param name="gateCode">Код ворот</param>
-        /// <returns>Булево значение (true, если ворота свободны)</returns>
+        /// <param name="gateCode">Код ворот.</param>
+        /// <returns>Булево значение (true, если ворота свободны).</returns>
         public bool CheckGateForFreeBeforeFinishWork(string gateCode)
         {
-            using var command = _connection.CreateCommand();
-            string sql = $"SELECT COUNT(*) FROM {StaffSchema}.STF_BUSY_WORKER#V WHERE SITE_CODE = :gate_code";
-            command.CommandText = sql;
-            command.Parameters.Add(new OracleParameter("gate_code", gateCode));
-            int countRows = Convert.ToInt32(command.ExecuteScalar());
+            var countRows = 0;
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = $"SELECT COUNT(*) FROM {StaffSchema}.STF_BUSY_WORKER#V WHERE SITE_CODE = :gate_code";
+                command.CommandText = sql;
+                command.Parameters.Add(new OracleParameter("gate_code", gateCode));
+                countRows = Convert.ToInt32(command.ExecuteScalar());
+            }
             return countRows == 0;
         }
         /// <summary>
-        /// Возвращает участок работ по идентификатору
+        /// Возвращает участок работ по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Учаток работ</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Учаток работ.</returns>
         /// <exception cref="SiteNotFoundException"></exception>
         public Site GetSite(short id)
         {
@@ -949,9 +934,9 @@ namespace TSLog.Yard.Data
             throw new SiteNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает ВСЕ участки работ
+        /// Возвращает ВСЕ участки работ.
         /// </summary>
-        /// <returns>Массив участков работ</returns>
+        /// <returns>Массив участков работ.</returns>
         public Site[] GetSites()
         {
             var sites = new List<Site>();
@@ -992,7 +977,7 @@ namespace TSLog.Yard.Data
             var displayOrder = Utils.DbValueToLong(reader["display_order"]);
             var partner = new Partner(id,
                 name,
-                name, // note
+                name, // note.
                 string.Empty,
                 string.Empty,
                 isActive,
@@ -1000,10 +985,10 @@ namespace TSLog.Yard.Data
             return partner;
         }
         /// <summary>
-        /// Возвращает клиента (мандант) по идентификатору
+        /// Возвращает клиента (мандант) по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Клиент (мандант)</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Клиент (мандант).</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="PartnerNotFoundException"></exception>
         public Partner GetPartner(string id)
@@ -1035,10 +1020,10 @@ namespace TSLog.Yard.Data
             throw new PartnerNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает менеджеров указанного клиента (манданта)
+        /// Возвращает менеджеров указанного клиента (манданта).
         /// </summary>
-        /// <param name="partner">Клиент (мандант)</param>
-        /// <returns>Массив менеджеров (сотрудников)</returns>
+        /// <param name="partner">Клиент (мандант).</param>
+        /// <returns>Массив менеджеров (сотрудников).</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public Employee[] GetPartnerManagers(Partner partner)
         {
@@ -1066,10 +1051,10 @@ namespace TSLog.Yard.Data
             return managers.ToArray();
         }
         /// <summary>
-        /// Возвращает всех или только активых клиентов (мандантов)
+        /// Возвращает всех или только активых клиентов (мандантов).
         /// </summary>
-        /// <param name="getOnlyActive">Признак - "только активных"</param>
-        /// <returns>Массив клиентов (мандантов)</returns>
+        /// <param name="getOnlyActive">Признак - "только активных".</param>
+        /// <returns>Массив клиентов (мандантов).</returns>
         public Partner[] GetPartners(bool getOnlyActive = true)
         {
             var partners = new List<Partner>();
@@ -1102,10 +1087,10 @@ namespace TSLog.Yard.Data
             return new Shift(-1, DateTime.Today, DateTime.Today, "I");
         }
         /// <summary>
-        /// Возвращает тип (номер) смены, которая попадает на указанный момент времени
+        /// Возвращает тип (номер) смены, которая попадает на указанный момент времени.
         /// </summary>
-        /// <param name="date">Дата (+ время)</param>
-        /// <returns>Номер смены</returns>
+        /// <param name="date">Дата (+ время).</param>
+        /// <returns>Номер смены.</returns>
         private string? GetShiftKind(DateTime? date = null)
         {
             var shift = DefaultShift;
@@ -1122,19 +1107,19 @@ namespace TSLog.Yard.Data
             return shift;
         }
         /// <summary>
-        /// Возвращает конкретную рабочую смену по идентификатору
+        /// Возвращает конкретную рабочую смену по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Рабочая смена</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Рабочая смена.</returns>
         public Shift GetShift(int id)
         {
             return new Shift(id, DateTime.Today, DateTime.Today, "I"); ;
         }
         /// <summary>
-        /// Возвращает конкретную рабочую смену по попаданию в эту смену указанного момента времени
+        /// Возвращает конкретную рабочую смену по попаданию в эту смену указанного момента времени.
         /// </summary>
-        /// <param name="date">Дата (+ время)</param>
-        /// <returns>Конкретная рабочая смена</returns>
+        /// <param name="date">Дата (+ время).</param>
+        /// <returns>Конкретная рабочая смена.</returns>
         public Shift GetShift(DateTime date)
         {
             return new Shift(-1, date, date, "I");
@@ -1195,10 +1180,10 @@ namespace TSLog.Yard.Data
             return employee;
         }
         /// <summary>
-        /// Возвращает сотрудника по идентификатору
+        /// Возвращает сотрудника по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Сотрудник</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Сотрудник.</returns>
         /// <exception cref="EmployeeNotFoundException"></exception>
         public Employee GetEmployee(int id)
         {
@@ -1243,10 +1228,10 @@ namespace TSLog.Yard.Data
             throw new EmployeeNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает сотрудника по имени пользователя active directory
+        /// Возвращает сотрудника по имени пользователя active directory.
         /// </summary>
-        /// <param name="login">Имя пользователя active directory</param>
-        /// <returns>Сотрудник</returns>
+        /// <param name="login">Имя пользователя active directory.</param>
+        /// <returns>Сотрудник.</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="EmployeeNotFoundException"></exception>
         public Employee GetEmployeeByAdLogin(string login)
@@ -1255,7 +1240,6 @@ namespace TSLog.Yard.Data
                 throw new ArgumentException("Login is empty!");
             login = login.Trim().ToLower();
             var employees = _employees.Entities.ToList();
-            //_logger.LogWarning("Отработал метод GetEmployeeByAdLogin с логином {Login} и массивом {employees} и переменной {_employees}", login, employees, _employees);
             var employee = employees.Find(e => e.AdLogin.Trim().ToLower() == login);
             if (employee != null && employee != Employee.Null && employee != Employee.Empty)
                 return employee;
@@ -1297,10 +1281,10 @@ namespace TSLog.Yard.Data
             throw new EmployeeNotFoundException("AD login", login);
         }
         /// <summary>
-        /// Ищет сотрудников по "фаблону" Ф. И. О. (полному или краткому)
+        /// Ищет сотрудников по "фаблону" Ф. И. О. (полному или краткому).
         /// </summary>
-        /// <param name="pattern">Шаблон поиска</param>
-        /// <returns>Массов сотрудников</returns>        
+        /// <param name="pattern">Шаблон поиска.</param>
+        /// <returns>Массов сотрудников.</returns>        
         public Employee[] FindEmployees(string pattern)
         {
             pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
@@ -1352,12 +1336,12 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         /// <summary>
-        /// Ищет сотрудников по шаблону Ф. И. О., на определённой должности, по определёному режиму работы (номеру смены)
+        /// Ищет сотрудников по шаблону Ф. И. О., на определённой должности, по определёному режиму работы (номеру смены).
         /// </summary>
-        /// <param name="position">Должность</param>
+        /// <param name="position">Должность.</param>
         /// <param name="pattern">Шаблон Ф. И. О.</param>
-        /// <param name="workMode">Режим работы (номер смены)</param>
-        /// <returns>Массив сотрудников</returns>
+        /// <param name="workMode">Режим работы (номер смены).</param>
+        /// <returns>Массив сотрудников.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public Employee[] FindEmployees(Position position, string pattern, string workMode = "")
         {
@@ -1412,9 +1396,9 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         /// <summary>
-        /// Возвращает "линейных" ("линейнх" должностей) сотрудников
+        /// Возвращает "линейных" ("линейнх" должностей) сотрудников.
         /// </summary>
-        /// <returns>Массис вотрудников</returns>
+        /// <returns>Массис вотрудников.</returns>
         public Employee[] GetLinearEmployees()
         {
             var employees = new List<Employee>();
@@ -1453,9 +1437,9 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         /// <summary>
-        /// Возвращает ВСЕХ сотрудников
+        /// Возвращает ВСЕХ сотрудников.
         /// </summary>
-        /// <returns>Массив сотрудников</returns>
+        /// <returns>Массив сотрудников.</returns>
         public Employee[] GetEmployees()
         {
             var employees = new List<Employee>();
@@ -1492,10 +1476,10 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         /// <summary>
-        /// Возвращает сотрудников, которые должны работать по плану по указанному моменту времени
+        /// Возвращает сотрудников, которые должны работать по плану по указанному моменту времени.
         /// </summary>
-        /// <param name="date">Дата (+ время)</param>
-        /// <returns>Массив сотрудников</returns>
+        /// <param name="date">Дата (+ время).</param>
+        /// <returns>Массив сотрудников.</returns>
         public Employee[] GetPlanShiftEmployees(DateTime? date = null)
         {
             var employees = new List<Employee>();
@@ -1535,10 +1519,10 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         /// <summary>
-        /// Возвращает сотрудников, работающих в указанную смену
+        /// Возвращает сотрудников, работающих в указанную смену.
         /// </summary>
-        /// <param name="shift">Смена</param>
-        /// <returns>Массив сотрудников</returns>
+        /// <param name="shift">Смена.</param>
+        /// <returns>Массив сотрудников.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public Employee[] GetShiftEmployees(Shift shift)
         {
@@ -1565,22 +1549,22 @@ namespace TSLog.Yard.Data
             return employees.ToArray();
         }
         /// <summary>
-        /// Возвращает массив сотрудников, работающих в смену по указанному моменту времени
+        /// Возвращает массив сотрудников, работающих в смену по указанному моменту времени.
         /// </summary>
-        /// <param name="date">Дата (+ время)</param>
-        /// <returns>Массив сотрудников</returns>
+        /// <param name="date">Дата (+ время).</param>
+        /// <returns>Массив сотрудников.</returns>
         public Employee[] GetShiftEmployees(DateTime date)
         {
             var shift = GetShift(date);
             return GetShiftEmployees(shift);
         }
         /// <summary>
-        /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке
+        /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке.
         /// </summary>
-        /// <param name="startDate">Начальная дата (+ время)</param>
-        /// <param name="finishDate">Конечная дата (+ время)</param>
-        /// <param name="siteCode">Код участка</param>
-        /// <returns>Массив работ</returns>
+        /// <param name="startDate">Начальная дата (+ время).</param>
+        /// <param name="finishDate">Конечная дата (+ время).</param>
+        /// <param name="siteCode">Код участка.</param>
+        /// <returns>Массив работ.</returns>
         public dynamic[] GetBossControlWorks(DateTime startDate, DateTime finishDate, string siteCode)
         {
             var works = new List<dynamic>();
@@ -1650,12 +1634,12 @@ namespace TSLog.Yard.Data
             return works.ToArray();
         }
         /// <summary>
-        /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке (в виде объектов SiteWorker)
+        /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке (в виде объектов SiteWorker).
         /// </summary>
-        /// <param name="startDate">Начальная дата (+ время)</param>
-        /// <param name="finishDate">Конечная дата (+ время)</param>
-        /// <param name="siteCode">Код участка</param>
-        /// <returns>Массив обхектов SiteWorker</returns>
+        /// <param name="startDate">Начальная дата (+ время).</param>
+        /// <param name="finishDate">Конечная дата (+ время).</param>
+        /// <param name="siteCode">Код участка.</param>
+        /// <returns>Массив обхектов SiteWorker.</returns>
         public SiteWorker[] GetSitesWorkers(DateTime startDate, DateTime finishDate, string siteCode)
         {
             var works = new List<SiteWorker>();
@@ -1735,10 +1719,10 @@ namespace TSLog.Yard.Data
             return position;
         }
         /// <summary>
-        /// Возвращает подразделение по идентификатору
+        /// Возвращает подразделение по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Подразделение</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Подразделение.</returns>
         /// <exception cref="DepartmentNotFoundException"></exception>
         public Department GetDepartment(short id)
         {
@@ -1772,10 +1756,10 @@ namespace TSLog.Yard.Data
             throw new DepartmentNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает подразделение по коду
+        /// Возвращает подразделение по коду.
         /// </summary>
-        /// <param name="code">Код</param>
-        /// <returns>Подразделение</returns>
+        /// <param name="code">Код.</param>
+        /// <returns>Подразделение.</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="DepartmentNotFoundException"></exception>
         public Department GetDepartment(string code)
@@ -1812,9 +1796,9 @@ namespace TSLog.Yard.Data
             throw new DepartmentNotFoundException(code);
         }
         /// <summary>
-        /// Возвращает подразделения
+        /// Возвращает подразделения.
         /// </summary>
-        /// <returns>Массив подразделений</returns>
+        /// <returns>Массив подразделений.</returns>
         public Department[] GetDepartments()
         {
             var departments = new List<Department>();
@@ -1875,10 +1859,10 @@ namespace TSLog.Yard.Data
             return position;
         }
         /// <summary>
-        /// Возвращает должность по идентификатору
+        /// Возвращает должность по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <returns>Должность</returns>
+        /// <param name="id">Идентификатор.</param>
+        /// <returns>Должность.</returns>
         /// <exception cref="PositionNotFoundException"></exception>
         public Position GetPosition(short id)
         {
@@ -1913,10 +1897,10 @@ namespace TSLog.Yard.Data
             throw new PositionNotFoundException(id);
         }
         /// <summary>
-        /// Возвращает должность по коду
+        /// Возвращает должность по коду.
         /// </summary>
-        /// <param name="code">Код</param>
-        /// <returns>Должность</returns>
+        /// <param name="code">Код.</param>
+        /// <returns>Должность.</returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="PositionNotFoundException"></exception>
         public Position GetPosition(string code)
@@ -1954,9 +1938,9 @@ namespace TSLog.Yard.Data
             throw new PositionNotFoundException(code);
         }
         /// <summary>
-        /// Возвращает ВСЕ должности
+        /// Возвращает ВСЕ должности.
         /// </summary>
-        /// <returns>Массив должностей</returns>
+        /// <returns>Массив должностей.</returns>
         public Position[] GetPositions()
         {
             var positions = new List<Position>();
@@ -1982,9 +1966,9 @@ namespace TSLog.Yard.Data
             return positions.ToArray();
         }
         /// <summary>
-        /// Возвращает "линейные" должности (линейного персонала)
+        /// Возвращает "линейные" должности (линейного персонала).
         /// </summary>
-        /// <returns>Массив "линейных" должностей</returns>
+        /// <returns>Массив "линейных" должностей.</returns>
         public Position[] GetLinePositions()
         {
             var positions = new List<Position>();
@@ -2014,11 +1998,11 @@ namespace TSLog.Yard.Data
         #region Reporting
         private const int DefaultShiftLength = 12 * 60 * 60;
         /// <summary>
-        /// Возвщает трудозатраты по БоссКотролю за период
+        /// Возвщает трудозатраты по БоссКотролю за период.
         /// </summary>
-        /// <param name="fromDate">Дата начала периода (+ время)</param>
-        /// <param name="toDate">Дата окончания периода (+ время)</param>
-        /// <returns>Массив объектов (мандант, должность, количество работников, трудозатраты)</returns>
+        /// <param name="fromDate">Дата начала периода (+ время).</param>
+        /// <param name="toDate">Дата окончания периода (+ время).</param>
+        /// <returns>Массив объектов (мандант, должность, количество работников, трудозатраты).</returns>
         public dynamic[] GetBcLabocCosts(DateTime fromDate, DateTime toDate)
         {
             var lines = new List<dynamic>();
@@ -2064,10 +2048,10 @@ namespace TSLog.Yard.Data
             return lines.ToArray();
         }
         /// <summary>
-        /// Возвращает трудозатраты за смену
+        /// Возвращает трудозатраты за смену.
         /// </summary>
-        /// <param name="date">Дата, по которой определяется смена (попадание даты в смену)</param>
-        /// <returns>Массив объектов (должность, нормативное время работы, фактическое время работы)</returns>
+        /// <param name="date">Дата, по которой определяется смена (попадание даты в смену).</param>
+        /// <returns>Массив объектов (должность, нормативное время работы, фактическое время работы).</returns>
         public dynamic[] GetBcShiftLabocCosts(DateTime date)
         {
             var lines = new List<dynamic>();
@@ -2122,12 +2106,12 @@ namespace TSLog.Yard.Data
             return lines.ToArray();
         }
         /// <summary>
-        /// Возвращает промежутки работ по БоссКонтролю
+        /// Возвращает промежутки работ по БоссКонтролю.
         /// </summary>
-        /// <param name="fromDate">Дата начала периода (+ время)</param>
-        /// <param name="toDate">Дата окочания периода (+ время)</param>
-        /// <param name="siteCode">Код участка</param>
-        /// <returns>Массив объектов (работник, должность, дата и время начала работы, дата и время окончания работы)</returns>
+        /// <param name="fromDate">Дата начала периода (+ время).</param>
+        /// <param name="toDate">Дата окочания периода (+ время).</param>
+        /// <param name="siteCode">Код участка.</param>
+        /// <returns>Массив объектов (работник, должность, дата и время начала работы, дата и время окончания работы).</returns>
         public dynamic[] GetBcWorks(DateTime fromDate, DateTime toDate, string siteCode)
         {
             var works = new List<dynamic>();
@@ -2191,13 +2175,13 @@ namespace TSLog.Yard.Data
             return works.ToArray();
         }
         /// <summary>
-        /// Возвращает количество РАЗЛИЧНЫХ работников, которые по системе БоссКонтроль 
-        /// работали в указанный интервал времени на указанном участке
+        /// Возвращает количество РАЗЛИЧНЫХ работников, которые по системе БоссКонтроль.
+        /// работали в указанный интервал времени на указанном участке.
         /// </summary>
-        /// <param name="fromDate">Дата и время начала интервала</param>
-        /// <param name="toDate">Дата и время окончания интервала</param>
-        /// <param name="siteCode">Код участка работ</param>
-        /// <returns>Количество различных работников</returns>
+        /// <param name="fromDate">Дата и время начала интервала.</param>
+        /// <param name="toDate">Дата и время окончания интервала.</param>
+        /// <param name="siteCode">Код участка работ.</param>
+        /// <returns>Количество различных работников.</returns>
         public int GetBcWorkersCount(DateTime fromDate, DateTime toDate, string siteCode)
         {
             var ids = new HashSet<int>();
@@ -2251,12 +2235,12 @@ namespace TSLog.Yard.Data
         /// Из нормативного времени смены вычитаем время работы сотрудника на смене - это и будет простой.
         /// Все такие простои суммируем по всем работникам по всем сменам.
         /// </summary>
-        /// <param name="fromDate">Дата начала периода</param>
-        /// <param name="toDate">Дата окончания периода</param>        
-        /// <param name="planTime">Плановое время</param>
-        /// <param name="planCost">Плановые затраты в деньгах</param>
-        /// <param name="downTime">Простои</param>
-        /// <param name="downCost">Потери из-за простоев в деньгах</param>
+        /// <param name="fromDate">Дата начала периода.</param>
+        /// <param name="toDate">Дата окончания периода.</param>        
+        /// <param name="planTime">Плановое время.</param>
+        /// <param name="planCost">Плановые затраты в деньгах.</param>
+        /// <param name="downTime">Простои.</param>
+        /// <param name="downCost">Потери из-за простоев в деньгах.</param>
         public void GetBcPlan(DateTime fromDate, DateTime toDate,
             out double planTime, out double planCost, out double downTime, out double downCost)
         {
@@ -2313,7 +2297,7 @@ namespace TSLog.Yard.Data
                 {
                     // в случае случайной переработки необходимо отметиться на участке 1053 и таким образом игнорировать
                     // это время при подсчете планового времени смены и простоев. Сейчас это не работает из-за условия ниже.
-                    // Проверку factWorks[workerId] / planWorks[workerId] < 0.1 - Вернул по заявке 4760 по распоряжению Охотникова А.А.
+                    // Проверку factWorks[workerId] / planWorks[workerId] < 0.1 - Вернул по заявке 4760 по распоряжению Охотникова А. А.
                     if (factWorks[workerId] / planWorks[workerId] < 0.1)
                         continue;
                     var workerDownTime = planWorks[workerId] - factWorks[workerId];
@@ -2330,12 +2314,12 @@ namespace TSLog.Yard.Data
             }
         }
         /// <summary>
-        /// Функция формирования отчёта о затратах/выручке за период
+        /// Функция формирования отчёта о затратах/выручке за период.
         /// </summary>
-        /// <param name="fromDate">Дата (+ время) начала периода</param>
-        /// <param name="toDate">Дата (+ время) окончания периода</param>
-        /// <param name="partnersIds">Идентификаторы клиентов (мандантов)</param>
-        /// <returns>Данные отчёта</returns>
+        /// <param name="fromDate">Дата (+ время) начала периода.</param>
+        /// <param name="toDate">Дата (+ время) окончания периода.</param>
+        /// <param name="partnersIds">Идентификаторы клиентов (мандантов).</param>
+        /// <returns>Данные отчёта.</returns>
         public dynamic[] GetEcData(DateTime fromDate, DateTime toDate, string[] partnersIds)
         {
             var partners = GetPartners();
@@ -2463,7 +2447,7 @@ namespace TSLog.Yard.Data
                 reader.Close();
             }
 
-            // Определяем простои
+            // Определяем простои.
             GetBcPlan(fromDate, toDate, out double planTime, out double planCost, out double downTime, out double downCost);
             element = new ExpandoObject();
             element.partnerId = "DOWN";
@@ -2475,16 +2459,15 @@ namespace TSLog.Yard.Data
             return works.ToArray();
         }
         /// <summary>
-        /// Функция формирования детализированного отчёта по трудозатратам персонала на конктретном клиенте (манданте) за выбранный период
+        /// Функция формирования детализированного отчёта по трудозатратам персонала
+        /// на конктретном клиенте (манданте) за выбранный период.
         /// </summary>
-        /// <param name="fromDate">Дата (+ время) начала периода</param>
-        /// <param name="toDate">Дата (+ время) окончания периода</param>
-        /// <param name="partnersId">Идентификатор клиента (манданта)</param>
+        /// <param name="fromDate">Дата (+ время) начала периода.</param>
+        /// <param name="toDate">Дата (+ время) окончания периода.</param>
+        /// <param name="partnersId">Идентификатор клиента (манданта).</param>
         /// <returns></returns>
         public dynamic GetEcDetailedData(DateTime fromDate, DateTime toDate, string partnersId)
         {
-            //var partners = GetPartners();
-            //var id = Array.Find(partners, p => p.Id == partnersId);
             var works = new List<dynamic>();
             dynamic element;
             using (var command = _connection.CreateCommand())
