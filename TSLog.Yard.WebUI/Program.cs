@@ -81,8 +81,15 @@ try
     var pgsqlConnectionIdleLifetime = pgsqlConnectionSettings.GetValue<int>("ConnectionIdleLifetime");
     var pgsqlConnectionPruningInterval = pgsqlConnectionSettings.GetValue<int>("ConnectionPruningInterval");
     var pgsqlYardSchema = pgsqlConnectionSettings.GetValue<string>("YardSchema") ?? DefaultYardSchema;
+    var extensionParameters = new Dictionary<string, object>
+            {
+                { "Pooling", pgsqlPooling },
+                { "MaxPoolSize", pgsqlMaxPoolSize },
+                { "ConnectionIdleLifetime", pgsqlConnectionIdleLifetime },
+                { "ConnectionPruningInterval", pgsqlConnectionPruningInterval }
+            };
 
-    var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);
+    var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase, extensionParameters);
     storage.MaxRowsCount = builder.Configuration.GetValue<int>("MaxRowsCount");
 
     storage.ConnectOracle(oracleUserName, oraclePassword);
