@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Npgsql;
 using System.Data.Common;
+using TSLog.Common;
 
 namespace TSLog.Yard.DbConnectionTester
 {
@@ -61,6 +62,10 @@ namespace TSLog.Yard.DbConnectionTester
             var gateId = Generator.Next(1000, 1050);
             return $"select count(*) from {_yardSchema}.v_gate g where g.id = {gateId}";
         }
+        private string CreateSql2()
+        {
+            return $"select * from {_yardSchema}.v_gate g";
+        }
         private void DoConnectionWork(DbConnection connection,
             bool callClose = true,
             bool throwException = false)
@@ -69,10 +74,38 @@ namespace TSLog.Yard.DbConnectionTester
             connection.Open();
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = CreateSql();
+                command.CommandText = CreateSql2();
                 var result = command.ExecuteScalar();
                 if (throwException)
                     throw new CustomException();
+            }
+            if (callClose)
+                connection.Close();
+        }
+
+        private void DoConnectionWorkWithReader(DbConnection connection,
+           bool callClose = true,
+           int throwOnIteration = 5)
+        {
+            connection.ConnectionString = CreateConnectionString();
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = CreateSql2();
+                using var reader = command.ExecuteReader();
+                int currentIteration = 0;
+                while (reader.Read())
+                {
+                    if (currentIteration >= throwOnIteration) 
+                    {
+                        throw new CustomException(); 
+                    }
+
+                    var testCode = Utils.DbValueToString(reader["code"]);
+                    Console.WriteLine($"currentIteration: {currentIteration}");
+                    currentIteration++;
+                }
+                reader.Close();
             }
             if (callClose)
                 connection.Close();
@@ -96,8 +129,26 @@ namespace TSLog.Yard.DbConnectionTester
                 if (disposeMethod == DisposeMethod.Direct)
                     connection.Dispose();
             }
-
         }
+
+        private void UseConnection2(bool callClose = true,
+            DisposeMethod disposeMethod = DisposeMethod.Using,
+            bool throwException = false)
+        {
+            if (disposeMethod == DisposeMethod.Using)
+            {
+                using var connection = new NpgsqlConnection();
+                DoConnectionWorkWithReader(connection, callClose);
+            }
+            else
+            {
+                var connection = new NpgsqlConnection();
+                DoConnectionWorkWithReader(connection, callClose);
+                if (disposeMethod == DisposeMethod.Direct)
+                    connection.Dispose();
+            }
+        }
+
         private async Task UseConnectionAsync(bool callClose = true,
             DisposeMethod disposeMethod = DisposeMethod.Using,
             bool throwException = false)
@@ -128,7 +179,8 @@ namespace TSLog.Yard.DbConnectionTester
                 index++;
                 try
                 {
-                    UseConnection(callClose, disposeMethod, throwException);
+                    //UseConnection(callClose, disposeMethod, throwException);
+                    UseConnection2(callClose, disposeMethod);
                 }
                 catch (CustomException)
                 { }

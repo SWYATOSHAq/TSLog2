@@ -1640,18 +1640,20 @@ namespace TSLog.Yard.Data
                         $"   and po.partner_id = :partner_id order by po.plan_work_start_date";
                     foreach (var partner in partners)
                     {
-                        using var command = connection.CreateCommand();
-                        command.CommandText = sql;
-                        command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
-                        command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
-                        command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
-                        using var reader = command.ExecuteReader();
-                        while (reader.Read())
+                        using (var command = connection.CreateCommand())
                         {
-                            var operation = CreateOperation(reader);
-                            operations.Add(operation);
+                            command.CommandText = sql;
+                            command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
+                            command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
+                            command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
+                            using var reader = command.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                var operation = CreateOperation(reader);
+                                operations.Add(operation);
+                            }
+                            reader.Close();
                         }
-                        reader.Close();
                     }
                 }
                 else
@@ -1696,17 +1698,19 @@ namespace TSLog.Yard.Data
                         $"  from {YardSchema}.v_operation o\n" +
                         $" where not (o.plan_work_start_date > :to_date\n" +
                         $"    or o.plan_work_finish_date < :from_date)";
-                    using var command = connection.CreateCommand();
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
+                    using (var command = connection.CreateCommand())
                     {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
+                        command.CommandText = sql;
+                        command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
+                        command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
+                        using var reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            var operation = CreateOperation(reader);
+                            operations.Add(operation);
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
                 }
                 connection.Close();
             }

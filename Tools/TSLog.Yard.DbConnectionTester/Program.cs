@@ -30,17 +30,17 @@ namespace TSLog.Yard.DbConnectionTester
 
             Console.WriteLine($"Start.");
             var worker = new Worker(configuration);
-            Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.Using, throwException: true);
+            //Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.Using, throwException: true);
             Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.Using, throwException: false);
             //Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.Direct, throwException: true);
-            Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.Direct, throwException: false);
+            //Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.Direct, throwException: false);
             //Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.NotDispose, throwException: true);
-            Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.NotDispose, throwException: false);
-            Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Using, throwException: true);
-            Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Using, throwException: false);
+            //Test(worker, callClose: true, disposeMethod: Worker.DisposeMethod.NotDispose, throwException: false);
+            //Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Using, throwException: true);
+            //Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Using, throwException: false);
             //Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Direct, throwException: true);
-            Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Direct, throwException: false);
-            Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.NotDispose, throwException: true);
+            //Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.Direct, throwException: false);
+            //Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.NotDispose, throwException: true);
             //Test(worker, callClose: false, disposeMethod: Worker.DisposeMethod.NotDispose, throwException: false);
 
             Console.WriteLine($"Finish.");
