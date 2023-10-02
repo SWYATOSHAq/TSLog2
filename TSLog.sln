@@ -107,6 +107,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{DD933F70
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.AD.Test", "Tools\TSLog.AD.Test\TSLog.AD.Test.csproj", "{FD6993C7-DFF6-4516-B846-17939AE13DCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Yard.IntegrationTest", "TSLog.Yard.IntegrationTest\TSLog.Yard.IntegrationTest.csproj", "{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -285,6 +287,10 @@ Global
 		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD6993C7-DFF6-4516-B846-17939AE13DCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -293,6 +299,7 @@ Global
 		{42D2BE86-A34C-4F46-B26B-FA51F00E52FB} = {B5F9287F-94BA-45B0-9CF9-024659D35E69}
 		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
 		{FD6993C7-DFF6-4516-B846-17939AE13DCA} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
+		{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88714E8B-587C-4203-A934-34F97D6D11C1}
