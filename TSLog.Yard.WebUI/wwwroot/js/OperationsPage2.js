@@ -13,7 +13,7 @@ class OperationsPage {
     onGatesCarsHeader = document.getElementById("onGatesCarsHeader");
     onParkingCarsCounter = 0;
     onGatesCarsCounter = 0;
-    refreshTime = 60;
+    refreshTime = 180;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];

@@ -9,7 +9,7 @@ class PresentVehiclesPage {
     sortedOperations = [];
     sortField = "driverName";
     sortDirection = "forward";
-    refreshTime = 60;
+    refreshTime = 180;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
