@@ -481,7 +481,7 @@ class Api {
         return await this.getHttpResult("data", url);
     }
 
-    // Добавление складского действа (прихода, расхода) в операцию двора
+    // Добавление складского действа (прихода, расхода) в операцию двора (OLD)
     async addOperationWarehouseAction(operationId, actionKind, actionId) {
         const url = "./api/v1/yard/AddOperationWarehouseAction";
         const data = {

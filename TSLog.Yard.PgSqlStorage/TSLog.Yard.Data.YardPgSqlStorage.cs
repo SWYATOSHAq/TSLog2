@@ -2431,6 +2431,7 @@ namespace TSLog.Yard.Data
             }
             connection.Close();
         }
+
         private WarehouseAction CreateWarehouseAction(DbDataReader reader)
         {
             var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using TSLog.Authorization;
 using TSLog.Yard.BO;
 using TSLog.Yard.Logic;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace TSLog.Yard.Tests
 {
@@ -60,7 +62,7 @@ namespace TSLog.Yard.Tests
             var userPartnersFileName = Path.Combine(programDirectory, "userPartners.xml");
             rightsChecker.LoadRights(rightsFileName);
             rightsChecker.LoadUserPartners(userPartnersFileName);
-            _processor = new Processor(_configuration, _storage, rightsChecker);
+            _processor = new Processor(_configuration, _storage, rightsChecker, NullLogger<Processor>.Instance);
         }
 
         private static string GetStringValue(IConfigurationSection section, string name)

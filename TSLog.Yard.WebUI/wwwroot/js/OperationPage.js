@@ -550,7 +550,7 @@ class OperationPage {
 
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
-            actions.push({ kind: this.kind, id: warehouseActionId });
+            actions.push({ operationId: this.id, kind: this.kind, id: warehouseActionId });
         }
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
@@ -735,12 +735,17 @@ class OperationPage {
             viewUtils.showError(result.message);
             return;
         }
-        for (let warehouseActionId in this.selectedWarehouseActions) {
-           result = await api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
-           if (result.code != 0) {
-               viewUtils.showError(result.message);
-               return;
-           }
+        //for (let warehouseActionId in this.selectedWarehouseActions) {
+        //   result = await api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
+        //   if (result.code != 0) {
+        //       viewUtils.showError(result.message);
+        //       return;
+        //   }
+        //}
+        result = await api.addOperationWarehouseActions(this.selectedWarehouseActions);
+        if (result.code != 0) {
+            viewUtils.showError(result.message);
+            return;
         }
         location.reload();
     }

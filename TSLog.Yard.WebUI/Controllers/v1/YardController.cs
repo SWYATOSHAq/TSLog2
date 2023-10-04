@@ -53,19 +53,21 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         private readonly Processor _processor;
         private readonly bool _useAuthentication;
         private readonly ILogger<YardController> _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
         /// "Постоянния" часть времени операции двора (не зависит от состава заказов/приходов),
         /// СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ. ВМЕСТО ЭТОГО ПРОИСХОДИТ ОБРАЩЕНИЕ В БД.
         /// </summary>
         public int ConstantOperationDuration { get; set; } = DefaultConstantOperationDuration;
-        public YardController(IConfiguration configuration, IYardStorage storage, IRightsChecker rightsChecker, ILogger<YardController> logger)
+        public YardController(IConfiguration configuration, IYardStorage storage, IRightsChecker rightsChecker, ILogger<YardController> logger, ILoggerFactory loggerFactory)
         {
             _configuration = configuration;
             _storage = storage;
             _rightsChecker = rightsChecker;
             _useAuthentication = _configuration.GetValue<bool>("UseAuthentication");
-            _processor = new Processor(configuration, storage, rightsChecker);
+            _loggerFactory = loggerFactory;
+            _processor = new Processor(configuration, storage, rightsChecker, _loggerFactory.CreateLogger<Processor>());
             _logger = logger;
         }
 
@@ -123,123 +125,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 result.Add(YardController.GateToDynamic(gate));
             return result.ToArray();
         }
-
-        private dynamic OperationToDynamic(Operation operation)
-        {
-            dynamic result = new ExpandoObject();
-            result.id = operation.Id;
-
-            result.stateId = operation.State.Id;
-            result.stateCode = operation.State.Code;
-            result.stateName = operation.State.Name;
-            result.stateShortName = operation.State.ShortName;
-            result.stateDisplayName = operation.State.DisplayName;
-
-            result.typeId = operation.Type.Id;
-            result.typeCode = operation.Type.Code;
-            result.typeName = operation.Type.Name;
-            result.typeShortName = operation.Type.ShortName;
-            result.typeDisplayName = operation.Type.DisplayName;
-            result.directionName = operation.Type.DirectionName;
-
-            result.vehicleKindId = operation.VehicleKind.Id;
-            result.vehicleKindCode = operation.VehicleKind.Code;
-            result.vehicleKindName = operation.VehicleKind.Name;
-            result.vehicleKindShortName = operation.VehicleKind.ShortName;
-            result.vehicleKindDisplayName = operation.VehicleKind.DisplayName;
-
-            result.startDate = operation.StartDate;
-            result.planWorkStartDate = operation.PlanWorkStartDate;
-            result.factWorkStartDate = operation.FactWorkStartDate;
-            result.planWorkFinishDate = operation.PlanWorkFinishDate;
-            result.factWorkFinishDate = operation.FactWorkFinishDate;
-            result.finishDate = operation.FinishDate;
-            result.planDuration = (operation.PlanWorkFinishDate - operation.PlanWorkStartDate).TotalSeconds;
-            result.factDuration = (operation.FactWorkFinishDate - operation.FactWorkStartDate).TotalSeconds;
-            result.planLaborCost = operation.PlanLaborCost;
-            result.planLinearLaborCost = operation.PlanLinearLaborCost;
-            result.factLaborCost = operation.FactLaborCost;
-            result.onParking = operation.Parking;
-
-            result.gateId = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
-                operation.Gate.Code :
-                string.Empty;
-            result.gateCode = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
-                operation.Gate.Code :
-                string.Empty;
-            result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
-                operation.Gate.ShortName :
-                string.Empty;
-            result.gateShortName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
-                operation.Gate.ShortName :
-                string.Empty;
-            result.gateDiaplayName = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
-                operation.Gate.DisplayName :
-                string.Empty;
-            result.gateStatus = operation.Gate != null && operation.Gate != Gate.Null && operation.Gate != Gate.Empty ?
-                operation.Gate.State.ToString() :
-                string.Empty;
-
-            result.vehicleBrand = operation.VehicleBrand;
-            result.lowerVehicleBrand = operation.VehicleBrand.ToLower();
-            result.vehicleModel = operation.VehicleModel;
-            result.lowerVehicleModel = operation.VehicleModel.ToLower();
-            result.vehicleNumber = operation.VehicleNumber;
-            result.lowerVehicleNumber = operation.VehicleNumber.ToLower();
-            result.trailerNumber = operation.TrailerNumber;
-            result.lowerTrailerNumber = operation.TrailerNumber.ToLower();
-
-            result.driverName = operation.DriverName;
-            result.lowerDriverName = operation.DriverName.ToLower();
-
-            result.driverPhoneNumber = operation.DriverPhoneNumber;
-            result.normalizedDriverPhoneNumber = operation.DriverPhoneNumber;
-            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace(" ", "");
-            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("-", "");
-            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("+", "");
-            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace("(", "");
-            result.normalizedDriverPhoneNumber = result.normalizedDriverPhoneNumber.Replace(")", "");
-
-            result.partnerManagerName = operation.PartnerManagerName;
-            result.partnerManagerPhoneNumber = operation.PartnerManagerPhoneNumber;
-            result.partnerManagerEmail = operation.PartnerManagerEmail;
-            result.responsibleOfficer = operation.ResponsibleOfficerFullName;
-            result.note = operation.Note;
-
-            result.partnerId = operation.AnyPartnerId;
-            result.partnerActionId = operation.PartnerActionsIds;
-            result.lowerPartnerActionId = result.partnerActionId.ToLower();
-            result.partnersNames = Partner.Serialize(operation.GetPartners());
-
-            result.createDate = operation.CreateDate;
-            try
-            {
-                result.creator = _storage.GetEmployeeByAdLogin(operation.Creator).FullName;
-            }
-            catch
-            {
-                result.creator = operation.Creator;
-            }
-
-            result.editDate = operation.EditDate;
-            try
-            {
-                result.editor = _storage.GetEmployeeByAdLogin(operation.Editor).FullName;
-            }
-            catch
-            {
-                result.editor = operation.Editor;
-            }
-
-            result.displayColor = operation.DisplayColor;
-
-            return result;
-        }
+       
         private dynamic[] OperationsToDynamic(Operation[] operations)
         {
             var result = new List<dynamic>();
             foreach (Operation operation in operations)
-                result.Add(OperationToDynamic(operation));
+                result.Add(_processor.OperationToDynamic(operation));
             return result.ToArray();
         }
         private dynamic DoGetFillingPlanOperationLC(OperationType ot, VehicleKind vk, dynamic[] actions)
@@ -253,11 +144,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             result.linearLaborCost = Math.Round(linearLaborCost * k);
 
             return result;
-        }
-        private string OperationToJson(Operation operation)
-        {
-            var temp = OperationToDynamic(operation);
-            return JsonSerializer.Serialize(temp);
         }
         private string OperationsToJson(Operation[] operations)
         {
@@ -320,97 +206,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
-        private int _GetFillingPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
-        {
-            var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
-                   out int standardConstantDuration, out int standardVariableDuration);
-            var totalTime = 0.0;
-            foreach (var action in actions)
-            {
-                /*
-                    Автор - Буров Михаил.
-                    Определяем ПЛАНОВОЕ время операции двора в зависимости от состава заказов/приходов в операции двора.
-                    Смотрим все товарные позиции всех заказов/приходов в операции двора.
-                    Для каждой позиции смотрим сначала затарку, если затарка есть считаем количество паллет и коробок по затарке (от количества товаров),
-                    есть фиксированное время загрузки/выгрузки паллеты/коробки - из этого и складывается плановое время работ с конкретной товарной позицией.
-                    Если затарки нет, то пробуем определить плановое время по объёму или весу товара в товарной позицией.
-                    Сначала смотрим вес, потом объём.
-                    Смотри какую часть объёма (веса) занимает конкретная товарная позиция от ВСЕГО объёма (веса), 
-                    умножаем плановое максимальное время (при условии загрузки/выгрузки машины ЦЕЛИКОМ) на соответствующий коэффициент.
-                    Если не удалось рассчитать плановое время ни по затарке, ни по весу ни по объёму - считаем время по СОБРАННЫМ ТЕ заказа (ТОЛЬКО для отгрузок).
-                */
-                var kind = action.kind == "O" ? ActionKind.Outgo : ActionKind.Income;
-                var palletTime = action.kind == "O" ? PalletLoadTime : PalletUnloadTime;
-                var boxTime = action.kind == "O" ? BoxLoadTime : BoxUnloadTime;
-                var pieceTime = action.kind == "O" ? PieceLoadTime : PieceUnloadTime;
-                string id = action.id;
-                var lines = _storage.GetWarehouseActionLines(kind, id);
-                var actionTime = 0.0;
-                foreach (var line in lines)
-                {
-                    // Смотрим по затарке
-                    var lineTime = 0.0;
-                    if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
-                        lineTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
-                    else
-                    {
-                        // Смотрим по весу
-                        if (line.PlanGrossWeight > 0.0)
-                            // Килограммы переводим в милиграммы
-                            lineTime += line.PlanGrossWeight / (vehicleKind.Capacity * 1000 * 1000) * standardTotalDuration;
-                        // Смотрим по объёму
-                        else if (line.PlanVolume > 0.0)
-                            lineTime += line.PlanVolume / (vehicleKind.CargoVolume * 1000 * 1000 * 1000) * standardTotalDuration;
-
-                        // Новый блок по задаче #2416 Двор. Новая функция. План факт.
-                        /*
-                          Идея в том, что мы определяем количество "штук" в товарной позиции (SET = ST, 5 кг = 1 шт., 50 м = 1 шт).
-                          Считаем "альтернативное" время загрузки/выгрузки товарной позиции как количество "штук", умноженное на время загрузки/выгрузке 1 штуки.
-                          Если "альтернативное" время загрузки/выгрузки позиции более времени, рассчитанного по алгоритму, то берём "альтернативное" время.
-                        */
-                        var eachesCount = 0.0;
-                        if (line.QuantityMeasureUnit.Code == "ST" || line.QuantityMeasureUnit.Code == "SET")
-                            eachesCount = line.PlanQuantity;
-                        else if (line.QuantityMeasureUnit.Code == "KG")
-                            eachesCount = line.PlanQuantity / 5.0;
-                        else if (line.QuantityMeasureUnit.Code == "G")
-                            eachesCount = line.PlanQuantity / 5.0 / 1000.0;
-                        else if (line.QuantityMeasureUnit.Code == "M")
-                            eachesCount = line.PlanQuantity / 50.0;
-                        else if (line.QuantityMeasureUnit.Code == "CM")
-                            eachesCount = line.PlanQuantity / 50.0 / 100.0;
-
-                        var altLineTime = eachesCount * boxTime;
-                        if (lineTime < altLineTime)
-                            lineTime = altLineTime;
-                    }
-                    actionTime += lineTime;
-                }
-                if (actionTime <= 0.0 && action.kind == "O")
-                {
-                    // Смотри по собранным заказам (ТОЛЬКО отгрузки)
-                    _storage.GetAssembliedOutgo(id, out double palletsCount, out double eachesCount);
-                    actionTime = palletsCount * palletTime + eachesCount * pieceTime;
-                }
-                totalTime += actionTime;
-            }
-            totalTime = Math.Round(totalTime);
-
-            if (totalTime <= 0.0)
-                totalTime = standardTotalDuration;
-            //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов) времени операции по указанию Алексея Охотникова 
-            else
-                totalTime += ConstantOperationDuration;
-            // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
-            //else
-            //    totalTime += standardConstantDuration;
-
-            // Если продолжительность операции двора больше чем "стандартное" (при загрузке/выгрузке полной машины) то берём "стандартное".
-            if (totalTime > standardTotalDuration)
-                totalTime = standardTotalDuration;
-
-            return (int)totalTime;
-        }
+        
         [HttpPost("FillingPlanOperationDuration")]
         async public Task<string> GetFillingPlanOperationDuration()
         {
@@ -437,7 +233,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             var vehicleKind = _storage.GetVehicleKind(stringVehicleKind);
             dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
-            var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
+            var duration = _processor._GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
             var text = JsonSerializer.Serialize(duration);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
@@ -561,7 +357,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
                 out int standardConstantDuration, out int standardVariableDuration);
-            var duration = _GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
+            var duration = _processor._GetFillingPlanOperationDuration(operationType, vehicleKind, actions);
 
             return (double)duration / standardTotalDuration;
         }
@@ -739,7 +535,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             long laborCost;
             if (partnerId == "0031") // #5367 04.07.23 добавлено по заявкке Башлыкова из-зи неправильного рассчета норматива
             {
-                laborCost = _GetFillingPlanOperationDuration(operationType, vehicleKind, outgoes);
+                laborCost = _processor._GetFillingPlanOperationDuration(operationType, vehicleKind, outgoes);
             }
             else
             {
@@ -900,7 +696,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 // TODO: check partner;
 
-                var dynamicOperation = OperationToDynamic(operation);
+                var dynamicOperation = _processor.OperationToDynamic(operation);
 
                 var dynamicActions = new List<dynamic>();
                 foreach (var action in operation.GetActions())
@@ -1082,105 +878,116 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPut("CreateOperation")]
         async public Task<string> CreateOperation()
         {
-            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION", User);
-            if (_useAuthentication && (!useYard || !createOperation))
-            {
-                Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return "Forbidden";
-            }
+            //Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            //var useYard = _rightsChecker.CheckRight("USE_YARD", User);
+            //var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION", User);
+            //if (_useAuthentication && (!useYard || !createOperation))
+            //{
+            //    Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            //    return "Forbidden";
+            //}
             dynamic? data = await GetInputData(Request);
             if (data == null)
                 return "Input data is null!";
-
-            string temp = data.operationTypeCode;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Operation type code is empty!";
-            var operationType = _storage.GetOperationType(temp);
-
-            temp = data.vehicleKindCode;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Vehicle kind code is empty!";
-            var vehicleKind = _storage.GetVehicleKind(temp);
-
-            temp = data.startDate;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Start date is empty!";
-            if (!Utils.DateFromString(temp, out DateTime planWorkStartDate, out string message))
-                return message;
-
-            dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-
-            temp = data.finishDate;
-            var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
-            if (!string.IsNullOrWhiteSpace(temp))
+            string operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
+            if (statusCode == (int)HttpStatusCode.Created)
             {
-                if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
-                    return $"Wrong finish date {temp}";
-                if (tempFinishDate > planWorkFinishDate)
-                    planWorkFinishDate = tempFinishDate;
+                response = operation;
+                Response.StatusCode = statusCode;
+                return response;
             }
-
-            string vehicleBrand = data.vehicleBrand;
-            if (string.IsNullOrWhiteSpace(vehicleBrand))
-                vehicleBrand = "<Не указано>";
-            string vehicleModel = data.vehicleModel;
-            if (string.IsNullOrWhiteSpace(vehicleModel))
-                vehicleModel = "<Не указано>";
-            string vehicleNumber = data.vehicleNumber;
-            if (string.IsNullOrWhiteSpace(vehicleNumber))
-                vehicleNumber = "<Не указано>";
-            string trailerNumber = data.trailerNumber;
-
-            string driverName = data.driverName;
-            if (string.IsNullOrWhiteSpace(driverName))
-                driverName = "<Не указано>";
-            string driverPhoneNumber = data.driverPhoneNumber;
-
-            var state = _storage.GetOperationState("CREATED");
-
-            temp = data.priority;
-            var priority = (short)1;
-            if (!string.IsNullOrWhiteSpace(temp))
+            else
             {
-                if (!short.TryParse(temp, out priority))
-                    return $"Wrong priority {temp}";
+                Response.StatusCode = statusCode;
+                return response;
             }
+            //string temp = data.operationTypeCode;
+            //if (string.IsNullOrWhiteSpace(temp))
+            //    return "Operation type code is empty!";
+            //var operationType = _storage.GetOperationType(temp);
 
-            string partnerManagerName = data.partnerManagerName;
-            string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
-            string partnerManagerEmail = data.partnerManagerEmail;
-            string note = data.note;
+                //temp = data.vehicleKindCode;
+                //if (string.IsNullOrWhiteSpace(temp))
+                //    return "Vehicle kind code is empty!";
+                //var vehicleKind = _storage.GetVehicleKind(temp);
 
-            string partnerId = data.partnerId;
-            if (string.IsNullOrWhiteSpace(partnerId))
-                return "Partner id is empty!";
+                //temp = data.startDate;
+                //if (string.IsNullOrWhiteSpace(temp))
+                //    return "Start date is empty!";
+                //if (!Utils.DateFromString(temp, out DateTime planWorkStartDate, out string message))
+                //    return message;
 
-            var partner = _storage.GetPartner(partnerId);
-            var manager = _storage.GetPartnerManagers(partner)[0];
-            var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
+                //dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
-            var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
-                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
-                driverName, driverPhoneNumber,
-                state,
-                priority,
-                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-                manager)
-            {
-                Note = note
-            };
+                //temp = data.finishDate;
+                //var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
+                //if (!string.IsNullOrWhiteSpace(temp))
+                //{
+                //    if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
+                //        return $"Wrong finish date {temp}";
+                //    if (tempFinishDate > planWorkFinishDate)
+                //        planWorkFinishDate = tempFinishDate;
+                //}
 
-            operation.Parking = data.onParking ?? false;
-            var user = RightsChecker.GetUserName(User);
-            _storage.AddOperation(operation, user);
-            _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
-            _storage.AddOperationLog(operation, "Создана", user); //логирование в бд
+                //string vehicleBrand = data.vehicleBrand;
+                //if (string.IsNullOrWhiteSpace(vehicleBrand))
+                //    vehicleBrand = "<Не указано>";
+                //string vehicleModel = data.vehicleModel;
+                //if (string.IsNullOrWhiteSpace(vehicleModel))
+                //    vehicleModel = "<Не указано>";
+                //string vehicleNumber = data.vehicleNumber;
+                //if (string.IsNullOrWhiteSpace(vehicleNumber))
+                //    vehicleNumber = "<Не указано>";
+                //string trailerNumber = data.trailerNumber;
 
-            var text = OperationToJson(operation);
-            Response.StatusCode = (int)HttpStatusCode.Created;
-            return text;
+                //string driverName = data.driverName;
+                //if (string.IsNullOrWhiteSpace(driverName))
+                //    driverName = "<Не указано>";
+                //string driverPhoneNumber = data.driverPhoneNumber;
+
+                //var state = _storage.GetOperationState("CREATED");
+
+                //temp = data.priority;
+                //var priority = (short)1;
+                //if (!string.IsNullOrWhiteSpace(temp))
+                //{
+                //    if (!short.TryParse(temp, out priority))
+                //        return $"Wrong priority {temp}";
+                //}
+
+                //string partnerManagerName = data.partnerManagerName;
+                //string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+                //string partnerManagerEmail = data.partnerManagerEmail;
+                //string note = data.note;
+
+                //string partnerId = data.partnerId;
+                //if (string.IsNullOrWhiteSpace(partnerId))
+                //    return "Partner id is empty!";
+
+                //var partner = _storage.GetPartner(partnerId);
+                //var manager = _storage.GetPartnerManagers(partner)[0];
+                //var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
+
+                //var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
+                //    vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
+                //    driverName, driverPhoneNumber,
+                //    state,
+                //    priority,
+                //    partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+                //    manager)
+                //{
+                //    Note = note
+                //};
+
+                //operation.Parking = data.onParking ?? false;
+                //var user = RightsChecker.GetUserName(User);
+                //_storage.AddOperation(operation, user);
+                //_logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+                //_storage.AddOperationLog(operation, "Создана", user); //логирование в бд
+
+                //var text = OperationToJson(operation);
+            //Response.StatusCode = statusCode;
+            //return operation;
         }
         [HttpPut("CreateConfirmOperation")]
         async public Task<string> CreateConfirmOperation()
@@ -1285,7 +1092,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Создана с подтверждением", user); //логирование в бд
 
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.Created;
             return text;
         }
@@ -1337,7 +1144,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
             temp = data.finishDate;
-            var finishDate = startDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
+            var finishDate = startDate.Add(new TimeSpan(0, 0, _processor._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
             if (!string.IsNullOrWhiteSpace(temp))
             {
                 if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -1396,7 +1203,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Создана (партнером)", user); //логирование в бд
 
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.Created;
             return text;
         }
@@ -1444,7 +1251,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 if (!Utils.DateFromString(temp, out planWorkStartDate, out string message))
                     return message;
-                planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
+                planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _processor._GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
             }
 
             temp = data.finishDate;
@@ -1540,7 +1347,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string editStatus = operationForLog.State.DisplayName + "(отредактирована)";
             _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
             _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1605,7 +1412,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         return $"Too early start time (start time must be later then 9:00 today)!";
                 }
                 planWorkStartDate = tempPlanWorkStartDate;
-                planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
+                planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _processor._GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
             }
 
             temp = data.finishDate;
@@ -1658,7 +1465,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
             string editStatus = operationForLog.State.DisplayName + "(отредактирована партнером)";
             _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1692,7 +1499,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             string editStatus = "(записано примечение)";
             _logger.LogWarning("Записано примечание в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, editStatus, user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1742,7 +1549,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _logger.LogWarning("Назначены ворота в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Подтверждена, назначены ворота", user); //логирование в бд
 
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1774,7 +1581,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.CancelOperationGate(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Отменены ворота в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "CancelOperationGate", user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1806,7 +1613,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.StartOperation(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Прибыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Прибыла", user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1838,7 +1645,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.StartOperationWork(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Работа начата в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Работа начата", user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1875,7 +1682,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
                 _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
                 _storage.AddOperationLog(operation, "Работа завершена", user); //логирование в бд
-                text = OperationToJson(operation);
+                text = _processor.OperationToJson(operation);
                 Response.StatusCode = (int)HttpStatusCode.OK;
             } else
             {
@@ -1913,7 +1720,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.FinishOperation(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Убыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Убыла", user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1945,7 +1752,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.CancelOperation(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Отменена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Отменена", user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -1977,7 +1784,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             _storage.DeleteOperation(operation, RightsChecker.GetUserName(User));
             _logger.LogWarning("Удалена заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
             _storage.AddOperationLog(operation, "Удалена", user); //логирование в бд
-            var text = OperationToJson(operation);
+            var text = _processor.OperationToJson(operation);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
@@ -2077,6 +1884,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             Response.StatusCode = (int)HttpStatusCode.OK;
             return text;
         }
+        [Obsolete("Метод устарел!", false)]
         [HttpPatch("AddOperationWarehouseAction")]
         async public Task<string> AddOperationWarehouseAction()
         {
@@ -2490,7 +2298,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 var operation = _processor.AllocateOperationWorkers(data, User, out int statusCode, out string response);
                 if (statusCode == (int)HttpStatusCode.OK)
                 {
-                    response = OperationToJson(operation);
+                    response = _processor.OperationToJson(operation);
                     Response.StatusCode = (int)HttpStatusCode.OK;
                     return response;
                 }
