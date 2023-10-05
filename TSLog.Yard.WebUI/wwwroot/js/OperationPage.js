@@ -574,13 +574,13 @@ class OperationPage {
         let result = await api.createOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
-            for (let warehouseActionId in this.selectedWarehouseActions) {
-                result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
-                if (result.code != 0) {
-                    viewUtils.showError(result.message);
-                    break;
-                }
-            }
+            //for (let warehouseActionId in this.selectedWarehouseActions) {
+            //    result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+            //    if (result.code != 0) {
+            //        viewUtils.showError(result.message);
+            //        break;
+            //    }
+            //}
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
             viewUtils.showError(result.message);

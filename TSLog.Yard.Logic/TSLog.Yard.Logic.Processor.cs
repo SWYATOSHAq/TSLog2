@@ -231,8 +231,7 @@ public class Processor
         {
             statusMessage = message;
             return string.Empty;
-        }
-            
+        }            
 
         dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
@@ -268,6 +267,7 @@ public class Processor
         var state = _storage.GetOperationState("CREATED");
 
         temp = data.priority;
+        //var priority = Operation.DefaultPriority;
         var priority = (short)1;
         if (!string.IsNullOrWhiteSpace(temp))
         {
@@ -292,7 +292,7 @@ public class Processor
 
         var partner = _storage.GetPartner(partnerId);
         var manager = _storage.GetPartnerManagers(partner)[0];
-        var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
+        //var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
 
         var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
             vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
@@ -305,21 +305,44 @@ public class Processor
             Note = note
         };
 
-        operation.Parking = data.onParking ?? false;
+        operation.Parking = false;
         var userForLog = RightsChecker.GetUserName(user);
-        _storage.AddOperation(operation, userForLog);
-        _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, userForLog);
-        _storage.AddOperationLog(operation, "Создана", userForLog); //логирование в бд
+        var operationFromStorage = _storage.AddOperation(operation, userForLog);
 
-        string? response = OperationToJson(operation);
+        foreach (var action in actions)
+        {
+            //string stringOperationId = operationFromStorage.Id.ToString();
+            string stringActionKind = action.kind;
+            string stringActionId = action.id;
+            
+            if (stringActionKind != "I" && stringActionKind != "O")
+            {
+                statusMessage = $"Wrong action kind {stringActionKind}!";
+                return string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(stringActionId))
+            {
+                statusMessage = "Action id is empty!";
+                return string.Empty;
+            }          
+            
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            _storage.AddAction(operationFromStorage, actionFromStorage);
+            var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+            _logger.LogWarning("Отработал метод AddAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+        }
+        var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
+        _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, "Создана", userForLog); //логирование в бд
+
+        string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.Created;
         return response;
     }
 
     public int _GetFillingPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
     {
-        var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind,
-               out int standardConstantDuration, out int standardVariableDuration);
+        var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind, out int standardConstantDuration, out int standardVariableDuration);
         var totalTime = 0.0;
         foreach (var action in actions)
         {
