@@ -9,7 +9,7 @@ namespace TSLog.Yard.BO
     /// </summary>
     public partial class Operation : Entity
     {
-        private const short DefaultPriority = 1;
+        public const short DefaultPriority = 1;
         /// <summary>
         /// Идентификатор
         /// </summary>

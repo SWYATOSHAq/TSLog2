@@ -600,7 +600,7 @@ class OperationPage {
 
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
-            actions.push({ kind: this.kind, id: warehouseActionId });
+            actions.push({ operationId: this.id, kind: this.kind, id: warehouseActionId });
         }
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
@@ -624,13 +624,13 @@ class OperationPage {
         let result = await api.createConfirmOperation(data);
         if (result.code === 0) {
             const operation = result.operation;
-            for (let warehouseActionId in this.selectedWarehouseActions) {
-                const result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
-                if (result.code != 0) {
-                    viewUtils.showError(result.message);
-                    break;
-                }
-            }
+            //for (let warehouseActionId in this.selectedWarehouseActions) {
+            //    const result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+            //    if (result.code != 0) {
+            //        viewUtils.showError(result.message);
+            //        break;
+            //    }
+            //}
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
             viewUtils.showError(result.message);

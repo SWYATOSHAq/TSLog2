@@ -267,8 +267,8 @@ public class Processor
         var state = _storage.GetOperationState("CREATED");
 
         temp = data.priority;
-        //var priority = Operation.DefaultPriority;
-        var priority = (short)1;
+        var priority = Operation.DefaultPriority;
+
         if (!string.IsNullOrWhiteSpace(temp))
         {
             if (!short.TryParse(temp, out priority))
@@ -292,7 +292,6 @@ public class Processor
 
         var partner = _storage.GetPartner(partnerId);
         var manager = _storage.GetPartnerManagers(partner)[0];
-        //var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
 
         var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
             vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
@@ -311,7 +310,6 @@ public class Processor
 
         foreach (var action in actions)
         {
-            //string stringOperationId = operationFromStorage.Id.ToString();
             string stringActionKind = action.kind;
             string stringActionId = action.id;
             
@@ -334,6 +332,160 @@ public class Processor
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
         _storage.AddOperationLog(operationWithActions, "Создана", userForLog); //логирование в бд
+
+        string? response = OperationToJson(operationWithActions);
+        statusCode = (int)HttpStatusCode.Created;
+        return response;
+    }
+
+    public string CreateConfirmOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
+    {
+        statusCode = (int)HttpStatusCode.InternalServerError;
+        var useYard = _rightsChecker.CheckRight("USE_YARD", user);
+        var createOperation = _rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", user);
+        statusMessage = string.Empty;
+        if (_useAuthentication && (!useYard || !createOperation))
+        {
+            statusCode = (int)HttpStatusCode.Forbidden;
+            statusMessage = "Forbidden";
+            return string.Empty;
+        }
+        string temp = data.operationTypeCode;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Operation type code is empty!";
+            return string.Empty;
+        }
+
+        var operationType = _storage.GetOperationType(temp);
+
+        temp = data.vehicleKindCode;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Vehicle kind code is empty!";
+            return string.Empty;
+        }
+
+        var vehicleKind = _storage.GetVehicleKind(temp);
+
+        temp = data.startDate;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Start date is empty!";
+            return string.Empty;
+        }
+
+        if (!Utils.DateFromString(temp, out DateTime startDate, out string message))
+        {
+            statusMessage = message;
+            return string.Empty;
+        }
+
+        dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+
+        temp = data.finishDate;
+        var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int variableDuration)));
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
+            {
+                statusMessage = $"Wrong finish date {temp}";
+                return string.Empty;
+            }
+
+            if (tempFinishDate > finishDate)
+                finishDate = tempFinishDate;
+        }
+
+        string vehicleBrand = data.vehicleBrand;
+        if (string.IsNullOrWhiteSpace(vehicleBrand))
+            vehicleBrand = "<Не указано>";
+        string vehicleModel = data.vehicleModel;
+        if (string.IsNullOrWhiteSpace(vehicleModel))
+            vehicleModel = "<Не указано>";
+        string vehicleNumber = data.vehicleNumber;
+        if (string.IsNullOrWhiteSpace(vehicleNumber))
+            vehicleNumber = "<Не указано>";
+        string trailerNumber = data.trailerNumber;
+
+        string driverName = data.driverName;
+        if (string.IsNullOrWhiteSpace(driverName))
+            driverName = "<Не указано>";
+        string driverPhoneNumber = data.driverPhoneNumber;
+
+        var state = _storage.GetOperationState("CREATED");
+
+        temp = data.priority;
+        var priority = Operation.DefaultPriority;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!short.TryParse(temp, out priority))
+            {
+                statusMessage = $"Wrong priority {temp}";
+                return string.Empty;
+            }
+        }
+
+        string partnerManagerName = data.partnerManagerName;
+        string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+        string partnerManagerEmail = data.partnerManagerEmail;
+        string note = data.note;
+
+        string partnerId = data.partnerId;
+        if (string.IsNullOrWhiteSpace(partnerId))
+        {
+            statusMessage = "Partner id is empty!";
+            return string.Empty;
+        }
+
+        var partner = _storage.GetPartner(partnerId);
+        var manager = _storage.GetPartnerManagers(partner)[0];
+        var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
+
+        var operation = new Operation(-1, null, operationType, startDate, finishDate,
+            vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
+            driverName, driverPhoneNumber,
+            state,
+            priority,
+            partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+            manager)
+        {
+            Note = note
+        };
+        operation.Parking = true;
+        var userForLog = RightsChecker.GetUserName(user);
+        operation = _storage.AddOperation(operation, userForLog);
+
+        // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
+        // нельзя было присвоить ворота
+        var employee = _storage.GetEmployeeByAdLogin(userForLog);
+        //operation.Gate = _storage.SetOperationGate(operation, null, user);  до 26.06.23 подтверждение было на воротах
+        _storage.SetResponsibleOfficer(operation, employee, userForLog);
+        var operationFromStorage = _storage.GetOperation(operation.Id);
+        foreach (var action in actions)
+        {
+            string stringActionKind = action.kind;
+            string stringActionId = action.id;
+
+            if (stringActionKind != "I" && stringActionKind != "O")
+            {
+                statusMessage = $"Wrong action kind {stringActionKind}!";
+                return string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(stringActionId))
+            {
+                statusMessage = "Action id is empty!";
+                return string.Empty;
+            }
+
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            _storage.AddAction(operationFromStorage, actionFromStorage);
+            var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+            _logger.LogWarning("Отработал метод AddAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+        }
+        var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
+        _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, "Создана с подтверждением", userForLog); //логирование в бд
 
         string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.Created;
