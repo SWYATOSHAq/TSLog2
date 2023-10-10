@@ -327,7 +327,7 @@ public class Processor
             var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
             _storage.AddAction(operationFromStorage, actionFromStorage);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
@@ -481,7 +481,7 @@ public class Processor
             var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
             _storage.AddAction(operationFromStorage, actionFromStorage);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateConfirmOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
@@ -489,6 +489,578 @@ public class Processor
 
         string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.Created;
+        return response;
+    }
+
+    public string CreateOperationByPartner(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
+    {
+        statusCode = (int)HttpStatusCode.InternalServerError;
+        var useYard = _rightsChecker.CheckRight("USE_YARD", user);
+        var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", user);
+        statusMessage = string.Empty;
+        if (_useAuthentication && (!useYard || !createOperation))
+        {
+            statusCode = (int)HttpStatusCode.Forbidden;
+            statusMessage = "Forbidden";
+            return string.Empty;
+        }
+        string temp = data.operationTypeCode;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Operation type code is empty!";
+            return string.Empty;
+        }
+        var operationType = _storage.GetOperationType(temp);
+
+        temp = data.vehicleKindCode;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Vehicle kind code is empty!";
+            return string.Empty;
+        }
+
+        var vehicleKind = _storage.GetVehicleKind(temp);
+
+        temp = data.startDate;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Start date is empty!";
+            return string.Empty;
+        }
+
+        if (!Utils.DateFromString(temp, out DateTime startDate, out string message))
+        {
+            statusMessage = message;
+            return string.Empty;
+        }
+
+        var userForLog = RightsChecker.GetUserName(user);
+        // Плановая дата и время начало работ не должно быть "день в день"!
+        var now = DateTime.Now;
+        var today = DateTime.Today;
+        var today900 = today.AddHours(9);
+        if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+        {
+            if (now >= today900 && startDate < today.AddHours(24 + 9))
+            {
+                statusMessage = "Too early start time (start time must be later then 9:00 tomorrow)!";
+                return string.Empty;
+            }
+        };
+        if (startDate < today900)
+        {
+            statusMessage = "Too early start time (start time must be later then 9:00 today)!";
+            return string.Empty;
+        }
+
+        dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+
+        temp = data.finishDate;
+        var finishDate = startDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
+            {
+                statusMessage = $"Wrong finish date {temp}";
+                return string.Empty;
+            }
+
+            if (tempFinishDate > finishDate)
+                finishDate = tempFinishDate;
+        }
+
+        string vehicleBrand = data.vehicleBrand;
+        if (string.IsNullOrWhiteSpace(vehicleBrand))
+            vehicleBrand = "<Не указано>";
+        string vehicleModel = data.vehicleModel;
+        if (string.IsNullOrWhiteSpace(vehicleModel))
+            vehicleModel = "<Не указано>";
+        string vehicleNumber = data.vehicleNumber;
+        if (string.IsNullOrWhiteSpace(vehicleNumber))
+            vehicleNumber = "<Не указано>";
+        string trailerNumber = data.trailerNumber;
+
+        string driverName = data.driverName;
+        if (string.IsNullOrWhiteSpace(driverName))
+            driverName = "<Не указано>";
+        string driverPhoneNumber = data.driverPhoneNumber;
+
+        var state = _storage.GetOperationState("CREATED");
+
+        temp = data.priority;
+        var priority = Operation.DefaultPriority;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!short.TryParse(temp, out priority))
+            {
+                statusMessage = $"Wrong priority {temp}";
+                return string.Empty;
+            }
+        }
+
+        string partnerManagerName = data.partnerManagerName;
+        string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+        string partnerManagerEmail = data.partnerManagerEmail;
+        string note = data.note;
+
+        var partnerId = _rightsChecker.GetPartnerIdByUser(userForLog);
+        var partner = _storage.GetPartner(partnerId);
+        var manager = _storage.GetPartnerManagers(partner)[0];
+
+        var operation = new Operation(-1, null, operationType, startDate, finishDate,
+            vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
+            driverName, driverPhoneNumber,
+            state,
+            priority,
+            partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+            manager)
+        {
+            Note = note
+        };
+        operation.Parking = false;
+        operation = _storage.AddOperation(operation, userForLog);
+        var operationFromStorage = _storage.GetOperation(operation.Id);
+        foreach (var action in actions)
+        {
+            string stringActionKind = action.kind;
+            string stringActionId = action.id;
+
+            if (stringActionKind != "I" && stringActionKind != "O")
+            {
+                statusMessage = $"Wrong action kind {stringActionKind}!";
+                return string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(stringActionId))
+            {
+                statusMessage = "Action id is empty!";
+                return string.Empty;
+            }
+
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            _storage.AddAction(operationFromStorage, actionFromStorage);
+            var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateOperationByPartner заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+        }
+        var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
+        _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, "Создана (партнером)", userForLog); //логирование в бд
+
+        string? response = OperationToJson(operationWithActions);
+        statusCode = (int)HttpStatusCode.Created;
+        return response;
+    }
+
+    public string EditOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
+    {
+        statusCode = (int)HttpStatusCode.InternalServerError;
+        var useYard = _rightsChecker.CheckRight("USE_YARD", user);
+        var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION", user);
+        statusMessage = string.Empty;
+        if (_useAuthentication && (!useYard || !editOperation))
+        {
+            statusCode = (int)HttpStatusCode.Forbidden;
+            statusMessage = "Forbidden";
+            return string.Empty;
+        }
+        string temp = data.id;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Operation id is empty";
+            return string.Empty;
+        }
+
+        if (!long.TryParse(temp, out long id))
+        {
+            statusMessage = $"Wrong operation id {temp}!";
+            return string.Empty;
+        }
+
+        var operation = _storage.GetOperation(id);
+
+        var operationType = operation.Type;
+        temp = data.operationTypeCode;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            operationType = _storage.GetOperationType(temp);
+        }            
+        else
+        {
+            statusMessage = $"Operation type is empty!";
+            return string.Empty;
+        }
+
+        var vehicleKind = operation.VehicleKind;
+        temp = data.vehicleKindCode;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            vehicleKind = _storage.GetVehicleKind(temp);
+        }            
+        else
+        {
+            statusMessage = $"Vehicle kind is empty!";
+            return string.Empty;
+        }            
+
+        var planWorkStartDate = operation.PlanWorkStartDate;
+        var planWorkFinishDate = operation.PlanWorkFinishDate;
+        dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+        temp = data.startDate;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!Utils.DateFromString(temp, out planWorkStartDate, out string message))
+            {
+                statusMessage = message;
+                return string.Empty;
+            }
+            planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
+        }
+
+        temp = data.finishDate;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
+            {
+                statusMessage = $"Wrong finish date {temp}";
+                return string.Empty;
+            }
+
+            if (tempFinishDate > planWorkFinishDate)
+                planWorkFinishDate = tempFinishDate;
+        }
+
+        operation.VehicleBrand = data.vehicleBrand;
+        operation.VehicleModel = data.vehicleModel;
+        operation.VehicleNumber = data.vehicleNumber;
+        operation.TrailerNumber = data.trailerNumber;
+        operation.DriverName = data.driverName;
+        operation.DriverPhoneNumber = data.driverPhoneNumber;
+        operation.Parking = data.onParking ?? false;
+
+        var gate = operation.Gate;
+        temp = data.gateCode;
+        if (!string.IsNullOrWhiteSpace(temp))
+            gate = _storage.GetGate(temp);
+
+        var priority = operation.Priority;
+        temp = data.priority;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!short.TryParse(temp, out priority))
+            {
+                statusMessage = $"Wrong priority {temp}";
+                return string.Empty;
+            }
+            operation.Priority = priority;
+        }
+        else
+            operation.Priority = 1;
+
+        operation.PartnerManagerName = data.partnerManagerName;
+        operation.PartnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+        operation.PartnerManagerEmail = data.partnerManagerEmail;
+        operation.Note = data.note;
+        temp = data.partnerId;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Partner id is empty";
+            return string.Empty;
+        }
+
+        var manager = operation.Manager;
+        temp = data.partnerId;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            var partner = _storage.GetPartner(temp);
+            var managers = _storage.GetPartnerManagers(partner);
+            if (managers.Length <= 0)
+            {
+                statusMessage = "Partner has not managers!";
+                return string.Empty;
+            }
+            operation.Manager = managers[0];
+        }
+        else
+        {
+            statusMessage = "Partner id is empty!";
+            return string.Empty;
+        }
+
+        // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
+        var changeGate = operation.Type.Code != operation.Type.Code
+            || operation.VehicleKind.Code != vehicleKind.Code
+            || operation.PlanWorkStartDate != planWorkStartDate
+            || operation.PlanWorkFinishDate != planWorkFinishDate;
+
+        operation.Type = operationType;
+        operation.VehicleKind = vehicleKind;
+        operation.PlanWorkStartDate = planWorkStartDate;
+        operation.PlanWorkFinishDate = planWorkFinishDate;
+        var userForLog = RightsChecker.GetUserName(user);
+        var employee = _storage.GetEmployeeByAdLogin(userForLog);
+        _storage.EditOperation(operation, userForLog);
+        _storage.SetResponsibleOfficer(operation, employee);
+        if (operation.Gate.Code != gate.Code)
+        {
+            try
+            {
+                _storage.SetOperationGate(operation, gate, userForLog);
+            }
+            catch
+            {
+                _storage.SetOperationGate(operation, null, userForLog);
+            }
+            _storage.SetResponsibleOfficer(operation, employee);
+        }
+        else if (changeGate && !operation.Parking)
+        {
+            _storage.SetOperationGate(operation, null, userForLog);
+            _storage.SetResponsibleOfficer(operation, employee);
+        }
+        else if (changeGate)
+        {
+            _storage.SetResponsibleOfficer(operation, employee);
+        }
+        var operationFromStorage = _storage.GetOperation(operation.Id);
+        var actionsBeforeEdit = operationFromStorage.GetActions();
+        WarehouseAction[] actionsConvertedFromDynamic = Array.Empty<WarehouseAction>();
+        foreach (var action in actions)
+        {
+            string stringActionKind = action.kind;
+            string stringActionId = action.id;
+
+            if (stringActionKind != "I" && stringActionKind != "O")
+            {
+                statusMessage = $"Wrong action kind {stringActionKind}!";
+                return string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(stringActionId))
+            {
+                statusMessage = "Action id is empty!";
+                return string.Empty;
+            }
+            
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            actionsConvertedFromDynamic = actionsConvertedFromDynamic.Append(actionFromStorage).ToArray();
+            if (actionsBeforeEdit.Contains(actionFromStorage))
+                continue;
+            operationFromStorage.AddAction(actionFromStorage);            
+            _storage.AddAction(operationFromStorage, actionFromStorage);
+            var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+            _logger.LogWarning("Отработал метод AddAction из метода EditOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+        }
+        var actionsAfterEdit = operationFromStorage.GetActions();
+        foreach (var action in actionsAfterEdit)
+        {
+            if (!actionsConvertedFromDynamic.Contains(action))
+            {
+                operationFromStorage.RemoveAction(action);
+                _storage.RemoveAction(operationFromStorage, action);
+                var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+                _logger.LogWarning("Отработал метод RemoveAction из метода EditOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
+            }
+        }
+        var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
+        string editStatus = operationWithActions.State.DisplayName + "(отредактирована)";
+        _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, editStatus, userForLog); //логирование в бд
+
+        string? response = OperationToJson(operationWithActions);
+        statusCode = (int)HttpStatusCode.OK;
+        return response;
+    }
+
+    public string EditOperationByPartner(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
+    {
+        statusCode = (int)HttpStatusCode.InternalServerError;
+        var useYard = _rightsChecker.CheckRight("USE_YARD", user);
+        var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", user);
+        statusMessage = string.Empty;
+        if (_useAuthentication && (!useYard || !editOperation))
+        {
+            statusCode = (int)HttpStatusCode.Forbidden;
+            statusMessage = "Forbidden";
+            return string.Empty;
+        }
+
+        string temp = data.id;
+        if (string.IsNullOrWhiteSpace(temp))
+        {
+            statusMessage = "Operation id is empty";
+            return string.Empty;
+        }
+
+        if (!long.TryParse(temp, out long id))
+        {
+            statusMessage = $"Wrong operation id {temp}!";
+            return string.Empty;
+        }
+
+        var operation = _storage.GetOperation(id);
+
+        var operationType = operation.Type;
+        temp = data.operationTypeCode;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            operationType = _storage.GetOperationType(temp);
+        }            
+        else
+        {
+            statusMessage = $"Operation type is empty!";
+            return string.Empty;
+        }
+
+        var vehicleKind = operation.VehicleKind;
+        temp = data.vehicleKindCode;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            vehicleKind = _storage.GetVehicleKind(temp);
+        }            
+        else
+        {
+            statusMessage = $"Vehicle kind is empty!";
+            return string.Empty;
+        }
+
+        var planWorkStartDate = operation.StartDate;
+        var planWorkFinishDate = operation.FinishDate;
+        dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+        var userForLog = RightsChecker.GetUserName(user);
+        temp = data.startDate;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!Utils.DateFromString(temp, out DateTime tempPlanWorkStartDate, out string message))
+            {
+                statusMessage = message;
+                return string.Empty;
+            }
+
+            // Если редактируем плановую дату и время начало работ то новое значение не должно быть "день в день"!
+            if (planWorkStartDate != tempPlanWorkStartDate)
+            {
+                var now = DateTime.Now;
+                var today = DateTime.Today;
+                var today900 = today.AddHours(9);
+                if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+                {
+                    if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
+                    {
+                        statusMessage = $"Too early start time (start time must be later then 9:00 tomorrow)!";
+                        return string.Empty;
+                    }
+                }
+                if (tempPlanWorkStartDate < today900)
+                {
+                    statusMessage = $"Too early start time (start time must be later then 9:00 today)!";
+                    return string.Empty;
+                }
+            }
+            planWorkStartDate = tempPlanWorkStartDate;
+            planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
+        }
+
+        temp = data.finishDate;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!Utils.DateFromString(temp, out DateTime tempFinishDate, out string message))
+            {
+                statusMessage = message;
+                return string.Empty;
+            }
+
+            if (tempFinishDate > planWorkFinishDate)
+                planWorkFinishDate = tempFinishDate;
+        }
+
+        operation.VehicleBrand = data.vehicleBrand;
+        operation.VehicleModel = data.vehicleModel;
+        operation.VehicleNumber = data.vehicleNumber;
+        operation.TrailerNumber = data.trailerNumber;
+
+        operation.DriverName = data.driverName;
+        operation.DriverPhoneNumber = data.driverPhoneNumber;
+
+        var priority = operation.Priority;
+        temp = data.priority;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            if (!short.TryParse(temp, out priority))
+            {
+                statusMessage = $"Wrong priority {temp}";
+                return string.Empty;
+            }
+            operation.Priority = priority;
+        }
+        else
+            operation.Priority = 1;
+
+        operation.PartnerManagerName = data.partnerManagerName;
+        operation.PartnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
+        operation.PartnerManagerEmail = data.partnerManagerEmail;
+        operation.Note = data.note;
+
+        var partnerId = _rightsChecker.GetPartnerIdByUser(userForLog);
+        var partner = _storage.GetPartner(partnerId);
+        var managers = _storage.GetPartnerManagers(partner);
+        if (managers.Length <= 0)
+        {
+            statusMessage = "Partner has not managers!";
+            return string.Empty;
+        }
+
+        operation.Manager = managers[0];
+
+        operation.Type = operationType;
+        operation.VehicleKind = vehicleKind;
+        operation.PlanWorkStartDate = planWorkStartDate;
+        operation.PlanWorkFinishDate = planWorkFinishDate;
+        _storage.EditOperation(operation, userForLog);
+
+        var operationFromStorage = _storage.GetOperation(operation.Id);
+        var actionsBeforeEdit = operationFromStorage.GetActions();
+        WarehouseAction[] actionsConvertedFromDynamic = Array.Empty<WarehouseAction>();
+        foreach (var action in actions)
+        {
+            string stringActionKind = action.kind;
+            string stringActionId = action.id;
+
+            if (stringActionKind != "I" && stringActionKind != "O")
+            {
+                statusMessage = $"Wrong action kind {stringActionKind}!";
+                return string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(stringActionId))
+            {
+                statusMessage = "Action id is empty!";
+                return string.Empty;
+            }
+
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            actionsConvertedFromDynamic = actionsConvertedFromDynamic.Append(actionFromStorage).ToArray();
+            if (actionsBeforeEdit.Contains(actionFromStorage))
+                continue;
+            operationFromStorage.AddAction(actionFromStorage);
+            _storage.AddAction(operationFromStorage, actionFromStorage);
+            var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+            _logger.LogWarning("Отработал метод AddAction из метода EditOperationByParner заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+        }
+        var actionsAfterEdit = operationFromStorage.GetActions();
+        foreach (var action in actionsAfterEdit)
+        {
+            if (!actionsConvertedFromDynamic.Contains(action))
+            {
+                operationFromStorage.RemoveAction(action);
+                _storage.RemoveAction(operationFromStorage, action);
+                var operationForLog = _storage.GetOperation(operationFromStorage.Id);
+                _logger.LogWarning("Отработал метод RemoveAction из метода EditOperationByParner заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
+            }
+        }
+        var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
+        string editStatus = operationWithActions.State.DisplayName + "(отредактирована партнером)";
+        _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, editStatus, userForLog); //логирование в бд
+
+        string? response = OperationToJson(operationWithActions);
+        statusCode = (int)HttpStatusCode.OK;
         return response;
     }
 

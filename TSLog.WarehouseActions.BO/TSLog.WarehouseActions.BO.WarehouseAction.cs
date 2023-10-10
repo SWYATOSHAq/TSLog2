@@ -60,8 +60,6 @@ namespace TSLog.WarehouseActions.BO
             DateTime planActionDate, DateTime insertDate, bool isActive, string note)
             : base(-1, id, string.Empty, string.Empty, string.Empty, string.Empty, isActive, -1, note)
         {
-            //if (string.IsNullOrWhiteSpace(number))
-            //    throw new ArgumentException("number is empty");
             Number = number.Trim();
             Kind = kind;
             Partner = partner;
@@ -76,8 +74,22 @@ namespace TSLog.WarehouseActions.BO
             PartnerActionId = string.Empty;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is WarehouseAction))
+                return false;
+
+            var otherAction = (WarehouseAction)obj;
+            return Key.Equals(otherAction.Key);
+        }
+
+        public override int GetHashCode()
+        {
+            return Key.GetHashCode();
+        }
+
         /// <summary>
-        /// Добавляет товарную позицию
+        /// Добавляет товарную позицию.
         /// </summary>
         /// <param name="line">Товарная позиция</param>
         public void AddLine(LineBase line)
@@ -104,7 +116,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Добавляет товарные позиции
+        /// Добавляет товарные позиции.
         /// </summary>
         /// <param name="lines">Товарные позиции</param>
         public void AddLines(LineBase[] lines)
@@ -119,7 +131,7 @@ namespace TSLog.WarehouseActions.BO
         /// </summary>
         public LineBase[] Lines => _lines.Values.ToArray();
         /// <summary>
-        /// Суммарный плановый объём
+        /// Суммарный плановый объём.
         /// </summary>
         public double PlanVolume
         {
@@ -132,7 +144,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный фактический объём
+        /// Суммарный фактический объём.
         /// </summary>
         public double FactVolume
         {
@@ -145,7 +157,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Единица измерения объёма
+        /// Единица измерения объёма.
         /// </summary>
         public MeasureUnit VolumeMeasureunit
         {
@@ -155,7 +167,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный плановый вес нетто
+        /// Суммарный плановый вес нетто.
         /// </summary>
         public double PlanNetWeight
         {
@@ -168,7 +180,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный плановый вес брутто
+        /// Суммарный плановый вес брутто.
         /// </summary>
         public double PlanGrossWeight
         {
@@ -181,7 +193,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный фактический вес нетто
+        /// Суммарный фактический вес нетто.
         /// </summary>
         public double FactNetWeight
         {
@@ -194,7 +206,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Суммарный фактический вес брутто
+        /// Суммарный фактический вес брутто.
         /// </summary>
         public double FactGrossWeight
         {
@@ -207,7 +219,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Единица измерения веса
+        /// Единица измерения веса.
         /// </summary>
         public MeasureUnit WeightMeasureUnit
         {
@@ -217,7 +229,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Плановое количество паллет
+        /// Плановое количество паллет.
         /// </summary>
         public double PlanPalletsCount
         {
@@ -230,7 +242,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// "Фактическое" колличество паллет (рассчёт по фактичесому количеству)
+        /// "Фактическое" колличество паллет (рассчёт по фактичесому количеству).
         /// </summary>
         public double FactPalletsCount
         {
@@ -243,7 +255,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Плановое количество коробок
+        /// Плановое количество коробок.
         /// </summary>
         public double PlanBoxeCount
         {
@@ -256,7 +268,7 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Фактическое количество коробок
+        /// Фактическое количество коробок.
         /// </summary>
         public double FactBoxeCount
         {
@@ -269,12 +281,12 @@ namespace TSLog.WarehouseActions.BO
             }
         }
         /// <summary>
-        /// Количество ТЕ в заказе (приходе)
+        /// Количество ТЕ в заказе (приходе).
         /// </summary>
         public int TusCount { get; set; } = 0;
         private static WarehouseAction? _null = null;
         /// <summary>
-        /// Null object
+        /// Null object.
         /// </summary>
         public static new WarehouseAction Null
         {
@@ -287,7 +299,7 @@ namespace TSLog.WarehouseActions.BO
         }
         private static WarehouseAction? _empty = null;
         /// <summary>
-        /// Empty object
+        /// Empty object.
         /// </summary>
         public static new WarehouseAction Empty
         {

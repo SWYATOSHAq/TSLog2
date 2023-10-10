@@ -889,14 +889,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         [HttpPut("CreateConfirmOperation")]
         async public Task<string> CreateConfirmOperation()
         {
-            //Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            //var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            //var createOperation = _rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", User);
-            //if (_useAuthentication && (!useYard || !createOperation))
-            //{
-            //    Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            //    return "Forbidden";
-            //}
             dynamic? data = await GetInputData(Request);
             if (data == null)
                 return "Input data is null!";
@@ -913,470 +905,66 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = statusCode;
                 return response;
             }
-            //string temp = data.operationTypeCode;
-            //if (string.IsNullOrWhiteSpace(temp))
-            //    return "Operation type code is empty!";
-            //var operationType = _storage.GetOperationType(temp);
-
-            //temp = data.vehicleKindCode;
-            //if (string.IsNullOrWhiteSpace(temp))
-            //    return "Vehicle kind code is empty!";
-            //var vehicleKind = _storage.GetVehicleKind(temp);
-
-            //temp = data.startDate;
-            //if (string.IsNullOrWhiteSpace(temp))
-            //    return "Start date is empty!";
-            //if (!Utils.DateFromString(temp, out DateTime startDate, out string message))
-            //    return message;
-
-            //temp = data.finishDate;
-            //var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind,
-            //    out int constantDuration, out int variableDuration)));
-            //if (!string.IsNullOrWhiteSpace(temp))
-            //{
-            //    if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
-            //        return $"Wrong finish date {temp}";
-            //    if (tempFinishDate > finishDate)
-            //        finishDate = tempFinishDate;
-            //}
-
-            //string vehicleBrand = data.vehicleBrand;
-            //if (string.IsNullOrWhiteSpace(vehicleBrand))
-            //    vehicleBrand = "<Не указано>";
-            //string vehicleModel = data.vehicleModel;
-            //if (string.IsNullOrWhiteSpace(vehicleModel))
-            //    vehicleModel = "<Не указано>";
-            //string vehicleNumber = data.vehicleNumber;
-            //if (string.IsNullOrWhiteSpace(vehicleNumber))
-            //    vehicleNumber = "<Не указано>";
-            //string trailerNumber = data.trailerNumber;
-
-            //string driverName = data.driverName;
-            //if (string.IsNullOrWhiteSpace(driverName))
-            //    driverName = "<Не указано>";
-            //string driverPhoneNumber = data.driverPhoneNumber;
-
-            //var state = _storage.GetOperationState("CREATED");
-
-            //temp = data.priority;
-            //var priority = (short)1;
-            //if (!string.IsNullOrWhiteSpace(temp))
-            //{
-            //    if (!short.TryParse(temp, out priority))
-            //        return $"Wrong priority {temp}";
-            //}
-
-            //string partnerManagerName = data.partnerManagerName;
-            //string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
-            //string partnerManagerEmail = data.partnerManagerEmail;
-            //string note = data.note;
-
-            //string partnerId = data.partnerId;
-            //if (string.IsNullOrWhiteSpace(partnerId))
-            //    return "Partner id is empty!";
-
-            //var partner = _storage.GetPartner(partnerId);
-            //var manager = _storage.GetPartnerManagers(partner)[0];
-            //var actionKind = operationType.Direction == TypeDirection.Out ? ActionKind.Outgo : ActionKind.Income;
-
-            //var operation = new Operation(-1, null, operationType, startDate, finishDate,
-            //    vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
-            //    driverName, driverPhoneNumber,
-            //    state,
-            //    priority,
-            //    partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-            //    manager)
-            //{
-            //    Note = note
-            //};
-            //operation.Parking = true;
-            //var user = RightsChecker.GetUserName(User);
-            //operation = _storage.AddOperation(operation, user);
-
-            //// Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
-            //// нельзя было присвоить ворота
-            //var employee = _storage.GetEmployeeByAdLogin(user);
-            ////operation.Gate = _storage.SetOperationGate(operation, null, user);  до 26.06.23 подтверждение было на воротах
-            //_storage.SetResponsibleOfficer(operation, employee, user);
-            //_logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
-            //_storage.AddOperationLog(operation, "Создана с подтверждением", user); //логирование в бд
-
-            //var text = _processor.OperationToJson(operation);
-            //Response.StatusCode = (int)HttpStatusCode.Created;
-            //return text;
         }
         [HttpPut("CreateOperationByPartner")]
         async public Task<string> CreateOperationByPartner()
         {
-            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", User);
-            if (_useAuthentication && (!useYard || !createOperation))
-            {
-                Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return "Forbidden";
-            }
-
             dynamic? data = await GetInputData(Request);
             if (data == null)
                 return "Input data is null!";
 
-            string temp = data.operationTypeCode;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Operation type code is empty!";
-            var operationType = _storage.GetOperationType(temp);
-
-            temp = data.vehicleKindCode;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Vehicle kind code is empty!";
-            var vehicleKind = _storage.GetVehicleKind(temp);
-
-            temp = data.startDate;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Start date is empty!";
-            if (!Utils.DateFromString(temp, out DateTime startDate, out string message))
-                return message;
-
-            var user = RightsChecker.GetUserName(User);
-            // Плановая дата и время начало работ не должно быть "день в день"!
-            var now = DateTime.Now;
-            var today = DateTime.Today;
-            var today900 = today.AddHours(9);
-            if (user != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+            string operation = _processor.CreateOperationByPartner(data, User, out int statusCode, out string response);
+            if (statusCode == (int)HttpStatusCode.Created)
             {
-                if (now >= today900 && startDate < today.AddHours(24 + 9))
-                    return $"Too early start time (start time must be later then 9:00 tomorrow)!";
-            };
-            if (startDate < today900)
-                return $"Too early start time (start time must be later then 9:00 today)!";
-
-            dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-
-            temp = data.finishDate;
-            var finishDate = startDate.Add(new TimeSpan(0, 0, _processor._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
-            if (!string.IsNullOrWhiteSpace(temp))
-            {
-                if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
-                    return $"Wrong finish date {temp}";
-                if (tempFinishDate > finishDate)
-                    finishDate = tempFinishDate;
+                response = operation;
+                Response.StatusCode = statusCode;
+                return response;
             }
-
-            string vehicleBrand = data.vehicleBrand;
-            if (string.IsNullOrWhiteSpace(vehicleBrand))
-                vehicleBrand = "<Не указано>";
-            string vehicleModel = data.vehicleModel;
-            if (string.IsNullOrWhiteSpace(vehicleModel))
-                vehicleModel = "<Не указано>";
-            string vehicleNumber = data.vehicleNumber;
-            if (string.IsNullOrWhiteSpace(vehicleNumber))
-                vehicleNumber = "<Не указано>";
-            string trailerNumber = data.trailerNumber;
-
-            string driverName = data.driverName;
-            if (string.IsNullOrWhiteSpace(driverName))
-                driverName = "<Не указано>";
-            string driverPhoneNumber = data.driverPhoneNumber;
-
-            var state = _storage.GetOperationState("CREATED");
-
-            temp = data.priority;
-            var priority = (short)1;
-            if (!string.IsNullOrWhiteSpace(temp))
+            else
             {
-                if (!short.TryParse(temp, out priority))
-                    return $"Wrong priority {temp}";
-            }
-
-            string partnerManagerName = data.partnerManagerName;
-            string partnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
-            string partnerManagerEmail = data.partnerManagerEmail;
-            string note = data.note;
-
-            var partnerId = _rightsChecker.GetPartnerIdByUser(user);
-            var partner = _storage.GetPartner(partnerId);
-            var manager = _storage.GetPartnerManagers(partner)[0];
-
-            var operation = new Operation(-1, null, operationType, startDate, finishDate,
-                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
-                driverName, driverPhoneNumber,
-                state,
-                priority,
-                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-                manager)
-            {
-                Note = note
-            };
-            operation.Parking = data.onParking ?? false;
-            operation = _storage.AddOperation(operation, RightsChecker.GetUserName(User));
-            _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
-            _storage.AddOperationLog(operation, "Создана (партнером)", user); //логирование в бд
-
-            var text = _processor.OperationToJson(operation);
-            Response.StatusCode = (int)HttpStatusCode.Created;
-            return text;
+                Response.StatusCode = statusCode;
+                return response;
+            }            
         }
         [HttpPost("EditOperation")]
         async public Task<string> EditOperation()
-        {
-            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION", User);
-            if (_useAuthentication && (!useYard || !editOperation))
-            {
-                Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return "Forbidden";
-            }
+        {            
             dynamic? data = await GetInputData(Request);
             if (data == null)
                 return "Input data is null!";
 
-            string temp = data.id;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Operation id is empty";
-            if (!long.TryParse(temp, out long id))
-                return $"Wrong operation id {temp}!";
-            var operation = _storage.GetOperation(id);
-
-            var operationType = operation.Type;
-            temp = data.operationTypeCode;
-            if (!string.IsNullOrWhiteSpace(temp))
-                operationType = _storage.GetOperationType(temp);
-            else
-                return $"Operation type is empty!";
-
-            var vehicleKind = operation.VehicleKind;
-            temp = data.vehicleKindCode;
-            if (!string.IsNullOrWhiteSpace(temp))
-                vehicleKind = _storage.GetVehicleKind(temp);
-            else
-                return $"Vehicle kind is empty!";
-
-            var planWorkStartDate = operation.PlanWorkStartDate;
-            var planWorkFinishDate = operation.PlanWorkFinishDate;
-            dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-            temp = data.startDate;
-            if (!string.IsNullOrWhiteSpace(temp))
+            string operation = _processor.EditOperation(data, User, out int statusCode, out string response);
+            if (statusCode == (int)HttpStatusCode.OK)
             {
-                if (!Utils.DateFromString(temp, out planWorkStartDate, out string message))
-                    return message;
-                planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _processor._GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
-            }
-
-            temp = data.finishDate;
-            if (!string.IsNullOrWhiteSpace(temp))
-            {
-                if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
-                    return $"Wrong finish date {temp}";
-                if (tempFinishDate > planWorkFinishDate)
-                    planWorkFinishDate = tempFinishDate;
-            }
-
-            operation.VehicleBrand = data.vehicleBrand;
-            operation.VehicleModel = data.vehicleModel;
-            operation.VehicleNumber = data.vehicleNumber;
-            operation.TrailerNumber = data.trailerNumber;
-            operation.DriverName = data.driverName;
-            operation.DriverPhoneNumber = data.driverPhoneNumber;
-            operation.Parking = data.onParking ?? false;
-
-            var gate = operation.Gate;
-            temp = data.gateCode;
-            if (!string.IsNullOrWhiteSpace(temp))
-                gate = _storage.GetGate(temp);
-
-            var priority = operation.Priority;
-            temp = data.priority;
-            if (!string.IsNullOrWhiteSpace(temp))
-            {
-                if (!short.TryParse(temp, out priority))
-                    return $"Wrong priority {temp}";
-                operation.Priority = priority;
+                response = operation;
+                Response.StatusCode = statusCode;
+                return response;
             }
             else
-                operation.Priority = 1;
-
-            operation.PartnerManagerName = data.partnerManagerName;
-            operation.PartnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
-            operation.PartnerManagerEmail = data.partnerManagerEmail;
-            operation.Note = data.note;
-            temp = data.partnerId;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Partner id is empty";
-
-            var manager = operation.Manager;
-            temp = data.partnerId;
-            if (!string.IsNullOrWhiteSpace(temp))
             {
-                var partner = _storage.GetPartner(temp);
-                var managers = _storage.GetPartnerManagers(partner);
-                if (managers.Length <= 0)
-                    return "Partner has not managers!";
-                operation.Manager = managers[0];
-            }
-            else
-                return "Partner id is empty!";
-
-            // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
-            var changeGate = operation.Type.Code != operation.Type.Code
-                || operation.VehicleKind.Code != vehicleKind.Code
-                || operation.PlanWorkStartDate != planWorkStartDate
-                || operation.PlanWorkFinishDate != planWorkFinishDate;
-
-            operation.Type = operationType;
-            operation.VehicleKind = vehicleKind;
-            operation.PlanWorkStartDate = planWorkStartDate;
-            operation.PlanWorkFinishDate = planWorkFinishDate;
-            var user = RightsChecker.GetUserName(User);
-            var employee = _storage.GetEmployeeByAdLogin(user);
-            _storage.EditOperation(operation, user);
-            _storage.SetResponsibleOfficer(operation, employee);
-            if (operation.Gate.Code != gate.Code)
-            {
-                try
-                {
-                    _storage.SetOperationGate(operation, gate, user);
-                }
-                catch
-                {
-                    _storage.SetOperationGate(operation, null, user);
-                }
-                _storage.SetResponsibleOfficer(operation, employee);
-            }
-            else if (changeGate && !operation.Parking)
-            {
-                _storage.SetOperationGate(operation, null, user);
-                _storage.SetResponsibleOfficer(operation, employee);
-            }
-            else if (changeGate)
-            {
-                _storage.SetResponsibleOfficer(operation, employee);
-            }
-            var operationForLog = _storage.GetOperation(id);
-            string editStatus = operationForLog.State.DisplayName + "(отредактирована)";
-            _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
-            _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
-            var text = _processor.OperationToJson(operation);
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return text;
+                Response.StatusCode = statusCode;
+                return response;
+            }           
         }
         [HttpPost("EditOperationByPartner")]
         async public Task<string> EditOperationByPartner()
         {
-            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var useYard = _rightsChecker.CheckRight("USE_YARD", User);
-            var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", User);
-            if (_useAuthentication && (!useYard || !editOperation))
-            {
-                Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return "Forbidden";
-            }
             dynamic? data = await GetInputData(Request);
             if (data == null)
                 return "Input data is null!";
 
-            string temp = data.id;
-            if (string.IsNullOrWhiteSpace(temp))
-                return "Operation id is empty";
-            if (!long.TryParse(temp, out long id))
-                return $"Wrong operation id {temp}!";
-            var operation = _storage.GetOperation(id);
-
-            var operationType = operation.Type;
-            temp = data.operationTypeCode;
-            if (!string.IsNullOrWhiteSpace(temp))
-                operationType = _storage.GetOperationType(temp);
-            else
-                return $"Operation type is empty!";
-
-            var vehicleKind = operation.VehicleKind;
-            temp = data.vehicleKindCode;
-            if (!string.IsNullOrWhiteSpace(temp))
-                vehicleKind = _storage.GetVehicleKind(temp);
-            else
-                return $"Vehicle kind is empty!";
-
-            var planWorkStartDate = operation.StartDate;
-            var planWorkFinishDate = operation.FinishDate;
-            dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
-            var user = RightsChecker.GetUserName(User);
-            temp = data.startDate;
-            if (!string.IsNullOrWhiteSpace(temp))
+            string operation = _processor.EditOperationByPartner(data, User, out int statusCode, out string response);
+            if (statusCode == (int)HttpStatusCode.OK)
             {
-                if (!Utils.DateFromString(temp, out DateTime tempPlanWorkStartDate, out string message))
-                    return message;
-
-                // Если редактируем плановую дату и время начало работ то новое значение не должно быть "день в день"!
-                if (planWorkStartDate != tempPlanWorkStartDate)
-                {
-                    var now = DateTime.Now;
-                    var today = DateTime.Today;
-                    var today900 = today.AddHours(9);
-                    if (user != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
-                    {
-                        if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
-                            return $"Too early start time (start time must be later then 9:00 tomorrow)!";
-                    }
-                    if (tempPlanWorkStartDate < today900)
-                        return $"Too early start time (start time must be later then 9:00 today)!";
-                }
-                planWorkStartDate = tempPlanWorkStartDate;
-                planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _processor._GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
-            }
-
-            temp = data.finishDate;
-            if (!string.IsNullOrWhiteSpace(temp))
-            {
-                if (!Utils.DateFromString(temp, out DateTime tempFinishDate, out string message))
-                    return message;
-
-                if (tempFinishDate > planWorkFinishDate)
-                    planWorkFinishDate = tempFinishDate;
-            }
-
-            operation.VehicleBrand = data.vehicleBrand;
-            operation.VehicleModel = data.vehicleModel;
-            operation.VehicleNumber = data.vehicleNumber;
-            operation.TrailerNumber = data.trailerNumber;
-
-            operation.DriverName = data.driverName;
-            operation.DriverPhoneNumber = data.driverPhoneNumber;
-
-            var priority = operation.Priority;
-            temp = data.priority;
-            if (!string.IsNullOrWhiteSpace(temp))
-            {
-                if (!short.TryParse(temp, out priority))
-                    return $"Wrong priority {temp}";
-                operation.Priority = priority;
+                response = operation;
+                Response.StatusCode = statusCode;
+                return response;
             }
             else
-                operation.Priority = 1;
-
-            operation.PartnerManagerName = data.partnerManagerName;
-            operation.PartnerManagerPhoneNumber = data.partnerManagerPhoneNumber;
-            operation.PartnerManagerEmail = data.partnerManagerEmail;
-            operation.Note = data.note;
-
-            var partnerId = _rightsChecker.GetPartnerIdByUser(user);
-            var partner = _storage.GetPartner(partnerId);
-            var managers = _storage.GetPartnerManagers(partner);
-            if (managers.Length <= 0)
-                return "Partner has not managers!";
-            operation.Manager = managers[0];
-
-            operation.Type = operationType;
-            operation.VehicleKind = vehicleKind;
-            operation.PlanWorkStartDate = planWorkStartDate;
-            operation.PlanWorkFinishDate = planWorkFinishDate;
-            _storage.EditOperation(operation, user);
-            var operationForLog = _storage.GetOperation(id);
-            _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, user);
-            string editStatus = operationForLog.State.DisplayName + "(отредактирована партнером)";
-            _storage.AddOperationLog(operationForLog, editStatus, user); //логирование в бд
-            var text = _processor.OperationToJson(operation);
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return text;
+            {
+                Response.StatusCode = statusCode;
+                return response;
+            }            
         }
         [HttpPatch("SetOperationNote")]
         async public Task<string> SetOperationNote()

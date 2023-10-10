@@ -649,7 +649,7 @@ class OperationPage {
 
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
-            actions.push({ kind: this.kind, id: warehouseActionId });
+            actions.push({ operationId: this.id, kind: this.kind, id: warehouseActionId });
         }
         const data = {
             startDate: utils.dateTimeToString(this.planWorkStartDate),
@@ -672,13 +672,13 @@ class OperationPage {
         let result = await api.createOperationByPartner(data);
         if (result.code === 0) {
             const operation = result.operation;
-            for (let warehouseActionId in this.selectedWarehouseActions) {
-                result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
-                if (result.code != 0) {
-                    viewUtils.showError(result.message);
-                    break;
-                }
-            }
+            //for (let warehouseActionId in this.selectedWarehouseActions) {
+            //    result = await api.addOperationWarehouseAction(operation.id, this.kind, warehouseActionId);
+            //    if (result.code != 0) {
+            //        viewUtils.showError(result.message);
+            //        break;
+            //    }
+            //}
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW_BY_PARTNER";
         } else {
             viewUtils.showError(result.message);
@@ -702,7 +702,7 @@ class OperationPage {
 
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
-            actions.push({ kind: this.kind, id: warehouseActionId });
+            actions.push({ operationId: this.id, kind: this.kind, id: warehouseActionId });
         }
         const data = {
             id: this.id,
@@ -724,25 +724,8 @@ class OperationPage {
             partnerId: document.getElementById("partners-select").value,
             warehouseActions: actions
         };
-
+        
         let result = await api.editOperation(data);
-        if (result.code != 0) {
-            viewUtils.showError(result.message);
-            return;
-        }
-        result = await api.removeOperationWarehouseActions(this.id);
-        if (result.code != 0) {
-            viewUtils.showError(result.message);
-            return;
-        }
-        //for (let warehouseActionId in this.selectedWarehouseActions) {
-        //   result = await api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
-        //   if (result.code != 0) {
-        //       viewUtils.showError(result.message);
-        //       return;
-        //   }
-        //}
-        result = await api.addOperationWarehouseActions(this.selectedWarehouseActions);
         if (result.code != 0) {
             viewUtils.showError(result.message);
             return;
@@ -766,7 +749,7 @@ class OperationPage {
 
         let actions = [];
         for (let warehouseActionId in this.selectedWarehouseActions) {
-            actions.push({ kind: this.kind, id: warehouseActionId });
+            actions.push({ operationId: this.id, kind: this.kind, id: warehouseActionId });
         }
         const data = {
             id: this.id,
@@ -790,18 +773,6 @@ class OperationPage {
         if (result.code != 0) {
             viewUtils.showError(result.message);
             return;
-        }
-        result = await api.removeOperationWarehouseActions(this.id);
-        if (result.code != 0) {
-            viewUtils.showError(result.message);
-            return;
-        }
-        for (let warehouseActionId in this.selectedWarehouseActions) {
-            result = await api.addOperationWarehouseAction(this.id, this.kind, warehouseActionId);
-            if (result.code != 0) {
-                viewUtils.showError(result.message);
-                return;
-            }
         }
         location.reload();
     }
