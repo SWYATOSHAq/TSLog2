@@ -872,7 +872,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             dynamic? data = await GetInputData(Request);
             if (data == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }                
             string operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.Created)
             {
@@ -891,7 +894,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             dynamic? data = await GetInputData(Request);
             if (data == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
 
             string operation = _processor.CreateConfirmOperation(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.Created)
@@ -911,7 +917,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             dynamic? data = await GetInputData(Request);
             if (data == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
 
             string operation = _processor.CreateOperationByPartner(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.Created)
@@ -931,7 +940,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {            
             dynamic? data = await GetInputData(Request);
             if (data == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
 
             string operation = _processor.EditOperation(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.OK)
@@ -951,7 +963,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
         {
             dynamic? data = await GetInputData(Request);
             if (data == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
 
             string operation = _processor.EditOperationByPartner(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.OK)
