@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data.Common;
@@ -25,6 +26,7 @@ namespace TSLog.Yard.Data
         private const int DefaultMaxRowsCount = 16;
         private const string DefaultYardSchema = "yard";
         private const short DefaultWorkersCount = 1;
+        private readonly ILoggerFactory _loggerFactory;
         /// <summary>
         /// Максимальное количество строк для вывода.
         /// </summary>
@@ -34,9 +36,11 @@ namespace TSLog.Yard.Data
         /// </summary>
         public string YardSchema { private get; set; } = DefaultYardSchema;
 
-        public YardPgSqlStorage(string host, string database,
-            IDictionary<string, object>? extensionParameters = null) : base(host, database, extensionParameters)
-        { }
+        public YardPgSqlStorage(string host, string database, ILoggerFactory loggerFactory,
+            IDictionary<string, object>? extensionParameters = null) : base(host, database, loggerFactory.CreateLogger<PgSqlStorage>(), extensionParameters)
+        {
+            _loggerFactory = loggerFactory;
+        }
 
         private static NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
         {

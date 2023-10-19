@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Reflection;
 using TSLog.Common.BO;
@@ -34,6 +35,8 @@ namespace TSLog.Yard.Tests
 
         private readonly string DefaultUser = "m.burov";
         private readonly IYardStorage _storage;
+        private LoggerFactory _loggerFactory = new LoggerFactory();
+
 
         public StorageTests()
         {
@@ -72,7 +75,7 @@ namespace TSLog.Yard.Tests
                 { "ConnectionPruningInterval", _pgsqlConnectionPruningInterval }
             };
 
-            _storage = new YardStorage(_oracleTns, _pgsqlHost, _pgsqlDatabase, extensionParameters);
+            _storage = new YardStorage(_oracleTns, _pgsqlHost, _pgsqlDatabase, _loggerFactory, extensionParameters);
             _storage.SetOracleCommonSchema(_oracleCommonSchema);
             _storage.SetOracleStaffSchema(_oracleStaffSchema);
             _storage.SetOracleLegalEntitiesSchema(_oracleLegalEntitiesSchema);
@@ -160,7 +163,7 @@ namespace TSLog.Yard.Tests
                 { "ConnectionPruningInterval", 10 }
             };
 
-            using var storage = new YardStorage(_oracleTns, _pgsqlHost, _pgsqlDatabase, extensionParameters);
+            using var storage = new YardStorage(_oracleTns, _pgsqlHost, _pgsqlDatabase, _loggerFactory, extensionParameters);
             storage.SetOracleCommonSchema(_oracleCommonSchema);
             storage.SetOracleStaffSchema(_oracleStaffSchema);
             storage.SetOracleLegalEntitiesSchema(_oracleLegalEntitiesSchema);

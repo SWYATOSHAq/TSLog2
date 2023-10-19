@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Reflection;
 using TSLog.Authorization;
@@ -30,6 +31,10 @@ public class Program
             .ReadFrom.Configuration(configuration)
             .CreateLogger();
 
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddSerilog(); // Add Serilog as a logging provider
+        });
         try
         {
             Log.Information("Starting web application");
@@ -94,7 +99,7 @@ public class Program
                 { "ConnectionPruningInterval", pgsqlConnectionPruningInterval }
             };
 
-            var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase, extensionParameters);
+            var storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase, loggerFactory, extensionParameters);
             storage.MaxRowsCount = builder.Configuration.GetValue<int>("MaxRowsCount");
 
             storage.ConnectOracle(oracleUserName, oraclePassword);

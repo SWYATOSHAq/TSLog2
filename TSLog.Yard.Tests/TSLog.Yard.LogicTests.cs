@@ -31,6 +31,7 @@ namespace TSLog.Yard.Tests
 
             _configuration = builder.Build();
 
+            var loggerFactory = new LoggerFactory();
             var oracleSection = _configuration.GetSection("OracleConnectionDebugSettings");
             var oracleTns = GetStringValue(oracleSection, "DataSource");
             _oracleUserName = GetStringValue(oracleSection, "UserName");
@@ -48,7 +49,7 @@ namespace TSLog.Yard.Tests
             var pgsqlDatabase = GetStringValue(pgsqlSection, "Database");
             var pgsqlYardSchema = GetStringValue(pgsqlSection, "YardSchema");
 
-            _storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase);            
+            _storage = new YardStorage(oracleTns, pgsqlHost, pgsqlDatabase, loggerFactory);            
             _storage.SetOracleCommonSchema(oracleCommonSchema);
             _storage.SetOracleStaffSchema(oracleStaffSchema);
             _storage.SetOracleLegalEntitiesSchema(oracleLegalEntitiesSchema);

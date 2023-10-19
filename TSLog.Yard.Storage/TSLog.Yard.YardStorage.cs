@@ -1,4 +1,6 @@
-﻿using TSLog.BossControl.BO;
+﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using TSLog.BossControl.BO;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;
@@ -19,6 +21,7 @@ namespace TSLog.Yard
         private const int DefaultMaxRowsCount = 16;
         private readonly YardOracleStorage _oracleStorage;
         private readonly YardPgSqlStorage _pgsqlStorage;
+        private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
         /// Максимальное количество строк для вывода.
@@ -31,18 +34,19 @@ namespace TSLog.Yard
             }
         }
 
-        public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase,
+        public YardStorage(string oracleDataSource, string pgsqlHost, string pgsqlDatabase, ILoggerFactory loggerFactory,
             IDictionary<string, object>? pgsqlExtensionParameters = null)
         {
             _oracleStorage = new YardOracleStorage(oracleDataSource);
-            _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase, pgsqlExtensionParameters)
+            _loggerFactory = loggerFactory;
+            _pgsqlStorage = new YardPgSqlStorage(pgsqlHost, pgsqlDatabase, _loggerFactory, pgsqlExtensionParameters)
             {
                 GetEmployeeById = _oracleStorage.GetEmployee,
                 GetPartnerById = _oracleStorage.GetPartner,
                 GetPositionById = _oracleStorage.GetPosition,
                 GetEmployeesByShift = _oracleStorage.GetShiftEmployees,
                 GetEmployees = _oracleStorage.GetEmployees,
-                GetWarehouseAction = _oracleStorage.GetWarehouseAction
+                GetWarehouseAction = _oracleStorage.GetWarehouseAction                
             };
         }
         public void ConnectOracle(string userName, string password)

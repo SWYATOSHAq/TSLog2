@@ -23,39 +23,59 @@ namespace TSLog.Yard.IntegrationTest
         [Fact]
         public async Task TestYourApiEndpoint()
         {
-            var connectionString = "Host=10.50.254.14;Database=tslog;Pooling=True;Maximum Pool Size=200;Connection Lifetime=120;Connection Pruning Interval=10;Username=yarddispatcher;Password=sdfdsSFS38&%^(#__Sdhgsdgy_sDDG22;Persist Security Info=True";
+            var connectionString = "Host=10.50.254.14;Database=tslog;Pooling=True;Maximum Pool Size=200;Connection Lifetime=200;Connection Pruning Interval=200;Username=yarddispatcher;Password=sdfdsSFS38&%^(#__Sdhgsdgy_sDDG22;Persist Security Info=True;Application Name='TEST'";
 
             // Act
-            // Check for idle connections before making API call
+            // Call your API endpoint in a loop
+            _output.WriteLine("Check for idle connections before making all API calls");
             await CheckForIdleConnections(connectionString);
-            _output.WriteLine("Test Output");
+            for (int i = 0; i < 50; i++)
+            {
+                // Create a new database connection for each API call
+                //using (var connection = new NpgsqlConnection(connectionString))
+                //{
+                var connection = new NpgsqlConnection(connectionString);
+                    await connection.OpenAsync();
 
-            // Call your API endpoint
-            var response = await _client.GetAsync("https://localhost:7295/api/v1/yard/ActiveOperations");
-            var content = await response.Content.ReadAsStringAsync();
-            _output.WriteLine(content); // Log the content of the response
+                    // Perform API call using the new connection
+                    //var response = await _client.GetAsync("https://localhost:7295/api/v1/yard/ActiveOperations");
+                    var response = await _client.GetAsync("https://yd.tslog.ru/api/v1/yard/ActiveOperations");
+                    //var content = await response.Content.ReadAsStringAsync();
+                    //_output.WriteLine(content); // Log the content of the response
 
-            // Assert
-            response.EnsureSuccessStatusCode();
+                    // Assert
+                    response.EnsureSuccessStatusCode();
+                //}
+            }
 
-            // Optionally, check for idle connections again after making API call
+            // Check for idle connections after making all API calls
+            _output.WriteLine("Check for idle connections after making all API calls");
             await CheckForIdleConnections(connectionString);
         }
 
         private async Task CheckForIdleConnections(string connectionString)
         {
-            _output.WriteLine("Test Output");
-            await using var connection = new NpgsqlConnection(connectionString);
+            _output.WriteLine("CheckForIdleConnections method execute!");
+
+            //using (var connection = new NpgsqlConnection(connectionString))
+            //{
+            var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync();
 
-            await using var cmd = new NpgsqlCommand("SELECT * FROM pg_stat_activity WHERE state = 'idle'", connection);
-            await using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                // Check the type of the first column and convert it appropriately
-                var oidString = reader.GetValue(0).ToString();
-                _output.WriteLine(oidString);
-            }
+                // Filter connections by application name
+                using (var cmd = new NpgsqlCommand("SELECT * FROM pg_stat_activity WHERE application_name = 'TEST'", connection))
+                {
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            // Check the type of the first column and convert it appropriately
+                            var oidString = reader.GetValue(0).ToString();
+                            _output.WriteLine(oidString);
+                        }
+                    }
+                }
+            //}
         }
     }
 }
