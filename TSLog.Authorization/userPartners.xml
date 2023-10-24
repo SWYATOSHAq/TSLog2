@@ -25,6 +25,9 @@
 		<partner code="0031" name="0031. MVI"/>
 	</user>
 	<user name="Оператор БЛС2" login="testblcoper">
-		<partner code="0021" name="0045. БЛС2"/>
+		<partner code="0021" name="0021. БЛС2"/>
+	</user>
+	<user name="Оператор Детского мира" login="dmoper">
+		<partner code="0130" name="0130. ДМ"/>
 	</user>
 </userPartners>
