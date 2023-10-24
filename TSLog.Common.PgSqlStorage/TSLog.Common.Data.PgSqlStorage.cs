@@ -9,6 +9,8 @@ using System.Data.Common;
 using System.Security;
 using TSLog.Common.BO;
 using TSLog.ExceptionHandler;
+using TSLog.Common.PgSqlStorage;
+using NpgsqlTypes;
 
 namespace TSLog.Common.Data
 {
@@ -68,29 +70,32 @@ namespace TSLog.Common.Data
                 ConnectionString = _connection.ConnectionString
             };
             connection.Open();
-            _logger.LogError("TEEEEEEEEEEEEST!");
-            // Log information from pg_stat_activity with structured logging
-            //using (var cmd = new NpgsqlCommand("SELECT * FROM pg_stat_activity", connection))
-            //using (var reader = cmd.ExecuteReader())
-            //{
-            //    while (reader.Read())
-            //    {
-            //        // Create a structured log event containing all columns from pg_stat_activity
-            //        var logEvent = new LogEvent(
-            //            timestamp: DateTimeOffset.Now,
-            //            level: LogEventLevel.Information,
-            //            exception: null, 
-            //            messageTemplate: "pg_stat_activity info: {@PgStatActivity}",
-            //            properties: new[]
-            //            { 
-            //                new LogEventProperty("PgStatActivity", new DbRow(reader))
-            //            });
 
-            //        // Log the structured event
-            //        _logger.Write(logEvent);
-            //    }
-            //}
-
+            using (var cmd = new NpgsqlCommand("SELECT datid, datname, pid, usesysid, usename, client_addr, client_port, state, query FROM pg_stat_activity " +
+                "WHERE state = 'idle' and usename = 'yarddispatcher';", connection))
+            using (var reader = cmd.ExecuteReader())
+            {
+                int rowCount = 0;
+                while (reader.Read())
+                {
+                    rowCount++;
+                    if (rowCount > 40)
+                    {
+                        _logger.LogInformation("pg_stat_activity info: {@PgStatActivity}", new PgStatActivityInfo
+                        {
+                            DatId = reader.GetFieldValue<uint>(reader.GetOrdinal("datid")),
+                            DatName = reader.GetString(reader.GetOrdinal("datname")),
+                            Pid = reader.GetInt32(reader.GetOrdinal("pid")),
+                            UseSysId = reader.GetFieldValue<uint>(reader.GetOrdinal("usesysid")),
+                            UseName = reader.GetString(reader.GetOrdinal("usename")),
+                            ClientIPAdress = reader.GetFieldValue<NpgsqlInet>(reader.GetOrdinal("client_addr")).ToString(),
+                            ClientPort = reader.GetInt32(reader.GetOrdinal("client_port")),
+                            State = reader.GetString(reader.GetOrdinal("state")),
+                            Query = reader.GetString(reader.GetOrdinal("query"))
+                        });
+                    }
+                }
+            }
             return connection;
         }
 
