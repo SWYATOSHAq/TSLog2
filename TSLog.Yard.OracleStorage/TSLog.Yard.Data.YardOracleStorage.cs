@@ -381,9 +381,15 @@ namespace TSLog.Yard.Data
             using (var command = _connection.CreateCommand())
             {
                 command.BindByName = true;
+                // TODO: 20.11.2023 Вернуть закомментированный код после полного перехода на новую БД Oracle с полным переносом данных
+                //var selectWarehouseActionByIdSql =
+                //    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
+                //    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
+                //    $" where a.id = :id\n" +
+                //    $"   and a.kind = :kind";
                 var selectWarehouseActionByIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
-                    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
+                    $"  from {CommonSchema}.ACT_WAREHOUSE_ACTION_FROM_OLD_AND_NEW_DB#V a\n" +
                     $" where a.id = :id\n" +
                     $"   and a.kind = :kind";
                 command.CommandText = selectWarehouseActionByIdSql;
@@ -397,9 +403,15 @@ namespace TSLog.Yard.Data
                 // Если не нашли складское действо, то пробуем найти его в архиве или в удалённых.
                 if (action == null || action == WarehouseAction.Null || action == WarehouseAction.Empty)
                 {
+                    // TODO: 28.11.2023 Вернуть закомментированный код после полного перехода на новую БД Oracle с полным переносом данных
+                    //var selectArchivedWarehouseDeletedActionByIdSql =
+                    //    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
+                    //    $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
+                    //    $" where a.id = :id\n" +
+                    //    $"   and a.kind = :kind";
                     var selectArchivedWarehouseDeletedActionByIdSql =
                         $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
-                        $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
+                        $"  from {CommonSchema}.ACT_WAREHOUSE_ACTION_AD_FROM_OLD_AND_NEW_DB#V a\n" +
                         $" where a.id = :id\n" +
                         $"   and a.kind = :kind";
                     command.CommandText = selectArchivedWarehouseDeletedActionByIdSql;
