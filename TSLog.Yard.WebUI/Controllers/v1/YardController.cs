@@ -876,10 +876,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
             }                
-            string operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
-            if (statusCode == (int)HttpStatusCode.Created)
+            var operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
+            if (operation != Operation.Null)
             {
-                response = operation;
+                response = _processor.OperationToJson(operation);
                 Response.StatusCode = statusCode;
                 return response;
             }
@@ -889,6 +889,31 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return response;
             }
         }
+
+        //[HttpPut("CreateOperation")]
+        //async public Task<string> CreateOperation()
+        //{
+        //    dynamic? data = await GetInputData(Request);
+        //    if (data == null)
+        //    {
+        //        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        //        return "Input data is null!";
+        //    }
+        //    string operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
+        //    statusCode = (int)HttpStatusCode.Created;
+        //    if (statusCode == (int)HttpStatusCode.Created)
+        //    {
+        //        response = operation;
+        //        Response.StatusCode = statusCode;
+        //        return response;
+        //    }
+        //    else
+        //    {
+        //        Response.StatusCode = statusCode;
+        //        return response;
+        //    }
+        //}
+
         [HttpPut("CreateConfirmOperation")]
         async public Task<string> CreateConfirmOperation()
         {

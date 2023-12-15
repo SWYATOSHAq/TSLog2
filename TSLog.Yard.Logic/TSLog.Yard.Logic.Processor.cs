@@ -188,7 +188,7 @@ public class Processor
         }
     }
 
-    public string CreateOperation(dynamic data, ClaimsPrincipal? user,
+    public Operation CreateOperation(dynamic data, ClaimsPrincipal? user,
         out int statusCode, out string statusMessage)
     {
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
@@ -200,14 +200,14 @@ public class Processor
         {
             statusCode = (int)HttpStatusCode.Forbidden;
             statusMessage = "Forbidden";
-            return string.Empty;
+            return Operation.Null;
         }
 
         string temp = data.operationTypeCode;
         if (string.IsNullOrWhiteSpace(temp))
         {
             statusMessage = "Operation type code is empty!";
-            return string.Empty; 
+            return Operation.Null; 
         }
             
         var operationType = _storage.GetOperationType(temp);
@@ -216,7 +216,7 @@ public class Processor
         if (string.IsNullOrWhiteSpace(temp))
         {
             statusMessage = "Vehicle kind code is empty!";
-            return string.Empty;
+            return Operation.Null;
         }
 
         var vehicleKind = _storage.GetVehicleKind(temp);
@@ -224,16 +224,37 @@ public class Processor
         if (string.IsNullOrWhiteSpace(temp))
         {
             statusMessage = "Start date is empty!";
-            return string.Empty;
+            return Operation.Null;
         }
 
         if (!Utils.DateFromString(temp, out DateTime planWorkStartDate, out string message))
         {
             statusMessage = message;
-            return string.Empty;
+            return Operation.Null;
         }            
 
         dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
+
+        List<WarehouseAction> listOfActions = new();
+        foreach (var action in actions)
+        {
+            string stringActionKind = action.kind;
+            string stringActionId = action.id;
+
+            if (stringActionKind != "I" && stringActionKind != "O")
+            {
+                statusMessage = $"Wrong action kind {stringActionKind}!";
+                return Operation.Null;
+            }
+            if (string.IsNullOrWhiteSpace(stringActionId))
+            {
+                statusMessage = "Action id is empty!";
+                return Operation.Null;
+            }
+
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            listOfActions.Add(actionFromStorage);
+        }
 
         temp = data.finishDate;
         var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
@@ -242,7 +263,7 @@ public class Processor
             if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
             {
                 statusMessage = $"Wrong finish date {temp}";
-                return string.Empty;
+                return Operation.Null;
             }
             if (tempFinishDate > planWorkFinishDate)
                 planWorkFinishDate = tempFinishDate;
@@ -274,7 +295,7 @@ public class Processor
             if (!short.TryParse(temp, out priority))
             {
                 statusMessage = $"Wrong priority {temp}";
-                return string.Empty;
+                return Operation.Null;
             }
         }
 
@@ -287,7 +308,7 @@ public class Processor
         if (string.IsNullOrWhiteSpace(partnerId))
         {
             statusMessage = "Partner id is empty!";
-            return string.Empty;
+            return Operation.Null;
         }
 
         var partner = _storage.GetPartner(partnerId);
@@ -308,24 +329,9 @@ public class Processor
         var userForLog = RightsChecker.GetUserName(user);
         var operationFromStorage = _storage.AddOperation(operation, userForLog);
 
-        foreach (var action in actions)
+        foreach (var action in listOfActions)
         {
-            string stringActionKind = action.kind;
-            string stringActionId = action.id;
-            
-            if (stringActionKind != "I" && stringActionKind != "O")
-            {
-                statusMessage = $"Wrong action kind {stringActionKind}!";
-                return string.Empty;
-            }
-            if (string.IsNullOrWhiteSpace(stringActionId))
-            {
-                statusMessage = "Action id is empty!";
-                return string.Empty;
-            }          
-            
-            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
-            _storage.AddAction(operationFromStorage, actionFromStorage);
+            _storage.AddAction(operationFromStorage, action);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
             _logger.LogWarning("Отработал метод AddAction из метода CreateOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
@@ -333,9 +339,8 @@ public class Processor
         _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
         _storage.AddOperationLog(operationWithActions, "Создана", userForLog); //логирование в бд
 
-        string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.Created;
-        return response;
+        return operationWithActions;
     }
 
     public string CreateConfirmOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
