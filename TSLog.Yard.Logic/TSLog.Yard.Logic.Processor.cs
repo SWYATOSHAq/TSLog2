@@ -333,7 +333,7 @@ public class Processor
         {
             _storage.AddAction(operationFromStorage, action);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction из метода CreateOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);

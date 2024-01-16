@@ -17,7 +17,7 @@ class OperationPage {
     blockDuration = 0;
 
     defaultConstantOperationDuration = (8 * 60 + 15) + (6 * 60 + 15); // Время операции двора, не зависящая от состава
-                                                                      // груза(время на постановку и снятие машины) в сек.
+    // груза(время на постановку и снятие машины) в сек.
 
     id = -1; // идентификатор операции двора
     stateCode = ""; // код статуса заявки операции двора
@@ -208,7 +208,7 @@ class OperationPage {
             if (this.finishDate > utils.nullDate) {
                 startFinishInput.value = startFinishInput.value + " Убыла - " + utils.dateTimeToString(this.finishDate);
             }
-        }        
+        }
     }
 
     async getPlanLaborCosts() {
@@ -252,14 +252,13 @@ class OperationPage {
                 laborCostInput.value = "<Не определено>";
             else {
                 laborCostInput.value = "План (рассч.): " + (this.fillingPlanLaborCost / 60).toFixed();
-                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();              
+                laborCostInput.value += ", план (уточн.): " + (this.hoodmanPlanLaborCost / 60).toFixed();
                 const bcWorksDiv = document.getElementById("bc-works-div");
                 if (this.factWorkStartDate > utils.nullDate
                     && this.factWorkFinishDate > utils.nullDate
                     && this.stateCode != "CANCELED"
                     && bcWorksDiv != undefined
-                    && bcWorksDiv != null)
-                {
+                    && bcWorksDiv != null) {
                     const result = await api.getBossControlWorks(this.id)
                     if (result.code === 0) {
                         this.bcWorks = result.works;
@@ -438,7 +437,7 @@ class OperationPage {
         await this.getPlanDuration();
         await this.getPlanLaborCosts();
         await this.getFactPlanDuration();
-        this.showDuration();        
+        this.showDuration();
         await this.showLaborCost();
         if (this.planDuration <= 0) {
             this.planWorkStartDate = utils.nullDate;
@@ -448,7 +447,7 @@ class OperationPage {
             return;
         } else {
             this.showWorkStartFinish();
-        }        
+        }
         await this.getAvalibleIntervals();
         this.showTimeTable();
         const blockId = this.getBlockId(this.planWorkStartDate);
@@ -473,7 +472,7 @@ class OperationPage {
         if (this.kind != kind) {
             this.clearSelectedWarehouseActions();
             await this.displayWarehouseActions();
-            this.kind = kind;            
+            this.kind = kind;
             this.changeWarehouseActionsTitle();
             this.resizeWarehouseActionsDivs();
         }
@@ -527,13 +526,13 @@ class OperationPage {
             gatesSelect.disabled = true;
             if (setGateButton !== null) {
                 setGateButton.style.display = 'none';
-            }                
+            }
             gatesSelect.selectedIndex = 0;
         } else {
             gatesSelect.disabled = false;
             if (setGateButton !== null) {
                 setGateButton.style.display = 'inline-block';
-            }            
+            }
         }
     }
 
@@ -542,8 +541,7 @@ class OperationPage {
             document.getElementById("operation-types-select").value == "" ||
             document.getElementById("vehicle-kinds-select").value == "" ||
             document.getElementById("partners-select").value == "" ||
-            Object.keys(this.selectedWarehouseActions).length <= 0)
-        {
+            Object.keys(this.selectedWarehouseActions).length <= 0) {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -577,16 +575,15 @@ class OperationPage {
             location.href = this.shortUrl + "?id=" + operation.id + "&action=VIEW";
         } else {
             viewUtils.showError(result.message);
-        }       
+        }
     }
 
     async createConfirmOperation() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
             document.getElementById("vehicle-kinds-select").value == "" ||
-            document.getElementById("partners-select").value == "" ||            
-            Object.keys(this.selectedWarehouseActions).length <= 0)
-        {
+            document.getElementById("partners-select").value == "" ||
+            Object.keys(this.selectedWarehouseActions).length <= 0) {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -626,9 +623,8 @@ class OperationPage {
     async createOperationByPartner() {
         if (this.planWorkStartDate <= utils.nullDate || this.planWorkFinishDate <= utils.nullDate ||
             document.getElementById("operation-types-select").value == "" ||
-            document.getElementById("vehicle-kinds-select").value == "" || 
-            Object.keys(this.selectedWarehouseActions).length <= 0)
-        {
+            document.getElementById("vehicle-kinds-select").value == "" ||
+            Object.keys(this.selectedWarehouseActions).length <= 0) {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -673,8 +669,7 @@ class OperationPage {
             document.getElementById("vehicle-number-input").value == "" ||
             document.getElementById("partners-select").value == "" ||
             document.getElementById("driver-name-input").value == "" ||
-            Object.keys(this.selectedWarehouseActions).length <= 0)
-        {            
+            Object.keys(this.selectedWarehouseActions).length <= 0) {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -703,7 +698,7 @@ class OperationPage {
             partnerId: document.getElementById("partners-select").value,
             warehouseActions: actions
         };
-        
+
         let result = await api.editOperation(data);
         if (result.code != 0) {
             viewUtils.showError(result.message);
@@ -720,8 +715,7 @@ class OperationPage {
             document.getElementById("vehicle-model-input").value == "" ||
             document.getElementById("vehicle-number-input").value == "" ||
             document.getElementById("driver-name-input").value == "" ||
-            Object.keys(this.selectedWarehouseActions).length <= 0)
-        {
+            Object.keys(this.selectedWarehouseActions).length <= 0) {
             alert("Не все обязательные поля заполнены!");
             return;
         }
@@ -823,11 +817,11 @@ class OperationPage {
             else {
                 viewUtils.showError(result.message);
             }
-        }        
+        }
     }
 
     async getSelectedWarehouseActions() {
-        const partnersSelect = document.getElementById("partners-select");        
+        const partnersSelect = document.getElementById("partners-select");
         partnersSelect.value = "";
         const result = await api.getSelectedWarehouseActions(this.id);
         if (result.code === 0) {
@@ -868,7 +862,7 @@ class OperationPage {
 
             this.resizeWarehouseActionsDivs();
             await this.onChangeDuration();
-        }        
+        }
     }
 
     async showWarehouseAction(action, button, direction) {
@@ -890,7 +884,7 @@ class OperationPage {
         const date = utils.stringToDate(action.insertDate);
         if (date > utils.nullDate) {
             button.append(" (" + utils.dateToString(date) + ") ");
-        }        
+        }
 
         button.onclick = async () => {
             if (direction === "ADD") {
@@ -917,7 +911,7 @@ class OperationPage {
         }
     }
 
-    async displayWarehouseActions() {        
+    async displayWarehouseActions() {
         const allWarehouseActionDiv = document.getElementById("all-actions-div");
         const actionFilterDiv = document.getElementById("action-filter-div");
         const actionsDiv = document.getElementById("actions-div");
@@ -932,8 +926,8 @@ class OperationPage {
             } else {
                 actionFilterDiv.classList.add("d-none");
                 actionsDiv.classList.add("d-none");
-            }        
-        }        
+            }
+        }
     }
 
     clearSelectedWarehouseActions() {
@@ -970,7 +964,7 @@ class OperationPage {
             }
             if (allWarehouseActionsTitleB != undefined && allWarehouseActionsTitleB != null) {
                 allWarehouseActionsTitleB.textContent = "Свободные заказы:";
-            }            
+            }
             selectedWarehouseActionsTitleB.textContent = "Назначенные заказы:";
         } else if (this.kind === "I") {
             if (actionsFilterSpan != undefined && actionsFilterSpan != null) {
@@ -1001,7 +995,7 @@ class OperationPage {
             } else {
                 actionsContentDiv.style.cssText = ACTIONS_CONTENT_DIV_TEXT_STYLE_LONG;
             }
-        }        
+        }
         actionsContentDiv = document.getElementById("selected-actions-content-div");
         if (actionsContentDiv != undefined && actionsContentDiv != null) {
             if (actionsContentDiv.childElementCount < 5) {
@@ -1009,7 +1003,7 @@ class OperationPage {
             } else {
                 actionsContentDiv.style.cssText = ACTIONS_CONTENT_DIV_TEXT_STYLE_LONG;
             }
-        }           
+        }
     }
     // #endregion
 
@@ -1025,7 +1019,7 @@ class OperationPage {
                 workersDiv.style.cssText = WORKERS_DIV_TEXT_STYLE_LONG;
             }
         }
-        
+
         workersDiv = document.getElementById("selected-workers-content-div");
         if (workersDiv != undefined && workersDiv != null) {
             if (workersDiv.childElementCount < 8) {
@@ -1033,7 +1027,7 @@ class OperationPage {
             } else {
                 workersDiv.style.cssText = WORKERS_DIV_TEXT_STYLE_LONG;
             }
-        }        
+        }
     }
 
     async getLinearFreeWorkers() {
@@ -1296,7 +1290,7 @@ class OperationPage {
     }
     // #endregion
 
-    showDialogBlock() {        
+    showDialogBlock() {
         const p = document.getElementById("dialog-block-p");
         p.innerText = "Работы по заявке по ПРР ПО ПЛАНУ должны были быть уже выполнены.\nАктуализируйте плановое время работ по заявке!";
         const dialogBlockDiv = document.getElementById("dialog-block-div");
@@ -1319,6 +1313,103 @@ class OperationPage {
         } else if (event.target == dialogBlockDiv) {
             this.hideDialogBlock();
         }
+    }
+
+    editNote() {
+        let optionsButtons = document.querySelectorAll(".option-button");
+        let advancedOptionButton = document.querySelectorAll(".adv-option-button");
+        let fontName = document.getElementById("fontName");
+        let fontSizeRef = document.getElementById("fontSize");
+        let writingArea = document.getElementById("note - textarea");
+        let formatButtons = document.querySelectorAll(".format");
+
+        //List of fontlist
+        let fontList = [
+            "Arial",
+            "Verdana",
+            "Times New Roman",
+            "Garamond",
+            "Georgia",
+            "Courier New",
+            "cursive",
+        ];
+
+        //Initial Settings
+        const initializer = () => {
+            //function calls for highlighting buttons
+            //No highlights for link, unlink,lists, undo,redo since they are one time operations
+
+            highlighter(formatButtons, false);
+
+            //create options for font names
+            fontList.map((value) => {
+                let option = document.createElement("option");
+                option.value = value;
+                option.innerHTML = value;
+                fontName.appendChild(option);
+            });
+            //fontSize allows only till 7
+            for (let i = 1; i <= 7; i++) {
+                let option = document.createElement("option");
+                option.value = i;
+                option.innerHTML = i;
+                fontSizeRef.appendChild(option);
+            }
+            //default size
+            fontSizeRef.value = 3;
+        };
+
+        //main logic
+        const modifyText = (command, defaultUi, value) => {
+            //execCommand executes command on selected text
+            document.execCommand(command, defaultUi, value);
+        };
+
+        //For basic operations which don't need value parameter
+        optionsButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                modifyText(button.id, false, null);
+            });
+        });
+
+        //options that require value parameter (e.g colors, fonts)
+        advancedOptionButton.forEach((button) => {
+            button.addEventListener("change", () => {
+                modifyText(button.id, false, button.value);
+            });
+        });
+
+        //Highlight clicked button
+        const highlighter = (className, needsRemoval) => {
+            className.forEach((button) => {
+                button.addEventListener("click", () => {
+                    //needsRemoval = true means only one button should be highlight and other would be normal
+                    if (needsRemoval) {
+                        let alreadyActive = false;
+                        //If currently clicked button is already active
+                        if (button.classList.contains("active")) {
+                            alreadyActive = true;
+                        }
+                        //Remove highlight from other buttons
+                        highlighterRemover(className);
+                        if (!alreadyActive) {
+                            //highlight clicked button
+                            button.classList.add("active");
+                        }
+                    } else {
+                        //if other buttons can be highlighted
+                        button.classList.toggle("active");
+                    }
+                });
+            });
+        };
+        const highlighterRemover = (className) => {
+            className.forEach((button) => {
+                button.classList.remove("active");
+            });
+        };
+
+        initializer();
     }
 
     async show() {
@@ -1674,6 +1765,8 @@ class OperationPage {
 
         const closeButton = document.getElementById("close-button");
         closeButton.onclick = this.closeOperation.bind(this);
+
+        this.editNote();
 
         window.onclick = this.windowClick.bind(this);
     }
