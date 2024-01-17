@@ -352,6 +352,139 @@ class ViewUtils {
         fileName = fileName + "." + fileType;
         XLSX.writeFile(file, fileName);
     }
+
+    formatNoteText() {
+        const optionsButtons = document.querySelectorAll(".option-button");
+        const advancedOptionButton = document.querySelectorAll(".adv-option-button");
+        const fontName = document.getElementById("fontName");
+        const fontSizeRef = document.getElementById("fontSize");
+        const formatButtons = document.querySelectorAll(".format");
+
+        // List of fontlist.
+        const fontList = [
+            "Arial",
+            "Verdana",
+            "Times New Roman",
+            "Garamond",
+            "Georgia",
+            "Courier New",
+            "cursive",
+        ];
+
+        // Initial Settings.
+        const initializer = () => {
+            // Function calls for highlighting buttons.
+            // No highlights for link, unlink, lists, undo, redo since they are one time operations.
+
+            highlighter(formatButtons, false);
+
+            // Create options for font names.
+            fontList.map((value) => {
+                let option = document.createElement("option");
+                option.value = value;
+                option.innerHTML = value;
+                fontName.appendChild(option);
+            });
+            // FontSize allows only till 7
+            for (let i = 1; i <= 7; i++) {
+                let option = document.createElement("option");
+                option.value = i;
+                option.innerHTML = i;
+                fontSizeRef.appendChild(option);
+            }
+            // Default size
+            fontSizeRef.value = 3;
+
+            const isTextBold = () => {
+                return document.queryCommandState('bold');
+            };
+
+            const isTextItalic = () => {
+                return document.queryCommandState('italic');
+            };
+
+            const isTextUnderlined = () => {
+                return document.queryCommandState('underline');
+            };
+
+            const updateButtonStates = () => {
+                document.querySelectorAll('.option-button.format').forEach(button => {
+                    if (button.id === 'bold') {
+                        button.classList.toggle('active', isTextBold());
+                    } else if (button.id === 'italic') {
+                        button.classList.toggle('active', isTextItalic());
+                    } else if (button.id === 'underline') {
+                        button.classList.toggle('active', isTextUnderlined());
+                    }
+                });
+            };
+
+            const observeTextChanges = () => {
+                const observer = new MutationObserver(updateButtonStates);
+                const config = { childList: true, characterData: true, subtree: true };
+
+                const targetNode = document.getElementById('note-textarea');
+                if (targetNode) {
+                    observer.observe(targetNode, config);
+                }
+            };
+
+            observeTextChanges();
+        };
+
+        // Main logic.
+        const modifyText = (command, defaultUi, value) => {
+            //execCommand executes command on selected text
+            document.execCommand(command, defaultUi, value);
+        };
+
+        // For basic operations which don't need value parameter.
+        optionsButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                modifyText(button.id, false, null);
+            });
+        });
+
+        // Options that require value parameter (e.g colors, fonts).
+        advancedOptionButton.forEach((button) => {
+            button.addEventListener("change", () => {
+                modifyText(button.id, false, button.value);
+            });
+        });
+
+        // Highlight clicked button.
+        const highlighter = (className, needsRemoval) => {
+            className.forEach((button) => {
+                button.addEventListener("click", () => {
+                    // NeedsRemoval = true means only one button should be highlight and other would be normal.
+                    if (needsRemoval) {
+                        let alreadyActive = false;
+                        // If currently clicked button is already active.
+                        if (button.classList.contains("active")) {
+                            alreadyActive = true;
+                        }
+                        // Remove highlight from other buttons.
+                        highlighterRemover(className);
+                        if (!alreadyActive) {
+                            // Highlight clicked button.
+                            button.classList.add("active");
+                        }
+                    } else {
+                        // If other buttons can be highlighted.
+                        button.classList.toggle("active");
+                    }
+                });
+            });
+        };
+
+        const highlighterRemover = (className) => {
+            className.forEach((button) => {
+                button.classList.remove("active");
+            });
+        };
+
+        initializer();
+    }
 }
 
 const viewUtils = new ViewUtils();
