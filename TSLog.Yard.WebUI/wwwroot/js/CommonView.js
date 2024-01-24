@@ -57,7 +57,22 @@ class ViewUtils {
         }
         for (let content of contents) {
             cell.append(content);
+        }        
+        cell.style.cssText = cssText;
+        row.append(cell);
+        return cell;
+    }
+
+    // Создаёт HTML-содержимое ячейки таблицы
+    createCellHtmlContent(tagName, row, styles, contents, cssText = "") {
+        const cell = document.createElement(tagName);
+        for (let style of styles) {
+            cell.classList.add(style);
         }
+        for (let content of contents) {
+            cell.append(content);
+        }
+        cell.innerHTML = contents; // Set the HTML content.
         cell.style.cssText = cssText;
         row.append(cell);
         return cell;
@@ -71,6 +86,11 @@ class ViewUtils {
     // Создаёт ячейку таблицы
     createCell(row, styles, contents, cssText = "") {
         return this.createCellContent("td", row, styles, contents, cssText);
+    }
+
+    // Создаёт ячейку таблицы c HTML-разметкой внутри
+    createHtmlCell(row, styles, contents, cssText = "") {
+        return this.createCellHtmlContent("td", row, styles, contents, cssText);
     }
 
     // Создаёт ячейку таблицы c ЖИРНЫМ шрифтом
@@ -434,7 +454,7 @@ class ViewUtils {
 
         // Main logic.
         const modifyText = (command, defaultUi, value) => {
-            //execCommand executes command on selected text
+            // ExecCommand executes command on selected text.
             document.execCommand(command, defaultUi, value);
         };
 

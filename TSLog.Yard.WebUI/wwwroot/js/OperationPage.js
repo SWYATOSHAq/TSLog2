@@ -564,7 +564,7 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value,
+            note: document.getElementById("note-textarea").innerHTML,
             partnerId: document.getElementById("partners-select").value,
             warehouseActions: actions
         };
@@ -606,7 +606,7 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value,
+            note: document.getElementById("note-textarea").innerHTML,
             partnerId: document.getElementById("partners-select").value,
             warehouseActions: actions
         };
@@ -647,7 +647,7 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value,
+            note: document.getElementById("note-textarea").innerHTML,
             warehouseActions: actions
         };
 
@@ -694,7 +694,7 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value,
+            note: document.getElementById("note-textarea").innerHTML,
             partnerId: document.getElementById("partners-select").value,
             warehouseActions: actions
         };
@@ -738,7 +738,7 @@ class OperationPage {
             partnerManagerName: document.getElementById("partner-manager-name-input").value,
             partnerManagerPhoneNumber: document.getElementById("partner-manager-phone-number-input").value,
             partnerManagerEmail: document.getElementById("partner-manager-email-input").value,
-            note: document.getElementById("note-textarea").value,
+            note: document.getElementById("note-textarea").innerHTML,
             warehouseActions: actions
         };
 
@@ -763,7 +763,7 @@ class OperationPage {
     }
 
     async editOperationNote() {
-        const note = document.getElementById("note-textarea").value;
+        const note = document.getElementById("note-textarea").innerHTML;
         const result = await api.editOperationNote(this.id, note);
         if (result.code === 0) {
             location.reload();
@@ -1550,7 +1550,7 @@ class OperationPage {
         document.getElementById("partner-manager-phone-number-input").value = operation != null ? operation.partnerManagerPhoneNumber : "";
         viewUtils.normalizePhoneNumber();
         document.getElementById("partner-manager-email-input").value = operation != null ? operation.partnerManagerEmail : "";
-        document.getElementById("note-textarea").value = operation != null ? operation.note : "";
+        document.getElementById("note-textarea").innerHTML = operation != null ? operation.note : "";
 
         const disableAdditionalAttributes = operationTypesSelect.disabled || !isPreparing;
         document.getElementById("vehicle-brand-input").disabled = disableAdditionalAttributes;
@@ -1565,9 +1565,11 @@ class OperationPage {
 
         const saveButton = document.getElementById("save-button");
         if (saveButton != undefined && saveButton != null) {
-            document.getElementById("note-textarea").disabled = this.stateCode === "FINISHED" || this.stateCode === "CANCELED";
+            if (this.stateCode === "FINISHED" || this.stateCode === "CANCELED") {
+                document.getElementById("note-textarea").setAttribute("contenteditable", "false");
+            }           
         } else {
-            document.getElementById("note-textarea").disabled = true;
+            document.getElementById("note-textarea").setAttribute("contenteditable", "false");
         }        
 
         // Workers

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Globalization;
@@ -875,7 +876,12 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
-            }                
+            }
+            else 
+            { 
+                Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
+            }
+
             var operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
             if (operation != Operation.Null)
             {
@@ -890,30 +896,6 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             }
         }
 
-        //[HttpPut("CreateOperation")]
-        //async public Task<string> CreateOperation()
-        //{
-        //    dynamic? data = await GetInputData(Request);
-        //    if (data == null)
-        //    {
-        //        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        //        return "Input data is null!";
-        //    }
-        //    string operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
-        //    statusCode = (int)HttpStatusCode.Created;
-        //    if (statusCode == (int)HttpStatusCode.Created)
-        //    {
-        //        response = operation;
-        //        Response.StatusCode = statusCode;
-        //        return response;
-        //    }
-        //    else
-        //    {
-        //        Response.StatusCode = statusCode;
-        //        return response;
-        //    }
-        //}
-
         [HttpPut("CreateConfirmOperation")]
         async public Task<string> CreateConfirmOperation()
         {
@@ -922,6 +904,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
+            else
+            {
+                Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
             }
 
             string operation = _processor.CreateConfirmOperation(data, User, out int statusCode, out string response);
@@ -946,6 +932,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
             }
+            else
+            {
+                Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
+            }
 
             string operation = _processor.CreateOperationByPartner(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.Created)
@@ -969,6 +959,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
             }
+            else
+            {
+                Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
+            }
 
             string operation = _processor.EditOperation(data, User, out int statusCode, out string response);
             if (statusCode == (int)HttpStatusCode.OK)
@@ -991,6 +985,10 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             {
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
+            else
+            {
+                Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
             }
 
             string operation = _processor.EditOperationByPartner(data, User, out int statusCode, out string response);
@@ -1020,7 +1018,14 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
             dynamic? data = await GetInputData(Request);
             if (data == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return "Input data is null!";
+            }
+            else
+            {
+                Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
+            }
 
             string temp = data.id;
             if (string.IsNullOrWhiteSpace(temp))

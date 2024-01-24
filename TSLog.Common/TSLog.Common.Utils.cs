@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Ganss.Xss;
+using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -7,6 +9,7 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TSLog.Common
 {
@@ -15,6 +18,40 @@ namespace TSLog.Common
     /// </summary>
     public static class Utils
     {
+        private static readonly HtmlSanitizer _sanitizer = new();
+
+        /// <summary>
+        /// Очистка html-кода для предотвращения XSS атак.
+        /// </summary>
+        /// <param name="htmlContent">Контент, передаваемый из фронта</param>
+        /// <returns>Возвращает очищенный контент</returns>
+        public static dynamic SanitizeHtml(dynamic htmlContent)
+        {
+            var propertiesToSanitize = new List<string> {
+                "vehicleBrand", "vehicleModel", "vehicleNumber", "trailerNumber",
+                "driverName", "partnerManagerName", "partnerManagerEmail", "note", "id"
+            };
+
+            foreach (var propertyName in propertiesToSanitize)
+            {
+                if (HasProperty(htmlContent, propertyName))
+                {
+                    var propertyValue = htmlContent[propertyName]?.ToString();
+                    htmlContent[propertyName] = _sanitizer.Sanitize(propertyValue);
+                }
+            }
+            return htmlContent;
+        }
+
+        private static bool HasProperty(dynamic obj, string propertyName)
+        {
+            if (obj is ExpandoObject)
+                return ((IDictionary<string, object>)obj).ContainsKey(propertyName);
+
+            return obj.GetType().GetProperty(propertyName) != null;
+        }
+
+
         public static string PrepXML(string a)
         {
             return a.Replace("><", "}{").Replace(">", ">\n\t").Replace("<", "\n<").Replace("}{", ">\n<");
@@ -204,7 +241,7 @@ namespace TSLog.Common
         }
 
         public static DateTime DbValueToDateTime(object value, DateTime? defaultValue = null)
-        { 
+        {
             return value != DBNull.Value ? Convert.ToDateTime(value) : (defaultValue ?? DateTime.MinValue);
         }
         public static short DbValueToShort(object value, short? defaultValue = null)
@@ -243,7 +280,7 @@ namespace TSLog.Common
 
             var names = fullName.Split(' ');
             var shortName = names[0];
-            for (int i = 1; i < names.Length; i++) 
+            for (int i = 1; i < names.Length; i++)
                 shortName = shortName + " " + names[i][0] + ".";
             return shortName;
         }
@@ -259,8 +296,8 @@ namespace TSLog.Common
                 return Array.Empty<DateTime>();
             var dates = new List<DateTime>();
             var tempDate = fromDate.Date;
-            while (tempDate < toDate) 
-            { 
+            while (tempDate < toDate)
+            {
                 dates.Add(tempDate);
                 tempDate.AddDays(1);
             }
@@ -276,7 +313,7 @@ namespace TSLog.Common
                 message = $"Wrong start date {dateString}!";
                 return false;
             }
-            return true;    
+            return true;
         }
     }
 }
