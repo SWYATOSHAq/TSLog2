@@ -387,11 +387,20 @@ namespace TSLog.Yard.Data
                 //    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                 //    $" where a.id = :id\n" +
                 //    $"   and a.kind = :kind";
+
+                // Использовать для совместного использования старой и новой БД Oracle.
+                //var selectWarehouseActionByIdSql =
+                //    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
+                //    $"  from {CommonSchema}.ACT_WAREHOUSE_ACTION_FROM_OLD_AND_NEW_DB#V a\n" +
+                //    $" where a.id = :id\n" +
+                //    $"   and a.kind = :kind";
+
                 var selectWarehouseActionByIdSql =
                     $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
-                    $"  from {CommonSchema}.ACT_WAREHOUSE_ACTION_FROM_OLD_AND_NEW_DB#V a\n" +
+                    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
                     $" where a.id = :id\n" +
                     $"   and a.kind = :kind";
+
                 command.CommandText = selectWarehouseActionByIdSql;
                 command.Parameters.Add(new OracleParameter("id", id));
                 command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
@@ -409,11 +418,19 @@ namespace TSLog.Yard.Data
                     //    $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
                     //    $" where a.id = :id\n" +
                     //    $"   and a.kind = :kind";
+
+                    // Использовать для совместного использования старой и новой БД Oracle.
+                    //var selectArchivedWarehouseDeletedActionByIdSql =
+                    //    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
+                    //    $"  from {CommonSchema}.ACT_WAREHOUSE_ACTION_AD_FROM_OLD_AND_NEW_DB#V a\n" +
+                    //    $" where a.id = :id\n" +
+                    //    $"   and a.kind = :kind";
                     var selectArchivedWarehouseDeletedActionByIdSql =
                         $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
-                        $"  from {CommonSchema}.ACT_WAREHOUSE_ACTION_AD_FROM_OLD_AND_NEW_DB#V a\n" +
+                        $"  from {CommonSchema}.act_warehouse_action_ad#v a\n" +
                         $" where a.id = :id\n" +
                         $"   and a.kind = :kind";
+
                     command.CommandText = selectArchivedWarehouseDeletedActionByIdSql;
                     command.Parameters.Add(new OracleParameter("id", id));
                     command.Parameters.Add(new OracleParameter("kind", actionKind == ActionKind.Outgo ? "O" : "I"));
