@@ -195,6 +195,10 @@ input[type="color"] {
     border: none
 }
 
+input[type="color"]:hover {
+    cursor: pointer;
+}
+
 .input-wrapper {
     display: flex;
     align-items: center;
@@ -203,6 +207,10 @@ input[type="color"] {
 
 .option-button {
     margin: auto 0;
+}
+
+#fontName, #fontSize:hover {
+    cursor: pointer;
 }
 
 .option-button:hover {

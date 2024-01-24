@@ -75,7 +75,7 @@ class PresentVehiclesPage {
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames], `${reservedGateColor}`);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.typeDisplayName], `${reservedGateColor}`);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.note], `${reservedGateColor}`);
+        viewUtils.createHtmlCell(operationTr, ["table-cell"], [operation.note], `${reservedGateColor}`);
 
         let date = new Date(operation.createDate);
         const createDateB = document.createElement("b");
