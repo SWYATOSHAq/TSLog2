@@ -84,6 +84,8 @@
     sortFields.Add("planWorkStartDate", "Начало работ (план)");
     sortFields.Add("factWorkStartDate", "Начало работ (факт)");
     sortFields.Add("finishDate", "Время убытия");
+    sortFields.Add("onSiteDuration", "Время пребывания на АПСК");
+    sortFields.Add("workDuration", "Время ПРР");
     sortFields.Add("stateId", "Состояние");
     var sortModel = new OperationsSortBlockModel(sortFields, "driverName");
     var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";

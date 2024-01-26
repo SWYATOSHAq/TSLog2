@@ -64,6 +64,14 @@ class Utils {
         return hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
     }
 
+    millisecondsToString(milliseconds) {
+        const seconds = Math.trunc(milliseconds / 1000);
+        const hours = Math.trunc(seconds / 3600);
+        const minutes = Math.trunc((seconds - hours * 3600) / 60);
+        return hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+    }
+
+
     // Преобразует строку в дату
     stringToDate(stringDate) {
         var pattern = /(\d{2})\.(\d{2})\.(\d{4})/;

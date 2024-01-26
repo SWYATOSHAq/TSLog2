@@ -45,7 +45,7 @@ class OperationsPage {
         openButton.classList.add("btn");
         openButton.classList.add("btn-outline-info");
         openButton.classList.add("table-cell-button");
-        openButton.style.cssText = "width: 100px !important";
+        openButton.style.cssText = "width: 80px !important";
         openButton.onclick = this.createOpenOperationFunction(operation.id, isPartnerUser);
         openButton.textContent = "Открыть";
         openButton.title = "Открыть карточку операции двора";
@@ -79,10 +79,11 @@ class OperationsPage {
         viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
 
         text = operation.finishDate > utils.nullDate ?
-            operation.finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.finishDate.toLocaleDateString() :
-            "";
-        viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
+            operation.finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.finishDate.toLocaleDateString() : "";
 
+        viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [(operation.finishDate - operation.startDate) > 0 ? utils.millisecondsToString(operation.finishDate - operation.startDate) : ""], "box-shadow: none; background-color: " + operation.displayColor);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.factDuration > 0 ? utils.secondsToString(operation.factDuration) : ""], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.trailerNumber], "box-shadow: none; background-color: " + operation.displayColor);
         viewUtils.createCell(operationTr, ["table-cell"], [operation.gateShortName], "box-shadow: none; background-color: " + operation.displayColor);
@@ -112,6 +113,14 @@ class OperationsPage {
                 return (new Date(operation1.factWorkStartDate)) - (new Date(operation2.factWorkStartDate));
             case "finishDate":
                 return (new Date(operation1.finishDate)) - (new Date(operation2.finishDate));
+            case "onSiteDuration":
+                let onSiteDuration1 = (new Date(operation1.finishDate) - new Date(operation1.startDate)) > 0 ? utils.millisecondsToString(new Date(operation1.finishDate) - new Date(operation1.startDate)) : "";
+                let onSiteDuration2 = (new Date(operation2.finishDate) - new Date(operation2.startDate)) > 0 ? utils.millisecondsToString(new Date(operation2.finishDate) - new Date(operation2.startDate)) : "";
+                return onSiteDuration1.localeCompare(onSiteDuration2);
+            case "workDuration":
+                let workDuration1 = operation1.factDuration > 0 ? utils.secondsToString(operation1.factDuration) : "";
+                let workDuration2 = operation2.factDuration > 0 ? utils.secondsToString(operation2.factDuration) : "";
+                return workDuration1.localeCompare(workDuration2);
             case "stateId":
                 return operation1.stateDisplayName.localeCompare(operation2.stateDisplayName);
         }
