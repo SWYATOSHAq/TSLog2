@@ -370,7 +370,7 @@ class OperationPrintPage {
         document.getElementById("partner-manager-name-input").value = operation.partnerManagerName;
         document.getElementById("partner-manager-phone-number-input").value = operation.partnerManagerPhoneNumber;
         document.getElementById("partner-manager-email-input").value = operation.partnerManagerEmail;
-        document.getElementById("note-textarea").value = operation.note;
+        document.getElementById("note-textarea").innerHTML = operation.note;
 
         // Workers
         const workersFilterDiv = document.getElementById("workers-filter-div");
