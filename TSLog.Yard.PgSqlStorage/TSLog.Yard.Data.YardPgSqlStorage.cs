@@ -983,19 +983,24 @@ namespace TSLog.Yard.Data
                 Editor = editor
             };
 
+
             var logistId = Utils.DbValueToInt(reader["logist_id"]);
             operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
 
             var gateId = Utils.DbValueToShort(reader["gate_id"]);
             operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
+            var deleteDate = Utils.DbValueToDateTime(reader["deleted"]);
+            operation.DeleteDate = deleteDate;
+            var deleter = Utils.DbValueToString(reader["deleter"]);
+            operation.Deleter = deleter;
             bool parking;
             if (Convert.IsDBNull(reader["on_parking"]))
             {
-                parking = false; 
+                parking = false;
             }
             else
             {
-                parking = Convert.ToBoolean(reader["on_parking"]); 
+                parking = Convert.ToBoolean(reader["on_parking"]);
             }
             operation.Parking = parking;
 
@@ -1407,7 +1412,7 @@ namespace TSLog.Yard.Data
                 command.ExecuteNonQuery();
             }
             connection.Close();
-        }        
+        }
 
         /// <summary>
         /// Создаёт и сохраняет новую операцию двора (ПРР).
@@ -1504,7 +1509,9 @@ namespace TSLog.Yard.Data
                         $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email,\n" +
                         $"       o.manager_id,\n" +
                         $"       o.responsible_officer_id, o.note,\n" +
-                        $"       o.created, o.creator, o.edited, o.editor\n" +
+                        $"       o.created, o.creator, o.edited, o.editor,\n" +
+                        $"       NULL::timestamp as deleted,\n" +
+                        $"       ''::varchar as deleter\n" +
                         $"  from {YardSchema}.v_operation o\n" +
                         $" where o.id = :id";
                     command.CommandText = sql;
@@ -1637,7 +1644,9 @@ namespace TSLog.Yard.Data
                         $"       po.manager_id,\n" +
                         $"       po.responsible_officer_id,\n" +
                         $"       po.note,\n" +
-                        $"       po.created, po.creator, po.edited, po.editor, po.on_parking\n" +
+                        $"       po.created, po.creator, po.edited, po.editor, po.on_parking,\n" +
+                        $"       NULL::timestamp as deleted,\n" +
+                        $"       ''::varchar as deleter\n" +
                         $"  from {YardSchema}.v_partner_operation po\n" +
                         $" where not (po.plan_work_start_date > :to_date\n" +
                         $"    or po.plan_work_finish_date < :from_date)\n" +
@@ -1698,7 +1707,9 @@ namespace TSLog.Yard.Data
                         $"       o.manager_id,\n" +
                         $"       o.responsible_officer_id,\n" +
                         $"       o.note,\n" +
-                        $"       o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
+                        $"       o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
+                        $"       NULL::timestamp as deleted,\n" +
+                        $"       ''::varchar as deleter\n" +
                         $"  from {YardSchema}.v_operation o\n" +
                         $" where not (o.plan_work_start_date > :to_date\n" +
                         $"    or o.plan_work_finish_date < :from_date)";
@@ -1781,7 +1792,9 @@ namespace TSLog.Yard.Data
                        $"       po.manager_id,\n" +
                        $"       po.responsible_officer_id,\n" +
                        $"       po.note,\n" +
-                       $"       po.created, po.creator, po.edited, po.editor\n" +
+                       $"       po.created, po.creator, po.edited, po.editor,\n" +
+                       $"       NULL::timestamp as deleted,\n" + 
+                       $"       ''::varchar as deleter\n" + 
                        $"  from {YardSchema}.v_partner_operation po\n" +
                        $"    /*\n" +
                        $"    Важное пояснение по фильтру по датам.\n" +
@@ -1946,7 +1959,9 @@ namespace TSLog.Yard.Data
                        $"         ao.manager_id,\n" +
                        $"         ao.responsible_officer_id,\n" +
                        $"         ao.note,\n" +
-                       $"         ao.created, ao.creator, ao.edited, ao.editor, ao.on_parking\n" +
+                       $"         ao.created, ao.creator, ao.edited, ao.editor, ao.on_parking,\n" +
+                       $"         NULL::timestamp as deleted,\n" +
+                       $"         ''::varchar as deleter\n" +
                        $"    from {YardSchema}.v_active_operation ao\n" +
                        $"order by ao.plan_work_start_date, ao.plan_work_finish_date, ao.fact_work_start_date, ao.fact_work_finish_date";
                     command.CommandText = SelectActiveOperationsSql;
@@ -1996,7 +2011,9 @@ namespace TSLog.Yard.Data
                        $"         o.manager_id,\n" +
                        $"         o.responsible_officer_id,\n" +
                        $"         o.note,\n" +
-                       $"         o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
+                       $"         o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
+                       $"         NULL::timestamp as deleted,\n" +
+                       $"         ''::varchar as deleter\n" +
                        $"    from {YardSchema}.v_operation_for_guard o\n" +
                        $"order by o.vehicle_number";
                     command.CommandText = SelectOperationsForGuardSql;
@@ -2804,7 +2821,9 @@ namespace TSLog.Yard.Data
                            $"       o.manager_id,\n" +
                            $"       o.responsible_officer_id,\n" +
                            $"       o.note,\n" +
-                           $"       o.created, o.creator, o.edited, o.editor, o.on_parking\n" +
+                           $"       o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
+                           $"       NULL::timestamp as deleted,\n" +
+                           $"       ''::varchar as deleter\n" +
                            $"  from {YardSchema}.v_operation o\n" +
                            $"    /*\n" +
                            $"    Важное пояснение по фильтру по датам.\n" +
@@ -3303,7 +3322,8 @@ namespace TSLog.Yard.Data
                         {
                             operation.planWorkStartDate = operation.factWorkStartDate;
                             operation.planWorkFinishDate = operation.factWorkFinishDate;
-                        } else if ((operation.factWorkStartDate != DateTime.MinValue) && (operation.factWorkFinishDate == DateTime.MinValue))
+                        }
+                        else if ((operation.factWorkStartDate != DateTime.MinValue) && (operation.factWorkFinishDate == DateTime.MinValue))
                         {
                             operation.planWorkStartDate = operation.factWorkStartDate;
                             operation.planWorkFinishDate = operation.planWorkStartDate + planDurationRef;
@@ -3325,8 +3345,9 @@ namespace TSLog.Yard.Data
                         if (operation.planWorkFinishDate.Date > fromDate.Date) // Условие для обрезания заявок с переходом через день.
                         {
                             operation.planWorkFinishDate = operation.planWorkStartDate.Date.AddHours(23).AddMinutes(59);
-                            operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;                     
-                        } else if (operation.planWorkFinishDate.Date == fromDate.Date && operation.planWorkStartDate.Date < fromDate.Date) //условие для обрезания заявок с переходом через день
+                            operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
+                        }
+                        else if (operation.planWorkFinishDate.Date == fromDate.Date && operation.planWorkStartDate.Date < fromDate.Date) //условие для обрезания заявок с переходом через день
                         {
                             operation.planWorkStartDate = operation.planWorkFinishDate.Date;
                             operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
@@ -3349,7 +3370,7 @@ namespace TSLog.Yard.Data
             "work", "ot_vk_gate", "ot_vk_work"
         };
         private static readonly string[] DataTables = {
-            "operation_log", "operation_action", "operation_worker", "scheduler" 
+            "operation_log", "operation_action", "operation_worker", "scheduler"
         };
         private void TruncateTables(string[] tables)
         {
