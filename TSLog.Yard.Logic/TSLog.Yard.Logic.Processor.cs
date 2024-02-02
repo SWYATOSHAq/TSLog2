@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AngleSharp.Io;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Serilog.Core;
 using System.Dynamic;
+using System.Globalization;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
@@ -1158,6 +1161,163 @@ public class Processor
             totalTime = standardTotalDuration;
 
         return (int)totalTime;
+    }
+
+    public string GetDispatcherReport(HttpRequest requestData, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
+    {
+        var useYard = _rightsChecker.CheckRight("USE_YARD", user);
+        var getData = _rightsChecker.CheckRight("GET_DISPATCHER_REPORT", user);
+        statusCode = (int)HttpStatusCode.InternalServerError;
+        if (_useAuthentication && (!useYard || !getData))
+        {
+            statusCode = (int)HttpStatusCode.Forbidden;
+            statusMessage = "Forbidden";
+            return statusMessage;
+        }
+
+        string? temp = requestData.Query["from_date"].FirstOrDefault();
+        var fromDate = DateTime.Today;
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            temp = temp.Trim();
+            if (!DateTime.TryParse(temp, out fromDate))
+            {
+                statusMessage = $"Wrong from date {temp}";
+                return statusMessage;
+            }               
+        }
+        temp = requestData.Query["to_date"].FirstOrDefault();
+        var toDate = DateTime.Today.AddDays(1);
+        if (!string.IsNullOrWhiteSpace(temp))
+        {
+            temp = temp.Trim();
+            if (!DateTime.TryParse(temp, out toDate))
+            {
+                statusMessage = $"Wrong from date {temp}";
+                return statusMessage;
+            }                
+            toDate = toDate.AddDays(1);
+        }
+        if (fromDate >= toDate)
+            throw new ArgumentException("Wrong dates!");
+        if ((toDate - fromDate).TotalDays > MaxReportPeriodDays)
+            toDate = fromDate.AddDays(MaxReportPeriodDays);
+
+        var data = new Dictionary<string, dynamic>();
+
+        void addElement(string key, DateTime date)
+        {
+            if (data.ContainsKey(key))
+                return;
+            dynamic element = new ExpandoObject();
+            element.date = date;
+            element.stringDate = date.ToString("dd.MM.yyyy");
+            element.day = date.ToString("dd.MM");
+
+            var dayOfWeek2 = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(date.DayOfWeek);
+            element.dayOfWeek = dayOfWeek2;
+            element.isHoliday = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+
+            element.key = key;
+            element.nextDayOperations = 0;
+            element.dayToDayOperations = 0;
+            element.dayOperations = 0;
+            element.dayToDayOperationsPercent = 0.0;
+            element.deletedOperations = 0;
+            element.idleOperations = 0;
+            element.overPlanIncomes = 0;
+            element.overPlanOutgoes = 0;
+            element.palletIncomes = 0;
+            element.boxIncomes = 0;
+            element.palletOutgoues = 0;
+            element.boxOutgoes = 0;
+            element.gates1_6Operations = 0;
+            element.gate7Operations = 0;
+            element.gates8_16Operations = 0;
+            data.Add(key, element);
+        }
+
+        var operations = _storage.GetDispatcherReportData(fromDate, toDate);
+
+        foreach (var operation in operations)
+        {
+            // Смотрим удалённые операции (те, которые планировались на указанную дату, но были удалены).
+            var key = operation.PlanWorkFinishDate.ToString("yyyy.MM.dd");
+            addElement(key, operation.PlanWorkFinishDate.Date);
+            if (operation.IsDeleted)
+                data[key].deletedOperations++;
+            else if (operation.State.Code != "CREATED" && operation.State.Code != "CANCELED")
+            {
+                // Все заявки, запланированные на указанный день.
+                data[key].dayOperations++;
+
+                // Опоздавшие машины (на сутки) или не приехавшие.
+                if (operation.PlanWorkFinishDate.Date < operation.FactWorkFinishDate.Date
+                    || operation.FactWorkFinishDate <= DateTime.MinValue)
+                    data[key].idleOperations++;
+
+                // Количество операций двора по группам ворот.
+                if (operation.Gate.Code is "EIN01" or "EIN02" or "EIN03" or "EIN04" or "EIN05" or "EIN06")
+                    data[key].gates1_6Operations += operation.FactDuration;
+                else if (operation.Gate.Code == "EIN07")
+                    data[key].gate7Operations += operation.FactDuration;
+                else if (operation.Gate.Code is "EIN08" or "EIN09" or "EIN10" or "EIN11" or "EIN12" or "EIN13" or "EIN14" or "EIN15" or "EIN16")
+                    data[key].gates8_16Operations += operation.FactDuration;
+
+                // Операции, с превышением плана.
+                if (operation.FactDuration > 0 && operation.PlanDuration < operation.FactDuration ||
+                    operation.FactLaborCost > 0 && operation.PlanLaborCost < operation.FactLaborCost)
+                {
+                    if (operation.Type.Direction == TypeDirection.In)
+                        data[key].overPlanIncomes++;
+                    else if (operation.Type.Direction == TypeDirection.Out)
+                        data[key].overPlanOutgoes++;
+                }
+
+                // Смотрим оформленные операции.
+                key = operation.CreateDate.ToString("yyyy.MM.dd");
+                addElement(key, operation.CreateDate.Date);
+                if (operation.PlanWorkFinishDate.Date == operation.CreateDate.Date) // Заявка оформлена день в день.
+                    data[key].dayToDayOperations++;
+                else if (operation.CreateDate < operation.PlanWorkFinishDate.Date) // Заявка оформлена в указанную смену на последующие дни.
+                    data[key].nextDayOperations++;
+
+                // Смотрим завершённе операции (те, которые фактически завершились в указанную дату и не были удалены).
+                if (operation.FactWorkFinishDate > DateTime.MinValue)
+                {
+                    key = operation.FactWorkFinishDate.ToString("yyyy.MM.dd");
+                    addElement(key, operation.FactWorkFinishDate.Date);
+                    if (operation.Type.Direction == TypeDirection.In)
+                    {
+                        if (operation.Type.IsPallet)
+                            data[key].palletIncomes++;
+                        else
+                            data[key].boxIncomes++;
+                    }
+                    else if (operation.Type.Direction == TypeDirection.Out)
+                    {
+                        if (operation.Type.IsPallet)
+                            data[key].palletOutgoues++;
+                        else
+                            data[key].boxOutgoes++;
+                    }
+                }
+            }
+        }
+
+        var elements = data.Values.OrderBy(e => e.key).ToArray();
+        var result = new List<dynamic>();
+        foreach (var element in elements)
+        {
+            if (element.date < fromDate.Date || element.date >= toDate.AddTicks(-1).Date.AddDays(1))
+                continue;
+            element.dayToDayOperationsPercent = 100.0 * element.dayToDayOperations / element.dayOperations;
+            result.Add(element);
+        }
+        var text = JsonSerializer.Serialize(result);
+        statusCode = (int)HttpStatusCode.OK;
+        statusMessage = "";
+        return text;
     }
 
     public string OperationToJson(Operation operation)
