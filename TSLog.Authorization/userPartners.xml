@@ -30,4 +30,7 @@
 	<user name="Оператор Детского мира" login="dmoper">
 		<partner code="0130" name="0130. ДМ"/>
 	</user>
+    <user name="Оператор Home Expert" login="homeoper">
+		<partner code="0036" name="0036. Home Expert"/>
+	</user>
 </userPartners>
