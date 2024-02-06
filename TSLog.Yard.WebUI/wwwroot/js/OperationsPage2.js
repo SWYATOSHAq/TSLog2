@@ -13,10 +13,27 @@ class OperationsPage {
     onGatesCarsHeader = document.getElementById("onGatesCarsHeader");
     onParkingCarsCounter = 0;
     onGatesCarsCounter = 0;
-    refreshTime = 180;
+    refreshTime = 180000; // In milliseconds.
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
+        window.onbeforeunload = this.saveScrollPosition.bind(this);
+        this.setAutoRefresh(this.refreshTime); 
+    }
+
+    setAutoRefresh(interval) {
+        setTimeout(() => {
+            location.reload();
+        }, interval);
+    }
+
+    saveScrollPosition() {
+        sessionStorage.setItem('scrollpos', window.scrollY);
+    }
+
+    restoreScrollPosition() {
+        var scrollpos = sessionStorage.getItem('scrollpos');
+        if (scrollpos) window.scrollTo(0, scrollpos);
     }
 
     createOpenOperationFunction(id, isPartnerUser) {
@@ -153,12 +170,6 @@ class OperationsPage {
         return result != "" ? "?" + result : "";
     }
 
-    changeRefreshMeta() {
-        const refreshMeta = document.getElementById("refresh-meta")
-        const url = this.shortUrl + this.createParameters();
-        refreshMeta.content = this.refreshTime.toString() + "; URL='" + url + "'"
-    }
-
     async getOperations() {
         const parameters = this.createParameters();
 
@@ -228,7 +239,6 @@ class OperationsPage {
         await this.getOperations();
         this.sortOperations(this.sortCompare.bind(this));
         await this.showOperations();
-        this.changeRefreshMeta();
     }
 
     async onChangeSortField() {
@@ -238,7 +248,6 @@ class OperationsPage {
         await this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
     }
 
     async onChangeSortDirection() {
@@ -252,7 +261,6 @@ class OperationsPage {
         await this.showOperations();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
     }
 
     getOperationTypeHint() {
@@ -314,7 +322,7 @@ class OperationsPage {
         this.getOperationTypeHint();
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
+        this.restoreScrollPosition();
     }
 }
 

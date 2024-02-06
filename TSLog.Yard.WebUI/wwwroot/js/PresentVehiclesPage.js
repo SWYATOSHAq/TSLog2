@@ -9,10 +9,27 @@ class PresentVehiclesPage {
     sortedOperations = [];
     sortField = "driverName";
     sortDirection = "forward";
-    refreshTime = 180;
+    refreshTime = 180000; // In milliseconds.
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
+        window.onbeforeunload = this.saveScrollPosition.bind(this);
+        this.setAutoRefresh(this.refreshTime); 
+    }
+
+    setAutoRefresh(interval) {
+        setTimeout(() => {
+            location.reload();
+        }, interval);
+    }
+
+    saveScrollPosition() {
+        sessionStorage.setItem('scrollpos', window.scrollY);
+    }
+
+    restoreScrollPosition() {
+        var scrollpos = sessionStorage.getItem('scrollpos');
+        if (scrollpos) window.scrollTo(0, scrollpos);
     }
 
     createParameters() {
@@ -31,12 +48,6 @@ class PresentVehiclesPage {
         result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
 
         return result != "" ? "?" + result : "";
-    }
-
-    changeRefreshMeta() {
-        const refreshMeta = document.getElementById("refresh-meta")
-        const url = this.shortUrl + this.createParameters();
-        refreshMeta.content = this.refreshTime.toString() + "; URL='" + url + "'"
     }
 
     async getOperations() {
@@ -250,7 +261,6 @@ class PresentVehiclesPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
     }
 
     // обработчик события при смене поля сортировки
@@ -262,7 +272,6 @@ class PresentVehiclesPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
     }
 
     // обработчик события при смене "направления" сортировки
@@ -278,7 +287,6 @@ class PresentVehiclesPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
     }
 
     getOperationTypeHint() {
@@ -330,7 +338,7 @@ class PresentVehiclesPage {
 
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        this.changeRefreshMeta();
+        this.restoreScrollPosition();
     }
 }
 
