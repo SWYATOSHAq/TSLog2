@@ -2246,7 +2246,8 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 if (tempOperation.Type.Direction == TypeDirection.Out)
                 {
                     var outgoesIds = new List<string>();
-                    foreach (var outgo in tempOperation.GetActions())
+                    var outgoes = tempOperation.GetActions();
+                    foreach (var outgo in outgoes)
                         outgoesIds.Add(outgo.Id);
                     var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
 
@@ -2255,6 +2256,13 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
                         siteCode,
                         outgoesIds.ToArray());
+
+                    if (ids[0] == "0031")
+                    {
+                        var operationType = _storage.GetOperationType(operation.typeCode);
+                        var vehicleKind = _storage.GetVehicleKind(operation.vehicleKindCode);
+                        operation.planLaborCost = _processor._GetFillingPlanOperationDuration2(operationType, vehicleKind, outgoes);
+                    }                    
                 }
                 else // Приходы - берём стадартный план
                     operation.planLaborCost = operation.planLaborCost;
