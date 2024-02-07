@@ -2243,10 +2243,11 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
 
                 // Определяем заказы, которые относятся к данной операции двора
                 var tempOperation = _storage.GetOperation(operation.id);
+                var outgoes = tempOperation.GetActions();
+
                 if (tempOperation.Type.Direction == TypeDirection.Out)
                 {
-                    var outgoesIds = new List<string>();
-                    var outgoes = tempOperation.GetActions();
+                    var outgoesIds = new List<string>();                    
                     foreach (var outgo in outgoes)
                         outgoesIds.Add(outgo.Id);
                     var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
@@ -2255,17 +2256,17 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                         tempOperation.VehicleKind, partner,
                         tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
                         siteCode,
-                        outgoesIds.ToArray());
-
-                    if (ids[0] == "0031")
-                    {
-                        var operationType = _storage.GetOperationType(operation.typeCode);
-                        var vehicleKind = _storage.GetVehicleKind(operation.vehicleKindCode);
-                        operation.planLaborCost = _processor._GetFillingPlanOperationDuration2(operationType, vehicleKind, outgoes);
-                    }                    
+                        outgoesIds.ToArray());                               
                 }
                 else // Приходы - берём стадартный план
                     operation.planLaborCost = operation.planLaborCost;
+                
+                if (ids[0] == "0031")
+                {
+                    var operationType = _storage.GetOperationType(operation.typeCode);
+                    var vehicleKind = _storage.GetVehicleKind(operation.vehicleKindCode);
+                    operation.planLaborCost = _processor._GetFillingPlanOperationDuration2(operationType, vehicleKind, outgoes);
+                }
             }
 
             var text = JsonSerializer.Serialize(operations);
