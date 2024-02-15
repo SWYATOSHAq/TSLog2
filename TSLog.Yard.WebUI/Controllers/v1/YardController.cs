@@ -2209,8 +2209,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                 return $"Unknown shift {shift}";
 
             var fromDate = shift == "day" ? date.Date.AddHours(9) : date.Date.AddHours(21);
-            var toDate = fromDate.AddHours(23).AddMinutes(59);
-
+            var toDate = fromDate.AddHours(11).AddMinutes(59);
             var operations = _storage.GetYardPerfomanceData(fromDate, toDate);
             foreach (dynamic operation in operations)
             {
