@@ -36,7 +36,7 @@
 	<user name="Оператор ВИЛИНА" login="viloper">
 		<partner code="0038" name="0038. ВИЛИНА"/>
 	</user>
-	<user name="Оператор СКМ" login="skm">
+	<user name="Оператор СКМ" login="Skmoper">
 		<partner code="0039" name="0039. СКМ"/>
 	</user>
 </userPartners>
