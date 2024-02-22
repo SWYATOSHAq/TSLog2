@@ -33,6 +33,9 @@
     <user name="Оператор Home Expert" login="homeoper">
 		<partner code="0036" name="0036. Home Expert"/>
 	</user>
+	<user name="Оператор O'Shade" login="oshadeOper">
+		<partner code="0037" name="0037. O'Shade"/>
+	</user>
 	<user name="Оператор ВИЛИНА" login="viloper">
 		<partner code="0038" name="0038. ВИЛИНА"/>
 	</user>
