@@ -2271,57 +2271,76 @@ namespace TSLog.Yard.Data
         /// <param name="downTime">Простои.</param>
         /// <param name="downCost">Потери из-за простоев в деньгах.</param>
         public void GetBcPlan(DateTime fromDate, DateTime toDate,
-            out double planTime, out double planCost, out double downTime, out double downCost)
+             out double planTime, out double planCost, out double downTime, out double downCost)
         {
-            downTime = 0.0;
-            downCost = 0.0;
-            planTime = 0.0;
-            planCost = 0.0;
+            downTime = downCost = planTime = planCost = 0.0;
             var shifts = Shift.GetShifts(fromDate, toDate);
+            var worksOnSite = new List<(int workerId, int siteId, DateTime startTime, DateTime finishTime)>();
+
+            using var command = _connection.CreateCommand();
+            command.BindByName = true;
+            var sql =
+                $"   select d.worker_id,\n" +
+                $"          d.site_id,\n" +
+                $"          d.start_date, d.finish_date\n" +
+                $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
+                $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
+                $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
+                $"    where s.kind <> 'AUXILIARY' and emp.employee_id is not null";
+            command.CommandText = sql;
+            command.Parameters.Add(new OracleParameter("from_date", fromDate));
+            command.Parameters.Add(new OracleParameter("to_date", toDate));
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                var siteId = Utils.DbValueToInt(reader["site_id"]);
+                var startTime = Utils.DbValueToDateTime(reader["start_date"]);
+                var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
+                worksOnSite.Add((workerId, siteId, startTime, finishTime));
+            }
+            reader.Close();
+
+
             foreach (var shift in shifts)
             {
-                var k = (double)shift.Length / DefaultShiftLength;
-                using var command = _connection.CreateCommand();
-                command.BindByName = true;
-                var sql =
-                    $"   select d.worker_id,\n" +
-                    $"          d.site_id,\n" +
-                    $"          d.start_date, d.finish_date\n" +
-                    $"     from table({StaffSchema}.stf_get_all_works(:from_date, :to_date)) d\n" +
-                    $"left join {StaffSchema}.stf_employee_major_position#v emp on d.worker_id = emp.employee_id\n" +
-                    $"left join {StaffSchema}.stf_site#v s on d.site_id = s.id\n" +
-                    $"    where s.kind <> 'AUXILIARY' and emp.employee_id is not null";
-                command.CommandText = sql;
-                command.Parameters.Add(new OracleParameter("from_date", shift.From));
-                command.Parameters.Add(new OracleParameter("to_date", shift.To));
-                using var reader = command.ExecuteReader();
                 var planWorks = new Dictionary<int, double>();
                 var factWorks = new Dictionary<int, double>();
-                int site_id = 0;
-                while (reader.Read())
+                var k = (double)shift.Length / DefaultShiftLength;
+                for (int i = 0; i < worksOnSite.Count; i++)
                 {
-                    var workerId = Utils.DbValueToInt(reader["worker_id"]);
-                    site_id = Utils.DbValueToInt(reader["site_id"]);
-                    var startTime = Utils.DbValueToDateTime(reader["start_date"]);
-                    var finishTime = Utils.DbValueToDateTime(reader["finish_date"]);
-                    var employee = GetEmployee(workerId);
-                    int planShiftLengthSeconds = Shift.GetShortShiftLength(startTime, finishTime, site_id, employee.ShiftLength, shift.Kind); //проверка на случай сокращенной смены
-                    if (!planWorks.ContainsKey(workerId))
+                    if (shift.From > worksOnSite[i].finishTime || shift.To < worksOnSite[i].startTime || shift.From > worksOnSite[i].startTime)
+                        continue;
+
+                    var startWorkTime = worksOnSite[i].startTime;
+                    var finishWorkTime = worksOnSite[i].finishTime;
+
+                    if (finishWorkTime > shift.To)
+                        finishWorkTime = shift.To;
+
+                    if (startWorkTime < shift.From)
+                        startWorkTime = shift.From;
+
+                    var employee = GetEmployee(worksOnSite[i].workerId);
+                    int planShiftLengthSeconds = Shift.GetShortShiftLength(startWorkTime, finishWorkTime, worksOnSite[i].siteId, employee.ShiftLength, shift.Kind); //проверка на случай сокращенной смены
+
+                    if (!planWorks.ContainsKey(worksOnSite[i].workerId))
                     {
-                        planWorks.Add(workerId, planShiftLengthSeconds * k);
+                        planWorks.Add(worksOnSite[i].workerId, planShiftLengthSeconds * k);
                     }
                     else
                     {
-                        if (site_id == 1053)
-                            planWorks[workerId] = planShiftLengthSeconds * k;
+                        if (worksOnSite[i].siteId == 1053)
+                            planWorks[worksOnSite[i].workerId] = planShiftLengthSeconds * k;
                     }
 
-                    if (!factWorks.ContainsKey(workerId))
-                        factWorks.Add(workerId, 0.0);
-                    var span = finishTime - startTime;
-                    factWorks[workerId] += (int)Math.Round(span.TotalSeconds);
+                    if (!factWorks.ContainsKey(worksOnSite[i].workerId))
+                        factWorks.Add(worksOnSite[i].workerId, 0.0);
+
+                    var span = finishWorkTime - startWorkTime;
+                    factWorks[worksOnSite[i].workerId] += (int)Math.Round(span.TotalSeconds);
                 }
-                reader.Close();
+
                 foreach (var workerId in planWorks.Keys)
                 {
                     // в случае случайной переработки необходимо отметиться на участке 1053 и таким образом игнорировать
@@ -2389,7 +2408,7 @@ namespace TSLog.Yard.Data
                     $"    --left join {CommonSchema}.bl_price bp on bp.bp_bsd_id = bsl.bl_bsd_id and bp.bp_mndnr = bsl.bl_mndnr\n" +
                     $"    left join {CommonSchema}.bl_services_def bsd on bsd.bsd_id = bsl.bl_bsd_id\n" +
                     $"    left join {CommonSchema}.bl_service_type bst on bst.bst_code = bsd.bsd_bst_code\n" +
-                    $"   where bsl.BL_DATE between :start_date and :finish_date\n" +
+                    $"   where trunc(bsl.BL_DATE) between :start_date and :finish_date\n" +
                     (ids.Length <= 0 ? "" : $"         and bsl.bl_mndnr in ({ids.ToString()})\n") +
                     $"group by bsl.bl_mndnr\n" +
                     $"order by partner_id\n" +

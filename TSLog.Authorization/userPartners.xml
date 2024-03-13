@@ -42,4 +42,7 @@
 	<user name="Оператор СКМ" login="Skmoper">
 		<partner code="0039" name="0039. СКМ"/>
 	</user>
+	<user name="Оператор JITL" login="jitloper">
+		<partner code="0042" name="0042. JITL"/>
+	</user>
 </userPartners>
