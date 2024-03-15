@@ -18,7 +18,7 @@
 	<user name="Оператор Вкусная жизнь" login="vkzhoper">
 		<partner code="0014" name="0014. Вкусная жизнь"/>
 	</user>
-	<user name="Оператор Манипула" login="Manipula">
+	<user name="Оператор Манипула" login="Manipulaoper">
 		<partner code="0029" name="0029. Манипула"/>
 	</user>
 	<user name="Оператор MVI" login="mvi">
@@ -30,7 +30,7 @@
 	<user name="Оператор Детского мира" login="dmoper">
 		<partner code="0130" name="0130. ДМ"/>
 	</user>
-    <user name="Оператор Home Expert" login="homeoper">
+	<user name="Оператор Home Expert" login="homeoper">
 		<partner code="0036" name="0036. Home Expert"/>
 	</user>
 	<user name="Оператор O'Shade" login="oshadeOper">
@@ -44,5 +44,8 @@
 	</user>
 	<user name="Оператор JITL" login="jitloper">
 		<partner code="0042" name="0042. JITL"/>
+	</user>
+	<user name="Оператор Спецобъединение" login="SpecOboper">
+		<partner code="0024" name="0024. СКМ"/>
 	</user>
 </userPartners>
