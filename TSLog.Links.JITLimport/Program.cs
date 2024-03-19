@@ -7,8 +7,8 @@ namespace TSLog.Links.JITLimport
 {
     internal class Program
     {
-        static IConfiguration Configuration { get; set; }
-        static void Main(string[] args)
+        static IConfiguration? Configuration { get; set; }
+        static async Task Main(string[] args)
         {
             var builder = new ConfigurationBuilder();
             BuildConfig(builder);
@@ -22,11 +22,8 @@ namespace TSLog.Links.JITLimport
             var ftpService = new FtpMonitorService(ftpServer, ftpUsername, ftpPassword, remotePath);
 
             var files = ftpService.CheckForXlsFiles();
-
-            foreach (var file in files)
-            {
-                Console.WriteLine(file);
-            }
+            await ftpService.DownloadFilesAsync(files);
+            ftpService.MoveFilesToArchive(FtpMonitorService.ARCHIEVE_PATH);
         }
 
         static void BuildConfig(IConfigurationBuilder builder)
