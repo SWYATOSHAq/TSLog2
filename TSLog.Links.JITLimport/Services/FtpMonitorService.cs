@@ -66,7 +66,7 @@ internal class FtpMonitorService
         }
     }
 
-    public void MoveFilesToArchive(string archivePath) 
+    public void MoveRemoteFilesToArchive(string archivePath) 
     {
         using (var conn = new FtpClient(_ftpServer, _ftpUsername, _ftpPassword))
         {

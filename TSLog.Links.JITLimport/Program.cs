@@ -20,10 +20,13 @@ namespace TSLog.Links.JITLimport
             var remotePath = Configuration["FtpSettings:remotePath"];
 
             var ftpService = new FtpMonitorService(ftpServer, ftpUsername, ftpPassword, remotePath);
+            var excelService = new ExcelParsingService();
 
             var files = ftpService.CheckForXlsFiles();
             await ftpService.DownloadFilesAsync(files);
-            ftpService.MoveFilesToArchive(FtpMonitorService.ARCHIEVE_PATH);
+            ftpService.MoveRemoteFilesToArchive(FtpMonitorService.ARCHIEVE_PATH);
+            string downloadedFilesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DownloadedXlsFiles");
+            excelService.ParseExcelFiles(downloadedFilesDir);
         }
 
         static void BuildConfig(IConfigurationBuilder builder)
