@@ -20,7 +20,7 @@ namespace TSLog.Links.Services.Controllers
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
         private readonly bool DebugMode = true;
 
-        public OutgoesController(IConfiguration configuration, ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public OutgoesController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksOutgoesStorage)storage;
             _xmlConverter = xmlConverter;

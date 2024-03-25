@@ -105,7 +105,7 @@ namespace TSLog.Links.Services
             var xmlConverter = new Gs1EdiXmlConverter();
             xmlConverter.LinksStorage = storage;
             // ---------------------------------------
-            services.AddSingleton<ILinksStorage>(storage);
+            services.AddSingleton<ILinksCommonStorage>(storage);
             services.AddSingleton(xmlConverter);
         }
     }

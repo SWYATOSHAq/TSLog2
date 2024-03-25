@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TSLog.Links.OracleStorage\TSLog.Links.OracleStorage.csproj" />
+    <ProjectReference Include="..\TSLog.Links.PgSqlStorage\TSLog.Links.PgSqlStorage.csproj" />
+    <ProjectReference Include="..\TSLog.Links\TSLog.Links.csproj" />
+    <ProjectReference Include="..\TSLog.Products.BO\TSLog.Products.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
+  </ItemGroup>
+
+</Project>

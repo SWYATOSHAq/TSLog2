@@ -109,7 +109,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.AD.Test", "Tools\TSLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Yard.IntegrationTest", "TSLog.Yard.IntegrationTest\TSLog.Yard.IntegrationTest.csproj", "{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.JITLimport", "TSLog.Links.JITLimport\TSLog.Links.JITLimport.csproj", "{89F6B33E-79D1-4BB2-AF15-6793364E40E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.JITLimport", "TSLog.Links.JITLimport\TSLog.Links.JITLimport.csproj", "{89F6B33E-79D1-4BB2-AF15-6793364E40E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.PgSqlStorage", "TSLog.Links.PgSqlStorage\TSLog.Links.PgSqlStorage.csproj", "{C024B6D3-19C9-412A-A4FB-1A0119E77AEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.Storage", "TSLog.Links.Storage\TSLog.Links.Storage.csproj", "{D7336DC1-BF55-4117-AA1C-141B8EACC713}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -297,6 +301,14 @@ Global
 		{89F6B33E-79D1-4BB2-AF15-6793364E40E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89F6B33E-79D1-4BB2-AF15-6793364E40E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89F6B33E-79D1-4BB2-AF15-6793364E40E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C024B6D3-19C9-412A-A4FB-1A0119E77AEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C024B6D3-19C9-412A-A4FB-1A0119E77AEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C024B6D3-19C9-412A-A4FB-1A0119E77AEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C024B6D3-19C9-412A-A4FB-1A0119E77AEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7336DC1-BF55-4117-AA1C-141B8EACC713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7336DC1-BF55-4117-AA1C-141B8EACC713}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7336DC1-BF55-4117-AA1C-141B8EACC713}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7336DC1-BF55-4117-AA1C-141B8EACC713}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

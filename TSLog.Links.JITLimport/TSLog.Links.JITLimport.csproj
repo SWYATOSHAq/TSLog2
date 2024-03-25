@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="Interfaces\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,11 +17,22 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="NPOI" Version="2.6.2" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="7.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TSLog.Common.OracleStorage\TSLog.Common.OracleStorage.csproj" />
+    <ProjectReference Include="..\TSLog.Common.PgSqlStorage\TSLog.Common.PgSqlStorage.csproj" />
+    <ProjectReference Include="..\TSLog.Links.Storage\TSLog.Links.Storage.csproj" />
     <ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
+    <ProjectReference Include="..\TSLog.Yard.Storage\TSLog.Yard.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
