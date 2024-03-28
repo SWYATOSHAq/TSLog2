@@ -1,4 +1,6 @@
-﻿using NPOI.HSSF.UserModel;
+﻿using AngleSharp.Css;
+using Microsoft.Extensions.Options;
+using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
@@ -7,22 +9,50 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TSLog.Links.JITLimport.Interfaces;
+using TSLog.Partners.BO;
+using TSLog.Yard.BO;
 
 namespace TSLog.Links.JITLimport.Services;
 
-internal class ExcelParsingService
+internal class ExcelParsingService : IExcelParsingService
 {
+    private readonly IYardDbConnectService _yardDbConnectService;
+    public ExcelParsingService(IYardDbConnectService yardDbConnectService)
+    {
+        _yardDbConnectService = yardDbConnectService;
+    }
     public void ParseExcelFiles(string directoryPath)
     {
         var excelFiles = Directory.GetFiles(directoryPath, "*.xls");
-        string date = String.Empty;
-        string startTime = String.Empty;
-        string vehicle = String.Empty;
-        string driverName = String.Empty;
-        string partnerManagerName = String.Empty;
 
         foreach (var filePath in excelFiles)
         {
+            string startDate = String.Empty;
+            string startTime = String.Empty;
+            string vehicle = String.Empty;
+            string driverName = String.Empty;
+            string partnerManagerName = String.Empty;
+            string user = "auto_jitloper";
+
+            string fileName = Path.GetFileName(filePath);
+            string[] parts = fileName.Split('_');
+            string operationTypePart = parts[0];
+            string operationTypeCode = String.Empty;
+            string vehicleType = String.Empty;
+            if (operationTypePart == "ЗнО")
+            {
+                operationTypeCode = "O_BOX_MIX";
+                vehicleType = "1.5_TONS";
+            }
+            else
+            {
+                operationTypeCode = "I_BOX_MIX";
+                vehicleType = "20_TONS";
+            }
+
+            var operationType = _yardDbConnectService.GetYardOperationType(operationTypeCode);
+
             using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             var hssfWorkbook = new HSSFWorkbook(fileStream);
             var sheet = hssfWorkbook.GetSheetAt(0); // Assuming the data is in the first sheet.
@@ -45,7 +75,7 @@ internal class ExcelParsingService
                             switch (temp)
                             {
                                 case "Дата отгрузки:":
-                                    date = parsedRow.GetCell(5).ToString();
+                                    startDate = parsedRow.GetCell(5).ToString();
                                     break;
                                 case "Время отгрузки:":
                                     startTime = parsedRow.GetCell(12).ToString();
@@ -66,6 +96,33 @@ internal class ExcelParsingService
                     }
                 }
             }
+
+            DateTime date = DateTime.ParseExact(startDate, "dd.MM.yyyy", null);
+            DateTime time = DateTime.ParseExact(startTime, "HH:mm", null);
+            DateTime planWorkFinishDate = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
+            //var planWorkStartDate = planWorkFinishDate.Subtract(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)))
+            var vehicleNumber = vehicle;
+            var vehicleBrand = "Смотри поле 'Номер авто'";
+            var vehicleModel = "Смотри поле 'Номер авто'";
+            var trailerNumber = "Смотри поле 'Номер авто'";
+            var driverPhoneNumber = String.Empty;
+            var state = _yardDbConnectService.GetYardOperationState();
+            var priority = Operation.DefaultPriority;
+            var partner = _yardDbConnectService.GetYardPartner();
+            var manager = _yardDbConnectService.GetYardPartnerManagers(partner);
+            var partnerManagerPhoneNumber = manager.PhoneNumber;
+            var partnerManagerEmail = manager.Email;
+            var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
+
+            //var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
+            //    vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
+            //    driverName, driverPhoneNumber,
+            //    state,
+            //    priority,
+            //    partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+            //    manager);
+            //operation.Note = String.Empty;
+            //operation.Parking = false;
         }
     }
 }

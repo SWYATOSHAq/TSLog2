@@ -6,10 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using TSLog.Links.JITLimport.Interfaces;
 
 namespace TSLog.Links.JITLimport.Services;
 
-internal class FtpMonitorService
+internal class FtpMonitorService : IFtpMonitorService
 {
     private readonly string _ftpServer;
     private readonly string _ftpUsername;
@@ -66,7 +67,7 @@ internal class FtpMonitorService
         }
     }
 
-    public void MoveRemoteFilesToArchive(string archivePath) 
+    public void MoveRemoteFilesToArchive(string archivePath)
     {
         using (var conn = new FtpClient(_ftpServer, _ftpUsername, _ftpPassword))
         {
@@ -79,7 +80,7 @@ internal class FtpMonitorService
                 // Construct the destination path with the same file name in the archive directory.
                 var destFilePath = Path.Combine(archivePath, item.Name).Replace("\\", "/");
                 conn.MoveFile(sourceFilePath, destFilePath, FtpRemoteExists.Skip);
-            }            
+            }
         }
     }
 }
