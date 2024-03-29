@@ -8,6 +8,7 @@ using TSLog.Common.BO;
 using TSLog.Links.JITLimport.Interfaces;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
+using TSLog.WarehouseActions.BO;
 using TSLog.Yard;
 using TSLog.Yard.BO;
 using OperationType = TSLog.Yard.BO.OperationType;
@@ -29,13 +30,13 @@ public class YardDbConnectService : IYardDbConnectService
     public VehicleKind GetYardVehicleKind(string typeOfVehicle) => _storage.GetVehicleKind(typeOfVehicle);
     public Int16 GetYardOperationDuration(OperationType operationType, VehicleKind vehicleKind, out int standardConstantDuration, out int standardVariableDuration) =>
         _storage.GetDuration(operationType, vehicleKind, out standardConstantDuration, out standardVariableDuration);
-    public Operation CreateYardOperation(Operation operation, string user) => _storage.AddOperation(operation, user);
+    public void CreateYardOperation(Operation operation, string user, WarehouseAction action) 
+    {
+        var createdOperation = _storage.AddOperation(operation, user);
+        _storage.AddAction(createdOperation, action);
+    }
     public Operation GetYardOperation() => _storage.GetOperation(10042780);
-
-
-
-    //public CreateYardOperation(YardStorage storage)
-    //{
-    //    storage.AddOperation
-    //}
+    public LineBase[] GetYardWarehouseActionLines(dynamic kind, string id) => _storage.GetWarehouseActionLines(kind, id);
+    public WarehouseAction GetYardWarehouseAction(ActionKind actionKind, string id) => _storage.GetWarehouseAction(actionKind, id);    
+    public void GetYardAssembliedOutgo(string id, out double palletsCount, out double eachesCount) => _storage.GetAssembliedOutgo(id, out palletsCount, out eachesCount);
 }

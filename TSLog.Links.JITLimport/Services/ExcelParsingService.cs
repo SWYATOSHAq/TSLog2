@@ -9,8 +9,10 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TSLog.Links.JITLimport.Helpers;
 using TSLog.Links.JITLimport.Interfaces;
 using TSLog.Partners.BO;
+using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 
 namespace TSLog.Links.JITLimport.Services;
@@ -40,16 +42,40 @@ internal class ExcelParsingService : IExcelParsingService
             string operationTypePart = parts[0];
             string operationTypeCode = String.Empty;
             string vehicleType = String.Empty;
+            dynamic[] actions;
+            //= _yardDbConnectService.GetYardWarhouseAction();
             if (operationTypePart == "ЗнО")
             {
                 operationTypeCode = "O_BOX_MIX";
                 vehicleType = "1.5_TONS";
+                actions = new dynamic[]
+                {
+                    new {
+                        operationId = -1,
+                        kind = "O",
+                        id = "00420000MASTER NORMAL"
+                    }
+                };
             }
             else
             {
                 operationTypeCode = "I_BOX_MIX";
                 vehicleType = "20_TONS";
+                actions = new dynamic[]
+                {
+                    new {
+                        operationId = -1,
+                        kind = "I",
+                        id = "00420000MASTER NORMAL"
+                    }
+                };
             }
+
+
+            string stringActionKind = actions[0].kind;
+            string stringActionId = actions[0].id;
+            WarehouseAction warehouseAction = _yardDbConnectService.GetYardWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+
 
             var operationType = _yardDbConnectService.GetYardOperationType(operationTypeCode);
 
@@ -100,7 +126,8 @@ internal class ExcelParsingService : IExcelParsingService
             DateTime date = DateTime.ParseExact(startDate, "dd.MM.yyyy", null);
             DateTime time = DateTime.ParseExact(startTime, "HH:mm", null);
             DateTime planWorkFinishDate = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
-            //var planWorkStartDate = planWorkFinishDate.Subtract(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)))
+            var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
+            var planWorkStartDate = planWorkFinishDate.Subtract(new TimeSpan(0, 0, YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
             var vehicleNumber = vehicle;
             var vehicleBrand = "Смотри поле 'Номер авто'";
             var vehicleModel = "Смотри поле 'Номер авто'";
@@ -112,17 +139,18 @@ internal class ExcelParsingService : IExcelParsingService
             var manager = _yardDbConnectService.GetYardPartnerManagers(partner);
             var partnerManagerPhoneNumber = manager.PhoneNumber;
             var partnerManagerEmail = manager.Email;
-            var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
 
-            //var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
-            //    vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
-            //    driverName, driverPhoneNumber,
-            //    state,
-            //    priority,
-            //    partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-            //    manager);
-            //operation.Note = String.Empty;
-            //operation.Parking = false;
+            var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
+                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
+                driverName, driverPhoneNumber,
+                state,
+                priority,
+                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+                manager);
+            operation.Note = String.Empty;
+            operation.Parking = false;
+
+            _yardDbConnectService.CreateYardOperation(operation, user, warehouseAction);
         }
     }
 }
