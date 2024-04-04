@@ -15,7 +15,6 @@ namespace TSLog.Links.JITLimport.Interfaces
         Employee? GetYardPartnerManagers(Partner partner);
         VehicleKind GetYardVehicleKind(string typeOfVehicle);
         void CreateYardOperation(Operation operation, string user, WarehouseAction action);
-        Operation GetYardOperation();
         LineBase[] GetYardWarehouseActionLines(dynamic kind, string id);
         void GetYardAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
         WarehouseAction GetYardWarehouseAction(ActionKind actionKind, string id);

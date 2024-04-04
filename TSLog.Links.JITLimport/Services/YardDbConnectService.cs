@@ -35,7 +35,6 @@ public class YardDbConnectService : IYardDbConnectService
         var createdOperation = _storage.AddOperation(operation, user);
         _storage.AddAction(createdOperation, action);
     }
-    public Operation GetYardOperation() => _storage.GetOperation(10042780);
     public LineBase[] GetYardWarehouseActionLines(dynamic kind, string id) => _storage.GetWarehouseActionLines(kind, id);
     public WarehouseAction GetYardWarehouseAction(ActionKind actionKind, string id) => _storage.GetWarehouseAction(actionKind, id);    
     public void GetYardAssembliedOutgo(string id, out double palletsCount, out double eachesCount) => _storage.GetAssembliedOutgo(id, out palletsCount, out eachesCount);

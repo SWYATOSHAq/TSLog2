@@ -1,7 +1,6 @@
-﻿namespace TSLog.Links.JITLimport.Interfaces
+﻿namespace TSLog.Links.JITLimport.Interfaces;
+
+public interface IExcelParsingService
 {
-    internal interface IExcelParsingService
-    {
-        void ParseExcelFiles(string directoryPath);
-    }
+    void ParseExcelFiles(string directoryPath);
 }

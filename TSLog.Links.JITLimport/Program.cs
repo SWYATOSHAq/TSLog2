@@ -33,18 +33,9 @@ namespace TSLog.Links.JITLimport
                 
                 using IHost host = CreateHostBuilder(args).Build();
                 using var serviceScope = host.Services.CreateScope();
-                var services = serviceScope.ServiceProvider;                
-
-                var ftpService = services.GetRequiredService<IFtpMonitorService>();
-                var excelService = services.GetRequiredService<IExcelParsingService>();
-                var yardDbConnectService = services.GetRequiredService<IYardDbConnectService>();
+                var services = serviceScope.ServiceProvider;
                 YardUtils.SetServiceProvider(services);
-
-                var files = ftpService.CheckForXlsFiles();
-                await ftpService.DownloadFilesAsync(files);
-                ftpService.MoveRemoteFilesToArchive(FtpMonitorService.ARCHIEVE_PATH);
-                string downloadedFilesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DownloadedXlsFiles");
-                excelService.ParseExcelFiles(downloadedFilesDir);
+                await host.RunAsync();
             }
             catch (Exception exception)
             {
@@ -70,19 +61,36 @@ namespace TSLog.Links.JITLimport
                     });
 
                     var ftpSettings = hostContext.Configuration.GetSection("FtpSettings");
-                    services.AddTransient<IFtpMonitorService>(provider =>
-                        new FtpMonitorService(
+
+                    services.AddTransient<IFtpMonitorService, FtpMonitorService>(provider =>
+                    {
+                        var logger = provider.GetRequiredService<ILogger<FtpMonitorService>>();
+                        return new FtpMonitorService(
                             ftpSettings["FtpServer"],
                             ftpSettings["FtpUsername"],
                             ftpSettings["FtpPassword"],
-                            ftpSettings["RemotePath"]));
-                    
+                            ftpSettings["RemotePath"],
+                            logger);
+                    });
+
                     services.AddTransient<IYardDbConnectService>(provider =>
                     {
                         var yardStorage = provider.GetRequiredService<IYardStorage>();
                         return new YardDbConnectService(yardStorage);
                     });
-                    services.AddTransient<IExcelParsingService, ExcelParsingService>();
+                    services.AddTransient<IExcelParsingService, ExcelParsingService>(provider =>
+                    {
+                        var yardDbConnectService = provider.GetRequiredService<IYardDbConnectService>();
+                        var logger = provider.GetRequiredService<ILogger<ExcelParsingService>>();
+                        return new ExcelParsingService(yardDbConnectService, logger);
+                    });
+                    services.AddHostedService<FtpMonitorBackgroundService>(provider =>
+                    {
+                        var ftpService = provider.GetRequiredService<IFtpMonitorService>();
+                        var excelService = provider.GetRequiredService<IExcelParsingService>();
+                        var logger = provider.GetRequiredService<ILogger<FtpMonitorBackgroundService>>();
+                        return new FtpMonitorBackgroundService(ftpService, excelService, logger);
+                    });
                 })
                 .UseSerilog();
 
