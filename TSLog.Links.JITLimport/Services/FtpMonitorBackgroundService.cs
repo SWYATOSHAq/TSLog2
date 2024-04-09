@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TSLog.Links.JITLimport.Interfaces;
+using TSLog.Links.JITLimport.Models;
 
 namespace TSLog.Links.JITLimport.Services;
 
@@ -14,13 +15,14 @@ public class FtpMonitorBackgroundService : BackgroundService
     private readonly IFtpMonitorService _ftpMonitorService;
     private readonly IExcelParsingService _excelParsingService;
     private readonly ILogger<FtpMonitorBackgroundService> _logger;
-    private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(3);
+    private readonly TimeSpan _checkInterval;
 
-    public FtpMonitorBackgroundService(IFtpMonitorService ftpMonitorService, IExcelParsingService excelParsingService, ILogger<FtpMonitorBackgroundService> logger)
+    public FtpMonitorBackgroundService(IFtpMonitorService ftpMonitorService, IExcelParsingService excelParsingService, ILogger<FtpMonitorBackgroundService> logger, FtpMonitorConfig config)
     {
         _ftpMonitorService = ftpMonitorService;
         _excelParsingService = excelParsingService;
         _logger = logger;
+        _checkInterval = TimeSpan.FromMinutes(config.CheckIntervalMinutes);
     }
 
 

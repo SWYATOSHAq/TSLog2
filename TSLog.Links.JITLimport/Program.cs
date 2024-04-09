@@ -11,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using TSLog.Links.JITLimport.Interfaces;
 using TSLog.Yard.BO;
+using TSLog.Links.JITLimport.Models;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace TSLog.Links.JITLimport
 {
@@ -53,6 +55,9 @@ namespace TSLog.Links.JITLimport
                 {
                     var configuration = hostContext.Configuration;
                     var isDebug = hostContext.Configuration.GetValue<bool>("IsDebug");
+                    var ftpMonitorConfig = new FtpMonitorConfig();
+                    configuration.GetSection("FtpMonitorConfig").Bind(ftpMonitorConfig);
+                    services.AddSingleton(ftpMonitorConfig);
 
                     services.AddSingleton<IYardStorage>(provider =>
                     {
@@ -89,7 +94,7 @@ namespace TSLog.Links.JITLimport
                         var ftpService = provider.GetRequiredService<IFtpMonitorService>();
                         var excelService = provider.GetRequiredService<IExcelParsingService>();
                         var logger = provider.GetRequiredService<ILogger<FtpMonitorBackgroundService>>();
-                        return new FtpMonitorBackgroundService(ftpService, excelService, logger);
+                        return new FtpMonitorBackgroundService(ftpService, excelService, logger, ftpMonitorConfig);
                     });
                 })
                 .UseSerilog();
