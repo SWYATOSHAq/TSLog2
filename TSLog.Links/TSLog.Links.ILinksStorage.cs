@@ -5,10 +5,25 @@ using TSLog.Products.BO;
 
 namespace TSLog.Links
 {
-    public interface ILinksStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksIncomesStorage, ILinksOutgoesStorage, ILinksUsers
+    /// <summary>
+    /// Общий интерфейс для работы с БД Oracle и Postgresql./
+    /// </summary>
+    public interface ILinksStorage : ILinksCommonStorage
     {
+        public void ConnectOracle(string userName, string password);
+        public void SetOracleCommonSchema(string commonSchema);
+        public void SetOracleStaffSchema(string staffShcema);
+        public void SetOracleLegalEntitiesSchema(string legalEntitiesSchema);
+        public void SetOraclePartnersSchema(string partnersSchema);
+        public void DisconnectOracle();
+        public void ConnectPgSql(string userName, string password);
+        public void SetPgsqlYardSchema(string yardSchema);
+        public void DisconnectPgsql();
+        public void Dispose();
     }
-
+    public interface ILinksCommonStorage : ILinksProductsStorage, ILinksClientsStorage, ILinksIncomesStorage, ILinksOutgoesStorage, ILinksUsers
+    { }
+        
     public interface ILinksProductsStorage : ILinksBase
     {
         public Product GetProduct(string id);

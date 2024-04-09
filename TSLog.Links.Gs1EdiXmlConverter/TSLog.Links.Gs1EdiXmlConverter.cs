@@ -16,12 +16,12 @@ namespace TSLog.Links.Gs1EdiXml
     /// </summary>
     public class Gs1EdiXmlConverter
     {
-        private ILinksStorage _storage = null;
+        private ILinksCommonStorage _storage = null;
 
         /// <summary>
         /// Хранилище бизнес-объектов
         /// </summary>
-        public ILinksStorage LinksStorage
+        public ILinksCommonStorage LinksStorage
         {
             set
             {

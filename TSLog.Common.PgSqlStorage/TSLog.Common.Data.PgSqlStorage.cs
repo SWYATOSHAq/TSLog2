@@ -45,7 +45,7 @@ namespace TSLog.Common.Data
         // Время ожидания idle соединения (в секундах), пока пул его не закроет.
         protected readonly int _connectionPruningInterval = DefaultonnectionPruningInterval;
 
-        public PgSqlStorage(string host, string database, ILogger<PgSqlStorage> logger,
+        public PgSqlStorage(string host, string database, ILogger<PgSqlStorage>? logger = null,
             IDictionary<string, object>? extensionParameters = null)
         {
             _host = host;

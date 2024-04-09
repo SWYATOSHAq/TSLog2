@@ -19,7 +19,7 @@ namespace TSLog.Links.Services.Controllers
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
         private readonly bool DebugMode = true;
 
-        public ClientsController(IConfiguration configuration, ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public ClientsController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = (ILinksClientsStorage)storage;
             _xmlConverter = xmlConverter;

@@ -20,7 +20,7 @@ namespace TSLog.Links.Services.Controllers
         private readonly Gs1EdiXmlConverter _xmlConverter = null;
         private readonly bool DebugMode = true;
 
-        public ProductsController(IConfiguration configuration, ILinksStorage storage, Gs1EdiXmlConverter xmlConverter)
+        public ProductsController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
         {
             _storage = storage as ILinksProductsStorage;
             _xmlConverter = xmlConverter;
