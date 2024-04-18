@@ -1222,9 +1222,15 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
             if (isGateFree)
             {
                 _storage.FinishOperationWork(operation, RightsChecker.GetUserName(User));
-                _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
-                _storage.AddOperationLog(operation, "Работа завершена", user); //логирование в бд
-                text = _processor.OperationToJson(operation);
+                var operationFinished = _storage.GetOperation(id);
+                if (operation.PartnersIds == "0042")
+                {
+                    await _processor.SendEmailAsync(operationFinished);
+                }               
+                
+                _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationFinished, operationFinished.Id, user);
+                _storage.AddOperationLog(operationFinished, "Работа завершена", user); //логирование в бд
+                text = _processor.OperationToJson(operationFinished);
                 Response.StatusCode = (int)HttpStatusCode.OK;
             } else
             {

@@ -167,6 +167,10 @@ namespace TSLog.Yard
         {
             return _pgsqlStorage.GetGates();
         }
+        public List<string> GetPartnerEmails(string partnerId)
+        {
+            return _pgsqlStorage.GetPartnerEmails(partnerId);
+        }
         public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startDate, DateTime finishDate, long operationId)
         {
             return _pgsqlStorage.GetAvalibleGates(operationType, vehicleKind, startDate, finishDate, operationId);

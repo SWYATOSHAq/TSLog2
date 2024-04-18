@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TSLog.Authorization\TSLog.Authorization.csproj" />
+    <ProjectReference Include="..\TSLog.Common.MessageSending\TSLog.Common.MessageSending.csproj" />
     <ProjectReference Include="..\TSLog.Common\TSLog.Common.csproj" />
     <ProjectReference Include="..\TSLog.Yard.BO\TSLog.Yard.BO.csproj" />
     <ProjectReference Include="..\TSLog.Yard.Storage\TSLog.Yard.Storage.csproj" />

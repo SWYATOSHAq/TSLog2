@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Serilog.Core;
+using System;
 using System.Dynamic;
 using System.Globalization;
 using System.Net;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using TSLog.Authorization;
 using TSLog.Common;
+using TSLog.Common.MessageSending;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
@@ -27,6 +29,7 @@ public class Processor
     private readonly IRightsChecker _rightsChecker;
     private readonly bool _useAuthentication;
     private readonly ILogger<Processor> _logger;
+    private readonly IMessageSender _emailSender;
 
     /// <summary>
     /// Максимальное количество дней для некоторых отчётов (по дням).
@@ -62,6 +65,7 @@ public class Processor
         _rightsChecker = rightsChecker;
         _useAuthentication = _configuration.GetValue<bool>("UseAuthentication");
         _logger = logger;
+        _emailSender = MessageSenderFactory.CreateSender(MessageType.Email);
     }
 
     private static dynamic EmployeeToDynamic(Employee employee, bool isBusy = false)
@@ -1533,5 +1537,42 @@ public class Processor
         result.displayColor = operation.DisplayColor;
 
         return result;
+    }
+
+    public async Task SendEmailAsync(Operation operation)
+    {
+        if (operation == null) throw new ArgumentNullException(nameof(operation));
+
+        var emails = _storage.GetPartnerEmails(operation.PartnersIds);
+
+        if (emails == null || emails.Count == 0)
+        {
+            _logger.LogWarning("No email addresses found for operation {@Operation}. Email not sent.", operation);
+            return;
+        }
+
+        var subject = operation.Type.Direction == TypeDirection.Out ?
+                  $"Окончены работы по заявке на отгрузку {operation.PartnerActionsIds}." :
+                  $"Окончены работы по заявке на приемку {operation.PartnerActionsIds}.";
+
+        var body = operation.Type.Direction == TypeDirection.Out ?
+                   $"Работы по заявке на отгрузку {operation.PartnerActionsIds} окончены {operation.FactWorkFinishDate}." :
+                   $"Работы по заявке на приемку {operation.PartnerActionsIds} окончены {operation.FactWorkFinishDate}.";
+
+        var message = new Message
+        {
+            To = emails,
+            Subject = subject,
+            Body = body
+        };
+
+        try
+        {
+            await _emailSender.SendAsync(message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Email об окончании работ не был отправлен {@Заявка}, с номером {Номер заявки}. Сообщение об ошибке: {Ошибка}, StackTrace: {StackTrace}", operation, operation.Id, ex.Message, ex.StackTrace);
+        }
     }
 }

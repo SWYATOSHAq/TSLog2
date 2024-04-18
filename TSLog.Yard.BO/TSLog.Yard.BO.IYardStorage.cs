@@ -95,6 +95,7 @@ namespace TSLog.Yard.BO
         public Operation.OperationWorker[] GetOperationWorkers(Operation operation);
         public void AllocateOperationWorkers(Operation operation, DateTime? date = null);
         public void RemoveOperationWorker(Operation operation, Employee employee, Position position);
+        public List<string> GetPartnerEmails(string partnerId);
     }
     public interface IYardWmsStorage
     {

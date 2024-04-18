@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AngleSharp.Dom;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 using NpgsqlTypes;
+using System.Data;
 using System.Data.Common;
 using System.Dynamic;
 using System.Text;
@@ -14,6 +16,7 @@ using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
+using Entity = TSLog.Common.BO.Entity;
 using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.Data
@@ -825,6 +828,33 @@ namespace TSLog.Yard.Data
                 connection.Close();
             }
             return works.ToArray();
+        }
+        public List<string>GetPartnerEmails(string partnerId)
+        {
+            var emails = new List<string>();
+            using (var connection = CloneConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.Text;  
+                    command.CommandText = $"SELECT p.contact_value FROM {YardSchema}.v_partner_newsletter_contacts p WHERE p.partner_id = @partnerId";
+                    //command.Parameters.Add(new NpgsqlParameter("@partnerId", NpgsqlDbType.Varchar) { Value = partnerId });
+                    command.Parameters.Add(CreateParameter("partnerId", NpgsqlDbType.Varchar, partnerId));
+
+                    //var selectEmailsSql =
+                    //    $"select p.contact_value\n" +
+                    //    $"from {YardSchema}.v_partner_newsletter_contacts p\n" +
+                    //    $"where p.partner_id = :partnerId";
+                    //command.CommandText = selectEmailsSql;
+                    //command.Parameters.Add(CreateParameter("partnerId", NpgsqlDbType.Varchar, partnerId));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        emails.Add(reader["contact_value"].ToString());
+                    }
+                }
+            }
+            return emails;
         }
 
         public delegate Partner GetPartnerByIdDelegate(string id);
