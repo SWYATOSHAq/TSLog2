@@ -48,4 +48,7 @@
 	<user name="Оператор Спецобъединение" login="SpecOboper">
 		<partner code="0024" name="0024. СКМ"/>
 	</user>
+	<user name="Оператор Prime Auto" login="primeauto_oper">
+		<partner code="0041" name="0041. Prime Auto"/>
+	</user>
 </userPartners>
