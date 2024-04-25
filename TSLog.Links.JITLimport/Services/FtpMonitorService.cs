@@ -32,7 +32,7 @@ internal class FtpMonitorService : IFtpMonitorService
         _remotePath = remotePath;
         _logger = logger;
     }
-
+    [Obsolete]
     public IEnumerable<string> CheckForXlsFiles()
     {
         var fileList = new List<string>();
@@ -59,6 +59,32 @@ internal class FtpMonitorService : IFtpMonitorService
         return fileList;
     }
 
+    public IEnumerable<string> CheckForJsonFiles()
+    {
+        var fileList = new List<string>();
+        try
+        {
+            using var ftpClient = new FtpClient(_ftpServer, _ftpUsername, _ftpPassword);
+
+            ftpClient.Connect();
+
+            var items = ftpClient.GetListing(_remotePath);
+
+            foreach (var item in items)
+            {
+                if (item.Type == FtpObjectType.File && (item.Name.EndsWith(".json")))
+                {
+                    fileList.Add(item.FullName);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking for json-files in {RemotePath}", _remotePath);
+        }
+        return fileList;
+    }
+
     public async Task DownloadFilesAsync(IEnumerable<string> fileList, CancellationToken cancellationToken)
     {
         if (!fileList.Any())
@@ -67,25 +93,6 @@ internal class FtpMonitorService : IFtpMonitorService
             return;
         }
 
-        //var token = new CancellationToken();
-        //try
-        //{
-        //    using (var ftp = new AsyncFtpClient(_ftpServer, _ftpUsername, _ftpPassword))
-        //    {
-        //        await ftp.Connect(token);
-
-        //        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        //        string downloadedFilesDir = Path.Combine(baseDir, "DownloadedXlsFiles");
-
-        //        // Download many files, skip if they already exist on disk.
-        //        await ftp.DownloadFiles(downloadedFilesDir, fileList, FtpLocalExists.Skip, token: token);
-        //        _logger.LogInformation("Файл скачан в локальную папку");
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    _logger.LogError(ex, "Error occurred while downloading files from FTP server");
-        //}
         try
         {
             using (var ftp = new AsyncFtpClient(_ftpServer, _ftpUsername, _ftpPassword))
@@ -93,19 +100,10 @@ internal class FtpMonitorService : IFtpMonitorService
                 await ftp.Connect(cancellationToken);
 
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string downloadedFilesDir = Path.Combine(baseDir, "DownloadedXlsFiles");
+                string downloadedFilesDir = Path.Combine(baseDir, "DownloadedJsonFiles");
 
                 foreach (var file in fileList)
                 {
-                    //var result = await ftp.DownloadFile(downloadedFilesDir, file, FtpLocalExists.Skip, token: cancellationToken);
-                    //if (result.IsSuccess)
-                    //{
-                    //    _logger.LogInformation("Downloaded file: {FileName}", file);
-                    //}
-                    //else
-                    //{
-                    //    _logger.LogWarning("Failed to download file: {FileName}", file);
-                    //}
                     try
                     {
                         var localFilePath = Path.Combine(downloadedFilesDir, Path.GetFileName(file));
@@ -151,7 +149,7 @@ internal class FtpMonitorService : IFtpMonitorService
                 conn.Connect();
                 var files = conn.GetListing(_remotePath)
                                 .Where(item => item.Type == FtpObjectType.File &&
-                                               (item.Name.EndsWith(".xls") || item.Name.EndsWith(".xlsx")))
+                                               (item.Name.EndsWith(".json")))
                                 .ToList();
 
                 foreach (var item in files)
@@ -173,7 +171,7 @@ internal class FtpMonitorService : IFtpMonitorService
     {
         try
         {
-            var files = Directory.GetFiles(directoryPath, "*.xls");
+            var files = Directory.GetFiles(directoryPath, "*.json");
             foreach (var file in files)
             {
                 File.Delete(file);

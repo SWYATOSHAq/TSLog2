@@ -83,18 +83,25 @@ namespace TSLog.Links.JITLimport
                         var yardStorage = provider.GetRequiredService<IYardStorage>();
                         return new YardDbConnectService(yardStorage);
                     });
-                    services.AddTransient<IExcelParsingService, ExcelParsingService>(provider =>
+                    //services.AddTransient<IExcelParsingService, ExcelParsingService>(provider =>
+                    //{
+                    //    var yardDbConnectService = provider.GetRequiredService<IYardDbConnectService>();
+                    //    var logger = provider.GetRequiredService<ILogger<ExcelParsingService>>();
+                    //    return new ExcelParsingService(yardDbConnectService, logger);
+                    //});
+                    services.AddTransient<IJsonParsingService, JsonParsingService>(provider =>
                     {
                         var yardDbConnectService = provider.GetRequiredService<IYardDbConnectService>();
-                        var logger = provider.GetRequiredService<ILogger<ExcelParsingService>>();
-                        return new ExcelParsingService(yardDbConnectService, logger);
+                        var logger = provider.GetRequiredService<ILogger<JsonParsingService>>();
+                        return new JsonParsingService(yardDbConnectService, logger);
                     });
                     services.AddHostedService<FtpMonitorBackgroundService>(provider =>
                     {
                         var ftpService = provider.GetRequiredService<IFtpMonitorService>();
-                        var excelService = provider.GetRequiredService<IExcelParsingService>();
+                        //var excelService = provider.GetRequiredService<IExcelParsingService>();
+                        var jsonService = provider.GetRequiredService<IJsonParsingService>();
                         var logger = provider.GetRequiredService<ILogger<FtpMonitorBackgroundService>>();
-                        return new FtpMonitorBackgroundService(ftpService, excelService, logger, ftpMonitorConfig);
+                        return new FtpMonitorBackgroundService(ftpService, jsonService, logger, ftpMonitorConfig);
                     });
                 })
                 .UseSerilog();
