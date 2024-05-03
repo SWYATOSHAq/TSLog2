@@ -18,5 +18,6 @@ namespace TSLog.Links.JITLimport.Interfaces
         LineBase[] GetYardWarehouseActionLines(dynamic kind, string id);
         void GetYardAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
         WarehouseAction GetYardWarehouseAction(ActionKind actionKind, string id);
+        WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser);
     }
 }

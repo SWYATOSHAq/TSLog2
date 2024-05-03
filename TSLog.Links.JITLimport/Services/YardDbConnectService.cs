@@ -1,4 +1,5 @@
-﻿using NPOI.SS.UserModel;
+﻿using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,4 +39,5 @@ public class YardDbConnectService : IYardDbConnectService
     public LineBase[] GetYardWarehouseActionLines(dynamic kind, string id) => _storage.GetWarehouseActionLines(kind, id);
     public WarehouseAction GetYardWarehouseAction(ActionKind actionKind, string id) => _storage.GetWarehouseAction(actionKind, id);    
     public void GetYardAssembliedOutgo(string id, out double palletsCount, out double eachesCount) => _storage.GetAssembliedOutgo(id, out palletsCount, out eachesCount);
+    public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser) => _storage.FindWarehouseActions(kind, partner, pattern, isPartnerUser);
 }

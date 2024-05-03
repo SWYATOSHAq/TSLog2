@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Css;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -80,6 +81,7 @@ internal class JsonParsingService : IJsonParsingService
                     string stringActionKind = actions[0].kind;
                     string stringActionId = actions[0].id;
                     WarehouseAction warehouseAction = _yardDbConnectService.GetYardWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+                    var wareHouseActions = _yardDbConnectService.FindWarehouseActions(actionKind, partner, pattern ?? string.Empty, isPartnerUser);
 
 
                     var operationType = _yardDbConnectService.GetYardOperationType(operationTypeCode);

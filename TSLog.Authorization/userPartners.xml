@@ -51,4 +51,7 @@
 	<user name="Оператор Prime Auto" login="primeauto_oper">
 		<partner code="0041" name="0041. Prime Auto"/>
 	</user>
+	<user name="Оператор CandyFlow" login="kendyflow_oper">
+		<partner code="0043" name="0043. CandyFlow"/>
+	</user>
 </userPartners>
