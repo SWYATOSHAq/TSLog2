@@ -14,10 +14,11 @@ namespace TSLog.Links.JITLimport.Interfaces
         Partner? GetYardPartner();
         Employee? GetYardPartnerManagers(Partner partner);
         VehicleKind GetYardVehicleKind(string typeOfVehicle);
-        void CreateYardOperation(Operation operation, string user, WarehouseAction action);
+        void CreateYardOperation(Operation operation, string user, WarehouseAction[] actions);
         LineBase[] GetYardWarehouseActionLines(dynamic kind, string id);
         void GetYardAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
         WarehouseAction GetYardWarehouseAction(ActionKind actionKind, string id);
+        WarehouseAction GetYardWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId);
         WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser);
     }
 }

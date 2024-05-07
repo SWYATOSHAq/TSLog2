@@ -49,72 +49,63 @@ internal class JsonParsingService : IJsonParsingService
                     string operationTypePart = parts[3].ToLower();
                     string operationTypeCode = String.Empty;
                     string vehicleType = String.Empty;
+                    string? partnerActionId = root.GetProperty("num").GetString().Trim();
+                    List<WarehouseAction> actionsToAdd = new();
                     dynamic[] actions;
 
                     if (operationTypePart == "out" && direction == "out")
                     {
                         operationTypeCode = "O_BOX_MIX";
                         vehicleType = "1.5_TONS";
-                        actions = new dynamic[]
-                        {
-                            new {
-                                operationId = -1,
-                                kind = "O",
-                                id = "00420000MASTER NORMAL"
-                            }
-                        };
                     }
                     else
                     {
                         operationTypeCode = "I_BOX_MIX";
                         vehicleType = "20_TONS";
-                        actions = new dynamic[]
-                        {
-                            new {
-                                operationId = -1,
-                                kind = "I",
-                                id = "00420000MASTER NORMAL"
-                            }
-                        };
                     }
 
-                    string stringActionKind = actions[0].kind;
-                    string stringActionId = actions[0].id;
-                    WarehouseAction warehouseAction = _yardDbConnectService.GetYardWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
-                    var wareHouseActions = _yardDbConnectService.FindWarehouseActions(actionKind, partner, pattern ?? string.Empty, isPartnerUser);
-
-
-                    var operationType = _yardDbConnectService.GetYardOperationType(operationTypeCode);
-
-                    DateTime date = DateTime.ParseExact(startDate, "dd.MM.yyyy", null);
-                    DateTime time = DateTime.ParseExact(startTime, "HH:mm", null);
-                    DateTime planWorkStartDate = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
-                    var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
-                    var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
-                    //var planWorkStartDate = planWorkFinishDate.Subtract(new TimeSpan(0, 0, YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
-                    var vehicleNumber = root.GetProperty("auto_num").GetString();
-                    var vehicleBrand = root.GetProperty("auto_model").GetString();
-                    var vehicleModel = "<Не указано>";
-                    var trailerNumber = String.Empty;
-                    var driverPhoneNumber = String.Empty;
-                    var state = _yardDbConnectService.GetYardOperationState();
-                    var priority = Operation.DefaultPriority;
                     var partner = _yardDbConnectService.GetYardPartner();
-                    var manager = _yardDbConnectService.GetYardPartnerManagers(partner);
-                    var partnerManagerPhoneNumber = manager.PhoneNumber;
-                    var partnerManagerEmail = manager.Email;
+                    WarehouseAction warehouseAction = _yardDbConnectService.GetYardWarehouseAction(direction == "out" ? ActionKind.Outgo : ActionKind.Income, partner, partnerActionId);                    
+                    var wareHouseActionsAvailiable = _yardDbConnectService.FindWarehouseActions(direction == "out" ? ActionKind.Outgo : ActionKind.Income, partner, string.Empty, false);
+                    if (wareHouseActionsAvailiable.Contains(warehouseAction))
+                    {
+                        actionsToAdd.Add(warehouseAction);
 
-                    var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
-                    vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
-                    driverName, driverPhoneNumber,
-                    state,
-                    priority,
-                    partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-                    manager);
-                    operation.Note = String.Empty;
-                    operation.Parking = false;
+                        var operationType = _yardDbConnectService.GetYardOperationType(operationTypeCode);
 
-                    _yardDbConnectService.CreateYardOperation(operation, user, warehouseAction);
+                        var dynamicActions = YardUtils.WarehouseActionsToDynamic(actionsToAdd.ToArray());
+                        DateTime date = DateTime.ParseExact(startDate, "dd.MM.yyyy", null);
+                        DateTime time = DateTime.ParseExact(startTime, "HH:mm", null);
+                        DateTime planWorkStartDate = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
+                        var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
+                        var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, dynamicActions)));
+                        var vehicleNumber = root.GetProperty("auto_num").GetString();
+                        var vehicleBrand = root.GetProperty("auto_model").GetString();
+                        var vehicleModel = "<Не указано>";
+                        var trailerNumber = String.Empty;
+                        var driverPhoneNumber = String.Empty;
+                        var state = _yardDbConnectService.GetYardOperationState();
+                        var priority = Operation.DefaultPriority;
+                        var manager = _yardDbConnectService.GetYardPartnerManagers(partner);
+                        var partnerManagerPhoneNumber = manager.PhoneNumber;
+                        var partnerManagerEmail = manager.Email;
+
+                        var operation = new Operation(-1, null, operationType, planWorkStartDate, planWorkFinishDate,
+                        vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber,
+                        driverName, driverPhoneNumber,
+                        state,
+                        priority,
+                        partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+                        manager);
+                        operation.Note = String.Empty;
+                        operation.Parking = false;
+
+                        _yardDbConnectService.CreateYardOperation(operation, user, actionsToAdd.ToArray());
+
+                    } else
+                    {
+                        _logger.LogWarning("PartnerAction {partnerActionId} not found in DB.", partnerActionId);
+                    }                       
                 }
             }
             catch (Exception ex)

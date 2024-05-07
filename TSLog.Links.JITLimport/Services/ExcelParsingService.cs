@@ -154,7 +154,7 @@ internal class ExcelParsingService : IExcelParsingService
                 operation.Note = String.Empty;
                 operation.Parking = false;
 
-                _yardDbConnectService.CreateYardOperation(operation, user, warehouseAction);
+                //_yardDbConnectService.CreateYardOperation(operation, user, warehouseAction);
             }
             catch (Exception ex)
             {

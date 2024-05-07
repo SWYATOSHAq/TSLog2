@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -123,5 +124,27 @@ public static class YardUtils
             totalTime = standardTotalDuration;
 
         return (int)totalTime;
+    }
+
+    public static dynamic[] WarehouseActionsToDynamic(WarehouseAction[] actions)
+    {
+        var result = new List<dynamic>();
+        foreach (var action in actions)
+            result.Add(WarehouseActionToDynamic(action));
+        return result.ToArray();
+    }
+
+    private static dynamic WarehouseActionToDynamic(WarehouseAction action)
+    {
+        dynamic result = new ExpandoObject();
+        result.kind = action.Kind == ActionKind.Outgo ? "O" : "I";
+        result.id = action.Id;
+        result.partnerActionId = action.PartnerActionId;
+        result.partnerId = action.Partner.Id;
+        result.partnerName = action.Partner.Name;
+        result.planActionDate = action.PlanActionDate;
+        result.insertDate = action.InsertDate;
+
+        return result;
     }
 }
