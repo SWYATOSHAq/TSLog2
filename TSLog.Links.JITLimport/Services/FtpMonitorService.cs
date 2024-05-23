@@ -32,7 +32,7 @@ internal class FtpMonitorService : IFtpMonitorService
         _remotePath = remotePath;
         _logger = logger;
     }
-    [Obsolete]
+    [Obsolete("Т.к. сейчас клиент использует json формат - данный метод неактуален.")]
     public IEnumerable<string> CheckForXlsFiles()
     {
         var fileList = new List<string>();

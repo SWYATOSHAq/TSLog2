@@ -39,7 +39,8 @@ internal class JsonParsingService : IJsonParsingService
                     JsonElement root = doc.RootElement;
                     string? direction = root.GetProperty("direction").GetString().ToLower();
                     string startDate = root.GetProperty("shipping_date").GetString();
-                    string startTime = root.GetProperty("shipping_time").GetString();
+                    var startTimeTemp = root.GetProperty("shipping_time").GetString();
+                    string startTime = string.IsNullOrEmpty(startTimeTemp) ? "09:00" : startTimeTemp;
                     string driverName = root.GetProperty("driver").GetString();
                     string partnerManagerName = String.Empty;
                     string user = "auto_jitloper";
@@ -79,8 +80,10 @@ internal class JsonParsingService : IJsonParsingService
                         DateTime planWorkStartDate = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
                         var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
                         var planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, dynamicActions)));
-                        var vehicleNumber = root.GetProperty("auto_num").GetString();
-                        var vehicleBrand = root.GetProperty("auto_model").GetString();
+                        var vehicleNumberTemp = root.GetProperty("auto_num").GetString();
+                        var vehicleNumber = string.IsNullOrEmpty(vehicleNumberTemp) ? "<Не указано>" : vehicleNumberTemp;
+                        var autoModelTemp = root.GetProperty("auto_model").GetString();
+                        var vehicleBrand = string.IsNullOrEmpty(autoModelTemp) ? "<Не указано>" : autoModelTemp;
                         var vehicleModel = "<Не указано>";
                         var trailerNumber = String.Empty;
                         var driverPhoneNumber = String.Empty;

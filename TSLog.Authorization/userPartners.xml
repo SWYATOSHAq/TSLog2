@@ -54,4 +54,7 @@
 	<user name="Оператор CandyFlow" login="kendyflow_oper">
 		<partner code="0043" name="0043. CandyFlow"/>
 	</user>
+	<user name="Оператор Лидер" login="Leader_oper">
+		<partner code="0048" name="0048. Лидер"/>
+	</user>
 </userPartners>

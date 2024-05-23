@@ -50,8 +50,9 @@ public class Program
             var isDebug = hostContext.Configuration.GetValue<bool>("IsDebug");
             services.Configure<TimeHostConfig>(hostContext.Configuration.GetSection("TimeHostConfig"));
             services.AddHttpClient();
-            services.AddSingleton<IHttpClientService, HttpClientService>();
+            services.AddSingleton<IHttpClientService, HttpClientService>();            
             services.AddHostedService<TimedHostedService>();
+            services.AddTransient<IDataProcessor, DataProcessor>();
         })
         .UseSerilog();
 
