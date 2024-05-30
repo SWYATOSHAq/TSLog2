@@ -112,11 +112,10 @@ internal class FtpMonitorService : IFtpMonitorService
                         if (File.Exists(localFilePath))
                         {
                             _logger.LogInformation("File already exists locally: {LocalFilePath}", localFilePath);
-                            // If you want to overwrite, uncomment the next line and change Skip to Overwrite in the download call.
-                            // File.Delete(localFilePath);
+                            File.Delete(localFilePath);
                         }
 
-                        var result = await ftp.DownloadFile(localFilePath, file, FtpLocalExists.Skip, token: cancellationToken);
+                        var result = await ftp.DownloadFile(localFilePath, file, FtpLocalExists.Overwrite, token: cancellationToken);
                         if (result.IsSuccess())
                         {
                             _logger.LogInformation("Downloaded file: {FileName}", file);

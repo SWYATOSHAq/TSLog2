@@ -9,7 +9,7 @@ namespace TSLog.Links.IntegrationModels;
 /// <summary>
 /// Модель телеграммы с перечнем контрагентов-грузополучателей.
 /// </summary>
-public class TargetShippingClientsMessage
+public class TargetShippingClientsModel
 {
     /// <summary>
     /// Название сообщения находящегося в строке.
@@ -41,7 +41,7 @@ public class TargetShippingClientsMessage
     /// </summary>
     public string Info2 { get; set; } = string.Empty;
 
-    public TargetShippingClientsMessage(string msgNam, string mndNr, string сustVendId, string custVendName)
+    public TargetShippingClientsModel(string msgNam, string mndNr, string сustVendId, string custVendName)
     {
         MsgNam = msgNam;
         MndNr = mndNr;

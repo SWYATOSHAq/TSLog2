@@ -9,13 +9,13 @@ namespace TSLog.Links.IntegrationModels;
 /// <summary>
 /// Модель для телграммы заявки на приёмку. Включает в себя Заголовок, Строку или Строки и Окончание.
 /// </summary>
-public class ReceivedGoodsMessage
+public class ReceivedGoodsModel
 {
     public Header HeaderInfo { get; set; }
     public List<Body> BodyInfo { get; set; }
     public Tail TailInfo { get; set; }
 
-    public ReceivedGoodsMessage(string msgNam, string mndNr, string operationType, string custDocId, string custVendId)
+    public ReceivedGoodsModel(string msgNam, string mndNr, string operationType, string custDocId, string custVendId)
     {
         HeaderInfo = new Header(msgNam, mndNr, operationType, custDocId, custVendId);
         BodyInfo = new List<Body>();

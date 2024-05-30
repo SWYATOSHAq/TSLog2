@@ -3,8 +3,13 @@
 /// <summary>
 /// Модель телеграммы справочника артикулов.
 /// </summary>
-public class SkuCatalogMessage
+public class SkuCatalogModel
 {
+    /// <summary>
+    /// Название сообщения находящегося в строке.
+    /// </summary>
+    public string MsgNam { get; set; }
+
     /// <summary>
     /// Цифровой идентификатор клиента.
     /// </summary>
@@ -105,8 +110,9 @@ public class SkuCatalogMessage
     /// </summary>
     public string ArtInfo1 { get; set; } = string.Empty;
 
-    public SkuCatalogMessage(string mndNr, string itemId, string artGrpNam, string artEan)
+    public SkuCatalogModel(string msgNam, string mndNr, string itemId, string artGrpNam, string artEan)
     {
+        MsgNam = msgNam;
         MndNr = mndNr;
         ItemId = itemId;
         ArtGrpNam = artGrpNam;
