@@ -57,4 +57,7 @@
 	<user name="Оператор Лидер" login="Leader_oper">
 		<partner code="0048" name="0048. Лидер"/>
 	</user>
+	<user name="Оператор RVI" login="rvioper">
+		<partner code="0060" name="0060. RVI"/>
+	</user>
 </userPartners>

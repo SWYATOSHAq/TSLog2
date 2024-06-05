@@ -821,6 +821,7 @@ namespace TSLog.Yard.Data
         {
             return !string.IsNullOrWhiteSpace(gateCode) && _siteCodes.ContainsKey(gateCode) ? _siteCodes[gateCode] : string.Empty;
         }
+        
         private readonly Catalog<Site> _sites = new("SITES", "Участки");
         private static Site CreateSite(DbDataReader reader)
         {
@@ -848,6 +849,8 @@ namespace TSLog.Yard.Data
                 note);
             return site;
         }
+
+        
         /// <summary>
         /// Возвращает ID площадки из вьюхи STF_SITE#V по значению CODE.
         /// </summary>
@@ -865,6 +868,59 @@ namespace TSLog.Yard.Data
             }
             return siteId;
         }
+        /// <summary>
+        /// Возвращает словарь, где ключ - код участка, значение - идентификатор участка, для списка кодов участков.
+        /// </summary>
+        /// <param name="siteCodes">Список кодов участков.</param>
+        /// <returns>Словарь, где ключ - код участка, значение - идентификатор участка.</returns>
+        public Dictionary<string, int> GetSiteIdsBySiteCodes(List<string> siteCodes)
+        {
+            var result = new Dictionary<string, int>();
+            if (siteCodes == null || siteCodes.Count == 0)
+            {
+                return result;
+            }
+
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = new StringBuilder();
+                sql.Append("SELECT CODE, ID ");
+                sql.Append($"FROM {StaffSchema}.STF_SITE#V ");
+                sql.Append("WHERE CODE IN (");
+
+                for (int i = 0; i < siteCodes.Count; i++)
+                {
+                    if (i > 0) sql.Append(", ");
+                    sql.Append($":code_{i}");
+                    command.Parameters.Add(new OracleParameter($"code_{i}", siteCodes[i]));
+                }
+
+                sql.Append(")");
+                command.CommandText = sql.ToString();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var siteCode = reader["CODE"].ToString();
+                        var siteId = Convert.ToInt32(reader["ID"]);
+                        result[siteCode] = siteId;
+                    }
+                }
+            }
+
+            // Ensure that all site codes are present in the result.
+            foreach (var siteCode in siteCodes)
+            {
+                if (!result.ContainsKey(siteCode))
+                {
+                    result[siteCode] = -1; // If a site code is not found in the results, return -1 or another placeholder
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Возвращаем результат проверки на предмет того, что сотрудник покинул ворота.
         /// </summary>
@@ -908,6 +964,80 @@ namespace TSLog.Yard.Data
             return result;
         }
         /// <summary>
+        /// Возвращает результат проверки на предмет того, что сотрудники покинули ворота.
+        /// </summary>
+        /// <param name="workerCheckTasks">Список задач для проверки сотрудников.</param>
+        /// <returns>Список результатов, где для каждого сотрудника указывается, покинул ли он ворота.</returns>
+        public List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate, bool IsWorkFinished)> CheckWorkersLeaveSites(
+            List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate)> workerCheckTasks)
+        {
+            var results = new List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate, bool IsWorkFinished)>();
+
+            if (workerCheckTasks == null || workerCheckTasks.Count == 0)
+            {
+                return results;
+            }
+
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = new StringBuilder();
+                sql.Append("SELECT Worker_id, SITE_ID, PARTNER_ID, DATE_TIME, KIND\n");
+                sql.Append($"FROM {StaffSchema}.STF_SITE_WORKER#V ssv\n");
+                sql.Append("WHERE (Worker_id, PARTNER_ID, SITE_ID, DATE_TIME) IN (");
+
+                // Adding parameters for each worker check task.
+                for (int i = 0; i < workerCheckTasks.Count; i++)
+                {
+                    if (i > 0) sql.Append(", ");
+                    sql.Append($"(:workerId_{i}, :partnerId_{i}, :siteId_{i}, :factStartWorkDate_{i})");
+                    command.Parameters.Add(new OracleParameter($"workerId_{i}", workerCheckTasks[i].WorkerId));
+                    command.Parameters.Add(new OracleParameter($"partnerId_{i}", workerCheckTasks[i].PartnerIds));
+                    command.Parameters.Add(new OracleParameter($"siteId_{i}", workerCheckTasks[i].SiteId));
+                    command.Parameters.Add(new OracleParameter($"factStartWorkDate_{i}", workerCheckTasks[i].FactStartWorkDate));
+                }
+
+                sql.Append(")\nORDER BY DATE_TIME DESC");
+
+                command.CommandText = sql.ToString();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var workerId = Convert.ToInt32(reader["Worker_id"]);
+                        var siteId = Convert.ToInt32(reader["SITE_ID"]);
+                        var partnerIds = reader["PARTNER_ID"].ToString();
+                        var dateTime = Convert.ToDateTime(reader["DATE_TIME"]);
+                        var kind = reader["KIND"].ToString();
+
+                        var task = workerCheckTasks.FirstOrDefault(t =>
+                            t.WorkerId == workerId &&
+                            t.SiteId == siteId &&
+                            t.PartnerIds == partnerIds &&
+                            t.FactStartWorkDate <= dateTime);
+
+                        if (task != default)
+                        {
+                            var isWorkFinished = kind == "L";
+                            results.Add((workerId, siteId, partnerIds, task.FactStartWorkDate, isWorkFinished));
+                        }
+                    }
+                }
+            }
+
+            // Ensure that all worker check tasks are present in the result.
+            foreach (var task in workerCheckTasks)
+            {
+                if (!results.Any(r => r.WorkerId == task.WorkerId && r.SiteId == task.SiteId && r.PartnerIds == task.PartnerIds))
+                {
+                    results.Add((task.WorkerId, task.SiteId, task.PartnerIds, task.FactStartWorkDate, false));
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
         /// Возвращает результат проверки ворот на отсутствие зарегистрированных сотрудников.
         /// </summary>
         /// <param name="gateCode">Код ворот.</param>
@@ -924,6 +1054,60 @@ namespace TSLog.Yard.Data
             }
             return countRows == 0;
         }
+
+        /// <summary>
+        /// Возвращает результат проверки ворот на отсутствие зарегистрированных сотрудников для списка кодов ворот.
+        /// </summary>
+        /// <param name="siteCodes">Список кодов ворот.</param>
+        /// <returns>Словарь, где ключ - код ворот, значение - булево значение (true, если ворота свободны).</returns>
+        public Dictionary<string, bool> CheckGatesForFreeBeforeFinishWork(List<string> siteCodes)
+        {
+            var result = new Dictionary<string, bool>();
+            if (siteCodes == null || siteCodes.Count == 0)
+            {
+                return result;
+            }
+
+            using (var command = _connection.CreateCommand())
+            {
+                var sql = new StringBuilder();
+                sql.Append("SELECT SITE_CODE, COUNT(*) AS COUNT_ROWS ");
+                sql.Append($"FROM {StaffSchema}.STF_BUSY_WORKER#V ");
+                sql.Append("WHERE SITE_CODE IN (");
+
+                for (int i = 0; i < siteCodes.Count; i++)
+                {
+                    if (i > 0) sql.Append(", ");
+                    sql.Append($":gate_code_{i}");
+                    command.Parameters.Add(new OracleParameter($"gate_code_{i}", siteCodes[i]));
+                }
+
+                sql.Append(") GROUP BY SITE_CODE");
+                command.CommandText = sql.ToString();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var siteCode = reader["SITE_CODE"].ToString();
+                        var countRows = Convert.ToInt32(reader["COUNT_ROWS"]);
+                        result[siteCode] = countRows == 0;
+                    }
+                }
+            }
+
+            // Ensure that all site codes are present in the result.
+            foreach (var siteCode in siteCodes)
+            {
+                if (!result.ContainsKey(siteCode))
+                {
+                    result[siteCode] = true; // If a site code is not found in the results, it means the gate is free.
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Возвращает участок работ по идентификатору.
         /// </summary>

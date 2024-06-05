@@ -101,8 +101,12 @@ namespace TSLog.Yard.BO
     {
         public string GetSiteCodeByGateCode(string gateCode);
         public int GetSiteIdBySiteCode(string siteCode);
+        public Dictionary<string, int> GetSiteIdsBySiteCodes(List<string> siteCodes);
         public bool CheckWorkerLeaveSite(int workerId, int siteId, string partnerId, DateTime factStartWorkDate);
+        public List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate, bool IsWorkFinished)> CheckWorkersLeaveSites(
+            List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate)> workerCheckTasks);
         public bool CheckGateForFreeBeforeFinishWork(string gateCode);
+        public Dictionary<string, bool> CheckGatesForFreeBeforeFinishWork(List<string> siteCodes);
         public MeasureUnit GetMeasureUnit(string code);
         public MeasureUnit[] GetMeasureUnits();
         public LineBase[] GetWarehouseActionLines(ActionKind actionKind, string actionId);

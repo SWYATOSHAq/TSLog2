@@ -822,7 +822,7 @@ namespace TSLog.Yard.WebUI.Pages.api.v1
                             break;
                         }
                     }
-                }                
+                }
 
                 DateTime factWorkNotFinishDate = DateTime.MinValue;
                 TimeSpan timeToStartWork = now - operation.FactWorkStartDate;

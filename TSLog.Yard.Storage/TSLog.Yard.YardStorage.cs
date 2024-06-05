@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Policy;
 using TSLog.BossControl.BO;
 using TSLog.Common;
 using TSLog.Common.BO;
@@ -9,6 +11,7 @@ using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 using TSLog.Yard.Data;
+using static AngleSharp.Css.Values.CssRadialGradientValue;
 using OperationType = TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard
@@ -271,13 +274,26 @@ namespace TSLog.Yard
         {
             return _oracleStorage.GetSiteIdBySiteCode(siteCode);
         }
+        public Dictionary<string, int> GetSiteIdsBySiteCodes(List<string> siteCodes)
+        {
+            return _oracleStorage.GetSiteIdsBySiteCodes(siteCodes);
+        }
         public bool CheckWorkerLeaveSite(int workerId, int siteId, string partnerId, DateTime factStartWorkDate)
         {
             return _oracleStorage.CheckWorkerLeaveSite(workerId, siteId, partnerId, factStartWorkDate);
         }
+        public List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate, bool IsWorkFinished)> CheckWorkersLeaveSites(
+            List<(int WorkerId, int SiteId, string PartnerIds, DateTime FactStartWorkDate)> workerCheckTasks)
+        {
+            return _oracleStorage.CheckWorkersLeaveSites(workerCheckTasks);
+        }
         public bool CheckGateForFreeBeforeFinishWork(string gateCode)
         {
             return _oracleStorage.CheckGateForFreeBeforeFinishWork(gateCode);
+        }
+        public Dictionary<string, bool> CheckGatesForFreeBeforeFinishWork(List<string> siteCodes)
+        {
+            return _oracleStorage.CheckGatesForFreeBeforeFinishWork(siteCodes);
         }
         #endregion
 
