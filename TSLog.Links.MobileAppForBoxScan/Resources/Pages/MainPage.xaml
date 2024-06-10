@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+            <Image
+                Source="tsl_logo.png"
+                HeightRequest="185"
+                Aspect="AspectFit"
+                SemanticProperties.Description="tsl company logo" />
+
+            <Entry x:Name="usernameEntry" 
+                   Placeholder="Введите логин" 
+                   FontFamily="Helvetica"
+                   FontSize="22" 
+                   MaxLength="20" />
+
+            <Entry x:Name="passwordEntry" 
+                   Placeholder="Введите пароль" 
+                   FontFamily="Helvetica"
+                   FontSize="22" 
+                   MaxLength="20" 
+                   IsPassword="True" />
+
+            <Button
+                x:Name="loginButton"
+                Text="Войти" 
+                Clicked="OnLoginClicked"
+                HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

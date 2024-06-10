@@ -60,4 +60,7 @@
 	<user name="Оператор RVI" login="rvioper">
 		<partner code="0060" name="0060. RVI"/>
 	</user>
+	<user name="Оператор КирэйКемикал" login="kireichemical_oper">
+		<partner code="0049" name="0049. КирэйКемикал"/>
+	</user>
 </userPartners>

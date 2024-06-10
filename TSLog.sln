@@ -119,7 +119,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Common.MessageSending
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.BLCtobacco", "TSLog.Links.BLCtobacco\TSLog.Links.BLCtobacco.csproj", "{446B0BE9-940D-4DA6-943F-12A15BFF5AF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.IntegrationModels", "TSLog.Links.IntegrationModels\TSLog.Links.IntegrationModels.csproj", "{9AE599AC-C158-4084-BD4F-8012C777C3FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.IntegrationModels", "TSLog.Links.IntegrationModels\TSLog.Links.IntegrationModels.csproj", "{9AE599AC-C158-4084-BD4F-8012C777C3FD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.MobileAppForBoxScan", "TSLog.Links.MobileAppForBoxScan\TSLog.Links.MobileAppForBoxScan.csproj", "{05570710-CA60-459A-A26E-B38C8FF3972A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.WebApiForBoxScan", "TSLog.Links.WebApiForBoxScan\TSLog.Links.WebApiForBoxScan.csproj", "{19B24CEB-FE54-4C51-9891-0BBB50661AEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -327,6 +331,16 @@ Global
 		{9AE599AC-C158-4084-BD4F-8012C777C3FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AE599AC-C158-4084-BD4F-8012C777C3FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AE599AC-C158-4084-BD4F-8012C777C3FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05570710-CA60-459A-A26E-B38C8FF3972A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05570710-CA60-459A-A26E-B38C8FF3972A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05570710-CA60-459A-A26E-B38C8FF3972A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{05570710-CA60-459A-A26E-B38C8FF3972A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05570710-CA60-459A-A26E-B38C8FF3972A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05570710-CA60-459A-A26E-B38C8FF3972A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

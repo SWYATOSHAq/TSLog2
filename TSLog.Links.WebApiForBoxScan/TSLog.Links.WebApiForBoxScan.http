@@ -1,0 +1,6 @@
+# @TSLog.Links.WebApiForBoxScan_HostAddress = http://localhost:5183
+
+# GET {{TSLog.Links.WebApiForBoxScan_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+###

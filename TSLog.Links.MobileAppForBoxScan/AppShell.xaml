@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="TSLog.Links.MobileAppForBoxScan.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"    
+    xmlns:local="clr-namespace:TSLog.Links.MobileAppForBoxScan.Resources.Pages"
+    Shell.FlyoutBehavior="Disabled"
+    Title="TSLog.Links.MobileAppForBoxScan">
+
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+    <ShellContent
+        Title="Shipping Invoice Scan"
+        ContentTemplate="{DataTemplate local:ShippingInvoiceScanPage}"
+        Route="ShippingInvoiceScanPage" />
+
+</Shell>
