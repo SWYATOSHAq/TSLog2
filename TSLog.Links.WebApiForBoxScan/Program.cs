@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using System.DirectoryServices.AccountManagement;
+using TSLog.Links.WebApiForBoxScan.Models;
 
 namespace TSLog.Links.WebApiForBoxScan;
 
@@ -24,6 +25,22 @@ public class Program
                            .AllowAnyHeader();
                 });
         });
+
+        // Determine whether to use debug settings
+        var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
+
+        // Register Oracle connection settings dynamically based on the IsDebug flag.
+        if (isDebug)
+        {
+            builder.Services.Configure<OracleConnectionSettings>(builder.Configuration.GetSection("OracleConnectionDebugSettings"));
+        }
+        else
+        {
+            builder.Services.Configure<OracleConnectionSettings>(builder.Configuration.GetSection("OracleConnectionSettings"));
+        }
+
+        builder.Services.AddSingleton<OracleConnectionService>();
+
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -71,6 +88,20 @@ public class Program
             // Here you would typically clear authentication cookies or tokens.
             // Since we're using Negotiate, there's not much to do here.
             return Results.Ok(new { Message = "Logged off" });
+        });
+
+        // Define a test endpoint to get all data from the view.
+        app.MapGet("/test-oracle", async (OracleConnectionService dbService) =>
+        {
+            try
+            {
+                var data = await dbService.GetAllDataFromViewAsync();
+                return Results.Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
         });
 
         // Define the scan data endpoint
@@ -125,3 +156,4 @@ public class Program
 public record LoginRequest(string Username, string Password);
 
 public record ScanData(string OrderId, string BoxId);
+

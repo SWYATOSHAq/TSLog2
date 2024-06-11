@@ -29,7 +29,7 @@ public partial class ShippingInvoiceScanPage : ContentPage
             var response = await _httpClient.PostAsync("https://10.50.252.33:7278/logoff", null);
             if (response.IsSuccessStatusCode)
             {
-                await DisplayAlert("Успех", "Выход выполнен успешно", "OK");
+                //await DisplayAlert("Успех", "Выход выполнен успешно", "OK");
                 // Clear any stored user state and navigate to the login page
                 await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
             }
