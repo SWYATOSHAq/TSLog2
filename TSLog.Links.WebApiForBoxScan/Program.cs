@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using System.DirectoryServices.AccountManagement;
@@ -65,6 +64,13 @@ public class Program
                 return Results.Ok(new { Message = "Authenticated", Username = loginRequest.Username });
             }
             return Results.Unauthorized();
+        });
+
+        app.MapPost("/logoff", () =>
+        {
+            // Here you would typically clear authentication cookies or tokens.
+            // Since we're using Negotiate, there's not much to do here.
+            return Results.Ok(new { Message = "Logged off" });
         });
 
         // Define the scan data endpoint

@@ -1,11 +1,20 @@
+using System.Net.Http;
+
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 public partial class ShippingInvoiceScanPage : ContentPage
 {
-	public ShippingInvoiceScanPage()
+    private readonly HttpClient _httpClient;
+    public ShippingInvoiceScanPage()
 	{
 		InitializeComponent();
-	}
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+
+        _httpClient = new HttpClient(handler);
+    }
     protected override void OnAppearing()
     {
         base.OnAppearing();
@@ -16,5 +25,31 @@ public partial class ShippingInvoiceScanPage : ContentPage
             invoiceEntry.Focus();
             return false; // Run the timer callback only once
         });
+    }
+
+    private async void OnExitClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsync("https://10.50.252.33:7278/logoff", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Успех", "Выход выполнен успешно", "OK");
+                // Clear any stored user state and navigate to the login page
+                await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+            }
+            else
+            {
+                await DisplayAlert("Ошибка", "Не удалось выполнить выход", "OK");
+            }
+        }
+        catch (HttpRequestException httpRequestEx)
+        {
+            await DisplayAlert("HTTP Error", $"Request error: {httpRequestEx.Message}", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ошибка", $"Не удалось выполнить выход: {ex.Message}", "OK");
+        }
     }
 }

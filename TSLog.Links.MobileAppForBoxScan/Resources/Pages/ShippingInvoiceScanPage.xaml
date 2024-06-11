@@ -15,6 +15,12 @@
             <Entry x:Name="invoiceEntry" Placeholder = "Номер расходной накладной" FontFamily="Helvetica"
                    FontSize="22" MaxLength ="20" />
 
+            <Button
+                x:Name="exitButton"
+                Text="Выход" 
+                Clicked="OnExitClicked"
+                HorizontalOptions="Fill" />
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
