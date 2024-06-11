@@ -8,27 +8,33 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
     {
         private readonly HttpClient _httpClient;
 
-        public MainPage()
+        public MainPage(HttpClient httpClient)
         {
             InitializeComponent();
-
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
-
-            _httpClient = new HttpClient(handler);
+            _httpClient = httpClient;
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
-            // Use the Dispatcher to ensure the UI is ready before setting the focus
+            ClearEntries();
+            FocusUsernameEntry();
+        }
+
+        private void ClearEntries()
+        {
+            usernameEntry.Text = string.Empty;
+            passwordEntry.Text = string.Empty;
+        }
+
+        private void FocusUsernameEntry()
+        {
+            // Use the Dispatcher to ensure the UI is ready before setting the focus.
             Dispatcher.StartTimer(TimeSpan.FromMilliseconds(500), () =>
             {
                 usernameEntry.Focus();
-                return false; // Run the timer callback only once
+                return false; // Run the timer callback only once.
             });
         }
 

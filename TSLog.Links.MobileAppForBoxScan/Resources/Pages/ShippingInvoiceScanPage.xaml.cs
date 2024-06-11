@@ -5,15 +5,10 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 public partial class ShippingInvoiceScanPage : ContentPage
 {
     private readonly HttpClient _httpClient;
-    public ShippingInvoiceScanPage()
+    public ShippingInvoiceScanPage(HttpClient httpClient)
 	{
 		InitializeComponent();
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-        };
-
-        _httpClient = new HttpClient(handler);
+        _httpClient = httpClient;
     }
     protected override void OnAppearing()
     {
