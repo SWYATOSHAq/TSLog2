@@ -91,18 +91,18 @@ public class Program
         });
 
         // Define a test endpoint to get all data from the view.
-        app.MapGet("/test-oracle", async (OracleConnectionService dbService) =>
-        {
-            try
-            {
-                var data = await dbService.GetAllDataFromViewAsync();
-                return Results.Ok(data);
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
-        });
+        //app.MapGet("/test-oracle", async (OracleConnectionService dbService) =>
+        //{
+        //    try
+        //    {
+        //        var data = await dbService.GetAllDataFromViewAsync();
+        //        return Results.Ok(data);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Results.Problem(ex.Message);
+        //    }
+        //});
 
         // Define the scan data endpoint
         //app.MapPost("/submit-scan", [Authorize] async (ScanData scanData, IConfiguration config) =>
@@ -140,8 +140,73 @@ public class Program
         //.WithName("GetWeatherForecast")
         //.WithOpenApi();
 
+        // Define a test endpoint to get all data from the view.
+        //app.MapGet("/test-oracle", async (OracleConnectionService dbService) =>
+        //{
+        //    try
+        //    {
+        //        var data = await dbService.GetAllDataFromViewAsync();
+        //        return Results.Ok(data);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Results.Problem(ex.Message);
+        //    }
+        //});
+
+        // Define an endpoint to validate the order
+        app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService) =>
+        {
+            try
+            {
+                bool orderExists = await dbService.ValidateOrderAsync(orderId);
+                if (orderExists)
+                {
+                    return Results.Ok(new { Message = "Order found", OrderId = orderId });
+                }
+                else
+                {
+                    return Results.NotFound(new { Message = "Order not found", OrderId = orderId });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        }).RequireAuthorization();
+
+        // Define an endpoint to accept order and box SSCI codes
+        app.MapPost("/accept-boxes", async (OrderBoxRequest request, OracleConnectionService dbService) =>
+        {
+            try
+            {
+                dbService.AcceptOrderBoxes(request.OrderId, request.BoxSSCCCodes);
+                return Results.Ok(new { Message = "Boxes accepted", OrderId = request.OrderId });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        }).RequireAuthorization();
+
+        // Define an endpoint to register order and boxes in the database
+        app.MapPost("/register-order", async (OrderRegisterRequest request, OracleConnectionService dbService) =>
+        {
+            try
+            {
+                await dbService.RegisterOrderAsync(request.OrderId, request.UserName);
+                return Results.Ok(new { Message = "Order registered", OrderId = request.OrderId });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        }).RequireAuthorization();
+
         app.Run();
     }
+
+
 
     // Method to authenticate the user against Active Directory
     static bool AuthenticateUser(string username, string password)
@@ -152,8 +217,15 @@ public class Program
         }
     }
 }
-// Define the login request model
+// Define the login request model.
 public record LoginRequest(string Username, string Password);
 
+// Define the scan data model
 public record ScanData(string OrderId, string BoxId);
+
+// Define the order box request model.
+public record OrderBoxRequest(string OrderId, List<string> BoxSSCCCodes);
+
+// Define the order register request model.
+public record OrderRegisterRequest(string OrderId, string UserName);
 

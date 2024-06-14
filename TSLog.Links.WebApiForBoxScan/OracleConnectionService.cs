@@ -8,10 +8,12 @@ namespace TSLog.Links.WebApiForBoxScan;
 public class OracleConnectionService
 {
     private readonly OracleConnectionSettings _settings;
+    private readonly Dictionary<string, HashSet<string>> _orderBoxes;
 
     public OracleConnectionService(IOptions<OracleConnectionSettings> settings)
     {
         _settings = settings.Value;
+        _orderBoxes = new Dictionary<string, HashSet<string>>();
     }
 
     private OracleConnection CreateConnection()
@@ -45,10 +47,8 @@ public class OracleConnectionService
         }
     }
 
-    public async Task<List<string>> GetAllDataFromViewAsync()
+    public async Task<bool> ValidateOrderAsync(string orderId)
     {
-        var results = new List<string>();
-
         using (var connection = CreateConnection())
         {
             await connection.OpenAsync();
@@ -56,18 +56,89 @@ public class OracleConnectionService
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;
-                command.CommandText = "SELECT AUFID FROM AUFID_MNDR_0024#V";
+                command.CommandText = "SELECT COUNT(1) FROM ECCO.AUFID_FOR_BOX_SCAN_APP#V WHERE AUFID = :AUFID";
+                command.Parameters.Add("AUFID", OracleDbType.Varchar2).Value = orderId;
 
-                using (var reader = await command.ExecuteReaderAsync())
+                var result = await command.ExecuteScalarAsync();
+                return Convert.ToInt32(result) > 0;
+            }
+        }
+    }
+
+    public void AcceptOrderBoxes(string orderId, List<string> boxSSCCCodes)
+    {
+        if (_orderBoxes.ContainsKey(orderId))
+        {
+            foreach (var code in boxSSCCCodes)
+            {
+                _orderBoxes[orderId].Add(code);
+            }
+        }
+        else
+        {
+            _orderBoxes[orderId] = new HashSet<string>(boxSSCCCodes);
+        }
+    }
+
+    public async Task RegisterOrderAsync(string orderId, string userName)
+    {
+        if (!_orderBoxes.ContainsKey(orderId))
+        {
+            throw new Exception("Order not found");
+        }
+
+        var boxSSCCCodes = _orderBoxes[orderId];
+
+        using (var connection = CreateConnection())
+        {
+            await connection.OpenAsync();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
+
+                command.Parameters.Add("P_AUFID", OracleDbType.Varchar2).Value = orderId;
+                var ssccCodesArray = new OracleParameter("P_SSCC_CODES", OracleDbType.Array)
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        results.Add(reader.GetString(0));
-                    }
-                }
+                    UdtTypeName = "ECCO.SSCC_CODE_ARRAY#T",
+                    Value = boxSSCCCodes.ToArray()
+                };
+                command.Parameters.Add(ssccCodesArray);
+                command.Parameters.Add("P_TE_NUM", OracleDbType.Int32).Value = 1001; // Example TE_NUM
+                command.Parameters.Add("P_USER", OracleDbType.Varchar2).Value = userName;
+
+                await command.ExecuteNonQueryAsync();
             }
         }
 
-        return results;
+        // Clear the stored box codes for the order
+        _orderBoxes.Remove(orderId);
     }
+
+    //public async Task<List<string>> GetAllDataFromViewAsync()
+    //{
+    //    var results = new List<string>();
+
+    //    using (var connection = CreateConnection())
+    //    {
+    //        await connection.OpenAsync();
+
+    //        using (var command = connection.CreateCommand())
+    //        {
+    //            command.CommandType = CommandType.Text;
+    //            command.CommandText = "SELECT AUFID FROM AUFID_MNDR_0024#V";
+
+    //            using (var reader = await command.ExecuteReaderAsync())
+    //            {
+    //                while (await reader.ReadAsync())
+    //                {
+    //                    results.Add(reader.GetString(0));
+    //                }
+    //            }
+    //        }
+    //    }
+
+    //    return results;
+    //}
 }
