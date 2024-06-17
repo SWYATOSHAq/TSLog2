@@ -40,6 +40,7 @@ public class Program
         }
 
         builder.Services.AddSingleton<OracleConnectionService>();
+        builder.Services.AddSingleton<SessionService>();
 
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -73,26 +74,30 @@ public class Program
         
 
         // Define the login endpoint
-        app.MapPost("/login", (LoginRequest loginRequest) =>
+        app.MapPost("/login", (LoginRequest loginRequest, SessionService sessionService) =>
         {
             bool isAuthenticated = AuthenticateUser(loginRequest.Username, loginRequest.Password);
             if (isAuthenticated)
             {
+                sessionService.LogInUser(loginRequest.Username); // Mark user as logged in
                 return Results.Ok(new { Message = "Authenticated", Username = loginRequest.Username });
             }
             return Results.Unauthorized();
         });
 
-        app.MapPost("/logoff", () =>
+        app.MapPost("/logoff", (LoginRequest loginRequest, SessionService sessionService) =>
         {
-            // Here you would typically clear authentication cookies or tokens.
-            // Since we're using Negotiate, there's not much to do here.
+            sessionService.LogOutUser(loginRequest.Username); // Mark user as logged out
             return Results.Ok(new { Message = "Logged off" });
         });
 
-        // Define a test endpoint to get all data from the view.
-        //app.MapGet("/test-oracle", async (OracleConnectionService dbService) =>
+        //app.MapGet("/test-oracle", async (OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         //{
+        //    if (sessionService.IsUserLoggedOut(httpContext.User.Identity.Name))
+        //    {
+        //        return Results.Unauthorized(new { Message = "User is logged out" });
+        //    }
+
         //    try
         //    {
         //        var data = await dbService.GetAllDataFromViewAsync();
@@ -102,7 +107,7 @@ public class Program
         //    {
         //        return Results.Problem(ex.Message);
         //    }
-        //});
+        //}).RequireAuthorization();
 
         // Define the scan data endpoint
         //app.MapPost("/submit-scan", [Authorize] async (ScanData scanData, IConfiguration config) =>
@@ -154,9 +159,14 @@ public class Program
         //    }
         //});
 
-        // Define an endpoint to validate the order
-        app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService) =>
+        app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
+            var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            if (sessionService.IsUserLoggedOut(normalizedUsername))
+            {
+                return Results.Json(new { Message = "User is logged out" }, statusCode: 401);
+            }
+
             try
             {
                 bool orderExists = await dbService.ValidateOrderAsync(orderId);
@@ -176,8 +186,14 @@ public class Program
         }).RequireAuthorization();
 
         // Define an endpoint to accept order and box SSCI codes
-        app.MapPost("/accept-boxes", async (OrderBoxRequest request, OracleConnectionService dbService) =>
+        app.MapPost("/accept-boxes", async (OrderBoxRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
+            var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            if (sessionService.IsUserLoggedOut(normalizedUsername))
+            {
+                return Results.Json(new { Message = "User is logged out" }, statusCode: 401);
+            }
+
             try
             {
                 dbService.AcceptOrderBoxes(request.OrderId, request.BoxSSCCCodes);
@@ -190,8 +206,14 @@ public class Program
         }).RequireAuthorization();
 
         // Define an endpoint to register order and boxes in the database
-        app.MapPost("/register-order", async (OrderRegisterRequest request, OracleConnectionService dbService) =>
+        app.MapPost("/register-order", async (OrderRegisterRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
+            var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            if (sessionService.IsUserLoggedOut(normalizedUsername))
+            {
+                return Results.Json(new { Message = "User is logged out" }, statusCode: 401);
+            }
+
             try
             {
                 await dbService.RegisterOrderAsync(request.OrderId, request.UserName);

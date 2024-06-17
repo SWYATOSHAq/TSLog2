@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using System.Data;
 using TSLog.Links.WebApiForBoxScan.Models;
 
@@ -88,6 +89,7 @@ public class OracleConnectionService
         }
 
         var boxSSCCCodes = _orderBoxes[orderId];
+        var ssccCodesArray = boxSSCCCodes.ToArray();
 
         using (var connection = CreateConnection())
         {
@@ -96,25 +98,62 @@ public class OracleConnectionService
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
+                command.CommandText = "SSCC_SCAN_APP.Insert_SSCC_For_Box_Scan_App";
+                command.BindByName = true;
 
-                command.Parameters.Add("P_AUFID", OracleDbType.Varchar2).Value = orderId;
-                var ssccCodesArray = new OracleParameter("P_SSCC_CODES", OracleDbType.Array)
+                command.Parameters.Add("p_AUFID", OracleDbType.Varchar2).Value = orderId;
+                command.Parameters.Add("p_TE_NUM", OracleDbType.Varchar2).Value = "1001"; // Example TE_NUM as VARCHAR2
+                command.Parameters.Add("p_USER", OracleDbType.Varchar2).Value = userName;
+
+                var ssccCodesParam = new OracleParameter("p_SSCC_CODES", OracleDbType.Varchar2)
                 {
-                    UdtTypeName = "ECCO.SSCC_CODE_ARRAY#T",
-                    Value = boxSSCCCodes.ToArray()
+                    CollectionType = OracleCollectionType.PLSQLAssociativeArray,
+                    Size = ssccCodesArray.Length,
+                    Value = ssccCodesArray
                 };
-                command.Parameters.Add(ssccCodesArray);
-                command.Parameters.Add("P_TE_NUM", OracleDbType.Int32).Value = 1001; // Example TE_NUM
-                command.Parameters.Add("P_USER", OracleDbType.Varchar2).Value = userName;
+                command.Parameters.Add(ssccCodesParam);
 
                 await command.ExecuteNonQueryAsync();
             }
         }
-
-        // Clear the stored box codes for the order
-        _orderBoxes.Remove(orderId);
     }
+
+
+    //public async Task RegisterOrderAsync(string orderId, string userName)
+    //{
+    //    if (!_orderBoxes.ContainsKey(orderId))
+    //    {
+    //        throw new Exception("Order not found");
+    //    }
+
+    //    var boxSSCCCodes = _orderBoxes[orderId];
+
+    //    using (var connection = CreateConnection())
+    //    {
+    //        await connection.OpenAsync();
+
+    //        using (var command = connection.CreateCommand())
+    //        {
+    //            command.CommandType = CommandType.StoredProcedure;
+    //            command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
+
+    //            command.Parameters.Add("P_AUFID", OracleDbType.Varchar2).Value = orderId;
+    //            var ssccCodesArray = new OracleParameter("P_SSCC_CODES", OracleDbType.Array)
+    //            {
+    //                UdtTypeName = "ECCO.SSCC_CODE_ARRAY#T",
+    //                Value = boxSSCCCodes.ToArray()
+    //            };
+    //            command.Parameters.Add(ssccCodesArray);
+    //            command.Parameters.Add("P_TE_NUM", OracleDbType.Varchar2).Value = "1001"; // Example TE_NUM as VARCHAR2
+    //            command.Parameters.Add("P_USER", OracleDbType.Varchar2).Value = userName;
+
+    //            await command.ExecuteNonQueryAsync();
+    //        }
+    //    }
+
+    //    // Clear the stored box codes for the order
+    //    _orderBoxes.Remove(orderId);
+    //}
 
     //public async Task<List<string>> GetAllDataFromViewAsync()
     //{
