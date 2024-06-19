@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices.AccountManagement;
 using TSLog.Links.WebApiForBoxScan.Models;
 
@@ -91,74 +92,6 @@ public class Program
             return Results.Ok(new { Message = "Logged off" });
         });
 
-        //app.MapGet("/test-oracle", async (OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
-        //{
-        //    if (sessionService.IsUserLoggedOut(httpContext.User.Identity.Name))
-        //    {
-        //        return Results.Unauthorized(new { Message = "User is logged out" });
-        //    }
-
-        //    try
-        //    {
-        //        var data = await dbService.GetAllDataFromViewAsync();
-        //        return Results.Ok(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Results.Problem(ex.Message);
-        //    }
-        //}).RequireAuthorization();
-
-        // Define the scan data endpoint
-        //app.MapPost("/submit-scan", [Authorize] async (ScanData scanData, IConfiguration config) =>
-        //{
-        //    string connString = config.GetConnectionString("OracleDb");
-        //    using (var conn = new OracleConnection(connString))
-        //    {
-        //        await conn.OpenAsync();
-        //        using (var cmd = new OracleCommand("YOUR_STORED_PROCEDURE_NAME", conn))
-        //        {
-        //            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-        //            cmd.Parameters.Add("P_ORDER_ID", OracleDbType.Varchar2).Value = scanData.OrderId;
-        //            cmd.Parameters.Add("P_BOX_ID", OracleDbType.Varchar2).Value = scanData.BoxId;
-
-        //            // Execute the stored procedure
-        //            await cmd.ExecuteNonQueryAsync();
-        //        }
-        //    }
-
-        //    return Results.Ok(new { Message = "Scan data submitted successfully" });
-        //});
-
-        //app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-        //{
-        //    var forecast = Enumerable.Range(1, 5).Select(index =>
-        //        new WeatherForecast
-        //        {
-        //            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-        //            TemperatureC = Random.Shared.Next(-20, 55),
-        //            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        //        })
-        //        .ToArray();
-        //    return forecast;
-        //})
-        //.WithName("GetWeatherForecast")
-        //.WithOpenApi();
-
-        // Define a test endpoint to get all data from the view.
-        //app.MapGet("/test-oracle", async (OracleConnectionService dbService) =>
-        //{
-        //    try
-        //    {
-        //        var data = await dbService.GetAllDataFromViewAsync();
-        //        return Results.Ok(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Results.Problem(ex.Message);
-        //    }
-        //});
-
         app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
             var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
@@ -185,8 +118,8 @@ public class Program
             }
         }).RequireAuthorization();
 
-        // Define an endpoint to accept order and box SSCI codes
-        app.MapPost("/accept-boxes", async (OrderBoxRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
+        // Define an endpoint to accept order and box SSCÑ codes
+        app.MapPost("/accept-boxes", async (BoxSSCCRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
             var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
             if (sessionService.IsUserLoggedOut(normalizedUsername))
@@ -196,7 +129,7 @@ public class Program
 
             try
             {
-                dbService.AcceptOrderBoxes(request.OrderId, request.BoxSSCCCodes);
+                await dbService.AcceptBoxSSCCasync(request.OrderId, request.BoxSSCCCode, request.teNum, normalizedUsername);
                 return Results.Ok(new { Message = "Boxes accepted", OrderId = request.OrderId });
             }
             catch (Exception ex)
@@ -205,8 +138,7 @@ public class Program
             }
         }).RequireAuthorization();
 
-        // Define an endpoint to register order and boxes in the database
-        app.MapPost("/register-order", async (OrderRegisterRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
+        app.MapDelete("/delete-box-sscc", async ([FromBody] DeleteBoxSSCCRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
             var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
             if (sessionService.IsUserLoggedOut(normalizedUsername))
@@ -216,14 +148,16 @@ public class Program
 
             try
             {
-                await dbService.RegisterOrderAsync(request.OrderId, request.UserName);
-                return Results.Ok(new { Message = "Order registered", OrderId = request.OrderId });
+                await dbService.DeleteBoxSSCCforTEAsync(request.teNum, request.OrderId);
+                return Results.Ok(new { Message = "Box SSCC deleted", OrderId = request.OrderId });
             }
             catch (Exception ex)
             {
                 return Results.Problem(ex.Message);
             }
         }).RequireAuthorization();
+
+
 
         app.Run();
     }
@@ -242,12 +176,8 @@ public class Program
 // Define the login request model.
 public record LoginRequest(string Username, string Password);
 
-// Define the scan data model
-public record ScanData(string OrderId, string BoxId);
-
-// Define the order box request model.
-public record OrderBoxRequest(string OrderId, List<string> BoxSSCCCodes);
-
 // Define the order register request model.
-public record OrderRegisterRequest(string OrderId, string UserName);
+public record BoxSSCCRequest(string OrderId, string BoxSSCCCode, string teNum, string UserName);
+
+public record DeleteBoxSSCCRequest(string teNum, string OrderId);
 

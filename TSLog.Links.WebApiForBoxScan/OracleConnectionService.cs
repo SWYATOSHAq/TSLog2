@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
+using System;
 using System.Data;
 using TSLog.Links.WebApiForBoxScan.Models;
 
@@ -9,12 +10,10 @@ namespace TSLog.Links.WebApiForBoxScan;
 public class OracleConnectionService
 {
     private readonly OracleConnectionSettings _settings;
-    private readonly Dictionary<string, HashSet<string>> _orderBoxes;
 
     public OracleConnectionService(IOptions<OracleConnectionSettings> settings)
     {
         _settings = settings.Value;
-        _orderBoxes = new Dictionary<string, HashSet<string>>();
     }
 
     private OracleConnection CreateConnection()
@@ -29,24 +28,6 @@ public class OracleConnectionService
         return new OracleConnection(connectionString);
     }
 
-    public async Task SubmitOrderAsync(ScanData scanData)
-    {
-        using (var connection = CreateConnection())
-        {
-            await connection.OpenAsync();
-
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "YOUR_STORED_PROCEDURE_NAME"; // Replace with your stored procedure name
-
-                command.Parameters.Add("P_ORDER_ID", OracleDbType.Varchar2).Value = scanData.OrderId;
-                command.Parameters.Add("P_BOX_ID", OracleDbType.Varchar2).Value = scanData.BoxId;
-
-                await command.ExecuteNonQueryAsync();
-            }
-        }
-    }
 
     public async Task<bool> ValidateOrderAsync(string orderId)
     {
@@ -66,30 +47,21 @@ public class OracleConnectionService
         }
     }
 
-    public void AcceptOrderBoxes(string orderId, List<string> boxSSCCCodes)
+    public async Task AcceptBoxSSCCasync(string orderId, string ssccBoxCode, string teNum, string user)
     {
-        if (_orderBoxes.ContainsKey(orderId))
-        {
-            foreach (var code in boxSSCCCodes)
-            {
-                _orderBoxes[orderId].Add(code);
-            }
-        }
-        else
-        {
-            _orderBoxes[orderId] = new HashSet<string>(boxSSCCCodes);
-        }
-    }
+        if (string.IsNullOrWhiteSpace(orderId))
+            throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(orderId));
 
-    public async Task RegisterOrderAsync(string orderId, string userName)
-    {
-        if (!_orderBoxes.ContainsKey(orderId))
-        {
-            throw new Exception("Order not found");
-        }
+        if (string.IsNullOrWhiteSpace(teNum))
+            throw new ArgumentException("Номер ТЕ teNum не может быть пустым или null.", nameof(teNum));
 
-        var boxSSCCCodes = _orderBoxes[orderId];
-        var ssccCodesArray = boxSSCCCodes.ToArray();
+        if (string.IsNullOrWhiteSpace(user))
+            throw new ArgumentException("Пользователь user не может быть пустым или null.", nameof(user));
+
+        ssccBoxCode = ssccBoxCode.Trim();
+
+        if (string.IsNullOrWhiteSpace(ssccBoxCode) || ssccBoxCode.Length != 20)
+            throw new ArgumentException("Штрих-код ssccBoxCode должен быть длиной 20 символов.", nameof(ssccBoxCode));
 
         using (var connection = CreateConnection())
         {
@@ -98,86 +70,62 @@ public class OracleConnectionService
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SSCC_SCAN_APP.Insert_SSCC_For_Box_Scan_App";
-                command.BindByName = true;
+                command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
 
-                command.Parameters.Add("p_AUFID", OracleDbType.Varchar2).Value = orderId;
-                command.Parameters.Add("p_TE_NUM", OracleDbType.Varchar2).Value = "1001"; // Example TE_NUM as VARCHAR2
-                command.Parameters.Add("p_USER", OracleDbType.Varchar2).Value = userName;
+                command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
+                command.Parameters.Add("p_sscc_box_code", OracleDbType.Varchar2).Value = ssccBoxCode;
+                command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
+                command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user;
 
-                var ssccCodesParam = new OracleParameter("p_SSCC_CODES", OracleDbType.Varchar2)
+                try
                 {
-                    CollectionType = OracleCollectionType.PLSQLAssociativeArray,
-                    Size = ssccCodesArray.Length,
-                    Value = ssccCodesArray
-                };
-                command.Parameters.Add(ssccCodesParam);
-
-                await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync();
+                    Console.WriteLine("Insert operation completed successfully.");
+                }
+                catch (OracleException ex)
+                {
+                    if (ex.Number == 1) // Check for unique constraint violation (ORA-00001)
+                    {
+                        throw new InvalidOperationException("SSCC_BOX_CODE already exists.");
+                    }
+                    Console.WriteLine($"Error: {ex.Message}");
+                    throw;
+                }
             }
         }
     }
 
 
-    //public async Task RegisterOrderAsync(string orderId, string userName)
-    //{
-    //    if (!_orderBoxes.ContainsKey(orderId))
-    //    {
-    //        throw new Exception("Order not found");
-    //    }
+    public async Task DeleteBoxSSCCforTEAsync(string teNum, string orderId)
+    {
+        if (string.IsNullOrWhiteSpace(teNum))
+            throw new ArgumentException("Номер ТЕ teNum не может быть пустым или null.", nameof(teNum));
 
-    //    var boxSSCCCodes = _orderBoxes[orderId];
+        if (string.IsNullOrWhiteSpace(orderId))
+            throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(orderId));
 
-    //    using (var connection = CreateConnection())
-    //    {
-    //        await connection.OpenAsync();
+        using (var connection = CreateConnection())
+        {
+            await connection.OpenAsync();
 
-    //        using (var command = connection.CreateCommand())
-    //        {
-    //            command.CommandType = CommandType.StoredProcedure;
-    //            command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "ECCO.DELETE_SSCC_FOR_BOX_SCAN_APP";
 
-    //            command.Parameters.Add("P_AUFID", OracleDbType.Varchar2).Value = orderId;
-    //            var ssccCodesArray = new OracleParameter("P_SSCC_CODES", OracleDbType.Array)
-    //            {
-    //                UdtTypeName = "ECCO.SSCC_CODE_ARRAY#T",
-    //                Value = boxSSCCCodes.ToArray()
-    //            };
-    //            command.Parameters.Add(ssccCodesArray);
-    //            command.Parameters.Add("P_TE_NUM", OracleDbType.Varchar2).Value = "1001"; // Example TE_NUM as VARCHAR2
-    //            command.Parameters.Add("P_USER", OracleDbType.Varchar2).Value = userName;
+                command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
+                command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
 
-    //            await command.ExecuteNonQueryAsync();
-    //        }
-    //    }
-
-    //    // Clear the stored box codes for the order
-    //    _orderBoxes.Remove(orderId);
-    //}
-
-    //public async Task<List<string>> GetAllDataFromViewAsync()
-    //{
-    //    var results = new List<string>();
-
-    //    using (var connection = CreateConnection())
-    //    {
-    //        await connection.OpenAsync();
-
-    //        using (var command = connection.CreateCommand())
-    //        {
-    //            command.CommandType = CommandType.Text;
-    //            command.CommandText = "SELECT AUFID FROM AUFID_MNDR_0024#V";
-
-    //            using (var reader = await command.ExecuteReaderAsync())
-    //            {
-    //                while (await reader.ReadAsync())
-    //                {
-    //                    results.Add(reader.GetString(0));
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return results;
-    //}
+                try
+                {
+                    await command.ExecuteNonQueryAsync();
+                    Console.WriteLine("Delete operation completed successfully.");
+                }
+                catch (OracleException ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+            }
+        }        
+    }   
 }
