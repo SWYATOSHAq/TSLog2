@@ -1,8 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.DirectoryServices.AccountManagement;
+using System.Text;
+using System.Text.Json;
 using TSLog.Links.WebApiForBoxScan.Models;
+using System.Security.Claims;
 
 namespace TSLog.Links.WebApiForBoxScan;
 
@@ -11,10 +17,42 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        string secretKey = "S3cr3tK3yF0rJWTTokenGeneration2024!";
 
-        // Add services to the container.
-        builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Negotiate.NegotiateDefaults.AuthenticationScheme)
-            .AddNegotiate();
+        //// Add services to the container.
+        //builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Negotiate.NegotiateDefaults.AuthenticationScheme)
+        //    .AddNegotiate();
+        //builder.Services.AddAuthorization();
+        //builder.Services.AddCors(options =>
+        //{
+        //    options.AddPolicy("AllowAll",
+        //        builder =>
+        //        {
+        //            builder.AllowAnyOrigin()
+        //                   .AllowAnyMethod()
+        //                   .AllowAnyHeader();
+        //        });
+        //});
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,// falsw
+                ValidateAudience = false,// falsw
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                //ValidIssuer = "yourdomain.com",
+                //ValidAudience = "yourdomain.com",
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+            };
+        });
+
         builder.Services.AddAuthorization();
         builder.Services.AddCors(options =>
         {
@@ -59,6 +97,8 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        //app.UseCors("AllowAll");
+
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -72,25 +112,67 @@ public class Program
         //    return Results.Unauthorized();
         //});
 
-        
+
 
         // Define the login endpoint
+        //app.MapPost("/login", (LoginRequest loginRequest, SessionService sessionService) =>
+        //{
+        //    bool isAuthenticated = AuthenticateUser(loginRequest.Username, loginRequest.Password);
+        //    if (isAuthenticated)
+        //    {
+        //        sessionService.LogInUser(loginRequest.Username); // Mark user as logged in
+        //        return Results.Ok(new { Message = "Authenticated", Username = loginRequest.Username });
+        //    }
+        //    return Results.Unauthorized();
+        //});
+
+        //app.MapPost("/logoff", async (HttpContext httpContext, SessionService sessionService) =>
+        //{
+        //    using var reader = new StreamReader(httpContext.Request.Body);
+        //    var body = await reader.ReadToEndAsync();
+        //    var loginRequest = JsonSerializer.Deserialize<LoginRequest>(body);
+
+        //    if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username))
+        //    {
+        //        return Results.BadRequest(new { Message = "Invalid request" });
+        //    }
+
+        //    sessionService.LogOutUser(loginRequest.Username); // Mark user as logged out
+        //    return Results.Ok(new { Message = "Logged off" });
+        //});
+
+        app.MapPost("/logoff", [Authorize] async (HttpContext httpContext, SessionService sessionService) =>
+        {
+            if (httpContext.User.Identity is ClaimsIdentity identity)
+            {
+                var username = identity.FindFirst(ClaimTypes.Name)?.Value;
+                if (username != null)
+                {
+                    sessionService.LogOutUser(username);
+                    return Results.Ok(new { Message = "Logged off" });
+                }
+            }
+            return Results.BadRequest(new { Message = "Invalid request" });
+        });
+
+
         app.MapPost("/login", (LoginRequest loginRequest, SessionService sessionService) =>
         {
             bool isAuthenticated = AuthenticateUser(loginRequest.Username, loginRequest.Password);
             if (isAuthenticated)
             {
                 sessionService.LogInUser(loginRequest.Username); // Mark user as logged in
-                return Results.Ok(new { Message = "Authenticated", Username = loginRequest.Username });
+                var token = GenerateJwtToken(loginRequest.Username, secretKey);
+                return Results.Ok(new { Message = "Authenticated", Token = token });
             }
             return Results.Unauthorized();
         });
 
-        app.MapPost("/logoff", (LoginRequest loginRequest, SessionService sessionService) =>
-        {
-            sessionService.LogOutUser(loginRequest.Username); // Mark user as logged out
-            return Results.Ok(new { Message = "Logged off" });
-        });
+        //app.MapPost("/logoff", (LoginRequest loginRequest, SessionService sessionService) =>
+        //{
+        //    sessionService.LogOutUser(loginRequest.Username); // Mark user as logged out
+        //    return Results.Ok(new { Message = "Logged off" });
+        //});
 
         app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
@@ -171,6 +253,25 @@ public class Program
         {
             return context.ValidateCredentials(username, password);
         }
+    }
+
+    static string GenerateJwtToken(string username, string secretKey)
+    {
+        var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(secretKey);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Name, username)
+            }),
+            Expires = DateTime.UtcNow.AddHours(12),
+            //Issuer = "yourdomain.com",
+            //Audience = "yourdomain.com",
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
 // Define the login request model.

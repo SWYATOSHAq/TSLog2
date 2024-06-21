@@ -70,6 +70,9 @@
 	  <Compile Update="Resources\Pages\BoxScanPage.xaml.cs">
 	    <DependentUpon>BoxScanPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Resources\Pages\ScanBoxPage.xaml.cs">
+	    <DependentUpon>ScanBoxPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Resources\Pages\ShippingInvoiceScanPage.xaml.cs">
 	    <DependentUpon>ShippingInvoiceScanPage.xaml</DependentUpon>
 	  </Compile>
@@ -77,6 +80,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Resources\Pages\BoxScanPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Pages\ScanBoxPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Pages\ShippingInvoiceScanPage.xaml">

@@ -16,19 +16,27 @@ namespace TSLog.Links.MobileAppForBoxScan
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            // Register HttpClient with a custom handler
+            // Register HttpClient with a custom handler that uses default credentials
             builder.Services.AddSingleton<HttpClient>(sp =>
             {
                 var handler = new HttpClientHandler
                 {
+                    //UseDefaultCredentials = true,
                     ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
                 };
                 return new HttpClient(handler);
             });
 
+            // Register ILogger
+            builder.Services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddDebug();
+            });
+
             // Register pages
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<ShippingInvoiceScanPage>();
+            builder.Services.AddTransient<ScanBoxPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

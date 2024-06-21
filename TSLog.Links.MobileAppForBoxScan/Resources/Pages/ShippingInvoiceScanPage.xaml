@@ -13,7 +13,35 @@
                    HorizontalOptions="Center" VerticalOptions="Center" />
 
             <Entry x:Name="invoiceEntry" Placeholder = "Номер расходной накладной" FontFamily="Helvetica"
-                   FontSize="22" MaxLength ="20" />
+                   FontSize="22" MaxLength ="32" />
+
+            <Label FontSize="22" Text = "Отсканируйте номер ТЕ паллеты"
+                   CharacterSpacing = "2"
+                   FontFamily = "Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+
+            <Entry x:Name="teNumEntry" Placeholder = "Номер ТЕ" FontFamily="Helvetica"
+                   FontSize="22" MaxLength ="20" TextChanged="OnTeNumEntryTextChanged"/>
+
+            <Button
+                x:Name="nextPageButton"
+                Text="Далее"
+                Clicked="OnNextPageClicked"
+                HorizontalOptions="Fill"
+                IsEnabled="{Binding IsNextPageButtonEnabled}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="BackgroundColor" Value="Gray" />
+                        <Setter Property="TextColor" Value="White" />
+                        <Style.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsEnabled, Source={x:Reference nextPageButton}}" Value="True">
+                                <Setter Property="BackgroundColor" Value="Green" />
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
 
             <Button
                 x:Name="exitButton"

@@ -1,4 +1,5 @@
-﻿using System.Net.NetworkInformation;
+﻿using System.Net.Http.Json;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
 
@@ -7,6 +8,7 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
     public partial class MainPage : ContentPage
     {
         private readonly HttpClient _httpClient;
+        private string _token;
 
         public MainPage(HttpClient httpClient)
         {
@@ -70,12 +72,18 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
                 var response = await _httpClient.PostAsync("https://10.50.252.33:7278/login", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    // Handle successful login, for example navigate to another page
-                    //await DisplayAlert("Успех", "Вход выполнен успешно", "OK");
-                    //await Shell.Current.GoToAsync("ShippingInvoiceScanPage");
-                    await Shell.Current.GoToAsync($"///{nameof(ShippingInvoiceScanPage)}");
-                    //await Navigation.PushAsync(new ShippingInvoiceScanPage());
+                    var responseContent = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                    if (responseContent != null)
+                    {
+                        var parameters = new Dictionary<string, object>
+                        {
+                            { "Username", username },
+                            { "Password", password },
+                            { "Token", responseContent.Token }
+                        };
+
+                        await Shell.Current.GoToAsync($"///{nameof(ShippingInvoiceScanPage)}", parameters);
+                    }
                 }
                 else
                 {
@@ -96,6 +104,11 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
             }
         }
 
+        private class LoginResponse
+        {
+            public string Message { get; set; }
+            public string Token { get; set; }
+        }
         //private async Task<bool> PingHost(string host)
         //{
         //    try
