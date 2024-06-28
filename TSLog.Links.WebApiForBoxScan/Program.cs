@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
+//using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.DirectoryServices.AccountManagement;
@@ -94,6 +94,8 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.UseHttpsRedirection();
 
@@ -158,7 +160,9 @@ public class Program
 
         app.MapPost("/login", (LoginRequest loginRequest, SessionService sessionService) =>
         {
-            bool isAuthenticated = AuthenticateUser(loginRequest.Username, loginRequest.Password);
+            string domain = "srv-apsk-0001.apsk.ru";
+            //string domain = "apsk.ru";// Replace with your actual domain
+            bool isAuthenticated = AuthenticateUser(loginRequest.Username, loginRequest.Password, domain);
             if (isAuthenticated)
             {
                 sessionService.LogInUser(loginRequest.Username); // Mark user as logged in
@@ -174,7 +178,8 @@ public class Program
         //    return Results.Ok(new { Message = "Logged off" });
         //});
 
-        app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
+        app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService,
+            HttpContext httpContext, SessionService sessionService) =>
         {
             var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
             if (sessionService.IsUserLoggedOut(normalizedUsername))
@@ -200,7 +205,7 @@ public class Program
             }
         }).RequireAuthorization();
 
-        // Define an endpoint to accept order and box SSCÑ codes
+        // Define an endpoint to accept order and box SSCï¿½ codes
         app.MapPost("/accept-boxes", async (BoxSSCCRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
             var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
@@ -231,7 +236,7 @@ public class Program
             try
             {
                 await dbService.DeleteBoxSSCCforTEAsync(request.teNum, request.OrderId);
-                return Results.Ok(new { Message = "Box SSCC deleted", OrderId = request.OrderId });
+                return Results.Ok(new { Message = "Boxes SSCC deleted", OrderId = request.OrderId });
             }
             catch (Exception ex)
             {
@@ -247,11 +252,21 @@ public class Program
 
 
     // Method to authenticate the user against Active Directory
-    static bool AuthenticateUser(string username, string password)
+    static bool AuthenticateUser(string username, string password, string domain)
     {
-        using (var context = new PrincipalContext(ContextType.Domain))
+        try
         {
-            return context.ValidateCredentials(username, password);
+            using (var context = new PrincipalContext(ContextType.Domain, domain))
+            {
+                Console.WriteLine($"ContextType: {context.ContextType}, Domain: {domain}");
+                return context.ValidateCredentials(username, password);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log or handle exceptions as needed
+            Console.WriteLine($"Error authenticating user: {ex.Message}");
+            return false;
         }
     }
 

@@ -1,7 +1,9 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
+using TSLog.Links.MobileAppForBoxScan.Models;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
 {
@@ -54,8 +56,8 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
                 return;
             }
 
-            // Ping the host to check connection
-            //var pingResult = await PingHost("10.50.252.33");
+            //Ping the host to check connection
+            //var pingResult = await PingHost("10.50.254.86");
 
             //if (!pingResult)
             //{
@@ -69,7 +71,8 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
 
             try
             {
-                var response = await _httpClient.PostAsync("https://10.50.252.33:7278/login", content);
+                var response = await _httpClient.PostAsync("login", content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadFromJsonAsync<LoginResponse>();
@@ -104,11 +107,6 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
             }
         }
 
-        private class LoginResponse
-        {
-            public string Message { get; set; }
-            public string Token { get; set; }
-        }
         //private async Task<bool> PingHost(string host)
         //{
         //    try
@@ -125,5 +123,4 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
         //    }
         //}
     }
-
 }

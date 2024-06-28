@@ -1,5 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
+using TSLog.Links.MobileAppForBoxScan.Models;
 using TSLog.Links.MobileAppForBoxScan.Resources.Pages;
+using Microsoft.Extensions.Configuration.Json;
 
 namespace TSLog.Links.MobileAppForBoxScan
 {
@@ -16,21 +21,52 @@ namespace TSLog.Links.MobileAppForBoxScan
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // Load configuration from appsettings.json.
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "TSLog.Links.MobileAppForBoxScan.appsettings.json";
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null)
+            {
+                throw new InvalidOperationException($"Resource '{resourceName}' not found.");
+            }
+
+            var config = new ConfigurationBuilder()
+                .AddJsonStream(stream)
+                .Build();
+
+            // Add configuration to the builder.
+            builder.Configuration.AddConfiguration(config);
+
+            //// Register HttpClient with a custom handler that uses default credentials.
+            //builder.Services.AddSingleton<HttpClient>(sp =>
+            //{
+            //    var handler = new HttpClientHandler
+            //    {
+            //        //UseDefaultCredentials = false,
+            //        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            //    };
+            //    return new HttpClient(handler);
+            //});
+
+            // Register ApiSettings.
+            //builder.Services.Configure<ApiSettings>(config.GetSection());
+
+            var apiSettings = new ApiSettings();
+            builder.Configuration.GetSection("ApiSettings").Bind(apiSettings);
+            builder.Services.AddSingleton(apiSettings);
+
             // Register HttpClient with a custom handler that uses default credentials
             builder.Services.AddSingleton<HttpClient>(sp =>
             {
                 var handler = new HttpClientHandler
                 {
-                    //UseDefaultCredentials = true,
+                    //UseDefaultCredentials = false,
                     ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
                 };
-                return new HttpClient(handler);
-            });
 
-            // Register ILogger
-            builder.Services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddDebug();
+                var client = new HttpClient(handler);
+                client.BaseAddress = new Uri(apiSettings.BaseUrl); // Set the base address
+                return client;
             });
 
             // Register pages

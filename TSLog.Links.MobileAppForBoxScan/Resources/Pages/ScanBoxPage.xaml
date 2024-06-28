@@ -8,13 +8,13 @@
         Padding="30,0"
         Spacing="25">
 
-            <Label x:Name="invoiceIdLabel" FontSize="22" TextColor="Black"
+            <Label x:Name="invoiceIdLabel" FontSize="22" TextColor="Black" FontAttributes="Bold"
                    HorizontalOptions="Start" VerticalOptions="Center" />
 
-            <Label x:Name="teNumLabel" FontSize="22" TextColor="Black"
+            <Label x:Name="teNumLabel" FontSize="22" TextColor="Black" FontAttributes="Bold"
                    HorizontalOptions="Start" VerticalOptions="Center" />
 
-            <Label x:Name="counterLabel" FontSize="22" TextColor="Black"
+            <Label x:Name="counterLabel" FontSize="22" TextColor="Black" FontAttributes="Bold"
                    HorizontalOptions="Center" VerticalOptions="Center" Text="0"/>
 
             <Label FontSize="22" Text="Отсканируйте короб"

@@ -7,13 +7,14 @@ using System.Net;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
+using TSLog.Links.MobileAppForBoxScan.Models;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, INotifyPropertyChanged
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ShippingInvoiceScanPage> _logger;
     private string _username;
     private string _password;
     private string _token;
@@ -31,13 +32,12 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
         }
     }
 
-    public ShippingInvoiceScanPage(HttpClient httpClient, ILogger<ShippingInvoiceScanPage> logger)
+    public ShippingInvoiceScanPage(HttpClient httpClient)
     {
         InitializeComponent();
         _httpClient = httpClient;
-        _logger = logger;
-
-        // Attach the Completed event handler to the invoiceEntry
+  
+        // Attach the Completed event handler to the invoiceEntry.
         invoiceEntry.Completed += InvoiceEntry_Completed;
         BindingContext = this;
     }
@@ -51,11 +51,11 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
         teNumEntry.BackgroundColor = Colors.Transparent;
         IsNextPageButtonEnabled = false;
 
-        // Use the Dispatcher to ensure the UI is ready before setting the focus
+        // Use the Dispatcher to ensure the UI is ready before setting the focus.
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(500), () =>
         {
             invoiceEntry.Focus();
-            return false; // Run the timer callback only once
+            return false; // Run the timer callback only once.
         });
     }
 
@@ -95,13 +95,10 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
                 await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
                 return;
             }
-            //var authToken = Encoding.ASCII.GetBytes($"{_username}:{_password}");
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-            //_logger.LogInformation($"Starting request to validate order {orderId}");
-            //_logger.LogInformation($"Request URL: https://10.50.252.33:7278/validate-order/{orderId}");
-            _logger.LogInformation($"Request Headers: {_httpClient.DefaultRequestHeaders}");
 
-            var response = await _httpClient.GetAsync($"https://10.50.252.33:7278/validate-order/{orderId}");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+
+            var response = await _httpClient.GetAsync($"validate-order/{orderId}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -161,7 +158,8 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
             var loginRequest = new { Token = _token };
             var content = new StringContent(JsonSerializer.Serialize(loginRequest), Encoding.UTF8, "application/json");
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-            var response = await _httpClient.PostAsync("https://10.50.252.33:7278/logoff", content);
+            var response = await _httpClient.PostAsync("logoff", content);
+
             if (response.IsSuccessStatusCode)
             {
                 await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
@@ -195,11 +193,5 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
     private void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    private class ValidateOrderResponse
-    {
-        public string Message { get; set; }
-        public string OrderId { get; set; }
     }
 }
