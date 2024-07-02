@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"    
     xmlns:local="clr-namespace:TSLog.Links.MobileAppForBoxScan.Resources.Pages"
     Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False"
     Title="TSLog.Links.MobileAppForBoxScan">
 
     <ShellContent

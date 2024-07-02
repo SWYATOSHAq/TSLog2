@@ -94,12 +94,10 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-        app.UseSwagger();
-        app.UseSwaggerUI();
 
         app.UseHttpsRedirection();
 
-        //app.UseCors("AllowAll");
+        app.UseCors("AllowAll");
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -254,20 +252,24 @@ public class Program
     // Method to authenticate the user against Active Directory
     static bool AuthenticateUser(string username, string password, string domain)
     {
-        try
-        {
-            using (var context = new PrincipalContext(ContextType.Domain, domain))
-            {
-                Console.WriteLine($"ContextType: {context.ContextType}, Domain: {domain}");
-                return context.ValidateCredentials(username, password);
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log or handle exceptions as needed
-            Console.WriteLine($"Error authenticating user: {ex.Message}");
-            return false;
-        }
+        //TODO: нужно настроить корректную аутентификацию, через Active Directory.
+
+        //try
+        //{
+        //    using (var context = new PrincipalContext(ContextType.Domain, domain))
+        //    {
+        //        Console.WriteLine($"ContextType: {context.ContextType}, Domain: {domain}");
+        //        return context.ValidateCredentials(username, password);
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    // Log or handle exceptions as needed
+        //    Console.WriteLine($"Error authenticating user: {ex.Message}");
+        //    return false;
+        //}
+
+        return true;
     }
 
     static string GenerateJwtToken(string username, string secretKey)
