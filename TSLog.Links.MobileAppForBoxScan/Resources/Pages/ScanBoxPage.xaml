@@ -23,7 +23,7 @@
                HorizontalOptions="Center" VerticalOptions="Center" />
 
             <Entry x:Name="scanBoxEntry" Placeholder="Штрих-код короба" FontFamily="Helvetica"
-               FontSize="22" MaxLength="20" Completed="OnScanBoxEntryCompleted"/>
+               FontSize="22" MaxLength="50" Completed="OnScanBoxEntryCompleted"/>
 
             <Button
                 x:Name="cancelButton"

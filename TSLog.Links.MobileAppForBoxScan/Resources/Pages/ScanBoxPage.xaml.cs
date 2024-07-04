@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http.Json;
 using System.Net;
+using System.Text.RegularExpressions;
 using TSLog.Links.MobileAppForBoxScan.Models;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
@@ -63,6 +64,9 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
 
         _isProcessingScan = true;
         string ssccCode = scanBoxEntry.Text;
+
+        // Clean the input to remove any symbols except numbers.
+        ssccCode = Regex.Replace(ssccCode, "[^0-9]", "");
 
         if (string.IsNullOrWhiteSpace(ssccCode) || ssccCode.Length > 20 || !long.TryParse(ssccCode, out _))
         {
