@@ -32,38 +32,42 @@
   - TSLog.BossControl.WebUI - приложение Boss Control;
   - TSLog.Common - общий функционал(шифрование, дешифрование, вычисление хэша,формирование адреса из элементов, преобразование полного ФИО в краткое, получение массива дат из 
 	заданного промежутка);
-  - TSLog.Common.BO - общие объекты для всех проектов
-  - TSLog.Common.OracleStorage - общие классы для работы с БД Oracle
-  - TSLog.Common.PgSqlStorage - общие классы для работы с БД Postgre
-  - TSLog.ExeptionHandler - общие классы для обработки исключений
-  - TSLog.Incomes.BO - классы для прихода
-  - TSLog.LegalEntities.BO - классы для юр.лиц
-  - TSLog.Links - интеграционный функционал (не внедрен)
-  - TSLog.Links.Gs1EdXml - интеграция с клиентами в качестве сообщения используется формат Gs1 (не внедрен)
-  - TSLog.Links.KotonExport - единоразовый экспорт данных для Коттона (не используется) 
-  - TSLog.Links.OracleStorage - хранилище для интеграции (не используется) 
-  - TSLog.Links.PSI.DataConveter - конвертация сообщений Gs1 в сообщения PSI (не внедрен)
-  - TSLog.Links.Services - API для пондянтия интеграционных веб-сервисов (не внедрен)
-  - TSLog.Links.Test - тестирование интеграции (не внедрен)
-  - TSLog.Log - журнал для логгирования
-  - TSLog.Outgoes.BO - расходы (убытие товара со склада)
-  - TSLog.Partners.BO - клиенты
-  - TSLog.Products.BO - справочник товаров
-  - TSLog.Reports.BO - система отчетности ООО "Техскладлогистик"
-  - TSLog.Reports.OracleStorage - хранилище данных для системы отчетности с интерфейсов под БД Oracle
-  - TSLog.Reports.Storage - общее хранилище данных для системы отчетности
-  - TSLog.Reports.WebUI - отчеты ООО "Техскладлогистик"
-  - TSLog.Staff.BO - бизнес-объекты по учету персонала (сотрудник, подразделение, должность, смена, и.т.д...)
-  - TSLog.Staff.OracleStorage - доступ к данным по персоналу из БД Oracle
-  - TSLog.Staff.Test - тесты для приложения по учету персонала
-  - TSLog.Staff.WebUI - веб-приложение по учету персонала
-  - TSLog.WarehouseActions.BO - складские действа (приход, расход, инвентаризация)
-  - TSLog.Yard.BO - бизнес-объекты двора(ворота, тип машины, тип операции, и.т.д...)
-  - TSLog.Yard.OracleStorage - доступ к данным по двору из БД Oracle
-  - TSLog.Yard.PgSqlStorage - доступ к данным по двору из БД Oracle
-  - TSLog.Yard.Reporting - отчеты двора
-  - TSLog.Yard.Storage - общее хранилище данных приложения "Умный двор"
-  - TSLog.Yard.Test - тесты для приложения "Умный двор"
-  - TSLog.Yard.WebUI -  веб-приложение "Умный двор"
+  - TSLog.Common.BO - общие объекты для всех проектов;
+  - TSLog.Common.OracleStorage - общие классы для работы с БД Oracle;
+  - TSLog.Common.PgSqlStorage - общие классы для работы с БД Postgre;
+  - TSLog.ExeptionHandler - общие классы для обработки исключений;
+  - TSLog.Incomes.BO - классы для прихода;
+  - TSLog.LegalEntities.BO - классы для юр.лиц;
+  - TSLog.Links - интеграционный функционал (не внедрен);
+  - TSLog.Links.Gs1EdXml - интеграция с клиентами в качестве сообщения используется формат Gs1 (не внедрен);
+  - TSLog.Links.IntegrationModels - модели для интеграционных сообщений (не внедрено);
+  - TSLog.Links.JITLimport - консольное приложение для автоматического создания заявок в программе "Двор" (не используется);
+  - TSLog.Links.KotonExport - единоразовый экспорт данных для Коттона (не используется);
+  - TSLog.Links.MobileAppForBoxScan - мобильное(Android) приложение для сканирования SSCC штрих-кодов;
+  - TSLog.Links.OracleStorage - хранилище для интеграции (не используется);
+  - TSLog.Links.PSI.DataConveter - конвертация сообщений Gs1 в сообщения PSI (не внедрен);
+  - TSLog.Links.Services - API для пондянтия интеграционных веб-сервисов (не внедрен);
+  - TSLog.Links.Test - тестирование интеграции (не внедрен);
+  - TSLog.Links.WebApiForBoxScan - веб-сервер API мобильного(Android) приложения для сканирования SSCC штрих-кодов;
+  - TSLog.Log - журнал для логгирования;
+  - TSLog.Outgoes.BO - расходы (убытие товара со склада);
+  - TSLog.Partners.BO - клиенты;
+  - TSLog.Products.BO - справочник товаров;
+  - TSLog.Reports.BO - система отчетности ООО "Техскладлогистик";
+  - TSLog.Reports.OracleStorage - хранилище данных для системы отчетности с интерфейсов под БД Oracle;
+  - TSLog.Reports.Storage - общее хранилище данных для системы отчетности;
+  - TSLog.Reports.WebUI - отчеты ООО "Техскладлогистик";
+  - TSLog.Staff.BO - бизнес-объекты по учету персонала (сотрудник, подразделение, должность, смена, и.т.д...);
+  - TSLog.Staff.OracleStorage - доступ к данным по персоналу из БД Oracle;
+  - TSLog.Staff.Test - тесты для приложения по учету персонала;
+  - TSLog.Staff.WebUI - веб-приложение по учету персонала;
+  - TSLog.WarehouseActions.BO - складские действа (приход, расход, инвентаризация);
+  - TSLog.Yard.BO - бизнес-объекты двора(ворота, тип машины, тип операции, и.т.д...);
+  - TSLog.Yard.OracleStorage - доступ к данным по двору из БД Oracle;
+  - TSLog.Yard.PgSqlStorage - доступ к данным по двору из БД Oracle;
+  - TSLog.Yard.Reporting - отчеты двора;
+  - TSLog.Yard.Storage - общее хранилище данных приложения "Умный двор";
+  - TSLog.Yard.Test - тесты для приложения "Умный двор";
+  - TSLog.Yard.WebUI -  веб-приложение "Умный двор".
 
 

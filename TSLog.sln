@@ -92,6 +92,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Db", "Db", "{B5F9287F-94BA-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{42D2BE86-A34C-4F46-B26B-FA51F00E52FB}"
 	ProjectSection(SolutionItems) = preProject
+		Db\Documents\Инструкция по jobs для автовыхода с участков БК в перекуры.docx = Db\Documents\Инструкция по jobs для автовыхода с участков БК в перекуры.docx
 		Db\Documents\Резеовирование и восстановление PostgreSQL.docx = Db\Documents\Резеовирование и восстановление PostgreSQL.docx
 	EndProjectSection
 EndProject
@@ -123,7 +124,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.IntegrationMode
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.MobileAppForBoxScan", "TSLog.Links.MobileAppForBoxScan\TSLog.Links.MobileAppForBoxScan.csproj", "{05570710-CA60-459A-A26E-B38C8FF3972A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.WebApiForBoxScan", "TSLog.Links.WebApiForBoxScan\TSLog.Links.WebApiForBoxScan.csproj", "{19B24CEB-FE54-4C51-9891-0BBB50661AEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.WebApiForBoxScan", "TSLog.Links.WebApiForBoxScan\TSLog.Links.WebApiForBoxScan.csproj", "{19B24CEB-FE54-4C51-9891-0BBB50661AEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

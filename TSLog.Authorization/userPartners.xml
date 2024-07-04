@@ -66,4 +66,7 @@
 	<user name="Оператор Большой Мир" login="bolshoimir_oper">
 		<partner code="0046" name="0046. Большой Мир"/>
 	</user>
+	<user name="Оператор Миле" login="miloper">
+		<partner code="0052" name="0052. Миле"/>
+	</user>
 </userPartners>
