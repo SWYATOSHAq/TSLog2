@@ -93,6 +93,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{42D2BE86-A34C-4F46-B26B-FA51F00E52FB}"
 	ProjectSection(SolutionItems) = preProject
 		Db\Documents\Инструкция по jobs для автовыхода с участков БК в перекуры.docx = Db\Documents\Инструкция по jobs для автовыхода с участков БК в перекуры.docx
+		Db\Documents\Инструкция по рассылке сообщений.docx = Db\Documents\Инструкция по рассылке сообщений.docx
+		Db\Documents\Инфо по логгированию.docx = Db\Documents\Инфо по логгированию.docx
 		Db\Documents\Резеовирование и восстановление PostgreSQL.docx = Db\Documents\Резеовирование и восстановление PostgreSQL.docx
 	EndProjectSection
 EndProject
