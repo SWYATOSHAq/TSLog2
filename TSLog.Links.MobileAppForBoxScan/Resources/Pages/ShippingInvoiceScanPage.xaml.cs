@@ -1,13 +1,9 @@
-using System.Net.Http;
-using System.Net.Http.Json;
-using Microsoft.Maui.Controls;
-using System.Text.Json;
-using System.Text;
-using System.Net;
-using Microsoft.Extensions.Logging;
 using System.ComponentModel;
+using System.Net;
+using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Options;
+using System.Text;
+using System.Text.Json;
 using TSLog.Links.MobileAppForBoxScan.Models;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
@@ -105,13 +101,13 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
                 var responseContent = await response.Content.ReadFromJsonAsync<ValidateOrderResponse>();
                 if (responseContent != null && responseContent.Message == "Order found")
                 {
-                    // Set green border for validated order
+                    // Set green border for validated order.
                     invoiceEntry.BackgroundColor = Colors.LightGreen;
                     teNumEntry.Focus();
                 }
                 else
                 {
-                    // Set red border for invalid order
+                    // Set red border for invalid order.
                     invoiceEntry.BackgroundColor = Colors.LightCoral;
                 }
             }
@@ -122,7 +118,7 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
             }
             else
             {
-                // Handle unexpected status codes
+                // Handle unexpected status codes.
                 invoiceEntry.BackgroundColor = Colors.LightCoral;
                 await DisplayAlert("Ошибка", "Заказ не найден. Попробуйте снова.", "OK");
             }
@@ -148,7 +144,8 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
 
     private void UpdateNextPageButtonState()
     {
-        IsNextPageButtonEnabled = invoiceEntry.BackgroundColor == Colors.LightGreen && !string.IsNullOrWhiteSpace(teNumEntry.Text);
+        IsNextPageButtonEnabled = invoiceEntry.BackgroundColor == Colors.LightGreen &&
+            !string.IsNullOrWhiteSpace(teNumEntry.Text);
     }
 
     private async void OnExitClicked(object sender, EventArgs e)

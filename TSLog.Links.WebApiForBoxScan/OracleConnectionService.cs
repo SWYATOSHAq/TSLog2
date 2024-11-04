@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using Oracle.ManagedDataAccess.Client;
-using Oracle.ManagedDataAccess.Types;
-using System;
 using System.Data;
 using TSLog.Links.WebApiForBoxScan.Models;
 
@@ -31,20 +29,17 @@ public class OracleConnectionService
 
     public async Task<bool> ValidateOrderAsync(string orderId)
     {
-        using (var connection = CreateConnection())
-        {
-            await connection.OpenAsync();
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText = "SELECT COUNT(1) FROM ECCO.AUFID_FOR_BOX_SCAN_APP#V WHERE AUFID = :AUFID";
+        command.Parameters.Add("AUFID", OracleDbType.Varchar2).Value = orderId;
 
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandType = CommandType.Text;
-                command.CommandText = "SELECT COUNT(1) FROM ECCO.AUFID_FOR_BOX_SCAN_APP#V WHERE AUFID = :AUFID";
-                command.Parameters.Add("AUFID", OracleDbType.Varchar2).Value = orderId;
-
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result) > 0;
-            }
-        }
+        // TODO: тут мы просто смотрим чт в заказе есть ХОТЯ БЫ ОДНА ТЕ.
+        // Может стоит сравнивать с реальным количеством ТЕ из заказ?
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 
     public async Task AcceptBoxSSCCasync(string orderId, string ssccBoxCode, string teNum, string user)
@@ -63,35 +58,31 @@ public class OracleConnectionService
         if (string.IsNullOrWhiteSpace(ssccBoxCode) || ssccBoxCode.Length != 20)
             throw new ArgumentException("Штрих-код ssccBoxCode должен быть длиной 20 символов.", nameof(ssccBoxCode));
 
-        using (var connection = CreateConnection())
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
+
+        command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
+        command.Parameters.Add("p_sscc_box_code", OracleDbType.Varchar2).Value = ssccBoxCode;
+        command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
+        command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user;
+
+        try
         {
-            await connection.OpenAsync();
-
-            using (var command = connection.CreateCommand())
+            await command.ExecuteNonQueryAsync();
+            Console.WriteLine("Insert operation completed successfully.");
+        }
+        catch (OracleException exception)
+        {
+            if (exception.Number == 1) // Check for unique constraint violation (ORA-00001).
             {
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
-
-                command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
-                command.Parameters.Add("p_sscc_box_code", OracleDbType.Varchar2).Value = ssccBoxCode;
-                command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
-                command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user;
-
-                try
-                {
-                    await command.ExecuteNonQueryAsync();
-                    Console.WriteLine("Insert operation completed successfully.");
-                }
-                catch (OracleException ex)
-                {
-                    if (ex.Number == 1) // Check for unique constraint violation (ORA-00001)
-                    {
-                        throw new InvalidOperationException("SSCC_BOX_CODE already exists.");
-                    }
-                    Console.WriteLine($"Error: {ex.Message}");
-                    throw;
-                }
+                throw new InvalidOperationException("SSCC_BOX_CODE already exists.");
             }
+            Console.WriteLine($"Error: {exception.Message}");
+            throw;
         }
     }
 
@@ -104,28 +95,24 @@ public class OracleConnectionService
         if (string.IsNullOrWhiteSpace(orderId))
             throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(orderId));
 
-        using (var connection = CreateConnection())
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandText = "ECCO.DELETE_SSCC_FOR_BOX_SCAN_APP";
+
+        command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
+        command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
+
+        try
         {
-            await connection.OpenAsync();
-
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "ECCO.DELETE_SSCC_FOR_BOX_SCAN_APP";
-
-                command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
-                command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
-
-                try
-                {
-                    await command.ExecuteNonQueryAsync();
-                    Console.WriteLine("Delete operation completed successfully.");
-                }
-                catch (OracleException ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                }
-            }
-        }        
-    }   
+            await command.ExecuteNonQueryAsync();
+            Console.WriteLine("Delete operation completed successfully.");
+        }
+        catch (OracleException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
 }

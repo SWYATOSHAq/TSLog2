@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.DirectoryServices.AccountManagement;
-using System.Text;
-using System.Text.Json;
-using TSLog.Links.WebApiForBoxScan.Models;
 using System.Security.Claims;
+using System.Text;
+using TSLog.Links.WebApiForBoxScan.Models;
 
 namespace TSLog.Links.WebApiForBoxScan;
 
@@ -19,21 +15,6 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         string secretKey = "S3cr3tK3yF0rJWTTokenGeneration2024!";
 
-        //// Add services to the container.
-        //builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Negotiate.NegotiateDefaults.AuthenticationScheme)
-        //    .AddNegotiate();
-        //builder.Services.AddAuthorization();
-        //builder.Services.AddCors(options =>
-        //{
-        //    options.AddPolicy("AllowAll",
-        //        builder =>
-        //        {
-        //            builder.AllowAnyOrigin()
-        //                   .AllowAnyMethod()
-        //                   .AllowAnyHeader();
-        //        });
-        //});
-
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -43,12 +24,10 @@ public class Program
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = false,// falsw
-                ValidateAudience = false,// falsw
+                ValidateIssuer = false,
+                ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                //ValidIssuer = "yourdomain.com",
-                //ValidAudience = "yourdomain.com",
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
             };
         });
@@ -65,7 +44,6 @@ public class Program
                 });
         });
 
-        // Determine whether to use debug settings
         var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
 
         // Register Oracle connection settings dynamically based on the IsDebug flag.
@@ -82,7 +60,7 @@ public class Program
         builder.Services.AddSingleton<SessionService>();
 
 
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle.
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -96,50 +74,9 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
         app.UseCors("AllowAll");
-
         app.UseAuthentication();
         app.UseAuthorization();
-
-        //app.MapGet("/login", [Authorize] (HttpContext context) =>
-        //{
-        //    var user = context.User;
-        //    if (user.Identity != null && user.Identity.IsAuthenticated)
-        //    {
-        //        return Results.Ok(new { Username = user.Identity.Name });
-        //    }
-        //    return Results.Unauthorized();
-        //});
-
-
-
-        // Define the login endpoint
-        //app.MapPost("/login", (LoginRequest loginRequest, SessionService sessionService) =>
-        //{
-        //    bool isAuthenticated = AuthenticateUser(loginRequest.Username, loginRequest.Password);
-        //    if (isAuthenticated)
-        //    {
-        //        sessionService.LogInUser(loginRequest.Username); // Mark user as logged in
-        //        return Results.Ok(new { Message = "Authenticated", Username = loginRequest.Username });
-        //    }
-        //    return Results.Unauthorized();
-        //});
-
-        //app.MapPost("/logoff", async (HttpContext httpContext, SessionService sessionService) =>
-        //{
-        //    using var reader = new StreamReader(httpContext.Request.Body);
-        //    var body = await reader.ReadToEndAsync();
-        //    var loginRequest = JsonSerializer.Deserialize<LoginRequest>(body);
-
-        //    if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Username))
-        //    {
-        //        return Results.BadRequest(new { Message = "Invalid request" });
-        //    }
-
-        //    sessionService.LogOutUser(loginRequest.Username); // Mark user as logged out
-        //    return Results.Ok(new { Message = "Logged off" });
-        //});
 
         app.MapPost("/logoff", [Authorize] async (HttpContext httpContext, SessionService sessionService) =>
         {
@@ -154,8 +91,7 @@ public class Program
             }
             return Results.BadRequest(new { Message = "Invalid request" });
         });
-
-
+        
         app.MapPost("/login", (LoginRequest loginRequest, SessionService sessionService) =>
         {
             string domain = "srv-apsk-0001.apsk.ru";
@@ -170,16 +106,10 @@ public class Program
             return Results.Unauthorized();
         });
 
-        //app.MapPost("/logoff", (LoginRequest loginRequest, SessionService sessionService) =>
-        //{
-        //    sessionService.LogOutUser(loginRequest.Username); // Mark user as logged out
-        //    return Results.Ok(new { Message = "Logged off" });
-        //});
-
         app.MapGet("/validate-order/{orderId}", async (string orderId, OracleConnectionService dbService,
             HttpContext httpContext, SessionService sessionService) =>
         {
-            var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
             if (sessionService.IsUserLoggedOut(normalizedUsername))
             {
                 return Results.Json(new { Message = "User is logged out" }, statusCode: 401);
@@ -197,16 +127,16 @@ public class Program
                     return Results.NotFound(new { Message = "Order not found", OrderId = orderId });
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return Results.Problem(ex.Message);
+                return Results.Problem(exception.Message);
             }
         }).RequireAuthorization();
 
-        // Define an endpoint to accept order and box SSC� codes
+        // Define an endpoint to accept order and box SSCC codes.
         app.MapPost("/accept-boxes", async (BoxSSCCRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
-            var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
             if (sessionService.IsUserLoggedOut(normalizedUsername))
             {
                 return Results.Json(new { Message = "User is logged out" }, statusCode: 401);
@@ -217,15 +147,15 @@ public class Program
                 await dbService.AcceptBoxSSCCasync(request.OrderId, request.BoxSSCCCode, request.teNum, normalizedUsername);
                 return Results.Ok(new { Message = "Boxes accepted", OrderId = request.OrderId });
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return Results.Problem(ex.Message);
+                return Results.Problem(exception.Message);
             }
         }).RequireAuthorization();
 
         app.MapDelete("/delete-box-sscc", async ([FromBody] DeleteBoxSSCCRequest request, OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService) =>
         {
-            var normalizedUsername = sessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
             if (sessionService.IsUserLoggedOut(normalizedUsername))
             {
                 return Results.Json(new { Message = "User is logged out" }, statusCode: 401);
@@ -236,39 +166,19 @@ public class Program
                 await dbService.DeleteBoxSSCCforTEAsync(request.teNum, request.OrderId);
                 return Results.Ok(new { Message = "Boxes SSCC deleted", OrderId = request.OrderId });
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return Results.Problem(ex.Message);
+                return Results.Problem(exception.Message);
             }
         }).RequireAuthorization();
-
-
 
         app.Run();
     }
 
-
-
-    // Method to authenticate the user against Active Directory
+    // Method to authenticate the user against Active Directory.
     static bool AuthenticateUser(string username, string password, string domain)
     {
-        //TODO: нужно настроить корректную аутентификацию, через Active Directory.
-
-        //try
-        //{
-        //    using (var context = new PrincipalContext(ContextType.Domain, domain))
-        //    {
-        //        Console.WriteLine($"ContextType: {context.ContextType}, Domain: {domain}");
-        //        return context.ValidateCredentials(username, password);
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    // Log or handle exceptions as needed
-        //    Console.WriteLine($"Error authenticating user: {ex.Message}");
-        //    return false;
-        //}
-
+        // TODO: нужно настроить корректную аутентификацию, через Active Directory.
         return true;
     }
 
@@ -298,4 +208,3 @@ public record LoginRequest(string Username, string Password);
 public record BoxSSCCRequest(string OrderId, string BoxSSCCCode, string teNum, string UserName);
 
 public record DeleteBoxSSCCRequest(string teNum, string OrderId);
-

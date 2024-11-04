@@ -21,7 +21,7 @@ public class SessionService
         _loggedOutUsers[username] = false;
     }
 
-    internal string NormalizeUsername(string username)
+    internal static string NormalizeUsername(string username)
     {
         // Remove domain part if present.
         var parts = username.Split('\\');

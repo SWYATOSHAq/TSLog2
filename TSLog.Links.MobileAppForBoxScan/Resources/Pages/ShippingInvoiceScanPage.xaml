@@ -23,6 +23,23 @@
             <Entry x:Name="teNumEntry" Placeholder = "Номер ТЕ" FontFamily="Helvetica"
                    FontSize="22" MaxLength ="20" TextChanged="OnTeNumEntryTextChanged"/>
 
+            <HorizontalStackLayout>
+                <Label FontSize="22" Text = "Кол-во ТЕ в заказе"
+                   CharacterSpacing = "2"
+                   FontFamily = "Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+                <Label FontSize="22" Text = "Кол-во отсканированных ТЕ"
+                   CharacterSpacing = "2"
+                   FontFamily = "Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Button
+                x:Name="notScannedTusButton"
+                Text="Не отсканированные ТЕ" 
+                Clicked="OnExitClicked"
+                HorizontalOptions="Fill" />
+
             <Button
                 x:Name="nextPageButton"
                 Text="Далее"

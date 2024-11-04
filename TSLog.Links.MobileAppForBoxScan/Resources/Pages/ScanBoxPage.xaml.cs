@@ -1,7 +1,8 @@
-using System.Text.Json;
-using System.Text;
-using System.Net.Http.Json;
 using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using TSLog.Links.MobileAppForBoxScan.Models;
 
@@ -87,7 +88,7 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
 
         try
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("accept-boxes", content);
 
@@ -96,7 +97,7 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
                 var responseContent = await response.Content.ReadFromJsonAsync<AcceptBoxesResponse>();
                 if (responseContent != null && responseContent.Message == "Boxes accepted")
                 {
-                    // Increment the counter
+                    // Increment the counter.
                     _scanCounter++;
                     counterLabel.Text = _scanCounter.ToString();
                     scanBoxEntry.Text = string.Empty;
@@ -143,7 +144,7 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
                 OrderId = _invoiceId
             };
 
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Delete, "delete-box-sscc")
@@ -180,9 +181,9 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
         {
             await DisplayAlert("HTTP Error", $"Request error: {httpRequestEx.Message}", "OK");
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            await DisplayAlert("Ошибка", $"Не удалось удалить короб SSCC: {ex.Message}", "OK");
+            await DisplayAlert("Ошибка", $"Не удалось удалить короб SSCC: {exception.Message}", "OK");
         }
     }
 
@@ -192,7 +193,7 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
         {
             var loginRequest = new { Token = _token };
             var content = new StringContent(JsonSerializer.Serialize(loginRequest), Encoding.UTF8, "application/json");
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
             var response = await _httpClient.PostAsync("logoff", content);
 
             if (response.IsSuccessStatusCode)
@@ -208,9 +209,9 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
         {
             await DisplayAlert("HTTP Error", $"Request error: {httpRequestEx.Message}", "OK");
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            await DisplayAlert("Ошибка", $"Не удалось выполнить выход: {ex.Message}", "OK");
+            await DisplayAlert("Ошибка", $"Не удалось выполнить выход: {exception.Message}", "OK");
         }
     }
 }
