@@ -7,11 +7,36 @@ namespace TSLog.Links.WebApiForBoxScan;
 
 public class OracleConnectionService
 {
+    private const string DefaultCommonSchema = "common";
+    private const string DefaultWmsSchema = "wms";
+    private const string DefaultSsccSchema = "sscc";
+    private const string DefaultStaffSchema = "staff";
+    private const string DefaultPartnersSchema = "partners";
+
     private readonly OracleConnectionSettings _settings;
+
+    private readonly string CommonSchema = DefaultCommonSchema;
+    private readonly string WmsSchema = DefaultWmsSchema;
+    private readonly string SsccSchema = DefaultSsccSchema;
+    private readonly string StaffSchema = DefaultStaffSchema;
+    private readonly string PartnersSchema = DefaultPartnersSchema;
 
     public OracleConnectionService(IOptions<OracleConnectionSettings> settings)
     {
+        if (settings.Value == null)
+            throw new ArgumentNullException(nameof(settings));
         _settings = settings.Value;
+
+        if (!string.IsNullOrWhiteSpace(_settings.CommonSchema))
+            CommonSchema = _settings.CommonSchema;
+        if (!string.IsNullOrWhiteSpace(_settings.WmsSchema))
+            WmsSchema = _settings.WmsSchema;
+        if (!string.IsNullOrWhiteSpace(_settings.SsccSchema))
+            SsccSchema = _settings.SsccSchema;
+        if (!string.IsNullOrWhiteSpace(_settings.StaffSchema))
+            StaffSchema = _settings.StaffSchema;
+        if (!string.IsNullOrWhiteSpace(_settings.PartnersSchema))
+            PartnersSchema = _settings.PartnersSchema;
     }
 
     private OracleConnection CreateConnection()
@@ -26,7 +51,6 @@ public class OracleConnectionService
         return new OracleConnection(connectionString);
     }
 
-
     public async Task<bool> ValidateOrderAsync(string orderId)
     {
         using var connection = CreateConnection();
@@ -36,10 +60,67 @@ public class OracleConnectionService
         command.CommandText = "SELECT COUNT(1) FROM ECCO.AUFID_FOR_BOX_SCAN_APP#V WHERE AUFID = :AUFID";
         command.Parameters.Add("AUFID", OracleDbType.Varchar2).Value = orderId;
 
-        // TODO: тут мы просто смотрим чт в заказе есть ХОТЯ БЫ ОДНА ТЕ.
-        // Может стоит сравнивать с реальным количеством ТЕ из заказ?
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
+    }
+
+    public async Task<int> GetOutgoTusCount(string outgoId)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа (расхода) outgoId не может быть пустым или null.",
+                nameof(outgoId));
+        outgoId = outgoId.Trim();
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        // TODO: мне не нравится доступ напрямую к таблице,
+        //       надо сделать представление.
+        command.CommandText = $"select count(*) from {WmsSchema}.te_t tu where tu.aufid = :order_id";
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
+    }
+
+    public async Task<int> GetOutgoScannedTusCount(string outgoId)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа (расхода) outgoId не может быть пустым или null.",
+                nameof(outgoId));
+        outgoId = outgoId.Trim();
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText =
+            $"select count(distinct sscc.tu_id) tus_count from {SsccSchema}.outgo_sscc#v sscc where sscc.outgo_id = :outgo_id";
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
+    }
+
+    public async Task<int> GetOutgoScannedBoxesCount(string outgoId)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа (расхода) outgoId не может быть пустым или null.",
+                nameof(outgoId));
+        outgoId = outgoId.Trim();
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText =
+            $"select count(*) tus_count from {SsccSchema}.outgo_sscc#v sscc where sscc.outgo_id = :outgo_id";
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     public async Task AcceptBoxSSCCasync(string orderId, string ssccBoxCode, string teNum, string user)
