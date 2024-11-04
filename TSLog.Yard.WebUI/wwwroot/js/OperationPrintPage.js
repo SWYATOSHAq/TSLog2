@@ -92,7 +92,7 @@ class OperationPrintPage {
                     viewUtils.showError(result.message);
                     return;
                 }
-            }                     
+            }
 
             if (this.factBcLaborCost > 0) {
                 laborCostInput.value = laborCostInput.value + ", факт по БК: " + (this.factBcLaborCost / 60).toFixed();
@@ -210,11 +210,15 @@ class OperationPrintPage {
     showSelectedWorkers() {
         const selectedWorkersDiv = document.getElementById("selected-workers-div");
         selectedWorkersDiv.replaceChildren();
-        selectedWorkersDiv.style.cssText = "width: 100%; height: fit-content; padding: 0; margin: 0";
+        selectedWorkersDiv.style.cssText = "width: 100%; height: fit-content; padding: 0; margin: 0; display: flex;";
         for (let operationWorker of this.selectedWorkers) {
             const operationWorkerButton = document.createElement("button");
             this.showSelectedWorker(operationWorker, operationWorkerButton);
             selectedWorkersDiv.append(operationWorkerButton);
+
+            const signDiv = document.createElement("div");
+            signDiv.style.cssText = "width: 196px; border: 1px solid rgba(0,0,0,.125); border-left: none;";
+            selectedWorkersDiv.append(signDiv);
         }
     }
     // #endregion
@@ -293,44 +297,44 @@ class OperationPrintPage {
             }
         }
 
-        // Id
+        // Id.
         this.id = operation != null ? operation.id : -1;
 
-        // State
+        // State.
         this.stateCode = operation.stateCode;
         this.stateName = operation.stateName;
 
-        // Header
+        // Header.
         const h1 = document.getElementById("header");
-        h1.textContent = "#" + this.id + " (" + this.stateName + ")";
+        h1.textContent = "#" + this.id;
 
-        // Operation type
+        // Operation type.
         const operationTypesSelect = document.getElementById("operation-types-select");
         operationTypesSelect.value = operation.typeCode;
         this.kind = this.getKind();
 
-        // Vehicle kind
+        // Vehicle kind.
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
         vehiclekindsSelect.value = operation.vehicleKindCode;
 
-        // Work start and finish (plan and fact)        
+        // Work start and finish (plan and fact).
         this.planWorkStartDate = new Date(operation.planWorkStartDate);
         this.factWorkStartDate = new Date(operation.factWorkStartDate);
         this.planWorkFinishDate = new Date(operation.planWorkFinishDate);
         this.factWorkFinishDate = new Date(operation.factWorkFinishDate);
         this.showWorkStartFinish();
 
-        // Duration
+        // Duration.
         this.planDuration = Number(operation.planDuration);
         this.factDuration = Number(operation.factDuration);
         this.showDuration();
 
-        // Start and finish
+        // Start and finish.
         this.startDate = new Date(operation.startDate);
         this.finishDate = new Date(operation.finishDate);
         this.showStartFinish();
 
-        // Warehouse actions (and partner)
+        // Warehouse actions (and partner).
         const warehouseActionsB = document.getElementById("warehouse-actions-b");
         if (this.kind === "O") {
             warehouseActionsB.textContent = "Заказы:";
@@ -341,26 +345,26 @@ class OperationPrintPage {
         await this.getSelectedWarehouseActions();
         this.showSelectedWarehouseActions();
 
-        // Labor cost
+        // Labor cost.
         this.planLaborCost = Number(operation.planLaborCost);
         this.planLinearLaborCost = Number(operation.planLinearLaborCost);
         this.factLaborCost = Number(operation.factLaborCost);
         await this.getPlanLaborCosts();
         await this.showLaborCost();
 
-        // Manager        
+        // Manager.
         await this.showManager();
 
-        // Responsible officer
+        // Responsible officer.
         document.getElementById("responsible-officer-input").value = operation.responsibleOfficer != "" ? operation.responsibleOfficer : "<Не определено>";
 
-        // Gates
+        // Gates.
         const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined) {
             gatesSelect.value = operation.gateCode;
         }
 
-        // Additional attributes
+        // Additional attributes.
         document.getElementById("vehicle-brand-input").value = operation.vehicleBrand;
         document.getElementById("vehicle-model-input").value = operation.vehicleModel;
         document.getElementById("vehicle-number-input").value = operation.vehicleNumber;
@@ -372,7 +376,7 @@ class OperationPrintPage {
         document.getElementById("partner-manager-email-input").value = operation.partnerManagerEmail;
         document.getElementById("note-textarea").innerHTML = operation.note;
 
-        // Workers
+        // Workers.
         const workersFilterDiv = document.getElementById("workers-filter-div");
         if (workersFilterDiv != undefined && workersFilterDiv != null) {
             workersFilterDiv.remove();
