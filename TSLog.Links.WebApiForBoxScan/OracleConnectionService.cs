@@ -51,19 +51,25 @@ public class OracleConnectionService
         return new OracleConnection(connectionString);
     }
 
-    public async Task<bool> ValidateOrderAsync(string orderId)
+    public async Task<bool> ValidateOrderAsync(string outgoId)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync();
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        command.CommandText = "SELECT COUNT(1) FROM ECCO.AUFID_FOR_BOX_SCAN_APP#V WHERE AUFID = :AUFID";
-        command.Parameters.Add("AUFID", OracleDbType.Varchar2).Value = orderId;
+        command.CommandText = $"select count(1) from {SsccSchema}.aufid#v where aufid = :outgo_id";
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
 
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
     }
 
+    /// <summary>
+    /// Возвращает количество ТЕ для заданного идентификатора расхода (заказа).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <returns>Количество ТЕ.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<int> GetOutgoTusCount(string outgoId)
     {
         if (string.IsNullOrWhiteSpace(outgoId))
@@ -74,17 +80,24 @@ public class OracleConnectionService
         using var connection = CreateConnection();
         await connection.OpenAsync();
 
-
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
         // TODO: мне не нравится доступ напрямую к таблице,
         //       надо сделать представление.
-        command.CommandText = $"select count(*) from {WmsSchema}.te_t tu where tu.aufid = :order_id";
+        command.CommandText = $"select count(*) " +
+            $"from {WmsSchema}.te_t tu " +
+            $"where tu.aufid = :outgo_id";
         command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
 
+    /// <summary>
+    /// Возвращает количество отсканированных ТЕ для заданного идентификатора расхода (заказа).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <returns>Количество отсканированных ТЕ.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<int> GetOutgoScannedTusCount(string outgoId)
     {
         if (string.IsNullOrWhiteSpace(outgoId))
@@ -97,13 +110,20 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        command.CommandText =
-            $"select count(distinct sscc.tu_id) tus_count from {SsccSchema}.outgo_sscc#v sscc where sscc.outgo_id = :outgo_id";
+        command.CommandText = $"select count(distinct sscc.tu_id) tus_count " +
+            $"from {SsccSchema}.outgo_sscc#v sscc " +
+            $"where sscc.outgo_id = :outgo_id";
         command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
 
+    /// <summary>
+    /// Возвращает количество отсканированных коробов для заданного идентификатора расхода (заказа).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <returns>Количество отсканированных коробов.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<int> GetOutgoScannedBoxesCount(string outgoId)
     {
         if (string.IsNullOrWhiteSpace(outgoId))
@@ -116,20 +136,21 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        command.CommandText =
-            $"select count(*) tus_count from {SsccSchema}.outgo_sscc#v sscc where sscc.outgo_id = :outgo_id";
+        command.CommandText = $"select count(*) tus_count " +
+            $"from {SsccSchema}.outgo_sscc#v sscc " +
+            $"where sscc.outgo_id = :outgo_id";
         command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId;
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
 
-    public async Task AcceptBoxSSCCasync(string orderId, string ssccBoxCode, string teNum, string user)
+    public async Task AcceptBoxSSCCasync(string outgoId, string ssccBoxCode, string tuNumber, string user)
     {
-        if (string.IsNullOrWhiteSpace(orderId))
-            throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(orderId));
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(outgoId));
 
-        if (string.IsNullOrWhiteSpace(teNum))
-            throw new ArgumentException("Номер ТЕ teNum не может быть пустым или null.", nameof(teNum));
+        if (string.IsNullOrWhiteSpace(tuNumber))
+            throw new ArgumentException("Номер ТЕ teNum не может быть пустым или null.", nameof(tuNumber));
 
         if (string.IsNullOrWhiteSpace(user))
             throw new ArgumentException("Пользователь user не может быть пустым или null.", nameof(user));
@@ -144,11 +165,11 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "ECCO.INSERT_SSCC_FOR_BOX_SCAN_APP";
+        command.CommandText = $"{SsccSchema}.insert_sscc_for_box_scan_app";
 
-        command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
+        command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = outgoId;
         command.Parameters.Add("p_sscc_box_code", OracleDbType.Varchar2).Value = ssccBoxCode;
-        command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
+        command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = tuNumber;
         command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user;
 
         try
@@ -167,33 +188,32 @@ public class OracleConnectionService
         }
     }
 
-
-    public async Task DeleteBoxSSCCforTEAsync(string teNum, string orderId)
+    public async Task DeleteBoxSSCCforTEAsync(string tuNumber, string outgoId)
     {
-        if (string.IsNullOrWhiteSpace(teNum))
-            throw new ArgumentException("Номер ТЕ teNum не может быть пустым или null.", nameof(teNum));
+        if (string.IsNullOrWhiteSpace(tuNumber))
+            throw new ArgumentException("Номер ТЕ teNum не может быть пустым или null.", nameof(tuNumber));
 
-        if (string.IsNullOrWhiteSpace(orderId))
-            throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(orderId));
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа orderId не может быть пустым или null.", nameof(outgoId));
 
         using var connection = CreateConnection();
         await connection.OpenAsync();
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.StoredProcedure;
-        command.CommandText = "ECCO.DELETE_SSCC_FOR_BOX_SCAN_APP";
+        command.CommandText = $"{SsccSchema}.delete_sscc_for_box_scan_app";
 
-        command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = teNum;
-        command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = orderId;
+        command.Parameters.Add("p_te_num", OracleDbType.Varchar2).Value = tuNumber;
+        command.Parameters.Add("p_aufid", OracleDbType.Varchar2).Value = outgoId;
 
         try
         {
             await command.ExecuteNonQueryAsync();
             Console.WriteLine("Delete operation completed successfully.");
         }
-        catch (OracleException ex)
+        catch (OracleException exception)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"Error: {exception.Message}");
         }
     }
 }
