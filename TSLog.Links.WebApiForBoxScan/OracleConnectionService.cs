@@ -141,7 +141,7 @@ public class OracleConnectionService
     /// <param name="tuId">Идентификатор транспортной единицы.</param>
     /// <returns>Количество коробов.</returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<int> GetOutgoTuBoxesCountAsync(string tuId)
+    public async Task<int> GetTuBoxesCountAsync(string tuId)
     {
         if (string.IsNullOrWhiteSpace(tuId))
             throw new ArgumentException("Номер ТЕ tuId не может быть пустым или null.",
@@ -218,7 +218,7 @@ public class OracleConnectionService
     /// <param name="tuId">Идентификатор транспортной единицы.</param>
     /// <returns>Количество отсканированных коробов.</returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<int> GetOutgoTuScannedBoxesCountAsync(string tuId)
+    public async Task<int> GetTuScannedBoxesCountAsync(string tuId)
     {
         if (string.IsNullOrWhiteSpace(tuId))
             throw new ArgumentException("Идентификатор транспортной единицы не может быть пустым или null.",

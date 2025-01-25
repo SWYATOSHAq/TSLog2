@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -115,7 +114,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetOutgoTuBoxesCount(string tuId, OracleConnectionService dbService,
+    private static async Task<IResult> GetTuBoxesCount(string tuId, OracleConnectionService dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -123,7 +122,7 @@ public class Program
 
         try
         {
-            int boxesCount = await dbService.GetOutgoTuBoxesCountAsync(tuId);
+            int boxesCount = await dbService.GetTuBoxesCountAsync(tuId);
             return Results.Ok(new { Message = "TU found.", tuId, boxesCount });
         }
         catch (Exception exception)
@@ -166,7 +165,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetOutgoTuScannedBoxesCount(string tuId, OracleConnectionService dbService,
+    private static async Task<IResult> GetTuScannedBoxesCount(string tuId, OracleConnectionService dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -174,7 +173,7 @@ public class Program
 
         try
         {
-            int boxesCount = await dbService.GetOutgoTuScannedBoxesCountAsync(tuId);
+            int boxesCount = await dbService.GetTuScannedBoxesCountAsync(tuId);
             return Results.Ok(new { Message = "TU found.", tuId, boxesCount });
         }
         catch (Exception exception)
@@ -249,7 +248,7 @@ public class Program
 
         try
         {
-            await dbService.RemoveTuSsccsAsync(sscc);
+            await dbService.RemoveSsccAsync(sscc);
             return Results.Ok(new { Message = "SSCC removed.", sscc });
         }
         catch (Exception exception)
@@ -332,10 +331,10 @@ public class Program
         app.MapGet("/check-outgo/{outgoId}", CheckOutgo).RequireAuthorization();
         app.MapGet("/outgo-tus-count/{outgoId}", GetOutgoTusCount).RequireAuthorization();
         app.MapGet("/outgo-boxes-count/{outgoId}", GetOutgoBoxesCount).RequireAuthorization();
-        app.MapGet("/outgo-tu-boxes-count/{tuId}", GetOutgoTuBoxesCount).RequireAuthorization();
+        app.MapGet("/tu-boxes-count/{tuId}", GetTuBoxesCount).RequireAuthorization();
         app.MapGet("/outgo-scanned-tus-count/{outgoId}", GetOutgoScannedTusCount).RequireAuthorization();
         app.MapGet("/outgo-scanned-boxes-count/{outgoId}", GetOutgoScannedBoxesCount).RequireAuthorization();
-        app.MapGet("/outgo-tu-scanned-boxes-count/{tuId}", GetOutgoTuScannedBoxesCount).RequireAuthorization();
+        app.MapGet("/tu-scanned-boxes-count/{tuId}", GetTuScannedBoxesCount).RequireAuthorization();
         app.MapPost("/add-sscc", AddSscc).RequireAuthorization();
         app.MapDelete("/remove-outgo-ssccs/{outgoId}", RemoveOutgoSsccs).RequireAuthorization();
         app.MapDelete("/remove-tu-ssccs/{tuId}", RemoveTuSsccs).RequireAuthorization();
@@ -345,7 +344,7 @@ public class Program
     }
 
     // Method to authenticate the user against Active Directory.
-    static bool AuthenticateUser(string userName, string password, string domain)
+    private static bool AuthenticateUser(string userName, string password, string domain)
     {
         // TODO: нужно настроить корректную аутентификацию, через Active Directory.
         return !string.IsNullOrWhiteSpace(userName) &&
@@ -353,7 +352,7 @@ public class Program
             !string.IsNullOrWhiteSpace(domain);
     }
 
-    static string GenerateJwtToken(string userName)
+    private static string GenerateJwtToken(string userName)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(SecretKey);
