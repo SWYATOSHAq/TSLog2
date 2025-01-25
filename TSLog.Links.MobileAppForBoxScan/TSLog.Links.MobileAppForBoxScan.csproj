@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net8.0-ios;net8.0-maccatalyst;net8.0-android34.0</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
@@ -61,6 +61,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Models\ApiSettings.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\tsl_logo.png" />
 	</ItemGroup>
 
@@ -79,19 +83,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Resources\Pages\ScanBoxPage.xaml.cs">
-	    <DependentUpon>ScanBoxPage.xaml</DependentUpon>
+	  <Compile Update="Resources\Pages\LoginPage.xaml.cs">
+	    <DependentUpon>LoginPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Resources\Pages\ShippingInvoiceScanPage.xaml.cs">
-	    <DependentUpon>ShippingInvoiceScanPage.xaml</DependentUpon>
+	  <Compile Update="Resources\Pages\SsccPage.xaml.cs">
+	    <DependentUpon>SsccPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Resources\Pages\OutgoPage.xaml.cs">
+	    <DependentUpon>OutgoPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Resources\Pages\ScanBoxPage.xaml">
+	  <MauiXaml Update="Resources\Pages\SsccPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Resources\Pages\ShippingInvoiceScanPage.xaml">
+	  <MauiXaml Update="Resources\Pages\OutgoPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

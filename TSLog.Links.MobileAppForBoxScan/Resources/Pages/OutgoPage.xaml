@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.ShippingInvoiceScanPage">
+             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.OutgoPage">
     <ScrollView>
         <VerticalStackLayout
             Padding="30,0"
@@ -12,7 +12,7 @@
                    FontFamily = "Helvetica"
                    HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Entry x:Name="invoiceEntry" Placeholder = "Номер расходной накладной" FontFamily="Helvetica"
+            <Entry x:Name="outgoIdEntry" Placeholder = "Номер расходной накладной" FontFamily="Helvetica"
                    FontSize="22" MaxLength ="32" />
 
             <Label FontSize="22" Text = "Отсканируйте номер ТЕ паллеты"
@@ -20,8 +20,8 @@
                    FontFamily = "Helvetica"
                    HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Entry x:Name="teNumEntry" Placeholder = "Номер ТЕ" FontFamily="Helvetica"
-                   FontSize="22" MaxLength ="20" TextChanged="OnTeNumEntryTextChanged"/>
+            <Entry x:Name="tuIdEntry" Placeholder = "Номер ТЕ" FontFamily="Helvetica"
+                   FontSize="22" MaxLength ="20" TextChanged="OnTuIdEntryTextChanged"/>
 
             <HorizontalStackLayout>
                 <Label FontSize="22" Text = "Кол-во ТЕ в заказе"

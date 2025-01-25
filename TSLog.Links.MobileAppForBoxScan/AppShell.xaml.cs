@@ -7,8 +7,8 @@ namespace TSLog.Links.MobileAppForBoxScan
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute(nameof(ShippingInvoiceScanPage), typeof(ShippingInvoiceScanPage));
-            Routing.RegisterRoute(nameof(ScanBoxPage), typeof(ScanBoxPage));
+            Routing.RegisterRoute(nameof(OutgoPage), typeof(OutgoPage));
+            Routing.RegisterRoute(nameof(SsccPage), typeof(SsccPage));
         }
     }
 }

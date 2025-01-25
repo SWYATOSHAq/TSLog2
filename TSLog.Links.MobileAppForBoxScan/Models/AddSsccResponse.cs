@@ -1,7 +1,7 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
-public record DeleteBoxSSCCRequest
+public class AddSsccResponse
 {
-    public required string TeNum { get; init; }
+    public required string Message { get; init; }
     public required string OrderId { get; init; }
 }

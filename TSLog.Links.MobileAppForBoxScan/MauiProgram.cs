@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using TSLog.Links.MobileAppForBoxScan.Models;
 using TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 namespace TSLog.Links.MobileAppForBoxScan
@@ -31,9 +30,8 @@ namespace TSLog.Links.MobileAppForBoxScan
             // Add configuration to the builder.
             builder.Configuration.AddConfiguration(config);
 
-            var apiSettings = new ApiSettings();
-            builder.Configuration.GetSection("ApiSettings").Bind(apiSettings);
-            builder.Services.AddSingleton(apiSettings);
+            var isDebug = builder.Configuration.GetValue<bool>("IsDebug");
+            var apiSettings = builder.Configuration.GetSection("ApiSettings");
 
             // Register HttpClient with a custom handler that uses default credentials.
             builder.Services.AddSingleton<HttpClient>(sp =>
@@ -44,14 +42,19 @@ namespace TSLog.Links.MobileAppForBoxScan
                 };
 
                 var client = new HttpClient(handler);
-                client.BaseAddress = new Uri(apiSettings.BaseUrl); // Set the base address.
+                var buaseUrl = apiSettings.GetValue<string>("BaseUrl") ?? string.Empty;
+                var debugBaseUrl = apiSettings.GetValue<string>("DebugBaseUrl") ?? string.Empty;
+                if (!isDebug)
+                    client.BaseAddress = new Uri(buaseUrl); // Set the base address.
+                else
+                    client.BaseAddress = new Uri(debugBaseUrl); // Set the base address.
                 return client;
             });
 
             // Register pages.
-            builder.Services.AddTransient<MainPage>();
-            builder.Services.AddTransient<ShippingInvoiceScanPage>();
-            builder.Services.AddTransient<ScanBoxPage>();
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<OutgoPage>();
+            builder.Services.AddTransient<SsccPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

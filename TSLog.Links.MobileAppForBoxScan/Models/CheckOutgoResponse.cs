@@ -1,7 +1,7 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
-public class ValidateOrderResponse
+public class CheckOutgoResponse
 {
     public required string Message { get; set; }
-    public required string OrderId { get; set; }
+    public required string OutgoId { get; set; }
 }

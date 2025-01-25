@@ -9,12 +9,12 @@
 
     <ShellContent
         Title=""
-        ContentTemplate="{DataTemplate local:MainPage}"
+        ContentTemplate="{DataTemplate local:LoginPage}"
         Route="MainPage" />
 
     <ShellContent
         Title=""
-        ContentTemplate="{DataTemplate local:ShippingInvoiceScanPage}"
-        Route="ShippingInvoiceScanPage" />
+        ContentTemplate="{DataTemplate local:OutgoPage}"
+        Route="OutgoPage" />
 
 </Shell>
