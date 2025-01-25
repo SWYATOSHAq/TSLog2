@@ -2,6 +2,6 @@
 
 public class ValidateOrderResponse
 {
-    public string Message { get; set; }
-    public string OrderId { get; set; }
+    public required string Message { get; set; }
+    public required string OrderId { get; set; }
 }

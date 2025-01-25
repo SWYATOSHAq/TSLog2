@@ -1,10 +1,7 @@
-﻿using AngleSharp.Io;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Serilog.Core;
-using System;
 using System.Dynamic;
 using System.Globalization;
 using System.Net;
@@ -17,7 +14,6 @@ using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static TSLog.Yard.BO.OperationType;
 
 namespace TSLog.Yard.Logic;
@@ -198,6 +194,8 @@ public class Processor
     public Operation CreateOperation(dynamic data, ClaimsPrincipal? user,
         out int statusCode, out string statusMessage)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION", user);
         statusCode = (int)HttpStatusCode.InternalServerError;
@@ -352,6 +350,8 @@ public class Processor
 
     public string CreateConfirmOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var createOperation = _rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", user);
@@ -506,6 +506,8 @@ public class Processor
 
     public string CreateOperationByPartner(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", user);
@@ -664,6 +666,8 @@ public class Processor
 
     public string EditOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION", user);
@@ -883,6 +887,8 @@ public class Processor
 
     public string EditOperationByPartner(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", user);
@@ -1264,8 +1270,11 @@ public class Processor
         return (int)totalTime;
     }
 
-    public string GetDispatcherReport(HttpRequest requestData, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
+    public string GetDispatcherReport(HttpRequest requestData, ClaimsPrincipal? user, 
+        out int statusCode, out string statusMessage)
     {
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var getData = _rightsChecker.CheckRight("GET_DISPATCHER_REPORT", user);
         statusCode = (int)HttpStatusCode.InternalServerError;

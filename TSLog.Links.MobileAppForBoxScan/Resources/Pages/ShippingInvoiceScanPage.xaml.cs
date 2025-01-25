@@ -187,7 +187,7 @@ public partial class ShippingInvoiceScanPage : ContentPage, IQueryAttributable, 
         await Shell.Current.GoToAsync(nameof(ScanBoxPage), navigationParameters);
     }
 
-    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

@@ -82,7 +82,7 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
         {
             OrderId = _invoiceId,
             BoxSSCCCode = ssccCode,
-            teNum = _teNum,
+            TeNum = _teNum,
             UserName = _token // Assuming UserName is taken from token for this request.
         };
 
@@ -140,7 +140,7 @@ public partial class ScanBoxPage : ContentPage, IQueryAttributable
         {
             var request = new DeleteBoxSSCCRequest
             {
-                teNum = _teNum,
+                TeNum = _teNum,
                 OrderId = _invoiceId
             };
 

@@ -2,6 +2,6 @@
 
 public class AcceptBoxesResponse
 {
-    public string Message { get; init; }
-    public string OrderId { get; init; }
+    public required string Message { get; init; }
+    public required string OrderId { get; init; }
 }

@@ -2,6 +2,6 @@
 
 public record DeleteBoxSSCCRequest
 {
-    public string teNum { get; init; }
-    public string OrderId { get; init; }
+    public required string TeNum { get; init; }
+    public required string OrderId { get; init; }
 }

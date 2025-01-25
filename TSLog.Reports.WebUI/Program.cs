@@ -77,7 +77,7 @@ if (useAuthentication)
     app.UseAuthorization();
 }
 
-// map api
+// Map api.
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

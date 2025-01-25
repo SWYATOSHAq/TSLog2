@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Oracle.ManagedDataAccess.Client;
-using Serilog.Core;
+﻿using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Dynamic;
 using System.Text;
@@ -914,7 +912,7 @@ namespace TSLog.Yard.Data
             {
                 if (!result.ContainsKey(siteCode))
                 {
-                    result[siteCode] = -1; // If a site code is not found in the results, return -1 or another placeholder
+                    result[siteCode] = -1; // If a site code is not found in the results, return -1 or another placeholder.
                 }
             }
 

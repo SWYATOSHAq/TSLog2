@@ -22,12 +22,8 @@ namespace TSLog.Links.MobileAppForBoxScan
             // Load configuration from appsettings.json.
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "TSLog.Links.MobileAppForBoxScan.appsettings.json";
-            using var stream = assembly.GetManifestResourceStream(resourceName);
-            if (stream == null)
-            {
+            using var stream = assembly.GetManifestResourceStream(resourceName) ??
                 throw new InvalidOperationException($"Resource '{resourceName}' not found.");
-            }
-
             var config = new ConfigurationBuilder()
                 .AddJsonStream(stream)
                 .Build();

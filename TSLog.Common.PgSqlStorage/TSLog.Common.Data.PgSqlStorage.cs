@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Npgsql;
-using Serilog.Events;
-using Serilog;
-using System.Collections.Immutable;
 using System.Data;
 using System.Data.Common;
 using System.Security;
@@ -53,14 +49,14 @@ namespace TSLog.Common.Data
             _logger = logger;
             if (extensionParameters != null)
             {
-                if (extensionParameters.ContainsKey("Pooling"))
-                    _pooling = (bool)extensionParameters["Pooling"];
-                if (extensionParameters.ContainsKey("MaxPoolSize"))
-                    _maxPoolSize = (int)extensionParameters["MaxPoolSize"];
-                if (extensionParameters.ContainsKey("ConnectionIdleLifetime"))
-                    _connectionIdleLifetime = (int)extensionParameters["ConnectionIdleLifetime"];
-                if (extensionParameters.ContainsKey("ConnectionPruningInterval"))
-                    _connectionPruningInterval = (int)extensionParameters["ConnectionPruningInterval"];
+                if (extensionParameters.TryGetValue("Pooling", out object? poolinkValue))
+                    _pooling = (bool)poolinkValue;
+                if (extensionParameters.TryGetValue("MaxPoolSize", out object? maxPoolSizeValue))
+                    _maxPoolSize = (int)maxPoolSizeValue;
+                if (extensionParameters.TryGetValue("ConnectionIdleLifetime", out object? connectionIdleLifetimeValue))
+                    _connectionIdleLifetime = (int)connectionIdleLifetimeValue;
+                if (extensionParameters.TryGetValue("ConnectionPruningInterval", out object? connectionPruningIntervalValue))
+                    _connectionPruningInterval = (int)connectionPruningIntervalValue;
             }
         }
         public DbConnection CloneConnection()
@@ -71,8 +67,9 @@ namespace TSLog.Common.Data
             };
             connection.Open();
 
-            using (var cmd = new NpgsqlCommand("SELECT datid, datname, pid, usesysid, usename, client_addr, client_port, state, query FROM pg_stat_activity " +
-                "WHERE state = 'idle' and usename = 'yarddispatcher';", connection))
+            using (var cmd = new NpgsqlCommand("select datid, datname, pid, usesysid, usename, client_addr, client_port, state, query " +
+                "from pg_stat_activity " +
+                "where state = 'idle' and usename = 'yarddispatcher';", connection))
             using (var reader = cmd.ExecuteReader())
             {
                 int rowCount = 0;

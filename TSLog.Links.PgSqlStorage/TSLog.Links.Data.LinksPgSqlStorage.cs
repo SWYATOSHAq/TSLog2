@@ -80,7 +80,7 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
         throw new NotImplementedException();
     }
 
-    public LegalEntity[] GetLegalEntities(Partner[] partners = null)
+    public LegalEntity[] GetLegalEntities(Partner[]? partners = null)
     {
         throw new NotImplementedException();
     }
@@ -120,7 +120,7 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
         throw new NotImplementedException();
     }
 
-    public PickingBeginNotice[] GetPickingBeginNotices(Partner[] partners = null)
+    public PickingBeginNotice[] GetPickingBeginNotices(Partner[]? partners = null)
     {
         throw new NotImplementedException();
     }
@@ -135,7 +135,7 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
         throw new NotImplementedException();
     }
 
-    public PickingEndNotice[] GetPickingEndNotices(Partner[] partners = null)
+    public PickingEndNotice[] GetPickingEndNotices(Partner[]? partners = null)
     {
         throw new NotImplementedException();
     }
@@ -155,7 +155,7 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
         throw new NotImplementedException();
     }
 
-    public Product[] GetProducts(Partner[] partners = null)
+    public Product[] GetProducts(Partner[]? partners = null)
     {
         throw new NotImplementedException();
     }
@@ -170,7 +170,7 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
         throw new NotImplementedException();
     }
 
-    public ReceiptEndNotice[] GetReceiptEndNotices(Partner[] partners = null)
+    public ReceiptEndNotice[] GetReceiptEndNotices(Partner[]? partners = null)
     {
         throw new NotImplementedException();
     }
@@ -185,7 +185,7 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
         throw new NotImplementedException();
     }
 
-    public ShippingNotice[] GetShippingNotices(Partner[] partners = null)
+    public ShippingNotice[] GetShippingNotices(Partner[]? partners = null)
     {
         throw new NotImplementedException();
     }
