@@ -75,12 +75,19 @@ public partial class SsccPage : ContentPage, IQueryAttributable
         if (string.IsNullOrWhiteSpace(text))
             return;
 
-        if (Common.CheckSscc(text, out string sscc) &&
-            !_ssccs.Contains(text.Trim()))
+        if (Common.CheckSscc(text, out string sscc))
         {
-            _ssccs.Add(sscc);
-            _scannedBoxesCount++;
-            scannedBoxesCountLabel.Text = _scannedBoxesCount.ToString();
+            if (!_ssccs.Contains(text.Trim()))
+            {
+                _ssccs.Add(sscc);
+                _scannedBoxesCount++;
+                scannedBoxesCountLabel.Text = _scannedBoxesCount.ToString();
+            }
+            else 
+            {
+                ssccEntry.Text = string.Empty;
+                await DisplayAlert("Ошибка", $"SSCC {text} уже просканирован.", "OK");
+            }
         }
         else
         {
