@@ -3,9 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.OutgoPage">
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
+        <VerticalStackLayout Padding="30,0" Spacing="25">
 
             <Label Text="Отсканируйте номер расходной накладной"
                    FontSize="22" CharacterSpacing="2" FontFamily = "Helvetica"
@@ -39,37 +37,20 @@
                        HorizontalOptions="Center" VerticalOptions="Center" />
             </HorizontalStackLayout>
 
-            <Button
-                x:Name="scannedTusButton"
-                Text="Отсканированные ТЕ" 
-                Clicked="OnScannedTusClicked"
-                HorizontalOptions="Fill" />
+            <Button x:Name="scannedTusButton"
+                    Clicked="OnScannedTusClicked"
+                    Text="Отсканированные ТЕ"
+                    HorizontalOptions="Fill" />
 
-            <Button
-                x:Name="tuPageButton"
-                Text="Далее"
-                Clicked="OnNextPageClicked"
-                HorizontalOptions="Fill" >
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="BackgroundColor" Value="Gray" />
-                        <Setter Property="TextColor" Value="White" />
-                        <Style.Triggers>
-                            <DataTrigger TargetType="Button" Binding="{Binding IsEnabled, Source={x:Reference nextPageButton}}" Value="True">
-                                <Setter Property="BackgroundColor" Value="Green" />
-                                <Setter Property="TextColor" Value="White" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
+            <Button x:Name="tuPageButton"
+                    Clicked="OnNextPageClicked"
+                    Text="Далее" 
+                    HorizontalOptions="Fill" />
 
-            <Button
-                x:Name="exitButton"
-                Text="Выход" 
-                Clicked="OnExitClicked"
-                HorizontalOptions="Fill" />
-
+            <Button x:Name="exitButton"
+                    Clicked="OnExitClicked"
+                    Text="Выход" 
+                    HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

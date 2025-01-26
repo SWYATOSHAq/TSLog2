@@ -37,29 +37,24 @@
                    FontSize="22" Completed="OnSsccEntryCompleted"
                    HorizontalOptions="Center" VerticalOptions="Center"/>
 
-            <Button
-                x:Name="ScannedSsccs"
-                Text="Отсканированные короба" 
-                Clicked="OnScannedSsccsClicked"
-                HorizontalOptions="Fill" />
+            <Button x:Name="ScannedSsccs"
+                    Clicked="OnScannedSsccsClicked"
+                    Text="Отсканированные короба"
+                    HorizontalOptions="Fill" />
 
-            <Button
-                x:Name="confirmButton"
-                Text="Подтвердить ТЕ" 
-                Clicked="OnConfirmClicked"
-                HorizontalOptions="Fill" />
-            <Button
-                x:Name="cancelButton"
-                Text="Отмена" 
-                Clicked="OnCancelClicked"
-                HorizontalOptions="Fill" />
+            <Button x:Name="confirmButton"
+                    Clicked="OnConfirmClicked"
+                    Text="Подтвердить ТЕ"
+                    HorizontalOptions="Fill" />
+            <Button x:Name="cancelButton"
+                    Clicked="OnCancelClicked"
+                    Text="Отмена"
+                    HorizontalOptions="Fill" />
 
-            <Button
-                x:Name="exitButton"
-                Text="Выход" 
-                Clicked="OnExitClicked"
-                HorizontalOptions="Fill" />
-
+            <Button x:Name="exitButton"
+                    Clicked="OnExitClicked"
+                    Text="Выход"
+                    HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

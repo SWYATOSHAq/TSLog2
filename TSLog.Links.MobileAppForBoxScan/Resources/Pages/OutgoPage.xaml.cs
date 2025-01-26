@@ -3,6 +3,9 @@ using System.Runtime.CompilerServices;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
+/// <summary>
+/// Окно для сканирования расхода (заказа) и ТЕ.
+/// </summary>
 public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropertyChanged
 {
     private readonly HttpClient _httpClient;
@@ -10,19 +13,8 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     private string _tuId = string.Empty;
     private string _userName = string.Empty;
     private string _token = string.Empty;
-    private bool _isNextPageButtonEnabled = false;
 
     new public event PropertyChangedEventHandler? PropertyChanged;
-
-    public bool IsNextPageButtonEnabled
-    {
-        get => _isNextPageButtonEnabled;
-        set
-        {
-            _isNextPageButtonEnabled = value;
-            OnPropertyChanged();
-        }
-    }
 
     private void SetControlsState()
     {
@@ -43,7 +35,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         ClearEntries();
         outgoIdEntry.BackgroundColor = Colors.Transparent;
         tuIdEntry.BackgroundColor = Colors.Transparent;
-        IsNextPageButtonEnabled = false;
 
         // Use the Dispatcher to ensure the UI is ready before setting the focus.
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(500), () =>
@@ -114,12 +105,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         tuPageButton.Focus();
     }
 
-    private void UpdateNextPageButtonState()
-    {
-        IsNextPageButtonEnabled = outgoIdEntry.BackgroundColor == Colors.LightGreen &&
-            !string.IsNullOrWhiteSpace(tuIdEntry.Text);
-    }
-
     private async void OnScannedTusClicked(object sender, EventArgs e)
     { }
 
@@ -133,11 +118,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
             { "UserName", _userName },
         };
         await Shell.Current.GoToAsync(nameof(SsccPage), navigationParameters);
-    }
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void OnExitClicked(object sender, EventArgs e)

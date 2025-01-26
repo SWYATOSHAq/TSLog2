@@ -15,6 +15,7 @@ namespace TSLog.Links.MobileAppForBoxScan
     {
         private static async Task<bool> CheckToken(string token, ContentPage page)
         {
+            ArgumentNullException.ThrowIfNull(page);
             if (string.IsNullOrWhiteSpace(token))
             {
                 await page.DisplayAlert("Ошибка", "Токен отсутствует. Пожалуйста, войдите снова.", "OK");
@@ -25,13 +26,27 @@ namespace TSLog.Links.MobileAppForBoxScan
         }
         private static async void HandleUnauthorized(ContentPage page)
         {
+            ArgumentNullException.ThrowIfNull(page);
             await page.DisplayAlert("Ошибка",
                 "Ваша сессия истекла. Пожалуйста, войдите снова.", "OK");
             await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
         }
+        /// <summary>
+        /// Проверяет расход (заказ) на корректность - наличие ТЕ у расхода и не нулевое количество коробов.
+        /// </summary>
+        /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Признак "корректного" расхода (с ТЕ и с ненулевым количеством коробов).</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<bool> CheckOutgo(string outgoId,
             ContentPage page, HttpClient client, string token)
         {
+            if (string.IsNullOrWhiteSpace(outgoId))
+                throw new ArgumentNullException(nameof(outgoId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
             try
             {
                 if (!await CheckToken(token, page))
@@ -68,10 +83,27 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return false;
         }
-
+        /// <summary>
+        /// Проверяет ТЕ расхода (заказа) на корректность - наличие коробов на ТЕ.
+        /// </summary>
+        /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+        /// <param name="tuId">Идентификатор ТЕ.</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<bool> CheckOutgoTu(string outgoId, string tuId,
             ContentPage page, HttpClient client, string token)
         {
+            if (string.IsNullOrWhiteSpace(outgoId))
+                throw new ArgumentNullException(nameof(outgoId));
+            if (string.IsNullOrWhiteSpace(tuId))
+                throw new ArgumentNullException(nameof(tuId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
             try
             {
                 if (!await CheckToken(token, page))
@@ -108,10 +140,24 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return false;
         }
-
+        /// <summary>
+        /// Возврашает количество ТЕ, которые связаны с расходом (заказом).
+        /// </summary>
+        /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Количество ТЕ, в случае ошибки возвращает 0.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<int> GetOutgoTusCount(string outgoId,
             ContentPage page, HttpClient client, string token)
         {
+            if (string.IsNullOrWhiteSpace(outgoId))
+                throw new ArgumentNullException(nameof(outgoId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
             try
             {
                 if (!await CheckToken(token, page))
@@ -148,10 +194,24 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return 0;
         }
-
+        /// <summary>
+        /// Возвращает количество коробов на ТЕ.
+        /// </summary>
+        /// <param name="tuId">Идентификатор ТЕ.</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Количество коробов на ТЕ, 0 в случае ошмбки.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<int> GetTuBoxesCount(string tuId,
             ContentPage page, HttpClient client, string token)
         {
+            if (string.IsNullOrWhiteSpace(tuId))
+                throw new ArgumentNullException(nameof(tuId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
             try
             {
                 if (!await CheckToken(token, page))
@@ -185,10 +245,24 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return 0;
         }
-
+        /// <summary>
+        /// Возвращает количество ОТСКАНИРОВАННЫХ коробов на ТЕ.
+        /// </summary>
+        /// <param name="tuId">Идентификатор ТЕ.</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Количество отсканированных коробов на ТЕ. 0 - допустимое значение, -1 в случае ошибки.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<int> GetScannedTuBoxesCount(string tuId,
             ContentPage page, HttpClient client, string token)
         {
+            if (string.IsNullOrWhiteSpace(tuId))
+                throw new ArgumentNullException(nameof(tuId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
             try
             {
                 if (!await CheckToken(token, page))
@@ -226,10 +300,34 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return -1;
         }
-
+        /// <summary>
+        /// Сохраняет набор (может быть несколько, это важно!) SSCC.
+        /// </summary>
+        /// <param name="ssccs">Массив SSCC.</param>
+        /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+        /// <param name="tuId">Идентификатор ТЕ.</param>
+        /// <param name="userName">Имя пользователя.</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Возвращает признак успешного сохранения.</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<bool> StoreSsccs(string[] ssccs, string outgoId, string tuId, string userName,
             ContentPage page, HttpClient client, string token)
         {
+            if (ssccs == null || ssccs.Length <= 0)
+                throw new ArgumentException($"{nameof(ssccs)} is null or empty.");
+            if (string.IsNullOrWhiteSpace(outgoId))
+                throw new ArgumentNullException(nameof(outgoId));
+            if (string.IsNullOrWhiteSpace(tuId))
+                throw new ArgumentNullException(nameof(tuId));
+            if (string.IsNullOrWhiteSpace(userName))
+                throw new ArgumentNullException(nameof(userName));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
             try
             {
                 if (!await Api.CheckToken(token, page))

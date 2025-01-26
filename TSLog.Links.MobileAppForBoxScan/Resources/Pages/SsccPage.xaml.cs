@@ -1,5 +1,8 @@
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
+/// <summary>
+/// Окно для сканирования SSСС.
+/// </summary>
 public partial class SsccPage : ContentPage, IQueryAttributable
 {
     private readonly HttpClient _httpClient;

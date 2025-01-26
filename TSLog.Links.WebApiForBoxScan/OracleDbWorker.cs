@@ -26,7 +26,7 @@ public class OracleDbWorker
 
     public OracleDbWorker(IOptions<OracleConnectionSettings> settings)
     {
-        if (settings.Value == null)
+        if (settings == null || settings.Value == null)
             throw new ArgumentNullException(nameof(settings));
         _settings = settings.Value;
 
