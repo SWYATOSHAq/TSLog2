@@ -60,7 +60,7 @@ public class Program
         return Results.BadRequest(new { Message = "Invalid request" });
     }
 
-    private static async Task<IResult> CheckOutgo(string outgoId, OracleConnectionService dbService,
+    private static async Task<IResult> CheckOutgo(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -68,7 +68,7 @@ public class Program
 
         try
         {
-            bool outgoExists = await dbService.CheckOrderAsync(outgoId);
+            bool outgoExists = await dbService.CheckOutgoAsync(outgoId);
             if (outgoExists)
                 return Results.Ok(new { Message = "Outgo found.", outgoId });
             else
@@ -80,7 +80,27 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetOutgoTusCount(string outgoId, OracleConnectionService dbService,
+    private static async Task<IResult> CheckOutgoTu(string outgoId, string tuId, 
+        OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
+    {
+        if (!CheckUser(httpContext, sessionService, out var result))
+            return result;
+
+        try
+        {
+            bool outgoExists = await dbService.CheckOutgoTuAsync(outgoId, tuId);
+            if (outgoExists)
+                return Results.Ok(new { Message = "TU for outgo found.", outgoId, tuId });
+            else
+                return Results.NotFound(new { Message = "TU for outgo not found.", outgoId, tuId });
+        }
+        catch (Exception exception)
+        {
+            return Results.Problem(exception.Message);
+        }
+    }
+
+    private static async Task<IResult> GetOutgoTusCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -97,7 +117,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetOutgoBoxesCount(string outgoId, OracleConnectionService dbService,
+    private static async Task<IResult> GetOutgoBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -114,7 +134,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetTuBoxesCount(string tuId, OracleConnectionService dbService,
+    private static async Task<IResult> GetTuBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -131,7 +151,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetOutgoScannedTusCount(string outgoId, OracleConnectionService dbService,
+    private static async Task<IResult> GetOutgoScannedTusCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -148,7 +168,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetOutgoScannedBoxesCount(string outgoId, OracleConnectionService dbService,
+    private static async Task<IResult> GetOutgoScannedBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -165,7 +185,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> GetTuScannedBoxesCount(string tuId, OracleConnectionService dbService,
+    private static async Task<IResult> GetTuScannedBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -183,7 +203,7 @@ public class Program
     }
 
     private static async Task<IResult> AddSscc(AddSsccRequest request,
-        OracleConnectionService dbService, HttpContext httpContext, SessionService sessionService)
+        OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
             return result;
@@ -206,7 +226,31 @@ public class Program
         }
     }
 
-    private static async Task<IResult> RemoveOutgoSsccs(string outgoId, OracleConnectionService dbService,
+    private static async Task<IResult> AddSsccs(AddSsccsRequest request,
+       OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
+    {
+        if (!CheckUser(httpContext, sessionService, out var result))
+            return result;
+
+        try
+        {
+            var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            await dbService.AddSsccsAsync(request.OutgoId, request.TuId, request.Ssccs, normalizedUsername);
+            return Results.Ok(new
+            {
+                Message = "Boxes added.",
+                outgoId = request.OutgoId,
+                tuId = request.TuId,
+                ssccsCount = request.Ssccs.Length
+            });
+        }
+        catch (Exception exception)
+        {
+            return Results.Problem(exception.Message);
+        }
+    }
+
+    private static async Task<IResult> RemoveOutgoSsccs(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -223,7 +267,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> RemoveTuSsccs(string tuId, OracleConnectionService dbService,
+    private static async Task<IResult> RemoveTuSsccs(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -240,7 +284,7 @@ public class Program
         }
     }
 
-    private static async Task<IResult> RemoveSscc(string sscc, OracleConnectionService dbService,
+    private static async Task<IResult> RemoveSscc(string sscc, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
         if (!CheckUser(httpContext, sessionService, out var result))
@@ -303,7 +347,7 @@ public class Program
             builder.Services.Configure<OracleConnectionSettings>(builder.Configuration.GetSection("OracleConnectionSettings"));
         }
 
-        builder.Services.AddSingleton<OracleConnectionService>();
+        builder.Services.AddSingleton<OracleDbWorker>();
         builder.Services.AddSingleton<SessionService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle.
@@ -329,6 +373,7 @@ public class Program
 
         // Define an endpoint to accept order and box SSCC codes.
         app.MapGet("/check-outgo/{outgoId}", CheckOutgo).RequireAuthorization();
+        app.MapGet("/check-outgo-tu/{outgoId}/{tuId}", CheckOutgoTu).RequireAuthorization();
         app.MapGet("/outgo-tus-count/{outgoId}", GetOutgoTusCount).RequireAuthorization();
         app.MapGet("/outgo-boxes-count/{outgoId}", GetOutgoBoxesCount).RequireAuthorization();
         app.MapGet("/tu-boxes-count/{tuId}", GetTuBoxesCount).RequireAuthorization();
@@ -336,6 +381,7 @@ public class Program
         app.MapGet("/outgo-scanned-boxes-count/{outgoId}", GetOutgoScannedBoxesCount).RequireAuthorization();
         app.MapGet("/tu-scanned-boxes-count/{tuId}", GetTuScannedBoxesCount).RequireAuthorization();
         app.MapPost("/add-sscc", AddSscc).RequireAuthorization();
+        app.MapPost("/add-ssccs", AddSsccs).RequireAuthorization();
         app.MapDelete("/remove-outgo-ssccs/{outgoId}", RemoveOutgoSsccs).RequireAuthorization();
         app.MapDelete("/remove-tu-ssccs/{tuId}", RemoveTuSsccs).RequireAuthorization();
         app.MapDelete("/remove-sscc/{sscc}", RemoveSscc).RequireAuthorization();
@@ -371,8 +417,6 @@ public class Program
     }
 }
 
-// Define the login request model.
 public record LoginRequest(string UserName, string Password);
-
-// Define the order register request model.
 public record AddSsccRequest(string OutgoId, string TuId, string Sscc, string UserName);
+public record AddSsccsRequest(string OutgoId, string TuId, string[] Ssccs, string UserName);

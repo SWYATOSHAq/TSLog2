@@ -1,0 +1,277 @@
+﻿using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using TSLog.Links.MobileAppForBoxScan.Models;
+using TSLog.Links.MobileAppForBoxScan.Resources.Pages;
+
+namespace TSLog.Links.MobileAppForBoxScan
+{
+    /// <summary>
+    /// "Обёртка" для вызова API функций.
+    /// </summary>
+    public class Api
+    {
+        private static async Task<bool> CheckToken(string token, ContentPage page)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                await page.DisplayAlert("Ошибка", "Токен отсутствует. Пожалуйста, войдите снова.", "OK");
+                await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
+                return false;
+            }
+            return true;
+        }
+        private static async void HandleUnauthorized(ContentPage page)
+        {
+            await page.DisplayAlert("Ошибка",
+                "Ваша сессия истекла. Пожалуйста, войдите снова.", "OK");
+            await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
+        }
+        public static async Task<bool> CheckOutgo(string outgoId,
+            ContentPage page, HttpClient client, string token)
+        {
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return false;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"check-outgo/{outgoId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return true;
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await page.DisplayAlert("Ошибка", "Заказ не найден.", "OK");
+                    return false;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    HandleUnauthorized(page);
+                    return false;
+                }
+                else
+                {
+                    await page.DisplayAlert("Ошибка", "Заказ не найден.", "OK");
+                    return false;
+                }
+
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return false;
+        }
+
+        public static async Task<bool> CheckOutgoTu(string outgoId, string tuId,
+            ContentPage page, HttpClient client, string token)
+        {
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return false;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"check-outgo-tu/{outgoId}/{tuId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return true;
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await page.DisplayAlert("Ошибка", "ТЕ в заказе не найдена.", "OK");
+                    return false;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    HandleUnauthorized(page);
+                    return false;
+                }
+                else
+                {
+                    await page.DisplayAlert("Ошибка", "ТЕ в заказе не найдена.", "OK");
+                    return false;
+                }
+
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return false;
+        }
+
+        public static async Task<int> GetOutgoTusCount(string outgoId,
+            ContentPage page, HttpClient client, string token)
+        {
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return 0;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"outgo-tus-count/{outgoId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<OutgoTusCountResponse>();
+                    if (responseContent != null && responseContent.TusCount > 0)
+                        return responseContent.TusCount;
+                    else
+                    {
+                        await page.DisplayAlert("Ошибка", "В заказе отсутствуют ТЕ.", "OK");
+                        return 0;
+                    }
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    HandleUnauthorized(page);
+                    return 0;
+                }
+                else
+                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return 0;
+        }
+
+        public static async Task<int> GetTuBoxesCount(string tuId,
+            ContentPage page, HttpClient client, string token)
+        {
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return 0;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"tu-boxes-count/{tuId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<TuBoxesCountResponse>();
+                    if (responseContent != null && responseContent.BoxesCount > 0)
+                        return responseContent.BoxesCount;
+                    else
+                    {
+                        await page.DisplayAlert("Ошибка", "На ТЕ нет коробок.", "OK");
+                        return 0;
+                    }
+                }
+                else
+                {
+                    await page.DisplayAlert("Ошибка", "На ТЕ нет коробок.", "OK");
+                    return 0;
+                }
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return 0;
+        }
+
+        public static async Task<int> GetScannedTuBoxesCount(string tuId,
+            ContentPage page, HttpClient client, string token)
+        {
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return -1;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"tu-scanned-boxes-count/{tuId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<TuScannedBoxesCountResponse>();
+                    if (responseContent != null)
+                        return responseContent.BoxesCount;
+                    else
+                    {
+                        await page.DisplayAlert(
+                            "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
+                            "OK");
+                        return -1;
+                    }
+                }
+                else
+                {
+                    await page.DisplayAlert(
+                        "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
+                        "OK");
+                    return -1;
+                }
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return -1;
+        }
+
+        public static async Task<bool> StoreSsccs(string[] ssccs, string outgoId, string tuId, string userName,
+            ContentPage page, HttpClient client, string token)
+        {
+            try
+            {
+                if (!await Api.CheckToken(token, page))
+                    return false;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var request = new AddSsccsRequest
+                {
+                    OutgoId = outgoId,
+                    TuId = tuId,
+                    Ssccs = ssccs,
+                    UserName = userName
+                };
+                var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync("add-ssccs", content);
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return true;
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    Api.HandleUnauthorized(page);
+                    return false;
+                }
+                else
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                    if (responseContent != null)
+                        await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    else
+                        await page.DisplayAlert("Ошибка", "Не удалось принять короба. Попробуйте снова.", "OK");
+                    return false;
+                }
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            }
+            return false;
+        }
+    }
+}

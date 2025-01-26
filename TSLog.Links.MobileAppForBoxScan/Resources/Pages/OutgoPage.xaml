@@ -7,45 +7,49 @@
             Padding="30,0"
             Spacing="25">
 
-            <Label FontSize="22" Text = "Отсканируйте номер расходной накладной"
-                   CharacterSpacing = "2"
-                   FontFamily = "Helvetica"
+            <Label Text="Отсканируйте номер расходной накладной"
+                   FontSize="22" CharacterSpacing="2" FontFamily = "Helvetica"
                    HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Entry x:Name="outgoIdEntry" Placeholder = "Номер расходной накладной" FontFamily="Helvetica"
-                   FontSize="22" MaxLength ="32" />
+            <Entry x:Name="outgoIdEntry" 
+                   Placeholder="Номер расходной накладной"
+                   Completed="OnOutgoIdEntryCompleted"
+                   FontFamily="Helvetica" FontSize="22"
+                   MaxLength="32" HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Label FontSize="22" Text = "Отсканируйте номер ТЕ паллеты"
-                   CharacterSpacing = "2"
-                   FontFamily = "Helvetica"
+            <Label Text="Отсканируйте номер ТЕ паллеты"
+                   FontSize="22" CharacterSpacing="2" FontFamily = "Helvetica"
                    HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Entry x:Name="tuIdEntry" Placeholder = "Номер ТЕ" FontFamily="Helvetica"
-                   FontSize="22" MaxLength ="20" TextChanged="OnTuIdEntryTextChanged"/>
+            <Entry x:Name="tuIdEntry"
+                   Placeholder="Номер ТЕ"
+                   Completed="OnTuIdEntryCompleted"
+                   FontFamily="Helvetica" FontSize="22"
+                   MaxLength ="32" HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <HorizontalStackLayout>
-                <Label FontSize="22" Text = "Кол-во ТЕ в заказе"
-                   CharacterSpacing = "2"
-                   FontFamily = "Helvetica"
-                   HorizontalOptions="Center" VerticalOptions="Center" />
-                <Label FontSize="22" Text = "Кол-во отсканированных ТЕ"
-                   CharacterSpacing = "2"
-                   FontFamily = "Helvetica"
-                   HorizontalOptions="Center" VerticalOptions="Center" />
+            <HorizontalStackLayout Spacing="25" HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="outgoScannedTusCountLabel" Text = "0"
+                       FontSize="22" CharacterSpacing = "2" FontFamily = "Helvetica"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+                <Label Text = "/"
+                       FontSize="22" CharacterSpacing = "2" FontFamily = "Helvetica"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+                <Label x:Name="outgoTusCountLabel" Text = "0"
+                       FontSize="22" CharacterSpacing = "2" FontFamily = "Helvetica"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
             </HorizontalStackLayout>
 
             <Button
-                x:Name="notScannedTusButton"
-                Text="Не отсканированные ТЕ" 
-                Clicked="OnExitClicked"
+                x:Name="scannedTusButton"
+                Text="Отсканированные ТЕ" 
+                Clicked="OnScannedTusClicked"
                 HorizontalOptions="Fill" />
 
             <Button
-                x:Name="nextPageButton"
+                x:Name="tuPageButton"
                 Text="Далее"
                 Clicked="OnNextPageClicked"
-                HorizontalOptions="Fill"
-                IsEnabled="{Binding IsNextPageButtonEnabled}">
+                HorizontalOptions="Fill" >
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="BackgroundColor" Value="Gray" />

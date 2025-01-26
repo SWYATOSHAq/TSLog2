@@ -1,6 +1,4 @@
 using System.ComponentModel;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
@@ -8,6 +6,8 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropertyChanged
 {
     private readonly HttpClient _httpClient;
+    private string _outgoId = string.Empty;
+    private string _tuId = string.Empty;
     private string _userName = string.Empty;
     private string _token = string.Empty;
     private bool _isNextPageButtonEnabled = false;
@@ -24,13 +24,15 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         }
     }
 
+    private void SetControlsState()
+    {
+        tuPageButton.IsEnabled =
+            !string.IsNullOrWhiteSpace(_outgoId) && !string.IsNullOrWhiteSpace(_tuId);
+    }
     public OutgoPage(HttpClient httpClient)
     {
         InitializeComponent();
         _httpClient = httpClient;
-
-        // Attach the Completed event handler to the outgoIdEntry.
-        outgoIdEntry.Completed += OutgoIdEntryCompleted;
         BindingContext = this;
     }
 
@@ -52,9 +54,13 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     }
 
     private void ClearEntries()
-    { 
+    {
         outgoIdEntry.Text = string.Empty;
         tuIdEntry.Text = string.Empty;
+
+        // Just for Debug!
+        outgoIdEntry.Text = "OUTGO_0002";
+        tuIdEntry.Text = "TU_2001";
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -67,56 +73,45 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
             _token = tokenValue.ToString() ?? string.Empty;
     }
 
-    private async void OutgoIdEntryCompleted(object? sender, EventArgs e)
+    private async void OnOutgoIdEntryCompleted(object? sender, EventArgs e)
     {
-        try
+        _outgoId = string.Empty;
+        _tuId = string.Empty;
+        if (!await Api.CheckOutgo(outgoIdEntry.Text, this, _httpClient, _token))
         {
-            if (string.IsNullOrEmpty(_token))
-            {
-                await DisplayAlert("Ошибка", "Token is missing. Please log in again.", "OK");
-                await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
-                return;
-            }
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var outgoId = outgoIdEntry.Text;
-            var response = await _httpClient.GetAsync($"check-outgo/{outgoId}");
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                outgoIdEntry.BackgroundColor = Colors.LightGreen;
-                tuIdEntry.Focus();
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-                outgoIdEntry.BackgroundColor = Colors.LightCoral;
-            else if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                await DisplayAlert("Unauthorized", "Your session has expired. Please log in again.", "OK");
-                await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
-            }
-            else
-            {
-                // Handle unexpected status codes.
-                outgoIdEntry.BackgroundColor = Colors.LightCoral;
-                await DisplayAlert("Ошибка", "Заказ не найден. Попробуйте снова.", "OK");
-            }
-        }
-        catch (HttpRequestException exception)
-        {
-            outgoIdEntry.BackgroundColor = Colors.LightCoral;
-            await DisplayAlert("HTTP Error", $"Request error: {exception.Message}", "OK");
-        }
-        catch (Exception exception)
-        {
-            outgoIdEntry.BackgroundColor = Colors.LightCoral;
-            await DisplayAlert("Ошибка", $"Не удалось выполнить проверку заказа: {exception.Message}", "OK");
+            outgoIdEntry.BackgroundColor = Colors.Coral;
+            return;
         }
 
-        UpdateNextPageButtonState();
+        var tusCount = await Api.GetOutgoTusCount(outgoIdEntry.Text, this, _httpClient, _token);
+        if (tusCount <= 0)
+        {
+            outgoIdEntry.BackgroundColor = Colors.Coral;
+            return;
+        }
+        _outgoId = outgoIdEntry.Text.Trim();
+        SetControlsState();
+
+        outgoTusCountLabel.Text = tusCount.ToString();
+        outgoIdEntry.BackgroundColor = Colors.LightGreen;
+        //tuIdEntry.Text = string.Empty;
+        tuIdEntry.Text = "TU_2001";
+        tuIdEntry.Focus();
     }
 
-    private void OnTuIdEntryTextChanged(object sender, TextChangedEventArgs e)
+    private async void OnTuIdEntryCompleted(object? sender, EventArgs e)
     {
-        UpdateNextPageButtonState();
+        _tuId = string.Empty;
+        if (!await Api.CheckOutgoTu(outgoIdEntry.Text, tuIdEntry.Text, this, _httpClient, _token))
+        {
+            outgoIdEntry.BackgroundColor = Colors.Coral;
+            return;
+        }
+
+        _tuId = tuIdEntry.Text.Trim();
+        tuIdEntry.BackgroundColor = Colors.LightGreen;
+        SetControlsState();
+        tuPageButton.Focus();
     }
 
     private void UpdateNextPageButtonState()
@@ -124,6 +119,9 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         IsNextPageButtonEnabled = outgoIdEntry.BackgroundColor == Colors.LightGreen &&
             !string.IsNullOrWhiteSpace(tuIdEntry.Text);
     }
+
+    private async void OnScannedTusClicked(object sender, EventArgs e)
+    { }
 
     private async void OnNextPageClicked(object sender, EventArgs e)
     {
@@ -137,7 +135,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         await Shell.Current.GoToAsync(nameof(SsccPage), navigationParameters);
     }
 
-    new private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

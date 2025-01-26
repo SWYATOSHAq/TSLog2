@@ -18,7 +18,7 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var response = await client.PostAsync("logoff", content);
                 if (response.IsSuccessStatusCode)
-                    await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+                    await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
                 else
                     await page.DisplayAlert("Ошибка", "Не удалось выполнить выход.", "OK");
             }

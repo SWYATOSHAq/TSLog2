@@ -8,7 +8,7 @@ namespace TSLog.Links.WebApiForBoxScan;
 /// <summary>
 /// Сервис для непосредственной работы с БД Oracle.
 /// </summary>
-public class OracleConnectionService
+public class OracleDbWorker
 {
     private const string DefaultCommonSchema = "common";
     private const string DefaultWmsSchema = "wms";
@@ -24,7 +24,7 @@ public class OracleConnectionService
     private readonly string StaffSchema = DefaultStaffSchema;
     private readonly string PartnersSchema = DefaultPartnersSchema;
 
-    public OracleConnectionService(IOptions<OracleConnectionSettings> settings)
+    public OracleDbWorker(IOptions<OracleConnectionSettings> settings)
     {
         if (settings.Value == null)
             throw new ArgumentNullException(nameof(settings));
@@ -59,7 +59,7 @@ public class OracleConnectionService
     /// </summary>
     /// <param name="outgoId">Идентификатор расхода (заказа).</param>
     /// <returns>Признак наличия расхода (заказа).</returns>
-    public async Task<bool> CheckOrderAsync(string outgoId)
+    public async Task<bool> CheckOutgoAsync(string outgoId)
     {
         if (string.IsNullOrWhiteSpace(outgoId))
             throw new ArgumentException("Номер заказа (расхода) не может быть пустым или null.",
@@ -70,10 +70,39 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        command.CommandText = $"select count(1) " +
-            $"from {SsccSchema}.aufid_for_box_scan_app#v " +
-            $"where aufid = :outgo_id";
+        command.CommandText = $"select count(distinct tul.outgo_id) has_outgo " +
+            $"from {SsccSchema}.outgo_sscc_tu_line#v tul " +
+            $"where tul.outgo_id = :outgo_id";
         command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+
+    /// <summary>
+    /// Проверяет наличие транспортной единицы с коробками в расходе (заказе).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="tuId">Идентификатор транспортной единицы.</param>
+    /// <returns>Признак наличия транспортной единицы с коробками в расходе (заказе).</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<bool> CheckOutgoTuAsync(string outgoId, string tuId)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа (расхода) не может быть пустым или null.",
+                nameof(outgoId));
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText = $"select count(distinct tul.tu_id) has_tu " +
+            $"from {SsccSchema}.outgo_sscc_tu_line#v tul " +
+            $"where tul.outgo_id = :outgoId and tul.tu_id = :tuId and tul.boxes_count > 0";
+
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = tuId.Trim();
 
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
@@ -96,11 +125,9 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        // TODO: мне не нравится доступ напрямую к таблице,
-        //       надо сделать представление.
-        command.CommandText = $"select count(*) " +
-            $"from {WmsSchema}.te_t tu " +
-            $"where tu.aufid = :outgo_id";
+        command.CommandText = $"select count(distinct tul.tu_id) tus_count " +
+            $"from {SsccSchema}.outgo_sscc_tu_line#v tul " +
+            $"where tul.outgo_id = :outgo_id";
         command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
@@ -125,7 +152,7 @@ public class OracleConnectionService
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
         
-        command.CommandText = $"select sum(tul.boxes_count) " +
+        command.CommandText = $"select nvl(sum(tul.boxes_count), 0) boxes_count " +
             $"from {SsccSchema}.outgo_sscc_tu_line#v tul " +
             $"where tul.outgo_id = :outgo_id";
 
@@ -153,7 +180,7 @@ public class OracleConnectionService
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
 
-        command.CommandText = $"select sum(tul.boxes_count) " +
+        command.CommandText = $"select nvl(sum(tul.boxes_count), 0) boxes_count " +
             $"from {SsccSchema}.outgo_sscc_tu_line#v tul " +
             $"where tul.tu_id = :tu_id";
 
@@ -204,7 +231,7 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        command.CommandText = $"select count(*) tus_count " +
+        command.CommandText = $"select count(*) boxes_count " +
             $"from {SsccSchema}.outgo_sscc#v sscc " +
             $"where sscc.outgo_id = :outgo_id";
         command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
@@ -229,7 +256,7 @@ public class OracleConnectionService
 
         using var command = connection.CreateCommand();
         command.CommandType = CommandType.Text;
-        command.CommandText = $"select count(*) tus_count " +
+        command.CommandText = $"select count(*) boxes_count " +
             $"from {SsccSchema}.outgo_sscc#v sscc " +
             $"where sscc.tu_id = :tu_id";
         command.Parameters.Add("tu_id", OracleDbType.Varchar2).Value = tuId.Trim();
@@ -241,8 +268,8 @@ public class OracleConnectionService
     /// Сохраняет в БД информацию о коробе после сканирования.
     /// </summary>
     /// <param name="outgoId">Идентификатор расхода (заказа).</param>
-    /// <param name="sscc">SSCC код короба.</param>
     /// <param name="tuId">Идентификатор транспортной единицы.</param>
+    /// <param name="sscc">SSCC код короба.</param>
     /// <param name="user">Имя пользователя.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
@@ -273,6 +300,59 @@ public class OracleConnectionService
         command.Parameters.Add("p_sscc", OracleDbType.Varchar2).Value = sscc.Trim();
         command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user.Trim();
         await command.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>
+    /// Сохраняет в БД информацию о коробах (их несколько) после сканирования.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="tuId">Идентификатор транспортной единицы.</param>
+    /// <param name="ssccs">SSCC код короба.</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="NotImplementedException"></exception>
+    public async Task AddSsccsAsync(string outgoId, string tuId, string[] ssccs, string user)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер расхода (заказа) не может быть пустым или null.", nameof(outgoId));
+
+        if (string.IsNullOrWhiteSpace(tuId))
+            throw new ArgumentException("Идентификатор ТЕ не может быть пустым или null.", nameof(tuId));
+
+        if (string.IsNullOrWhiteSpace(user))
+            throw new ArgumentException("Пользователь не может быть пустым или null.", nameof(user));
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+        await connection.BeginTransactionAsync();
+
+        if (Common.CheckSsccs(ssccs, out ISet<string> temp))
+        {
+            try
+            {
+                foreach (var sscc in temp)
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = $"{SsccSchema}.add_sscc";
+
+                    command.Parameters.Add("p_outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
+                    command.Parameters.Add("p_tu_id", OracleDbType.Varchar2).Value = tuId.Trim();
+                    command.Parameters.Add("p_sscc", OracleDbType.Varchar2).Value = sscc.Trim();
+                    command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user.Trim();
+                    await command.ExecuteNonQueryAsync();
+                }
+                connection.Commit();
+            }
+            catch {
+                connection.Rollback();
+                throw;
+            }
+        }
+        else
+            throw new NotImplementedException();
+        
     }
 
     /// <summary>

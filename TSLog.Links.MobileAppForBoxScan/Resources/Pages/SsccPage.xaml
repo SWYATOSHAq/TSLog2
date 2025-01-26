@@ -1,34 +1,57 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.SsccPage"
-             Title="Сканирование коробов">
+             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.SsccPage">
+    <Shell.TitleView>
+        <Label Text="Сканирование коробов"
+               FontSize="22" 
+               HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand"/>
+    </Shell.TitleView>
     <ScrollView>
-        <VerticalStackLayout
-        Padding="30,0"
-        Spacing="25">
+        <VerticalStackLayout Padding="30,0" Spacing="25">
 
-            <Label x:Name="outgoIdLabel" FontSize="22" TextColor="Black" FontAttributes="Bold"
-                   HorizontalOptions="Start" VerticalOptions="Center" />
+            <Label x:Name="outgoIdLabel"
+                   FontSize="22" TextColor="Black" FontAttributes="Bold"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Label x:Name="tuIdLabel" FontSize="22" TextColor="Black" FontAttributes="Bold"
-                   HorizontalOptions="Start" VerticalOptions="Center" />
+            <Label x:Name="tuIdLabel"
+                   FontSize="22" TextColor="Black" FontAttributes="Bold"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Label x:Name="counterLabel" FontSize="22" TextColor="Black" FontAttributes="Bold"
-                   HorizontalOptions="Center" VerticalOptions="Center" Text="0"/>
+            <Label Text="Отсканируйте короб"
+                   FontSize="22" CharacterSpacing="2" FontFamily="Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <Label FontSize="22" Text="Отсканируйте короб"
-               CharacterSpacing="2"
-               FontFamily="Helvetica"
-               HorizontalOptions="Center" VerticalOptions="Center" />
+            <HorizontalStackLayout Spacing="25" HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="scannedBoxesCountLabel"
+                       FontSize="22" TextColor="Black" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center" Text="0"/>
+                <Label FontSize="22" TextColor="Black" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center" Text="/"/>
+                <Label x:Name="totalBoxesCountLabel"
+                       FontSize="22" TextColor="Black" FontAttributes="Bold"
+                       VerticalOptions="Center" Text="0"/>
+            </HorizontalStackLayout>
 
             <Entry x:Name="ssccEntry" Placeholder="Штрих-код короба" FontFamily="Helvetica"
-               FontSize="22" MaxLength="50" Completed="OnSsccEntryCompleted"/>
+                   FontSize="22" Completed="OnSsccEntryCompleted"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
 
+            <Button
+                x:Name="ScannedSsccs"
+                Text="Отсканированные короба" 
+                Clicked="OnScannedSsccsClicked"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="confirmButton"
+                Text="Подтвердить ТЕ" 
+                Clicked="OnConfirmClicked"
+                HorizontalOptions="Fill" />
             <Button
                 x:Name="cancelButton"
                 Text="Отмена" 
-                Clicked="OnRemoveSsccClicked"
+                Clicked="OnCancelClicked"
                 HorizontalOptions="Fill" />
 
             <Button

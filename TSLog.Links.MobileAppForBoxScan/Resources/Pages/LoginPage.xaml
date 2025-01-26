@@ -4,34 +4,27 @@
              x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.LoginPage">
 
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-            <Image
-                Source="tsl_logo.png"
-                HeightRequest="185"
-                Aspect="AspectFit"
-                SemanticProperties.Description="tsl company logo" />
+        <VerticalStackLayout Padding="30,0" Spacing="25">
+            <Image Source="tsl_logo.png"
+                   HeightRequest="185"
+                   Aspect="AspectFit"
+                   SemanticProperties.Description="TSL company logo" />
 
             <Entry x:Name="userNameEntry" 
                    Placeholder="Введите логин" 
-                   FontFamily="Helvetica"
-                   FontSize="22" 
+                   FontFamily="Helvetica" FontSize="22" 
                    MaxLength="20" />
 
             <Entry x:Name="passwordEntry" 
                    Placeholder="Введите пароль" 
-                   FontFamily="Helvetica"
-                   FontSize="22" 
+                   FontFamily="Helvetica" FontSize="22" 
                    MaxLength="20" 
                    IsPassword="True" />
 
-            <Button
-                x:Name="loginButton"
-                Text="Войти" 
-                Clicked="OnLoginClicked"
-                HorizontalOptions="Fill" />
+            <Button x:Name="loginButton"
+                    Clicked="OnLoginClicked"
+                    Text="Войти"
+                    HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
-
 </ContentPage>
