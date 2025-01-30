@@ -1,4 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
+
+/// <summary>
+/// Модель HTTP ответа на добавление НАБОРА SSCC. 
+/// </summary>
 public class AddSsccsResponse
 {
     /// <summary>
@@ -10,9 +14,9 @@ public class AddSsccsResponse
     /// </summary>
     public required string OrderId { get; init; }
     /// <summary>
-    /// SSCC короба.
+    /// Идентификатор транспортной единицы (ТЕ).
     /// </summary>
-    public required string TuIdId { get; init; }
+    public required string TuId { get; init; }
     /// <summary>
     /// Количество сохранённых SSCC коробов.
     /// </summary>

@@ -5,6 +5,9 @@ using TSLog.Links.MobileAppForBoxScan.Models;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
 {
+    /// <summary>
+    /// Страница входа в приложение.
+    /// </summary>
     public partial class LoginPage : ContentPage
     {
         private readonly HttpClient _httpClient;

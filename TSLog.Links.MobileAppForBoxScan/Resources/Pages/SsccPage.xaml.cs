@@ -1,7 +1,7 @@
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 /// <summary>
-/// Окно для сканирования SSСС.
+/// Страница для сканирования SSСС.
 /// </summary>
 public partial class SsccPage : ContentPage, IQueryAttributable
 {
@@ -67,10 +67,8 @@ public partial class SsccPage : ContentPage, IQueryAttributable
 
         totalBoxesCountLabel.Text = boxesCount.ToString();
         scannedBoxesCountLabel.Text = _scannedBoxesCount.ToString();
+        ssccEntry.Text = string.Empty;
         ssccEntry.Focus();
-
-        // Just debug.
-        ssccEntry.Text = "12345678901234567890";
     }
     private async void OnSsccEntryCompleted(object? sender, EventArgs e)
     {

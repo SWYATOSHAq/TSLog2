@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
+/// <summary>
+/// Модель HTTP ответа для ошибки.
+/// </summary>
 public class ErrorResponse
 {
     /// <summary>

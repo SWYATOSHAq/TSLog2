@@ -1,10 +1,9 @@
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 /// <summary>
-/// Окно для сканирования расхода (заказа) и ТЕ.
+/// Страница для сканирования расхода (заказа) и ТЕ.
 /// </summary>
 public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropertyChanged
 {
@@ -48,10 +47,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     {
         outgoIdEntry.Text = string.Empty;
         tuIdEntry.Text = string.Empty;
-
-        // Just for Debug!
-        outgoIdEntry.Text = "OUTGO_0002";
-        tuIdEntry.Text = "TU_2001";
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -85,8 +80,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
 
         outgoTusCountLabel.Text = tusCount.ToString();
         outgoIdEntry.BackgroundColor = Colors.LightGreen;
-        //tuIdEntry.Text = string.Empty;
-        tuIdEntry.Text = "TU_2001";
+        tuIdEntry.Text = string.Empty;
         tuIdEntry.Focus();
     }
 

@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
+/// <summary>
+/// Модель HTTP ответа на проверку расхода (заказа).
+/// </summary>
 public class CheckOutgoResponse
 {
     /// <summary>

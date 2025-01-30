@@ -1,4 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
+
+/// <summary>
+/// Модель HTTP ответа для получения количества ОТСКАНИРОВАННЫХ! коробов на ТЕ.
+/// </summary>
 public class TuScannedBoxesCountResponse
 {
     /// <summary>

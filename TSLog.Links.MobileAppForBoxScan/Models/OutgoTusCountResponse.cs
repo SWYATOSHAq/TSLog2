@@ -1,4 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
+
+/// <summary>
+/// Модель HTTP ответа для получения количества ТЕ в расходе (заказе).
+/// </summary>
 public class OutgoTusCountResponse
 {
     /// <summary>

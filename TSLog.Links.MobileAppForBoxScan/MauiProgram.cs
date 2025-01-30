@@ -47,7 +47,7 @@ namespace TSLog.Links.MobileAppForBoxScan
                 if (!isDebug)
                     client.BaseAddress = new Uri(buaseUrl); // Set the base address.
                 else
-                    client.BaseAddress = new Uri(debugBaseUrl); // Set the base address.
+                    client.BaseAddress = new Uri(debugBaseUrl); // Set the base address for debug.
                 return client;
             });
 

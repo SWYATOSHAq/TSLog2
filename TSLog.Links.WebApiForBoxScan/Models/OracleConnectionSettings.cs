@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.WebApiForBoxScan.Models;
 
+/// <summary>
+/// Настройки подключения (и не только) к БД Oracle.
+/// </summary>
 public class OracleConnectionSettings
 {
     public string? DataSource { get; set; }

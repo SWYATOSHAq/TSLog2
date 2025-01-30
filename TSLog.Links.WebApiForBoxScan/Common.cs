@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.WebApiForBoxScan
 {
+    /// <summary>
+    /// Общая функциональность.
+    /// </summary>
     public class Common
     {
         private const int SsccLength = 20;

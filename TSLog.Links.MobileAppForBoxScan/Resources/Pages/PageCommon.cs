@@ -9,6 +9,12 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
     /// </summary>
     class UICommon
     {
+        /// <summary>
+        /// Выход из приложения.
+        /// </summary>
+        /// <param name="page">Текущая "страница".</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен безопасности.</param>
         public static async void ExitApplication(ContentPage page, HttpClient client, string token)
         {
             try

@@ -24,7 +24,7 @@
 		<ApplicationTitle>TSLog.Links.MobileAppForBoxScan</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.tslog.links.mobileappforboxscan</ApplicationId>
+		<ApplicationId>tslog.links.mobileappforboxscan</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

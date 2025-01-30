@@ -9,18 +9,15 @@
     </Shell.TitleView>
     <ScrollView>
         <VerticalStackLayout Padding="30,0" Spacing="25">
-
             <Label x:Name="outgoIdLabel"
                    FontSize="22" TextColor="Black" FontAttributes="Bold"
-                   HorizontalOptions="Center" VerticalOptions="Center" />
-
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
             <Label x:Name="tuIdLabel"
                    FontSize="22" TextColor="Black" FontAttributes="Bold"
-                   HorizontalOptions="Center" VerticalOptions="Center" />
-
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
             <Label Text="Отсканируйте короб"
                    FontSize="22" CharacterSpacing="2" FontFamily="Helvetica"
-                   HorizontalOptions="Center" VerticalOptions="Center" />
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
 
             <HorizontalStackLayout Spacing="25" HorizontalOptions="Center" VerticalOptions="Center">
                 <Label x:Name="scannedBoxesCountLabel"
@@ -40,21 +37,21 @@
             <Button x:Name="ScannedSsccs"
                     Clicked="OnScannedSsccsClicked"
                     Text="Отсканированные короба"
-                    HorizontalOptions="Fill" />
+                    HorizontalOptions="Fill"/>
 
             <Button x:Name="confirmButton"
                     Clicked="OnConfirmClicked"
                     Text="Подтвердить ТЕ"
-                    HorizontalOptions="Fill" />
+                    HorizontalOptions="Fill"/>
             <Button x:Name="cancelButton"
                     Clicked="OnCancelClicked"
                     Text="Отмена"
-                    HorizontalOptions="Fill" />
+                    HorizontalOptions="Fill"/>
 
             <Button x:Name="exitButton"
                     Clicked="OnExitClicked"
                     Text="Выход"
-                    HorizontalOptions="Fill" />
+                    HorizontalOptions="Fill"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

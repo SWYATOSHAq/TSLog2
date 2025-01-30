@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
+/// <summary>
+/// Модель HTTP ответа для входа в приложение.
+/// </summary>
 public class LoginResponse
 {
     /// <summary>

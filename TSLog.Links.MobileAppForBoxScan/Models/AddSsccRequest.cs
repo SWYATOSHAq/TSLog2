@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
+/// <summary>
+/// Модель HTTP запроса на добавление SSCC.
+/// </summary>
 public record AddSsccRequest
 {
     /// <summary>
