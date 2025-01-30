@@ -339,13 +339,9 @@ public class Program
 
         // Register Oracle connection settings dynamically based on the IsDebug flag.
         if (isDebug)
-        {
             builder.Services.Configure<OracleConnectionSettings>(builder.Configuration.GetSection("OracleConnectionDebugSettings"));
-        }
         else
-        {
             builder.Services.Configure<OracleConnectionSettings>(builder.Configuration.GetSection("OracleConnectionSettings"));
-        }
 
         builder.Services.AddSingleton<OracleDbWorker>();
         builder.Services.AddSingleton<SessionService>();
