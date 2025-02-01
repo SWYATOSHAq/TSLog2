@@ -1,7 +1,7 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Models;
 
 /// <summary>
-/// Модель HTTP ответа для получения количества ТЕ в расходе (заказе).
+/// Модель HTTP ответа для получения коробов на ТЕ в расходе (заказе).
 /// </summary>
 public class TuBoxesResponse
 {
@@ -10,11 +10,11 @@ public class TuBoxesResponse
     /// </summary>
     public required string Message { get; init; }
     /// <summary>
-    /// Идентификатор расхода (заказа).
+    /// Идентификатор ТЕ.
     /// </summary>
     public required string TuId { get; init; }
     /// <summary>
-    /// ТЕ в заказе (с не нулевым количеством коробов).
+    /// Короба на ТЕ в расходе (заказе).
     /// </summary>
     public required string[] Boxes { get; init; }
 }

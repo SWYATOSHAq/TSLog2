@@ -194,6 +194,15 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return 0;
         }
+        /// <summary>
+        /// Возврашает массив ТЕ, короба которых были отсканированы.
+        /// </summary>
+        /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Массив ТЕ с отсканированными коробами.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<string[]> GetOutgoScannedTus(string outgoId,
             ContentPage page, HttpClient client, string token)
         {
@@ -290,6 +299,15 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return 0;
         }
+        /// <summary>
+        /// Возвращает SSCC отсканированных коробов на ТЕ.
+        /// </summary>
+        /// <param name="tuId">Идентификатор ТЕ.</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Массив SSCC коробов на ТЕ.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<string[]> GetTuScannedBoxes(string tuId,
             ContentPage page, HttpClient client, string token)
         {
@@ -461,8 +479,15 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return false;
         }
-
-
+        /// <summary>
+        /// Удаляет отсканированные короба со ВСЕГО! расхода (заказа).
+        /// </summary>
+        /// <param name="outgoId">Идентификатор расхода (заказа)</param>
+        /// <param name="page">Страница (UI).</param>
+        /// <param name="client">HTTP клиент.</param>
+        /// <param name="token">Токен авторизации.</param>
+        /// <returns>Возвращает признак успешного удаления</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static async Task<bool> RemoveOutgoSsccs(string outgoId,
             ContentPage page, HttpClient client, string token)
         {
@@ -479,7 +504,7 @@ namespace TSLog.Links.MobileAppForBoxScan
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var response = await client.DeleteAsync("/remove-outgo-ssccs/{outgoId}");
+                var response = await client.DeleteAsync($"remove-outgo-ssccs/{outgoId}");
                 if (response.StatusCode == HttpStatusCode.OK)
                     return true;
                 else if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -494,6 +519,96 @@ namespace TSLog.Links.MobileAppForBoxScan
                         await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
                     else
                         await page.DisplayAlert("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
+                    return false;
+                }
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            }
+            return false;
+        }
+
+        public static async Task<bool> RemoveTuSsccs(string tuId,
+            ContentPage page, HttpClient client, string token)
+        {
+            if (string.IsNullOrWhiteSpace(tuId))
+                throw new ArgumentNullException(nameof(tuId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
+            try
+            {
+                if (!await Api.CheckToken(token, page))
+                    return false;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await client.DeleteAsync($"remove-tu-ssccs/{tuId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return true;
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    Api.HandleUnauthorized(page);
+                    return false;
+                }
+                else
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                    if (responseContent != null)
+                        await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    else
+                        await page.DisplayAlert("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
+                    return false;
+                }
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            }
+            return false;
+        }
+
+        public static async Task<bool> RemoveSscc(string sscc,
+            ContentPage page, HttpClient client, string token)
+        {
+            if (string.IsNullOrWhiteSpace(sscc))
+                throw new ArgumentNullException(nameof(sscc));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
+            try
+            {
+                if (!await Api.CheckToken(token, page))
+                    return false;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await client.DeleteAsync($"remove-sscc/{sscc}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return true;
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    Api.HandleUnauthorized(page);
+                    return false;
+                }
+                else
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                    if (responseContent != null)
+                        await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    else
+                        await page.DisplayAlert("Ошибка", "Не удалось удалить короб. Попробуйте снова.", "OK");
                     return false;
                 }
             }

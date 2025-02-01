@@ -1,5 +1,8 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
+/// <summary>
+/// Страница отсканированных ТЕ для расхода (заказа).
+/// </summary>
 public partial class ScannedTusPage : ContentPage, IQueryAttributable
 {
     private readonly HttpClient _httpClient;
@@ -31,7 +34,7 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         {
             var button = new Button()
             {
-                StyleId = $"tu_{tuId}",
+                StyleId = tuId,
                 Text = tuId,
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Fill
@@ -61,13 +64,13 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
 
     private async void OnTeClicked(object sender, EventArgs e)
     {
-        var tuId = ((Button)sender).StyleId;
+        var button = (Button)sender;
+        var tuId = button.StyleId;
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ТЕ {tuId}?", "Да", "Нет");
         if (result)
         {
-            // TODO: call api.
-            var button = (Button)sender;
-            tusStackLayout.Children.Remove(button);
+            if (await Api.RemoveTuSsccs(tuId, this, _httpClient, _token))
+                tusStackLayout.Children.Remove(button);
             SetControlsState();
         }
     }
@@ -76,8 +79,8 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ВСЕ ТЕ?", "Да", "Нет");
         if (result)
         {
-            // TODO: call api.
-            tusStackLayout.Children.Clear();
+            if (await Api.RemoveOutgoSsccs(_outgoId, this, _httpClient, _token))
+                tusStackLayout.Children.Clear();
             SetControlsState();
         }
     }
