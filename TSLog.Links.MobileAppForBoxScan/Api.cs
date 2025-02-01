@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using TSLog.Links.MobileAppForBoxScan.Models;
 using TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
@@ -358,6 +360,52 @@ namespace TSLog.Links.MobileAppForBoxScan
                         await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
                     else
                         await page.DisplayAlert("Ошибка", "Не удалось принять короба. Попробуйте снова.", "OK");
+                    return false;
+                }
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            }
+            return false;
+        }
+
+
+        public static async Task<bool> RemoveOutgoSsccs(string outgoId,
+            ContentPage page, HttpClient client, string token)
+        {
+            if (string.IsNullOrWhiteSpace(outgoId))
+                throw new ArgumentNullException(nameof(outgoId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
+            try
+            {
+                if (!await Api.CheckToken(token, page))
+                    return false;
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await client.DeleteAsync("/remove-outgo-ssccs/{outgoId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return true;
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    Api.HandleUnauthorized(page);
+                    return false;
+                }
+                else
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                    if (responseContent != null)
+                        await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    else
+                        await page.DisplayAlert("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
                     return false;
                 }
             }

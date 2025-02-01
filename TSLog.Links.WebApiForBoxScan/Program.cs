@@ -69,8 +69,11 @@ public class Program
         application.MapGet("/outgo-boxes-count/{outgoId}", Service.GetOutgoBoxesCount).RequireAuthorization();
         application.MapGet("/tu-boxes-count/{tuId}", Service.GetTuBoxesCount).RequireAuthorization();
         application.MapGet("/outgo-scanned-tus-count/{outgoId}", Service.GetOutgoScannedTusCount).RequireAuthorization();
+        application.MapGet("/outgo-scanned-tus/{outgoId}", Service.GetOutgoScannedTus).RequireAuthorization();
         application.MapGet("/outgo-scanned-boxes-count/{outgoId}", Service.GetOutgoScannedBoxesCount).RequireAuthorization();
+        application.MapGet("/outgo-scanned-boxes/{outgoId}", Service.GetOutgoScannedBoxes).RequireAuthorization();
         application.MapGet("/tu-scanned-boxes-count/{tuId}", Service.GetTuScannedBoxesCount).RequireAuthorization();
+        application.MapGet("/tu-scanned-boxes/{tuId}", Service.GetTuScannedBoxes).RequireAuthorization();
         application.MapPost("/add-sscc", Service.AddSscc).RequireAuthorization();
         application.MapPost("/add-ssccs", Service.AddSsccs).RequireAuthorization();
         application.MapDelete("/remove-outgo-ssccs/{outgoId}", Service.RemoveOutgoSsccs).RequireAuthorization();

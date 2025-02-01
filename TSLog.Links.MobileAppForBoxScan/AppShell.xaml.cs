@@ -9,6 +9,7 @@ namespace TSLog.Links.MobileAppForBoxScan
             InitializeComponent();
             Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
             Routing.RegisterRoute(nameof(OutgoPage), typeof(OutgoPage));
+			Routing.RegisterRoute(nameof(ScannedTusPage), typeof(ScannedTusPage));
             Routing.RegisterRoute(nameof(SsccPage), typeof(SsccPage));
         }
     }

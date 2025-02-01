@@ -100,7 +100,15 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     }
 
     private async void OnScannedTusClicked(object sender, EventArgs e)
-    { }
+    {
+        var navigationParameters = new Dictionary<string, object>
+        {
+            { "OutgoId", outgoIdEntry.Text },
+            { "Token", _token },
+            { "UserName", _userName },
+        };
+        await Shell.Current.GoToAsync(nameof(ScannedTusPage), navigationParameters);
+    }
 
     private async void OnNextPageClicked(object sender, EventArgs e)
     {

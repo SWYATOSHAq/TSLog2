@@ -213,6 +213,34 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
+    public async Task<string[]> GetOutgoScannedTusAsync(string outgoId)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа (расхода) outgoId не может быть пустым или null.",
+                nameof(outgoId));
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText = $"select distinct sscc.tu_id " +
+            $"from {SsccSchema}.outgo_sscc#v sscc " +
+            $"where sscc.outgo_id = :outgo_id";
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
+        var tuIds = new List<string>();
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+            while (reader.Read())
+            {
+                var tuId = Convert.ToString(reader["tu_id"]);
+                // TODO: если пустое значение то бросаем исключение.
+                if (!string.IsNullOrWhiteSpace(tuId))
+                    tuIds.Add(Convert.ToString(tuId));
+            }
+        }
+        return [.. tuIds];
+    }
 
     /// <summary>
     /// Возвращает количество отсканированных коробов для заданного идентификатора расхода (заказа).
@@ -238,6 +266,34 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
+    public async Task<string[]> GetOutgoScannedBoxesAsync(string outgoId)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentException("Номер заказа (расхода) не может быть пустым или null.",
+                nameof(outgoId));
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText = $"select sscc.box_sscc " +
+            $"from {SsccSchema}.outgo_sscc#v sscc " +
+            $"where sscc.outgo_id = :outgo_id";
+        command.Parameters.Add("outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
+        var ssccs = new List<string>();
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+            while (reader.Read())
+            {
+                var sscc = Convert.ToString(reader["box_sscc"]);
+                // TODO: если пустое значение то бросаем исключение.
+                if (!string.IsNullOrWhiteSpace(sscc))
+                    ssccs.Add(Convert.ToString(sscc));
+            }
+        }
+        return [.. ssccs];
+    }
 
     /// <summary>
     /// Возвращает количество отсканированных коробов для заданного идентификатора транспортной единицы.
@@ -262,6 +318,34 @@ public class OracleDbWorker
         command.Parameters.Add("tu_id", OracleDbType.Varchar2).Value = tuId.Trim();
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
+    }
+    public async Task<string[]> GetTuScannedBoxesAsync(string tuId)
+    {
+        if (string.IsNullOrWhiteSpace(tuId))
+            throw new ArgumentException("Идентификатор транспортной единицы не может быть пустым или null.",
+                nameof(tuId));
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandType = CommandType.Text;
+        command.CommandText = $"select sscc.box_sscc " +
+            $"from {SsccSchema}.outgo_sscc#v sscc " +
+            $"where sscc.tu_id = :tu_id";
+        command.Parameters.Add("tu_id", OracleDbType.Varchar2).Value = tuId.Trim();
+        var ssccs = new List<string>();
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+            while (reader.Read())
+            {
+                var sscc = Convert.ToString(reader["box_sscc"]);
+                // TODO: если пустое значение то бросаем исключение.
+                if (!string.IsNullOrWhiteSpace(sscc))
+                    ssccs.Add(Convert.ToString(sscc));
+            }
+        }
+        return [.. ssccs];
     }
 
     /// <summary>

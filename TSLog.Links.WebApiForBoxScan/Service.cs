@@ -123,6 +123,22 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    public static async Task<IResult> GetOutgoScannedTus(string outgoId, OracleDbWorker dbService,
+    HttpContext httpContext, SessionService sessionService)
+    {
+        if (!CheckUser(httpContext, sessionService, out var result))
+            return result;
+
+        try
+        {
+            string[] tus = await dbService.GetOutgoScannedTusAsync(outgoId);
+            return Results.Ok(new { Message = "Outgo found.", outgoId, tus });
+        }
+        catch (Exception exception)
+        {
+            return Results.Problem(exception.Message);
+        }
+    }
     public static async Task<IResult> GetOutgoScannedBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -139,6 +155,22 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    public static async Task<IResult> GetOutgoScannedBoxes(string outgoId, OracleDbWorker dbService,
+        HttpContext httpContext, SessionService sessionService)
+    {
+        if (!CheckUser(httpContext, sessionService, out var result))
+            return result;
+
+        try
+        {
+            string[] boxes = await dbService.GetOutgoScannedBoxesAsync(outgoId);
+            return Results.Ok(new { Message = "Outgo found.", outgoId, boxes });
+        }
+        catch (Exception exception)
+        {
+            return Results.Problem(exception.Message);
+        }
+    }
     public static async Task<IResult> GetTuScannedBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -149,6 +181,22 @@ public class Service
         {
             int boxesCount = await dbService.GetTuScannedBoxesCountAsync(tuId);
             return Results.Ok(new { Message = "TU found.", tuId, boxesCount });
+        }
+        catch (Exception exception)
+        {
+            return Results.Problem(exception.Message);
+        }
+    }
+    public static async Task<IResult> GetTuScannedBoxes(string tuId, OracleDbWorker dbService,
+        HttpContext httpContext, SessionService sessionService)
+    {
+        if (!CheckUser(httpContext, sessionService, out var result))
+            return result;
+
+        try
+        {
+            string[] boxes = await dbService.GetTuScannedBoxesAsync(tuId);
+            return Results.Ok(new { Message = "TU found.", tuId, boxes });
         }
         catch (Exception exception)
         {

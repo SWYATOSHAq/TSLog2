@@ -54,6 +54,7 @@ namespace TSLog.Links.MobileAppForBoxScan
             // Register pages.
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<OutgoPage>();
+            builder.Services.AddTransient<ScannedTusPage>();
             builder.Services.AddTransient<SsccPage>();
 
 #if DEBUG
