@@ -7,6 +7,12 @@
     {
         public const string Version = "25.2.1.1";
         private const int SsccLength = 20;
+        /// <summary>
+        /// Проверка SSCC.
+        /// </summary>
+        /// <param name="code">Входной SSCC.</param>
+        /// <param name="sscc">Выходной SSCC после проверки и обработки.</param>
+        /// <returns>Результат проверки (успех или нет).</returns>
         public static bool CheckSscc(string code, out string sscc)
         {
             sscc = string.Empty;
@@ -21,6 +27,13 @@
             sscc = temp;
             return true;
         }
+        /// <summary>
+        /// Проверка набора SSCC. Также проверяется уникальность в наборе.
+        /// </summary>
+        /// <param name="codes">Входной набор SSCC.</param>
+        /// <param name="ssccs">Выходной набор SSCC после проверки и обработки.</param>
+        /// <returns>Результат проверки (успех или нет),
+        /// для успешного прохождения ВСЕ! SSCC должны пройти проверку.</returns>
         public static bool CheckSsccs(string[] codes, out ISet<string> ssccs)
         {
             ssccs = new HashSet<string>();

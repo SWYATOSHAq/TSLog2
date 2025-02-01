@@ -2,14 +2,25 @@
 
 namespace TSLog.Links.WebApiForBoxScan;
 
+/// <summary>
+/// Класс для обслуживания аутентификации, авторизации на API.
+/// </summary>
 public class SessionService
 {
     private readonly ConcurrentDictionary<string, bool> _loggedOutUsers = new();
     private static readonly Dictionary<string, string> _users = [];
+    /// <summary>
+    /// Очищает список пользователей.
+    /// </summary>
     public static void ClearUsers()
     {
         _users.Clear();
     }
+    /// <summary>
+    /// Получает и кэширует список пользователей.
+    /// </summary>
+    /// <param name="users">Массив пользователей.</param>
+    /// <exception cref="Exception"></exception>
     public static void InitUsers(User[] users)
     {
         foreach (var user in users)
@@ -29,6 +40,14 @@ public class SessionService
             _users.Add(name, password);
         }
     }
+    /// <summary>
+    /// Аутентификация пользователя. Мы просто из настроек тянем список пользователей с паролями.
+    /// Сдалано "на коленке", хоть кака-то безопасность что бы была.
+    /// </summary>
+    /// <param name="userName">Имя пользователя.</param>
+    /// <param name="password">Пароль.</param>
+    /// <param name="domain">Домен.</param>
+    /// <returns>Признак что пользователь вошёл.</returns>
     public static bool AuthenticateUser(string userName, string password, string domain)
     {
         if (string.IsNullOrWhiteSpace(userName))
@@ -48,23 +67,19 @@ public class SessionService
 
         return true;
     }
-
-    public void LogOutUser(string userName)
-    {
-        _loggedOutUsers[userName] = true;
-    }
-
-    public bool IsUserLoggedOut(string userName)
-    {
-        return _loggedOutUsers.TryGetValue(userName, out bool loggedOut) && loggedOut;
-    }
-
     public void LogInUser(string userName)
     {
         _loggedOutUsers[userName] = false;
     }
-
-    internal static string NormalizeUsername(string userName)
+    public void LogOutUser(string userName)
+    {
+        _loggedOutUsers[userName] = true;
+    }
+    public bool IsUserLoggedOut(string userName)
+    {
+        return _loggedOutUsers.TryGetValue(userName, out bool loggedOut) && loggedOut;
+    }
+    public static string NormalizeUserName(string userName)
     {
         // Remove domain part if present.
         var parts = userName.Split('\\');

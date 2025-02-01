@@ -78,7 +78,6 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
     }
-
     /// <summary>
     /// Проверяет наличие транспортной единицы с коробками в расходе (заказе).
     /// </summary>
@@ -107,7 +106,6 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
     }
-
     /// <summary>
     /// Возвращает количество ТЕ для заданного идентификатора расхода (заказа).
     /// </summary>
@@ -132,7 +130,6 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
-
     /// <summary>
     /// Возвращает количество коробов для заданного идентификатора расхода (заказа).
     /// Речь про собранные короба, которые ещё могли быть не просканированы для кросс-докинга.
@@ -160,7 +157,6 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
-
     /// <summary>
     /// Возвращает количество коробов для заданного идентификатора транспортной единицы собранного расхода (заказа).
     /// Речь про собранные короба, которые ещё могли быть не просканированы для кросс-докинга.
@@ -188,7 +184,6 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
-
     /// <summary>
     /// Возвращает количество отсканированных ТЕ для заданного идентификатора расхода (заказа).
     /// </summary>
@@ -213,6 +208,12 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
+    /// <summary>
+    /// Возвращает набор (массив) отсканированных ТЕ для заданного идентификатора расхода (заказа).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <returns>Набор (массив) отсканированных ТЕ для заданного идентификатора расхода (заказа).</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<string[]> GetOutgoScannedTusAsync(string outgoId)
     {
         if (string.IsNullOrWhiteSpace(outgoId))
@@ -241,7 +242,6 @@ public class OracleDbWorker
         }
         return [.. tuIds];
     }
-
     /// <summary>
     /// Возвращает количество отсканированных коробов для заданного идентификатора расхода (заказа).
     /// </summary>
@@ -266,6 +266,12 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
+    /// <summary>
+    /// Возвращает набор (массив) отсканированных коробов для заданного идентификатора расхода (заказа).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <returns>Набор (массив) отсканированных коробов для заданного идентификатора расхода (заказа).</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<string[]> GetOutgoScannedBoxesAsync(string outgoId)
     {
         if (string.IsNullOrWhiteSpace(outgoId))
@@ -294,7 +300,6 @@ public class OracleDbWorker
         }
         return [.. ssccs];
     }
-
     /// <summary>
     /// Возвращает количество отсканированных коробов для заданного идентификатора транспортной единицы.
     /// </summary>
@@ -319,6 +324,12 @@ public class OracleDbWorker
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result);
     }
+    /// <summary>
+    /// Возвращает набор (массив) отсканированных коробов для заданного идентификатора транспортной единицы.
+    /// </summary>
+    /// <param name="tuId">Идентификатор транспортной единицы.</param>
+    /// <returns>Набор (массив) отсканированных коробов для заданного идентификатора транспортной единицы.</returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<string[]> GetTuScannedBoxesAsync(string tuId)
     {
         if (string.IsNullOrWhiteSpace(tuId))
@@ -347,7 +358,6 @@ public class OracleDbWorker
         }
         return [.. ssccs];
     }
-
     /// <summary>
     /// Сохраняет в БД информацию о коробе после сканирования.
     /// </summary>
@@ -385,7 +395,6 @@ public class OracleDbWorker
         command.Parameters.Add("p_user", OracleDbType.Varchar2).Value = user.Trim();
         await command.ExecuteNonQueryAsync();
     }
-
     /// <summary>
     /// Сохраняет в БД информацию о коробах (их несколько) после сканирования.
     /// </summary>
@@ -438,7 +447,6 @@ public class OracleDbWorker
             throw new NotImplementedException();
         
     }
-
     /// <summary>
     /// Удяляет из БД информацию об отсканированных коробах для конкретного расхода (заказа).
     /// </summary>
@@ -460,7 +468,6 @@ public class OracleDbWorker
         command.Parameters.Add("p_outgo_id", OracleDbType.Varchar2).Value = outgoId.Trim();
         await command.ExecuteNonQueryAsync();
     }
-
     /// <summary>
     /// Удяляет из БД информацию об отсканированных коробах для конкретной ТЕ.
     /// </summary>
@@ -482,7 +489,6 @@ public class OracleDbWorker
         command.Parameters.Add("p_tu_id", OracleDbType.Varchar2).Value = tuId.Trim();
         await command.ExecuteNonQueryAsync();
     }
-
     /// <summary>
     /// Удяляет из БД информацию об клнкретном отсканированном коробе.
     /// </summary>

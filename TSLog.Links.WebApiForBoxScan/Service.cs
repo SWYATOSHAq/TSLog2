@@ -1,7 +1,17 @@
 ﻿namespace TSLog.Links.WebApiForBoxScan;
-
+/// <summary>
+/// Основной класс-сервис для реализации API.
+/// Реализованы метода API.
+/// </summary>
 public class Service
 {
+    /// <summary>
+    /// Проверка пользователя.
+    /// </summary>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <param name="result">Признак того, что пользователю разрешено действие.</param>
+    /// <returns></returns>
     private static bool CheckUser(HttpContext httpContext, SessionService sessionService, out IResult result)
     {
         if (httpContext.User == null || httpContext.User.Identity == null ||
@@ -11,7 +21,7 @@ public class Service
             return false;
         }
 
-        var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
+        var normalizedUsername = SessionService.NormalizeUserName(httpContext.User.Identity.Name);
         if (sessionService.IsUserLoggedOut(normalizedUsername))
         {
             result = Results.Json(new { Message = "User is logged out." }, statusCode: 401);
@@ -21,6 +31,15 @@ public class Service
         result = null;
         return true;
     }
+    /// <summary>
+    /// Проверка расхода (заказа). Проверяет наличие расхода (заказа),
+    /// наличие у него собранных ТЕ с не нулевым количеством коробов.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак "хорошего расхода (заказа)."</returns>
     public static async Task<IResult> CheckOutgo(string outgoId, OracleDbWorker dbService,
     HttpContext httpContext, SessionService sessionService)
     {
@@ -40,6 +59,16 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Проверка ТЕ. Проверает, что ТЕ существует и связана и указанным заказом,
+    /// также проверяет наличие собранных коробов на ТЕ.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="tuId">Итентификаторт ТЕ.</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак "корректной" ТЕ.</returns>
     public static async Task<IResult> CheckOutgoTu(string outgoId, string tuId,
     OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
@@ -59,6 +88,15 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает количество ТЕ у собранного расхода (заказа)
+    /// ДО! сканирования SSCC.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Количество ТЕ в собрнном расходе (до сканирования SSCC).</returns>
     public static async Task<IResult> GetOutgoTusCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -75,6 +113,15 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает количество коробов в собранном расходе (заказа),
+    /// ДО! сканирования - по сути то количество коробов, которое надо просканировать.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Количество коробов в собранном расходе (заказе).</returns>
     public static async Task<IResult> GetOutgoBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -91,6 +138,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает количество коробов на ТЕ ДО! сканирования (которое надо просканировать).
+    /// </summary>
+    /// <param name="tuId">Идентификатор ТЕ.</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Количество коробов на ТЕ ДО! сканирования (которое надо просканировать).</returns>
     public static async Task<IResult> GetTuBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -107,6 +162,15 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает количество ТЕ в расходе (заказе),
+    /// которые хотя бы частично были просканированы (короба на них).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Количество просканированных ТЕ в расходе (заказе).</returns>
     public static async Task<IResult> GetOutgoScannedTusCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -123,6 +187,15 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает набор ТЕ в расходе (заказе),
+    /// которые хотя бы частично были просканированы (короба на них).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Набор просканированных ТЕ в расходе (заказе).</returns>
     public static async Task<IResult> GetOutgoScannedTus(string outgoId, OracleDbWorker dbService,
     HttpContext httpContext, SessionService sessionService)
     {
@@ -139,6 +212,15 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает количество коробов в расходе (заказе),
+    /// которые были просканированы.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Количество коробов в расходе (заказе), которые были просканированы.</returns>
     public static async Task<IResult> GetOutgoScannedBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -155,6 +237,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает набор коробов в расходе (заказе), которые были просканированы.
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Набор (массив) коробов в расходе (заказе), которые были просканированы.</returns>
     public static async Task<IResult> GetOutgoScannedBoxes(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -171,6 +261,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает количество отсканированных коробов на ТЕ.
+    /// </summary>
+    /// <param name="tuId">Идентификатор ТЕ.</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Количество отсканированных коробов на ТЕ.</returns>
     public static async Task<IResult> GetTuScannedBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -187,6 +285,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Возвращает набор отсканированных коробов на ТЕ.
+    /// </summary>
+    /// <param name="tuId">Идентификатор ТЕ.</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Набор (массив) отсканированных коробов на ТЕ.</returns>
     public static async Task<IResult> GetTuScannedBoxes(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -203,6 +309,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Сохраняет отсканированный SSCC короба.
+    /// </summary>
+    /// <param name="request">Тело запроса (содержит всё нужное, в том числе сам SSCC).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак результата.</returns>
     public static async Task<IResult> AddSscc(AddSsccRequest request,
         OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
@@ -211,7 +325,7 @@ public class Service
 
         try
         {
-            var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            var normalizedUsername = SessionService.NormalizeUserName(httpContext.User.Identity.Name);
             await dbService.AddSsccAsync(request.OutgoId, request.TuId, request.Sscc, normalizedUsername);
             return Results.Ok(new
             {
@@ -226,6 +340,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Сохраняет набор отсканированных SSCC коробов.
+    /// </summary>
+    /// <param name="request">Тело запроса (содержит всё нужное, в том числе набор SSCC).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак результата.</returns>
     public static async Task<IResult> AddSsccs(AddSsccsRequest request,
        OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
@@ -234,7 +356,7 @@ public class Service
 
         try
         {
-            var normalizedUsername = SessionService.NormalizeUsername(httpContext.User.Identity.Name);
+            var normalizedUsername = SessionService.NormalizeUserName(httpContext.User.Identity.Name);
             await dbService.AddSsccsAsync(request.OutgoId, request.TuId, request.Ssccs, normalizedUsername);
             return Results.Ok(new
             {
@@ -249,6 +371,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Удаляет ВСЕ! SSCC коробов, связанные с указанным расходом (заказом).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак результата удаления.</returns>
     public static async Task<IResult> RemoveOutgoSsccs(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -265,6 +395,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Удаляет SSCC коробов, связанные с указанной ТЕ.
+    /// </summary>
+    /// <param name="tuId">Идентификатор ТЕ.</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак результата удаления.</returns>
     public static async Task<IResult> RemoveTuSsccs(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
@@ -281,6 +419,14 @@ public class Service
             return Results.Problem(exception.Message);
         }
     }
+    /// <summary>
+    /// Удаляет конкретный SSCC короба.
+    /// </summary>
+    /// <param name="sscc">SSCC короба.</param>
+    /// <param name="dbService">Сервис работы с БД.</param>
+    /// <param name="httpContext">HTTP контекст.</param>
+    /// <param name="sessionService">Объект сервис сессии.</param>
+    /// <returns>Объект-признак результата удаления.</returns>
     public static async Task<IResult> RemoveSscc(string sscc, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {

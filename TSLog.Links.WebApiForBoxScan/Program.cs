@@ -8,8 +8,27 @@ using TSLog.Links.WebApiForBoxScan.Models;
 
 namespace TSLog.Links.WebApiForBoxScan;
 
+/// <summary>
+/// Модель запроса входа в API.
+/// </summary>
+/// <param name="UserName">Имя пользователя.</param>
+/// <param name="Password">Пароль.</param>
 public record LoginRequest(string UserName, string Password);
+/// <summary>
+/// Модель запроса сохранения SSCC короба.
+/// </summary>
+/// <param name="OutgoId">Идентификатор расхода (заказа).</param>
+/// <param name="TuId">Идентификатор ТЕ.</param>
+/// <param name="Sscc">SSCC короба.</param>
+/// <param name="UserName">Имя пользователя.</param>
 public record AddSsccRequest(string OutgoId, string TuId, string Sscc, string UserName);
+/// <summary>
+/// Модель запроса сохранения набора SSCC коробов.
+/// </summary>
+/// <param name="OutgoId">Идентификатор расхода (заказа).</param>
+/// <param name="TuId">Идентификатор ТЕ.</param>
+/// <param name="Ssccs">Набор (массив) SSCC коробов.</param>
+/// <param name="UserName">Имя пользователя.</param>
 public record AddSsccsRequest(string OutgoId, string TuId, string[] Ssccs, string UserName);
 
 public class Program
@@ -62,7 +81,6 @@ public class Program
         }
         return Results.BadRequest(new { Message = "Invalid request" });
     }
-
     private static void DefineEndpoints(WebApplication application)
     {
         ArgumentNullException.ThrowIfNull(application);
