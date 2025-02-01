@@ -4,7 +4,7 @@
              x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.ScannedTusPage">
     <ScrollView>
         <VerticalStackLayout Padding="30,0" Spacing="25">
-            <VerticalStackLayout x:Name="tesStackLayout" Padding="30,0" Spacing="25">
+            <VerticalStackLayout x:Name="tusStackLayout" Padding="30,0" Spacing="25">
                 <!--
                 <Button x:Name="teNumXXXX"
                         Id="XXXX"

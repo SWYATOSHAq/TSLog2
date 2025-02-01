@@ -19,6 +19,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     {
         tuPageButton.IsEnabled =
             !string.IsNullOrWhiteSpace(_outgoId) && !string.IsNullOrWhiteSpace(_tuId);
+        scannedTusButton.IsEnabled = !string.IsNullOrWhiteSpace(_outgoId);
     }
     public OutgoPage(HttpClient httpClient)
     {
@@ -41,6 +42,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
             outgoIdEntry.Focus();
             return false; // Run the timer callback only once.
         });
+        SetControlsState();
     }
 
     private void ClearEntries()
@@ -103,7 +105,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     {
         var navigationParameters = new Dictionary<string, object>
         {
-            { "OutgoId", outgoIdEntry.Text },
+            { "OutgoId", _outgoId },
             { "Token", _token },
             { "UserName", _userName },
         };

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using static System.Net.Mime.MediaTypeNames;
-
-namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
+﻿namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 public partial class ScannedTusPage : ContentPage, IQueryAttributable
 {
@@ -22,24 +18,20 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         if (query.TryGetValue("Token", out object? tokenValue))
             _token = tokenValue.ToString() ?? string.Empty;
     }
-    private void ShowScannedTus()
+    private async Task ShowScannedTus()
     {
-        var tuIds = new List<string>();
-        tuIds.Add("TU_0001");
-        tuIds.Add("TU_0002");
-        tuIds.Add("TU_0003");
-
+        var tuIds = await Api.GetOutgoScannedTus(_outgoId, this, _httpClient, _token);
         foreach (var tuId in tuIds)
         {
-            Button button = new Button
+            var button = new Button()
             {
                 StyleId = $"tu_{tuId}",
                 Text = tuId,
                 VerticalOptions = LayoutOptions.Center,
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Fill
             };
             button.Clicked += OnTeClicked;
-            tesStackLayout.Children.Add(button);
+            tusStackLayout.Children.Add(button);
         }
     }
     public ScannedTusPage(HttpClient httpClient)
@@ -49,10 +41,15 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         BindingContext = this;
     }
 
-    protected override void OnAppearing()
+    private void SetControlsState()
+    {
+        deleteAllTus.IsEnabled = tusStackLayout.Children.Count > 0;
+    }
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        ShowScannedTus();
+        await ShowScannedTus();
+        SetControlsState();
     }
 
     private async void OnTeClicked(object sender, EventArgs e)
@@ -61,7 +58,10 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ТЕ {tuId}?", "Да", "Нет");
         if (result)
         {
-            // TODO: delete selected.
+            // TODO: call api.
+            var button = (Button)sender;
+            tusStackLayout.Children.Remove(button);
+            SetControlsState();
         }
     }
     private async void OnDeleteAllTusClick(object sender, EventArgs e)
@@ -69,7 +69,9 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ВСЕ ТЕ?", "Да", "Нет");
         if (result)
         {
-            // TODO: delete all.
+            // TODO: call api.
+            tusStackLayout.Children.Clear();
+            SetControlsState();
         }
     }
     private async void OnBackClick(object sender, EventArgs e)

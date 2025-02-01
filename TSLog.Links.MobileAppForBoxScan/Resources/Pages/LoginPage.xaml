@@ -10,12 +10,12 @@
                    Aspect="AspectFit"
                    SemanticProperties.Description="TSL company logo"/>
 
-            <Entry x:Name="userNameEntry" 
+            <Entry x:Name="userNameEntry" TextChanged="OnTextChenged"
                    Placeholder="Введите логин" 
                    FontFamily="Helvetica" FontSize="22" 
                    MaxLength="20"/>
 
-            <Entry x:Name="passwordEntry" 
+            <Entry x:Name="passwordEntry" TextChanged="OnTextChenged"
                    Placeholder="Введите пароль" 
                    FontFamily="Helvetica" FontSize="22" 
                    MaxLength="20" 
@@ -24,6 +24,10 @@
             <Button x:Name="loginButton"
                     Clicked="OnLoginClicked"
                     Text="Войти"
+                    HorizontalOptions="Fill"/>
+            <Button x:Name="quitButton"
+                    Clicked="OnQuitClicked"
+                    Text="Закрыть"
                     HorizontalOptions="Fill"/>
         </VerticalStackLayout>
     </ScrollView>

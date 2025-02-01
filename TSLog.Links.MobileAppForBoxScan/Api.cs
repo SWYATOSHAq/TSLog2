@@ -1,10 +1,8 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TSLog.Links.MobileAppForBoxScan.Models;
 using TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
@@ -195,6 +193,51 @@ namespace TSLog.Links.MobileAppForBoxScan
                 await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
             }
             return 0;
+        }
+        public static async Task<string[]> GetOutgoScannedTus(string outgoId,
+            ContentPage page, HttpClient client, string token)
+        {
+            if (string.IsNullOrWhiteSpace(outgoId))
+                throw new ArgumentNullException(nameof(outgoId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return [];
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"outgo-scanned-tus/{outgoId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<OutgoTusResponse>();
+                    if (responseContent != null && responseContent.Tus.Length > 0)
+                        return responseContent.Tus;
+                    else
+                    {
+                        await page.DisplayAlert("Ошибка", "В заказе отсутствуют ТЕ.", "OK");
+                        return [];
+                    }
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    HandleUnauthorized(page);
+                    return [];
+                }
+                else
+                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return [];
         }
         /// <summary>
         /// Возвращает количество коробов на ТЕ.

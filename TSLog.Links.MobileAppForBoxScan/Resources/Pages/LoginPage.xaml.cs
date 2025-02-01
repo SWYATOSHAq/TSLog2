@@ -18,6 +18,15 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
             _httpClient = httpClient;
         }
 
+        private void OnTextChenged(object sender, TextChangedEventArgs e)
+        {
+            SetControlsState();
+        }
+        private void SetControlsState()
+        {
+            loginButton.IsEnabled = !string.IsNullOrWhiteSpace(userNameEntry.Text) &&
+                !string.IsNullOrWhiteSpace(passwordEntry.Text);
+        }
         protected override void OnAppearing()
         {
             base.OnAppearing();
@@ -92,6 +101,10 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
                 passwordEntry.Text = string.Empty;
                 loginButton.Text = "Войти";
             }
+        }
+        private async void OnQuitClicked(object sender, EventArgs e)
+        {
+            Application.Current.Quit();
         }
     }
 }
