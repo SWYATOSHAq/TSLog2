@@ -10,12 +10,14 @@
                    Aspect="AspectFit"
                    SemanticProperties.Description="TSL company logo"/>
 
-            <Entry x:Name="userNameEntry" TextChanged="OnTextChenged"
+            <Entry x:Name="userNameEntry"
+                   TextChanged="OnTextChenged" Completed="OnUserNameEntryCompleted"
                    Placeholder="Введите логин" 
                    FontFamily="Helvetica" FontSize="22" 
                    MaxLength="20"/>
 
-            <Entry x:Name="passwordEntry" TextChanged="OnTextChenged"
+            <Entry x:Name="passwordEntry"
+                   TextChanged="OnTextChenged" Completed="OnPasswordEntryCompleted"
                    Placeholder="Введите пароль" 
                    FontFamily="Helvetica" FontSize="22" 
                    MaxLength="20" 
@@ -29,6 +31,9 @@
                     Clicked="OnQuitClicked"
                     Text="Закрыть"
                     HorizontalOptions="Fill"/>
+            <Label x:Name="versionLabel"  Text="Версия Mj.Mn.R.B"
+                   FontSize="22" CharacterSpacing="2" FontFamily = "Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

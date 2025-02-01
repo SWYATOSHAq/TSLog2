@@ -5,6 +5,7 @@
     /// </summary>
     public class Common
     {
+        public const string Version = "25.2.1.1";
         private const int SsccLength = 20;
         public static bool CheckSscc(string code, out string sscc)
         {

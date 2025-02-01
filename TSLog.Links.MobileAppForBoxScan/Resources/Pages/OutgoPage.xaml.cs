@@ -18,7 +18,8 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     private void SetControlsState()
     {
         tuPageButton.IsEnabled =
-            !string.IsNullOrWhiteSpace(_outgoId) && !string.IsNullOrWhiteSpace(_tuId);
+            !string.IsNullOrWhiteSpace(outgoIdEntry.Text) && 
+            !string.IsNullOrWhiteSpace(tuIdEntry.Text);
         scannedTusButton.IsEnabled = !string.IsNullOrWhiteSpace(_outgoId);
     }
     public OutgoPage(HttpClient httpClient)
@@ -26,13 +27,14 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         InitializeComponent();
         _httpClient = httpClient;
         BindingContext = this;
+        versionLabel.Text = Common.Version;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
-        ClearEntries();
+        FillEntries();
         outgoIdEntry.BackgroundColor = Colors.Transparent;
         tuIdEntry.BackgroundColor = Colors.Transparent;
 
@@ -45,20 +47,32 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         SetControlsState();
     }
 
-    private void ClearEntries()
+    private void FillEntries()
     {
-        outgoIdEntry.Text = string.Empty;
-        tuIdEntry.Text = string.Empty;
+        outgoIdEntry.Text = _outgoId;
+        tuIdEntry.Text = _tuId;
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
+        if (query.TryGetValue("OutgoId", out object? outgoIdValue))
+            _outgoId = outgoIdValue.ToString() ?? string.Empty;
+        else 
+            _outgoId = string.Empty;
+        if (query.TryGetValue("TuId", out object? tuIdValue))
+            _tuId = tuIdValue.ToString() ?? string.Empty;
+        else
+            _tuId = string.Empty;
         if (query.TryGetValue("UserName", out object? userNameValue)) 
             _userName = userNameValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("UserName not found!");
         if (query.TryGetValue("Token", out object? tokenValue))
             _token = tokenValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("Token not found");
     }
 
     private async void OnOutgoIdEntryCompleted(object? sender, EventArgs e)

@@ -30,12 +30,20 @@ public partial class SsccPage : ContentPage, IQueryAttributable
 
         if (query.TryGetValue("OutgoId", out object? outgoIdValue))
             _outgoId = outgoIdValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("OutgoId not foud!");
         if (query.TryGetValue("TuId", out object? tuIdValue))
             _tuId = tuIdValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("TuId not foud!");
         if (query.TryGetValue("UserName", out object? userNameValue))
             _userName = userNameValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("UserName not foud!");
         if (query.TryGetValue("Token", out object? tokenValue))
             _token = tokenValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("Token not foud!");
     }
     protected override async void OnAppearing()
     {
@@ -101,40 +109,14 @@ public partial class SsccPage : ContentPage, IQueryAttributable
     }
     private async void OnScannedSsccsClicked(object? sender, EventArgs e)
     {
-        /*
-        try
+        var navigationParameters = new Dictionary<string, object>
         {
-            if (_isProcessingScan)
-                return;
-
-            _isProcessingScan = true;
-            var sscc = ssccEntry.Text;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            
-            var response = await _httpClient.GetAsync($"remove-sscc/{sscc}");
-            if (response.IsSuccessStatusCode)
-            {
-                await DisplayAlert("Успех", "SSCC короба успешно удалён.", "OK");
-                _scannedBoxesCount--;
-                counterLabel.Text = _scannedBoxesCount.ToString();
-            }
-            else if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                await DisplayAlert("Unauthorized", "Your session has expired. Please log in again.", "OK");
-                await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
-            }
-            else
-                await DisplayAlert("Ошибка", "Не удалось удалить SSCC короба. Попробуйте снова.", "OK");
-        }
-        catch (HttpRequestException httpRequestEx)
-        {
-            await DisplayAlert("HTTP Error", $"Request error: {httpRequestEx.Message}", "OK");
-        }
-        catch (Exception exception)
-        {
-            await DisplayAlert("Ошибка", $"Не удалось удалить SSCC короба: {exception.Message}", "OK");
-        }
-        */
+            { "OutgoId", _outgoId },
+            { "TuId", _tuId },
+            { "Token", _token },
+            { "UserName", _userName },
+        };
+        await Shell.Current.GoToAsync($"{nameof(ScannedTuBoxesPage)}", navigationParameters);
     }
     private async void OnConfirmClicked(object? sender, EventArgs e)
     {
@@ -148,12 +130,24 @@ public partial class SsccPage : ContentPage, IQueryAttributable
         if (!await Api.StoreSsccs([.. _ssccs], _outgoId, _tuId, _userName, this, _httpClient, _token))
             return;
         ClearSsccs();
-        await Shell.Current.GoToAsync($"//{nameof(OutgoPage)}");
+        var navigationParameters = new Dictionary<string, object>
+        {
+            { "OutgoId", _outgoId },
+            { "UserName", _userName },
+            { "Token", _token }
+        };
+        await Shell.Current.GoToAsync($"//{nameof(OutgoPage)}", navigationParameters);
     }
     private async void OnCancelClicked(object? sender, EventArgs e)
     {
         ClearSsccs();
-        await Shell.Current.GoToAsync($"//{nameof(OutgoPage)}");
+        var navigationParameters = new Dictionary<string, object>
+        {
+            { "OutgoId", _outgoId },
+            { "UserName", _userName },
+            { "Token", _token }
+        };
+        await Shell.Current.GoToAsync($"//{nameof(OutgoPage)}", navigationParameters);
     }
     private void OnExitClicked(object? sender, EventArgs e)
     {

@@ -13,10 +13,16 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
 
         if (query.TryGetValue("OutgoId", out object? outgoIdValue))
             _outgoId = outgoIdValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("OutgoId not foud!");
         if (query.TryGetValue("UserName", out object? userNameValue))
             _userName = userNameValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("UserName not foud!");
         if (query.TryGetValue("Token", out object? tokenValue))
             _token = tokenValue.ToString() ?? string.Empty;
+        else
+            throw new Exception("Token not foud!");
     }
     private async Task ShowScannedTus()
     {
@@ -39,6 +45,7 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         InitializeComponent();
         _httpClient = httpClient;
         BindingContext = this;
+        versionLabel.Text = Common.Version;
     }
 
     private void SetControlsState()
@@ -64,7 +71,7 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
             SetControlsState();
         }
     }
-    private async void OnDeleteAllTusClick(object sender, EventArgs e)
+    private async void OnDeleteAllTusClicked(object sender, EventArgs e)
     {
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ВСЕ ТЕ?", "Да", "Нет");
         if (result)
@@ -74,7 +81,7 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
             SetControlsState();
         }
     }
-    private async void OnBackClick(object sender, EventArgs e)
+    private async void OnBackClicked(object sender, EventArgs e)
     {
         var navigationParameters = new Dictionary<string, object>
         {

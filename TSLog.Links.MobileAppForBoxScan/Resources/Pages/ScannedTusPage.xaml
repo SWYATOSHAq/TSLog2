@@ -15,14 +15,17 @@
             </VerticalStackLayout>
             <VerticalStackLayout Padding="30,0" Spacing="25">
                 <Button x:Name="deleteAllTus"
-                        Clicked="OnDeleteAllTusClick"
+                        Clicked="OnDeleteAllTusClicked"
                         Text="Удалить ВСЕ ТЕ" 
                         HorizontalOptions="Fill"/>
                 <Button x:Name="back"
-                        Clicked="OnBackClick"
+                        Clicked="OnBackClicked"
                         Text="Назад" 
                         HorizontalOptions="Fill"/>
             </VerticalStackLayout>
+            <Label x:Name="versionLabel"  Text="Версия Mj.Mn.R.B"
+                   FontSize="22" CharacterSpacing="2" FontFamily = "Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -33,6 +33,10 @@ public class Program
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
+    private static string GetVersion()
+    {
+        return Common.Version;
+    }
     private static IResult Login(LoginRequest loginRequest, SessionService sessionService)
     {
         bool isAuthenticated = SessionService.AuthenticateUser(loginRequest.UserName, loginRequest.Password, Domain);
@@ -149,6 +153,7 @@ public class Program
         application.UseAuthentication();
         application.UseAuthorization();
 
+        application.MapGet("/version", GetVersion);
         application.MapPost("/login", Login);
         application.MapPost("/logoff", Logout);
 

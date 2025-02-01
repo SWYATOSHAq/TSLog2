@@ -290,6 +290,51 @@ namespace TSLog.Links.MobileAppForBoxScan
             }
             return 0;
         }
+        public static async Task<string[]> GetTuScannedBoxes(string tuId,
+            ContentPage page, HttpClient client, string token)
+        {
+            if (string.IsNullOrWhiteSpace(tuId))
+                throw new ArgumentNullException(nameof(tuId));
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token));
+            ArgumentNullException.ThrowIfNull(page);
+            ArgumentNullException.ThrowIfNull(client);
+            try
+            {
+                if (!await CheckToken(token, page))
+                    return [];
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await client.GetAsync($"tu-scanned-boxes/{tuId}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var responseContent = await response.Content.ReadFromJsonAsync<TuBoxesResponse>();
+                    if (responseContent != null && responseContent.Boxes.Length > 0)
+                        return responseContent.Boxes;
+                    else
+                    {
+                        await page.DisplayAlert("Ошибка", "На ТЕ отсутствуют короба.", "OK");
+                        return [];
+                    }
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    HandleUnauthorized(page);
+                    return [];
+                }
+                else
+                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+            }
+            catch (HttpRequestException exception)
+            {
+                await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            }
+            catch (Exception exception)
+            {
+                await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            }
+            return [];
+        }
         /// <summary>
         /// Возвращает количество ОТСКАНИРОВАННЫХ коробов на ТЕ.
         /// </summary>

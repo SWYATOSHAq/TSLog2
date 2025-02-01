@@ -16,11 +16,20 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages
         {
             InitializeComponent();
             _httpClient = httpClient;
+            versionLabel.Text = Common.Version;
         }
 
         private void OnTextChenged(object sender, TextChangedEventArgs e)
         {
             SetControlsState();
+        }
+        private void OnUserNameEntryCompleted(object? sender, EventArgs e)
+        {
+            passwordEntry.Focus();
+        }
+        private void OnPasswordEntryCompleted(object? sender, EventArgs e)
+        {
+            loginButton.Focus();
         }
         private void SetControlsState()
         {
