@@ -50,7 +50,6 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         BindingContext = this;
         versionLabel.Text = Common.Version;
     }
-
     private void SetControlsState()
     {
         deleteAllTus.IsEnabled = tusStackLayout.Children.Count > 0;
@@ -61,7 +60,6 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
         await ShowScannedTus();
         SetControlsState();
     }
-
     private async void OnTeClicked(object sender, EventArgs e)
     {
         var button = (Button)sender;

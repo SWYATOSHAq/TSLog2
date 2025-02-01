@@ -29,7 +29,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         BindingContext = this;
         versionLabel.Text = Common.Version;
     }
-
     protected override void OnAppearing()
     {
         base.OnAppearing();
@@ -46,13 +45,11 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         });
         SetControlsState();
     }
-
     private void FillEntries()
     {
         outgoIdEntry.Text = _outgoId;
         tuIdEntry.Text = _tuId;
     }
-
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         ArgumentNullException.ThrowIfNull(query);
@@ -74,7 +71,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         else
             throw new Exception("Token not found");
     }
-
     private async void OnOutgoIdEntryCompleted(object? sender, EventArgs e)
     {
         _outgoId = string.Empty;
@@ -99,7 +95,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         tuIdEntry.Text = string.Empty;
         tuIdEntry.Focus();
     }
-
     private async void OnTuIdEntryCompleted(object? sender, EventArgs e)
     {
         _tuId = string.Empty;
@@ -114,7 +109,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         SetControlsState();
         tuPageButton.Focus();
     }
-
     private async void OnScannedTusClicked(object sender, EventArgs e)
     {
         var navigationParameters = new Dictionary<string, object>
@@ -125,7 +119,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         };
         await Shell.Current.GoToAsync(nameof(ScannedTusPage), navigationParameters);
     }
-
     private async void OnNextPageClicked(object sender, EventArgs e)
     {
         var navigationParameters = new Dictionary<string, object>
@@ -137,7 +130,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         };
         await Shell.Current.GoToAsync(nameof(SsccPage), navigationParameters);
     }
-
     private void OnExitClicked(object sender, EventArgs e)
     {
         UICommon.ExitApplication(this, _httpClient, _token);

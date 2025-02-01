@@ -55,7 +55,6 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
         BindingContext = this;
         versionLabel.Text = Common.Version;
     }
-
     private void SetControlsState()
     {
         deleteAllBoxes.IsEnabled = boxesStackLayout.Children.Count > 0;
@@ -66,7 +65,6 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
         await ShowScannedTus();
         SetControlsState();
     }
-
     private async void OnBoxClicked(object sender, EventArgs e)
     {
         var button = (Button)sender;
