@@ -128,6 +128,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.MobileAppForBox
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.WebApiForBoxScan", "TSLog.Links.WebApiForBoxScan\TSLog.Links.WebApiForBoxScan.csproj", "{19B24CEB-FE54-4C51-9891-0BBB50661AEC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Links", "Links", "{526435D4-3472-4C16-9EB5-DB0F9F2C5C81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.Connector", "TSLog.Links.Connector\TSLog.Links.Connector.csproj", "{45E2961B-58F1-4A0B-9FAC-568E6227D07F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -344,6 +348,10 @@ Global
 		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19B24CEB-FE54-4C51-9891-0BBB50661AEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45E2961B-58F1-4A0B-9FAC-568E6227D07F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45E2961B-58F1-4A0B-9FAC-568E6227D07F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45E2961B-58F1-4A0B-9FAC-568E6227D07F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45E2961B-58F1-4A0B-9FAC-568E6227D07F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -353,6 +361,7 @@ Global
 		{8F0325AA-E807-4CD0-8F30-FA302F1F8BA5} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
 		{FD6993C7-DFF6-4516-B846-17939AE13DCA} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
 		{8ECF9E08-AE63-446A-B8AA-1AA5DBF7D53E} = {DD933F70-3534-42E8-85B9-33E398B48EC4}
+		{45E2961B-58F1-4A0B-9FAC-568E6227D07F} = {526435D4-3472-4C16-9EB5-DB0F9F2C5C81}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88714E8B-587C-4203-A934-34F97D6D11C1}
