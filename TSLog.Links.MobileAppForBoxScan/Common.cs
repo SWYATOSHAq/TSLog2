@@ -1,7 +1,7 @@
 ﻿namespace TSLog.Links.MobileAppForBoxScan;
-    /// <summary>
-    /// Общая функциональность. Может быть использована в различных местах приложения.
-    /// </summary>
+/// <summary>
+/// Общая функциональность. Может быть использована в различных местах приложения.
+/// </summary>
 public class Common
 {
     /// <summary>
