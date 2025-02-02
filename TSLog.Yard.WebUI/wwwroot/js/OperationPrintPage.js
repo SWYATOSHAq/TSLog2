@@ -342,6 +342,9 @@ class OperationPrintPage {
             warehouseActionsB.textContent = "Приходы:";
         }
 
+        const actionsCountSpan = document.getElementById('actions-count-span');
+        actionsCountSpan.textContent = this.selectedWarehouseActions.length;
+
         await this.getSelectedWarehouseActions();
         this.showSelectedWarehouseActions();
 
