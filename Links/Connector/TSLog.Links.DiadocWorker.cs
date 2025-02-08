@@ -5,29 +5,30 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace TSLog.Links.Connector;
 
-public class Worker
+class DiadocWorker : IDiadocWorker
 {
-    private Storage _storage;
-    public bool IsRunning { get; private set; } = false;
-    /// <summary>
-    /// In miliseconds.
-    /// </summary>
-    public int SleepTime { private get; set; } = 4 * 60;
-    public Worker(string dataSource) 
+    private string _clientId = string.Empty;
+    private string _apiUrl = string.Empty;
+    private string _login = string.Empty;
+    private string _password = string.Empty;
+    private string _boxId = string.Empty;
+    private string _certificatePath = string.Empty;
+
+    public DiadocWorker(string clientId, string apiUrl, string login, string password, string boxId, string certificatePath)
     {
-        _storage = new Storage(dataSource);
+        // TODO: check params.
+        _clientId = clientId;
+        _apiUrl = apiUrl;
+        _login = login;
+        _password = password;
+        _boxId = boxId;
+        _certificatePath = certificatePath;
     }
-
-    public string GetFileFromWms(Document document)
+    public string GetBoxIdForDocument(Document document)
     {
-        var fileName = $"{document.Kind}_{document.Id}";
-
-        // TODO: check file name for correct path.
-
-        return fileName;
+        return string.Empty;
     }
-
-    public static void SendDocument(string fileName)
+    public void SendDocument(string fileName, string boxId)
     {
         Console.WriteLine("Пример отправки неформализованного документа");
         Console.WriteLine("============================================");
@@ -38,12 +39,12 @@ public class Worker
 
         var crypt = new WinApiCrypt();
         var diadocApi = new DiadocApi(
-            Constants.DefaultClientId,
-            Constants.DefaultApiUrl,
+            _clientId,
+            _apiUrl,
             crypt);
 
         // Авторизуемся в Диадоке. В этом примере используем авторизацию через логин-пароль:
-        var authToken = diadocApi.Authenticate(Constants.DefaultLogin, Constants.DefaultPassword);
+        var authToken = diadocApi.Authenticate(_login, _password);
         // Также можно использовать авторизацию по сертификату, она описана в примере Authenticate.cs
 
         // Для отправки комплекта документов требуется подготовить структуру MessageToPost,
@@ -52,15 +53,15 @@ public class Worker
         // Для начала, укажем в структуре идентификаторы отправителя и получателя:
         var messageToPost = new MessageToPost
         {
-            FromBoxId = Constants.DefaultFromBoxId,
-            ToBoxId = Constants.DefaultToBoxId
+            FromBoxId = _boxId,
+            ToBoxId = boxId
         };
 
         // Подготовим контент и подпишем его через WinApiCrypt нашим сертификатом:
         var content = File.ReadAllBytes(fileName); // здесь лежит бинарное представление неформализованного документа
 
         Console.WriteLine("Создаём подпись...");
-        var certificate = new X509Certificate2(File.ReadAllBytes(Constants.CertificatePath));
+        var certificate = new X509Certificate2(File.ReadAllBytes(_certificatePath));
         var signature = crypt.Sign(content, certificate.RawData); // здесь лежит бинарное представление подписи к документу
         Console.WriteLine("Создана подпись к документу.");
 
@@ -159,23 +160,5 @@ public class Worker
         var responseDocument = response.Entities.FirstOrDefault(e => string.IsNullOrEmpty(e.ParentEntityId)); // т.к. у документа нет "родительских сущностей"
         Console.WriteLine("Идентификатор документа: " + responseDocument.EntityId);
         Console.WriteLine("Название документа: " + responseDocument.DocumentInfo.Title);
-    }
-    public void Run()
-    {
-        IsRunning = true;
-        while (IsRunning)
-        {
-            var documents = _storage.GetDocumentIdsToSend();
-            foreach (var document in documents)
-            {
-                var fileName = GetFileFromWms(document);
-                SendDocument(fileName);
-                _storage.MarkSendDocument(document);
-                
-                // TODO: delete file.
-                
-                Thread.Sleep(SleepTime);
-            }
-        }
     }
 }

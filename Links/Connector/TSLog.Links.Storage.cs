@@ -1,15 +1,14 @@
 ﻿using Oracle.ManagedDataAccess.Client;
-using System;
 using TSLog.Common.Data;
 
 namespace TSLog.Links.Connector;
 
-public class Storage(string dataSource) : OracleStorage(dataSource)
+public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
 {
     private const string DefaultLinksSchema = "common";
     public string LinksSchema { protected get; set; } = DefaultLinksSchema;
 
-    public Document[] GetDocumentIdsToSend()
+    public Document[] GetDocumentsToSend()
     {
         var sql = $"select * from {LinksSchema}.v_sending_document sd where sd.send_date is null;";
         var documents = new List<Document>();
