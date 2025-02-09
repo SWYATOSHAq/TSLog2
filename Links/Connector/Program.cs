@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.Extensions.Hosting;
 using System.Net;
 
 namespace TSLog.Links.Connector;
@@ -22,7 +24,12 @@ static class Program
         }
         else
         {
-            var dbDataSource = Settings.Default.DbDataSource;
+            //var dbDataSource = Settings.Default.DbDataSource;
+            //var dbDataSource = "tsklpdb";
+
+            var dbDataSource = 
+                "(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.253.43)(PORT = 1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = tsklpdb)))";
+
             var dbLogin = Settings.Default.DbLogin;
             var dbPassword = Settings.Default.DbPassword;
             storage = new Storage(dbDataSource);
@@ -38,6 +45,8 @@ static class Program
             var boxId = Settings.Default.DiadocBoxId;
             var certificatePath = Settings.Default.DiadocCertificatePath;
             diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
+
+            diadocWorker.Test();
         }
         var worker = new Worker(storage, wmsStorage, diadocWorker);
 

@@ -24,6 +24,25 @@ class DiadocWorker : IDiadocWorker
         _boxId = boxId;
         _certificatePath = certificatePath;
     }
+
+    public void Test()
+    {
+        var api = "https://diadoc-api.kontur.ru";
+        var clientId = "2BM-5032315482-503201001-202003021005206859021";
+        var key = "API-5fb0e0fd-a2f9-4364-b8e3-8c836b6366db";
+
+        var crypt = new WinApiCrypt();
+        var diadocApi = new DiadocApi(
+            clientId,
+            api,
+            crypt);
+
+        var result = diadocApi.AuthenticateByKey(key, clientId);
+
+        var org = diadocApi.GetOrganizationById(clientId);
+        var orgs = diadocApi.GetMyOrganizations(result);
+    }
+    
     public string GetBoxIdForDocument(Document document)
     {
         return string.Empty;

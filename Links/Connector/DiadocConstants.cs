@@ -1,6 +1,6 @@
 namespace TSLog.Links.Diadoc;
 
-internal static class Constants
+static class Constants
 {
 	// URL веб-сервиса Диадок
 	internal const string DefaultApiUrl = "https://diadoc-api.kontur.ru";

@@ -25,7 +25,7 @@ namespace TSLog.Links.Connector {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool IsDebug {
             get {
                 return ((bool)(this["IsDebug"]));
@@ -85,7 +85,7 @@ namespace TSLog.Links.Connector {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://diadoc-api.kontur.ru")]
         public string DiadocApiUrl {
             get {
                 return ((string)(this["DiadocApiUrl"]));

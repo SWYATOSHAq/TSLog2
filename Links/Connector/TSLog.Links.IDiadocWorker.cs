@@ -10,4 +10,6 @@ interface IDiadocWorker
     }
     public void SendDocument(string fileName, string boxId)
     { }
+    public void Test()
+    { }
 }
