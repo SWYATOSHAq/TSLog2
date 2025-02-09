@@ -2,10 +2,6 @@
 
 class FakeStorage : IStorage
 {
-    public Document[] GetDocumentsToSend()
-    {
-        return [];
-    }
-    public void MarkSendDocument(Document document)
+    public void Dispose()
     { }
 }

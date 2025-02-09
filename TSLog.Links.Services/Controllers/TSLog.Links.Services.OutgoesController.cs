@@ -44,7 +44,7 @@ namespace TSLog.Links.Services.Controllers
 
                 var transactionId = _storage.GenerateTransactionId();
                 var fileContent = outgoesConverter.Convert(transactionId, outgoRequest);
-                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
                 if (!DebugMode)
                     return "<status code=\"0\">Запрос на расход отправлен на загрузку</status>";
@@ -91,7 +91,7 @@ namespace TSLog.Links.Services.Controllers
             var pickingBeginNotice = _storage.GetPickingBeginNotice(outgoId);
             var xml = Gs1EdiXmlConverter.PickingBeginNoticeToXml(pickingBeginNotice);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
 
@@ -104,7 +104,7 @@ namespace TSLog.Links.Services.Controllers
             var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
             var xml = Gs1EdiXmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
 
@@ -126,7 +126,7 @@ namespace TSLog.Links.Services.Controllers
             var pickingEndNotice = _storage.GetPickingEndNotice(user, outgoId);
             var xml = Gs1EdiXmlConverter.PickingEndNoticeToXml(pickingEndNotice);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
 
@@ -139,7 +139,7 @@ namespace TSLog.Links.Services.Controllers
             var pickingEndNotices = _storage.GetPickingEndNotices(partners);
             var xml = Gs1EdiXmlConverter.PickingEndNoticesToXml(pickingEndNotices);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
 
@@ -161,7 +161,7 @@ namespace TSLog.Links.Services.Controllers
             var shippingNotice = _storage.GetShippingNotice(user, outgoId);
             var xml = Gs1EdiXmlConverter.ShippingNoticeToXml(shippingNotice);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
 
@@ -174,7 +174,7 @@ namespace TSLog.Links.Services.Controllers
             var shippingNotices = _storage.GetShippingNotices(partners);
             var xml = Gs1EdiXmlConverter.ShippingNoticesToXml(shippingNotices);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
     }

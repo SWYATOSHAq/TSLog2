@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\TSLog.Common.OracleStorage\TSLog.Common.OracleStorage.csproj" />
+    <ProjectReference Include="..\..\TSLog.Common\TSLog.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Dummy.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

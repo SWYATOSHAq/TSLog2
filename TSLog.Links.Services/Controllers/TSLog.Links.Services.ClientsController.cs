@@ -41,7 +41,7 @@ namespace TSLog.Links.Services.Controllers
                 var clientsConverter = new EINWMSClientsConverter();
                 var transactionId = _storage.GenerateTransactionId();
                 var fileContent = clientsConverter.Convert(transactionId, clientsListRequest);
-                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
                 if (!DebugMode)
                     return "<status code=\"0\">Справочник клиентов отправлен на загрузку</status>";

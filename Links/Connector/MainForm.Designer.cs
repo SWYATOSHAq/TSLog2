@@ -43,6 +43,7 @@
             StartButton.Text = "Запуск";
             StartButton.UseVisualStyleBackColor = true;
             StartButton.Click += StartButton_Click;
+            StartButton.KeyDown += MainForm_KeyDown;
             // 
             // StopButton
             // 
@@ -53,6 +54,7 @@
             StopButton.Text = "Остановить";
             StopButton.UseVisualStyleBackColor = true;
             StopButton.Click += StopButton_Click;
+            StopButton.KeyDown += MainForm_KeyDown;
             // 
             // SetingsButton
             // 
@@ -63,6 +65,7 @@
             SetingsButton.Text = "Настройки";
             SetingsButton.UseVisualStyleBackColor = true;
             SetingsButton.Click += SetingsButton_Click;
+            SetingsButton.KeyDown += MainForm_KeyDown;
             // 
             // ExitButton
             // 
@@ -73,6 +76,7 @@
             ExitButton.Text = "Выход";
             ExitButton.UseVisualStyleBackColor = true;
             ExitButton.Click += ExitButton_Click;
+            ExitButton.KeyDown += MainForm_KeyDown;
             // 
             // MainForm
             // 
@@ -85,7 +89,10 @@
             Controls.Add(StartButton);
             Font = new Font("Verdana", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
             Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Коннектор";
+            Shown += MainForm_Shown;
+            KeyDown += MainForm_KeyDown;
             ResumeLayout(false);
         }
 

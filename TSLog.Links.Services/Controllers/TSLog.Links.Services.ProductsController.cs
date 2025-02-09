@@ -43,7 +43,7 @@ namespace TSLog.Links.Services.Controllers
 
                 var transactionId = _storage.GenerateTransactionId();
                 var fileContent = productsConverter.Convert(transactionId, productsListRequest);
-                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
                 if (!DebugMode)
                     return "<status code=\"0\">Справочник товаров отправлен на загрузку</status>";

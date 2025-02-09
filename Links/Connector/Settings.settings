@@ -1,9 +1,18 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Connector" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TSLog.Links.Connector" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="IsDebug" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DbDataSource" Type="System.String" Scope="User">
+      <Value Profile="(Default)">tskl_pdb</Value>
+    </Setting>
+    <Setting Name="DbLogin" Type="System.String" Scope="User">
+      <Value Profile="(Default)">tskl_s1_pdba</Value>
+    </Setting>
+    <Setting Name="DbPassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)">t</Value>
     </Setting>
     <Setting Name="DiadocClientId" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -11,7 +20,7 @@
     <Setting Name="DiadocApiUrl" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DiadocUserName" Type="System.String" Scope="User">
+    <Setting Name="DiadocLogin" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="DiadocPassword" Type="System.String" Scope="User">

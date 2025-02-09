@@ -1,22 +1,33 @@
-﻿using System.IO;
+﻿using System.Security;
 
 namespace TSLog.Links.Connector;
 
-class Worker
+class Worker(IStorage storage, IWmsStorage wmsStorage, IDiadocWorker diadocWorker)
 {
     public bool IsRunning { get; private set; } = false;
     /// <summary>
     /// In miliseconds.
     /// </summary>
-    public int SleepTime { private get; set; } = 4 * 60;
-    private IStorage _storage;
-    private IWmsStorage _wmsStorage;
-    private IDiadocWorker _diadocWorker;
-    public Worker(IStorage storage, IWmsStorage wmsStorage, IDiadocWorker diadocWorker)
+    public int SleepTime { private get; set; } = 4 * 60 * 1024;
+    private const int SleepStep = 64; 
+
+    private readonly IStorage _storage = storage;
+    private readonly IWmsStorage _wmsStorage = wmsStorage;
+    private readonly IDiadocWorker _diadocWorker = diadocWorker;
+
+    public void SetDbDataSource(string dbDataSource)
     {
-        _storage = storage;
-        _wmsStorage = wmsStorage;
-        _diadocWorker = diadocWorker;
+        if (!string.IsNullOrWhiteSpace(dbDataSource))
+            throw new ArgumentException($"{nameof(dbDataSource)} is empty.");
+        _storage.SetDataSource(dbDataSource);
+    }
+    public void Connect(string dbLogin, SecureString dbPassword)
+    {
+        _storage.Connect(dbLogin, dbPassword);
+    }
+    public void Disconnect()
+    {
+        _storage.Disconnect();
     }
 
     public string GetFileFromWms(Document document)
@@ -36,19 +47,35 @@ class Worker
         _storage.MarkSendDocument(document);
         File.Delete(fileName);
     }
-    private void SendDocument()
+    private void SendDocuments()
     {
         var documents = _storage.GetDocumentsToSend();
         foreach (var document in documents)
             SendDocument(document);
     }
-    public void Run()
+    private void RunLoop()
+    {
+        var counter = 0;
+        while (counter < SleepTime)
+        {
+            if (!IsRunning)
+                return;
+            Thread.Sleep(SleepStep);
+            counter += SleepStep;
+        }
+    }
+    public void Start()
     {
         IsRunning = true;
         while (IsRunning)
         {
-            SendDocument();
-            Thread.Sleep(SleepTime);
+            SendDocuments();
+            RunLoop();
+            Application.DoEvents();
         }
+    }
+    public void Stop()
+    {
+        IsRunning = false;
     }
 }

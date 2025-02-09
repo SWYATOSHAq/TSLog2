@@ -37,6 +37,42 @@ namespace TSLog.Links.Connector {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("tskl_pdb")]
+        public string DbDataSource {
+            get {
+                return ((string)(this["DbDataSource"]));
+            }
+            set {
+                this["DbDataSource"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("tskl_s1_pdba")]
+        public string DbLogin {
+            get {
+                return ((string)(this["DbLogin"]));
+            }
+            set {
+                this["DbLogin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("t")]
+        public string DbPassword {
+            get {
+                return ((string)(this["DbPassword"]));
+            }
+            set {
+                this["DbPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string DiadocClientId {
             get {
@@ -62,12 +98,12 @@ namespace TSLog.Links.Connector {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DiadocUserName {
+        public string DiadocLogin {
             get {
-                return ((string)(this["DiadocUserName"]));
+                return ((string)(this["DiadocLogin"]));
             }
             set {
-                this["DiadocUserName"] = value;
+                this["DiadocLogin"] = value;
             }
         }
         

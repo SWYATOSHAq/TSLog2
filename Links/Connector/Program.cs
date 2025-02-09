@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace TSLog.Links.Connector;
 
 static class Program
@@ -8,10 +10,9 @@ static class Program
     [STAThread]
     static void Main()
     {
-        IStorage storage = null;
-        IWmsStorage wmsStorage = null;
-        IDiadocWorker diadocWorker = null;
-        var worker = new Worker(storage, wmsStorage, diadocWorker);
+        IStorage storage;
+        IWmsStorage wmsStorage;
+        IDiadocWorker diadocWorker;
         var isDebug = Settings.Default.IsDebug;
         if (isDebug)
         {
@@ -21,23 +22,30 @@ static class Program
         }
         else
         {
-            var dataSource = string.Empty;
-            storage = new Storage(dataSource);
+            var dbDataSource = Settings.Default.DbDataSource;
+            var dbLogin = Settings.Default.DbLogin;
+            var dbPassword = Settings.Default.DbPassword;
+            storage = new Storage(dbDataSource);
+            var securityDbPassword = TSLog.Common.Utils.StringToSecureString(dbPassword);
+            storage.Connect(dbLogin, securityDbPassword);
+
             wmsStorage = new WmsStorage();
 
-
-            string clientId = string.Empty; 
-            string apiUrl = string.Empty;
-            string login = string.Empty;
-            string password = string.Empty;
-            string boxId = string.Empty;
-            string certificatePath = string.Empty;
+            var clientId = Settings.Default.DiadocClientId;
+            var apiUrl = Settings.Default.DiadocApiUrl;
+            var login = Settings.Default.DiadocLogin;
+            var password = Settings.Default.DiadocPassword;
+            var boxId = Settings.Default.DiadocBoxId;
+            var certificatePath = Settings.Default.DiadocCertificatePath;
             diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
         }
+        var worker = new Worker(storage, wmsStorage, diadocWorker);
 
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
         Application.Run(new MainForm(worker));
+
+        storage.Dispose();
     }
 }

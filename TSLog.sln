@@ -130,7 +130,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLog.Links.WebApiForBoxSca
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Links", "Links", "{526435D4-3472-4C16-9EB5-DB0F9F2C5C81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connector", "Links\Connector\Connector.csproj", "{3D91A8EA-7CAB-4913-85D2-3C71B1BE1369}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.Connector", "Links\Connector\TSLog.Links.Connector.csproj", "{3D91A8EA-7CAB-4913-85D2-3C71B1BE1369}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

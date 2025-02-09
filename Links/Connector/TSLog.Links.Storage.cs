@@ -7,6 +7,12 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
 {
     private const string DefaultLinksSchema = "common";
     public string LinksSchema { protected get; set; } = DefaultLinksSchema;
+    public void SetDataSource(string dataSource)
+    {
+        if (string.IsNullOrWhiteSpace(dataSource))
+            throw new ArgumentException($"{nameof(dataSource)} is empty.");
+        _dataSource = dataSource.Trim();
+    }
 
     public Document[] GetDocumentsToSend()
     {
