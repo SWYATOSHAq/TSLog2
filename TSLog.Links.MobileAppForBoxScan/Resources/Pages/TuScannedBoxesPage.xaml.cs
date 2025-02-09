@@ -10,7 +10,7 @@ public partial class TuScannedBoxesPage : ContentPage, IQueryAttributable
     private string _tuId = string.Empty;
     private string _userName = string.Empty;
     private string _token = string.Empty;
-    private readonly ISet<string> _scannedSsccs = new HashSet<string>();
+    private readonly HashSet<string> _scannedSsccs = [];
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -80,8 +80,9 @@ public partial class TuScannedBoxesPage : ContentPage, IQueryAttributable
         await ShowScannedTus();
         SetControlsState();
     }
-    private async void OnBoxClicked(object sender, EventArgs e)
+    private async void OnBoxClicked(object? sender, EventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(sender);
         var button = (Button)sender;
         var sscc = button.StyleId;
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить короб {sscc}?", "Да", "Нет");

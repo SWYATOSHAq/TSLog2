@@ -38,8 +38,7 @@ class UICommon
     }
     public static void FocusEntry(Entry entry, Color color)
     {
-        if (entry == null)
-            throw new ArgumentNullException(nameof(entry));
+        ArgumentNullException.ThrowIfNull(entry);
         entry.BackgroundColor = color;
         entry.Focus();
         entry.CursorPosition = 0;

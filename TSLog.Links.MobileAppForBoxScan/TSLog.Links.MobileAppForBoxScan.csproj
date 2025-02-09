@@ -20,7 +20,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>TSLog.Links.MobileAppForBoxScan</ApplicationTitle>
+		<ApplicationTitle>Сканирование SSCC.</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>tslog.links.mobileappforboxscan</ApplicationId>

@@ -5,7 +5,7 @@ namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 /// <summary>
 /// Страница для сканирования расхода (заказа) и ТЕ.
 /// </summary>
-public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropertyChanged
+public partial class OutgoPage : ContentPage, IQueryAttributable
 {
     private readonly HttpClient _httpClient;
     private string _outgoId = string.Empty;
@@ -102,11 +102,13 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         outgoIdEntry.BackgroundColor = Colors.Transparent;
         tuIdEntry.BackgroundColor = Colors.Transparent;
 
-        if (!await ShowOutgoInfo() || !await ShowTuInfo())
+        if (await ShowOutgoInfo())
         {
-            SetControlsState();
-            return;
+            if (!await ShowTuInfo())
+                _tuId = string.Empty;
         }
+        else
+            _outgoId = string.Empty;
 
         SetControlsState();
     }
@@ -119,6 +121,8 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         var result = await ShowOutgoInfo();
         if (result)
             tuIdEntry.Focus();
+        else
+            _outgoId = string.Empty;
         SetControlsState();
     }
     private async void OnTuIdEntryCompleted(object? sender, EventArgs e)
@@ -140,6 +144,8 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         var result = await ShowTuInfo();
         if (result)
             tuPageButton.Focus();
+        else
+            _tuId = string.Empty;
         SetControlsState();
     }
     private async void OnScannedTusClicked(object sender, EventArgs e)

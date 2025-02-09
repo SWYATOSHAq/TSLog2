@@ -38,22 +38,9 @@ public partial class LoginPage : ContentPage
     {
         base.OnAppearing();
 
-        ClearEntries();
-        FocusUserNameEntry();
-    }
-    private void ClearEntries()
-    {
         userNameEntry.Text = string.Empty;
         passwordEntry.Text = string.Empty;
-    }
-    private void FocusUserNameEntry()
-    {
-        // Use the Dispatcher to ensure the UI is ready before setting the focus.
-        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(500), () =>
-        {
-            userNameEntry.Focus();
-            return false; // Run the timer callback only once.
-        });
+        userNameEntry.Focus();
     }
     private async void OnLoginClicked(object sender, EventArgs e)
     {
@@ -103,11 +90,14 @@ public partial class LoginPage : ContentPage
         finally
         {
             passwordEntry.Text = string.Empty;
+            passwordEntry.Focus();
             loginButton.Text = "Войти";
         }
     }
-    private async void OnQuitClicked(object sender, EventArgs e)
+    private void OnQuitClicked(object sender, EventArgs e)
     {
+        if (Application.Current == null)
+            throw new Exception($"{nameof(Application.Current)} is null.");
         Application.Current.Quit();
     }
 }

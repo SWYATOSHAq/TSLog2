@@ -193,6 +193,15 @@ public class Api
         }
         return 0;
     }
+    /// <summary>
+    /// Возвращает количество ТЕ в расходе (заказе), короба которых были отсканированы (хотя бы один на ТЕ).
+    /// </summary>
+    /// <param name="outgoId">Идентификатор расхода (заказа).</param>
+    /// <param name="page">Страница (UI).</param>
+    /// <param name="client">HTTP клиент.</param>
+    /// <param name="token">Токен авторизации.</param>
+    /// <returns>Количество ТЕ с отсканированными коробами.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public static async Task<int> GetOutgoScannedTusCount(string outgoId,
         ContentPage page, HttpClient client, string token)
     {

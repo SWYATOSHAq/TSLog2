@@ -56,11 +56,9 @@ public static class MauiProgram
         builder.Services.AddTransient<OutgoScannedTusPage>();
         builder.Services.AddTransient<TuPage>();
         builder.Services.AddTransient<TuScannedBoxesPage>();
-
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-
         return builder.Build();
     }
 }

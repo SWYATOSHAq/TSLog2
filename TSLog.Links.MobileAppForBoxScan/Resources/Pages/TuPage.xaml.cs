@@ -11,8 +11,8 @@ public partial class TuPage : ContentPage, IQueryAttributable
     private string _userName = string.Empty;
     private string _token = string.Empty;
     private int _scannedAndStoredBoxesCount = 0;
-    private readonly ISet<string> _storedSsccs = new HashSet<string>();
-    private readonly ISet<string> _scannedSsccs = new HashSet<string>();
+    private readonly HashSet<string> _storedSsccs = [];
+    private readonly HashSet<string> _scannedSsccs = [];
 
     public TuPage(HttpClient httpClient)
     {
