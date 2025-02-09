@@ -9,8 +9,8 @@ public partial class AppShell : Shell
         InitializeComponent();
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
         Routing.RegisterRoute(nameof(OutgoPage), typeof(OutgoPage));
-        Routing.RegisterRoute(nameof(ScannedTusPage), typeof(ScannedTusPage));
-        Routing.RegisterRoute(nameof(SsccPage), typeof(SsccPage));
-        Routing.RegisterRoute(nameof(ScannedTuBoxesPage), typeof(ScannedTuBoxesPage));
+        Routing.RegisterRoute(nameof(OutgoScannedTusPage), typeof(OutgoScannedTusPage));
+        Routing.RegisterRoute(nameof(TuPage), typeof(TuPage));
+        Routing.RegisterRoute(nameof(TuScannedBoxesPage), typeof(TuScannedBoxesPage));
     }
 }

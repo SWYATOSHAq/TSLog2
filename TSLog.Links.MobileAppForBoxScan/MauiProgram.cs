@@ -53,9 +53,9 @@ public static class MauiProgram
         // Register pages.
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<OutgoPage>();
-        builder.Services.AddTransient<ScannedTusPage>();
-        builder.Services.AddTransient<SsccPage>();
-        builder.Services.AddTransient<ScannedTuBoxesPage>();
+        builder.Services.AddTransient<OutgoScannedTusPage>();
+        builder.Services.AddTransient<TuPage>();
+        builder.Services.AddTransient<TuScannedBoxesPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

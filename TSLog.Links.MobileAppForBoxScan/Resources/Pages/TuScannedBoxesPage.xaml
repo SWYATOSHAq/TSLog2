@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.ScannedTusPage">
+             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.TuScannedBoxesPage">
     <ScrollView>
         <VerticalStackLayout Padding="30,0" Spacing="25">
-            <VerticalStackLayout x:Name="tusStackLayout" Padding="30,0" Spacing="25">
+            <VerticalStackLayout x:Name="boxesStackLayout" Padding="30,0" Spacing="25">
                 <!--
                 <Button x:Name="teNumXXXX"
                         Id="XXXX"
-                        Clicked="OnTeClicked"
+                        Clicked="OnBoxClicked"
                         Text="ТЕ ХХХХ" 
                         HorizontalOptions="Fill"/>
                 -->
             </VerticalStackLayout>
             <VerticalStackLayout Padding="30,0" Spacing="25">
-                <Button x:Name="deleteAllTus"
-                        Clicked="OnDeleteAllTusClicked"
+                <Button x:Name="deleteAllBoxes"
+                        Clicked="OnDeleteAllBoxesClicked"
                         Text="Удалить ВСЕ ТЕ" 
                         HorizontalOptions="Fill"/>
                 <Button x:Name="back"

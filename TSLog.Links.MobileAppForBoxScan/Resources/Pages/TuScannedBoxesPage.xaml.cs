@@ -3,13 +3,14 @@
 /// <summary>
 /// Страница отсканированных коробов для ТЕ.
 /// </summary>
-public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
+public partial class TuScannedBoxesPage : ContentPage, IQueryAttributable
 {
     private readonly HttpClient _httpClient;
     private string _outgoId = string.Empty;
     private string _tuId = string.Empty;
     private string _userName = string.Empty;
     private string _token = string.Empty;
+    private readonly ISet<string> _scannedSsccs = new HashSet<string>();
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -23,6 +24,13 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
             _tuId = outgoTuIdValue.ToString() ?? string.Empty;
         else
             throw new Exception("TuId not foud");
+        if (query.TryGetValue("ScannedSsccs", out object? scannedSsccsValue))
+        {
+            var temp = (string[])scannedSsccsValue;
+            foreach (var sscc in temp)
+                _scannedSsccs.Add(sscc);
+        }
+            
         if (query.TryGetValue("UserName", out object? userNameValue))
             _userName = userNameValue.ToString() ?? string.Empty;
         else
@@ -34,21 +42,28 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
     }
     private async Task ShowScannedTus()
     {
-        var ssccs = await Api.GetTuScannedBoxes(_tuId, this, _httpClient, _token);
-        foreach (var sscc in ssccs)
+        void ShowButton(string sscc, Color color)
         {
             var button = new Button()
             {
                 StyleId = sscc,
                 Text = sscc,
                 VerticalOptions = LayoutOptions.Center,
-                HorizontalOptions = LayoutOptions.Fill
+                HorizontalOptions = LayoutOptions.Fill,
+                BackgroundColor = color
             };
             button.Clicked += OnBoxClicked;
             boxesStackLayout.Children.Add(button);
         }
+
+        var storedSsccs = await Api.GetTuScannedBoxes(_tuId, this, _httpClient, _token);
+        foreach (var storedSscc in storedSsccs)
+            ShowButton(storedSscc, Colors.Green);
+
+        foreach (var scannedSscc in _scannedSsccs)
+            ShowButton(scannedSscc, Colors.LightBlue);
     }
-    public ScannedTuBoxesPage(HttpClient httpClient)
+    public TuScannedBoxesPage(HttpClient httpClient)
     {
         InitializeComponent();
         _httpClient = httpClient;
@@ -72,7 +87,12 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
         bool result = await DisplayAlert("Подтвердите действие.", $"Удалить короб {sscc}?", "Да", "Нет");
         if (result)
         {
-            if (await Api.RemoveSscc(sscc, this, _httpClient, _token))
+            if (_scannedSsccs.Contains(sscc))
+            {
+                _scannedSsccs.Remove(sscc);
+                boxesStackLayout.Children.Remove(button);
+            }
+            else if (await Api.RemoveSscc(sscc, this, _httpClient, _token))
                 boxesStackLayout.Children.Remove(button);
             SetControlsState();
         }
@@ -84,6 +104,7 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
         {
             if (await Api.RemoveTuSsccs(_tuId, this, _httpClient, _token))
                 boxesStackLayout.Children.Clear();
+            _scannedSsccs.Clear();
             SetControlsState();
         }
     }
@@ -93,9 +114,10 @@ public partial class ScannedTuBoxesPage : ContentPage, IQueryAttributable
         {
             { "OutgoId", _outgoId },
             { "TuId", _tuId },
+            { "ScannedSsccs", _scannedSsccs.ToArray() },
             { "Token", _token },
             { "UserName", _userName },
         };
-        await Shell.Current.GoToAsync($"{nameof(SsccPage)}", navigationParameters);
+        await Shell.Current.GoToAsync($"{nameof(TuPage)}", navigationParameters);
     }
 }

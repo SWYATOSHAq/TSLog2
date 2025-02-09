@@ -36,4 +36,13 @@ class UICommon
             await page.DisplayAlert("Ошибка", $"Не удалось выполнить выход: {exception.Message}", "OK");
         }
     }
+    public static void FocusEntry(Entry entry, Color color)
+    {
+        if (entry == null)
+            throw new ArgumentNullException(nameof(entry));
+        entry.BackgroundColor = color;
+        entry.Focus();
+        entry.CursorPosition = 0;
+        entry.SelectionLength = entry.Text.Length;
+    }
 }

@@ -7,7 +7,7 @@ public class Common
     /// <summary>
     /// Версия приложения (увеличивать перед каждым выпуском).
     /// </summary>
-    public static readonly string Version = "25.2.1.1";
+    public static readonly string Version = "25.2.9.1";
     private const int SsccLength = 20;
     /// <summary>
     /// Проверяет SSCC на корректность.

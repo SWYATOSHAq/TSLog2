@@ -3,7 +3,7 @@
 /// <summary>
 /// Страница отсканированных ТЕ для расхода (заказа).
 /// </summary>
-public partial class ScannedTusPage : ContentPage, IQueryAttributable
+public partial class OutgoScannedTusPage : ContentPage, IQueryAttributable
 {
     private readonly HttpClient _httpClient;
     private string _outgoId = string.Empty;
@@ -43,7 +43,7 @@ public partial class ScannedTusPage : ContentPage, IQueryAttributable
             tusStackLayout.Children.Add(button);
         }
     }
-    public ScannedTusPage(HttpClient httpClient)
+    public OutgoScannedTusPage(HttpClient httpClient)
     {
         InitializeComponent();
         _httpClient = httpClient;

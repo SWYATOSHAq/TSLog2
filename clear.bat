@@ -1,3 +1,6 @@
+rmdir /q /s .\Links\Connector\bin
+rmdir /q /s .\Links\Connector\obj
+
 rmdir /q /s .\TSLog.AD.Test\bin
 rmdir /q /s .\TSLog.AD.Test\obj
 

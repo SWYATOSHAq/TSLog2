@@ -13,8 +13,6 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
     private string _userName = string.Empty;
     private string _token = string.Empty;
 
-    new public event PropertyChangedEventHandler? PropertyChanged;
-
     private void SetControlsState()
     {
         tuPageButton.IsEnabled =
@@ -29,85 +27,120 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
         BindingContext = this;
         versionLabel.Text = Common.Version;
     }
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        FillEntries();
-        outgoIdEntry.BackgroundColor = Colors.Transparent;
-        tuIdEntry.BackgroundColor = Colors.Transparent;
-
-        // Use the Dispatcher to ensure the UI is ready before setting the focus.
-        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(500), () =>
-        {
-            outgoIdEntry.Focus();
-            return false; // Run the timer callback only once.
-        });
-        SetControlsState();
-    }
-    private void FillEntries()
-    {
-        outgoIdEntry.Text = _outgoId;
-        tuIdEntry.Text = _tuId;
-    }
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
         if (query.TryGetValue("OutgoId", out object? outgoIdValue))
             _outgoId = outgoIdValue.ToString() ?? string.Empty;
-        else 
+        else
             _outgoId = string.Empty;
-        if (query.TryGetValue("TuId", out object? tuIdValue))
+        if (query.TryGetValue("TuId", out object? tuIdValue) && !string.IsNullOrWhiteSpace(_outgoId))
             _tuId = tuIdValue.ToString() ?? string.Empty;
         else
             _tuId = string.Empty;
-        if (query.TryGetValue("UserName", out object? userNameValue)) 
+        if (query.TryGetValue("UserName", out object? userNameValue))
             _userName = userNameValue.ToString() ?? string.Empty;
         else
             throw new Exception("UserName not found!");
         if (query.TryGetValue("Token", out object? tokenValue))
             _token = tokenValue.ToString() ?? string.Empty;
         else
-            throw new Exception("Token not found");
+            throw new Exception("Token not found!");
+    }
+    private async Task<bool> ShowOutgoInfo()
+    {
+        if (string.IsNullOrWhiteSpace(_outgoId))
+        {
+            UICommon.FocusEntry(outgoIdEntry, Colors.Transparent);
+            return false;
+        }
+        if (!await Api.CheckOutgo(_outgoId, this, _httpClient, _token))
+        {
+            UICommon.FocusEntry(outgoIdEntry, Colors.Coral);
+            return false;
+        }
+        var tusCount = await Api.GetOutgoTusCount(_outgoId, this, _httpClient, _token);
+        if (tusCount <= 0)
+        {
+            UICommon.FocusEntry(outgoIdEntry, Colors.Coral);
+            return false;
+        }
+        var scannedTusCount = await Api.GetOutgoScannedTusCount(_outgoId, this, _httpClient, _token);
+        if (scannedTusCount < 0)
+        {
+            UICommon.FocusEntry(outgoIdEntry, Colors.Coral);
+            return false;
+        }
+        outgoTusCountLabel.Text = tusCount.ToString();
+        outgoScannedTusCountLabel.Text = scannedTusCount.ToString();
+        outgoIdEntry.BackgroundColor = Colors.LightGreen;
+        return true;
+    }
+    private async Task<bool> ShowTuInfo()
+    {
+        if (string.IsNullOrWhiteSpace(_tuId))
+        {
+            UICommon.FocusEntry(tuIdEntry, Colors.Transparent);
+            return false;
+        }
+        if (!await Api.CheckOutgoTu(_outgoId, _tuId, this, _httpClient, _token))
+        {
+            UICommon.FocusEntry(tuIdEntry, Colors.Coral);
+            return false;
+        }
+        tuIdEntry.BackgroundColor = Colors.LightGreen;
+        
+        return true;
+    }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        outgoIdEntry.Text = _outgoId;
+        tuIdEntry.Text = _tuId;
+        outgoIdEntry.BackgroundColor = Colors.Transparent;
+        tuIdEntry.BackgroundColor = Colors.Transparent;
+
+        if (!await ShowOutgoInfo() || !await ShowTuInfo())
+        {
+            SetControlsState();
+            return;
+        }
+
+        SetControlsState();
     }
     private async void OnOutgoIdEntryCompleted(object? sender, EventArgs e)
     {
-        _outgoId = string.Empty;
-        _tuId = string.Empty;
-        if (!await Api.CheckOutgo(outgoIdEntry.Text, this, _httpClient, _token))
-        {
-            outgoIdEntry.BackgroundColor = Colors.Coral;
-            return;
-        }
-
-        var tusCount = await Api.GetOutgoTusCount(outgoIdEntry.Text, this, _httpClient, _token);
-        if (tusCount <= 0)
-        {
-            outgoIdEntry.BackgroundColor = Colors.Coral;
-            return;
-        }
         _outgoId = outgoIdEntry.Text.Trim();
+        _tuId = string.Empty;
+        tuIdEntry.Text = _tuId;
+        tuIdEntry.BackgroundColor = Colors.Transparent;
+        var result = await ShowOutgoInfo();
+        if (result)
+            tuIdEntry.Focus();
         SetControlsState();
-
-        outgoTusCountLabel.Text = tusCount.ToString();
-        outgoIdEntry.BackgroundColor = Colors.LightGreen;
-        tuIdEntry.Text = string.Empty;
-        tuIdEntry.Focus();
     }
     private async void OnTuIdEntryCompleted(object? sender, EventArgs e)
     {
-        _tuId = string.Empty;
-        if (!await Api.CheckOutgoTu(outgoIdEntry.Text, tuIdEntry.Text, this, _httpClient, _token))
+        if (string.IsNullOrWhiteSpace(_outgoId))
         {
-            outgoIdEntry.BackgroundColor = Colors.Coral;
+            await DisplayAlert("Ошибка", "Сперва отсканируйте заказ!", "OK");
+
+            _tuId = string.Empty;
+            tuIdEntry.Text = _tuId;
+            tuIdEntry.BackgroundColor = Colors.Transparent;
+
+            outgoIdEntry.BackgroundColor = Colors.Transparent;
+            outgoIdEntry.Focus();
             return;
         }
 
         _tuId = tuIdEntry.Text.Trim();
-        tuIdEntry.BackgroundColor = Colors.LightGreen;
+        var result = await ShowTuInfo();
+        if (result)
+            tuPageButton.Focus();
         SetControlsState();
-        tuPageButton.Focus();
     }
     private async void OnScannedTusClicked(object sender, EventArgs e)
     {
@@ -117,7 +150,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
             { "Token", _token },
             { "UserName", _userName },
         };
-        await Shell.Current.GoToAsync(nameof(ScannedTusPage), navigationParameters);
+        await Shell.Current.GoToAsync(nameof(OutgoScannedTusPage), navigationParameters);
     }
     private async void OnNextPageClicked(object sender, EventArgs e)
     {
@@ -128,7 +161,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable, INotifyPropert
             { "Token", _token },
             { "UserName", _userName },
         };
-        await Shell.Current.GoToAsync(nameof(SsccPage), navigationParameters);
+        await Shell.Current.GoToAsync(nameof(TuPage), navigationParameters);
     }
     private void OnExitClicked(object sender, EventArgs e)
     {

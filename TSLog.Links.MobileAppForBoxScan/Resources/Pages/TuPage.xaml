@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.SsccPage">
+             x:Class="TSLog.Links.MobileAppForBoxScan.Resources.Pages.TuPage">
     <Shell.TitleView>
         <Label Text="Сканирование коробов"
                FontSize="22" 
@@ -20,7 +20,7 @@
                    HorizontalOptions="Center" VerticalOptions="Center"/>
 
             <HorizontalStackLayout Spacing="25" HorizontalOptions="Center" VerticalOptions="Center">
-                <Label x:Name="scannedBoxesCountLabel"
+                <Label x:Name="scannedAndStoredBoxesCountLabel"
                        FontSize="22" TextColor="Black" FontAttributes="Bold"
                        HorizontalOptions="Center" VerticalOptions="Center" Text="0"/>
                 <Label FontSize="22" TextColor="Black" FontAttributes="Bold"
@@ -52,6 +52,10 @@
                     Clicked="OnExitClicked"
                     Text="Выход"
                     HorizontalOptions="Fill"/>
+
+            <Label x:Name="versionLabel"  Text="Версия Mj.Mn.R.B"
+                   FontSize="22" CharacterSpacing="2" FontFamily = "Helvetica"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

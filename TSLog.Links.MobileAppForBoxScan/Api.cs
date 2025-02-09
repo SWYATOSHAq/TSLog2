@@ -193,6 +193,51 @@ public class Api
         }
         return 0;
     }
+    public static async Task<int> GetOutgoScannedTusCount(string outgoId,
+        ContentPage page, HttpClient client, string token)
+    {
+        if (string.IsNullOrWhiteSpace(outgoId))
+            throw new ArgumentNullException(nameof(outgoId));
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentNullException(nameof(token));
+        ArgumentNullException.ThrowIfNull(page);
+        ArgumentNullException.ThrowIfNull(client);
+        try
+        {
+            if (!await CheckToken(token, page))
+                return -1;
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await client.GetAsync($"outgo-scanned-tus-count/{outgoId}");
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseContent = await response.Content.ReadFromJsonAsync<OutgoTusCountResponse>();
+                if (responseContent != null && responseContent.TusCount >= 0)
+                    return responseContent.TusCount;
+                else
+                {
+                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                    return -1;
+                }
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                HandleUnauthorized(page);
+                return -1;
+            }
+            else
+                await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+        }
+        catch (HttpRequestException exception)
+        {
+            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+        }
+        catch (Exception exception)
+        {
+            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+        }
+        return -1;
+    }
     /// <summary>
     /// Возврашает массив ТЕ, короба которых были отсканированы.
     /// </summary>
@@ -221,11 +266,11 @@ public class Api
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<OutgoTusResponse>();
-                if (responseContent != null && responseContent.Tus.Length > 0)
+                if (responseContent != null && responseContent.Tus.Length >= 0)
                     return responseContent.Tus;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "В заказе отсутствуют ТЕ.", "OK");
+                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
                     return [];
                 }
             }
@@ -299,6 +344,61 @@ public class Api
         return 0;
     }
     /// <summary>
+    /// Возвращает количество ОТСКАНИРОВАННЫХ коробов на ТЕ.
+    /// </summary>
+    /// <param name="tuId">Идентификатор ТЕ.</param>
+    /// <param name="page">Страница (UI).</param>
+    /// <param name="client">HTTP клиент.</param>
+    /// <param name="token">Токен авторизации.</param>
+    /// <returns>Количество отсканированных коробов на ТЕ. 0 - допустимое значение, -1 в случае ошибки.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static async Task<int> GetTuScannedBoxesCount(string tuId,
+        ContentPage page, HttpClient client, string token)
+    {
+        if (string.IsNullOrWhiteSpace(tuId))
+            throw new ArgumentNullException(nameof(tuId));
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentNullException(nameof(token));
+        ArgumentNullException.ThrowIfNull(page);
+        ArgumentNullException.ThrowIfNull(client);
+        try
+        {
+            if (!await CheckToken(token, page))
+                return -1;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await client.GetAsync($"tu-scanned-boxes-count/{tuId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadFromJsonAsync<TuScannedBoxesCountResponse>();
+                if (responseContent != null && responseContent.BoxesCount >= 0)
+                    return responseContent.BoxesCount;
+                else
+                {
+                    await page.DisplayAlert(
+                        "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
+                        "OK");
+                    return -1;
+                }
+            }
+            else
+            {
+                await page.DisplayAlert(
+                    "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
+                    "OK");
+                return -1;
+            }
+        }
+        catch (HttpRequestException exception)
+        {
+            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+        }
+        catch (Exception exception)
+        {
+            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+        }
+        return -1;
+    }
+    /// <summary>
     /// Возвращает SSCC отсканированных коробов на ТЕ.
     /// </summary>
     /// <param name="tuId">Идентификатор ТЕ.</param>
@@ -326,11 +426,11 @@ public class Api
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<TuBoxesResponse>();
-                if (responseContent != null && responseContent.Boxes.Length > 0)
+                if (responseContent != null && responseContent.Boxes.Length >= 0)
                     return responseContent.Boxes;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "На ТЕ отсутствуют короба.", "OK");
+                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
                     return [];
                 }
             }
@@ -351,61 +451,6 @@ public class Api
             await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return [];
-    }
-    /// <summary>
-    /// Возвращает количество ОТСКАНИРОВАННЫХ коробов на ТЕ.
-    /// </summary>
-    /// <param name="tuId">Идентификатор ТЕ.</param>
-    /// <param name="page">Страница (UI).</param>
-    /// <param name="client">HTTP клиент.</param>
-    /// <param name="token">Токен авторизации.</param>
-    /// <returns>Количество отсканированных коробов на ТЕ. 0 - допустимое значение, -1 в случае ошибки.</returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    public static async Task<int> GetScannedTuBoxesCount(string tuId,
-        ContentPage page, HttpClient client, string token)
-    {
-        if (string.IsNullOrWhiteSpace(tuId))
-            throw new ArgumentNullException(nameof(tuId));
-        if (string.IsNullOrWhiteSpace(token))
-            throw new ArgumentNullException(nameof(token));
-        ArgumentNullException.ThrowIfNull(page);
-        ArgumentNullException.ThrowIfNull(client);
-        try
-        {
-            if (!await CheckToken(token, page))
-                return -1;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var response = await client.GetAsync($"tu-scanned-boxes-count/{tuId}");
-            if (response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadFromJsonAsync<TuScannedBoxesCountResponse>();
-                if (responseContent != null)
-                    return responseContent.BoxesCount;
-                else
-                {
-                    await page.DisplayAlert(
-                        "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
-                        "OK");
-                    return -1;
-                }
-            }
-            else
-            {
-                await page.DisplayAlert(
-                    "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
-                    "OK");
-                return -1;
-            }
-        }
-        catch (HttpRequestException exception)
-        {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
-        }
-        catch (Exception exception)
-        {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
-        }
-        return -1;
     }
     /// <summary>
     /// Сохраняет набор (может быть несколько, это важно!) SSCC.

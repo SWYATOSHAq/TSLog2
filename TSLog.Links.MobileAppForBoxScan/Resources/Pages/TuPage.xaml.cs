@@ -1,28 +1,30 @@
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 /// <summary>
-/// Страница для сканирования SSСС.
+/// Страница ТЕ для сканирования SSСС.
 /// </summary>
-public partial class SsccPage : ContentPage, IQueryAttributable
+public partial class TuPage : ContentPage, IQueryAttributable
 {
     private readonly HttpClient _httpClient;
     private string _outgoId = string.Empty;
     private string _tuId = string.Empty;
     private string _userName = string.Empty;
     private string _token = string.Empty;
-    private int _scannedBoxesCount = 0;
-    private readonly ISet<string> _ssccs = new HashSet<string>();
+    private int _scannedAndStoredBoxesCount = 0;
+    private readonly ISet<string> _storedSsccs = new HashSet<string>();
+    private readonly ISet<string> _scannedSsccs = new HashSet<string>();
 
-    public SsccPage(HttpClient httpClient)
+    public TuPage(HttpClient httpClient)
     {
         InitializeComponent();
         _httpClient = httpClient;
-        ssccEntry.Completed += OnSsccEntryCompleted;
+        versionLabel.Text = Common.Version;
     }
     private void ClearSsccs()
     {
-        _ssccs.Clear();
-        scannedBoxesCountLabel.Text = "0";
+        _storedSsccs.Clear();
+        _scannedSsccs.Clear();
+        scannedAndStoredBoxesCountLabel.Text = "0";
     }
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -36,6 +38,12 @@ public partial class SsccPage : ContentPage, IQueryAttributable
             _tuId = tuIdValue.ToString() ?? string.Empty;
         else
             throw new Exception("TuId not foud!");
+        if (query.TryGetValue("ScannedSsccs", out object? scannedSsccsValue))
+        {
+            var temp = (string[])scannedSsccsValue;
+            foreach (var sscc in temp)
+                _scannedSsccs.Add(sscc);
+        }
         if (query.TryGetValue("UserName", out object? userNameValue))
             _userName = userNameValue.ToString() ?? string.Empty;
         else
@@ -49,13 +57,6 @@ public partial class SsccPage : ContentPage, IQueryAttributable
     {
         base.OnAppearing();
 
-        // Use the Dispatcher to ensure the UI is ready before setting the focus.
-        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(500), () =>
-        {
-            ssccEntry.Focus();
-            return false; // Run the timer callback only once.
-        });
-
         outgoIdLabel.Text = _outgoId;
         tuIdLabel.Text = _tuId;
 
@@ -66,15 +67,13 @@ public partial class SsccPage : ContentPage, IQueryAttributable
             await Shell.Current.GoToAsync($"//{nameof(OutgoPage)}");
         }
 
-         _scannedBoxesCount = await Api.GetScannedTuBoxesCount(_tuId, this, _httpClient, _token);
-        if (_scannedBoxesCount < 0)
-        {
-            ClearSsccs();
-            await Shell.Current.GoToAsync($"//{nameof(OutgoPage)}");
-        }
+        var storedSsccs = await Api.GetTuScannedBoxes(_tuId, this, _httpClient, _token);
+        _scannedAndStoredBoxesCount = storedSsccs.Length + _scannedSsccs.Count;
+        foreach (var sscc in storedSsccs)
+            _storedSsccs.Add(sscc);
 
         totalBoxesCountLabel.Text = boxesCount.ToString();
-        scannedBoxesCountLabel.Text = _scannedBoxesCount.ToString();
+        scannedAndStoredBoxesCountLabel.Text = _scannedAndStoredBoxesCount.ToString();
         ssccEntry.Text = string.Empty;
         ssccEntry.Focus();
     }
@@ -82,30 +81,33 @@ public partial class SsccPage : ContentPage, IQueryAttributable
     {
         var text = ssccEntry.Text;
         if (string.IsNullOrWhiteSpace(text))
+        {
+            UICommon.FocusEntry(ssccEntry, Colors.Transparent);
             return;
+        }
 
+        Color color;
         if (Common.CheckSscc(text, out string sscc))
         {
-            if (!_ssccs.Contains(text.Trim()))
+            if (!_storedSsccs.Contains(text.Trim()) && !_scannedSsccs.Contains(text.Trim()))
             {
-                _ssccs.Add(sscc);
-                _scannedBoxesCount++;
-                scannedBoxesCountLabel.Text = _scannedBoxesCount.ToString();
+                _scannedSsccs.Add(sscc);
+                _scannedAndStoredBoxesCount++;
+                scannedAndStoredBoxesCountLabel.Text = _scannedAndStoredBoxesCount.ToString();
+                color = Colors.LightGreen;
             }
             else 
             {
-                ssccEntry.Text = string.Empty;
+                color = Colors.Coral;
                 await DisplayAlert("Ошибка", $"SSCC {text} уже просканирован.", "OK");
             }
         }
         else
         {
-            ssccEntry.Text = string.Empty;
+            color = Colors.Coral;
             await DisplayAlert("Ошибка", $"Не корректный SSCC {text}.", "OK");
         }
-
-        ssccEntry.Text = string.Empty;
-        ssccEntry.Focus();
+        UICommon.FocusEntry(ssccEntry, color);
     }
     private async void OnScannedSsccsClicked(object? sender, EventArgs e)
     {
@@ -113,10 +115,11 @@ public partial class SsccPage : ContentPage, IQueryAttributable
         {
             { "OutgoId", _outgoId },
             { "TuId", _tuId },
+            { "ScannedSsccs", _scannedSsccs.ToArray() },
             { "Token", _token },
             { "UserName", _userName },
         };
-        await Shell.Current.GoToAsync($"{nameof(ScannedTuBoxesPage)}", navigationParameters);
+        await Shell.Current.GoToAsync($"{nameof(TuScannedBoxesPage)}", navigationParameters);
     }
     private async void OnConfirmClicked(object? sender, EventArgs e)
     {
@@ -127,7 +130,7 @@ public partial class SsccPage : ContentPage, IQueryAttributable
 
         // TODO check boxes count.
 
-        if (!await Api.StoreSsccs([.. _ssccs], _outgoId, _tuId, _userName, this, _httpClient, _token))
+        if (!await Api.StoreSsccs([.. _scannedSsccs], _outgoId, _tuId, _userName, this, _httpClient, _token))
             return;
         ClearSsccs();
         var navigationParameters = new Dictionary<string, object>
