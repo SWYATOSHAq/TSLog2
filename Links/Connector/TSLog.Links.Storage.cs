@@ -16,7 +16,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
 
     public Document[] GetDocumentsToSend()
     {
-        var sql = $"select * from {LinksSchema}.v_sending_document sd where sd.send_date is null;";
+        var sql = $"select * from {LinksSchema}.v_sending_document sd where sd.send_date is null";
         var documents = new List<Document>();
         using (var command = _connection.CreateCommand())
         {
@@ -32,13 +32,13 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
                     Id = id
                 };
                 documents.Add(document);
-
             }
         }
         return [.. documents];
     }
     public void MarkSendDocument(Document document)
     {
+        // TODO: use stored procedure.
         var sql = $"insert into {LinksSchema}.sending_document (kind, id) values (:kind, :id)";
         using var command = _connection.CreateCommand();
         command.CommandText = sql;

@@ -46,7 +46,8 @@ static class Program
             var certificatePath = Settings.Default.DiadocCertificatePath;
             diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
 
-            diadocWorker.Test();
+            // --force-start
+            //diadocWorker.Test();
         }
         var worker = new Worker(storage, wmsStorage, diadocWorker);
 
