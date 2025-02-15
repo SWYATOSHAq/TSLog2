@@ -5,345 +5,344 @@ using TSLog.BossControl.BO;
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 
-namespace TSLog.BossControl.WebUI.Controllers.v1
+namespace TSLog.BossControl.WebUI.Controllers.v1;
+
+[Route("/api/v1/[controller]")]
+[ApiController]
+public class BossControlController : ControllerBase
 {
-    [Route("/api/v1/[controller]")]
-    [ApiController]
-    public class BossControlController : ControllerBase
+    /// <summary>
+    /// Максимальное количество дней для некоторых отчётов (по дням).
+    /// </summary>
+    private const int MaxReportPeriodDays = 45;
+    private readonly IBossControlStorage _storage;
+    public BossControlController(IBossControlStorage storage)
     {
-        /// <summary>
-        /// Максимальное количество дней для некоторых отчётов (по дням)
-        /// </summary>
-        private const int MaxReportPeriodDays = 45;
-        private readonly IBossControlStorage _storage;
-        public BossControlController(IBossControlStorage storage)
+        _storage = storage;
+    }
+
+    private static async Task<dynamic?> GetInputData(HttpRequest request)
+    {
+        request.EnableBuffering();
+        var body = request.Body;
+        body.Seek(0, SeekOrigin.Begin);
+        var reader = new StreamReader(body);
+        string json = await reader.ReadToEndAsync();
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+    }
+
+    private static dynamic WorkerToDynamic(Employee worker)
+    {
+        if (worker == null)
+            throw new ArgumentNullException(nameof(worker));
+        dynamic result = new ExpandoObject();
+        result.id = worker.Id;
+        result.surname = worker.Surname;
+        result.firstName = worker.FirstName;
+        result.patronymic = worker.Patronymic;
+        result.fullName = worker.FullName;
+        result.majorPositionCode = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
+            ? worker.MajorPosition.Code
+            : string.Empty;
+        result.majorPositionName = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
+            ? worker.MajorPosition.Name
+            : string.Empty;
+        result.companyId = worker.Company.Id;
+        result.companyName = worker.Company.Name;
+        result.wmsLogin = worker.WmsLogin;
+        result.adLogin = worker.AdLogin;
+        return result;
+    }
+    private static dynamic SiteToDynamic(Site site)
+    {
+        if (site == null)
+            throw new ArgumentNullException(nameof(site));
+        dynamic result = new ExpandoObject();
+        result.id = site.Id;
+        result.code = site.Code;
+        result.kind = site.Kind;
+        result.name = site.Name;
+        return result;
+    }
+    private static dynamic PartnerToDynamic(Partner partner)
+    {
+        if (partner == null)
+            throw new ArgumentNullException(nameof(partner));
+        dynamic result = new ExpandoObject();
+        result.id = partner.Id;
+        result.name = partner.Name;
+        return result;
+    }
+    private static dynamic SiteWorkerToDynamic(SiteWorker siteWorker)
+    {
+        if (siteWorker == null)
+            throw new ArgumentNullException(nameof(siteWorker));
+        dynamic result = new ExpandoObject();
+        //result.site = BossControlController.SiteToDynamic(siteWorker.Site);
+        result.siteId = siteWorker.Site.Id;
+        result.siteCode = siteWorker.Site.Code;
+        result.siteName = siteWorker.Site.Name;
+        //result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
+        result.partnerId = siteWorker.Partner.Id;
+        result.partnerName = siteWorker.Partner.Name;
+        //result.worker = BossControlController.WorkerToDynamic(siteWorker.Worker);
+        result.workerId = siteWorker.Worker.Id;
+        result.workerFullName = siteWorker.Worker.FullName;
+
+        result.workerMajorPositionId = -1;
+        result.workerMajorPositionCode = "";
+        result.workerMajorPositionName = string.Empty;
+        if (siteWorker.Worker.MajorPosition != null
+            && siteWorker.Worker.MajorPosition != Position.Null
+            && siteWorker.Worker.MajorPosition != Position.Empty)
         {
-            _storage = storage;
+            result.workerMajorPositionId = siteWorker.Worker.MajorPosition.Id;
+            result.workerMajorPositionCode = siteWorker.Worker.MajorPosition.Code;
+            result.workerMajorPositionName = siteWorker.Worker.MajorPosition.Name;
         }
 
-        private static async Task<dynamic?> GetInputData(HttpRequest request)
+        result.workerCompanyId = siteWorker.Worker.Company.Id;
+        result.workerCompanyName = siteWorker.Worker.Company.Name;
+
+        result.workerWmsLogin = siteWorker.Worker.WmsLogin;
+        result.workerAdLogin = siteWorker.Worker.AdLogin;
+
+        result.startDate = siteWorker.StartDate.ToString("HH:mm:ss (yyyy.MM.dd)");
+        result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy");
+        result.startTime = siteWorker.StartDate.ToString("HH:mm:ss");
+
+        return result;
+    }
+    private static dynamic[] SiteWorkersToDynamic(SiteWorker[] siteWorkers)
+    {
+        var result = new List<dynamic>();
+        foreach (var siteWorker in siteWorkers)
+            if (siteWorker != null)
+                result.Add(BossControlController.SiteWorkerToDynamic(siteWorker));
+        return result.ToArray();
+    }
+    private static dynamic[] WorkersToDynamic(Employee[] workers)
+    {
+        var result = new List<dynamic>();
+        foreach (var worker in workers)
+            if (worker != null)
+                result.Add(BossControlController.WorkerToDynamic(worker));
+        return result.ToArray();
+    }
+
+    [HttpPatch("EnterSite")]
+    async public Task<string> EmployeeEnterSite() 
+    {
+        try
         {
-            request.EnableBuffering();
-            var body = request.Body;
-            body.Seek(0, SeekOrigin.Begin);
-            var reader = new StreamReader(body);
-            string json = await reader.ReadToEndAsync();
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+            Response.StatusCode = 500;
+            dynamic? data = await GetInputData(Request);
+            if (data == null)
+                return "Input data is null!";
+
+            Response.StatusCode = 200;
+            return "";
         }
-
-        private static dynamic WorkerToDynamic(Employee worker)
+        catch (Exception exception)
         {
-            if (worker == null)
-                throw new ArgumentNullException(nameof(worker));
-            dynamic result = new ExpandoObject();
-            result.id = worker.Id;
-            result.surname = worker.Surname;
-            result.firstName = worker.FirstName;
-            result.patronymic = worker.Patronymic;
-            result.fullName = worker.FullName;
-            result.majorPositionCode = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
-                ? worker.MajorPosition.Code
-                : string.Empty;
-            result.majorPositionName = worker.MajorPosition != null && worker.MajorPosition != Position.Null && worker.MajorPosition != Position.Empty
-                ? worker.MajorPosition.Name
-                : string.Empty;
-            result.companyId = worker.Company.Id;
-            result.companyName = worker.Company.Name;
-            result.wmsLogin = worker.WmsLogin;
-            result.adLogin = worker.AdLogin;
-            return result;
+            return exception.Message;
         }
-        private static dynamic SiteToDynamic(Site site)
+    }
+    [HttpPatch("LeaveSite")]
+    async public Task<string> EmployeeLeaveSite()
+    {
+        try
         {
-            if (site == null)
-                throw new ArgumentNullException(nameof(site));
-            dynamic result = new ExpandoObject();
-            result.id = site.Id;
-            result.code = site.Code;
-            result.kind = site.Kind;
-            result.name = site.Name;
-            return result;
+            Response.StatusCode = 500;
+            dynamic? data = await GetInputData(Request);
+            if (data == null)
+                return "Input data is null!";
+
+            string temp = data.workerId;
+            if (string.IsNullOrWhiteSpace(temp))
+                return "Worker is is empty";
+            if (!int.TryParse(temp, out int workerId))
+                return $"Wrong worker id ({temp})";
+
+            var worker = _storage.GetEmployee(workerId);
+            _storage.LeaveSite(worker);
+            var result = WorkerToDynamic(worker);
+            var text = JsonSerializer.Serialize(result);
+            Response.StatusCode = 200;
+            return text;
         }
-        private static dynamic PartnerToDynamic(Partner partner)
+        catch (Exception exception)
         {
-            if (partner == null)
-                throw new ArgumentNullException(nameof(partner));
-            dynamic result = new ExpandoObject();
-            result.id = partner.Id;
-            result.name = partner.Name;
-            return result;
+            return exception.Message;
         }
-        private static dynamic SiteWorkerToDynamic(SiteWorker siteWorker)
+    }
+
+    [HttpGet("BusyWorkers")]
+    public string GetBusyWorkers()
+    {
+        try
         {
-            if (siteWorker == null)
-                throw new ArgumentNullException(nameof(siteWorker));
-            dynamic result = new ExpandoObject();
-            //result.site = BossControlController.SiteToDynamic(siteWorker.Site);
-            result.siteId = siteWorker.Site.Id;
-            result.siteCode = siteWorker.Site.Code;
-            result.siteName = siteWorker.Site.Name;
-            //result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
-            result.partnerId = siteWorker.Partner.Id;
-            result.partnerName = siteWorker.Partner.Name;
-            //result.worker = BossControlController.WorkerToDynamic(siteWorker.Worker);
-            result.workerId = siteWorker.Worker.Id;
-            result.workerFullName = siteWorker.Worker.FullName;
-
-            result.workerMajorPositionId = -1;
-            result.workerMajorPositionCode = "";
-            result.workerMajorPositionName = string.Empty;
-            if (siteWorker.Worker.MajorPosition != null
-                && siteWorker.Worker.MajorPosition != Position.Null
-                && siteWorker.Worker.MajorPosition != Position.Empty)
-            {
-                result.workerMajorPositionId = siteWorker.Worker.MajorPosition.Id;
-                result.workerMajorPositionCode = siteWorker.Worker.MajorPosition.Code;
-                result.workerMajorPositionName = siteWorker.Worker.MajorPosition.Name;
-            }
-
-            result.workerCompanyId = siteWorker.Worker.Company.Id;
-            result.workerCompanyName = siteWorker.Worker.Company.Name;
-
-            result.workerWmsLogin = siteWorker.Worker.WmsLogin;
-            result.workerAdLogin = siteWorker.Worker.AdLogin;
-
-            result.startDate = siteWorker.StartDate.ToString("HH:mm:ss (yyyy.MM.dd)");
-            result.startDay = siteWorker.StartDate.ToString("dd.MM.yyyy");
-            result.startTime = siteWorker.StartDate.ToString("HH:mm:ss");
-
-            return result;
+            Response.StatusCode = 200;
+            var siteWorkers = _storage.GetBusyWorkers();
+            var objects = SiteWorkersToDynamic(siteWorkers);
+            var text = JsonSerializer.Serialize(objects);
+            Response.StatusCode = 200;
+            return text;
         }
-        private static dynamic[] SiteWorkersToDynamic(SiteWorker[] siteWorkers)
+        catch (Exception exception)
         {
-            var result = new List<dynamic>();
-            foreach (var siteWorker in siteWorkers)
-                if (siteWorker != null)
-                    result.Add(BossControlController.SiteWorkerToDynamic(siteWorker));
-            return result.ToArray();
+            return exception.Message;
         }
-        private static dynamic[] WorkersToDynamic(Employee[] workers)
+    }
+    [HttpGet("FreeWorkers")]
+    public string GetFreeWorkers()
+    {
+        try
         {
-            var result = new List<dynamic>();
-            foreach (var worker in workers)
-                if (worker != null)
-                    result.Add(BossControlController.WorkerToDynamic(worker));
-            return result.ToArray();
+            Response.StatusCode = 500;
+            var workers = _storage.GetFreeWorkers();
+            var objects = WorkersToDynamic(workers);
+            var text = JsonSerializer.Serialize(objects);
+            Response.StatusCode = 200;
+            return text;
         }
-
-        [HttpPatch("EnterSite")]
-        async public Task<string> EmployeeEnterSite() 
+        catch (Exception exception)
         {
-            try
-            {
-                Response.StatusCode = 500;
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                Response.StatusCode = 200;
-                return "";
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            return exception.Message;
         }
-        [HttpPatch("LeaveSite")]
-        async public Task<string> EmployeeLeaveSite()
+    }
+    [HttpGet("FreeShiftWorkers")]
+    public string GetFreeShiftWorkers()
+    {
+        try
         {
-            try
-            {
-                Response.StatusCode = 500;
-                dynamic? data = await GetInputData(Request);
-                if (data == null)
-                    return "Input data is null!";
-
-                string temp = data.workerId;
-                if (string.IsNullOrWhiteSpace(temp))
-                    return "Worker is is empty";
-                if (!int.TryParse(temp, out int workerId))
-                    return $"Wrong worker id ({temp})";
-
-                var worker = _storage.GetEmployee(workerId);
-                _storage.LeaveSite(worker);
-                var result = WorkerToDynamic(worker);
-                var text = JsonSerializer.Serialize(result);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            Response.StatusCode = 500;
+            var siteWorkers = _storage.GetFreeShiftWorkers();
+            var objects = SiteWorkersToDynamic(siteWorkers);
+            var text = JsonSerializer.Serialize(objects);
+            Response.StatusCode = 200;
+            return text;
         }
-
-        [HttpGet("BusyWorkers")]
-        public string GetBusyWorkers()
+        catch (Exception exception)
         {
-            try
-            {
-                Response.StatusCode = 200;
-                var siteWorkers = _storage.GetBusyWorkers();
-                var objects = SiteWorkersToDynamic(siteWorkers);
-                var text = JsonSerializer.Serialize(objects);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            return exception.Message;
         }
-        [HttpGet("FreeWorkers")]
-        public string GetFreeWorkers()
+    }
+    [HttpGet("PositionsShiftReport")]
+    public string PositionsShiftReport()
+    {
+        try
         {
-            try
+            Response.StatusCode = 500;
+            string? stringDate = Request.Query["date"];
+            var date = DateTime.Now;
+            if (!string.IsNullOrWhiteSpace(stringDate))
             {
-                Response.StatusCode = 500;
-                var workers = _storage.GetFreeWorkers();
-                var objects = WorkersToDynamic(workers);
-                var text = JsonSerializer.Serialize(objects);
-                Response.StatusCode = 200;
-                return text;
+                stringDate = stringDate.Trim();
+                if (!DateTime.TryParse(stringDate, out date))
+                    return $"Wrong to date {stringDate}";
             }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            string? shift = Request.Query["shift"];
+            if (string.IsNullOrWhiteSpace(shift))
+                shift = "day";
+            shift = shift.Trim().ToLower();
+            if (shift != "day" && shift != "night")
+                return $"Unknown shift {shift}";
+
+            date = shift == "day" ? date.Date.AddHours(15) : date.Date.AddHours(27);
+
+            var data = _storage.CreatePositionsShiftReport(date);
+            var text = JsonSerializer.Serialize(data);
+            Response.StatusCode = 200;
+            return text;
         }
-        [HttpGet("FreeShiftWorkers")]
-        public string GetFreeShiftWorkers()
+        catch (Exception exception)
         {
-            try
-            {
-                Response.StatusCode = 500;
-                var siteWorkers = _storage.GetFreeShiftWorkers();
-                var objects = SiteWorkersToDynamic(siteWorkers);
-                var text = JsonSerializer.Serialize(objects);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            return exception.Message;
         }
-        [HttpGet("PositionsShiftReport")]
-        public string PositionsShiftReport()
+    }
+    [HttpGet("StaffReport")]
+    public string StaffReport()
+    {
+        try
         {
-            try
-            {
-                Response.StatusCode = 500;
-                string? stringDate = Request.Query["date"];
-                var date = DateTime.Now;
-                if (!string.IsNullOrWhiteSpace(stringDate))
-                {
-                    stringDate = stringDate.Trim();
-                    if (!DateTime.TryParse(stringDate, out date))
-                        return $"Wrong to date {stringDate}";
-                }
-                string? shift = Request.Query["shift"];
-                if (string.IsNullOrWhiteSpace(shift))
-                    shift = "day";
-                shift = shift.Trim().ToLower();
-                if (shift != "day" && shift != "night")
-                    return $"Unknown shift {shift}";
+            Response.StatusCode = 500;
+            string? temp = Request.Query["from_date"];
+            if (string.IsNullOrWhiteSpace(temp))
+                return "From date is empty!";
+            if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
+                return $"Wrong to date {temp}";
 
-                date = shift == "day" ? date.Date.AddHours(15) : date.Date.AddHours(27);
+            temp = Request.Query["to_date"];
+            if (string.IsNullOrWhiteSpace(temp))
+                return "From date is empty!";
+            if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
+                return $"Wrong to date {temp}";                
 
-                var data = _storage.CreatePositionsShiftReport(date);
-                var text = JsonSerializer.Serialize(data);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            temp = Request.Query["only_linear"];
+            var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
+
+            fromDate = fromDate.Date;
+            toDate = toDate.AddDays(1);
+            if (fromDate >= toDate)
+                throw new ArgumentException("Wrong dates!");
+
+            var data = _storage.CreateStaffReport(fromDate, toDate, onlyLinear);
+            var text = JsonSerializer.Serialize(data);
+            Response.StatusCode = 200;
+            return text;
         }
-        [HttpGet("StaffReport")]
-        public string StaffReport()
+        catch (Exception exception)
         {
-            try
-            {
-                Response.StatusCode = 500;
-                string? temp = Request.Query["from_date"];
-                if (string.IsNullOrWhiteSpace(temp))
-                    return "From date is empty!";
-                if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
-                    return $"Wrong to date {temp}";
+            return exception.Message;
+        }            
+    }
+    [HttpGet("DailyReport")]
+    public string DailyReport()
+    {
+        try
+        {
+            Response.StatusCode = 500;
+            string? temp = Request.Query["from_date"];
+            if (string.IsNullOrWhiteSpace(temp))
+                return "From date is empty!";
+            if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
+                return $"Wrong to date {temp}";
 
-                temp = Request.Query["to_date"];
-                if (string.IsNullOrWhiteSpace(temp))
-                    return "From date is empty!";
-                if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
-                    return $"Wrong to date {temp}";                
+            temp = Request.Query["to_date"];
+            if (string.IsNullOrWhiteSpace(temp))
+                return "From date is empty!";
+            if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
+                return $"Wrong to date {temp}";
 
-                temp = Request.Query["only_linear"];
-                var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
+            temp = Request.Query["only_linear"];
+            var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
 
-                fromDate = fromDate.Date;
-                toDate = toDate.AddDays(1);
-                if (fromDate >= toDate)
-                    throw new ArgumentException("Wrong dates!");
+            temp = Request.Query["shifts"];
+            temp = !string.IsNullOrWhiteSpace(temp) ? temp.Trim().ToUpper() : "D";
+            var dayShifts = temp.Contains('D');
+            var nightShifts = temp.Contains('N');
 
-                var data = _storage.CreateStaffReport(fromDate, toDate, onlyLinear);
-                var text = JsonSerializer.Serialize(data);
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }            
+            fromDate = fromDate.Date;
+            toDate = toDate.AddDays(1);
+            if (fromDate >= toDate)
+                throw new ArgumentException("Wrong dates!");
+
+            if ((toDate - fromDate).TotalDays > MaxReportPeriodDays)
+                toDate = fromDate.AddDays(MaxReportPeriodDays);
+
+            var dailReport = new DailyReport(fromDate, toDate, onlyLinear, dayShifts, nightShifts, _storage);
+            dailReport.Create();
+            var data = dailReport.ToDynamic();
+
+            var text = JsonSerializer.Serialize(data);
+
+            Response.StatusCode = 200;
+            return text;
         }
-        [HttpGet("DailyReport")]
-        public string DailyReport()
+        catch (Exception exception)
         {
-            try
-            {
-                Response.StatusCode = 500;
-                string? temp = Request.Query["from_date"];
-                if (string.IsNullOrWhiteSpace(temp))
-                    return "From date is empty!";
-                if (!DateTime.TryParse(temp.Trim(), out DateTime fromDate))
-                    return $"Wrong to date {temp}";
-
-                temp = Request.Query["to_date"];
-                if (string.IsNullOrWhiteSpace(temp))
-                    return "From date is empty!";
-                if (!DateTime.TryParse(temp.Trim(), out DateTime toDate))
-                    return $"Wrong to date {temp}";
-
-                temp = Request.Query["only_linear"];
-                var onlyLinear = !string.IsNullOrWhiteSpace(temp) && temp == "1";
-
-                temp = Request.Query["shifts"];
-                temp = !string.IsNullOrWhiteSpace(temp) ? temp.Trim().ToUpper() : "D";
-                var dayShifts = temp.Contains('D');
-                var nightShifts = temp.Contains('N');
-
-                fromDate = fromDate.Date;
-                toDate = toDate.AddDays(1);
-                if (fromDate >= toDate)
-                    throw new ArgumentException("Wrong dates!");
-
-                if ((toDate - fromDate).TotalDays > MaxReportPeriodDays)
-                    toDate = fromDate.AddDays(MaxReportPeriodDays);
-
-                var dailReport = new DailyReport(fromDate, toDate, onlyLinear, dayShifts, nightShifts, _storage);
-                dailReport.Create();
-                var data = dailReport.ToDynamic();
-
-                var text = JsonSerializer.Serialize(data);
-
-                Response.StatusCode = 200;
-                return text;
-            }
-            catch (Exception exception)
-            {
-                return exception.Message;
-            }
+            return exception.Message;
         }
     }
 }

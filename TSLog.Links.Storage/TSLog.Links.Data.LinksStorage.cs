@@ -1,7 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Oracle.ManagedDataAccess.Client;
-using System.Data.Common;
-using System.Text;
 using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.LegalEntities.BO;

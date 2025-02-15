@@ -1,19 +1,20 @@
 ﻿using System;
 using System.IO;
 
-namespace TSLog.Common
+namespace TSLog.Common;
+/// <summary>
+/// Общая функциональность для UI.
+/// </summary>
+public static class UtilsIO
 {
-    public static class UtilsIO
+    private static readonly string WMS_FOLDER = @"Z:\Temp\test_not_WMS_IN";
+
+    public static void WriteFileToWMSINFolder(string fileContent, string transactionNumber)
     {
-        private static readonly string WMS_FOLDER = @"Z:\Temp\test_not_WMS_IN";
+        var fileName = $"WMS_{DateTime.Now:yyyyMMdd HHmmss}_{transactionNumber}.EIN";
 
-        public static void WriteFileToWMSINFolder(string fileContent, string transactionNumber)
-        {
-            var fileName = $"WMS_{DateTime.Now:yyyyMMdd HHmmss}_{transactionNumber}.EIN";
+        string pathString = Path.Combine(WMS_FOLDER, fileName);
 
-            string pathString = Path.Combine(WMS_FOLDER, fileName);
-
-            File.WriteAllText(pathString, fileContent);
-        }
+        File.WriteAllText(pathString, fileContent);
     }
 }

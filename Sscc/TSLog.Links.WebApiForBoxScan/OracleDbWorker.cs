@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
-using TSLog.Links.WebApiForBoxScan.Models;
 using TSLog.Links.Sscc;
+using TSLog.Links.WebApiForBoxScan.Models;
 
 namespace TSLog.Links.WebApiForBoxScan;
 

@@ -1,14 +1,12 @@
 ﻿using System;
 
-namespace TSLog.ExceptionHandler
+namespace TSLog.ExceptionHandler;
+public class SiteNotFoundException : Exception
 {
-    public class SiteNotFoundException : Exception
+    public short Id { get; private set; }
+    public SiteNotFoundException(short id)
+        : base($"Site not found by id = {id}")
     {
-        public short Id { get; private set; }
-        public SiteNotFoundException(short id)
-            : base($"Site not found by id = {id}")
-        {
-            Id = id;
-        }
+        Id = id;
     }
 }

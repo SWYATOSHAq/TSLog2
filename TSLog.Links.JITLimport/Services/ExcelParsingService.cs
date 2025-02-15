@@ -8,68 +8,59 @@ using TSLog.Yard.BO;
 
 namespace TSLog.Links.JITLimport.Services;
 
-internal class ExcelParsingService : IExcelParsingService
+internal class ExcelParsingService(IYardDbConnectService yardDbConnectService, 
+    ILogger<ExcelParsingService> logger) : IExcelParsingService
 {
-    private readonly IYardDbConnectService _yardDbConnectService;
-    private readonly ILogger<ExcelParsingService> _logger;
-    public ExcelParsingService(IYardDbConnectService yardDbConnectService, ILogger<ExcelParsingService> logger)
-    {
-        _yardDbConnectService = yardDbConnectService;
-        _logger = logger;
-    }
+    private readonly IYardDbConnectService _yardDbConnectService = yardDbConnectService;
+    private readonly ILogger<ExcelParsingService> _logger = logger;
+
     public void ParseExcelFiles(string directoryPath)
     {
         var excelFiles = Directory.GetFiles(directoryPath, "*.xls");
-
         foreach (var filePath in excelFiles)
         {
             try
             {
-                string startDate = String.Empty;
-                string startTime = String.Empty;
-                string vehicle = String.Empty;
-                string driverName = String.Empty;
-                string partnerManagerName = String.Empty;
-                string user = "auto_jitloper";
+                var startDate = string.Empty;
+                var startTime = string.Empty;
+                var vehicle = string.Empty;
+                var driverName = string.Empty;
+                var partnerManagerName = string.Empty;
 
-                string fileName = Path.GetFileName(filePath);
-                string[] parts = fileName.Split('_');
-                string operationTypePart = parts[0];
-                string operationTypeCode = String.Empty;
-                string vehicleType = String.Empty;
+                var fileName = Path.GetFileName(filePath);
+                var parts = fileName.Split('_');
+                var operationTypePart = parts[0];
+                var operationTypeCode = string.Empty;
+                var vehicleType = string.Empty;
                 dynamic[] actions;
                 if (operationTypePart == "ЗнО")
                 {
                     operationTypeCode = "O_BOX_MIX";
                     vehicleType = "1.5_TONS";
-                    actions = new dynamic[]
-                    {
-                    new {
-                        operationId = -1,
-                        kind = "O",
-                        id = "00420000MASTER NORMAL"
-                    }
-                    };
+                    actions = [
+                            new {
+                                operationId = -1,
+                                kind = "O",
+                                id = "00420000MASTER NORMAL"
+                            }
+                        ];
                 }
                 else
                 {
                     operationTypeCode = "I_BOX_MIX";
                     vehicleType = "20_TONS";
-                    actions = new dynamic[]
-                    {
-                    new {
-                        operationId = -1,
-                        kind = "I",
-                        id = "00420000MASTER NORMAL"
-                    }
-                    };
+                    actions = [
+                            new {
+                                operationId = -1,
+                                kind = "I",
+                                id = "00420000MASTER NORMAL"
+                            }
+                        ];
                 }
-
 
                 string stringActionKind = actions[0].kind;
                 string stringActionId = actions[0].id;
-                WarehouseAction warehouseAction = _yardDbConnectService.GetYardWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
-
+                var warehouseAction = _yardDbConnectService.GetYardWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
 
                 var operationType = _yardDbConnectService.GetYardOperationType(operationTypeCode);
 
@@ -89,7 +80,8 @@ internal class ExcelParsingService : IExcelParsingService
                     {
                         if (parsedRow.GetCell(j) != null)
                         {
-                            if (!string.IsNullOrEmpty(parsedRow.GetCell(j).ToString()) && !string.IsNullOrWhiteSpace(parsedRow.GetCell(j).ToString()))
+                            if (!string.IsNullOrEmpty(parsedRow.GetCell(j).ToString()) && 
+                                !string.IsNullOrWhiteSpace(parsedRow.GetCell(j).ToString()))
                             {
                                 var temp = parsedRow.GetCell(j).ToString().Trim();
                                 switch (temp)
@@ -119,9 +111,10 @@ internal class ExcelParsingService : IExcelParsingService
 
                 DateTime date = DateTime.ParseExact(startDate, "dd.MM.yyyy", null);
                 DateTime time = DateTime.ParseExact(startTime, "HH:mm", null);
-                DateTime planWorkFinishDate = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
+                DateTime planWorkFinishDate = new(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
                 var vehicleKind = _yardDbConnectService.GetYardVehicleKind(vehicleType);
-                var planWorkStartDate = planWorkFinishDate.Subtract(new TimeSpan(0, 0, YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
+                var planWorkStartDate = planWorkFinishDate.Subtract(new TimeSpan(0, 0, 
+                    YardUtils._GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
                 var vehicleNumber = vehicle;
                 var vehicleBrand = "Смотри поле 'Номер авто'";
                 var vehicleModel = "Смотри поле 'Номер авто'";
@@ -143,12 +136,10 @@ internal class ExcelParsingService : IExcelParsingService
                     manager);
                 operation.Note = String.Empty;
                 operation.Parking = false;
-
-                //_yardDbConnectService.CreateYardOperation(operation, user, warehouseAction);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex, "Error parsing Excel file: {FilePath}", filePath);
+                _logger.LogError(exception, "Error parsing Excel file: {FilePath}", filePath);
             }
         }
     }

@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Reflection.Emit;
 using TSLog.Links.BLCtobacco.Interfaces;
 using TSLog.Links.BLCtobacco.Models;
 using TSLog.Links.BLCtobacco.Services;
@@ -46,7 +44,6 @@ public class Program
     Host.CreateDefaultBuilder(args)
         .ConfigureServices((hostContext, services) =>
         {
-            //var configuration = hostContext.Configuration;
             var isDebug = hostContext.Configuration.GetValue<bool>("IsDebug");
             services.Configure<TimeHostConfig>(hostContext.Configuration.GetSection("TimeHostConfig"));
             services.AddHttpClient();
@@ -60,7 +57,7 @@ public class Program
     {
         builder.SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true);
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", 
+                optional: true);
     }
 }
-

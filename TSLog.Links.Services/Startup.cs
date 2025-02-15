@@ -12,101 +12,100 @@ using TSLog.Links.Gs1EdiXml;
 using TSLog.Partners.BO;
 using TSLog.Products.BO;
 
-namespace TSLog.Links.Services
+namespace TSLog.Links.Services;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
+        Configuration = configuration;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // auth
+        services.AddCors();
+        // configure strongly typed settings object
+        services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+        // configure DI for application services
+        services.AddScoped<IUserService, UserService>();
+        // auth
+
+        InitSingletons(services);
+
+        var temp = services.AddControllers(options =>
         {
-            Configuration = configuration;
-        }
+            options.RespectBrowserAcceptHeader = true; // false by default
+        });
+        temp.AddXmlSerializerFormatters();
+    }
 
-        public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+            app.UseDeveloperExceptionPage();
+        app.UseHttpsRedirection();
+        app.UseRouting();
+        // global cors policy
+        app.UseCors(x => x
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        app.UseAuthorization();
+        // custom jwt auth middleware
+        app.UseMiddleware<JwtMiddleware>();
+        //
+        app.UseEndpoints(endpoints =>
         {
-            // auth
-            services.AddCors();
-            // configure strongly typed settings object
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
-            // configure DI for application services
-            services.AddScoped<IUserService, UserService>();
-            // auth
+            endpoints.MapControllers();
+        });
+    }
 
-            InitSingletons(services);
+    private void InitSingletons(IServiceCollection services)
+    {
+        // ---------------------------------------
+        // init storage
+        // this storage is then used to get dada from db
+        // information on how data access is then split is in ILinksStorage interface
 
-            var temp = services.AddControllers(options =>
-            {
-                options.RespectBrowserAcceptHeader = true; // false by default
-            });
-            temp.AddXmlSerializerFormatters();
-        }
+        var dataSource = Configuration.GetValue<string>("ConnectionSettings:DataSource");
+        var storage = new LinksOracleStorage(dataSource);
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();
-            app.UseHttpsRedirection();
-            app.UseRouting();
-            // global cors policy
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+        storage.CommonSchema = Configuration.GetValue<string>("ConnectionSettings:CommonSchema");
+        storage.WmsSchema = Configuration.GetValue<string>("ConnectionSettings:WmsSchema");
+        storage.LinksSchema = Configuration.GetValue<string>("ConnectionSettings:LinksSchema");
 
-            app.UseAuthorization();
-            // custom jwt auth middleware
-            app.UseMiddleware<JwtMiddleware>();
-            //
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+        storage.IncomeStates = new Catalog<Entity>("INBOUND_STATES", "—осто€и€ приходов");
+        storage.OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "—осто€и€ расходов");
+        storage.Partners = new Catalog<Partner>("PARTNERS", "ѕартнЄры");
+        storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
 
-        private void InitSingletons(IServiceCollection services)
-        {
-            // ---------------------------------------
-            // init storage
-            // this storage is then used to get dada from db
-            // information on how data access is then split is in ILinksStorage interface
+        storage.Products = new ProductCatalog<Product>("PRODUCTS", "“овары");
 
-            var dataSource = Configuration.GetValue<string>("ConnectionSettings:DataSource");
-            var storage = new LinksOracleStorage(dataSource);
+        var login = Configuration.GetValue<string>("ConnectionSettings:Login");
+        var password = Configuration.GetValue<string>("ConnectionSettings:Password");
 
-            storage.CommonSchema = Configuration.GetValue<string>("ConnectionSettings:CommonSchema");
-            storage.WmsSchema = Configuration.GetValue<string>("ConnectionSettings:WmsSchema");
-            storage.LinksSchema = Configuration.GetValue<string>("ConnectionSettings:LinksSchema");
+        var securePassword = new SecureString();
+        foreach (var symbol in password)
+            securePassword.AppendChar(symbol);
+        password = string.Empty;
+        storage.Connect(login, securePassword);
 
-            storage.IncomeStates = new Catalog<Entity>("INBOUND_STATES", "—осто€и€ приходов");
-            storage.OutgoStates = new Catalog<Entity>("OUTBOUND_STATES", "—осто€и€ расходов");
-            storage.Partners = new Catalog<Partner>("PARTNERS", "ѕартнЄры");
-            storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
+        // preload units and states
+        storage.IncomeStates.Add(storage.GetIncomeStates());
+        storage.OutgoStates.Add(storage.GetOutgoStates());
+        storage.Currencies.Add(storage.GetCurrncies());
 
-            storage.Products = new ProductCatalog<Product>("PRODUCTS", "“овары");
-
-            var login = Configuration.GetValue<string>("ConnectionSettings:Login");
-            var password = Configuration.GetValue<string>("ConnectionSettings:Password");
-
-            var securePassword = new SecureString();
-            foreach (var symbol in password)
-                securePassword.AppendChar(symbol);
-            password = string.Empty;
-            storage.Connect(login, securePassword);
-
-            // preload units and states
-            storage.IncomeStates.Add(storage.GetIncomeStates());
-            storage.OutgoStates.Add(storage.GetOutgoStates());
-            storage.Currencies.Add(storage.GetCurrncies());
-
-            //init convertor
-            var xmlConverter = new Gs1EdiXmlConverter();
-            xmlConverter.LinksStorage = storage;
-            // ---------------------------------------
-            services.AddSingleton<ILinksCommonStorage>(storage);
-            services.AddSingleton(xmlConverter);
-        }
+        //init convertor
+        var xmlConverter = new Gs1EdiXmlConverter();
+        xmlConverter.LinksStorage = storage;
+        // ---------------------------------------
+        services.AddSingleton<ILinksCommonStorage>(storage);
+        services.AddSingleton(xmlConverter);
     }
 }

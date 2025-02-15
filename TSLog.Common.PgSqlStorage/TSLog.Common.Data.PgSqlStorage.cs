@@ -1,288 +1,287 @@
 ﻿using Microsoft.Extensions.Logging;
 using Npgsql;
+using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
 using System.Security;
 using TSLog.Common.BO;
-using TSLog.ExceptionHandler;
 using TSLog.Common.PgSqlStorage;
-using NpgsqlTypes;
+using TSLog.ExceptionHandler;
 
-namespace TSLog.Common.Data
+namespace TSLog.Common.Data;
+
+/// <summary>
+/// Класс для работы с данными из БД PostgreSQL.
+/// </summary>
+public class PgSqlStorage : IDisposable
 {
-    /// <summary>
-    /// Класс для работы с данными из БД PostgreSQL.
-    /// </summary>
-    public class PgSqlStorage : IDisposable
+    private const bool DefaultPooling = true;
+    private const int DefaultMaxPoolSize = 100;
+    private const int DefaultConnectionIdleLifetime = 300;
+    private const int DefaultonnectionPruningInterval = 10;
+    protected readonly DbConnection _connection = new NpgsqlConnection();
+    protected readonly string _host = string.Empty;
+    private readonly ILogger<PgSqlStorage>? _logger;
+    public string Host
     {
-        private const bool DefaultPooling = true;
-        private const int DefaultMaxPoolSize = 100;
-        private const int DefaultConnectionIdleLifetime = 300;
-        private const int DefaultonnectionPruningInterval = 10;
-        protected readonly DbConnection _connection = new NpgsqlConnection();
-        protected readonly string _host = string.Empty;
-        private readonly ILogger<PgSqlStorage> _logger;
-        public string Host
+        get { return _host; }
+    }
+    protected readonly string _database = string.Empty;
+    // Использовать пулинг соединений
+    // (соединения не уничтожаются при закрытии в переходят в idle состояния и могут использоваться повторно).
+    protected readonly bool _pooling = DefaultPooling;
+
+    // Максимальный размер пула соединений (работает только при Pooling=true),
+    // не может быть больше чем анаогичный параметр на сервере.
+    protected readonly int _maxPoolSize = DefaultMaxPoolSize;
+
+    // Время ожидания idle соединения (в секундах).
+    protected readonly int _connectionIdleLifetime = DefaultConnectionIdleLifetime;
+
+    // Время ожидания idle соединения (в секундах), пока пул его не закроет.
+    protected readonly int _connectionPruningInterval = DefaultonnectionPruningInterval;
+
+    public PgSqlStorage(string host, string database, ILogger<PgSqlStorage>? logger = null,
+        IDictionary<string, object>? extensionParameters = null)
+    {
+        _host = host;
+        _database = database;
+        _logger = logger;
+        if (extensionParameters != null)
         {
-            get { return _host; }
+            if (extensionParameters.TryGetValue("Pooling", out object? poolinkValue))
+                _pooling = (bool)poolinkValue;
+            if (extensionParameters.TryGetValue("MaxPoolSize", out object? maxPoolSizeValue))
+                _maxPoolSize = (int)maxPoolSizeValue;
+            if (extensionParameters.TryGetValue("ConnectionIdleLifetime", out object? connectionIdleLifetimeValue))
+                _connectionIdleLifetime = (int)connectionIdleLifetimeValue;
+            if (extensionParameters.TryGetValue("ConnectionPruningInterval", out object? connectionPruningIntervalValue))
+                _connectionPruningInterval = (int)connectionPruningIntervalValue;
         }
-        protected readonly string _database = string.Empty;
-        // Использовать пулинг соединений
-        // (соединения не уничтожаются при закрытии в переходят в idle состояния и могут использоваться повторно).
-        protected readonly bool _pooling = DefaultPooling;
-
-        // Максимальный размер пула соединений (работает только при Pooling=true),
-        // не может быть больше чем анаогичный параметр на сервере.
-        protected readonly int _maxPoolSize = DefaultMaxPoolSize;
-
-        // Время ожидания idle соединения (в секундах).
-        protected readonly int _connectionIdleLifetime = DefaultConnectionIdleLifetime;
-
-        // Время ожидания idle соединения (в секундах), пока пул его не закроет.
-        protected readonly int _connectionPruningInterval = DefaultonnectionPruningInterval;
-
-        public PgSqlStorage(string host, string database, ILogger<PgSqlStorage>? logger = null,
-            IDictionary<string, object>? extensionParameters = null)
+    }
+    public DbConnection CloneConnection()
+    {
+        var connection = new NpgsqlConnection
         {
-            _host = host;
-            _database = database;
-            _logger = logger;
-            if (extensionParameters != null)
-            {
-                if (extensionParameters.TryGetValue("Pooling", out object? poolinkValue))
-                    _pooling = (bool)poolinkValue;
-                if (extensionParameters.TryGetValue("MaxPoolSize", out object? maxPoolSizeValue))
-                    _maxPoolSize = (int)maxPoolSizeValue;
-                if (extensionParameters.TryGetValue("ConnectionIdleLifetime", out object? connectionIdleLifetimeValue))
-                    _connectionIdleLifetime = (int)connectionIdleLifetimeValue;
-                if (extensionParameters.TryGetValue("ConnectionPruningInterval", out object? connectionPruningIntervalValue))
-                    _connectionPruningInterval = (int)connectionPruningIntervalValue;
-            }
-        }
-        public DbConnection CloneConnection()
-        {
-            var connection = new NpgsqlConnection
-            {
-                ConnectionString = _connection.ConnectionString
-            };
-            connection.Open();
+            ConnectionString = _connection.ConnectionString
+        };
+        connection.Open();
 
-            using (var cmd = new NpgsqlCommand("select datid, datname, pid, usesysid, usename, client_addr, client_port, state, query " +
-                "from pg_stat_activity " +
-                "where state = 'idle' and usename = 'yarddispatcher';", connection))
-            using (var reader = cmd.ExecuteReader())
+        using (var cmd = new NpgsqlCommand("select datid, datname, pid, usesysid, usename, client_addr, client_port, state, query " +
+            "from pg_stat_activity " +
+            "where state = 'idle' and usename = 'yarddispatcher';", connection))
+        using (var reader = cmd.ExecuteReader())
+        {
+            int rowCount = 0;
+            while (reader.Read())
             {
-                int rowCount = 0;
-                while (reader.Read())
+                rowCount++;
+                if (rowCount > 40)
                 {
-                    rowCount++;
-                    if (rowCount > 40)
+                    _logger?.LogInformation("pg_stat_activity info: {@PgStatActivity}", new PgStatActivityInfo
                     {
-                        _logger.LogInformation("pg_stat_activity info: {@PgStatActivity}", new PgStatActivityInfo
-                        {
-                            DatId = reader.GetFieldValue<uint>(reader.GetOrdinal("datid")),
-                            DatName = reader.GetString(reader.GetOrdinal("datname")),
-                            Pid = reader.GetInt32(reader.GetOrdinal("pid")),
-                            UseSysId = reader.GetFieldValue<uint>(reader.GetOrdinal("usesysid")),
-                            UseName = reader.GetString(reader.GetOrdinal("usename")),
-                            ClientIPAdress = reader.GetFieldValue<NpgsqlInet>(reader.GetOrdinal("client_addr")).ToString(),
-                            ClientPort = reader.GetInt32(reader.GetOrdinal("client_port")),
-                            State = reader.GetString(reader.GetOrdinal("state")),
-                            Query = reader.GetString(reader.GetOrdinal("query"))
-                        });
-                    }
+                        DatId = reader.GetFieldValue<uint>(reader.GetOrdinal("datid")),
+                        DatName = reader.GetString(reader.GetOrdinal("datname")),
+                        Pid = reader.GetInt32(reader.GetOrdinal("pid")),
+                        UseSysId = reader.GetFieldValue<uint>(reader.GetOrdinal("usesysid")),
+                        UseName = reader.GetString(reader.GetOrdinal("usename")),
+                        ClientIPAdress = reader.GetFieldValue<NpgsqlInet>(reader.GetOrdinal("client_addr")).ToString(),
+                        ClientPort = reader.GetInt32(reader.GetOrdinal("client_port")),
+                        State = reader.GetString(reader.GetOrdinal("state")),
+                        Query = reader.GetString(reader.GetOrdinal("query"))
+                    });
                 }
             }
-            return connection;
         }
+        return connection;
+    }
 
-        /// <summary>
-        /// Установить соединение с БД.
-        /// </summary>
-        /// <param name="user">Имя пользователя БД</param>
-        /// <param name="password">Пароль</param>
-        public void Connect(string user, SecureString password)
+    /// <summary>
+    /// Установить соединение с БД.
+    /// </summary>
+    /// <param name="user">Имя пользователя БД.</param>
+    /// <param name="password">Пароль.</param>
+    public void Connect(string user, SecureString password)
+    {
+        var stringBuilder = new NpgsqlConnectionStringBuilder
         {
-            var stringBuilder = new NpgsqlConnectionStringBuilder
+            Host = _host,
+            Database = _database,
+            Pooling = _pooling,
+            MaxPoolSize = _maxPoolSize,
+            ConnectionLifetime = _connectionIdleLifetime,
+            ConnectionPruningInterval = _connectionPruningInterval,
+            Username = user,
+            Password = Utils.SecureStringToString(password)
+        };
+        stringBuilder.PersistSecurityInfo = true;
+        _connection.ConnectionString = stringBuilder.ConnectionString;
+        _connection.Open();
+        stringBuilder.Clear();
+    }
+    /// <summary>
+    /// Выполнить SQL запрос.
+    /// </summary>
+    /// <param name="sql">Текст SQL запроса.</param>
+    /// <exception cref="ArgumentException"></exception>
+    public void Execute(string sql)
+    {
+        if (string.IsNullOrWhiteSpace(sql))
+            throw new ArgumentException("sql is null");
+        using var command = _connection.CreateCommand();
+        command.CommandText = sql;
+        command.ExecuteNonQuery();
+    }
+
+    protected static Entity CreateEntity(DbDataReader reader)
+    {
+        if (reader == null)
+            throw new ArgumentNullException(nameof(reader));
+        var id = Utils.DbValueToLong(reader["id"]);
+        var code = Utils.DbValueToString(reader["code"]);
+        var name = Utils.DbValueToString(reader["name"]);
+        var shortName = Utils.DbValueToString(reader["short_name"]);
+        var altName = Utils.DbValueToString(reader["alt_name"]);
+        var displayName = Utils.DbValueToString(reader["display_name"]);
+        var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+        var note = Utils.DbValueToString(reader["note"]);
+        var entity = new Entity(id,
+            code,
+            name,
+            shortName,
+            altName,
+            displayName,
+            isActive,
+            displayOrder,
+            note);
+        return entity;
+    }
+    /// <summary>
+    /// Возвращает сущность по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор</param>
+    /// <param name="sql">SQL запрос для получения сущности</param>
+    /// <param name="catalog">Каталог для поиска сущости в кэше</param>
+    /// <returns>Сущность</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null)
+    {
+        if (string.IsNullOrWhiteSpace(sql))
+            throw new ArgumentException("sql is empty");
+        id = id > 0 ? id : -1;
+        var entity = Entity.Null;
+        if (catalog != null)
+        {
+            entity = catalog[id];
+            if (entity != null && entity != Entity.Null && entity != Entity.Empty)
+                return entity;
+        }
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
             {
-                Host = _host,
-                Database = _database,
-                Pooling = _pooling,
-                MaxPoolSize = _maxPoolSize,
-                ConnectionLifetime = _connectionIdleLifetime,
-                ConnectionPruningInterval = _connectionPruningInterval,
-                Username = user,
-                Password = Utils.SecureStringToString(password)
-            };
-            stringBuilder.PersistSecurityInfo = true;
-            _connection.ConnectionString = stringBuilder.ConnectionString;
-            _connection.Open();
-            stringBuilder.Clear();
+                command.CommandText = sql;
+                command.Parameters.Add(new NpgsqlParameter("id", id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    entity = CreateEntity(reader);
+                    if (catalog != null)
+                        catalog.Add(entity);
+                }
+                reader.Close();
+            }
+            connection.Close();
         }
-        /// <summary>
-        /// Выполнить SQL запрос.
-        /// </summary>
-        /// <param name="sql">Текст SQL запроса</param>
-        /// <exception cref="ArgumentException"></exception>
-        public void Execute(string sql)
-        {
-            if (string.IsNullOrWhiteSpace(sql))
-                throw new ArgumentException("sql is null");
-            using var command = _connection.CreateCommand();
-            command.CommandText = sql;
-            command.ExecuteNonQuery();
-        }
-
-        protected static Entity CreateEntity(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var id = Utils.DbValueToLong(reader["id"]);
-            var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var note = Utils.DbValueToString(reader["note"]);
-            var entity = new Entity(id,
-                code,
-                name,
-                shortName,
-                altName,
-                displayName,
-                isActive,
-                displayOrder,
-                note);
+        if (entity != null && entity != Entity.Null && entity != Entity.Empty)
             return entity;
-        }
-        /// <summary>
-        /// Возвращает сущность по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <param name="sql">SQL запрос для получения сущности</param>
-        /// <param name="catalog">Каталог для поиска сущости в кэше</param>
-        /// <returns>Сущность</returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public Entity GetEntity(int id, string sql, Catalog<Entity>? catalog = null)
+        throw new EntityNotFoundException(id);
+    }
+    /// <summary>
+    /// Возвращает сущность по коду.
+    /// </summary>
+    /// <param name="code">Код</param>
+    /// <param name="sql">SQL запрос для получеия сущности</param>
+    /// <param name="catalog">Каталог для поиска сущности в кэше</param>
+    /// <returns>Сущность</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public Entity GetEntity(string code, string sql, Catalog<Entity>? catalog = null)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("code is empty");
+        if (string.IsNullOrWhiteSpace(sql))
+            throw new ArgumentException("sql is empty");
+        code = code.Trim().ToUpper();
+        var entity = Entity.Null;
+        if (catalog != null)
         {
-            if (string.IsNullOrWhiteSpace(sql))
-                throw new ArgumentException("sql is empty");
-            id = id > 0 ? id : -1;
-            var entity = Entity.Null;
-            if (catalog != null)
-            {
-                entity = catalog[id];
-                if (entity != null && entity != Entity.Null && entity != Entity.Empty)
-                    return entity;
-            }
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = sql;
-                    command.Parameters.Add(new NpgsqlParameter("id", id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        entity = CreateEntity(reader);
-                        if (catalog != null)
-                            catalog.Add(entity);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
+            entity = catalog[code];
             if (entity != null && entity != Entity.Null && entity != Entity.Empty)
                 return entity;
-            throw new EntityNotFoundException(id);
         }
-        /// <summary>
-        /// Возвращает сущность по коду.
-        /// </summary>
-        /// <param name="code">Код</param>
-        /// <param name="sql">SQL запрос для получеия сущности</param>
-        /// <param name="catalog">Каталог для поиска сущности в кэше</param>
-        /// <returns>Сущность</returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public Entity GetEntity(string code, string sql, Catalog<Entity>? catalog = null)
+        using (var connection = CloneConnection())
         {
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("code is empty");
-            if (string.IsNullOrWhiteSpace(sql))
-                throw new ArgumentException("sql is empty");
-            code = code.Trim().ToUpper();
-            var entity = Entity.Null;
-            if (catalog != null)
+            using (var command = connection.CreateCommand())
             {
-                entity = catalog[code];
-                if (entity != null && entity != Entity.Null && entity != Entity.Empty)
-                    return entity;
-            }
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
+                command.CommandText = sql;
+                command.Parameters.Add(new NpgsqlParameter("code", code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    command.CommandText = sql;
-                    command.Parameters.Add(new NpgsqlParameter("code", code));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        entity = CreateEntity(reader);
-                        if (catalog != null)
-                            catalog.Add(entity);
-                    }
-                    reader.Close();
+                    entity = CreateEntity(reader);
+                    if (catalog != null)
+                        catalog.Add(entity);
                 }
-                connection.Close();
+                reader.Close();
             }
-            if (entity != null && entity != Entity.Null && entity != Entity.Empty)
-                return entity;
-            throw new EntityNotFoundException(code);
+            connection.Close();
         }
-        /// <summary>
-        /// Возвращает сущности, которые возвращаются указанным SQL запросом.
-        /// </summary>
-        /// <param name="sql">Текст SQL запроса</param>
-        /// <returns>Массив сущностей</returns>
-        /// <exception cref="ArgumentException"></exception>
-        public Entity[] GetEntities(string sql)
+        if (entity != null && entity != Entity.Null && entity != Entity.Empty)
+            return entity;
+        throw new EntityNotFoundException(code);
+    }
+    /// <summary>
+    /// Возвращает сущности, которые возвращаются указанным SQL запросом.
+    /// </summary>
+    /// <param name="sql">Текст SQL запроса</param>
+    /// <returns>Массив сущностей</returns>
+    /// <exception cref="ArgumentException"></exception>
+    public Entity[] GetEntities(string sql)
+    {
+        if (string.IsNullOrWhiteSpace(sql))
+            throw new ArgumentException("sql is empty");
+        var entities = new List<Entity>();
+        using (var connection = CloneConnection())
         {
-            if (string.IsNullOrWhiteSpace(sql))
-                throw new ArgumentException("sql is empty");
-            var entities = new List<Entity>();
-            using (var connection = CloneConnection())
+            using (var command = connection.CreateCommand())
             {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = sql;
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                        entities.Add(CreateEntity(reader));
-                    reader.Close();
-                }
-                connection.Close();
+                command.CommandText = sql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                    entities.Add(CreateEntity(reader));
+                reader.Close();
             }
-            entities.Sort();
-            return entities.ToArray();
+            connection.Close();
         }
+        entities.Sort();
+        return entities.ToArray();
+    }
 
-        /// <summary>
-        /// Отсоединиться от БД.
-        /// </summary>
-        public void Disconnect()
-        {
-            if (_connection.State != ConnectionState.Closed && _connection.State != ConnectionState.Broken)
-                _connection.Close();
-        }
-        public void Dispose()
-        {
+    /// <summary>
+    /// Отсоединиться от БД.
+    /// </summary>
+    public void Disconnect()
+    {
+        if (_connection.State != ConnectionState.Closed && _connection.State != ConnectionState.Broken)
             _connection.Close();
-            _connection.Dispose();
-            GC.SuppressFinalize(this);
-        }
+    }
+    public void Dispose()
+    {
+        _connection.Close();
+        _connection.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
