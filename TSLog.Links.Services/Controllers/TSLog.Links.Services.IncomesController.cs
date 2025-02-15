@@ -43,7 +43,7 @@ namespace TSLog.Links.Services.Controllers
 
                 var transactionId = _storage.GenerateTransactionId();
                 var fileContent = incomesConverter.Convert(transactionId, incomeRequest);
-                UtilsIO.WriteFileToWMSINFolder(fileContent, transactionId);
+                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
                 if (!DebugMode)
                     return "<status code=\"0\">Запрос на приход отправлен на загрузку</status>";
@@ -80,7 +80,7 @@ namespace TSLog.Links.Services.Controllers
             var receiptEndNotice = _storage.GetReceiptEndNotice(user, incomeId);
             var xml = Gs1EdiXmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
 
@@ -93,7 +93,7 @@ namespace TSLog.Links.Services.Controllers
             var receiptEndNotices = _storage.GetReceiptEndNotices(partners);
             var xml = Gs1EdiXmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
             if (DebugMode)
-                xml = Utils.PrepXML(xml);
+                xml = Utils.PrepXml(xml);
             return xml;
         }
     }
