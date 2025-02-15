@@ -10,7 +10,7 @@ namespace TSLog.WarehouseActions.BO;
 public class WarehouseAction : Entity
 {
     /// <summary>
-    /// Идентификаитор
+    /// Идентификаитор.
     /// </summary>
     public new string Id
     {
@@ -24,15 +24,15 @@ public class WarehouseAction : Entity
         }
     }
     /// <summary>
-    /// Номер
+    /// Номер.
     /// </summary>
     public string Number { get; private set; }
     /// <summary>
-    /// Вид (приход, расход, ...)
+    /// Вид (приход, расход, ...).
     /// </summary>
     public ActionKind Kind { get; private set; }
     /// <summary>
-    /// Ключ - вид + идентификатор
+    /// Ключ - вид + идентификатор.
     /// </summary>
     public string Key
     {
@@ -43,15 +43,15 @@ public class WarehouseAction : Entity
         }
     }
     /// <summary>
-    /// Партнёр - покупатель наших складских и логистических услуг
+    /// Партнёр - покупатель наших складских и логистических услуг.
     /// </summary>
     public Partner Partner { get; set; }
     /// <summary>
-    /// Идентификатор складского действа в системе партнёра
+    /// Идентификатор складского действа в системе партнёра.
     /// </summary>
     public string PartnerActionId { get; set; }
     /// <summary>
-    /// Плановая дата (и время) складского действа
+    /// Плановая дата (и время) складского действа.
     /// </summary>
     public DateTime PlanActionDate { get; set; }
     public DateTime InsertDate { get; set; }
@@ -76,7 +76,7 @@ public class WarehouseAction : Entity
 
     public override bool Equals(object obj)
     {
-        if (obj == null || !(obj is WarehouseAction))
+        if (obj == null || obj is not WarehouseAction)
             return false;
 
         var otherAction = (WarehouseAction)obj;
@@ -91,16 +91,14 @@ public class WarehouseAction : Entity
     /// <summary>
     /// Добавляет товарную позицию.
     /// </summary>
-    /// <param name="line">Товарная позиция</param>
+    /// <param name="line">Товарная позиция.</param>
     public void AddLine(LineBase line)
     {
-        if (line == null)
-            throw new ArgumentNullException(nameof(line));
-        if (!_lines.ContainsKey(line.Product))
+        ArgumentNullException.ThrowIfNull(line);
+        if (!_lines.TryGetValue(line.Product, out LineBase? sameLine))
             _lines.Add(line.Product, line);
         else
         {
-            var sameLine = _lines[line.Product];
             sameLine.PlanQuantity += line.PlanQuantity;
             sameLine.FactQuantity += line.FactQuantity;
             sameLine.PlanNetWeight += line.PlanNetWeight;
@@ -118,16 +116,15 @@ public class WarehouseAction : Entity
     /// <summary>
     /// Добавляет товарные позиции.
     /// </summary>
-    /// <param name="lines">Товарные позиции</param>
+    /// <param name="lines">Товарные позиции.</param>
     public void AddLines(LineBase[] lines)
     {
-        if (lines == null)
-            throw new ArgumentNullException(nameof(lines));
+        ArgumentNullException.ThrowIfNull(lines);
         foreach (var line in lines)
             AddLine(line);
     }
     /// <summary>
-    /// Товарные позиции расхода
+    /// Товарные позиции расхода.
     /// </summary>
     public LineBase[] Lines => _lines.Values.ToArray();
     /// <summary>
@@ -292,8 +289,8 @@ public class WarehouseAction : Entity
     {
         get
         {
-            if (_null == null)
-                _null = new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", DateTime.MinValue, DateTime.MinValue, true, "NULL");
+            _null ??= new WarehouseAction(ActionKind.Income, "NULL", "NULL", Partner.Null, "NULL", 
+                DateTime.MinValue, DateTime.MinValue, true, "NULL");
             return _null;
         }
     }
@@ -305,8 +302,7 @@ public class WarehouseAction : Entity
     {
         get
         {
-            if (_empty == null)
-                _empty = new WarehouseAction();
+            _empty ??= new WarehouseAction();
             return _empty;
         }
     }

@@ -1,11 +1,5 @@
-﻿using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MailKit.Net.Smtp;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using MailKit.Net.Smtp;
+using MimeKit;
 
 namespace TSLog.Common.MessageSending;
 
@@ -36,7 +30,7 @@ public class EmailSender : IMessageSender
                 }
             }
         }
-        catch (FormatException ex)
+        catch (FormatException)
         {
             throw;
         }
@@ -48,25 +42,24 @@ public class EmailSender : IMessageSender
 
     public async Task SendAsync(Message message)
     {
-        using (var client = new SmtpClient())
+        using var client = new SmtpClient();
+        try
         {
-            try
-            {
-                await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port, true);
-                client.AuthenticationMechanisms.Remove("XOAUTH2"); // Remove OAuth2 authentication to use traditional login
-                await client.AuthenticateAsync(_emailConfig.UserName, _emailConfig.Password);
-                var emailMessage = CreateEmailMessage(message); 
-                await client.SendAsync(emailMessage);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                client.Disconnect(true);
-                client.Dispose();
-            }
+            await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port, true);
+            // Remove OAuth2 authentication to use traditional login.
+            client.AuthenticationMechanisms.Remove("XOAUTH2");
+            await client.AuthenticateAsync(_emailConfig.UserName, _emailConfig.Password);
+            var emailMessage = CreateEmailMessage(message);
+            await client.SendAsync(emailMessage);
+        }
+        catch
+        {
+            throw;
+        }
+        finally
+        {
+            client.Disconnect(true);
+            client.Dispose();
         }
     }
 }

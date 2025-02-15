@@ -9,12 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiadocSDK" Version="2.31.0" />
+    <PackageReference Include="DiadocSDK" Version="2.32.0" />
+    <PackageReference Include="itext7" Version="9.1.0" />
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="9.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\TSLog.Common.OracleStorage\TSLog.Common.OracleStorage.csproj" />
     <ProjectReference Include="..\..\TSLog.Common\TSLog.Common.csproj" />
+    <ProjectReference Include="..\..\TSLog.Incomes.BO\TSLog.Incomes.BO.csproj" />
+    <ProjectReference Include="..\..\TSLog.Outgoes.BO\TSLog.Outgoes.BO.csproj" />
   </ItemGroup>
 
   <ItemGroup>

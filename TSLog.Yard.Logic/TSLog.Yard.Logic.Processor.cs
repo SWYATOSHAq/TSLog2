@@ -102,7 +102,7 @@ public class Processor
     /// <param name="namePattern">Строка поиска сотрудника по имени (по подобию).</param>
     /// <param name="positionCode">Код должности</param>
     /// <param name="user">Пользователь.</param>
-    /// <param name="statusCode">Код статуса выполнения (подобен HTTP status code).Ко</param>
+    /// <param name="statusCode">Код статуса выполнения (подобен HTTP status code).</param>
     /// <param name="statusMessage">Текст ответа/сообщение об ошибке.</param>
     /// <returns>Массив dynamic объектов сотрудников.</returns>
     public dynamic[] GetPositionWorkers(string namePattern, string positionCode, ClaimsPrincipal user,
@@ -194,8 +194,7 @@ public class Processor
     public Operation CreateOperation(dynamic data, ClaimsPrincipal? user,
         out int statusCode, out string statusMessage)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION", user);
         statusCode = (int)HttpStatusCode.InternalServerError;
@@ -350,8 +349,7 @@ public class Processor
 
     public string CreateConfirmOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var createOperation = _rightsChecker.CheckRight("CREATE_CONFIRM_OPERATION", user);
@@ -469,9 +467,9 @@ public class Processor
         operation = _storage.AddOperation(operation, userForLog);
 
         // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
-        // нельзя было присвоить ворота
+        // нельзя было присвоить ворота.
         var employee = _storage.GetEmployeeByAdLogin(userForLog);
-        //operation.Gate = _storage.SetOperationGate(operation, null, user);  до 26.06.23 подтверждение было на воротах
+        //operation.Gate = _storage.SetOperationGate(operation, null, user); до 26.06.23 подтверждение было на воротах.
         _storage.SetResponsibleOfficer(operation, employee, userForLog);
         var operationFromStorage = _storage.GetOperation(operation.Id);
         foreach (var action in actions)
@@ -506,8 +504,7 @@ public class Processor
 
     public string CreateOperationByPartner(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var createOperation = _rightsChecker.CheckRight("CREATE_OPERATION_BY_PARTNER", user);
@@ -553,7 +550,7 @@ public class Processor
         var now = DateTime.Now;
         var today = DateTime.Today;
         var today900 = today.AddHours(9);
-        if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+        if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI".
         {
             if (now >= today900 && startDate < today.AddHours(24 + 9))
             {
@@ -570,7 +567,8 @@ public class Processor
         dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
         temp = data.finishDate;
-        var finishDate = startDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
+        var finishDate = startDate.Add(new TimeSpan(0, 0, 
+            _GetFillingPlanOperationDuration(operationType, vehicleKind, actions)));
         if (!string.IsNullOrWhiteSpace(temp))
         {
             if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -650,14 +648,18 @@ public class Processor
                 return string.Empty;
             }
 
-            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? 
+                ActionKind.Outgo : ActionKind.Income, stringActionId);
             _storage.AddAction(operationFromStorage, actionFromStorage);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction из метода CreateOperationByPartner заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateOperationByPartner заявки {@Заявка}, " +
+                "с номером {Номер заявки}. Добавлен заказ {Заказ}. " +
+                "Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
-        _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
-        _storage.AddOperationLog(operationWithActions, "Создана (партнером)", userForLog); //логирование в бд
+        _logger.LogWarning("Создана заявка партнером {@Заявка}, с номером {Номер заявки}. " +
+            "Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, "Создана (партнером)", userForLog); // Логирование в БД.
 
         string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.Created;
@@ -666,8 +668,7 @@ public class Processor
 
     public string EditOperation(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION", user);
@@ -728,7 +729,8 @@ public class Processor
                 statusMessage = message;
                 return string.Empty;
             }
-            planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
+            planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, 
+                _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
         }
 
         temp = data.finishDate;
@@ -801,7 +803,7 @@ public class Processor
             return string.Empty;
         }
 
-        // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот
+        // Признак того, что изменились ключевые параметры, влияющие на выбор свободного окна и ворот.
         var changeGate = operation.Type.Code != operation.Type.Code
             || operation.VehicleKind.Code != vehicleKind.Code
             || operation.PlanWorkStartDate != planWorkStartDate
@@ -838,7 +840,7 @@ public class Processor
         }
         var operationFromStorage = _storage.GetOperation(operation.Id);
         var actionsBeforeEdit = operationFromStorage.GetActions();
-        WarehouseAction[] actionsConvertedFromDynamic = Array.Empty<WarehouseAction>();
+        WarehouseAction[] actionsConvertedFromDynamic = [];
         foreach (var action in actions)
         {
             string stringActionKind = action.kind;
@@ -855,8 +857,9 @@ public class Processor
                 return string.Empty;
             }
             
-            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
-            actionsConvertedFromDynamic = actionsConvertedFromDynamic.Append(actionFromStorage).ToArray();
+            var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? 
+                ActionKind.Outgo : ActionKind.Income, stringActionId);
+            actionsConvertedFromDynamic = [.. actionsConvertedFromDynamic, actionFromStorage];
             if (actionsBeforeEdit.Contains(actionFromStorage))
                 continue;
             operationFromStorage.AddAction(actionFromStorage);            
@@ -872,13 +875,16 @@ public class Processor
                 operationFromStorage.RemoveAction(action);
                 _storage.RemoveAction(operationFromStorage, action);
                 var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-                _logger.LogWarning("Отработал метод RemoveAction из метода EditOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
+                _logger.LogWarning("Отработал метод RemoveAction из метода EditOperation заявки {@Заявка}, " +
+                    "с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", 
+                    operationForLog, operationForLog.Id, action.Code, userForLog);
             }
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         string editStatus = operationWithActions.State.DisplayName + "(отредактирована)";
-        _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
-        _storage.AddOperationLog(operationWithActions, editStatus, userForLog); //логирование в бд
+        _logger.LogWarning("Подтверждена(отредактирована) заявка {@Заявка}, с номером {Номер заявки}. " +
+            "Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, editStatus, userForLog); // Логирование в БД.
 
         string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.OK;
@@ -887,8 +893,7 @@ public class Processor
 
     public string EditOperationByPartner(dynamic data, ClaimsPrincipal? user, out int statusCode, out string statusMessage)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         statusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var editOperation = _rightsChecker.CheckRight("EDIT_OPERATION_BY_PARTNER", user);
@@ -958,7 +963,7 @@ public class Processor
                 var now = DateTime.Now;
                 var today = DateTime.Today;
                 var today900 = today.AddHours(9);
-                if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI"
+                if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI".
                 {
                     if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
                     {
@@ -973,7 +978,8 @@ public class Processor
                 }
             }
             planWorkStartDate = tempPlanWorkStartDate;
-            planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
+            planWorkFinishDate = planWorkStartDate.Add(new TimeSpan(0, 0, 
+                _GetFillingPlanOperationDuration(operation.Type, vehicleKind, actions)));
         }
 
         temp = data.finishDate;
@@ -1035,7 +1041,7 @@ public class Processor
 
         var operationFromStorage = _storage.GetOperation(operation.Id);
         var actionsBeforeEdit = operationFromStorage.GetActions();
-        WarehouseAction[] actionsConvertedFromDynamic = Array.Empty<WarehouseAction>();
+        WarehouseAction[] actionsConvertedFromDynamic = [];
         foreach (var action in actions)
         {
             string stringActionKind = action.kind;
@@ -1075,7 +1081,7 @@ public class Processor
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         string editStatus = operationWithActions.State.DisplayName + "(отредактирована партнером)";
         _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
-        _storage.AddOperationLog(operationWithActions, editStatus, userForLog); //логирование в бд
+        _storage.AddOperationLog(operationWithActions, editStatus, userForLog); // Логирование в БД.
 
         string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.OK;
@@ -1084,7 +1090,8 @@ public class Processor
 
     public int _GetFillingPlanOperationDuration(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
     {
-        var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind, out int standardConstantDuration, out int standardVariableDuration);
+        var standardTotalDuration = _storage.GetDuration(operationType, vehicleKind, 
+            out int standardConstantDuration, out int standardVariableDuration);
         var totalTime = 0.0;
         foreach (var action in actions)
         {
@@ -1092,13 +1099,16 @@ public class Processor
                 Автор - Буров Михаил.
                 Определяем ПЛАНОВОЕ время операции двора в зависимости от состава заказов/приходов в операции двора.
                 Смотрим все товарные позиции всех заказов/приходов в операции двора.
-                Для каждой позиции смотрим сначала затарку, если затарка есть считаем количество паллет и коробок по затарке (от количества товаров),
-                есть фиксированное время загрузки/выгрузки паллеты/коробки - из этого и складывается плановое время работ с конкретной товарной позицией.
+                Для каждой позиции смотрим сначала затарку, если затарка есть считаем количество паллет и
+                коробок по затарке (от количества товаров),
+                есть фиксированное время загрузки/выгрузки паллеты/коробки - из этого и складывается плановое время работ
+                с конкретной товарной позицией.
                 Если затарки нет, то пробуем определить плановое время по объёму или весу товара в товарной позицией.
                 Сначала смотрим вес, потом объём.
                 Смотри какую часть объёма (веса) занимает конкретная товарная позиция от ВСЕГО объёма (веса), 
                 умножаем плановое максимальное время (при условии загрузки/выгрузки машины ЦЕЛИКОМ) на соответствующий коэффициент.
-                Если не удалось рассчитать плановое время ни по затарке, ни по весу ни по объёму - считаем время по СОБРАННЫМ ТЕ заказа (ТОЛЬКО для отгрузок).
+                Если не удалось рассчитать плановое время ни по затарке, ни по весу ни по объёму -
+                считаем время по СОБРАННЫМ ТЕ заказа (ТОЛЬКО для отгрузок).
             */
             var kind = action.kind == "O" ? ActionKind.Outgo : ActionKind.Income;
             var palletTime = action.kind == "O" ? PalletLoadTime : PalletUnloadTime;
@@ -1109,25 +1119,27 @@ public class Processor
             var actionTime = 0.0;
             foreach (var line in lines)
             {
-                // Смотрим по затарке
+                // Смотрим по затарке.
                 var lineTime = 0.0;
                 if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
                     lineTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
                 else
                 {
-                    // Смотрим по весу
+                    // Смотрим по весу.
                     if (line.PlanGrossWeight > 0.0)
-                        // Килограммы переводим в милиграммы
+                        // Килограммы переводим в милиграммы.
                         lineTime += line.PlanGrossWeight / (vehicleKind.Capacity * 1000 * 1000) * standardTotalDuration;
-                    // Смотрим по объёму
+                    // Смотрим по объёму.
                     else if (line.PlanVolume > 0.0)
                         lineTime += line.PlanVolume / (vehicleKind.CargoVolume * 1000 * 1000 * 1000) * standardTotalDuration;
 
                     // Новый блок по задаче #2416 Двор. Новая функция. План факт.
                     /*
                       Идея в том, что мы определяем количество "штук" в товарной позиции (SET = ST, 5 кг = 1 шт., 50 м = 1 шт).
-                      Считаем "альтернативное" время загрузки/выгрузки товарной позиции как количество "штук", умноженное на время загрузки/выгрузке 1 штуки.
-                      Если "альтернативное" время загрузки/выгрузки позиции более времени, рассчитанного по алгоритму, то берём "альтернативное" время.
+                      Считаем "альтернативное" время загрузки/выгрузки товарной позиции как количество "штук",
+                      умноженное на время загрузки/выгрузке 1 штуки.
+                      Если "альтернативное" время загрузки/выгрузки позиции более времени, рассчитанного по алгоритму,
+                      то берём "альтернативное" время.
                     */
                     var eachesCount = 0.0;
                     if (line.QuantityMeasureUnit.Code == "ST" || line.QuantityMeasureUnit.Code == "SET")
@@ -1149,7 +1161,7 @@ public class Processor
             }
             if (actionTime <= 0.0 && action.kind == "O")
             {
-                // Смотри по собранным заказам (ТОЛЬКО отгрузки)
+                // Смотри по собранным заказам (ТОЛЬКО отгрузки).
                 _storage.GetAssembliedOutgo(id, out double palletsCount, out double eachesCount);
                 actionTime = palletsCount * palletTime + eachesCount * pieceTime;
             }
@@ -1159,25 +1171,28 @@ public class Processor
 
         if (totalTime <= 0.0)
             totalTime = standardTotalDuration;
-        //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов) времени операции по указанию Алексея Охотникова 
+        //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов)
+        //  времени операции по указанию Алексея Охотникова.
         else
             totalTime += ConstantOperationDuration;
-        // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
+        // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова.
         //else
         //    totalTime += standardConstantDuration;
 
-        // Если продолжительность операции двора больше чем "стандартное" (при загрузке/выгрузке полной машины) то берём "стандартное".
+        // Если продолжительность операции двора больше чем "стандартное" (при загрузке/выгрузке полной машины)
+        // то берём "стандартное".
         if (totalTime > standardTotalDuration)
             totalTime = standardTotalDuration;
 
         return (int)totalTime;
     }
     /// <summary>
-    /// Метод создан как дубликат "_GetFillingPlanOperationDuration", только в качестве "actions" данные беруться из кеша _actions, соответственно имеют др. формат полей
+    /// Метод создан как дубликат "_GetFillingPlanOperationDuration",
+    /// только в качестве "actions" данные беруться из кеша _actions, соответственно имеют др. формат полей.
     /// </summary>
-    /// <param name="operationType">Тип операции двора</param>
-    /// <param name="vehicleKind">Тип машины</param>
-    /// <param name="actions">Заказы из кеша _actions</param>
+    /// <param name="operationType">Тип операции двора.</param>
+    /// <param name="vehicleKind">Тип машины.</param>
+    /// <param name="actions">Заказы из кеша _actions.</param>
     /// <returns></returns>
     public int _GetFillingPlanOperationDuration2(OperationType operationType, VehicleKind vehicleKind, dynamic[] actions)
     {
@@ -1189,13 +1204,16 @@ public class Processor
                 Автор - Буров Михаил.
                 Определяем ПЛАНОВОЕ время операции двора в зависимости от состава заказов/приходов в операции двора.
                 Смотрим все товарные позиции всех заказов/приходов в операции двора.
-                Для каждой позиции смотрим сначала затарку, если затарка есть считаем количество паллет и коробок по затарке (от количества товаров),
-                есть фиксированное время загрузки/выгрузки паллеты/коробки - из этого и складывается плановое время работ с конкретной товарной позицией.
+                Для каждой позиции смотрим сначала затарку, если затарка есть считаем количество паллет
+                и коробок по затарке (от количества товаров),
+                есть фиксированное время загрузки/выгрузки паллеты/коробки - из этого и складывается плановое время
+                работ с конкретной товарной позицией.
                 Если затарки нет, то пробуем определить плановое время по объёму или весу товара в товарной позицией.
                 Сначала смотрим вес, потом объём.
                 Смотри какую часть объёма (веса) занимает конкретная товарная позиция от ВСЕГО объёма (веса), 
                 умножаем плановое максимальное время (при условии загрузки/выгрузки машины ЦЕЛИКОМ) на соответствующий коэффициент.
-                Если не удалось рассчитать плановое время ни по затарке, ни по весу ни по объёму - считаем время по СОБРАННЫМ ТЕ заказа (ТОЛЬКО для отгрузок).
+                Если не удалось рассчитать плановое время ни по затарке, ни по весу ни по объёму -
+                считаем время по СОБРАННЫМ ТЕ заказа (ТОЛЬКО для отгрузок).
             */
             var kind = action.Kind;
             var palletTime = action.Kind == ActionKind.Outgo ? PalletLoadTime : PalletUnloadTime;
@@ -1206,25 +1224,27 @@ public class Processor
             var actionTime = 0.0;
             foreach (var line in lines)
             {
-                // Смотрим по затарке
+                // Смотрим по затарке.
                 var lineTime = 0.0;
                 if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
                     lineTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
                 else
                 {
-                    // Смотрим по весу
+                    // Смотрим по весу.
                     if (line.PlanGrossWeight > 0.0)
-                        // Килограммы переводим в милиграммы
+                        // Килограммы переводим в милиграммы.
                         lineTime += line.PlanGrossWeight / (vehicleKind.Capacity * 1000 * 1000) * standardTotalDuration;
-                    // Смотрим по объёму
+                    // Смотрим по объёму.
                     else if (line.PlanVolume > 0.0)
                         lineTime += line.PlanVolume / (vehicleKind.CargoVolume * 1000 * 1000 * 1000) * standardTotalDuration;
 
                     // Новый блок по задаче #2416 Двор. Новая функция. План факт.
                     /*
                       Идея в том, что мы определяем количество "штук" в товарной позиции (SET = ST, 5 кг = 1 шт., 50 м = 1 шт).
-                      Считаем "альтернативное" время загрузки/выгрузки товарной позиции как количество "штук", умноженное на время загрузки/выгрузке 1 штуки.
-                      Если "альтернативное" время загрузки/выгрузки позиции более времени, рассчитанного по алгоритму, то берём "альтернативное" время.
+                      Считаем "альтернативное" время загрузки/выгрузки товарной позиции как количество "штук",
+                      умноженное на время загрузки/выгрузке 1 штуки.
+                      Если "альтернативное" время загрузки/выгрузки позиции более времени, рассчитанного по алгоритму,
+                      то берём "альтернативное" время.
                     */
                     var eachesCount = 0.0;
                     if (line.QuantityMeasureUnit.Code == "ST" || line.QuantityMeasureUnit.Code == "SET")
@@ -1246,7 +1266,7 @@ public class Processor
             }
             if (actionTime <= 0.0 && action.Kind == ActionKind.Outgo)
             {
-                // Смотри по собранным заказам (ТОЛЬКО отгрузки)
+                // Смотри по собранным заказам (ТОЛЬКО отгрузки).
                 _storage.GetAssembliedOutgo(id, out double palletsCount, out double eachesCount);
                 actionTime = palletsCount * palletTime + eachesCount * pieceTime;
             }
@@ -1256,14 +1276,16 @@ public class Processor
 
         if (totalTime <= 0.0)
             totalTime = standardTotalDuration;
-        //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов) времени операции по указанию Алексея Охотникова 
+        //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов)
+        //  времени операции по указанию Алексея Охотникова.
         else
             totalTime += ConstantOperationDuration;
-        // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова
+        // 2022.06.30 убрал учёт постоянных микроопераций по указанию Алексея Охотникова.
         //else
         //    totalTime += standardConstantDuration;
 
-        // Если продолжительность операции двора больше чем "стандартное" (при загрузке/выгрузке полной машины) то берём "стандартное".
+        // Если продолжительность операции двора больше чем "стандартное"
+        // (при загрузке/выгрузке полной машины) то берём "стандартное".
         if (totalTime > standardTotalDuration)
             totalTime = standardTotalDuration;
 
@@ -1579,9 +1601,12 @@ public class Processor
         {
             await _emailSender.SendAsync(message);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            _logger.LogError("Email об окончании работ не был отправлен {@Заявка}, с номером {Номер заявки}. Сообщение об ошибке: {Ошибка}, StackTrace: {StackTrace}", operation, operation.Id, ex.Message, ex.StackTrace);
+            _logger.LogError("Email об окончании работ не был отправлен {@Заявка}, " +
+                "с номером {Номер заявки}. " +
+                "Сообщение об ошибке: {Ошибка}, StackTrace: {StackTrace}", 
+                operation, operation.Id, exception.Message, exception.StackTrace);
         }
     }
 }

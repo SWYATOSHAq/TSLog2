@@ -10,7 +10,6 @@ using TSLog.Common.BO;
 using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
 using TSLog.Partners.BO;
-using TSLog.Products.BO;
 
 namespace TSLog.Links.Services;
 
@@ -26,13 +25,9 @@ public class Startup
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-        // auth
         services.AddCors();
-        // configure strongly typed settings object
         services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
-        // configure DI for application services
         services.AddScoped<IUserService, UserService>();
-        // auth
 
         InitSingletons(services);
 
@@ -68,7 +63,6 @@ public class Startup
 
     private void InitSingletons(IServiceCollection services)
     {
-        // ---------------------------------------
         // init storage
         // this storage is then used to get dada from db
         // information on how data access is then split is in ILinksStorage interface
@@ -85,7 +79,7 @@ public class Startup
         storage.Partners = new Catalog<Partner>("PARTNERS", "Партнёры");
         storage.Currencies = new Catalog<Entity>("CURRENCIES", "валюты");
 
-        storage.Products = new ProductCatalog<Product>("PRODUCTS", "Товары");
+        storage.Products = new();
 
         var login = Configuration.GetValue<string>("ConnectionSettings:Login");
         var password = Configuration.GetValue<string>("ConnectionSettings:Password");
@@ -96,15 +90,13 @@ public class Startup
         password = string.Empty;
         storage.Connect(login, securePassword);
 
-        // preload units and states
         storage.IncomeStates.Add(storage.GetIncomeStates());
         storage.OutgoStates.Add(storage.GetOutgoStates());
         storage.Currencies.Add(storage.GetCurrncies());
 
-        //init convertor
         var xmlConverter = new Gs1EdiXmlConverter();
         xmlConverter.LinksStorage = storage;
-        // ---------------------------------------
+
         services.AddSingleton<ILinksCommonStorage>(storage);
         services.AddSingleton(xmlConverter);
     }

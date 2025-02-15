@@ -1,33 +1,27 @@
 ﻿using TSLog.Common.BO;
 
-namespace TSLog.Products.BO
+namespace TSLog.Products.BO;
+
+/// <summary>
+/// Каталог товаров.
+/// </summary>
+public class ProductCatalog() 
+    : Catalog<Product>("PRODUCTS", "Справочник товаров", string.Empty)
 {
-    /// <summary>
-    /// Каталог товаров
-    /// </summary>
-    /// <typeparam name="T">Товар</typeparam>
-    public class ProductCatalog<T> : Catalog<T> where T : Product
+    private readonly Dictionary<string, Product> _entitiesInternalCodes = [];
+
+    public new void Add(Product product)
     {
-        private readonly Dictionary<string, T> _entitiesInternalCodes = new();
+        if (!string.IsNullOrWhiteSpace(product.Code) && !_entitiesInternalCodes.ContainsKey(product.Code))
+            _entitiesInternalCodes.Add(product.Code, product);
+        base.Add(product);
+    }
 
-        public ProductCatalog(string code, string name, string note = "") : base(code, name, note)
-        { }
-
-        public new void Add(T product)
-        {
-            if (!string.IsNullOrWhiteSpace(product.Code) && !_entitiesInternalCodes.ContainsKey(product.Code))
-                _entitiesInternalCodes.Add(product.Code, product);
-
-            //
-            base.Add(product);
-        }
-
-        public T? GetByInternalCode(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code))
-                return null;
-            code = code.Trim();
-            return _entitiesInternalCodes.ContainsKey(code) ? _entitiesInternalCodes[code] : null;
-        }
+    public Product? GetByInternalCode(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            return null;
+        code = code.Trim();
+        return _entitiesInternalCodes.TryGetValue(code, out Product? value) ? value : null;
     }
 }

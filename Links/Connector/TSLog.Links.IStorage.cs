@@ -12,6 +12,22 @@ interface IStorage : IDisposable
     {
         return [];
     }
+    public string GetIncomeHeader(string incomeId)
+    {
+        return string.Empty;
+    }
+    public string GetIncomeLines(string incomeId)
+    {
+        return string.Empty;
+    }
+    public string GetOutgoHeader(string outgoId)
+    {
+        return string.Empty;
+    }
+    public string GetOutgoLines(string outgoId)
+    {
+        return string.Empty;
+    }
     public void MarkSendDocument(Document document)
     { }
     public void Disconnect()

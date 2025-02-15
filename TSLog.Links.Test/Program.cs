@@ -6,7 +6,6 @@ using TSLog.Common.BO;
 using TSLog.Links.Data;
 using TSLog.Links.Gs1EdiXml;
 using TSLog.Partners.BO;
-using TSLog.Products.BO;
 
 namespace TSLog.Links.Test;
 
@@ -28,7 +27,7 @@ public class Program
             Partners = new Catalog<Partner>("PARTNERS", "Партнёры"),
             Currencies = new Catalog<Entity>("CURRENCIES", "валюты"),
 
-            Products = new ProductCatalog<Product>("PRODUCTS", "Товары")
+            Products = new()
         };
 
         var password = new SecureString();
@@ -36,7 +35,6 @@ public class Program
             password.AppendChar(symbol);
         storage.Connect("ecco", password);
 
-        // preload units and states
         storage.IncomeStates.Add(storage.GetIncomeStates());
         storage.OutgoStates.Add(storage.GetOutgoStates());
         storage.Currencies.Add(storage.GetCurrncies());
@@ -46,7 +44,6 @@ public class Program
             LinksStorage = storage
         };
 
-        // ===========================================
         // reader test
         var fileName = "";
         XmlReader reader;

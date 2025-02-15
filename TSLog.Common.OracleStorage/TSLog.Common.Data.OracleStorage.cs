@@ -10,7 +10,7 @@ using TSLog.ExceptionHandler;
 namespace TSLog.Common.Data;
 
 /// <summary>
-/// Базовый класс для работы с хранилищем БД Oracle
+/// Базовый класс для работы с хранилищем БД Oracle.
 /// </summary>
 public class OracleStorage : IDisposable
 {
@@ -65,8 +65,7 @@ public class OracleStorage : IDisposable
 
     protected static Entity CreateEntity(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var id = Utils.DbValueToLong(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var name = Utils.DbValueToString(reader["name"]);
@@ -118,8 +117,7 @@ public class OracleStorage : IDisposable
             if (reader.Read())
             {
                 entity = CreateEntity(reader);
-                if (catalog != null)
-                    catalog.Add(entity);
+                catalog?.Add(entity);
             }
             reader.Close();
         }
@@ -161,8 +159,7 @@ public class OracleStorage : IDisposable
             if (reader.Read())
             {
                 entity = CreateEntity(reader);
-                if (catalog != null)
-                    catalog.Add(entity);
+                catalog?.Add(entity);
             }
             reader.Close();
         }
@@ -189,14 +186,13 @@ public class OracleStorage : IDisposable
                 entities.Add(CreateEntity(reader));
             reader.Close();
         }
-        return entities.ToArray();
+        return [.. entities];
     }
 
     private readonly Catalog<MeasureUnit> _measureUnits = new("MEASURE_UNITS", "Единицы измерения");
     private static MeasureUnit CreateMeasureUnit(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
 
         var id = Utils.DbValueToShort(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
@@ -287,7 +283,7 @@ public class OracleStorage : IDisposable
             }
             reader.Close();
         }
-        return measureUnits.ToArray();
+        return [.. measureUnits];
     }
 
     public void Disconnect()

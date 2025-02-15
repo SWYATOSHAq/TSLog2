@@ -15,7 +15,7 @@ using TSLog.Products.BO;
 namespace TSLog.Links.Data;
 
 /// <summary>
-/// Класс для работы с хранилищем БД Oracle
+/// Класс для работы с хранилищем БД Oracle.
 /// </summary>
 public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 {
@@ -36,7 +36,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
         WmsSchema = DefaultWmsSchema;
         Instance = this;
     }
-    public static LinksOracleStorage Instance = null; // TODO: wrong decision
+    public static LinksOracleStorage Instance = null; // TODO: wrong decision.
 
     /// <summary>
     /// Максимальное количество строк для вывода.
@@ -67,7 +67,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     #region "Constant" domains
 
     /// <summary>
-    /// Статусы (состояния) приходов
+    /// Статусы (состояния) приходов.
     /// </summary>
     public Catalog<Entity> IncomeStates { get; set; } = null;
 
@@ -77,12 +77,12 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     public Catalog<Entity> OutgoTypes { get; set; } = null;
 
     /// <summary>
-    /// Статусы (состояния) расходов
+    /// Статусы (состояния) расходов.
     /// </summary>
     public Catalog<Entity> OutgoStates { get; set; } = null;
 
     /// <summary>
-    /// Валюты
+    /// Валюты.
     /// </summary>
     public Catalog<Entity> Currencies { get; set; } = null;
 
@@ -127,7 +127,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return incomeStates.ToArray();
+        return [.. incomeStates];
     }
 
     public Entity GetOutgoType(string typeCode)
@@ -166,7 +166,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return outgoTypes.ToArray();
+        return [.. outgoTypes];
     }
 
     public Entity GetOutgoState(string stateCode)
@@ -199,14 +199,14 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     #endregion "Constant" domains
 
     /// <summary>
-    /// Партнёры (покупатели наших складских и логистических услуг)
+    /// Партнёры (покупатели наших складских и логистических услуг).
     /// </summary>
     public Catalog<Partner> Partners { private get; set; } = null;
 
     private Partner _tslog = null;
 
     /// <summary>
-    /// ТехСкладЛогистик
+    /// ТехСкладЛогистик.
     /// </summary>
     public Partner Tslog
     {
@@ -218,9 +218,9 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     }
 
     /// <summary>
-    /// Товары
+    /// Товары.
     /// </summary>
-    public ProductCatalog<Product> Products { private get; set; } = null;
+    public ProductCatalog Products { private get; set; } = null;
 
     public string GenerateTransactionId()
     {
@@ -259,7 +259,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
         id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
         var partner = Partners[id];
 
-        if (id == Tslog.Code) // check if Tslog
+        if (id == Tslog.Code) // Check if TSLog.
             partner = Tslog;
 
         if (partner != null && partner != LegalEntity.Null)
@@ -273,8 +273,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             {
                 partner = new Partner(Convert.ToString(reader["id"]),
                     Convert.ToString(reader["name"]),
-                    Convert.ToString(reader["note1"])
-                    )
+                    Convert.ToString(reader["note1"]))
                 {
                     Address = Convert.ToString(reader["address"])
                 };
@@ -304,14 +303,13 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return partners.ToArray();
+        return [.. partners];
     }
 
     public Catalog<LegalEntity> LegalEntities { private get; set; } = null;
     private static LegalEntity CreateLegalEntity(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var legalEntity = new LegalEntity(Convert.ToString(reader["id"]),
                     Convert.ToString(reader["name"]),
                     Convert.ToString(reader["note1"])
@@ -325,7 +323,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     {
         id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
         LegalEntity legalEntity;
-        if (id == Tslog.Code) // check if Tslog
+        if (id == Tslog.Code) // Check if TSLog.
             legalEntity = Tslog;
         else
             legalEntity = Partners[id];           
@@ -350,7 +348,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     public LegalEntity[] GetLegalEntities(Partner[] partners = null)
     {
         var legalEntities = new List<LegalEntity>();
-        return legalEntities.ToArray();
+        return [.. legalEntities];
     }
 
     #endregion
@@ -442,8 +440,8 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     }
     public Product GetProduct(Partner partner, string partnerProductId)
     {
-        // TODO: realize
-        return null;
+        // TODO: realize.
+        throw new NotImplementedException();
     }
     public Product[] GetProducts(Partner[] partners = null)
     {
@@ -476,7 +474,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return products.ToArray();
+        return [.. products];
     }
     #endregion
 
@@ -484,8 +482,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     private Income.Line CreateIncomeLine(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var number = -1;
         var product = GetProduct(Convert.ToString(reader["product_id"]));
         var price = 0.0;
@@ -501,8 +498,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     private Income.Line[] GetIncomeLines(Income income)
     {
-        if (income == null)
-            throw new ArgumentNullException(nameof(income));
+        ArgumentNullException.ThrowIfNull(income);
         var lines = new List<Income.Line>();
         using (var command = _connection.CreateCommand())
         {
@@ -516,13 +512,12 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return lines.ToArray();
+        return [.. lines];
     }
 
     private ReceiptEndNotice CreateReceiptEndNotice(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var incomeId = Convert.ToString(reader["income_id"]);
         var incomeNumber = Convert.ToString(reader["income_number"]);
         var incomeDate = DateTime.MinValue;
@@ -531,10 +526,14 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
         var incomePartnerNumber = Convert.ToString(reader["partner_income_number"]);
         var incomeStateCode = Convert.ToString(reader["state_code"]);
         var incomeState = GetIncomeState(incomeStateCode);
-        var incomePlanReceiptBegin = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
-        var incomePlanReceiptEnd = reader["plan_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
-        var incomeFactReceiptBegin = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
-        var incomeFactReceiptEnd = reader["fact_delivery_date"] != DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
+        var incomePlanReceiptBegin = reader["plan_delivery_date"] !=
+            DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
+        var incomePlanReceiptEnd = reader["plan_delivery_date"] !=
+            DBNull.Value ? Convert.ToDateTime(reader["plan_delivery_date"]) : DateTime.MinValue;
+        var incomeFactReceiptBegin = reader["fact_delivery_date"] !=
+            DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
+        var incomeFactReceiptEnd = reader["fact_delivery_date"] !=
+            DBNull.Value ? Convert.ToDateTime(reader["fact_delivery_date"]) : DateTime.MinValue;
         var incomeNote = Convert.ToString(reader["note"]);
 
         var income = new Income(incomeId, incomeNumber, incomeDate, incomePartner, incomePartnerNumber, incomeState, incomeNote)
@@ -547,7 +546,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
         var id = -1;
         var number = string.Empty;
-        var date = DateTime.Now; // Дата создания сообщения
+        var date = DateTime.Now; // Дата и время создания сообщения.
         var version = (byte)1;
         var sender = Tslog;
         var recipient = incomePartner;
@@ -584,8 +583,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     public ReceiptEndNotice GetReceiptEndNotice(Partner partner, string partnerIncomeId)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         ReceiptEndNotice receiptEndNotice = null;
         using (var command = _connection.CreateCommand())
         {
@@ -634,7 +632,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return receiptEndNotices.ToArray();
+        return [.. receiptEndNotices];
     }
 
     #endregion Inbound instruction and notification
@@ -643,8 +641,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     private Outgo.Line CreateOutgoLine(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var number = -1;
         var product = GetProduct(Convert.ToString(reader["product_id"]));
         var price = 0.0;
@@ -663,8 +660,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     private Outgo.Line[] GetOutgoLines(Outgo outgo)
     {
-        if (outgo == null)
-            throw new ArgumentNullException(nameof(outgo));
+        ArgumentNullException.ThrowIfNull(outgo);
         var lines = new List<Outgo.Line>();
         using (var command = _connection.CreateCommand())
         {
@@ -678,15 +674,14 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return lines.ToArray();
+        return [.. lines];
     }
 
     #region PickingBeginNotice
 
     private PickingBeginNotice CreatePickingBeginNotice(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var outgoId = Convert.ToString(reader["outgo_id"]);
         var outgoNumber = Convert.ToString(reader["outgo_number"]);
         var outgoDate = DateTime.MinValue;
@@ -700,7 +695,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
         var id = -1;
         var number = string.Empty;
-        var date = DateTime.Now; // Теуцщая дата и время сообщения
+        var date = DateTime.Now; // Дата и время создания сообщения.
         var version = (byte)1;
         var sender = Tslog;
         var recipient = outgoPartner;
@@ -736,8 +731,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     public PickingBeginNotice GetPickingBeginNotice(Partner partner, string partnerOutgoId)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         PickingBeginNotice pickingBeginNotice = null;
         using (var command = _connection.CreateCommand())
         {
@@ -791,7 +785,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             pickingBeginNotice.Outgo.AddLines(lines);
             reader.Close();
         }
-        return pickingBeginNotices.ToArray();
+        return [.. pickingBeginNotices];
     }
 
     #endregion PickingBeginNotice
@@ -800,8 +794,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     private PickingEndNotice CreatePickingEndNotice(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var outgoId = Convert.ToString(reader["outgo_id"]);
         var outgoNumber = Convert.ToString(reader["outgo_number"]);
         var outgoDate = DateTime.MinValue;
@@ -815,7 +808,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
         var id = -1;
         var number = string.Empty;
-        var date = DateTime.Now; // Текущая дата и время сообщения
+        var date = DateTime.Now; // Дата и время создания сообщения.
         var version = (byte)1;
         var sender = Tslog;
         var recipient = outgoPartner;
@@ -851,8 +844,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     public PickingEndNotice GetPickingEndNotice(Partner partner, string partnerOutgoId)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         PickingEndNotice pickingEndNotice = null;
         using (var command = _connection.CreateCommand())
         {
@@ -906,7 +898,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             pickingEndNotice.Outgo.AddLines(lines);
             reader.Close();
         }
-        return pickingEndNotices.ToArray();
+        return [.. pickingEndNotices];
     }
 
     #endregion PickingEndNotice
@@ -915,8 +907,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     private ShippingNotice CreateShippingNotice(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var outgoId = Convert.ToString(reader["outgo_id"]);
         var outgoNumber = Convert.ToString(reader["outgo_number"]);
         var outgoDate = DateTime.MinValue;
@@ -930,7 +921,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
         var id = -1;
         var number = string.Empty;
-        var date = DateTime.Now; // Теуцщая дата и время сообщения
+        var date = DateTime.Now; // Дата и время создания сообщения.
         var version = (byte)1;
         var sender = Tslog;
         var recipient = outgoPartner;
@@ -966,8 +957,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
 
     public ShippingNotice GetShippingNotice(Partner partner, string partnerOutgoId)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         ShippingNotice shippingNotice = null;
         using (var command = _connection.CreateCommand())
         {
@@ -1021,7 +1011,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             shippingNotice.Outgo.AddLines(lines);
             reader.Close();
         }
-        return shippingNotices.ToArray();
+        return [.. shippingNotices];
     }
 
 
@@ -1038,8 +1028,6 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
         using (var command = _connection.CreateCommand())
         {
             command.CommandText = $"select * from {LinksSchema}.v_service_user";
-            //command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
-            //command.Parameters.Add(new OracleParameter("pass", model.Password));
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -1050,18 +1038,19 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
             }
             reader.Close();
         }
-        return users.ToArray();
+        return [.. users];
     }
 
     public LegalEntity Authenticate(AuthenticateRequest model)
     {
-        //throw new NotImplementedException();
         var user = LegalEntity.Null;
 
         using (var command = _connection.CreateCommand())
         {
-            command.CommandText = $"select * from {LinksSchema}.v_service_user p where p.name = :login and p.password = :pass and p.active = 1";
-            command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe
+            command.CommandText =
+                $"select * from {LinksSchema}.v_service_user p " +
+                $" where p.name = :login and p.password = :pass and p.active = 1";
+            command.Parameters.Add(new OracleParameter("login", model.Login)); // TODO: make more safe.
             command.Parameters.Add(new OracleParameter("pass", model.Password));
             using var reader = command.ExecuteReader();
             if (reader.Read())
