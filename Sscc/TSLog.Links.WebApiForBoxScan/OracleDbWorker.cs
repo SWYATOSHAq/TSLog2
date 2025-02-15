@@ -2,6 +2,7 @@
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 using TSLog.Links.WebApiForBoxScan.Models;
+using TSLog.Links.Sscc;
 
 namespace TSLog.Links.WebApiForBoxScan;
 
@@ -420,7 +421,7 @@ public class OracleDbWorker
         await connection.OpenAsync();
         await connection.BeginTransactionAsync();
 
-        if (Common.CheckSsccs(ssccs, out ISet<string> temp))
+        if (Utils.CheckSsccs(ssccs, out ISet<string> temp))
         {
             try
             {

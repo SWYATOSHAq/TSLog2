@@ -79,8 +79,10 @@ public class SessionService
     {
         return _loggedOutUsers.TryGetValue(userName, out bool loggedOut) && loggedOut;
     }
-    public static string NormalizeUserName(string userName)
+    public static string NormalizeUserName(string? userName)
     {
+        ArgumentNullException.ThrowIfNull(userName);
+        
         // Remove domain part if present.
         var parts = userName.Split('\\');
         return parts.Length > 1 ? parts[1] : parts[0];

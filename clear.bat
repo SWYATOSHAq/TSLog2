@@ -157,3 +157,5 @@ rmdir /q /s .\TSLog.Yard.WebUI\obj
 
 rmdir /q /s .\TSLog2.BossControl.Synchronizer\bin
 rmdir /q /s .\TSLog2.BossControl.Synchronizer\obj
+
+rmdir /q /s .\TestResults

@@ -1,4 +1,6 @@
-﻿namespace TSLog.Links.WebApiForBoxScan;
+﻿using System;
+
+namespace TSLog.Links.WebApiForBoxScan;
 /// <summary>
 /// Основной класс-сервис для реализации API.
 /// Реализованы метода API.
@@ -12,7 +14,7 @@ public class Service
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <param name="result">Признак того, что пользователю разрешено действие.</param>
     /// <returns></returns>
-    private static bool CheckUser(HttpContext httpContext, SessionService sessionService, out IResult result)
+    private static bool CheckUser(HttpContext httpContext, SessionService sessionService, out IResult? result)
     {
         if (httpContext.User == null || httpContext.User.Identity == null ||
             string.IsNullOrWhiteSpace(httpContext.User.Identity.Name))
@@ -40,10 +42,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак "хорошего расхода (заказа)."</returns>
-    public static async Task<IResult> CheckOutgo(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> CheckOutgo(string outgoId, OracleDbWorker dbService,
     HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -69,10 +71,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак "корректной" ТЕ.</returns>
-    public static async Task<IResult> CheckOutgoTu(string outgoId, string tuId,
+    public static async Task<IResult?> CheckOutgoTu(string outgoId, string tuId,
     OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -97,10 +99,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Количество ТЕ в собрнном расходе (до сканирования SSCC).</returns>
-    public static async Task<IResult> GetOutgoTusCount(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetOutgoTusCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -122,10 +124,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Количество коробов в собранном расходе (заказе).</returns>
-    public static async Task<IResult> GetOutgoBoxesCount(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetOutgoBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -146,10 +148,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Количество коробов на ТЕ ДО! сканирования (которое надо просканировать).</returns>
-    public static async Task<IResult> GetTuBoxesCount(string tuId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetTuBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -171,10 +173,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Количество просканированных ТЕ в расходе (заказе).</returns>
-    public static async Task<IResult> GetOutgoScannedTusCount(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetOutgoScannedTusCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -196,10 +198,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Набор просканированных ТЕ в расходе (заказе).</returns>
-    public static async Task<IResult> GetOutgoScannedTus(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetOutgoScannedTus(string outgoId, OracleDbWorker dbService,
     HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -221,10 +223,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Количество коробов в расходе (заказе), которые были просканированы.</returns>
-    public static async Task<IResult> GetOutgoScannedBoxesCount(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetOutgoScannedBoxesCount(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -245,10 +247,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Набор (массив) коробов в расходе (заказе), которые были просканированы.</returns>
-    public static async Task<IResult> GetOutgoScannedBoxes(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetOutgoScannedBoxes(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -269,10 +271,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Количество отсканированных коробов на ТЕ.</returns>
-    public static async Task<IResult> GetTuScannedBoxesCount(string tuId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetTuScannedBoxesCount(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -293,10 +295,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Набор (массив) отсканированных коробов на ТЕ.</returns>
-    public static async Task<IResult> GetTuScannedBoxes(string tuId, OracleDbWorker dbService,
+    public static async Task<IResult?> GetTuScannedBoxes(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -317,14 +319,16 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак результата.</returns>
-    public static async Task<IResult> AddSscc(AddSsccRequest request,
+    public static async Task<IResult?> AddSscc(AddSsccRequest request,
         OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
         {
+            if (httpContext.User.Identity == null)
+                return Results.Problem($"{httpContext.User.Identity} is null");
             var normalizedUsername = SessionService.NormalizeUserName(httpContext.User.Identity.Name);
             await dbService.AddSsccAsync(request.OutgoId, request.TuId, request.Sscc, normalizedUsername);
             return Results.Ok(new
@@ -348,14 +352,16 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак результата.</returns>
-    public static async Task<IResult> AddSsccs(AddSsccsRequest request,
+    public static async Task<IResult?> AddSsccs(AddSsccsRequest request,
        OracleDbWorker dbService, HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
         {
+            if (httpContext.User.Identity == null)
+                return Results.Problem($"{httpContext.User.Identity} is null");
             var normalizedUsername = SessionService.NormalizeUserName(httpContext.User.Identity.Name);
             await dbService.AddSsccsAsync(request.OutgoId, request.TuId, request.Ssccs, normalizedUsername);
             return Results.Ok(new
@@ -379,10 +385,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак результата удаления.</returns>
-    public static async Task<IResult> RemoveOutgoSsccs(string outgoId, OracleDbWorker dbService,
+    public static async Task<IResult?> RemoveOutgoSsccs(string outgoId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -403,10 +409,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак результата удаления.</returns>
-    public static async Task<IResult> RemoveTuSsccs(string tuId, OracleDbWorker dbService,
+    public static async Task<IResult?> RemoveTuSsccs(string tuId, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try
@@ -427,10 +433,10 @@ public class Service
     /// <param name="httpContext">HTTP контекст.</param>
     /// <param name="sessionService">Объект сервис сессии.</param>
     /// <returns>Объект-признак результата удаления.</returns>
-    public static async Task<IResult> RemoveSscc(string sscc, OracleDbWorker dbService,
+    public static async Task<IResult?> RemoveSscc(string sscc, OracleDbWorker dbService,
         HttpContext httpContext, SessionService sessionService)
     {
-        if (!CheckUser(httpContext, sessionService, out var result))
+        if (!CheckUser(httpContext, sessionService, out IResult? result))
             return result;
 
         try

@@ -1,3 +1,5 @@
+using TSLog.Links.Sscc;
+
 namespace TSLog.Links.MobileAppForBoxScan.Resources.Pages;
 
 /// <summary>
@@ -87,7 +89,7 @@ public partial class TuPage : ContentPage, IQueryAttributable
         }
 
         Color color;
-        if (Common.CheckSscc(text, out string sscc))
+        if (Utils.CheckSscc(text, out string sscc))
         {
             if (!_storedSsccs.Contains(text.Trim()) && !_scannedSsccs.Contains(text.Trim()))
             {

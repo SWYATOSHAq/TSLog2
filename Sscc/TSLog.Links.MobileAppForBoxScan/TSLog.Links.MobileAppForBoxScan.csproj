@@ -70,6 +70,10 @@
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\TSLog.Links.SsccCommon\TSLog.Links.SsccCommon.csproj" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="Resources\Pages\LoginPage.xaml.cs">
