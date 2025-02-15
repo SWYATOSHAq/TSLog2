@@ -7,5 +7,5 @@ public class Common
     /// <summary>
     /// Версия приложения (увеличивать перед каждым выпуском).
     /// </summary>
-    public static readonly string Version = "25.2.9.1";
+    public static readonly string Version = "25.2.15.1";
 }
