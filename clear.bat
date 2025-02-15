@@ -67,8 +67,8 @@ rmdir /q /s .\TSLog.Links.JITLimport\obj
 rmdir /q /s .\TSLog.Links.KotonExport\bin
 rmdir /q /s .\TSLog.Links.KotonExport\obj
 
-rmdir /q /s .\TSLog.Links.MobileAppForBoxScan\bin
-rmdir /q /s .\TSLog.Links.MobileAppForBoxScan\obj
+rmdir /q /s .\Sscc\TSLog.Links.MobileAppForBoxScan\bin
+rmdir /q /s .\Sscc\TSLog.Links.MobileAppForBoxScan\obj
 
 rmdir /q /s .\TSLog.Links.OracleStorage\bin
 rmdir /q /s .\TSLog.Links.OracleStorage\obj
@@ -88,8 +88,8 @@ rmdir /q /s .\TSLog.Links.Storage\obj
 rmdir /q /s .\TSLog.Links.Test\bin
 rmdir /q /s .\TSLog.Links.Test\obj
 
-rmdir /q /s .\TSLog.Links.WebApiForBoxScan\bin
-rmdir /q /s .\TSLog.Links.WebApiForBoxScan\obj
+rmdir /q /s .\Sscc\TSLog.Links.WebApiForBoxScan\bin
+rmdir /q /s .\Sscc\TSLog.Links.WebApiForBoxScan\obj
 
 rmdir /q /s .\TSLog.Log\bin
 rmdir /q /s .\TSLog.Log\obj
