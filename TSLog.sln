@@ -135,6 +135,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.SsccCommon", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SsccUnitTests", "Sscc\SsccUnitTests\SsccUnitTests.csproj", "{1BBF3181-9774-4049-9EFE-40169767B6B3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Links", "Links", "{95D33841-D38E-4D7E-AE98-C2492ACF26B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSLog.Links.Connector", "Links\Connector\TSLog.Links.Connector.csproj", "{FF0EB758-C2A8-428F-A2A8-4B086E898214}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -359,6 +363,10 @@ Global
 		{1BBF3181-9774-4049-9EFE-40169767B6B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBF3181-9774-4049-9EFE-40169767B6B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBF3181-9774-4049-9EFE-40169767B6B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF0EB758-C2A8-428F-A2A8-4B086E898214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF0EB758-C2A8-428F-A2A8-4B086E898214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF0EB758-C2A8-428F-A2A8-4B086E898214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF0EB758-C2A8-428F-A2A8-4B086E898214}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -372,6 +380,7 @@ Global
 		{8E84F595-7816-49DB-8DE3-9C47012C94E6} = {4CF6CEF7-CC22-4161-B866-BDA9E6947BAE}
 		{BDBA46DB-3E13-4CE8-A73D-EC13EFE2D6C6} = {4CF6CEF7-CC22-4161-B866-BDA9E6947BAE}
 		{1BBF3181-9774-4049-9EFE-40169767B6B3} = {4CF6CEF7-CC22-4161-B866-BDA9E6947BAE}
+		{FF0EB758-C2A8-428F-A2A8-4B086E898214} = {95D33841-D38E-4D7E-AE98-C2492ACF26B2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88714E8B-587C-4203-A934-34F97D6D11C1}
