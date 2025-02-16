@@ -3,6 +3,7 @@ using iText.Kernel.Colors;
 using iText.Kernel.Font;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Xobject;
+using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using TSLog.Incomes.BO;
@@ -14,7 +15,14 @@ class WmsStorage(IStorage dbStorage) : IWmsStorage
 {
     private readonly IStorage _dbStorage = dbStorage;
 
+    private const string Tsl = 
+        "ООО \"ТЕХСКЛАДЛОГИСТИК\" " +
+        "143006, Московская область, Одинцовский район, город Одинцово, ул. Транспортная, стр. 6А/6, комната 51, этаж 3, " +
+        "ИНН 5032315482, КПП 503201001, р/с 40702810001850001897 в АО \"Альфа-Банк\", БИК 044525593";
 
+    private const string FontPath = "C:\\Windows\\Fonts\\Verdana.ttf";
+    private static readonly iText.Kernel.Font.PdfFont Font = PdfFontFactory.CreateFont(FontPath, "Cp1251");
+    private const int DefaultFontSize = 8;
     private static void AddTableCell(Table table, string text)
     {
         var cell = new Cell(1, 1);
@@ -23,6 +31,29 @@ class WmsStorage(IStorage dbStorage) : IWmsStorage
         cell.Add(p);
         table.AddCell(cell);
     }
+
+    private static void AddText(iText.Layout.Document document, string text,
+        int fontSize = DefaultFontSize,
+        TextAlignment textAlignment = TextAlignment.CENTER,
+        VerticalAlignment verticalAlignment = VerticalAlignment.MIDDLE,
+        UnitValue? width = null,
+        int marginTop = 0,
+        SolidBorder? bottomBorder = null)
+    {
+        var textBlock = new Paragraph(text)
+            .SetFont(Font)
+            .SetFontSize(fontSize)
+            .SetTextAlignment(textAlignment)
+            .SetVerticalAlignment(verticalAlignment)
+            .SetMarginTop(marginTop);
+        if (width != null)
+            textBlock.SetWidth(width);
+        if (bottomBorder != null)
+            textBlock.SetBorderBottom(bottomBorder);
+
+        document.Add(textBlock);
+    }
+
     public string GetFile(Document document)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -46,47 +77,19 @@ class WmsStorage(IStorage dbStorage) : IWmsStorage
         iText.Layout.Document doc = new iText.Layout.Document(pdf);
 
 
-        var tsl = 
-            "ООО \"ТЕХСКЛАДЛОГИСТИК\" 143006, Московская область, Одинцовский район, город Одинцово, ул. " +
-            "Транспортная, стр. 6А/6, комната 51, этаж 3, ИНН 5032315482, КПП 503201001, р/с 40702810001850001897 в " +
-            "АО \"Альфа-Банк\", БИК 044525593";
+        var f1 = PdfFontFactory.CreateFont(FontPath, "Cp1251");
 
-        string FONT = "C:\\Windows\\Fonts\\Verdana.ttf";
-        PdfFont f1 = PdfFontFactory.CreateFont(FONT, "Cp1251");
+        AddText(doc, Tsl, DefaultFontSize, TextAlignment.LEFT, VerticalAlignment.MIDDLE, 
+            new UnitValue(2, 75), 0, new SolidBorder(ColorConstants.BLACK, 0.5f));
 
+        AddText(doc, Tsl, DefaultFontSize, TextAlignment.LEFT, VerticalAlignment.MIDDLE,
+            new UnitValue(2, 75), 10, new SolidBorder(ColorConstants.BLACK, 0.5f));
 
-        iText.Layout.Element.Paragraph text = new Paragraph(tsl)
-            .SetTextAlignment(TextAlignment.LEFT)
-            .SetFontSize(8)
-            .SetFont(f1);
-        iText.Layout.Element.Div div = new Div();
-        UnitValue width = new UnitValue(2, 75);
-        div.SetWidth(width);
-        div.SetFont(f1);
-        div.Add(text);
-        div.SetBackgroundColor(ColorConstants.LIGHT_GRAY);
-        div.SetBorderBottom(new iText.Layout.Borders.SolidBorder(ColorConstants.BLACK, 0.5f));
-        doc.Add(div);
-        div.SetMarginTop(10);
-        doc.Add(div);
-
-        var client = "ООО «Торговый дом «Аскания», 357210, Минеральные Воды, 3-я Промышленная ул, дом №6,кор.2, " +
-            "Ставропольский край, Минераловодский р-н, " +
-            "р/с 40702810561090000746 в банке ФЦБ ВТБ (ПАО), ИНН 2630045364, КПП 263001001, " +
-            "БИК 044525411, к/с 30101810145250000411";
-        text = new Paragraph(client)
-            .SetTextAlignment(TextAlignment.LEFT)
-            .SetFontSize(8)
-            .SetFont(f1);
-        div = new Div();
-        width = new UnitValue(2, 75);
-        div.SetWidth(width);
-        div.SetFont(f1);
-        div.Add(text);
-        div.SetBackgroundColor(ColorConstants.LIGHT_GRAY);
-        div.SetBorderBottom(new iText.Layout.Borders.SolidBorder(ColorConstants.BLACK, 0.5f));
-        div.SetMarginTop(10);
-        doc.Add(div);
+        var client = "ООО «Торговый дом «Аскания»," +
+            "357210, Минеральные Воды, 3-я Промышленная ул, дом №6,кор.2, Ставропольский край, Минераловодский р-н, " +
+            "р/с 40702810561090000746 в банке ФЦБ ВТБ (ПАО), ИНН 2630045364, КПП 263001001, БИК 044525411, к/с 30101810145250000411";
+        AddText(doc, client, DefaultFontSize, TextAlignment.LEFT, VerticalAlignment.MIDDLE,
+            new UnitValue(2, 75), 10, new SolidBorder(ColorConstants.BLACK, 0.5f));
 
         iText.Layout.Element.Table table = new Table(2).SetFont(f1).SetFontSize(8);
         table.SetWidth(new UnitValue(2, 70));
@@ -162,6 +165,7 @@ class WmsStorage(IStorage dbStorage) : IWmsStorage
         iText.Layout.Element.List l = new List();
 
         Paragraph par = new Paragraph();
+        var div = new Div();
         div.SetBaseDirection(BaseDirection.LEFT_TO_RIGHT);
 
         iText.Layout.Element.Text t = new Text("В соответствии с договором о хранении за время хранения")
