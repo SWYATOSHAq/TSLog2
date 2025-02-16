@@ -25,22 +25,22 @@ public class Outgo : WarehouseAction
         public double Price { get; set; }
 
         /// <summary>
-        /// Валюта
+        /// Валюта.
         /// </summary>
         public Entity Currency { get; set; }
 
         /// <summary>
-        /// Сумма
+        /// Сумма.
         /// </summary>
         public double Sum => Price * base.FactQuantity;
 
         /// <summary>
-        /// Код ОКЕИ
+        /// Код ОКЕИ.
         /// </summary>
         public string OKEI { get; set; } = string.Empty;
 
         /// <summary>
-        /// Плановое количество
+        /// Плановое количество.
         /// </summary>
         public new double PlanQuantity
         {
@@ -70,44 +70,43 @@ public class Outgo : WarehouseAction
         }
 
         /// <summary>
-        /// Дополнительная информация (структурированная или нет)
+        /// Дополнительная информация (структурированная или нет).
         /// </summary>
         public string Info { get; set; } = string.Empty;
 
         /// <summary>
-        /// Номер партии
+        /// Номер партии.
         /// </summary>
         public string BatchNumber { get; set; } = string.Empty;
 
         /// <summary>
-        /// Альтернативный номер партии
+        /// Альтернативный номер партии.
         /// </summary>
         public string BatchNumber2 { get; set; } = string.Empty;
 
-        private readonly IDictionary<LogisticUnit, double> _logisticUnits = new Dictionary<LogisticUnit, double>();
+        private readonly Dictionary<LogisticUnit, double> _logisticUnits = [];
 
-        public Line(int number, Product product, double price, Entity currency,
+        public Line(int number, Product product, double price, Entity? currency,
             double planQuantity, double factQuantity, MeasureUnit measureUnit)
             : base(number, product, planQuantity, factQuantity, measureUnit)
         {
             Price = price > 0.0 ? price : 0.0;
             if (price > 0.0 && currency == null)
                 throw new ArgumentNullException(nameof(currency));
-            Currency = price > 0.0 ? currency : Null;
+            Currency = price > 0.0 && currency != null ? currency : Null;
             PlanQuantity = planQuantity > 0.0 ? planQuantity : 0.0;
         }
 
         /// <summary>
-        /// Добавляет логистическую единицу
+        /// Добавляет логистическую единицу.
         /// </summary>
-        /// <param name="logisticUnit">Логистическая единица</param>
-        /// <param name="quantity">Количество товара на добавляемой логистической единице</param>
+        /// <param name="logisticUnit">Логистическая единица.</param>
+        /// <param name="quantity">Количество товара на добавляемой логистической единице.</param>
         public void AddLogisticUnit(LogisticUnit logisticUnit, double quantity)
         {
             if (quantity <= 0.0)
                 return;
-            if (logisticUnit == null)
-                throw new ArgumentNullException(nameof(logisticUnit));
+            ArgumentNullException.ThrowIfNull(logisticUnit);
             if (!_logisticUnits.ContainsKey(logisticUnit))
                 _logisticUnits.Add(logisticUnit, quantity);
             else
@@ -215,7 +214,7 @@ public class Outgo : WarehouseAction
     private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
     public Outgo(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "")
-        : base(ActionKind.Outgo, number, id, partner, partnerNumber, DateTime.MinValue, DateTime.MinValue, true, note)
+        : base(ActionKind.Outgo, id, number, partner, partnerNumber, DateTime.MinValue, DateTime.MinValue, true, note)
     {
         Date = date;
         Partner = partner ?? throw new ArgumentNullException(nameof(partner));

@@ -1,7 +1,6 @@
-﻿namespace TSLog.Links.Gs1EdiXml
+﻿namespace TSLog.Links.Gs1EdiXml;
+
+internal enum DocumentObjectTypes
 {
-    internal enum DocumentObjectTypes
-    {
-        ArticleWMS, DocWMS
-    }
+    ArticleWMS, DocWMS
 }

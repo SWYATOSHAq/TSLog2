@@ -135,8 +135,8 @@ public class PgSqlStorage : IDisposable
 
     protected static Entity CreateEntity(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
+
         var id = Utils.DbValueToLong(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var name = Utils.DbValueToString(reader["name"]);
@@ -160,9 +160,9 @@ public class PgSqlStorage : IDisposable
     /// <summary>
     /// Возвращает сущность по идентификатору.
     /// </summary>
-    /// <param name="id">Идентификатор</param>
-    /// <param name="sql">SQL запрос для получения сущности</param>
-    /// <param name="catalog">Каталог для поиска сущости в кэше</param>
+    /// <param name="id">Идентификатор.</param>
+    /// <param name="sql">SQL запрос для получения сущности.</param>
+    /// <param name="catalog">Каталог для поиска сущости в кэше.</param>
     /// <returns>Сущность</returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="EntityNotFoundException"></exception>
@@ -188,8 +188,7 @@ public class PgSqlStorage : IDisposable
                 if (reader.Read())
                 {
                     entity = CreateEntity(reader);
-                    if (catalog != null)
-                        catalog.Add(entity);
+                    catalog?.Add(entity);
                 }
                 reader.Close();
             }
@@ -203,8 +202,8 @@ public class PgSqlStorage : IDisposable
     /// Возвращает сущность по коду.
     /// </summary>
     /// <param name="code">Код</param>
-    /// <param name="sql">SQL запрос для получеия сущности</param>
-    /// <param name="catalog">Каталог для поиска сущности в кэше</param>
+    /// <param name="sql">SQL запрос для получеия сущности.</param>
+    /// <param name="catalog">Каталог для поиска сущности в кэше.</param>
     /// <returns>Сущность</returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="EntityNotFoundException"></exception>
@@ -246,8 +245,8 @@ public class PgSqlStorage : IDisposable
     /// <summary>
     /// Возвращает сущности, которые возвращаются указанным SQL запросом.
     /// </summary>
-    /// <param name="sql">Текст SQL запроса</param>
-    /// <returns>Массив сущностей</returns>
+    /// <param name="sql">Текст SQL запроса.</param>
+    /// <returns>Массив сущностей.</returns>
     /// <exception cref="ArgumentException"></exception>
     public Entity[] GetEntities(string sql)
     {

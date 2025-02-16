@@ -13,7 +13,7 @@ namespace TSLog.Links.Connector;
 
 public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
 {
-    private const string DefaultLinksSchema = "common";
+    private const string DefaultLinksSchema = "links";
     private const string DefaultPartnersSchema = "partners";
 
     public string LinksSchema { protected get; set; } = DefaultLinksSchema;
@@ -64,16 +64,16 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         command.ExecuteScalar();
     }
 
-    public Entity GetState(string stateCode)
+    public Entity GetState(string id)
     {
-        stateCode = !string.IsNullOrWhiteSpace(stateCode) ? stateCode.Trim() : string.Empty;
-        var state = _states[stateCode];
+        id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : string.Empty;
+        var state = _states[id];
         if (state != null && state != Entity.Null)
             return state;
         using (var command = _connection.CreateCommand())
         {
-            command.CommandText = $"select * from {CommonSchema}.v_state s where s.code = :code";
-            command.Parameters.Add(new OracleParameter("code", stateCode));
+            command.CommandText = $"select * from {CommonSchema}.v_state s where s.id = :id";
+            command.Parameters.Add(new OracleParameter("id", id));
             using var reader = command.ExecuteReader();
             if (reader.Read())
                 state = new Entity(Utils.DbValueToInt(reader["id"]),
@@ -195,13 +195,11 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         var number = -1;
         var product = GetProduct(Utils.DbValueToString(reader["product_id"]));
         var price = 0.0;
-        var currencyCode = string.Empty;
-        var currency = GetCurrency(currencyCode);
         var planQuantity = Utils.DbValueToDouble(reader["plan_quantity"]);
         var factQuantity = Utils.DbValueToDouble(reader["fact_quantity"]);
         var measureUnitCode = Utils.DbValueToString(reader["quantity_measure_unit_code"]);
         var measureUnit = GetMeasureUnit(measureUnitCode);
-        var line = new Income.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit);
+        var line = new Income.Line(number, product, price, null, planQuantity, factQuantity, measureUnit);
         return line;
     }
     private Income.Line[] GetIncomeLines(Income income)
@@ -211,7 +209,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         using (var command = _connection.CreateCommand())
         {
             command.CommandText = $"select * from {CommonSchema}.v_income_line il where il.income_id = :income_id";
-            command.Parameters.Add(new OracleParameter("income_id", income.Code));
+            command.Parameters.Add(new OracleParameter("income_id", income.Id));
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -222,7 +220,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         }
         return [.. lines];
     }
-    public Income CreateIncome(DbDataReader reader)
+    private Income CreateIncome(DbDataReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
 
@@ -242,6 +240,12 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         income.AddLines(lines);
         return income;
     }
+    /// <summary>
+    /// Возвращает приход по заданному идентификатору прихода.
+    /// </summary>
+    /// <param name="id">Id прихода.</param>
+    /// <returns>Объект прихода.</returns>
+    /// <exception cref="Exception"></exception>
     public Income GetIncome(string id)
     {
         using var command = _connection.CreateCommand();
@@ -265,13 +269,11 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         var number = -1;
         var product = GetProduct(Utils.DbValueToString(reader["product_id"]));
         var price = 0.0;
-        var currencyCode = string.Empty;
-        var currency = GetCurrency(currencyCode);
         var planQuantity = Utils.DbValueToDouble(reader["plan_quantity"]);
         var factQuantity = Utils.DbValueToDouble(reader["fact_quantity"]);
-        var measureUnitCode = string.Empty;
+        var measureUnitCode = Utils.DbValueToString(reader["quantity_measure_unit_code"]);
         var measureUnit = GetMeasureUnit(measureUnitCode);
-        var line = new Outgo.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
+        var line = new Outgo.Line(number, product, price, null, planQuantity, factQuantity, measureUnit)
         {
             FactQuantity = factQuantity
         };
@@ -284,7 +286,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         using (var command = _connection.CreateCommand())
         {
             command.CommandText = $"select * from {CommonSchema}.v_outgo_line ol where ol.outgo_id = :outgo_id";
-            command.Parameters.Add(new OracleParameter("outgo_id", outgo.Code));
+            command.Parameters.Add(new OracleParameter("outgo_id", outgo.Id));
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -295,19 +297,19 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         }
         return [.. lines];
     }
-    public Outgo CreateOutgo(DbDataReader reader)
+    private Outgo CreateOutgo(DbDataReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
 
         var id = Utils.DbValueToString(reader["id"]);
         var number = Utils.DbValueToString(reader["number"]);
-        var date = Utils.DbValueToDateTime(reader["date"]);
+        var date = Utils.DbValueToDateTime(reader["create_date"]);
 
         var partnerId = Utils.DbValueToString(reader["partner_id"]);
         var partner = GetPartner(partnerId);
-        var partnerNumber = Utils.DbValueToString(reader["partner_number"]);
+        var partnerNumber = Utils.DbValueToString(reader["partner_outgo_number"]);
 
-        var stateCode = Utils.DbValueToString(reader["state_code"]);
+        var stateCode = Utils.DbValueToString(reader["state_id"]);
         var state = GetState(stateCode);
 
         Outgo outgo = new(id, number, date, partner, partnerNumber, state);
@@ -315,16 +317,26 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         outgo.AddLines(lines);
         return outgo;
     }
+    /// <summary>
+    /// Возвращает расход по заданному идентификатору расхода.
+    /// </summary>
+    /// <param name="id">Id расхода.</param>
+    /// <returns>Объект расхода.</returns>
+    /// <exception cref="Exception"></exception>
     public Outgo GetOutgo(string id)
     {
         using var command = _connection.CreateCommand();
-        command.CommandText = $"select * from {CommonSchema}.v_outgo o where o.id = :id";
+        command.CommandText = 
+            $"select o.id, o.\"number\", o.create_date,\n" +
+            $"       o.partner_id, o.partner_outgo_number, o.state_id\n" +
+            $"  from {CommonSchema}.v_outgo o where o.id = :id";
         command.Parameters.Add(new OracleParameter("id", id));
         using var reader = command.ExecuteReader();
         if (reader.Read())
         {
+            var outgo = CreateOutgo(reader);
             reader.Close();
-            return CreateOutgo(reader);
+            return outgo;
         }
         else
         {

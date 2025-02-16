@@ -1,13 +1,7 @@
-using System.Text.Json.Serialization;
+namespace TSLog.Links;
 
-namespace TSLog.Links
+public class AuthenticateRequest
 {
-    public class AuthenticateRequest
-    {
-        public string Login { get; set; }
-
-        public string Password { get; set; }
-    }
-
-
+    public string Login { get; set; }
+    public string Password { get; set; }
 }

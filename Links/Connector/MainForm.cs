@@ -1,13 +1,20 @@
+using FastReport;
+using FastReport.Export.Pdf;
+using TSLog.Outgoes.BO;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace TSLog.Links.Connector;
 
 partial class MainForm : Form
 {
     private readonly Worker _worker;
+    private readonly Outgo _outgo;
     private Task? _task = null;
-    public MainForm(Worker worker)
+    public MainForm(Worker worker, Outgo outgo)
     {
         InitializeComponent();
         _worker = worker ?? throw new ArgumentNullException(nameof(worker));
+        _outgo = outgo;
     }
     private async Task Stop()
     {
@@ -26,6 +33,31 @@ partial class MainForm : Form
     }
     private void StartButton_Click(object sender, EventArgs e)
     {
+        /*
+        //Report report = new Report();
+        //var data = new List<Outgo> { _outgo };
+        //report.RegisterData(data, "Outgo");
+        //report.Design();
+        
+        var fileName = "C:\\m.burov\\Projects\\TSLog2\\Links\\Connector\\Test.frx";
+        Report report = Report.FromFile(fileName);
+        var data = new List<Outgo> { _outgo };
+        report.RegisterData(data, "Outgo");
+        
+        //report.Design();
+        //return;
+
+        report.Prepare();
+        //report.Show();
+
+        //FastReport.Export.PdfSimple.PDFSimpleExport export = new();
+        PDFExport export = new();
+        MemoryStream stream = new();
+        report.Export(export, stream);
+        string reportName = "C:\\m.burov\\Projects\\TSLog2\\Links\\Connector\\Test.pdf";
+        File.WriteAllBytes(reportName, stream.ToArray());
+        */
+
         _task = Task.Run(_worker.Start);
         Thread.Sleep(64);
         SetControlsState();

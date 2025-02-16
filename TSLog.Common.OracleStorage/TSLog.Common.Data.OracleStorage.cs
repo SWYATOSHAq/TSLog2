@@ -237,12 +237,12 @@ public class OracleStorage : IDisposable
         using (var command = _connection.CreateCommand())
         {
             var SelectMeasureUnitByCodeSql = 
-                $"select m.id, m.code," +
-                $"       m.name, m.short_name, m.alt_name, m.display_name," +
-                $"       m.is_active, m.display_order," +
-                $"       m.category, m.is_basic, m.coefficient, m.is_default," +                           
-                $"       m.note" +
-                $"  from {CommonSchema}.measure_unit#v m " +
+                $"select m.id, m.code,\n" +
+                $"       m.name, m.short_name, m.alt_name, m.display_name,\n" +
+                $"       m.is_active, m.display_order,\n" +
+                $"       m.category, m.is_basic, m.coefficient, m.is_default,\n" +
+                $"       m.note\n" +
+                $"  from {CommonSchema}.measure_unit#v m\n" +
                 $" where m.code = :code";
             command.CommandText = SelectMeasureUnitByCodeSql;
             command.Parameters.Add(new OracleParameter("code", code));
@@ -268,11 +268,11 @@ public class OracleStorage : IDisposable
         using (var command = _connection.CreateCommand())
         {
             var SelectMeasureUnitsSql =
-                $"select m.id, m.code," +
-                $"       m.name, m.short_name, m.alt_name, m.display_name," +
-                $"       m.is_active, m.display_order," +
-                $"       m.category, m.is_basic, m.coefficient, m.is_default," +
-                $"       m.note" +
+                $"select m.id, m.code,\n" +
+                $"       m.name, m.short_name, m.alt_name, m.display_name,\n" +
+                $"       m.is_active, m.display_order,\n" +
+                $"       m.category, m.is_basic, m.coefficient, m.is_default,\n" +
+                $"       m.note\n" +
                 $"  from {CommonSchema}.measure_unit#v";
             command.CommandText = SelectMeasureUnitsSql;
             using var reader = command.ExecuteReader();

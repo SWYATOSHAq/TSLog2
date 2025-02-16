@@ -16,7 +16,7 @@ public class SkuCatalogModel
     public string MndNr { get; set; }
 
     /// <summary>
-    /// Код артикула, как он заведен у поклажедателя
+    /// Код артикула, как он заведен у поклажедателя.
     /// </summary>
     public string ItemId { get; set; }
 
@@ -25,9 +25,9 @@ public class SkuCatalogModel
     /// </summary>
     public string ArtBez { get; set; } = string.Empty;
     /// <summary>
-    /// Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.). Необходимо согласовать с технологами Оператора.
+    /// Группа артикула. Для разделения учетных групп артикулов, например, по методу резервирования (FIFO, LIFO и т.п.).
+    /// Необходимо согласовать с технологами Оператора.
     /// </summary>
-    /// 
 
     public string ArtGrpNam { get; set; }
     /// <summary>

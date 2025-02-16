@@ -69,7 +69,8 @@
             // 
             // ExitButton
             // 
-            ExitButton.Location = new Point(192, 125);
+            ExitButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ExitButton.Location = new Point(647, 404);
             ExitButton.Name = "ExitButton";
             ExitButton.Size = new Size(100, 24);
             ExitButton.TabIndex = 3;
@@ -82,7 +83,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 14F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(304, 161);
+            ClientSize = new Size(759, 440);
             Controls.Add(ExitButton);
             Controls.Add(SetingsButton);
             Controls.Add(StopButton);

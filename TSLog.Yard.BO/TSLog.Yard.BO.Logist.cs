@@ -1,46 +1,43 @@
 ﻿using TSLog.Common.BO;
 
-namespace TSLog.Yard.BO
+namespace TSLog.Yard.BO;
+
+/// <summary>
+/// Логист.
+/// </summary>
+public class Logist : Entity
 {
+    public Logist(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "",
+        bool isActive = true, short displayOrder = -1,
+        string note = "")
+        : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
+    { }
+    private Logist() : base()
+    { }
+    private static Logist? _null = null;
+
     /// <summary>
-    /// Логист
+    /// Null object.
     /// </summary>
-    public class Logist : Entity
+    public static new Logist Null
     {
-        public Logist(long id, string code, string name = "", string shortName = "", string altName = "", string displayName = "",
-            bool isActive = true, short displayOrder = -1,
-            string note = "")
-            : base(id, code, name, shortName, altName, displayName, isActive, displayOrder, note)
-        { }
-        private Logist() : base()
-        { }
-        private static Logist? _null = null;
-
-        /// <summary>
-        /// Null object
-        /// </summary>
-        public static new Logist Null
+        get
         {
-            get
-            {
-                if (_null == null)
-                    _null = new Logist(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
-                return _null;
-            }
+            _null ??= new Logist(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
+            return _null;
         }
-        private static Logist? _empty = null;
+    }
+    private static Logist? _empty = null;
 
-        /// <summary>
-        /// Empty object
-        /// </summary>
-        public static new Logist Empty
+    /// <summary>
+    /// Empty object.
+    /// </summary>
+    public static new Logist Empty
+    {
+        get
         {
-            get
-            {
-                if (_empty == null)
-                    _empty = new Logist();
-                return _empty;
-            }
+            _empty ??= new Logist();
+            return _empty;
         }
     }
 }

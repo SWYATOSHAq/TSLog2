@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TSLog.Common.MessageSending;
+﻿namespace TSLog.Common.MessageSending;
 
 public enum MessageType
 {
@@ -15,7 +9,7 @@ public enum MessageType
 
 public static class MessageSenderFactory
 {
-    private static readonly EmailConfiguration DefaultEmailConfiguration = new EmailConfiguration
+    private static readonly EmailConfiguration DefaultEmailConfiguration = new()
     {
         From = "infowms@tslog.ru",
         SmtpServer = "smtp.yandex.ru",
@@ -35,4 +29,3 @@ public static class MessageSenderFactory
         }
     }
 }
-

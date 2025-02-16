@@ -84,9 +84,9 @@ public class Income : WarehouseAction
         /// </summary>
         public string BatchNumber2 { get; set; } = string.Empty;
 
-        private readonly IDictionary<LogisticUnit, double> _logisticUnits = new Dictionary<LogisticUnit, double>();
+        private readonly Dictionary<LogisticUnit, double> _logisticUnits = [];
 
-        public Line(int number, Product product, double price, Entity currency,
+        public Line(int number, Product product, double price, Entity? currency,
             double planQuantity, double factQuantity, MeasureUnit measureUnit, string note = "")
             : base(number, product, planQuantity, factQuantity, measureUnit)
         {
@@ -191,7 +191,8 @@ public class Income : WarehouseAction
 
     private readonly IDictionary<string, LogisticUnit> _logisticUnits = new Dictionary<string, LogisticUnit>();
 
-    public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "") : base(ActionKind.Income, id, number, partner, partnerNumber, DateTime.MinValue, DateTime.MinValue, true, note)
+    public Income(string id, string number, DateTime date, Partner partner, string partnerNumber, Entity state, string note = "")
+        : base(ActionKind.Income, id, number, partner, partnerNumber, DateTime.MinValue, DateTime.MinValue, true, note)
     {
         Date = date;
         Partner = partner ?? throw new ArgumentNullException(nameof(partner));

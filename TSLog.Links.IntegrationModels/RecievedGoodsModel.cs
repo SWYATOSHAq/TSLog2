@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TSLog.Links.IntegrationModels;
+﻿namespace TSLog.Links.IntegrationModels;
 
 /// <summary>
 /// Модель для телграммы заявки на приёмку. Включает в себя Заголовок, Строку или Строки и Окончание.
@@ -147,7 +141,8 @@ public class ReceivedGoodsModel
         /// </summary>
         public string TeNam { get; set; }
 
-        public Body(string msgNam, string mndNr, string custDocId, string itemId, string qty, string price, string unit, string bstChgNam, string teNam)
+        public Body(string msgNam, string mndNr, string custDocId,
+            string itemId, string qty, string price, string unit, string bstChgNam, string teNam)
         {
             MsgNam = msgNam;
             MndNr = mndNr;
@@ -194,4 +189,3 @@ public class ReceivedGoodsModel
         }
     }
 }
-

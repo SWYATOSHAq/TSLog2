@@ -38,13 +38,17 @@ static class Program
             var dbPassword = Settings.Default.DbPassword;
             storage = new Storage(dbDataSource);
             var securityDbPassword = TSLog.Common.Utils.StringToSecureString(dbPassword);
+            storage.CommonSchema = "ecco";
+            storage.LinksSchema = "ecco";
+            storage.PartnersSchema = "ecco";
             storage.Connect(dbLogin, securityDbPassword);
 
             Environment.SetEnvironmentVariable("ITEXT_BOUNCY_CASTLE_FACTORY_NAME", "bouncy-castle");
             wmsStorage = new WmsStorage(storage);
 
-            var document = new Document() { Id = string.Empty, Kind = string.Empty };
+            var document = new Document() { Id = "00070000W0007N0005694", Kind = "O" };
 
+            /*
             string id = "250000-000090";
             string number = "250000-000090";
             DateTime date = DateTime.Now;
@@ -53,6 +57,7 @@ static class Program
             string partnerNumber = "1234";
             TSLog.Common.BO.Entity state = new(-1, "");
             Outgo outgo = new Outgo(id, number, date, partner, partnerNumber, state);
+            */
 
             wmsStorage.GetFile(document);
             return;
@@ -73,7 +78,10 @@ static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm(worker));
+
+        var outgo = storage.GetOutgo("00070000W0007N0005425");
+
+        Application.Run(new MainForm(worker, outgo));
 
         storage.Dispose();
     }

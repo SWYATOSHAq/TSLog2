@@ -1,13 +1,13 @@
 ﻿namespace TSLog.Common.BO
 {
     /// <summary>
-    /// Единица измерения
+    /// Единица измерения.
     /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={6512FD8B-4D58-49B0-9A36-AF01F2EED2FF}
     /// </summary>
     public class MeasureUnit : Entity
     {
         /// <summary>
-        /// Размерность единицы измерения (объем, вес, длина и т. д.)
+        /// Размерность единицы измерения (объем, вес, длина и т. д.).
         /// </summary>
         public string Category { get; private set; }
 
@@ -17,12 +17,13 @@
         public bool IsBasic { get; private set; }
 
         /// <summary>
-        /// Коэффициент преобразования: определяет номер этой единицы измерения, который соответствует базовой единице измерения.
+        /// Коэффициент преобразования: определяет номер этой единицы измерения,
+        /// который соответствует базовой единице измерения.
         /// </summary>
         public double Coefficient { get; private set; }
 
         /// <summary>
-        /// Базовая единица измерения, коэффициент преобразования которой равен 1
+        /// Базовая единица измерения, коэффициент преобразования которой равен 1.
         /// </summary>
         public bool IsDefault { get; private set; }
 
@@ -52,28 +53,26 @@
 
         private static MeasureUnit _null = null;
         /// <summary>
-        /// Null object
+        /// Null object.
         /// </summary>
         public new static MeasureUnit Null
         {
             get
             {
-                if (_null == null)
-                    _null = new MeasureUnit(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL", true, 1.0);
+                _null ??= new MeasureUnit(-1, "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL", true, 1.0);
                 return _null;
             }
         }
         private static MeasureUnit _empty = null;
 
         /// <summary>
-        /// Empty object
+        /// Empty object.
         /// </summary>
         public static new MeasureUnit Empty
         {
             get
             {
-                if (_empty == null)
-                    _empty = new MeasureUnit();
+                _empty ??= new MeasureUnit();
                 return _empty;
             }
         }

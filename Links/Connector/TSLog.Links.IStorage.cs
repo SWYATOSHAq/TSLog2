@@ -1,9 +1,14 @@
 ﻿using System.Security;
+using TSLog.Incomes.BO;
+using TSLog.Outgoes.BO;
 
 namespace TSLog.Links.Connector;
 
 interface IStorage : IDisposable
 {
+    public string CommonSchema { set; }
+    public string LinksSchema { set; }
+    public string PartnersSchema { set; }
     public void SetDataSource(string dataSource)
     { }
     public void Connect(string user, SecureString password)
@@ -12,21 +17,13 @@ interface IStorage : IDisposable
     {
         return [];
     }
-    public string GetIncomeHeader(string incomeId)
+    public Income GetIncome(string incomeId)
     {
-        return string.Empty;
+        throw new NotImplementedException();
     }
-    public string GetIncomeLines(string incomeId)
+    public Outgo GetOutgo(string outgoId)
     {
-        return string.Empty;
-    }
-    public string GetOutgoHeader(string outgoId)
-    {
-        return string.Empty;
-    }
-    public string GetOutgoLines(string outgoId)
-    {
-        return string.Empty;
+        throw new NotImplementedException();
     }
     public void MarkSendDocument(Document document)
     { }

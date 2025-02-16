@@ -2,7 +2,7 @@
 
 public class Message
 {
-    public List<string> To { get; set; } = new List<string>();
+    public List<string> To { get; set; } = [];
     public required string Subject { get; set; }
     public required string Body { get; set; }
 }

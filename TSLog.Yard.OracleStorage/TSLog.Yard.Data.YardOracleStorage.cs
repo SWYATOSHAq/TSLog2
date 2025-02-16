@@ -54,8 +54,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     public ProductCatalog Products { private get; set; } = new();
     private static Product CreateProduct(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
 
         var product = new Product(Utils.DbValueToString(reader["id"]),
             Utils.DbValueToString(reader["code"]),
@@ -157,10 +156,9 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <returns>Товар.</returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public Product GetProduct(Partner partner, string partnerProductId)
+    public static Product GetProduct(Partner partner, string partnerProductId)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         if (string.IsNullOrWhiteSpace(partnerProductId))
             throw new ArgumentException("partner product id is empty");
         return Product.Null;
@@ -207,15 +205,14 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return products.ToArray();
+        return [.. products];
     }
     #endregion
 
     #region Warehouse actions
     private LineBase CreateWarehouseActionLine(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
 
         var productId = Utils.DbValueToString(reader["product_id"]);
         var product = GetProduct(productId);
@@ -249,8 +246,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     }
     private WarehouseAction CreateWarehouseAction(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var kind = Convert.ToString(reader["kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
         var id = Utils.DbValueToString(reader["id"]);
         var number = string.Empty;
@@ -268,8 +264,10 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             planActionDate,
             insertDate,
             isActive,
-            note);
-        action.TusCount = Utils.DbValueToInt(reader["tu_count"]);
+            note)
+        {
+            TusCount = Utils.DbValueToInt(reader["tu_count"])
+        };
         return action;
     }
     /// <summary>
@@ -349,7 +347,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return lines.ToArray();
+        return [.. lines];
     }
     /// <summary>
     /// Возвращает товарные позиции складского действа (прихода, расхода, ...).
@@ -359,8 +357,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <exception cref="ArgumentNullException"></exception>
     public LineBase[] GetWarehouseActionLines(WarehouseAction action)
     {
-        if (action == null)
-            throw new ArgumentNullException(nameof(action));
+        ArgumentNullException.ThrowIfNull(action);
         return GetWarehouseActionLines(action.Kind, action.Id);
     }
     /// <summary>
@@ -456,8 +453,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <exception cref="WarehouseActionNotFoundException"></exception>
     public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         partnerActionId = partnerActionId.Trim();
         var action = WarehouseAction.Null;
         using (var command = _connection.CreateCommand())
@@ -626,8 +622,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <exception cref="ArgumentNullException"></exception>
     public long GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
         long time = 0;
         var tuCounter = new List<string>();
         using (var command = _connection.CreateCommand())
@@ -731,8 +726,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     private readonly Catalog<LegalEntity> _legalEntities = new("LEGAL_ENTITIES", "Организации");
     private static LegalEntity CreateLegalEntity(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var id = Utils.DbValueToString(reader["id"]);
         var name = Utils.DbValueToString(reader["name"]);
         var shortName = Utils.DbValueToString(reader["short_name"]);
@@ -824,8 +818,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     private readonly Catalog<Site> _sites = new("SITES", "Участки");
     private static Site CreateSite(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var id = Utils.DbValueToShort(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var kind = Utils.DbValueToString(reader["kind"]);
@@ -1173,7 +1166,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return sites.ToArray();
+        return [.. sites];
     }
     #endregion
 
@@ -1238,8 +1231,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <exception cref="ArgumentNullException"></exception>
     public Employee[] GetPartnerManagers(Partner partner)
     {
-        if (partner == null)
-            throw new ArgumentNullException(nameof(partner));
+        ArgumentNullException.ThrowIfNull(partner);
 
         var managers = new List<Employee>();
         using (var command = _connection.CreateCommand())
@@ -1259,7 +1251,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return managers.ToArray();
+        return [.. managers];
     }
     /// <summary>
     /// Возвращает всех или только активых клиентов (мандантов).
@@ -1285,7 +1277,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             reader.Close();
         }
         partners.Sort();
-        return partners.ToArray();
+        return [.. partners];
     }
     #endregion
 
@@ -1293,8 +1285,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     private const string DefaultShift = "5/2-40";
     private static Shift CreateShift(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         return new Shift(-1, DateTime.Today, DateTime.Today, "I");
     }
     /// <summary>
@@ -1341,8 +1332,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     private readonly Catalog<Employee> _employees = new("EMPLOYEES", "Сотрудники");
     private Employee CreateEmployee(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var id = Convert.ToInt64(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var surname = Utils.DbValueToString(reader["surname"]);
@@ -1544,7 +1534,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     /// <summary>
     /// Ищет сотрудников по шаблону Ф. И. О., на определённой должности, по определёному режиму работы (номеру смены).
@@ -1556,8 +1546,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <exception cref="ArgumentNullException"></exception>
     public Employee[] FindEmployees(Position position, string pattern, string workMode = "")
     {
-        if (position == null)
-            throw new ArgumentNullException(nameof(position));
+        ArgumentNullException.ThrowIfNull(position);
         pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
         var employees = new HashSet<Employee>();
         using (var command = _connection.CreateCommand())
@@ -1604,7 +1593,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     /// <summary>
     /// Возвращает "линейных" ("линейнх" должностей) сотрудников.
@@ -1634,7 +1623,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
                 $"          e.note" +
                 $"     from {StaffSchema}.stf_employee#v e\n" +
                 $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id" +
-                //                    $"    where emp.is_linear = 1"; было изначально
+                // $"    where emp.is_linear = 1"; Было изначально.
                 $"    where POSITION_CODE IN ('WH_AREA_MANAGER', 'WH_SHIFT_HEAD', 'WH_OUTGO_SECTION_HEAD', 'WH_FOREMAN') OR emp.is_linear = 1 AND dismissal_date IS null";
             command.CommandText = SelectEmployeesSql;
             using var reader = command.ExecuteReader();
@@ -1645,7 +1634,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     /// <summary>
     /// Возвращает ВСЕХ сотрудников.
@@ -1684,7 +1673,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     /// <summary>
     /// Возвращает сотрудников, которые должны работать по плану по указанному моменту времени.
@@ -1727,7 +1716,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     /// <summary>
     /// Возвращает сотрудников, работающих в указанную смену.
@@ -1737,8 +1726,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <exception cref="ArgumentNullException"></exception>
     public Employee[] GetShiftEmployees(Shift shift)
     {
-        if (shift == null)
-            throw new ArgumentNullException(nameof(shift));
+        ArgumentNullException.ThrowIfNull(shift);
         var employees = new List<Employee>();
         using (var command = _connection.CreateCommand())
         {
@@ -1757,7 +1745,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     /// <summary>
     /// Возвращает массив сотрудников, работающих в смену по указанному моменту времени.
@@ -1842,7 +1830,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return works.ToArray();
+        return [.. works];
     }
     /// <summary>
     /// Возвращает работы из БоссКонтророля в промежутке дат (со временем) на указанном участке (в виде объектов SiteWorker).
@@ -1903,7 +1891,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return works.ToArray();
+        return [.. works];
     }
     #endregion
 
@@ -1911,8 +1899,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     private readonly Catalog<Department> _departments = new("DEPARTMENTS", "Подразделения");
     private static Department CreateDepartment(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var id = Convert.ToInt16(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var name = Utils.DbValueToString(reader["name"]);
@@ -2032,7 +2019,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             reader.Close();
         }
         departments.Sort();
-        return departments.ToArray();
+        return [.. departments];
     }
     #endregion
 
@@ -2040,8 +2027,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     private readonly Catalog<Position> _positions = new("POSITIONS", "Должности");
     private Position CreatePosition(DbDataReader reader)
     {
-        if (reader == null)
-            throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(reader);
         var id = Convert.ToInt16(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var name = Utils.DbValueToString(reader["name"]);
@@ -2174,7 +2160,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             reader.Close();
         }
         positions.Sort();
-        return positions.ToArray();
+        return [.. positions];
     }
     /// <summary>
     /// Возвращает "линейные" должности (линейного персонала).
@@ -2202,7 +2188,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return positions.ToArray();
+        return [.. positions];
     }
     #endregion
 
@@ -2256,7 +2242,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return lines.ToArray();
+        return [.. lines];
     }
     /// <summary>
     /// Возвращает трудозатраты за смену.
@@ -2314,7 +2300,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return lines.ToArray();
+        return [.. lines];
     }
     /// <summary>
     /// Возвращает промежутки работ по БоссКонтролю.
@@ -2383,7 +2369,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
             }
             reader.Close();
         }
-        return works.ToArray();
+        return [.. works];
     }
     /// <summary>
     /// Возвращает количество РАЗЛИЧНЫХ работников, которые по системе БоссКонтроль.
@@ -2686,7 +2672,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
         element.bcCost = downCost;
         works.Add(element);
 
-        return works.ToArray();
+        return [.. works];
     }
     /// <summary>
     /// Функция формирования детализированного отчёта по трудозатратам персонала
@@ -2736,7 +2722,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
                 $"  d.position_name, --d.worker_id,\n" +
                 $"  d.worker_full_name, --d.site_id,\n" +
                 $"  d.site_name,\n" +
-                $"  D.PARTNER_ID,\n" +
+                $"  d.partner_id,\n" +
                 $"  d.partner_name,\n" +
                 $"  d.start_date, \n" +
                 $"  d.finish_date,\n" +
@@ -2747,7 +2733,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
                 $"  round(d.clipped_duration * 24 * 60 * 60) clipped_duration\n" +
                 $"from data2 d\n" +
                 $"order by --d.worker_full_name,\n" +
-                $"d.START_DATE";
+                $"d.start_date";
             command.CommandText = sql;
             command.Parameters.Add(new OracleParameter("start_date", fromDate));
             command.Parameters.Add(new OracleParameter("finish_date", toDate));

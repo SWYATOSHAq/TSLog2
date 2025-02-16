@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static TSLog.Links.IntegrationModels.ReceivedGoodsModel;
-
-namespace TSLog.Links.IntegrationModels;
+﻿namespace TSLog.Links.IntegrationModels;
 
 /// <summary>
 ///  Модель телеграммы заявки на отгрузку. Включает в себя Заголовок, Строку или Строки и Окончание.
@@ -16,10 +9,11 @@ public class ShippedGoodsModel
     public List<Body> BodyInfo { get; set; }
     public Tail TailInfo { get; set; }
 
-    public ShippedGoodsModel(string msgNam, string mndNr, string operationType, string custDocId, string custVendId, string shipDate, AuaNameValues aualName)
+    public ShippedGoodsModel(string msgNam, string mndNr, string operationType, string custDocId,
+        string custVendId, string shipDate, AuaNameValues aualName)
     {
         HeaderInfo = new Header(msgNam, mndNr, operationType, custDocId, custVendId, shipDate, aualName);
-        BodyInfo = new List<Body>();
+        BodyInfo = [];
         TailInfo = new Tail(msgNam, mndNr, custDocId);
     }
 

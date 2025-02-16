@@ -3,13 +3,13 @@
 namespace TSLog.LegalEntities.BO;
 
 /// <summary>
-/// Юридическое лицо (организация)
+/// Юридическое лицо (организация).
 /// https://tehskladlogistic.sharepoint.com/sites/msteams_99bc8a/_layouts/15/Doc.aspx?OR=teams&action=edit&sourcedoc={DD97C915-2553-4B50-8753-EFDF79AEC6C0}
 /// </summary>
 public class LegalEntity : Entity
 {
     /// <summary>
-    /// Идентификатор
+    /// Идентификатор.
     /// </summary>
     public new string Id
     {
@@ -20,17 +20,17 @@ public class LegalEntity : Entity
     }
 
     /// <summary>
-    /// Дополнительная информация (адрес)
+    /// Дополнительная информация (адрес).
     /// </summary>
     public string Address { get; set; } = string.Empty;
 
     /// <summary>
-    /// Дополнительная информация
+    /// Дополнительная информация.
     /// </summary>
     public string Info1 { get; set; }
 
     /// <summary>
-    /// Дополнительная информация
+    /// Дополнительная информация.
     /// </summary>
     public string Info2 { get; set; }
 
@@ -52,28 +52,26 @@ public class LegalEntity : Entity
     private static LegalEntity? _null = null;
 
     /// <summary>
-    /// Null object
+    /// Null object.
     /// </summary>
     public new static LegalEntity Null
     {
         get
         {
-            if (_null == null)
-                _null = new LegalEntity("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
+            _null ??= new LegalEntity("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", true, -1, "NULL");
             return _null;
         }
     }
     private static LegalEntity? _empty = null;
 
     /// <summary>
-    /// Empty object
+    /// Empty object.
     /// </summary>
     public static new LegalEntity Empty
     {
         get
         {
-            if (_empty == null)
-                _empty = new LegalEntity();
+            _empty ??= new LegalEntity();
             return _empty;
         }
     }
