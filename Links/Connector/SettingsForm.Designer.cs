@@ -40,6 +40,10 @@
             WmsSettingsGroupBox = new GroupBox();
             DiadocSettingsGroupBox = new GroupBox();
             CommonSettingsGroupBox = new GroupBox();
+            OutgoesPathTextBox = new TextBox();
+            OutgoesPathLabel = new Label();
+            IncomesPathTextBox = new TextBox();
+            IncomesPathLabel = new Label();
             IntervalTextBox = new TextBox();
             IntervalLabel = new Label();
             DbSettingsGroupBox.SuspendLayout();
@@ -55,7 +59,6 @@
             SaveButton.TabIndex = 0;
             SaveButton.Text = "Сохранить";
             SaveButton.UseVisualStyleBackColor = true;
-            SaveButton.Click += SaveButton_Click;
             SaveButton.KeyDown += SettingsForm_KeyDown;
             // 
             // CancelButton
@@ -67,7 +70,6 @@
             CancelButton.TabIndex = 1;
             CancelButton.Text = "Отмена";
             CancelButton.UseVisualStyleBackColor = true;
-            CancelButton.Click += CancelButton_Click;
             CancelButton.KeyDown += SettingsForm_KeyDown;
             // 
             // DbSettingsGroupBox
@@ -162,6 +164,10 @@
             // 
             // CommonSettingsGroupBox
             // 
+            CommonSettingsGroupBox.Controls.Add(OutgoesPathTextBox);
+            CommonSettingsGroupBox.Controls.Add(OutgoesPathLabel);
+            CommonSettingsGroupBox.Controls.Add(IncomesPathTextBox);
+            CommonSettingsGroupBox.Controls.Add(IncomesPathLabel);
             CommonSettingsGroupBox.Controls.Add(IntervalTextBox);
             CommonSettingsGroupBox.Controls.Add(IntervalLabel);
             CommonSettingsGroupBox.Location = new Point(317, 131);
@@ -170,6 +176,38 @@
             CommonSettingsGroupBox.TabIndex = 5;
             CommonSettingsGroupBox.TabStop = false;
             CommonSettingsGroupBox.Text = "Общие настройки";
+            // 
+            // OutgoesPathTextBox
+            // 
+            OutgoesPathTextBox.Location = new Point(89, 77);
+            OutgoesPathTextBox.Name = "OutgoesPathTextBox";
+            OutgoesPathTextBox.Size = new Size(200, 22);
+            OutgoesPathTextBox.TabIndex = 5;
+            // 
+            // OutgoesPathLabel
+            // 
+            OutgoesPathLabel.AutoSize = true;
+            OutgoesPathLabel.Location = new Point(23, 80);
+            OutgoesPathLabel.Name = "OutgoesPathLabel";
+            OutgoesPathLabel.Size = new Size(60, 14);
+            OutgoesPathLabel.TabIndex = 4;
+            OutgoesPathLabel.Text = "Раходы:";
+            // 
+            // IncomesPathTextBox
+            // 
+            IncomesPathTextBox.Location = new Point(89, 49);
+            IncomesPathTextBox.Name = "IncomesPathTextBox";
+            IncomesPathTextBox.Size = new Size(200, 22);
+            IncomesPathTextBox.TabIndex = 3;
+            // 
+            // IncomesPathLabel
+            // 
+            IncomesPathLabel.AutoSize = true;
+            IncomesPathLabel.Location = new Point(14, 52);
+            IncomesPathLabel.Name = "IncomesPathLabel";
+            IncomesPathLabel.Size = new Size(69, 14);
+            IncomesPathLabel.TabIndex = 2;
+            IncomesPathLabel.Text = "Приходы:";
             // 
             // IntervalTextBox
             // 
@@ -229,5 +267,9 @@
         private GroupBox CommonSettingsGroupBox;
         private TextBox IntervalTextBox;
         private Label IntervalLabel;
+        private TextBox OutgoesPathTextBox;
+        private Label OutgoesPathLabel;
+        private TextBox IncomesPathTextBox;
+        private Label IncomesPathLabel;
     }
 }

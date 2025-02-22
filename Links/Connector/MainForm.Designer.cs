@@ -32,6 +32,7 @@
             StopButton = new Button();
             SetingsButton = new Button();
             ExitButton = new Button();
+            ProgressLabel = new Label();
             SuspendLayout();
             // 
             // StartButton
@@ -79,11 +80,21 @@
             ExitButton.Click += ExitButton_Click;
             ExitButton.KeyDown += MainForm_KeyDown;
             // 
+            // ProgressLabel
+            // 
+            ProgressLabel.AutoSize = true;
+            ProgressLabel.Location = new Point(12, 81);
+            ProgressLabel.Name = "ProgressLabel";
+            ProgressLabel.Size = new Size(160, 14);
+            ProgressLabel.TabIndex = 4;
+            ProgressLabel.Text = "Прогресс выполнения...";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 14F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(759, 440);
+            Controls.Add(ProgressLabel);
             Controls.Add(ExitButton);
             Controls.Add(SetingsButton);
             Controls.Add(StopButton);
@@ -95,6 +106,7 @@
             Shown += MainForm_Shown;
             KeyDown += MainForm_KeyDown;
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -103,5 +115,6 @@
         private Button StopButton;
         private Button SetingsButton;
         private Button ExitButton;
+        private Label ProgressLabel;
     }
 }

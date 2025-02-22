@@ -142,5 +142,41 @@ namespace TSLog.Links.Connector {
                 this["DiadocCertificatePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\DiaDoc\\Incomes")]
+        public string IncomesPath {
+            get {
+                return ((string)(this["IncomesPath"]));
+            }
+            set {
+                this["IncomesPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\DiaDoc\\Outgoes")]
+        public string OutgoesPath {
+            get {
+                return ((string)(this["OutgoesPath"]));
+            }
+            set {
+                this["OutgoesPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("245760")]
+        public int SleepTime {
+            get {
+                return ((int)(this["SleepTime"]));
+            }
+            set {
+                this["SleepTime"] = value;
+            }
+        }
     }
 }

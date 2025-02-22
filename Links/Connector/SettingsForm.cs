@@ -1,14 +1,24 @@
 ﻿namespace TSLog.Links.Connector;
 
+/// <summary>
+/// Окно настроек программы.
+/// </summary>
 public partial class SettingsForm : Form
 {
-    public SettingsForm()
+    private const int DefaultInterval = 4 * 60 * 1024;
+    internal SettingsForm(Settings settings)
     {
+        ArgumentNullException.ThrowIfNull(settings);
+
         InitializeComponent();
 
-        DbDataSourceTextBox.Text = Settings.Default.DbDataSource;
-        DbLoginTextBox.Text = Settings.Default.DbLogin;
-        DbPasswordTextBox.Text = Settings.Default.DbPassword;
+        DbDataSourceTextBox.Text = settings.DbDataSource;
+        DbLoginTextBox.Text = settings.DbLogin;
+        DbPasswordTextBox.Text = settings.DbPassword;
+
+        IntervalTextBox.Text = settings.SleepTime.ToString();
+        IncomesPathTextBox.Text = settings.IncomesPath;
+        OutgoesPathTextBox.Text= settings.OutgoesPath;
     }
     public string DbDataSource
     {
@@ -31,23 +41,38 @@ public partial class SettingsForm : Form
             return DbPasswordTextBox.Text.Trim();
         }
     }
+    public int SleepTime
+    {
+        get
+        {
+            if (int.TryParse(IntervalTextBox.Text.Trim(), out int result))
+                return result;
+            return DefaultInterval;
+        }
+    }
+    public string IncomesPath
+    {
+        get 
+        {
+            return IncomesPathTextBox.Text.Trim();
+        }
+    }
+    public string OutgoesPath
+    {
+        get
+        {
+            return OutgoesPathTextBox.Text.Trim();
+        }
+    }
     private void SetControlsState()
     {
         SaveButton.Enabled = DbDataSourceTextBox.Text.Trim().Length > 0 &&
             DbLoginTextBox.Text.Trim().Length > 0 &&
             DbPasswordTextBox.Text.Trim().Length > 0 &&
             
-            IntervalTextBox.Text.Trim().Length > 0 && int.Parse(IntervalTextBox.Text.Trim()) > 0;
-    }
-
-    private void SaveButton_Click(object sender, EventArgs e)
-    {
-        //
-    }
-
-    private void CancelButton_Click(object sender, EventArgs e)
-    {
-        //
+            IntervalTextBox.Text.Trim().Length > 0 && int.Parse(IntervalTextBox.Text.Trim()) > 0 &&
+            !string.IsNullOrWhiteSpace(IncomesPathTextBox.Text) &&
+            !string.IsNullOrWhiteSpace(OutgoesPathTextBox.Text);
     }
 
     private void SettingsForm_KeyDown(object sender, KeyEventArgs e)

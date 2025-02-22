@@ -107,9 +107,7 @@ public class Outgo : WarehouseAction
             if (quantity <= 0.0)
                 return;
             ArgumentNullException.ThrowIfNull(logisticUnit);
-            if (!_logisticUnits.ContainsKey(logisticUnit))
-                _logisticUnits.Add(logisticUnit, quantity);
-            else
+            if (!_logisticUnits.TryAdd(logisticUnit, quantity))
                 _logisticUnits[logisticUnit] += quantity;
         }
     }
@@ -134,7 +132,7 @@ public class Outgo : WarehouseAction
     /// <summary>
     /// Номер в системе партнёра (клиента).
     /// </summary>
-    public string PartnerNumer { get; private set; }
+    public string PartnerNumber { get; private set; }
 
     /// <summary>
     /// Статус (состояние).
@@ -220,7 +218,7 @@ public class Outgo : WarehouseAction
         Partner = partner ?? throw new ArgumentNullException(nameof(partner));
         if (string.IsNullOrWhiteSpace(partnerNumber))
             throw new ArgumentException("partnerNumber is empty");
-        PartnerNumer = partnerNumber;
+        PartnerNumber = partnerNumber;
         State = state ?? throw new ArgumentNullException(nameof(state));
         Note = note;
     }

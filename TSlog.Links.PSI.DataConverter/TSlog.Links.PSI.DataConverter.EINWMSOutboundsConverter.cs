@@ -43,7 +43,7 @@ namespace TSlog.Links.PSI.DataConverter
                 $"|Aktion={PrepStrPar(action)}" +
                 $"|AuaNam={PrepStrPar(outgo.Type?.Code, true, "NORMAL")}" +
                 $"|LfaEmpfNam1={PrepStrPar(outgo.Vendor.Code, true)}" +
-                $"|AufWwsBeleg={PrepStrPar(outgo.PartnerNumer)}" +
+                $"|AufWwsBeleg={PrepStrPar(outgo.PartnerNumber)}" +
                 $"|AufDzVsSoll={PrepStrPar(outgo.PlanShippingBegin, template: "dd.MM.yyyy HH:mm:ss")}" +
                 $"|LfaKdOrt1={PrepStrPar(TruncateLongString(outgo.DeliveryAddress1, deliveryAdderssLenCut), true)}" +
                 $"|LfaKdOrt2={PrepStrPar(TruncateLongString(outgo.DeliveryAddress1, outgo.DeliveryAddress1?.Length ?? 0, deliveryAdderssLenCut), true) /* cut from deliveryAdderssLenCut to end */}" +

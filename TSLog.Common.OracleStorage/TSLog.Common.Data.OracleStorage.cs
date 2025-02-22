@@ -63,17 +63,41 @@ public class OracleStorage : IDisposable
         command.ExecuteNonQuery();
     }
 
+    public static bool HasColumn(IDataRecord dataRecord, string columnName)
+    {
+        for (int i = 0; i < dataRecord.FieldCount; i++)
+        {
+            if (dataRecord.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+        }
+        return false;
+    }
     protected static Entity CreateEntity(DbDataReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
         var id = Utils.DbValueToLong(reader["id"]);
         var code = Utils.DbValueToString(reader["code"]);
         var name = Utils.DbValueToString(reader["name"]);
-        var shortName = Utils.DbValueToString(reader["short_name"]);
-        var altName = Utils.DbValueToString(reader["alt_name"]);
-        var displayName = Utils.DbValueToString(reader["display_name"]);
-        var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+
+        var shortName = string.Empty;
+        if (HasColumn(reader, "short_name"))
+            shortName = Utils.DbValueToString(reader["short_name"]);
+
+        var altName = string.Empty;
+        if (HasColumn(reader, "alt_name"))
+            altName = Utils.DbValueToString(reader["alt_name"]);
+
+        var displayName = string.Empty;
+        if (HasColumn(reader, "display_name"))
+            displayName = Utils.DbValueToString(reader["display_name"]);
+
+        var isActive = true;
+        if (HasColumn(reader, "is_active"))
+            isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+
+        var displayOrder = -1;
+        if (HasColumn(reader, "display_order"))
+            displayOrder = Utils.DbValueToShort(reader["display_order"]);
         var note = Utils.DbValueToString(reader["note"]);
         var entity = new Entity(id,
             code,

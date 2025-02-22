@@ -32,5 +32,14 @@
     <Setting Name="DiadocCertificatePath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="SleepTime" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">245760</Value>
+    </Setting>
+    <Setting Name="IncomesPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\DiaDoc\Incomes</Value>
+    </Setting>
+    <Setting Name="OutgoesPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\DiaDoc\Outgoes</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

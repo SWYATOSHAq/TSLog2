@@ -23,6 +23,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
     private readonly Catalog<Entity> _currencies = new("CURRENCIES", "CURRENCIES");
     private readonly ProductCatalog _products = new();
     private readonly Catalog<Partner> _partners = new("PARTNERS", "Партнёры");
+    private const int MaxBufferSize = 64;
 
     public void SetDataSource(string dataSource)
     {
@@ -33,7 +34,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
 
     public Document[] GetDocumentsToSend()
     {
-        var sql = $"select * from {LinksSchema}.v_sending_document sd where sd.send_date is null";
+        var sql = $"select * from {LinksSchema}.v_sending_document sd where sd.send_date is null and rownum <= {MaxBufferSize}";
         var documents = new List<Document>();
         using (var command = _connection.CreateCommand())
         {
@@ -88,7 +89,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
     public Entity GetCurrency(string code)
     {
         var SelectCurrencyByCodeSql =
-            $"select c.id, c.code, c.name, c.short_name, c.alt_name, c.display_name, c.is_active, c.display_order, c.note " +
+            $"select c.id, c.code, c.name, c.note " +
             $"  from {CommonSchema}.v_currency c " +
             $" where c.code = :code";
         var currency = GetEntity(code, SelectCurrencyByCodeSql, _currencies);
@@ -123,7 +124,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
                 product.NetWeight = Utils.DbValueToInt(reader["gross_weight"]);
                 product.UnitWeight = Utils.DbValueToString(reader["weight_measure"]);
 
-                product.Volume = Utils.DbValueToInt(reader["volume"]);
+                product.Volume = Utils.DbValueToDouble(reader["volume"]);
                 product.UnitVolume = Utils.DbValueToString(reader["volume_measure"]);
 
                 if (!Convert.IsDBNull(reader[nameof(product.Price)]))
@@ -268,12 +269,29 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         ArgumentNullException.ThrowIfNull(reader);
         var number = -1;
         var product = GetProduct(Utils.DbValueToString(reader["product_id"]));
-        var price = 0.0;
         var planQuantity = Utils.DbValueToDouble(reader["plan_quantity"]);
         var factQuantity = Utils.DbValueToDouble(reader["fact_quantity"]);
+
+        MeasureUnit measureUnit;
         var measureUnitCode = Utils.DbValueToString(reader["quantity_measure_unit_code"]);
-        var measureUnit = GetMeasureUnit(measureUnitCode);
-        var line = new Outgo.Line(number, product, price, null, planQuantity, factQuantity, measureUnit)
+        if (!string.IsNullOrWhiteSpace(measureUnitCode))
+            measureUnit = GetMeasureUnit(measureUnitCode);
+        else if (HasColumn(reader, "quantity_measure_unit_short_name"))
+        {
+            var measureUnitShortName = Utils.DbValueToString(reader["quantity_measure_unit_short_name"]);
+            measureUnitCode = MeasureUnit.GetCodeByShortName(measureUnitShortName);
+            measureUnit = GetMeasureUnit(measureUnitCode);
+        }
+        else
+            throw new EntityNotFoundException(measureUnitCode);
+
+        var cost = Utils.DbValueToDouble(reader["cost"]);
+        double price = factQuantity > 0 ? cost / factQuantity : 0.0;
+
+        var currencyCode = "RUR";
+        var currency = GetCurrency(currencyCode);
+
+        var line = new Outgo.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
         {
             FactQuantity = factQuantity
         };

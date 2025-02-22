@@ -1,4 +1,7 @@
-﻿namespace TSLog.Common.BO
+﻿using System;
+using System.Collections.Generic;
+
+namespace TSLog.Common.BO
 {
     /// <summary>
     /// Единица измерения.
@@ -75,6 +78,32 @@
                 _empty ??= new MeasureUnit();
                 return _empty;
             }
+        }
+
+        private static readonly Dictionary<string, string> Codes = new()
+        {
+            { "г", "G"},
+            { "кг", "KG"},
+            { "см", "CM"},
+            { "м", "M"},
+            { "шт", "ST"},
+            { "рулон", "RL"},
+            { "упаковка", "PK" }
+        };
+        /// <summary>
+        /// Возвращает код Е. И. по его короткому наименованию. Нужно для "костыля" для печати МХ-3.
+        /// </summary>
+        /// <param name="shortName">Короткое наименование.</param>
+        /// <returns>Код Е. И.</returns>
+        public static string GetCodeByShortName(string shortName)
+        {
+            if (string.IsNullOrWhiteSpace(shortName))
+                ArgumentNullException.ThrowIfNullOrWhiteSpace(shortName);
+
+            shortName = shortName.Trim().ToLower();
+            if (Codes.TryGetValue(shortName, out string value))
+                return value;
+            return string.Empty;
         }
     }
 }
