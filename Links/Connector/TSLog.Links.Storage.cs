@@ -15,6 +15,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
 {
     private const string DefaultLinksSchema = "links";
     private const string DefaultPartnersSchema = "partners";
+    private const string DefaultCurrencyCode = "RUR";
 
     public string LinksSchema { protected get; set; } = DefaultLinksSchema;
     public string PartnersSchema { protected get; set; } = DefaultPartnersSchema;
@@ -255,14 +256,54 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         using var reader = command.ExecuteReader();
         if (reader.Read())
         {
+            var income = CreateIncome(reader);
             reader.Close();
-            return CreateIncome(reader);
+            income.ServiceLines = GetIncomeServices(id);
+            return income;
         }
         else
         {
             reader.Close();
             throw new Exception($"Income not found by id {id}.");
         }
+    }
+    public ServiceLine CreateServiceLine(int number, DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+
+        var serviceId = Utils.DbValueToInt(reader["service_id"]);
+        var service = GetService(serviceId);
+        var quantity = Utils.DbValueToDouble(reader["quantity"]);
+        var price = Utils.DbValueToDouble(reader["price"]);
+        var calculatedSum = Utils.DbValueToDouble(reader["calculated_sum"]);
+        var currency = GetCurrency(DefaultCurrencyCode);
+
+        var line = new ServiceLine(number, service, service.DefaultMeasure, quantity, price, calculatedSum, currency);
+        return line;
+    }
+    public ServiceLine[] GetIncomeServices(string incomeId)
+    {
+        var lines = new List<ServiceLine>();
+        using (var command = _connection.CreateCommand())
+        {
+            command.CommandText =
+                $"select ds.service_id, ds.quantity, ds.price, ds.sum calculated_sum\n" +
+                $"  from {CommonSchema}.v_document_service ds\n" +
+                $" where ds.document_kind = 'RECEIPT'\n" +
+                $"   and ds.wms_document_id = :income_id";
+            command.Parameters.Add(new OracleParameter("income_id", incomeId));
+            using var reader = command.ExecuteReader();
+            var number = 0;
+            while (reader.Read())
+            {
+                number++;
+                var line = CreateServiceLine(number, reader);
+                lines.Add(line);
+            }
+            reader.Close();
+        }
+
+        return [.. lines];
     }
     private Outgo.Line CreateOutgoLine(DbDataReader reader)
     {
@@ -288,8 +329,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         var cost = Utils.DbValueToDouble(reader["cost"]);
         double price = factQuantity > 0 ? cost / factQuantity : 0.0;
 
-        var currencyCode = "RUR";
-        var currency = GetCurrency(currencyCode);
+        var currency = GetCurrency(DefaultCurrencyCode);
 
         var line = new Outgo.Line(number, product, price, currency, planQuantity, factQuantity, measureUnit)
         {
@@ -354,6 +394,7 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
         {
             var outgo = CreateOutgo(reader);
             reader.Close();
+            outgo.ServiceLines = GetOutgoServices(id);
             return outgo;
         }
         else
@@ -361,5 +402,29 @@ public class Storage(string dataSource) : OracleStorage(dataSource), IStorage
             reader.Close();
             throw new Exception($"Outgo not found by id {id}.");
         }
+    }
+    public ServiceLine[] GetOutgoServices(string outgoId)
+    {
+        var lines = new List<ServiceLine>();
+        using (var command = _connection.CreateCommand())
+        {
+            command.CommandText =
+                $"select ds.service_id, ds.quantity, ds.price, ds.sum calculated_sum\n" +
+                $"  from {CommonSchema}.v_document_service ds\n" +
+                $" where ds.document_kind = 'SHIP'\n" +
+                $"   and ds.wms_document_id = :outgo_id";
+            command.Parameters.Add(new OracleParameter("outgo_id", outgoId));
+            using var reader = command.ExecuteReader();
+            var number = 0;
+            while (reader.Read())
+            {
+                number++;
+                var line = CreateServiceLine(number, reader);
+                lines.Add(line);
+            }
+            reader.Close();
+        }
+
+        return [.. lines];
     }
 }

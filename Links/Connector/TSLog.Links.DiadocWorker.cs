@@ -7,12 +7,12 @@ namespace TSLog.Links.Connector;
 
 class DiadocWorker : IDiadocWorker
 {
-    private string _clientId = string.Empty;
-    private string _apiUrl = string.Empty;
-    private string _login = string.Empty;
-    private string _password = string.Empty;
-    private string _boxId = string.Empty;
-    private string _certificatePath = string.Empty;
+    private readonly string _clientId = string.Empty;
+    private readonly string _apiUrl = string.Empty;
+    private readonly string _login = string.Empty;
+    private readonly string _password = string.Empty;
+    private readonly string _boxId = string.Empty;
+    private readonly string _certificatePath = string.Empty;
 
     public DiadocWorker(string clientId, string apiUrl, string login, string password, string boxId, string certificatePath)
     {
@@ -42,7 +42,31 @@ class DiadocWorker : IDiadocWorker
         var org = diadocApi.GetOrganizationById(clientId);
         var orgs = diadocApi.GetMyOrganizations(result);
     }
-    
+
+    public void Test2()
+    {
+        //var id = "5032315482-503201001";
+        //var id = "bddc7c00-d8dc-4146-b0ec-6e06a53530c0";
+
+        var crypt = new WinApiCrypt();
+        var diadocApi = new DiadocApi(
+            //_clientId,
+            "2BM-9629832401-962901000-202503021226238704914",
+            _apiUrl,
+            crypt);
+
+        
+        //var key = "API-5fb0e0fd-a2f9-4364-b8e3-8c836b6366db";
+
+        var result = diadocApi.Authenticate(_login, _password);
+        //var result = diadocApi.Authenticate(_login, _password, key, _clientId);
+
+        //var result = diadocApi.AuthenticateByKey(key, _clientId);
+
+        //var org = diadocApi.GetOrganizationById(clientId);
+        //var orgs = diadocApi.GetMyOrganizations(result);
+    }
+
     public string GetBoxIdForDocument(Document document)
     {
         return string.Empty;

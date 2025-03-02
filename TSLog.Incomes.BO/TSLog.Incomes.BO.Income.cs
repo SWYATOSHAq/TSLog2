@@ -268,5 +268,6 @@ public class Income : WarehouseAction
     /// <summary>
     /// Места прихода.
     /// </summary>
-    public LogisticUnit[] LogisticUnits => _logisticUnits.Values.ToArray();
+    public LogisticUnit[] LogisticUnits => [.. _logisticUnits.Values];
+    public ServiceLine[] ServiceLines { get; set; } = [];
 }

@@ -160,63 +160,67 @@ class WmsStorage(IStorage dbStorage) : IWmsStorage
         table.AddCell(cell);
         
         // "Табличка" с информацией о форме документа.
-        var formTable = new Table(2).SetFont(defaultFont).SetFontSize(6);
-        var formTableCell = new Cell(1, 2).SetHeight(new UnitValue(2, 20))
-            .Add(new Paragraph("Унифицированная форма № МХ-3\n" +
-                "Утверждена постановленем Госкомстата\n" +
-                "России от 09.08.99 №66"))
-            .SetBorder(Border.NO_BORDER)
-            .SetTextAlignment(TextAlignment.LEFT)
-            .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-        formTable.AddCell(formTableCell);
+        void CreateHeaderTable()
+        {
+            var formTable = new Table(2).SetFont(defaultFont).SetFontSize(6);
+            var formTableCell = new Cell(1, 2).SetHeight(new UnitValue(2, 20))
+                .Add(new Paragraph("Унифицированная форма № МХ-3\n" +
+                    "Утверждена постановленем Госкомстата\n" +
+                    "России от 09.08.99 №66"))
+                .SetBorder(Border.NO_BORDER)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+            formTable.AddCell(formTableCell);
 
-        formTableCell = new Cell().SetBorder(Border.NO_BORDER).SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("Код")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER)
-            .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("Форма по ОКУД")).SetBorder(Border.NO_BORDER).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("0335003")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER); ;
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("по ОКПО")).SetBorder(Border.NO_BORDER).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("43190726")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER); ;
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetBorder(Border.NO_BORDER).SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("Вид деятельности по ОКДП")).SetBorder(Border.NO_BORDER)
-            .SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("по ОКПО")).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetMinHeight(new UnitValue(2, 20)).SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetBorder(Border.NO_BORDER).SetMinHeight(12).SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetMinHeight(12);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("номер")).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("ХР2_01/04-2016")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("дата")).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT)
-            .SetVerticalAlignment(VerticalAlignment.MIDDLE);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("01.04.2016 11:25:00")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER); ;
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().Add(new Paragraph("Вид операции")).SetBorder(Border.NO_BORDER).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
-        formTable.AddCell(formTableCell);
-        formTableCell = new Cell().SetMinHeight(12);
-        formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetBorder(Border.NO_BORDER).SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("Код")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("Форма по ОКУД")).SetBorder(Border.NO_BORDER).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("0335003")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER); ;
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("по ОКПО")).SetBorder(Border.NO_BORDER).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("43190726")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER); ;
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetBorder(Border.NO_BORDER).SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("Вид деятельности по ОКДП")).SetBorder(Border.NO_BORDER)
+                .SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("по ОКПО")).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetMinHeight(new UnitValue(2, 20)).SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetBorder(Border.NO_BORDER).SetMinHeight(12).SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetMinHeight(12);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("номер")).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("ХР2_01/04-2016")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("дата")).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("01.04.2016 11:25:00")).SetMinHeight(12).SetTextAlignment(TextAlignment.CENTER); ;
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().Add(new Paragraph("Вид операции")).SetBorder(Border.NO_BORDER).SetMinHeight(12).SetTextAlignment(TextAlignment.RIGHT);
+            formTable.AddCell(formTableCell);
+            formTableCell = new Cell().SetMinHeight(12);
+            formTable.AddCell(formTableCell);
 
-
-        cell = new Cell(1, 1).SetWidth(new UnitValue(2, 25)).SetBorder(Border.NO_BORDER).Add(formTable);
-        table.AddCell(cell);
+            cell = new Cell(1, 1).SetWidth(new UnitValue(2, 25)).SetBorder(Border.NO_BORDER).Add(formTable);
+            table.AddCell(cell);
+        }
+        CreateHeaderTable();
+        
 
         document.Add(table);
 
@@ -353,6 +357,17 @@ class WmsStorage(IStorage dbStorage) : IWmsStorage
         AddTableColumnHeaderCell(table, "Количество (масса)");
         AddTableColumnHeaderCell(table, "цена, руб. коп. (без НДС)");
         AddTableColumnHeaderCell(table, "стоимость, руб. коп. (без НДС)");
+
+        foreach (var line in outgo.ServiceLines)
+        {
+            AddTableCell(table, line.Number.ToString());
+            AddTableCell(table, line.Service.Name);
+            AddTableCell(table, line.Measure.ShortName);
+            AddTableCell(table, line.Quantity.ToString());
+            AddTableCell(table, line.Price.ToString());
+            AddTableCell(table, line.CalculatedSum > 0 ? line.CalculatedSum.ToString() : line.Sum.ToString());
+        }
+
         document.Add(table);
 
 

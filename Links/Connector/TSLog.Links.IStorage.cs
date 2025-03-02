@@ -1,4 +1,5 @@
 ﻿using System.Security;
+using TSLog.Common.BO;
 using TSLog.Incomes.BO;
 using TSLog.Outgoes.BO;
 
@@ -21,7 +22,15 @@ interface IStorage : IDisposable
     {
         throw new NotImplementedException();
     }
+    public ServiceLine[] GetIncomeServices(string incomeId)
+    {
+        throw new NotImplementedException();
+    }
     public Outgo GetOutgo(string outgoId)
+    {
+        throw new NotImplementedException();
+    }
+    public ServiceLine[] GetOutgoServices(string outgoId)
     {
         throw new NotImplementedException();
     }

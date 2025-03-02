@@ -213,7 +213,11 @@ public class OracleStorage : IDisposable
         return [.. entities];
     }
 
+    // TODO: объединить два справочника единиц измерения!
     private readonly Catalog<MeasureUnit> _measureUnits = new("MEASURE_UNITS", "Единицы измерения");
+    private readonly Catalog<MeasureUnit> _serviceMeasureUnits = new("SERVICE_MEASURE_UNITS", "Единицы измерения услуг");
+
+    private readonly Catalog<Service> _services = new("SERVICES", "Услуги");
     private static MeasureUnit CreateMeasureUnit(DbDataReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
@@ -309,7 +313,97 @@ public class OracleStorage : IDisposable
         }
         return [.. measureUnits];
     }
+    public MeasureUnit GetServiceMeasureUnit(int id)
+    {
+        var measureUnit = _serviceMeasureUnits[id];
+        if (measureUnit != null)
+            return measureUnit;
+        using (var command = _connection.CreateCommand())
+        {
+            var SelectMeasureUnitByCodeSql =
+                $"select sm.id, sm.code, sm.name, sm.short_name, sm.alt_name,\n" +
+                $"       sm.display_name, sm.is_active, sm.display_order, sm.category, sm.is_basic, sm.coefficient, sm.is_default, sm.note\n" +
+                $"  from {CommonSchema}.v_service_measure sm\n" +
+                $" where sm.id = :id";
+            command.CommandText = SelectMeasureUnitByCodeSql;
+            command.Parameters.Add(new OracleParameter("id", id));
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                measureUnit = CreateMeasureUnit(reader);
+                _serviceMeasureUnits.Add(measureUnit);
+            }
+            reader.Close();
+        }
+        if (measureUnit != null)
+            return measureUnit;
+        throw new EntityNotFoundException(id);
+    }
+    private Service CreateService(DbDataReader reader)
+    {
+        var id = Utils.DbValueToInt(reader["id"]);
+        var kindCode = Utils.DbValueToString(reader["kind_code"]);
+        var code = id.ToString();
+        var name = Utils.DbValueToString(reader["name"]);
 
+        var measureId = Utils.DbValueToShort(reader["measure_id"]);
+        var measure = GetServiceMeasureUnit(measureId);
+
+        var groupName = Utils.DbValueToString(reader["group_name"]);
+
+        var service = new Service(id, kindCode, code, name, measure, groupName);
+        return service;
+    }
+    public Service GetService(int id)
+    {
+        var service = _services[id];
+        if (service != null)
+            return service;
+        using (var command = _connection.CreateCommand())
+        {
+            var SelectServiceByIdSql =
+                $"select s.id, s.kind_code, s.name, s.measure_id, s.display_order, s.alt_name, s.group_name\n" +
+                $"  from {CommonSchema}.v_service s \n" +
+                $" where s.id = :id";
+            command.CommandText = SelectServiceByIdSql;
+            command.Parameters.Add(new OracleParameter("id", id));
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                service = CreateService(reader);
+                _services.Add(service);
+            }
+            reader.Close();
+        }
+        if (service != null)
+            return service;
+        throw new EntityNotFoundException(id);
+    }
+    public Service GetService(string code)
+    {
+        var service = _services[code];
+        if (service != null)
+            return service;
+        using (var command = _connection.CreateCommand())
+        {
+            var SelectServiceByIdSql =
+                $"select s.id, s.kind_code, s.name, s.measure_id, s.display_order, s.alt_name, s.group_name\n" +
+                $"  from {CommonSchema}.v_service s \n" +
+                $" where s.code = :code";
+            command.CommandText = SelectServiceByIdSql;
+            command.Parameters.Add(new OracleParameter("code", code));
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                service = CreateService(reader);
+                _services.Add(service);
+            }
+            reader.Close();
+        }
+        if (service != null)
+            return service;
+        throw new EntityNotFoundException(code);
+    }
     public void Disconnect()
     {
         if (_connection.State != ConnectionState.Closed && _connection.State != ConnectionState.Broken)

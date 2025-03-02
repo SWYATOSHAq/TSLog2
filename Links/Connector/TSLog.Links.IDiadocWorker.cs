@@ -12,4 +12,6 @@ interface IDiadocWorker
     { }
     public void Test()
     { }
+    public void Test2()
+    { }
 }

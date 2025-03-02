@@ -45,6 +45,16 @@ static class Program
             var certificatePath = Settings.Default.DiadocCertificatePath;
             diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
             */
+            /*
+            var clientId = "2BM-5032315482-503201001-202003021005206859021";
+            var apiUrl = "https://diadoc-api.kontur.ru";
+            var login = "m.burov@tslog.ru";
+            var password = "mburov_DiaDoc";
+            var boxId = "";
+            var certificatePath = Settings.Default.DiadocCertificatePath;
+            diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
+            */
+
             diadocWorker = new FakeDiadocWorker();
 
             if (args.Contains("--force-start"))

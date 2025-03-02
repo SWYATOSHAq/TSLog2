@@ -289,4 +289,5 @@ public class Outgo : WarehouseAction
     /// Места.
     /// </summary>
     public LogisticUnit[] LogisticUnits => [.. _logisticUnits.Values];
+    public ServiceLine[] ServiceLines { get; set; } = [];
 }
