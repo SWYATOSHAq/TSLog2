@@ -1,86 +1,85 @@
 ﻿using TSLog.Links;
 
-namespace TSlog.Links.PSI.DataConverter
+namespace TSlog.Links.PSI.DataConverter;
+
+public class EINWMSInboundsConverter : EINWMSBaseConverter
 {
-    public class EINWMSInboundsConverter : EINWMSBaseConverter
+    private const string NAME = "WEA";
+    private const string ROWNAME = "WEP";
+    private const string POSTFIX = "ANLABSCHL";
+
+    public override string MessageName()
     {
-        private const string NAME = "WEA";
-        private const string ROWNAME = "WEP";
-        private const string POSTFIX = "ANLABSCHL";
+        return $"{base.MessageName()}.{NAME}";
+    }
 
-        public override string MessageName()
-        {
-            return $"{base.MessageName()}.{NAME}";
-        }
+    public string MessageRowName()
+    {
+        return $"{base.MessageName()}.{ROWNAME}";
+    }
 
-        public string MessageRowName()
-        {
-            return $"{base.MessageName()}.{ROWNAME}";
-        }
+    // ART 00500000AR00000044 Test on
+    /*
+    |MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=|WeaInfo2=|WeaInfo3=|
+    |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=1|WepMgSoll=2592|ArtNr=AR00000001|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+    |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=2|WepMgSoll=4320|ArtNr=AR00000002|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
+    |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
+    */
 
-        // ART 00500000AR00000044 Test on
-        /*
-        |MsgNam=WMS.WEA|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|Aktion=Ins|WeaKlaNam=NORMAL|GpNamLief=VEND_ASKANIA|WeaWwsBeleg=ASK521|WeaDzAnliefSoll=|WeaInfo2=|WeaInfo3=|
-        |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=1|WepMgSoll=2592|ArtNr=AR00000001|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
-        |MsgNam=WMS.WEP|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|WepNr=2|WepMgSoll=4320|ArtNr=AR00000002|BstQlf=10|WepInfo1=27|WepInfo2=796|WepInfo3=|BstChgNam=|BstChgNam2=|BstDzMhd=|WepMgEhWWS=ST|
-        |MsgNam=WMS.WEAANLABSCHL|VersionsNr=1.9.3|TrxId=Tr100067674|Werk=0000|MndNr=0050|WeaNr=WM00125009|
-        */
+    public string Convert(string transactionId, IncomeRequest instruction,
+        string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
+    {
+        var partner = instruction.ServiceBuyer;
+        var income = instruction.Income;
 
-        public string Convert(string transactionId, IncomeRequest instruction,
-            string warehouseCode = "0000", string action = "Ins", string defaultQualification = "10", int maxInfoSize = 200)
-        {
-            var partner = instruction.ServiceBuyer;
-            var income = instruction.Income;
+        // TODO: read how to serealize fields from external struct (for example from ini file)
 
-            // TODO: read how to serealize fields from external struct (for example from ini file)
+        var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}" +
+            $"|TrxId={PrepStrPar(transactionId)}" +
+            $"|Werk={PrepStrPar(warehouseCode)}" +
+            $"|MndNr={PrepStrPar(partner.Code)}";
+        var ret = "";
 
-            var common = $"VersionsNr={PrepStrPar(WMSAPIVersion(), true)}" +
-                $"|TrxId={PrepStrPar(transactionId)}" +
-                $"|Werk={PrepStrPar(warehouseCode)}" +
-                $"|MndNr={PrepStrPar(partner.Code)}";
-            var ret = "";
+        // header
+        ret += $"|MsgNam={PrepStrPar(MessageName(), true)}" +
+            $"|{common}" +
+            $"|WeaNr={PrepStrPar(income.Number)}" +
+            $"|Aktion={PrepStrPar(action)}" +
+            $"|WeaKlaNam={PrepStrPar(income.Type?.Code, true, "NORMAL")}" +
+            $"|GpNamLief={PrepStrPar(income.Vendor.Code, true)}" +
+            $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" +
+            $"|WeaDzAnliefSoll={/* ? */PrepStrPar(income.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
+            $"|WeaInfo2={PrepStrPar(income.GUID, true)}" +  // дополнительный идентефикатор (GUID)
+            /*
+            <avpList>
+                <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
+            </avpList>
+             */
+            $"|WeaInfo3={PrepStrPar(income.Operation)}" +  // тип операции <operationType/>
+            $"|\n";
+        // body
+        foreach (var row in income.Lines)
+            ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
+               $"|{common}" +
+               $"|WeaNr={PrepStrPar(income.Number)}" +
+               $"|WepNr={PrepStrPar(row.Number)}" +
+               $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" + // plannedReceiptQuantity
+               $"|ArtNr={PrepStrPar(row.Product.Code)}" + // gtin + DB data
+               $"|BstQlf={PrepStrPar(defaultQualification)}" +
+               $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена <associatedInvoicePrice/>
+               $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ <eComStringAttributeValuePairList attributeName="OKEI"/>
+               $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // <info/>
+               $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // номер партии <eComStringAttributeValuePairList attributeName="BatchNumber"/>
+               $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // номер партии 2 <eComStringAttributeValuePairList attributeName="BatchNumber2"/>
+               $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate)}" +
+               $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
+               $"|\n";
 
-            // header
-            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}" +
-                $"|{common}" +
-                $"|WeaNr={PrepStrPar(income.Number)}" +
-                $"|Aktion={PrepStrPar(action)}" +
-                $"|WeaKlaNam={PrepStrPar(income.Type?.Code, true, "NORMAL")}" +
-                $"|GpNamLief={PrepStrPar(income.Vendor.Code, true)}" +
-                $"|WeaWwsBeleg={PrepStrPar(instruction.Number, true)}" +
-                $"|WeaDzAnliefSoll={/* ? */PrepStrPar(income.PlanAcceptanceBegin.ToString("dd.MM.yyyy HH:mm:ss"), true)  /* ? */}" +
-                $"|WeaInfo2={PrepStrPar(income.GUID, true)}" +  // дополнительный идентефикатор (GUID)
-                /*
-                <avpList>
-                    <eComStringAttributeValuePairList attributeName="GUID">ABC</eComStringAttributeValuePairList>
-                </avpList>
-                 */
-                $"|WeaInfo3={PrepStrPar(income.Operation)}" +  // тип операции <operationType/>
-                $"|\n";
-            // body
-            foreach (var row in income.Lines)
-                ret += $"|MsgNam={PrepStrPar(MessageRowName(), true)}" +
-                   $"|{common}" +
-                   $"|WeaNr={PrepStrPar(income.Number)}" +
-                   $"|WepNr={PrepStrPar(row.Number)}" +
-                   $"|WepMgSoll={PrepStrPar(row.PlanQuantity)}" + // plannedReceiptQuantity
-                   $"|ArtNr={PrepStrPar(row.Product.Code)}" + // gtin + DB data
-                   $"|BstQlf={PrepStrPar(defaultQualification)}" +
-                   $"|WepInfo1={PrepStrPar(row.Price, retEmptyOnZero: true)}" + // цена <associatedInvoicePrice/>
-                   $"|WepInfo2={PrepStrPar(row.OKEI, true)}" +  // код единицы измерения из справочника ОКЕИ <eComStringAttributeValuePairList attributeName="OKEI"/>
-                   $"|WepInfo3={PrepStrPar(TruncateLongString(row.Info, maxInfoSize), true)}" + // <info/>
-                   $"|BstChgNam={PrepStrPar(row.BatchNumber, true)}" +  // номер партии <eComStringAttributeValuePairList attributeName="BatchNumber"/>
-                   $"|BstChgNam2={PrepStrPar(row.BatchNumber2, true)}" +  // номер партии 2 <eComStringAttributeValuePairList attributeName="BatchNumber2"/>
-                   $"|BstDzMhd={PrepStrPar(row.Product.ExpirationDate)}" +
-                   $"|WepMgEhWWS={PrepStrPar(TranslateMeasurmentUnit(GetDefaultMeasurmentUnit(partner)), true)}" +
-                   $"|\n";
-
-            // footer
-            ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
-                $"|{common}" +
-                $"|WeaNr={PrepStrPar(income.Number)}" +
-                $"|\n";
-            return ret;
-        }
+        // footer
+        ret += $"|MsgNam={PrepStrPar(MessageName(), true)}{PrepStrPar(POSTFIX, true)}" +
+            $"|{common}" +
+            $"|WeaNr={PrepStrPar(income.Number)}" +
+            $"|\n";
+        return ret;
     }
 }

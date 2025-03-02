@@ -377,7 +377,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
         using (var command = _connection.CreateCommand())
         {
             command.BindByName = true;
-            // TODO: 20.11.2023 Вернуть закомментированный код после полного перехода на новую БД Oracle с полным переносом данных
+            // TODO: 20.11.2023 Вернуть закомментированный код после полного перехода на новую БД Oracle с полным переносом данных.
             //var selectWarehouseActionByIdSql =
             //    $"select a.kind, a.id, a.partner_id, a.partner_number, a.plan_action_date, a.insert_date, a.tu_count\n" +
             //    $"  from {CommonSchema}.act_warehouse_action#v a\n" +
@@ -905,9 +905,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
         foreach (var siteCode in siteCodes)
         {
             if (!result.ContainsKey(siteCode))
-            {
                 result[siteCode] = -1; // If a site code is not found in the results, return -1 or another placeholder.
-            }
         }
 
         return result;
@@ -1021,9 +1019,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
         foreach (var task in workerCheckTasks)
         {
             if (!results.Any(r => r.WorkerId == task.WorkerId && r.SiteId == task.SiteId && r.PartnerIds == task.PartnerIds))
-            {
                 results.Add((task.WorkerId, task.SiteId, task.PartnerIds, task.FactStartWorkDate, false));
-            }
         }
 
         return results;
@@ -1056,16 +1052,14 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     {
         var result = new Dictionary<string, bool>();
         if (siteCodes == null || siteCodes.Count == 0)
-        {
             return result;
-        }
 
         using (var command = _connection.CreateCommand())
         {
             var sql = new StringBuilder();
-            sql.Append("SELECT SITE_CODE, COUNT(*) AS COUNT_ROWS ");
-            sql.Append($"FROM {StaffSchema}.STF_BUSY_WORKER#V ");
-            sql.Append("WHERE SITE_CODE IN (");
+            sql.Append("select site_code, count(*) as count_rows ");
+            sql.Append($"from {StaffSchema}.stf_busy_worker#v ");
+            sql.Append("where site_code in (");
 
             for (int i = 0; i < siteCodes.Count; i++)
             {
@@ -1074,15 +1068,15 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
                 command.Parameters.Add(new OracleParameter($"gate_code_{i}", siteCodes[i]));
             }
 
-            sql.Append(") GROUP BY SITE_CODE");
+            sql.Append(") group by site_code");
             command.CommandText = sql.ToString();
 
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    var siteCode = reader["SITE_CODE"].ToString();
-                    var countRows = Convert.ToInt32(reader["COUNT_ROWS"]);
+                    var siteCode = reader["site_code"].ToString();
+                    var countRows = Convert.ToInt32(reader["count_rows"]);
                     result[siteCode] = countRows == 0;
                 }
             }
@@ -1181,7 +1175,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
         var displayOrder = Utils.DbValueToLong(reader["display_order"]);
         var partner = new Partner(id,
             name,
-            name, // note.
+            name, // Note.
             string.Empty,
             string.Empty,
             isActive,
@@ -1322,7 +1316,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// </summary>
     /// <param name="date">Дата (+ время).</param>
     /// <returns>Конкретная рабочая смена.</returns>
-    public Shift GetShift(DateTime date)
+    public static Shift GetShift(DateTime date)
     {
         return new Shift(-1, date, date, "I");
     }
@@ -1624,7 +1618,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
                 $"     from {StaffSchema}.stf_employee#v e\n" +
                 $"left join {StaffSchema}.stf_employee_major_position#v emp on e.id = emp.employee_id" +
                 // $"    where emp.is_linear = 1"; Было изначально.
-                $"    where POSITION_CODE IN ('WH_AREA_MANAGER', 'WH_SHIFT_HEAD', 'WH_OUTGO_SECTION_HEAD', 'WH_FOREMAN') OR emp.is_linear = 1 AND dismissal_date IS null";
+                $"    where position_code in ('WH_AREA_MANAGER', 'WH_SHIFT_HEAD', 'WH_OUTGO_SECTION_HEAD', 'WH_FOREMAN') or emp.is_linear = 1 and dismissal_date is null";
             command.CommandText = SelectEmployeesSql;
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -2490,7 +2484,8 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
                     startWorkTime = shift.From;
 
                 var employee = GetEmployee(worksOnSite[i].workerId);
-                int planShiftLengthSeconds = Shift.GetShortShiftLength(startWorkTime, finishWorkTime, worksOnSite[i].siteId, employee.ShiftLength, shift.Kind); //проверка на случай сокращенной смены
+                int planShiftLengthSeconds = Shift.GetShortShiftLength(startWorkTime, finishWorkTime, worksOnSite[i].siteId,
+                    employee.ShiftLength, shift.Kind); // Проверка на случай сокращенной смены.
 
                 if (!planWorks.ContainsKey(worksOnSite[i].workerId))
                 {
@@ -2511,7 +2506,7 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
 
             foreach (var workerId in planWorks.Keys)
             {
-                // в случае случайной переработки необходимо отметиться на участке 1053 и таким образом игнорировать
+                // В случае случайной переработки необходимо отметиться на участке 1053 и таким образом игнорировать
                 // это время при подсчете планового времени смены и простоев. Сейчас это не работает из-за условия ниже.
                 // Проверку factWorks[workerId] / planWorks[workerId] < 0.1 - Вернул по заявке 4760 по распоряжению Охотникова А. А.
                 if (factWorks[workerId] / planWorks[workerId] < 0.1)

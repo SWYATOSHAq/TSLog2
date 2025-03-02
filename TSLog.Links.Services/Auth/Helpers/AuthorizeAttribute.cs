@@ -12,7 +12,7 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         var user = (LegalEntity)context.HttpContext.Items["User"];
         if (user == null)
         {
-            // not logged in
+            // Not logged in.
             context.Result = new JsonResult(new { message = "Unauthorized or wrong token" }) { StatusCode = StatusCodes.Status401Unauthorized };
         }
     }

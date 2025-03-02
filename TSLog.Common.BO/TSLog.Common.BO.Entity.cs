@@ -95,8 +95,7 @@ public class Entity : IComparable<Entity>
     /// <exception cref="ArgumentNullException"></exception>
     public void Update(Entity entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         if (entity.Id != Id || entity.Code != Code)
             return;
         Name = !string.IsNullOrWhiteSpace(entity.Name) ? entity.Name.Trim() : string.Empty;
@@ -110,7 +109,7 @@ public class Entity : IComparable<Entity>
     private static Entity _null = null;
 
     /// <summary>
-    /// Null object
+    /// Null object.
     /// </summary>
     public static Entity Null
     {

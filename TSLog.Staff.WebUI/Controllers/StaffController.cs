@@ -149,7 +149,7 @@ public class StaffController : ControllerBase
 
             _storage.AddEmployee(newEmployee);
 
-            return "";
+            return string.Empty;
         }
         catch (Exception exception)
         {

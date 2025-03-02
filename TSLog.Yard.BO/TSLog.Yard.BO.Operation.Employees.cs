@@ -62,8 +62,7 @@ public partial class Operation : Entity
     /// <exception cref="ArgumentNullException"></exception>
     public void AddWorkers(OperationWorker[] workers)
     {
-        if (workers == null)
-            throw new ArgumentNullException(nameof(workers));
+        ArgumentNullException.ThrowIfNull(workers);
         foreach (var operationWorker in workers)
             AddWorker(operationWorker);
     }
@@ -75,10 +74,8 @@ public partial class Operation : Entity
     /// <exception cref="ArgumentNullException"></exception>
     public void RemoveWorker(Employee worker, Position position)
     {
-        if (worker == null)
-            throw new ArgumentNullException(nameof(worker));
-        if (position == null)
-            throw new ArgumentNullException(nameof(position));
+        ArgumentNullException.ThrowIfNull(worker);
+        ArgumentNullException.ThrowIfNull(position);
         foreach (var operationWorker in _operationWorkers)
             if (operationWorker.Worker == worker && operationWorker.Position == position)
                 _operationWorkers.Remove(operationWorker);
@@ -131,17 +128,15 @@ public partial class Operation : Entity
         {
             var positionLaborCost = positionsLaborCosts[position];
             var positionAvgCost = 0.0;
-            if (!positionsWorkers.ContainsKey(position))
+            if (!positionsWorkers.TryGetValue(position, out IList<Employee>? positionEmployees))
                 positionAvgCost = position.LaborHourCost;
             else
             {
-                var positionEmployees = positionsWorkers[position];
                 foreach (var employee in positionEmployees)
                     positionAvgCost += employee.Cost;
                 positionAvgCost = positionAvgCost / positionEmployees.Count;
             }
-            if (!result.ContainsKey(position))
-                result.Add(position, 0.0);
+            result.TryAdd(position, 0.0);
             result[position] += positionAvgCost * positionLaborCost / 3600;
         }
         return result;

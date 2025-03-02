@@ -33,7 +33,7 @@ public class Startup
 
         var temp = services.AddControllers(options =>
         {
-            options.RespectBrowserAcceptHeader = true; // false by default
+            options.RespectBrowserAcceptHeader = true; // False by default.
         });
         temp.AddXmlSerializerFormatters();
     }
@@ -45,14 +45,14 @@ public class Startup
             app.UseDeveloperExceptionPage();
         app.UseHttpsRedirection();
         app.UseRouting();
-        // global cors policy
+        // Global cors policy.
         app.UseCors(x => x
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 
         app.UseAuthorization();
-        // custom jwt auth middleware
+        // Custom jwt auth middleware.
         app.UseMiddleware<JwtMiddleware>();
         //
         app.UseEndpoints(endpoints =>
@@ -63,9 +63,9 @@ public class Startup
 
     private void InitSingletons(IServiceCollection services)
     {
-        // init storage
-        // this storage is then used to get dada from db
-        // information on how data access is then split is in ILinksStorage interface
+        // Init storage.
+        // This storage is then used to get data from DB
+        // information on how data access is then split is in ILinksStorage interface.
 
         var dataSource = Configuration.GetValue<string>("ConnectionSettings:DataSource");
         var storage = new LinksOracleStorage(dataSource);

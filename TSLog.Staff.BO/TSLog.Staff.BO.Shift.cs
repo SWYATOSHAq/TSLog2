@@ -14,7 +14,7 @@ public class Shift : IComparable<Shift>
     /// </summary>
     public DateTime From { get; private set; }
     /// <summary>
-    /// Дата и время окончания
+    /// Дата и время окончания.
     /// </summary>
     public DateTime To { get; private set; }
     /// <summary>

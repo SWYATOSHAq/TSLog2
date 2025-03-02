@@ -1,5 +1,4 @@
-﻿using AngleSharp.Dom;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 using NpgsqlTypes;
@@ -19,1735 +18,1637 @@ using TSLog.Yard.BO;
 using Entity = TSLog.Common.BO.Entity;
 using OperationType = TSLog.Yard.BO.OperationType;
 
-namespace TSLog.Yard.Data
+namespace TSLog.Yard.Data;
+
+/// <summary>
+/// Класс для работы с данными в БД PostgreSQL.
+/// </summary>
+public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage, IYardTestingStorage
 {
+    private const int DefaultMaxRowsCount = 16;
+    private const string DefaultYardSchema = "yard";
+    private const short DefaultWorkersCount = 1;
+    private readonly ILoggerFactory _loggerFactory;
     /// <summary>
-    /// Класс для работы с данными в БД PostgreSQL.
+    /// Максимальное количество строк для вывода.
     /// </summary>
-    public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReportingStorage, IYardTestingStorage
+    public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
+    /// <summary>
+    /// Схема в БД для хранение объектов модуля управления двором.
+    /// </summary>
+    public string YardSchema { private get; set; } = DefaultYardSchema;
+
+    public YardPgSqlStorage(string host, string database, ILoggerFactory loggerFactory,
+        IDictionary<string, object>? extensionParameters = null)
+        : base(host, database, loggerFactory.CreateLogger<PgSqlStorage>(), extensionParameters)
     {
-        private const int DefaultMaxRowsCount = 16;
-        private const string DefaultYardSchema = "yard";
-        private const short DefaultWorkersCount = 1;
-        private readonly ILoggerFactory _loggerFactory;
-        /// <summary>
-        /// Максимальное количество строк для вывода.
-        /// </summary>
-        public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
-        /// <summary>
-        /// Схема в БД для хранение объектов модуля управления двором.
-        /// </summary>
-        public string YardSchema { private get; set; } = DefaultYardSchema;
+        _loggerFactory = loggerFactory;
+    }
 
-        public YardPgSqlStorage(string host, string database, ILoggerFactory loggerFactory,
-            IDictionary<string, object>? extensionParameters = null) : base(host, database, loggerFactory.CreateLogger<PgSqlStorage>(), extensionParameters)
+    private static NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
+    {
+        var parameter = new NpgsqlParameter(name, type)
         {
-            _loggerFactory = loggerFactory;
-        }
-
-        private static NpgsqlParameter CreateParameter(string name, NpgsqlDbType type, object value)
-        {
-            var parameter = new NpgsqlParameter(name, type)
-            {
-                Value = value
-            };
-            return parameter;
-        }
-
-        private static bool HasColumn(DbDataReader reader, string columnName)
-        {
-            try
-            {
-                return reader.GetOrdinal(columnName) >= 0;
-            }
-            catch (IndexOutOfRangeException)
-            {
-                return false;
-            }
-        }
-
-        #region Domains
-        private readonly Catalog<Gate> _gates = new("GATES", "Ворота");
-        private static Gate CreateGate(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var id = Utils.DbValueToShort(reader["id"]);
-            var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var isHookan = Utils.DbValueToShort(reader["is_hookan"]) == 1;
-            var note = Utils.DbValueToString(reader["note"]);
-            Gate.GateState state = Gate.GateState.Free;
-
-            if (HasColumn(reader, "state_code"))
-            {
-                var stateCode = Utils.DbValueToString(reader["state_code"]).Trim().ToUpper();
-                if (stateCode == "F")
-                    state = Gate.GateState.Free;
-                else if (stateCode == "R")
-                    state = Gate.GateState.Reserved;
-                else if (stateCode == "B")
-                    state = Gate.GateState.Busy;
-                else
-                    throw new Exception($"Unknown gate state code {stateCode}!");
-            }
-
-            return new Gate(id,
-                code,
-                name,
-                shortName,
-                altName,
-                displayName,
-                isActive,
-                displayOrder,
-                isHookan,
-                state,
-                note);
-        }
-        /// <summary>
-        /// Возвращает ворота по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Ворота.</returns>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public Gate GetGate(short id)
-        {
-            id = id > 0 ? id : (short)-1;
-            var gate = _gates[id];
-            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
-                return gate;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectGateByIdSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
-                        $"  from {YardSchema}.v_gate g where g.id = :id order by g.display_order";
-                    command.CommandText = SelectGateByIdSql;
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        gate = CreateGate(reader);
-                        _gates.Add(gate);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
-                return gate;
-            throw new EntityNotFoundException(nameof(Gate), id);
-        }
-        /// <summary>
-        /// Возвращает ворота по коду.
-        /// </summary>
-        /// <param name="code">Код.</param>
-        /// <returns>Ворота.</returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public Gate GetGate(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("code is empty");
-            code = code.Trim().ToUpper();
-            var gate = _gates[code];
-            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
-                return gate;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectGateByCodeSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
-                        $"  from {YardSchema}.v_gate g where g.code = :code order by g.display_order";
-                    command.CommandText = SelectGateByCodeSql;
-                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        gate = CreateGate(reader);
-                        _gates.Add(gate);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (gate != null && gate != Gate.Null && gate != Gate.Empty)
-                return gate;
-            throw new EntityNotFoundException(nameof(Gate), code);
-        }
-        /// <summary>
-        /// Возвращает ВСЕ ворота.
-        /// </summary>
-        /// <returns>Массив ворот.</returns>
-        public Gate[] GetGates()
-        {
-            var gates = new List<Gate>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectGatesSql =
-                        $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
-                        $"  from {YardSchema}.v_gate g order by g.display_order";
-                    command.CommandText = SelectGatesSql;
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var gate = CreateGate(reader);
-                        gates.Add(gate);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            gates.Sort();
-            return gates.ToArray();
-        }
-        public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startDate, DateTime finishDate, long operationId)
-        {
-            var gates = new List<Gate>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectAvalibleGates =
-                         $"select ({YardSchema}.get_avalible_gates(:p_operation_type_code,\n" +
-                         $"    :p_vehicle_kind_code,\n" +
-                         $"    :p_start_date,\n" +
-                         $"    :p_finish_date,\n" +
-                         $"    :p_operation_id)).*;";
-                    command.CommandText = SelectAvalibleGates;
-                    command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
-                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, startDate));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, finishDate));
-                    command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operationId));
-
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var gate = CreateGate(reader);
-                        if (gate.State == Gate.GateState.Free)
-                            gates.Add(gate);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            gates.Sort();
-            return gates.ToArray();
-        }
-        private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
-        private static Logist CreateLogist(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var id = Convert.ToInt32(reader["id"]);
-            var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var note = Utils.DbValueToString(reader["note"]);
-            return new Logist(id,
-                code,
-                name,
-                shortName,
-                altName,
-                displayName,
-                isActive,
-                displayOrder,
-                note);
-        }
-        /// <summary>
-        /// Возвращает логиста (транспортную компанию) по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Логист (транспортная компания).</returns>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public Logist GetLogist(int id)
-        {
-            id = id > 0 ? id : -1;
-            var logist = _logists[id];
-            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
-                return logist;
-
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectLogistByIdSql =
-                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note\n" +
-                        $"  from {YardSchema}.v_logist l\n" +
-                        $" where l.id = :id order by l.display_order";
-                    command.CommandText = SelectLogistByIdSql;
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        logist = CreateLogist(reader);
-                        _logists.Add(logist);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
-                return logist;
-            throw new EntityNotFoundException(nameof(logist), id);
-        }
-        /// <summary>
-        /// Возвращает логиста (транспортную компанию) по коду.
-        /// </summary>
-        /// <param name="code">Код.</param>
-        /// <returns>Логист (транспортная компания).</returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public Logist GetLogist(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("code is empty");
-            code = code.Trim().ToUpper();
-            var logist = _logists[code];
-            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
-                return logist;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectLogistByCodeSql =
-                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note\n" +
-                        $"  from {YardSchema}.v_logist l\n" +
-                        $" where l.code = :code order by l.display_order";
-                    command.CommandText = SelectLogistByCodeSql;
-                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        logist = CreateLogist(reader);
-                        _logists.Add(logist);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (logist != null && logist != Logist.Null && logist != Logist.Empty)
-                return logist;
-            throw new EntityNotFoundException(nameof(logist), code);
-        }
-        /// <summary>
-        /// Возвращает ВСЕХ логистов (транспортные компании).
-        /// </summary>
-        /// <returns>Массив логистов (транспортных компаий).</returns>
-        public Logist[] GetLogists()
-        {
-            var logists = new List<Logist>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectLogistsSql =
-                        $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note\n" +
-                        $"  from {YardSchema}.v_logist l order by l.display_order";
-                    command.CommandText = SelectLogistsSql;
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var logist = CreateLogist(reader);
-                        logists.Add(logist);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            logists.Sort();
-            return logists.ToArray();
-        }
-
-        private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
-        /// <summary>
-        /// Возвращает состояние операции двора (ПРР) по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Состояние операции двора.</returns>
-        public Entity GetOperationState(short id)
-        {
-            var SelectOperationStateByIdSql =
-                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note\n" +
-                $"  from {YardSchema}.v_operation_state os where os.id = :id";
-            return GetEntity(id, SelectOperationStateByIdSql, _operationStates);
-        }
-        /// <summary>
-        /// Возвращает состояние операции двора (ПРР) по коду.
-        /// </summary>
-        /// <param name="code">Код.</param>
-        /// <returns>Состояние операции двора (ПРР).</returns>
-        public Entity GetOperationState(string code)
-        {
-            var SelectOperationStateByCodeSql =
-                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note\n" +
-                $"from {YardSchema}.v_operation_state os where os.code = :code";
-            return GetEntity(code, SelectOperationStateByCodeSql, _operationStates);
-        }
-        /// <summary>
-        /// Возвращает ВСЕ состояния операций двора.
-        /// </summary>
-        /// <returns>Массив состояний операций двора.</returns>
-        public Entity[] GetOperationStates()
-        {
-            var SelectOperationStatesSql =
-                $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note\n" +
-                $"from {YardSchema}.v_operation_state os";
-            return GetEntities(SelectOperationStatesSql);
-        }
-
-        private readonly Catalog<OperationType> _operationTypes = new("OPERATION_TYPES", "Типы операций двора");
-        private static OperationType CreateOperationType(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            var id = Utils.DbValueToShort(reader["id"]);
-            var direction = Utils.DbValueToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
-            var isPallet = Utils.DbValueToShort(reader["is_pallet"]) == 1;
-            var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var time = Utils.DbValueToInt(reader["time"]);
-            var isActive = Utils.DbValueToInt(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var note = Utils.DbValueToString(reader["note"]);
-            var operationtype = new OperationType(id,
-                direction,
-                isPallet,
-                code,
-                name,
-                shortName,
-                altName,
-                displayName,
-                time,
-                isActive,
-                displayOrder,
-                note);
-            return operationtype;
-        }
-        /// <summary>
-        /// Возвращает тип операции двора (ПРР) по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Тип операции двора (ПРР).</returns>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public OperationType GetOperationType(short id)
-        {
-            id = id > 0 ? id : (short)-1;
-            var operationType = _operationTypes[id];
-            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
-                return operationType;
-
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectOperationTypeByIdSql =
-                        $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
-                        $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
-                        $"  from {YardSchema}.v_operation_type ot\n" +
-                        $" where ot.id = :id order by ot.display_order";
-                    command.CommandText = SelectOperationTypeByIdSql;
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        operationType = CreateOperationType(reader);
-                        _operationTypes.Add(operationType);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
-                return operationType;
-            throw new EntityNotFoundException(nameof(operationType), id);
-        }
-        /// <summary>
-        /// Возвращает тип операции двора (ПРР) по коду.
-        /// </summary>
-        /// <param name="code">Код.</param>
-        /// <returns>Тип операции двора (ПРР).</returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public OperationType GetOperationType(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("code is empty");
-            code = code.Trim().ToUpper();
-            var operationType = _operationTypes[code];
-            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
-                return operationType;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectOperationTypeByCodeSql =
-                        $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
-                        $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
-                        $"  from {YardSchema}.v_operation_type ot\n" +
-                        $" where ot.code = :code";
-                    command.CommandText = SelectOperationTypeByCodeSql;
-                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        operationType = CreateOperationType(reader);
-                        _operationTypes.Add(operationType);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
-                return operationType;
-            throw new EntityNotFoundException(nameof(operationType), code);
-        }
-        /// <summary>
-        /// Возвращает типы операций двора указанного партнёра (манданта).
-        /// </summary>
-        /// <param name="partner">Партнёр (клиент, мандант).</param>
-        /// <returns>Массив типов операций двора (ПРР).</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public OperationType[] GetOperationTypes(Partner partner)
-        {
-            if (partner == null)
-                throw new ArgumentNullException(nameof(partner));
-            var operationTypes = new List<OperationType>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectOperationTypesByPartnerSql =
-                        $"select pot.id, pot.direction, pot.is_pallet, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name,\n" +
-                        $"       pot.time, pot.is_active, pot.display_order, pot.note\n" +
-                        $"  from {YardSchema}.v_partner_operation_type pot\n" +
-                        $" where pot.partner_id = :partner_id";
-                    command.CommandText = SelectOperationTypesByPartnerSql;
-                    command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operationType = CreateOperationType(reader);
-                        operationTypes.Add(operationType);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            operationTypes.Sort();
-            return operationTypes.ToArray();
-        }
-        /// <summary>
-        /// Возвращает ВСЕ типы операций двора (ПРР).
-        /// </summary>
-        /// <returns>Массив типов операций двора (ПРР).</returns>
-        public OperationType[] GetOperationTypes()
-        {
-            var operationTypes = new List<OperationType>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectOperationTypesSql =
-                        $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
-                        $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
-                        $"  from {YardSchema}.v_operation_type ot";
-                    command.CommandText = SelectOperationTypesSql;
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operationType = CreateOperationType(reader);
-                        operationTypes.Add(operationType);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            operationTypes.Sort();
-            return operationTypes.ToArray();
-        }
-
-        private readonly Catalog<VehicleKind> _vehicleKinds = new("VEHICLE_KINDS", "Виды автомашин");
-        private static VehicleKind CreateVehicleKind(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var id = Utils.DbValueToShort(reader["id"]);
-            var code = Utils.DbValueToString(reader["code"]);
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var capacity = Utils.DbValueToInt(reader["capacity"]);
-            var palletsCount = Utils.DbValueToShort(reader["pallets_count"]);
-            var bodyLength = Utils.DbValueToDouble(reader["body_length"]);
-            var bodyWidth = Utils.DbValueToDouble(reader["body_width"]);
-            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var note = Utils.DbValueToString(reader["note"]);
-            var vehicleKind = new VehicleKind(id, code, name, shortName, altName, displayName,
-                capacity, palletsCount, bodyLength, bodyWidth,
-                isActive, displayOrder,
-                note);
-            return vehicleKind;
-        }
-        /// <summary>
-        /// Возвращает вид автомашины по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Вид автомашины.</returns>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public VehicleKind GetVehicleKind(short id)
-        {
-            id = id > 0 ? id : (short)-1;
-            var vehicleKind = _vehicleKinds[id];
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
-                return vehicleKind;
-
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectVehicleKindByIdSql =
-                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name,\n" +
-                        $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width,\n" +
-                        $"       vk.is_active, vk.display_order, vk.note\n" +
-                        $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
-                    command.CommandText = SelectVehicleKindByIdSql;
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        vehicleKind = CreateVehicleKind(reader);
-                        _vehicleKinds.Add(vehicleKind);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
-                return vehicleKind;
-            throw new EntityNotFoundException(nameof(vehicleKind), id);
-        }
-        /// <summary>
-        /// Возвращает вид автомашины по коду.
-        /// </summary>
-        /// <param name="code">Код.</param>
-        /// <returns>Вид автомашины.</returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="EntityNotFoundException"></exception>
-        public VehicleKind GetVehicleKind(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("code is empty");
-            code = code.Trim().ToUpper();
-            var vehicleKind = _vehicleKinds[code];
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
-                return vehicleKind;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectVehicleKindByCodeSql =
-                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name,\n" +
-                        $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width,\n" +
-                        $"       vk.is_active, vk.display_order, vk.note\n" +
-                        $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
-                    command.CommandText = SelectVehicleKindByCodeSql;
-                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        vehicleKind = CreateVehicleKind(reader);
-                        _vehicleKinds.Add(vehicleKind);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
-                return vehicleKind;
-            throw new EntityNotFoundException(nameof(vehicleKind), code);
-        }
-        /// <summary>
-        /// Возвращает ВСЕ виды автомашин.
-        /// </summary>
-        /// <returns>Массив видов автомашин.</returns>
-        public VehicleKind[] GetVehicleKinds()
-        {
-            var vehicleKinds = new List<VehicleKind>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectVehicleKindsSql =
-                        $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name,\n" +
-                        $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width,\n" +
-                        $"       vk.is_active, vk.display_order, vk.note\n" +
-                        $"  from {YardSchema}.v_vehicle_kind vk";
-                    command.CommandText = SelectVehicleKindsSql;
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var vehicleKind = CreateVehicleKind(reader);
-                        vehicleKinds.Add(vehicleKind);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            vehicleKinds.Sort();
-            return vehicleKinds.ToArray();
-        }
-
-        private readonly Catalog<Work> _works = new("WORKS", "Элементарные работы");
-        private static Work CreateWork(DbDataReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var id = Utils.DbValueToShort(reader["id"]);
-            var code = Utils.DbValueToString(reader["code"]);
-            var isVariable = Utils.DbValueToShort(reader["is_variable"]) == 1;
-            var name = Utils.DbValueToString(reader["name"]);
-            var shortName = Utils.DbValueToString(reader["short_name"]);
-            var altName = Utils.DbValueToString(reader["alt_name"]);
-            var displayName = Utils.DbValueToString(reader["display_name"]);
-            var time = Utils.DbValueToShort(reader["time"]);
-            var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
-            var displayOrder = Utils.DbValueToShort(reader["display_order"]);
-            var note = Utils.DbValueToString(reader["note"]);
-            var work = new Work(id, code, isVariable, name, shortName, altName, displayName, time,
-                isActive, displayOrder,
-                note);
-            return work;
-        }
-        public Work GetWorkById(short id)
-        {
-            id = id > 0 ? id : (short)-1;
-            var work = _works[id];
-            if (work != null && work != Work.Null)
-                return work;
-
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectWorkByIdSql =
-                        $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
-                        $"       w.time,\n" +
-                        $"       w.is_active, w.display_order, w.note\n" +
-                        $"  from {YardSchema}.v_work w where w.id = :id";
-                    command.CommandText = SelectWorkByIdSql;
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        work = CreateWork(reader);
-                        _works.Add(work);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (work != null && work != Work.Null && work != Work.Empty)
-                return work;
-            throw new EntityNotFoundException(nameof(work), id);
-        }
-        public Work GetWorkByCode(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("code is empty");
-            code = code.Trim().ToUpper();
-            var work = _works[code];
-            if (work != null && work != Work.Null)
-                return work;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectWorkByCodeSql =
-                        $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
-                        $"       w.time,\n" +
-                        $"       w.is_active, w.display_order, w.note\n" +
-                        $"  from {YardSchema}.v_work w where w.code = :code";
-                    command.CommandText = SelectWorkByCodeSql;
-                    command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        work = CreateWork(reader);
-                        _works.Add(work);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            if (work != null && work != Work.Null && work != Work.Empty)
-                return work;
-            throw new EntityNotFoundException(nameof(work), code);
-        }
-        public Work[] GetWorks()
-        {
-            var works = new List<Work>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectWorksSql =
-                        $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
-                        $"       w.time,\n" +
-                        $"       w.is_active, w.display_order, w.note\n" +
-                        $"  from {YardSchema}.v_work w";
-                    command.CommandText = SelectWorksSql;
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var work = CreateWork(reader);
-                        works.Add(work);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return works.ToArray();
-        }
-        public List<string>GetPartnerEmails(string partnerId)
-        {
-            var emails = new List<string>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;  
-                    command.CommandText = $"SELECT p.contact_value FROM {YardSchema}.v_partner_newsletter_contacts p WHERE p.partner_id = @partnerId";
-                    //command.Parameters.Add(new NpgsqlParameter("@partnerId", NpgsqlDbType.Varchar) { Value = partnerId });
-                    command.Parameters.Add(CreateParameter("partnerId", NpgsqlDbType.Varchar, partnerId));
-
-                    //var selectEmailsSql =
-                    //    $"select p.contact_value\n" +
-                    //    $"from {YardSchema}.v_partner_newsletter_contacts p\n" +
-                    //    $"where p.partner_id = :partnerId";
-                    //command.CommandText = selectEmailsSql;
-                    //command.Parameters.Add(CreateParameter("partnerId", NpgsqlDbType.Varchar, partnerId));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        emails.Add(reader["contact_value"].ToString());
-                    }
-                }
-            }
-            return emails;
-        }
-
-        public delegate Partner GetPartnerByIdDelegate(string id);
-        public delegate Employee GetEmployeeByIdDelegate(int id);
-        public delegate Position GetPositionByIdDelegate(short id);
-        public delegate Shift GetShiftByDateDelegate(DateTime date);
-        public delegate Employee[] GetEmployeesByShiftDelegate(Shift shift);
-        public delegate Employee[] GetEmployeesDelegate();
-        public delegate WarehouseAction GetWarehouseActionDelegate(ActionKind actionKind, string id);
-        public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
-        public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
-        public GetPositionByIdDelegate? GetPositionById { private get; set; }
-        public GetShiftByDateDelegate? GetShiftByDate { private get; set; }
-        public GetEmployeesByShiftDelegate? GetEmployeesByShift { private get; set; }
-        public GetEmployeesDelegate? GetEmployees { private get; set; }
-        public GetWarehouseActionDelegate? GetWarehouseAction { private get; set; }
-        /// <summary>
-        /// Возвращает клиента (мандант) по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Клиент (мандант).</returns>
-        public Partner GetPartner(string id)
-        {
-            return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
-        }
-        /// <summary>
-        /// Возвращает сотрудника по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Сотрудник.</returns>
-        private Employee GetEmployee(int id)
-        {
-            return GetEmployeeById != null ? GetEmployeeById(id) : Employee.Null;
-        }
-        /// <summary>
-        /// Возвращает должность по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Должность.</returns>
-        private Position GetPosition(short id)
-        {
-            return GetPositionById != null ? GetPositionById(id) : Position.Null;
-        }
-        /// <summary>
-        /// Возвращает рабочую смену, которая затрагивает указанный момент времени.
-        /// </summary>
-        /// <param name="date">Момент времени (дата + время).</param>
-        /// <returns>Рабочая смена.</returns>
-        private Shift? GetShift(DateTime date)
-        {
-            return GetShiftByDate != null ? GetShiftByDate(date) : null;
-        }
-        /// <summary>
-        /// Возвращает сотрудников, работающих в указанную рабочую смену.
-        /// </summary>
-        /// <param name="shift">Рабочая смена.</param>
-        /// <returns>Массив сотрудников.</returns>
-        private Employee[] GetShiftEmployees(Shift shift)
-        {
-            return GetEmployeesByShift != null ? GetEmployeesByShift(shift) : Array.Empty<Employee>();
-        }
-        /// <summary>
-        /// Возвращает ВСЕХ сотрудников.
-        /// </summary>
-        /// <returns>Массив сотрудников.</returns>
-        private Employee[] GetAllEmployees()
-        {
-            return GetEmployees != null ? GetEmployees() : Array.Empty<Employee>();
-        }
-        private readonly IDictionary<string, string> _gateCodes = new Dictionary<string, string>
-        {
-            { "GATE_1", "EIN01" },
-            { "GATE_2", "EIN02" },
-            { "GATE_3", "EIN03" },
-            { "GATE_4", "EIN04" },
-            { "GATE_5", "EIN05" },
-            { "GATE_6", "EIN06" },
-            { "HOOKAN", "EIN07" },
-            { "GATE_8", "EIN08" },
-            { "GATE_9", "EIN09" },
-            { "GATE_10", "EIN10" },
-            { "GATE_11", "EIN11" },
-            { "GATE_12", "EIN12" },
-            { "GATE_13", "EIN13" },
-            { "GATE_14", "EIN14" },
-            { "GATE_15", "EIN15" },
-            { "GATE_16", "EIN16" },
-            { "GATE_17", "EIN17" }
+            Value = value
         };
-        /// <summary>
-        /// Возвращает код ворот по коду участка (соответствующего воротам).
-        /// </summary>
-        /// <param name="siteCode">Код участка.</param>
-        /// <returns>Код ворот.</returns>
-        public string GetGateCodeBySiteCode(string siteCode)
+        return parameter;
+    }
+
+    private static bool HasColumn(DbDataReader reader, string columnName)
+    {
+        try
         {
-            return !string.IsNullOrWhiteSpace(siteCode) && _gateCodes.ContainsKey(siteCode) ? _gateCodes[siteCode] : string.Empty;
+            return reader.GetOrdinal(columnName) >= 0;
         }
-        #endregion
-
-        #region Operations
-        private Interval CreateInterval(DbDataReader reader)
+        catch (IndexOutOfRangeException)
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-            var from = Utils.DbValueToDateTime(reader["start_date"]);
-            var to = Utils.DbValueToDateTime(reader["finish_date"]);
-            var gate = GetGate(Utils.DbValueToShort(reader["gate_id"]));
-            var interval = new Interval(from, to, gate);
-            return interval;
+            return false;
         }
+    }
 
-        private Operation CreateOperation(DbDataReader reader)
+    #region Domains
+    private readonly Catalog<Gate> _gates = new("GATES", "Ворота");
+    private static Gate CreateGate(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        var id = Utils.DbValueToShort(reader["id"]);
+        var code = Utils.DbValueToString(reader["code"]);
+        var name = Utils.DbValueToString(reader["name"]);
+        var shortName = Utils.DbValueToString(reader["short_name"]);
+        var altName = Utils.DbValueToString(reader["alt_name"]);
+        var displayName = Utils.DbValueToString(reader["display_name"]);
+        var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+        var isHookan = Utils.DbValueToShort(reader["is_hookan"]) == 1;
+        var note = Utils.DbValueToString(reader["note"]);
+        Gate.GateState state = Gate.GateState.Free;
+
+        if (HasColumn(reader, "state_code"))
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
-            var planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
-            var planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
-            var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
-            var vehicleBrand = Utils.DbValueToString(reader["vehicle_brand"]);
-            var vehicleModel = Utils.DbValueToString(reader["vehicle_model"]);
-            var vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
-            var trailerNumber = Utils.DbValueToString(reader["trailer_number"]);
-            var driverName = Utils.DbValueToString(reader["driver_name"]);
-            var driverPhoneNumber = Utils.DbValueToString(reader["driver_phone_number"]);
-            var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
-            var priority = Convert.ToInt16(reader["priority"]);
-            var partnerManagerName = Utils.DbValueToString(reader["partner_manager_name"]);
-            var partnerManagerPhoneNumber = Utils.DbValueToString(reader["partner_manager_phone_number"]);
-            var partnerManagerEmail = Utils.DbValueToString(reader["partner_manager_email"]);
-            var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
-
-            var createDate = Utils.DbValueToDateTime(reader["created"]);
-            var creator = Utils.DbValueToString(reader["creator"]);
-            var editDate = Utils.DbValueToDateTime(reader["edited"]);
-            var editor = Utils.DbValueToString(reader["editor"]);
-
-            var operation = new Operation(Convert.ToInt64(reader["id"]), null,
-                type,
-                planWorkStartDate, planWorkFinishDate,
-                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
-                state,
-                priority,
-                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-                manager)
-            {
-                FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
-                FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
-                StartDate = Utils.DbValueToDateTime(reader["start_date"]),
-                FinishDate = Utils.DbValueToDateTime(reader["finish_date"]),
-                CreateDate = createDate,
-                Creator = creator,
-                EditDate = editDate,
-                Editor = editor
-            };
-
-
-            var logistId = Utils.DbValueToInt(reader["logist_id"]);
-            operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
-
-            var gateId = Utils.DbValueToShort(reader["gate_id"]);
-            operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
-            var deleteDate = Utils.DbValueToDateTime(reader["deleted"]);
-            operation.DeleteDate = deleteDate;
-            var deleter = Utils.DbValueToString(reader["deleter"]);
-            operation.Deleter = deleter;
-            bool parking;
-            if (Convert.IsDBNull(reader["on_parking"]))
-            {
-                parking = false;
-            }
+            var stateCode = Utils.DbValueToString(reader["state_code"]).Trim().ToUpper();
+            if (stateCode == "F")
+                state = Gate.GateState.Free;
+            else if (stateCode == "R")
+                state = Gate.GateState.Reserved;
+            else if (stateCode == "B")
+                state = Gate.GateState.Busy;
             else
-            {
-                parking = Convert.ToBoolean(reader["on_parking"]);
-            }
-            operation.Parking = parking;
-
-            var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
-            operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
-
-            operation.Note = Convert.ToString(reader["note"]);
-
-            var actions = GetActions(operation);
-            operation.AddActions(actions);
-
-            // Элементарые работы для операции двора (зависят от типа операции, вида автомашины).
-            var operationWorks = GetOperationWorks(operation);
-            operation.AddOperationWorks(operationWorks);
-
-            var operationWorkers = GetOperationWorkers(operation);
-            operation.AddWorkers(operationWorkers);
-
-            return operation;
+                throw new Exception($"Unknown gate state code {stateCode}!");
         }
-        private Operation CreateOperationLite(DbDataReader reader)
+
+        return new Gate(id,
+            code,
+            name,
+            shortName,
+            altName,
+            displayName,
+            isActive,
+            displayOrder,
+            isHookan,
+            state,
+            note);
+    }
+    /// <summary>
+    /// Возвращает ворота по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Ворота.</returns>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public Gate GetGate(short id)
+    {
+        id = id > 0 ? id : (short)-1;
+        var gate = _gates[id];
+        if (gate != null && gate != Gate.Null && gate != Gate.Empty)
+            return gate;
+        using (var connection = CloneConnection())
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
-            var planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
-            var planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
-            var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
-            var vehicleBrand = "<null>";
-            var vehicleModel = "<null>";
-            var vehicleNumber = "<null>";
-            var trailerNumber = string.Empty;
-            var driverName = "<null>";
-            var driverPhoneNumber = string.Empty;
-            var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
-            var priority = Convert.ToInt16(reader["priority"]);
-            var partnerManagerName = string.Empty;
-            var partnerManagerPhoneNumber = string.Empty;
-            var partnerManagerEmail = string.Empty;
-            var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
-
-            var createDate = Utils.DbValueToDateTime(reader["created"]);
-            var creator = Utils.DbValueToString(reader["creator"]);
-            var editDate = Utils.DbValueToDateTime(reader["edited"]);
-            var editor = Utils.DbValueToString(reader["editor"]);
-
-            var operation = new Operation(Convert.ToInt64(reader["id"]), null,
-                type,
-                planWorkStartDate, planWorkFinishDate,
-                vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
-                state,
-                priority,
-                partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
-                manager)
-            {
-                FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
-                FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
-                StartDate = Utils.DbValueToDateTime(reader["start_date"]),
-                FinishDate = Utils.DbValueToDateTime(reader["finish_date"]),
-                CreateDate = createDate,
-                Creator = creator,
-                EditDate = editDate,
-                Editor = editor
-            };
-
-            operation.Logist = Logist.Null;
-
-            var gateId = Utils.DbValueToShort(reader["gate_id"]);
-            operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
-
-            var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
-            operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
-
-            operation.Note = string.Empty;
-
-            var actions = Array.Empty<WarehouseAction>();
-            operation.AddActions(actions);
-
-            // Элементарые работы для операции двора (зависят от типа операции, вида автомашины).
-            var operationWorks = Array.Empty<Operation.OperationWork>();
-            operation.AddOperationWorks(operationWorks);
-
-            var operationWorkers = Array.Empty<Operation.OperationWorker>();
-            operation.AddWorkers(operationWorkers);
-
-            return operation;
-        }
-        /// <summary>
-        /// Возвращаем продолжительность операции двора (ПРР) в зависимости от типа операции двора и вида автомашины.
-        /// </summary>
-        /// <param name="operationType">Тип операции двора.</param>
-        /// <param name="vehicleKind">Вид автомашины.</param>
-        /// <returns>Продолжительность.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public short GetDuration(OperationType operationType, VehicleKind vehicleKind, out int constantDuration, out int variableDuration)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var time = OperationType.DefaultTime;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select otvkt.operation_time\n" +
-                        $"  from {YardSchema}.v_ot_vk_time otvkt\n" +
-                        $" where otvkt.operation_type_id = :operation_type_id\n" +
-                        $"   and otvkt.vehicle_kind_id = :vehicle_kind_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-                    time = 0;
-                    if (reader.Read())
-                        time = Utils.DbValueToShort(reader["operation_time"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            // TODO: get default time for current operation type.
-            var works = GetOperationWorks(operationType, vehicleKind);
-            constantDuration = 0;
-            variableDuration = 0;
-            foreach (var work in works)
-            {
-                if (work.Work.IsVariable)
-                    variableDuration += work.Time;
-                else
-                    constantDuration += work.Time;
-            }
-            return time;
-        }
-        /// <summary>
-        /// Возвращает плановое количество ЛИНЕЙНЫХ работников операции двора, в зависимости от типа операции и вида машины.
-        /// </summary>
-        /// <param name="operationType">Тип операции двора.</param>
-        /// <param name="vehicleKind">Вид машины.</param>
-        /// <returns>Плановое количество сотрудников.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public short GetPlanLinearWorkersCount(OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var count = DefaultWorkersCount;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"with positions_workers as (select t.position_id, max(workers_count) workers_count\n" +
-                        $"                             from {YardSchema}.v_ot_vk_work t\n" +
-                        $"                        left join {YardSchema}.v_position p on t.position_id = p.id\n" +
-                        $"                            where t.operation_type_id = :operation_type_id\n" +
-                        $"                              and t.vehicle_kind_id = :vehicle_kind_id\n" +
-                        $"                              and p.is_linear = 1\n" +
-                        $"                         group by t.position_id\n" +
-                        $")\n" +
-                        $"select sum(pw.workers_count) workers_count from positions_workers pw";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                        count = Utils.DbValueToShort(reader["workers_count"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return count;
-        }
-        /// <summary>
-        /// Возвращает плановые трудозатраты операции двора (ПРР) по указанному типу операции двора и виду автомашины.
-        /// </summary>
-        /// <param name="operationType">Тип операции двора.</param>
-        /// <param name="vehicleKind">Вид автомашины.</param>
-        /// <returns>Плановые трудозатраты.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var laborCost = OperationType.DefaultLaborCost;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select otvkw.time, otvkw.workers_count\n" +
-                        $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
-                        $" where otvkw.operation_type_id = :operation_type_id\n" +
-                        $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-                    laborCost = 0;
-                    while (reader.Read())
-                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return laborCost;
-        }
-        /// <summary>
-        /// Возвращает плановые трудозатраты ЛИНЕЙНОГО персонала операции двора (ПРР)
-        /// по указанному типу операции двора и виду автомашины.
-        /// </summary>
-        /// <param name="operationType">Тип операции двора</param>
-        /// <param name="vehicleKind">Вид автомашины</param>
-        /// <returns>Плановые трудозатраты ЛИНЕЙНОГО персонала</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-
-            var laborCost = OperationType.DefaultLaborCost;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"   select otvkw.time, otvkw.workers_count\n" +
-                        $"     from {YardSchema}.v_ot_vk_work otvkw\n" +
-                        $"left join {YardSchema}.v_position p on otvkw.position_id = p.id\n" +
-                        $"    where otvkw.operation_type_id = :operation_type_id\n" +
-                        $"      and otvkw.vehicle_kind_id = :vehicle_kind_id\n" +
-                        $"      and p.is_linear = 1";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-                    laborCost = 0;
-                    while (reader.Read())
-                        laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return laborCost;
-        }
-        /// <summary>
-        /// Возвращает ВСЕ свободные интервалы времени в указанном промежутке
-        /// </summary>
-        /// <param name="from">Начало указанного интервала (дата + время)</param>
-        /// <param name="to">Окончание указанного интервала (дата + время)</param>
-        /// <returns></returns>
-        public Interval[] GetAllIntervals(DateTime from, DateTime to)
-        {
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql = $"select ({YardSchema}.get_all_windows(:p_start_date, :p_finish_date)).*;";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var interval = CreateInterval(reader);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        /// <summary>
-        /// Возвращает доступные интервалы в указанном промежуьке для операции двора (ПРР) указанного типа и для указанного вида автомашины
-        /// </summary>
-        /// <param name="from">Начало промежутка (дата + время)</param>
-        /// <param name="to">Окончание промежутка (дата + время)</param>
-        /// <param name="operationType">Тип операции двора (ПРР)</param>
-        /// <param name="vehicleKind">Вид автомашины</param>
-        /// <returns>Массив доступных интервалов</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, VehicleKind vehicleKind)
-        {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select ({YardSchema}.get_avalible_windows(:p_start_date,\n" +
-                        $"    :p_finish_date,\n" +
-                        $"    :p_operation_type_code,\n" +
-                        $"    :p_vehicle_kind_code)).*;";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
-                    command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
-                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var interval = CreateInterval(reader);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        /// <summary>
-        /// Возвращаеет все свободные интервалы на указанных воротах в указанном периоде.
-        /// </summary>
-        /// <param name="gate">Воротаю</param>
-        /// <param name="from">Начало периода (дата + время).</param>
-        /// <param name="to">Окончание периода (дата + время).</param>
-        /// <returns>Массив интервалов.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to)
-        {
-            if (gate == null)
-                throw new ArgumentNullException(nameof(gate));
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql = $"select ({YardSchema}.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
-                    command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var interval = CreateInterval(reader);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        /// <summary>
-        /// Логгирует жизненный цикл заявок в таблицу operation_log.
-        /// </summary>
-        /// <param name="operation">Объект операции двора с соответствующими свойствами.</param>
-        /// <param name="status">Статус заявки.</param>
-        /// <param name="user">Пользователь, внесший измения.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void AddOperationLog(Operation operation, string status, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
-                var info = new JObject(
-                    new JProperty("plan_work_start_date", operation.PlanWorkStartDate),
-                    new JProperty("plan_work_finish_date", operation.PlanWorkFinishDate),
-                    new JProperty("vehicle_kind_code", operation.VehicleKind.Code),
-                    new JProperty("vehicle_brand", operation.VehicleBrand),
-                    new JProperty("vehicle_model", operation.VehicleModel),
-                    new JProperty("vehicle_number", operation.VehicleNumber),
-                    new JProperty("trailer_number", operation.TrailerNumber),
-                    new JProperty("driver_name", operation.DriverName),
-                    new JProperty("driver_phone_number", operation.DriverPhoneNumber),
-                    new JProperty("partner_name", operation.PartnersNames),
-                    new JProperty("gate", operation.Gate.Name),
-                    new JProperty("actions_ids", operation.ActionsIds),
-                    new JProperty("parner_actions_ids", operation.PartnerActionsIds),
-                    new JProperty("logist_id", operation.Logist?.Id ?? (object)DBNull.Value),
-                    new JProperty("priority", operation.Priority),
-                    new JProperty("partner_manager_name", operation.PartnerManagerName),
-                    new JProperty("partner_manager_phone_number", operation.PartnerManagerPhoneNumber),
-                    new JProperty("partner_manager_email", operation.PartnerManagerEmail),
-                    new JProperty("manager_id", operation.Manager.Id)
-                );
-
-                var sql = $"select {YardSchema}.add_operation_log(:p_operation_id,\n" +
-                    ":p_operation_type,\n" +
-                    ":p_status,\n" +
-                    ":p_info::json,\n" +
-                    ":p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Integer, operation.Id));
-                command.Parameters.Add(CreateParameter("p_operation_type", NpgsqlDbType.Varchar, operation.Type.DisplayName));
-                command.Parameters.Add(CreateParameter("p_status", NpgsqlDbType.Varchar, status));
-                command.Parameters.Add(CreateParameter("p_info", NpgsqlDbType.Json, info.ToString((Newtonsoft.Json.Formatting)Formatting.None)));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-
-                command.ExecuteNonQuery();
+                var SelectGateByIdSql =
+                    $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
+                    $"  from {YardSchema}.v_gate g where g.id = :id order by g.display_order";
+                command.CommandText = SelectGateByIdSql;
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    gate = CreateGate(reader);
+                    _gates.Add(gate);
+                }
+                reader.Close();
             }
             connection.Close();
         }
-
-        /// <summary>
-        /// Создаёт и сохраняет новую операцию двора (ПРР).
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <returns>Сохранённая операция двора с присвоенным идентификатором.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Operation AddOperation(Operation operation, string user = "")
+        if (gate != null && gate != Gate.Null && gate != Gate.Empty)
+            return gate;
+        throw new EntityNotFoundException(nameof(Gate), id);
+    }
+    /// <summary>
+    /// Возвращает ворота по коду.
+    /// </summary>
+    /// <param name="code">Код.</param>
+    /// <returns>Ворота.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public Gate GetGate(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("code is empty");
+        code = code.Trim().ToUpper();
+        var gate = _gates[code];
+        if (gate != null && gate != Gate.Null && gate != Gate.Empty)
+            return gate;
+        using (var connection = CloneConnection())
         {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using (var connection = CloneConnection())
+            using (var command = connection.CreateCommand())
             {
-                using (var command = connection.CreateCommand())
+                var SelectGateByCodeSql =
+                    $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
+                    $"  from {YardSchema}.v_gate g where g.code = :code order by g.display_order";
+                command.CommandText = SelectGateByCodeSql;
+                command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    var sql = $"select {YardSchema}.add_operation(:p_type_code,\n" +
-                        ":p_plan_work_start_date,\n" +
-                        ":p_plan_work_finish_date,\n" +
-                        ":p_vehicle_kind_code,\n" +
-                        ":p_vehicle_brand,\n" +
-                        ":p_vehicle_model,\n" +
-                        ":p_vehicle_number,\n" +
-                        ":p_trailer_number,\n" +
-                        ":p_driver_name,\n" +
-                        ":p_driver_phone_number,\n" +
-                        ":p_logist_id,\n" +
-                        ":p_priority,\n" +
-                        ":p_parking,\n" +
-                        ":p_partner_manager_name,\n" +
-                        ":p_partner_manager_phone_number,\n" +
-                        ":p_partner_manager_email,\n" +
-                        ":p_manager_id,\n" +
-                        ":p_note,\n" +
-                        ":p_user);";
-                    command.CommandText = sql;
-
-                    command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
-                    command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
-                    command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
-                    command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
-                    command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
-                    command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
-                    command.Parameters.Add(CreateParameter("p_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
-                    command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
-                    command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
-                    command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
-                    command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
-                        operation.Logist != null ? operation.Logist.Id : DBNull.Value));
-                    command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
-                    command.Parameters.Add(CreateParameter("p_parking", NpgsqlDbType.Boolean, operation.Parking));
-                    command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
-                    command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
-                    command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
-                    command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
-                    command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
-                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-
-                    operation.Id = Convert.ToInt64(command.ExecuteScalar());
+                    gate = CreateGate(reader);
+                    _gates.Add(gate);
                 }
-                connection.Close();
+                reader.Close();
             }
+            connection.Close();
+        }
+        if (gate != null && gate != Gate.Null && gate != Gate.Empty)
+            return gate;
+        throw new EntityNotFoundException(nameof(Gate), code);
+    }
+    /// <summary>
+    /// Возвращает ВСЕ ворота.
+    /// </summary>
+    /// <returns>Массив ворот.</returns>
+    public Gate[] GetGates()
+    {
+        var gates = new List<Gate>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectGatesSql =
+                    $"select g.id, g.code, g.name, g.short_name, g.alt_name, g.display_name, g.is_active, g.display_order, g.is_hookan, g.note\n" +
+                    $"  from {YardSchema}.v_gate g order by g.display_order";
+                command.CommandText = SelectGatesSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var gate = CreateGate(reader);
+                    gates.Add(gate);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        gates.Sort();
+        return [.. gates];
+    }
+    public Gate[] GetAvalibleGates(OperationType operationType, VehicleKind vehicleKind, DateTime startDate, DateTime finishDate, long operationId)
+    {
+        var gates = new List<Gate>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectAvalibleGates =
+                     $"select ({YardSchema}.get_avalible_gates(:p_operation_type_code,\n" +
+                     $"    :p_vehicle_kind_code,\n" +
+                     $"    :p_start_date,\n" +
+                     $"    :p_finish_date,\n" +
+                     $"    :p_operation_id)).*;";
+                command.CommandText = SelectAvalibleGates;
+                command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
+                command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
+                command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, startDate));
+                command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, finishDate));
+                command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operationId));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var gate = CreateGate(reader);
+                    if (gate.State == Gate.GateState.Free)
+                        gates.Add(gate);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        gates.Sort();
+        return [.. gates];
+    }
+    private readonly Catalog<Logist> _logists = new("LOGISTS", "Логисты");
+    private static Logist CreateLogist(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        var id = Convert.ToInt32(reader["id"]);
+        var code = Utils.DbValueToString(reader["code"]);
+        var name = Utils.DbValueToString(reader["name"]);
+        var shortName = Utils.DbValueToString(reader["short_name"]);
+        var altName = Utils.DbValueToString(reader["alt_name"]);
+        var displayName = Utils.DbValueToString(reader["display_name"]);
+        var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+        var note = Utils.DbValueToString(reader["note"]);
+        return new Logist(id,
+            code,
+            name,
+            shortName,
+            altName,
+            displayName,
+            isActive,
+            displayOrder,
+            note);
+    }
+    /// <summary>
+    /// Возвращает логиста (транспортную компанию) по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Логист (транспортная компания).</returns>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public Logist GetLogist(int id)
+    {
+        id = id > 0 ? id : -1;
+        var logist = _logists[id];
+        if (logist != null && logist != Logist.Null && logist != Logist.Empty)
+            return logist;
+
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectLogistByIdSql =
+                    $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note\n" +
+                    $"  from {YardSchema}.v_logist l\n" +
+                    $" where l.id = :id order by l.display_order";
+                command.CommandText = SelectLogistByIdSql;
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    logist = CreateLogist(reader);
+                    _logists.Add(logist);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (logist != null && logist != Logist.Null && logist != Logist.Empty)
+            return logist;
+        throw new EntityNotFoundException(nameof(logist), id);
+    }
+    /// <summary>
+    /// Возвращает логиста (транспортную компанию) по коду.
+    /// </summary>
+    /// <param name="code">Код.</param>
+    /// <returns>Логист (транспортная компания).</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public Logist GetLogist(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("code is empty");
+        code = code.Trim().ToUpper();
+        var logist = _logists[code];
+        if (logist != null && logist != Logist.Null && logist != Logist.Empty)
+            return logist;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectLogistByCodeSql =
+                    $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note\n" +
+                    $"  from {YardSchema}.v_logist l\n" +
+                    $" where l.code = :code order by l.display_order";
+                command.CommandText = SelectLogistByCodeSql;
+                command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    logist = CreateLogist(reader);
+                    _logists.Add(logist);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (logist != null && logist != Logist.Null && logist != Logist.Empty)
+            return logist;
+        throw new EntityNotFoundException(nameof(logist), code);
+    }
+    /// <summary>
+    /// Возвращает ВСЕХ логистов (транспортные компании).
+    /// </summary>
+    /// <returns>Массив логистов (транспортных компаий).</returns>
+    public Logist[] GetLogists()
+    {
+        var logists = new List<Logist>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectLogistsSql =
+                    $"select l.id, l.code, l.name, l.short_name, l.alt_name, l.display_name, l.is_active, l.display_order, l.note\n" +
+                    $"  from {YardSchema}.v_logist l order by l.display_order";
+                command.CommandText = SelectLogistsSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var logist = CreateLogist(reader);
+                    logists.Add(logist);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        logists.Sort();
+        return [.. logists];
+    }
+
+    private readonly Catalog<Entity>? _operationStates = new("OPERATION_STATES", "Состояния (статусы) операций двора");
+    /// <summary>
+    /// Возвращает состояние операции двора (ПРР) по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Состояние операции двора.</returns>
+    public Entity GetOperationState(short id)
+    {
+        var SelectOperationStateByIdSql =
+            $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note\n" +
+            $"  from {YardSchema}.v_operation_state os where os.id = :id";
+        return GetEntity(id, SelectOperationStateByIdSql, _operationStates);
+    }
+    /// <summary>
+    /// Возвращает состояние операции двора (ПРР) по коду.
+    /// </summary>
+    /// <param name="code">Код.</param>
+    /// <returns>Состояние операции двора (ПРР).</returns>
+    public Entity GetOperationState(string code)
+    {
+        var SelectOperationStateByCodeSql =
+            $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note\n" +
+            $"from {YardSchema}.v_operation_state os where os.code = :code";
+        return GetEntity(code, SelectOperationStateByCodeSql, _operationStates);
+    }
+    /// <summary>
+    /// Возвращает ВСЕ состояния операций двора.
+    /// </summary>
+    /// <returns>Массив состояний операций двора.</returns>
+    public Entity[] GetOperationStates()
+    {
+        var SelectOperationStatesSql =
+            $"select os.id, os.code, os.name, os.short_name, os.alt_name, os.display_name, os.is_active, os.display_order, os.note\n" +
+            $"from {YardSchema}.v_operation_state os";
+        return GetEntities(SelectOperationStatesSql);
+    }
+
+    private readonly Catalog<OperationType> _operationTypes = new("OPERATION_TYPES", "Типы операций двора");
+    private static OperationType CreateOperationType(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+
+        var id = Utils.DbValueToShort(reader["id"]);
+        var direction = Utils.DbValueToString(reader["direction"]) == "O" ? OperationType.TypeDirection.Out : OperationType.TypeDirection.In;
+        var isPallet = Utils.DbValueToShort(reader["is_pallet"]) == 1;
+        var code = Utils.DbValueToString(reader["code"]);
+        var name = Utils.DbValueToString(reader["name"]);
+        var shortName = Utils.DbValueToString(reader["short_name"]);
+        var altName = Utils.DbValueToString(reader["alt_name"]);
+        var displayName = Utils.DbValueToString(reader["display_name"]);
+        var time = Utils.DbValueToInt(reader["time"]);
+        var isActive = Utils.DbValueToInt(reader["is_active"]) == 1;
+        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+        var note = Utils.DbValueToString(reader["note"]);
+        var operationtype = new OperationType(id,
+            direction,
+            isPallet,
+            code,
+            name,
+            shortName,
+            altName,
+            displayName,
+            time,
+            isActive,
+            displayOrder,
+            note);
+        return operationtype;
+    }
+    /// <summary>
+    /// Возвращает тип операции двора (ПРР) по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Тип операции двора (ПРР).</returns>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public OperationType GetOperationType(short id)
+    {
+        id = id > 0 ? id : (short)-1;
+        var operationType = _operationTypes[id];
+        if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
+            return operationType;
+
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectOperationTypeByIdSql =
+                    $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
+                    $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
+                    $"  from {YardSchema}.v_operation_type ot\n" +
+                    $" where ot.id = :id order by ot.display_order";
+                command.CommandText = SelectOperationTypeByIdSql;
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    operationType = CreateOperationType(reader);
+                    _operationTypes.Add(operationType);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
+            return operationType;
+        throw new EntityNotFoundException(nameof(operationType), id);
+    }
+    /// <summary>
+    /// Возвращает тип операции двора (ПРР) по коду.
+    /// </summary>
+    /// <param name="code">Код.</param>
+    /// <returns>Тип операции двора (ПРР).</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public OperationType GetOperationType(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("code is empty");
+        code = code.Trim().ToUpper();
+        var operationType = _operationTypes[code];
+        if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
+            return operationType;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectOperationTypeByCodeSql =
+                    $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
+                    $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
+                    $"  from {YardSchema}.v_operation_type ot\n" +
+                    $" where ot.code = :code";
+                command.CommandText = SelectOperationTypeByCodeSql;
+                command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    operationType = CreateOperationType(reader);
+                    _operationTypes.Add(operationType);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (operationType != null && operationType != OperationType.Null && operationType != OperationType.Empty)
+            return operationType;
+        throw new EntityNotFoundException(nameof(operationType), code);
+    }
+    /// <summary>
+    /// Возвращает типы операций двора указанного партнёра (манданта).
+    /// </summary>
+    /// <param name="partner">Партнёр (клиент, мандант).</param>
+    /// <returns>Массив типов операций двора (ПРР).</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public OperationType[] GetOperationTypes(Partner partner)
+    {
+        if (partner == null)
+            throw new ArgumentNullException(nameof(partner));
+        var operationTypes = new List<OperationType>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectOperationTypesByPartnerSql =
+                    $"select pot.id, pot.direction, pot.is_pallet, pot.code, pot.name, pot.short_name, pot.alt_name, pot.display_name,\n" +
+                    $"       pot.time, pot.is_active, pot.display_order, pot.note\n" +
+                    $"  from {YardSchema}.v_partner_operation_type pot\n" +
+                    $" where pot.partner_id = :partner_id";
+                command.CommandText = SelectOperationTypesByPartnerSql;
+                command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operationType = CreateOperationType(reader);
+                    operationTypes.Add(operationType);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        operationTypes.Sort();
+        return [.. operationTypes];
+    }
+    /// <summary>
+    /// Возвращает ВСЕ типы операций двора (ПРР).
+    /// </summary>
+    /// <returns>Массив типов операций двора (ПРР).</returns>
+    public OperationType[] GetOperationTypes()
+    {
+        var operationTypes = new List<OperationType>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectOperationTypesSql =
+                    $"select ot.id, ot.direction, ot.is_pallet, ot.code, ot.name, ot.short_name, ot.alt_name, ot.display_name,\n" +
+                    $"       ot.time, ot.is_active, ot.display_order, ot.note\n" +
+                    $"  from {YardSchema}.v_operation_type ot";
+                command.CommandText = SelectOperationTypesSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operationType = CreateOperationType(reader);
+                    operationTypes.Add(operationType);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        operationTypes.Sort();
+        return [.. operationTypes];
+    }
+
+    private readonly Catalog<VehicleKind> _vehicleKinds = new("VEHICLE_KINDS", "Виды автомашин");
+    private static VehicleKind CreateVehicleKind(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        var id = Utils.DbValueToShort(reader["id"]);
+        var code = Utils.DbValueToString(reader["code"]);
+        var name = Utils.DbValueToString(reader["name"]);
+        var shortName = Utils.DbValueToString(reader["short_name"]);
+        var altName = Utils.DbValueToString(reader["alt_name"]);
+        var displayName = Utils.DbValueToString(reader["display_name"]);
+        var capacity = Utils.DbValueToInt(reader["capacity"]);
+        var palletsCount = Utils.DbValueToShort(reader["pallets_count"]);
+        var bodyLength = Utils.DbValueToDouble(reader["body_length"]);
+        var bodyWidth = Utils.DbValueToDouble(reader["body_width"]);
+        var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+        var note = Utils.DbValueToString(reader["note"]);
+        var vehicleKind = new VehicleKind(id, code, name, shortName, altName, displayName,
+            capacity, palletsCount, bodyLength, bodyWidth,
+            isActive, displayOrder,
+            note);
+        return vehicleKind;
+    }
+    /// <summary>
+    /// Возвращает вид автомашины по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Вид автомашины.</returns>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public VehicleKind GetVehicleKind(short id)
+    {
+        id = id > 0 ? id : (short)-1;
+        var vehicleKind = _vehicleKinds[id];
+        if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
+            return vehicleKind;
+
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectVehicleKindByIdSql =
+                    $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name,\n" +
+                    $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width,\n" +
+                    $"       vk.is_active, vk.display_order, vk.note\n" +
+                    $"  from {YardSchema}.v_vehicle_kind vk where vk.id = :id";
+                command.CommandText = SelectVehicleKindByIdSql;
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    vehicleKind = CreateVehicleKind(reader);
+                    _vehicleKinds.Add(vehicleKind);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
+            return vehicleKind;
+        throw new EntityNotFoundException(nameof(vehicleKind), id);
+    }
+    /// <summary>
+    /// Возвращает вид автомашины по коду.
+    /// </summary>
+    /// <param name="code">Код.</param>
+    /// <returns>Вид автомашины.</returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public VehicleKind GetVehicleKind(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("code is empty");
+        code = code.Trim().ToUpper();
+        var vehicleKind = _vehicleKinds[code];
+        if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
+            return vehicleKind;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectVehicleKindByCodeSql =
+                    $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name,\n" +
+                    $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width,\n" +
+                    $"       vk.is_active, vk.display_order, vk.note\n" +
+                    $"  from {YardSchema}.v_vehicle_kind vk where vk.code = :code";
+                command.CommandText = SelectVehicleKindByCodeSql;
+                command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    vehicleKind = CreateVehicleKind(reader);
+                    _vehicleKinds.Add(vehicleKind);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (vehicleKind != null && vehicleKind != VehicleKind.Null && vehicleKind != VehicleKind.Empty)
+            return vehicleKind;
+        throw new EntityNotFoundException(nameof(vehicleKind), code);
+    }
+    /// <summary>
+    /// Возвращает ВСЕ виды автомашин.
+    /// </summary>
+    /// <returns>Массив видов автомашин.</returns>
+    public VehicleKind[] GetVehicleKinds()
+    {
+        var vehicleKinds = new List<VehicleKind>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectVehicleKindsSql =
+                    $"select vk.id, vk.code, vk.name, vk.short_name, vk.alt_name, vk.display_name,\n" +
+                    $"       vk.capacity, vk.pallets_count, vk.body_length, vk.body_width,\n" +
+                    $"       vk.is_active, vk.display_order, vk.note\n" +
+                    $"  from {YardSchema}.v_vehicle_kind vk";
+                command.CommandText = SelectVehicleKindsSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var vehicleKind = CreateVehicleKind(reader);
+                    vehicleKinds.Add(vehicleKind);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        vehicleKinds.Sort();
+        return [.. vehicleKinds];
+    }
+
+    private readonly Catalog<Work> _works = new("WORKS", "Элементарные работы");
+    private static Work CreateWork(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        var id = Utils.DbValueToShort(reader["id"]);
+        var code = Utils.DbValueToString(reader["code"]);
+        var isVariable = Utils.DbValueToShort(reader["is_variable"]) == 1;
+        var name = Utils.DbValueToString(reader["name"]);
+        var shortName = Utils.DbValueToString(reader["short_name"]);
+        var altName = Utils.DbValueToString(reader["alt_name"]);
+        var displayName = Utils.DbValueToString(reader["display_name"]);
+        var time = Utils.DbValueToShort(reader["time"]);
+        var isActive = Utils.DbValueToShort(reader["is_active"]) == 1;
+        var displayOrder = Utils.DbValueToShort(reader["display_order"]);
+        var note = Utils.DbValueToString(reader["note"]);
+        var work = new Work(id, code, isVariable, name, shortName, altName, displayName, time,
+            isActive, displayOrder,
+            note);
+        return work;
+    }
+    public Work GetWorkById(short id)
+    {
+        id = id > 0 ? id : (short)-1;
+        var work = _works[id];
+        if (work != null && work != Work.Null)
+            return work;
+
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectWorkByIdSql =
+                    $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
+                    $"       w.time,\n" +
+                    $"       w.is_active, w.display_order, w.note\n" +
+                    $"  from {YardSchema}.v_work w where w.id = :id";
+                command.CommandText = SelectWorkByIdSql;
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Smallint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    work = CreateWork(reader);
+                    _works.Add(work);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (work != null && work != Work.Null && work != Work.Empty)
+            return work;
+        throw new EntityNotFoundException(nameof(work), id);
+    }
+    public Work GetWorkByCode(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            throw new ArgumentException("code is empty");
+        code = code.Trim().ToUpper();
+        var work = _works[code];
+        if (work != null && work != Work.Null)
+            return work;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectWorkByCodeSql =
+                    $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
+                    $"       w.time,\n" +
+                    $"       w.is_active, w.display_order, w.note\n" +
+                    $"  from {YardSchema}.v_work w where w.code = :code";
+                command.CommandText = SelectWorkByCodeSql;
+                command.Parameters.Add(CreateParameter("code", NpgsqlDbType.Varchar, code));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    work = CreateWork(reader);
+                    _works.Add(work);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (work != null && work != Work.Null && work != Work.Empty)
+            return work;
+        throw new EntityNotFoundException(nameof(work), code);
+    }
+    public Work[] GetWorks()
+    {
+        var works = new List<Work>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectWorksSql =
+                    $"select w.id, w.code, w.is_variable, w.name, w.short_name, w.alt_name, w.display_name,\n" +
+                    $"       w.time,\n" +
+                    $"       w.is_active, w.display_order, w.note\n" +
+                    $"  from {YardSchema}.v_work w";
+                command.CommandText = SelectWorksSql;
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var work = CreateWork(reader);
+                    works.Add(work);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. works];
+    }
+    public List<string>GetPartnerEmails(string partnerId)
+    {
+        var emails = new List<string>();
+        using (var connection = CloneConnection())
+        {
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.Text;
+            command.CommandText = $"select p.contact_value from {YardSchema}.v_partner_newsletter_contacts p where p.partner_id = @partnerId";
+            command.Parameters.Add(CreateParameter("partnerId", NpgsqlDbType.Varchar, partnerId));
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+                emails.Add(Utils.DbValueToString(reader["contact_value"]));
+        }
+        return emails;
+    }
+
+    public delegate Partner GetPartnerByIdDelegate(string id);
+    public delegate Employee GetEmployeeByIdDelegate(int id);
+    public delegate Position GetPositionByIdDelegate(short id);
+    public delegate Shift GetShiftByDateDelegate(DateTime date);
+    public delegate Employee[] GetEmployeesByShiftDelegate(Shift shift);
+    public delegate Employee[] GetEmployeesDelegate();
+    public delegate WarehouseAction GetWarehouseActionDelegate(ActionKind actionKind, string id);
+    public GetPartnerByIdDelegate? GetPartnerById { private get; set; }
+    public GetEmployeeByIdDelegate? GetEmployeeById { private get; set; }
+    public GetPositionByIdDelegate? GetPositionById { private get; set; }
+    public GetShiftByDateDelegate? GetShiftByDate { private get; set; }
+    public GetEmployeesByShiftDelegate? GetEmployeesByShift { private get; set; }
+    public GetEmployeesDelegate? GetEmployees { private get; set; }
+    public GetWarehouseActionDelegate? GetWarehouseAction { private get; set; }
+    /// <summary>
+    /// Возвращает клиента (мандант) по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Клиент (мандант).</returns>
+    public Partner GetPartner(string id)
+    {
+        return GetPartnerById != null ? GetPartnerById(id) : Partner.Null;
+    }
+    /// <summary>
+    /// Возвращает сотрудника по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Сотрудник.</returns>
+    private Employee GetEmployee(int id)
+    {
+        return GetEmployeeById != null ? GetEmployeeById(id) : Employee.Null;
+    }
+    /// <summary>
+    /// Возвращает должность по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Должность.</returns>
+    private Position GetPosition(short id)
+    {
+        return GetPositionById != null ? GetPositionById(id) : Position.Null;
+    }
+    /// <summary>
+    /// Возвращает рабочую смену, которая затрагивает указанный момент времени.
+    /// </summary>
+    /// <param name="date">Момент времени (дата + время).</param>
+    /// <returns>Рабочая смена.</returns>
+    private Shift? GetShift(DateTime date)
+    {
+        return GetShiftByDate != null ? GetShiftByDate(date) : null;
+    }
+    /// <summary>
+    /// Возвращает сотрудников, работающих в указанную рабочую смену.
+    /// </summary>
+    /// <param name="shift">Рабочая смена.</param>
+    /// <returns>Массив сотрудников.</returns>
+    private Employee[] GetShiftEmployees(Shift shift)
+    {
+        return GetEmployeesByShift != null ? GetEmployeesByShift(shift) : [];
+    }
+    /// <summary>
+    /// Возвращает ВСЕХ сотрудников.
+    /// </summary>
+    /// <returns>Массив сотрудников.</returns>
+    private Employee[] GetAllEmployees()
+    {
+        return GetEmployees != null ? GetEmployees() : Array.Empty<Employee>();
+    }
+    private readonly IDictionary<string, string> _gateCodes = new Dictionary<string, string>
+    {
+        { "GATE_1", "EIN01" },
+        { "GATE_2", "EIN02" },
+        { "GATE_3", "EIN03" },
+        { "GATE_4", "EIN04" },
+        { "GATE_5", "EIN05" },
+        { "GATE_6", "EIN06" },
+        { "HOOKAN", "EIN07" },
+        { "GATE_8", "EIN08" },
+        { "GATE_9", "EIN09" },
+        { "GATE_10", "EIN10" },
+        { "GATE_11", "EIN11" },
+        { "GATE_12", "EIN12" },
+        { "GATE_13", "EIN13" },
+        { "GATE_14", "EIN14" },
+        { "GATE_15", "EIN15" },
+        { "GATE_16", "EIN16" },
+        { "GATE_17", "EIN17" }
+    };
+    /// <summary>
+    /// Возвращает код ворот по коду участка (соответствующего воротам).
+    /// </summary>
+    /// <param name="siteCode">Код участка.</param>
+    /// <returns>Код ворот.</returns>
+    public string GetGateCodeBySiteCode(string siteCode)
+    {
+        return !string.IsNullOrWhiteSpace(siteCode) && _gateCodes.ContainsKey(siteCode) ? _gateCodes[siteCode] : string.Empty;
+    }
+    #endregion
+
+    #region Operations
+    private Interval CreateInterval(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        var from = Utils.DbValueToDateTime(reader["start_date"]);
+        var to = Utils.DbValueToDateTime(reader["finish_date"]);
+        var gate = GetGate(Utils.DbValueToShort(reader["gate_id"]));
+        var interval = new Interval(from, to, gate);
+        return interval;
+    }
+
+    private Operation CreateOperation(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+
+        var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
+        var planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+        var planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+        var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
+        var vehicleBrand = Utils.DbValueToString(reader["vehicle_brand"]);
+        var vehicleModel = Utils.DbValueToString(reader["vehicle_model"]);
+        var vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+        var trailerNumber = Utils.DbValueToString(reader["trailer_number"]);
+        var driverName = Utils.DbValueToString(reader["driver_name"]);
+        var driverPhoneNumber = Utils.DbValueToString(reader["driver_phone_number"]);
+        var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
+        var priority = Convert.ToInt16(reader["priority"]);
+        var partnerManagerName = Utils.DbValueToString(reader["partner_manager_name"]);
+        var partnerManagerPhoneNumber = Utils.DbValueToString(reader["partner_manager_phone_number"]);
+        var partnerManagerEmail = Utils.DbValueToString(reader["partner_manager_email"]);
+        var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
+
+        var createDate = Utils.DbValueToDateTime(reader["created"]);
+        var creator = Utils.DbValueToString(reader["creator"]);
+        var editDate = Utils.DbValueToDateTime(reader["edited"]);
+        var editor = Utils.DbValueToString(reader["editor"]);
+
+        var operation = new Operation(Convert.ToInt64(reader["id"]), null,
+            type,
+            planWorkStartDate, planWorkFinishDate,
+            vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
+            state,
+            priority,
+            partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+            manager)
+        {
+            FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
+            FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
+            StartDate = Utils.DbValueToDateTime(reader["start_date"]),
+            FinishDate = Utils.DbValueToDateTime(reader["finish_date"]),
+            CreateDate = createDate,
+            Creator = creator,
+            EditDate = editDate,
+            Editor = editor
+        };
+
+
+        var logistId = Utils.DbValueToInt(reader["logist_id"]);
+        operation.Logist = logistId > 0 ? GetLogist(logistId) : Logist.Null;
+
+        var gateId = Utils.DbValueToShort(reader["gate_id"]);
+        operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
+        var deleteDate = Utils.DbValueToDateTime(reader["deleted"]);
+        operation.DeleteDate = deleteDate;
+        var deleter = Utils.DbValueToString(reader["deleter"]);
+        operation.Deleter = deleter;
+        bool parking;
+        if (Convert.IsDBNull(reader["on_parking"]))
+            parking = false;
+        else
+            parking = Convert.ToBoolean(reader["on_parking"]);
+        operation.Parking = parking;
+
+        var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
+        operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
+
+        operation.Note = Convert.ToString(reader["note"]);
+
+        var actions = GetActions(operation);
+        operation.AddActions(actions);
+
+        // Элементарые работы для операции двора (зависят от типа операции, вида автомашины).
+        var operationWorks = GetOperationWorks(operation);
+        operation.AddOperationWorks(operationWorks);
+
+        var operationWorkers = GetOperationWorkers(operation);
+        operation.AddWorkers(operationWorkers);
+
+        return operation;
+    }
+    private Operation CreateOperationLite(DbDataReader reader)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+
+        var type = GetOperationType(Convert.ToInt16(reader["type_id"]));
+        var planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+        var planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+        var vehicleKind = GetVehicleKind(Convert.ToInt16(reader["vehicle_kind_id"]));
+        var vehicleBrand = "<null>";
+        var vehicleModel = "<null>";
+        var vehicleNumber = "<null>";
+        var trailerNumber = string.Empty;
+        var driverName = "<null>";
+        var driverPhoneNumber = string.Empty;
+        var state = GetOperationState(Convert.ToInt16(reader["state_id"]));
+        var priority = Convert.ToInt16(reader["priority"]);
+        var partnerManagerName = string.Empty;
+        var partnerManagerPhoneNumber = string.Empty;
+        var partnerManagerEmail = string.Empty;
+        var manager = GetEmployee(Convert.ToInt32(reader["manager_id"]));
+
+        var createDate = Utils.DbValueToDateTime(reader["created"]);
+        var creator = Utils.DbValueToString(reader["creator"]);
+        var editDate = Utils.DbValueToDateTime(reader["edited"]);
+        var editor = Utils.DbValueToString(reader["editor"]);
+
+        var operation = new Operation(Convert.ToInt64(reader["id"]), null,
+            type,
+            planWorkStartDate, planWorkFinishDate,
+            vehicleKind, vehicleBrand, vehicleModel, vehicleNumber, trailerNumber, driverName, driverPhoneNumber,
+            state,
+            priority,
+            partnerManagerName, partnerManagerPhoneNumber, partnerManagerEmail,
+            manager)
+        {
+            FactWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]),
+            FactWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]),
+            StartDate = Utils.DbValueToDateTime(reader["start_date"]),
+            FinishDate = Utils.DbValueToDateTime(reader["finish_date"]),
+            CreateDate = createDate,
+            Creator = creator,
+            EditDate = editDate,
+            Editor = editor,
+            Logist = Logist.Null
+        };
+
+        var gateId = Utils.DbValueToShort(reader["gate_id"]);
+        operation.Gate = gateId > 0 ? GetGate(gateId) : Gate.Null;
+
+        var responcibleOfficerId = Utils.DbValueToInt(reader["responsible_officer_id"]);
+        operation.ResponsibleOfficer = responcibleOfficerId > 0 ? GetEmployee(responcibleOfficerId) : Employee.Null;
+
+        operation.Note = string.Empty;
+
+        var actions = Array.Empty<WarehouseAction>();
+        operation.AddActions(actions);
+
+        // Элементарые работы для операции двора (зависят от типа операции, вида автомашины).
+        var operationWorks = Array.Empty<Operation.OperationWork>();
+        operation.AddOperationWorks(operationWorks);
+
+        var operationWorkers = Array.Empty<Operation.OperationWorker>();
+        operation.AddWorkers(operationWorkers);
+
+        return operation;
+    }
+    /// <summary>
+    /// Возвращаем продолжительность операции двора (ПРР) в зависимости от типа операции двора и вида автомашины.
+    /// </summary>
+    /// <param name="operationType">Тип операции двора.</param>
+    /// <param name="vehicleKind">Вид автомашины.</param>
+    /// <returns>Продолжительность.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public short GetDuration(OperationType operationType, VehicleKind vehicleKind, out int constantDuration, out int variableDuration)
+    {
+        ArgumentNullException.ThrowIfNull(operationType);
+        ArgumentNullException.ThrowIfNull(vehicleKind);
+
+        var time = OperationType.DefaultTime;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select otvkt.operation_time\n" +
+                    $"  from {YardSchema}.v_ot_vk_time otvkt\n" +
+                    $" where otvkt.operation_type_id = :operation_type_id\n" +
+                    $"   and otvkt.vehicle_kind_id = :vehicle_kind_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                using var reader = command.ExecuteReader();
+                time = 0;
+                if (reader.Read())
+                    time = Utils.DbValueToShort(reader["operation_time"]);
+                reader.Close();
+            }
+            connection.Close();
+        }
+        // TODO: get default time for current operation type.
+        var works = GetOperationWorks(operationType, vehicleKind);
+        constantDuration = 0;
+        variableDuration = 0;
+        foreach (var work in works)
+        {
+            if (work.Work.IsVariable)
+                variableDuration += work.Time;
+            else
+                constantDuration += work.Time;
+        }
+        return time;
+    }
+    /// <summary>
+    /// Возвращает плановое количество ЛИНЕЙНЫХ работников операции двора, в зависимости от типа операции и вида машины.
+    /// </summary>
+    /// <param name="operationType">Тип операции двора.</param>
+    /// <param name="vehicleKind">Вид машины.</param>
+    /// <returns>Плановое количество сотрудников.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public short GetPlanLinearWorkersCount(OperationType operationType, VehicleKind vehicleKind)
+    {
+        ArgumentNullException.ThrowIfNull(operationType);
+        ArgumentNullException.ThrowIfNull(vehicleKind);
+
+        var count = DefaultWorkersCount;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"with positions_workers as (select t.position_id, max(workers_count) workers_count\n" +
+                    $"                             from {YardSchema}.v_ot_vk_work t\n" +
+                    $"                        left join {YardSchema}.v_position p on t.position_id = p.id\n" +
+                    $"                            where t.operation_type_id = :operation_type_id\n" +
+                    $"                              and t.vehicle_kind_id = :vehicle_kind_id\n" +
+                    $"                              and p.is_linear = 1\n" +
+                    $"                         group by t.position_id\n" +
+                    $")\n" +
+                    $"select sum(pw.workers_count) workers_count from positions_workers pw";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    count = Utils.DbValueToShort(reader["workers_count"]);
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return count;
+    }
+    /// <summary>
+    /// Возвращает плановые трудозатраты операции двора (ПРР) по указанному типу операции двора и виду автомашины.
+    /// </summary>
+    /// <param name="operationType">Тип операции двора.</param>
+    /// <param name="vehicleKind">Вид автомашины.</param>
+    /// <returns>Плановые трудозатраты.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public int GetLaborCost(OperationType operationType, VehicleKind vehicleKind)
+    {
+        ArgumentNullException.ThrowIfNull(operationType);
+        ArgumentNullException.ThrowIfNull(vehicleKind);
+
+        var laborCost = OperationType.DefaultLaborCost;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select otvkw.time, otvkw.workers_count\n" +
+                    $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
+                    $" where otvkw.operation_type_id = :operation_type_id\n" +
+                    $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                using var reader = command.ExecuteReader();
+                laborCost = 0;
+                while (reader.Read())
+                    laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return laborCost;
+    }
+    /// <summary>
+    /// Возвращает плановые трудозатраты ЛИНЕЙНОГО персонала операции двора (ПРР)
+    /// по указанному типу операции двора и виду автомашины.
+    /// </summary>
+    /// <param name="operationType">Тип операции двора.</param>
+    /// <param name="vehicleKind">Вид автомашины.</param>
+    /// <returns>Плановые трудозатраты ЛИНЕЙНОГО персонала.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public int GetLinearLaborCost(OperationType operationType, VehicleKind vehicleKind)
+    {
+        ArgumentNullException.ThrowIfNull(operationType);
+        ArgumentNullException.ThrowIfNull(vehicleKind);
+
+        var laborCost = OperationType.DefaultLaborCost;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"   select otvkw.time, otvkw.workers_count\n" +
+                    $"     from {YardSchema}.v_ot_vk_work otvkw\n" +
+                    $"left join {YardSchema}.v_position p on otvkw.position_id = p.id\n" +
+                    $"    where otvkw.operation_type_id = :operation_type_id\n" +
+                    $"      and otvkw.vehicle_kind_id = :vehicle_kind_id\n" +
+                    $"      and p.is_linear = 1";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                using var reader = command.ExecuteReader();
+                laborCost = 0;
+                while (reader.Read())
+                    laborCost += Utils.DbValueToShort(reader["time"]) * Utils.DbValueToShort(reader["workers_count"]);
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return laborCost;
+    }
+    /// <summary>
+    /// Возвращает ВСЕ свободные интервалы времени в указанном промежутке.
+    /// </summary>
+    /// <param name="from">Начало указанного интервала (дата + время).</param>
+    /// <param name="to">Окончание указанного интервала (дата + время).</param>
+    /// <returns></returns>
+    public Interval[] GetAllIntervals(DateTime from, DateTime to)
+    {
+        var intervals = new List<Interval>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql = $"select ({YardSchema}.get_all_windows(:p_start_date, :p_finish_date)).*;";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var interval = CreateInterval(reader);
+                    intervals.Add(interval);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. intervals];
+    }
+    /// <summary>
+    /// Возвращает доступные интервалы в указанном промежуьке для операции двора (ПРР) указанного типа и для указанного вида автомашины.
+    /// </summary>
+    /// <param name="from">Начало промежутка (дата + время).</param>
+    /// <param name="to">Окончание промежутка (дата + время).</param>
+    /// <param name="operationType">Тип операции двора (ПРР).</param>
+    /// <param name="vehicleKind">Вид автомашины.</param>
+    /// <returns>Массив доступных интервалов.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Interval[] GetAvalibleIntervals(DateTime from, DateTime to, OperationType operationType, VehicleKind vehicleKind)
+    {
+        ArgumentNullException.ThrowIfNull(operationType);
+        ArgumentNullException.ThrowIfNull(vehicleKind);
+        var intervals = new List<Interval>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select ({YardSchema}.get_avalible_windows(:p_start_date,\n" +
+                    $"    :p_finish_date,\n" +
+                    $"    :p_operation_type_code,\n" +
+                    $"    :p_vehicle_kind_code)).*;";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                command.Parameters.Add(CreateParameter("p_operation_type_code", NpgsqlDbType.Varchar, operationType.Code));
+                command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, vehicleKind.Code));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var interval = CreateInterval(reader);
+                    intervals.Add(interval);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. intervals];
+    }
+    /// <summary>
+    /// Возвращаеет все свободные интервалы на указанных воротах в указанном периоде.
+    /// </summary>
+    /// <param name="gate">Воротаю</param>
+    /// <param name="from">Начало периода (дата + время).</param>
+    /// <param name="to">Окончание периода (дата + время).</param>
+    /// <returns>Массив интервалов.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Interval[] GetGateIntervals(Gate gate, DateTime from, DateTime to)
+    {
+        ArgumentNullException.ThrowIfNull(gate);
+        var intervals = new List<Interval>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql = $"select ({YardSchema}.get_gate_windows(:p_gate_code, :p_start_date, :p_finish_date)).*;";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate.Code));
+                command.Parameters.Add(CreateParameter("p_start_date", NpgsqlDbType.Timestamp, from));
+                command.Parameters.Add(CreateParameter("p_finish_date", NpgsqlDbType.Timestamp, to));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var interval = CreateInterval(reader);
+                    intervals.Add(interval);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. intervals];
+    }
+    /// <summary>
+    /// Логгирует жизненный цикл заявок в таблицу operation_log.
+    /// </summary>
+    /// <param name="operation">Объект операции двора с соответствующими свойствами.</param>
+    /// <param name="status">Статус заявки.</param>
+    /// <param name="user">Пользователь, внесший измения.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void AddOperationLog(Operation operation, string status, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var info = new JObject(
+                new JProperty("plan_work_start_date", operation.PlanWorkStartDate),
+                new JProperty("plan_work_finish_date", operation.PlanWorkFinishDate),
+                new JProperty("vehicle_kind_code", operation.VehicleKind.Code),
+                new JProperty("vehicle_brand", operation.VehicleBrand),
+                new JProperty("vehicle_model", operation.VehicleModel),
+                new JProperty("vehicle_number", operation.VehicleNumber),
+                new JProperty("trailer_number", operation.TrailerNumber),
+                new JProperty("driver_name", operation.DriverName),
+                new JProperty("driver_phone_number", operation.DriverPhoneNumber),
+                new JProperty("partner_name", operation.PartnersNames),
+                new JProperty("gate", operation.Gate.Name),
+                new JProperty("actions_ids", operation.ActionsIds),
+                new JProperty("parner_actions_ids", operation.PartnerActionsIds),
+                new JProperty("logist_id", operation.Logist?.Id ?? (object)DBNull.Value),
+                new JProperty("priority", operation.Priority),
+                new JProperty("partner_manager_name", operation.PartnerManagerName),
+                new JProperty("partner_manager_phone_number", operation.PartnerManagerPhoneNumber),
+                new JProperty("partner_manager_email", operation.PartnerManagerEmail),
+                new JProperty("manager_id", operation.Manager.Id)
+            );
+
+            var sql = $"select {YardSchema}.add_operation_log(:p_operation_id,\n" +
+                ":p_operation_type,\n" +
+                ":p_status,\n" +
+                ":p_info::json,\n" +
+                ":p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Integer, operation.Id));
+            command.Parameters.Add(CreateParameter("p_operation_type", NpgsqlDbType.Varchar, operation.Type.DisplayName));
+            command.Parameters.Add(CreateParameter("p_status", NpgsqlDbType.Varchar, status));
+            command.Parameters.Add(CreateParameter("p_info", NpgsqlDbType.Json, info.ToString((Newtonsoft.Json.Formatting)Formatting.None)));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+
+            command.ExecuteNonQuery();
+        }
+        connection.Close();
+    }
+
+    /// <summary>
+    /// Создаёт и сохраняет новую операцию двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <returns>Сохранённая операция двора с присвоенным идентификатором.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Operation AddOperation(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql = $"select {YardSchema}.add_operation(:p_type_code,\n" +
+                    ":p_plan_work_start_date,\n" +
+                    ":p_plan_work_finish_date,\n" +
+                    ":p_vehicle_kind_code,\n" +
+                    ":p_vehicle_brand,\n" +
+                    ":p_vehicle_model,\n" +
+                    ":p_vehicle_number,\n" +
+                    ":p_trailer_number,\n" +
+                    ":p_driver_name,\n" +
+                    ":p_driver_phone_number,\n" +
+                    ":p_logist_id,\n" +
+                    ":p_priority,\n" +
+                    ":p_parking,\n" +
+                    ":p_partner_manager_name,\n" +
+                    ":p_partner_manager_phone_number,\n" +
+                    ":p_partner_manager_email,\n" +
+                    ":p_manager_id,\n" +
+                    ":p_note,\n" +
+                    ":p_user);";
+                command.CommandText = sql;
+
+                command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
+                command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
+                command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
+                command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
+                command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
+                command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+                command.Parameters.Add(CreateParameter("p_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
+                command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
+                command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+                command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
+                command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
+                    operation.Logist != null ? operation.Logist.Id : DBNull.Value));
+                command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+                command.Parameters.Add(CreateParameter("p_parking", NpgsqlDbType.Boolean, operation.Parking));
+                command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
+                command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
+                command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
+                command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
+                command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+
+                operation.Id = Convert.ToInt64(command.ExecuteScalar());
+            }
+            connection.Close();
+        }
+        return operation;
+    }
+    /// <summary>
+    /// Возвращает операцию двора (ПРР) по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор.</param>
+    /// <returns>Операция двора (ПРР).</returns>
+    /// <exception cref="OperationNotFoundException"></exception>
+    public Operation GetOperation(long id)
+    {
+        var operation = Operation.Null;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select o.id,\n" +
+                    $"       o.type_id,  o.type_code, o.type_name,\n" +
+                    $"       o.start_date,\n" +
+                    $"       o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                    $"       o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                    $"       o.start_date, o.finish_date,\n" +
+                    $"       o.finish_date,\n" +
+                    $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                    $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, o.trailer_number,\n" +
+                    $"       o.driver_name, o.driver_phone_number,\n" +
+                    $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                    $"       o.gate_id, o.gate_code, o.gate_name, o.on_parking,\n" +
+                    $"       o.state_id, o.state_code, o.state_name,\n" +
+                    $"       o.priority,\n" +
+                    $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email,\n" +
+                    $"       o.manager_id,\n" +
+                    $"       o.responsible_officer_id, o.note,\n" +
+                    $"       o.created, o.creator, o.edited, o.editor,\n" +
+                    $"       NULL::timestamp as deleted,\n" +
+                    $"       ''::varchar as deleter\n" +
+                    $"  from {YardSchema}.v_operation o\n" +
+                    $" where o.id = :id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Bigint, id));
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    operation = CreateOperation(reader);
+                reader.Close();
+            }
+            connection.Close();
+        }
+        if (operation != null && operation != Operation.Null && operation != Operation.Empty)
             return operation;
-        }
-        /// <summary>
-        /// Возвращает операцию двора (ПРР) по идентификатору.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <returns>Операция двора (ПРР).</returns>
-        /// <exception cref="OperationNotFoundException"></exception>
-        public Operation GetOperation(long id)
+        throw new OperationNotFoundException(id);
+    }
+    private readonly Dictionary<string, Operation.OperationWork[]> _operationWorks = new();
+    /// <summary>
+    /// Возвращает элементарные микро-операции, которые относятся к операции двора (ПРР)
+    /// по указанному типу и указанному виду автомашины.
+    /// </summary>
+    /// <param name="operationType">Тип операции двора (ПРР).</param>
+    /// <param name="vehicleKind">Вид автомашины.</param>
+    /// <returns>Массив элементарных микро-операций.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind)
+    {
+        ArgumentNullException.ThrowIfNull(operationType);
+        ArgumentNullException.ThrowIfNull(vehicleKind);
+        if (GetPositionById == null)
+            throw new ArgumentException($"{nameof(GetPositionById)} is null");
+
+        var key = $"{operationType.Code}_{vehicleKind.Code}";
+        if (_operationWorks.TryGetValue(key, out Operation.OperationWork[]? value))
+            return value;
+
+        var operationWorks = new List<Operation.OperationWork>();
+        using (var connection = CloneConnection())
         {
-            var operation = Operation.Null;
-            using (var connection = CloneConnection())
+            using (var command = connection.CreateCommand())
             {
-                using (var command = connection.CreateCommand())
+                var sql =
+                    $"select otvkw.work_id, otvkw.position_id, otvkw.time, otvkw.workers_count\n" +
+                    $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
+                    $" where otvkw.operation_type_id = :operation_type_id\n" +
+                    $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
+                command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    var sql =
-                        $"select o.id,\n" +
-                        $"       o.type_id,  o.type_code, o.type_name,\n" +
-                        $"       o.start_date,\n" +
-                        $"       o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                        $"       o.fact_work_start_date, o.fact_work_finish_date,\n" +
-                        $"       o.start_date, o.finish_date,\n" +
-                        $"       o.finish_date,\n" +
-                        $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                        $"       o.vehicle_brand, o.vehicle_model, o.vehicle_number, o.trailer_number,\n" +
-                        $"       o.driver_name, o.driver_phone_number,\n" +
-                        $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                        $"       o.gate_id, o.gate_code, o.gate_name, o.on_parking,\n" +
-                        $"       o.state_id, o.state_code, o.state_name,\n" +
-                        $"       o.priority,\n" +
-                        $"       o.partner_manager_name, o.partner_manager_phone_number, o.partner_manager_email,\n" +
-                        $"       o.manager_id,\n" +
-                        $"       o.responsible_officer_id, o.note,\n" +
-                        $"       o.created, o.creator, o.edited, o.editor,\n" +
-                        $"       NULL::timestamp as deleted,\n" +
-                        $"       ''::varchar as deleter\n" +
-                        $"  from {YardSchema}.v_operation o\n" +
-                        $" where o.id = :id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Bigint, id));
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                        operation = CreateOperation(reader);
-                    reader.Close();
+                    var position = GetPositionById(Utils.DbValueToShort(reader["position_id"]));
+                    var work = GetWorkById(Utils.DbValueToShort(reader["work_id"]));
+                    var time = Utils.DbValueToShort(reader["time"]);
+                    var workersCount = Utils.DbValueToShort(reader["workers_count"]);
+
+                    var operationWork = new Operation.OperationWork(work, position, time, workersCount);
+                    operationWorks.Add(operationWork);
                 }
-                connection.Close();
+                reader.Close();
             }
-            if (operation != null && operation != Operation.Null && operation != Operation.Empty)
-                return operation;
-            throw new OperationNotFoundException(id);
+            connection.Close();
         }
-        private readonly Dictionary<string, Operation.OperationWork[]> _operationWorks = new();
-        /// <summary>
-        /// Возвращает элементарные микро-операции, которые относятся к операции двора (ПРР)
-        /// по указанному типу и указанному виду автомашины.
-        /// </summary>
-        /// <param name="operationType">Тип операции двора (ПРР).</param>
-        /// <param name="vehicleKind">Вид автомашины.</param>
-        /// <returns>Массив элементарных микро-операций.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        public Operation.OperationWork[] GetOperationWorks(OperationType operationType, VehicleKind vehicleKind)
+        var result = operationWorks.ToArray();
+        _operationWorks.Add(key, result);
+        return result;
+    }
+    /// <summary>
+    /// Возвращает элементарные микро-операции, которые относятся к указаной операции двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора.</param>
+    /// <returns>Массив элементарных микро-операций.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Operation.OperationWork[] GetOperationWorks(Operation operation)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        return GetOperationWorks(operation.Type, operation.VehicleKind);
+    }
+    /// <summary>
+    /// Возвращате операции двора, которые "задевают" указанный период времени и относятся к указанным клиентам (мандантам).
+    /// </summary>
+    /// <param name="from">Начало периода (дата + время).</param>
+    /// <param name="to">Окончание периода (дата + время).</param>
+    /// <param name="partners">Массив партнёров (мандантов).</param>
+    /// <returns>Массив операций двора (ПРР).</returns>
+    public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
         {
-            if (operationType == null)
-                throw new ArgumentNullException(nameof(operationType));
-            if (vehicleKind == null)
-                throw new ArgumentNullException(nameof(vehicleKind));
-            if (GetPositionById == null)
-                throw new ArgumentException($"{nameof(GetPositionById)} is null");
-
-            var key = $"{operationType.Code}_{vehicleKind.Code}";
-            if (_operationWorks.ContainsKey(key))
-                return _operationWorks[key];
-
-            var operationWorks = new List<Operation.OperationWork>();
-            using (var connection = CloneConnection())
+            if (partners != null && partners.Length > 0)
             {
-                using (var command = connection.CreateCommand())
+                var sql =
+                    $"select distinct po.id,\n" +
+                    $"       po.type_id,\n" +
+                    $"       po.type_code,\n" +
+                    $"       po.type_name,\n" +
+                    $"       po.start_date,\n" +
+                    $"       po.plan_work_start_date,\n" +
+                    $"       po.fact_work_start_date,\n" +
+                    $"       po.plan_work_finish_date,\n" +
+                    $"       po.fact_work_finish_date,\n" +
+                    $"       po.finish_date,\n" +
+                    $"       po.vehicle_kind_id,\n" +
+                    $"       po.vehicle_kind_code,\n" +
+                    $"       po.vehicle_kind_name,\n" +
+                    $"       po.vehicle_brand,\n" +
+                    $"       po.vehicle_model,\n" +
+                    $"       po.vehicle_number,\n" +
+                    $"       po.trailer_number,\n" +
+                    $"       po.driver_name,\n" +
+                    $"       po.driver_phone_number,\n" +
+                    $"       po.logist_id,\n" +
+                    $"       po.logist_code,\n" +
+                    $"       po.logist_name,\n" +
+                    $"       po.gate_id,\n" +
+                    $"       po.gate_code,\n" +
+                    $"       po.gate_name,\n" +
+                    $"       po.state_id,\n" +
+                    $"       po.state_code,\n" +
+                    $"       po.state_name,\n" +
+                    $"       po.priority,\n" +
+                    $"       po.partner_manager_name,\n" +
+                    $"       po.partner_manager_phone_number,\n" +
+                    $"       po.partner_manager_email,\n" +
+                    $"       po.manager_id,\n" +
+                    $"       po.responsible_officer_id,\n" +
+                    $"       po.note,\n" +
+                    $"       po.created, po.creator, po.edited, po.editor, po.on_parking,\n" +
+                    $"       NULL::timestamp as deleted,\n" +
+                    $"       ''::varchar as deleter\n" +
+                    $"  from {YardSchema}.v_partner_operation po\n" +
+                    $" where not (po.plan_work_start_date > :to_date\n" +
+                    $"    or po.plan_work_finish_date < :from_date)\n" +
+                    $"   and po.partner_id = :partner_id order by po.plan_work_start_date";
+                foreach (var partner in partners)
                 {
-                    var sql =
-                        $"select otvkw.work_id, otvkw.position_id, otvkw.time, otvkw.workers_count\n" +
-                        $"  from {YardSchema}.v_ot_vk_work otvkw\n" +
-                        $" where otvkw.operation_type_id = :operation_type_id\n" +
-                        $"   and otvkw.vehicle_kind_id = :vehicle_kind_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_type_id", NpgsqlDbType.Smallint, operationType.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint, vehicleKind.Id));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var position = GetPositionById(Utils.DbValueToShort(reader["position_id"]));
-                        var work = GetWorkById(Utils.DbValueToShort(reader["work_id"]));
-                        var time = Utils.DbValueToShort(reader["time"]);
-                        var workersCount = Utils.DbValueToShort(reader["workers_count"]);
-
-                        var operationWork = new Operation.OperationWork(work, position, time, workersCount);
-                        operationWorks.Add(operationWork);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            var result = operationWorks.ToArray();
-            _operationWorks.Add(key, result);
-            return result;
-        }
-        /// <summary>
-        /// Возвращает элементарные микро-операции, которые относятся к указаной операции двора (ПРР).
-        /// </summary>
-        /// <param name="operation">Операция двора.</param>
-        /// <returns>Массив элементарных микро-операций.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Operation.OperationWork[] GetOperationWorks(Operation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            return GetOperationWorks(operation.Type, operation.VehicleKind);
-        }
-        /// <summary>
-        /// Возвращате операции двора, которые "задевают" указанный период времени и относятся к указанным клиентам (мандантам).
-        /// </summary>
-        /// <param name="from">Начало периода (дата + время).</param>
-        /// <param name="to">Окончание периода (дата + время).</param>
-        /// <param name="partners">Массив партнёров (мандантов).</param>
-        /// <returns>Массив операций двора (ПРР).</returns>
-        public Operation[] GetOperations(DateTime from, DateTime to, Partner[]? partners)
-        {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
-            {
-                if (partners != null && partners.Length > 0)
-                {
-                    var sql =
-                        $"select distinct po.id,\n" +
-                        $"       po.type_id,\n" +
-                        $"       po.type_code,\n" +
-                        $"       po.type_name,\n" +
-                        $"       po.start_date,\n" +
-                        $"       po.plan_work_start_date,\n" +
-                        $"       po.fact_work_start_date,\n" +
-                        $"       po.plan_work_finish_date,\n" +
-                        $"       po.fact_work_finish_date,\n" +
-                        $"       po.finish_date,\n" +
-                        $"       po.vehicle_kind_id,\n" +
-                        $"       po.vehicle_kind_code,\n" +
-                        $"       po.vehicle_kind_name,\n" +
-                        $"       po.vehicle_brand,\n" +
-                        $"       po.vehicle_model,\n" +
-                        $"       po.vehicle_number,\n" +
-                        $"       po.trailer_number,\n" +
-                        $"       po.driver_name,\n" +
-                        $"       po.driver_phone_number,\n" +
-                        $"       po.logist_id,\n" +
-                        $"       po.logist_code,\n" +
-                        $"       po.logist_name,\n" +
-                        $"       po.gate_id,\n" +
-                        $"       po.gate_code,\n" +
-                        $"       po.gate_name,\n" +
-                        $"       po.state_id,\n" +
-                        $"       po.state_code,\n" +
-                        $"       po.state_name,\n" +
-                        $"       po.priority,\n" +
-                        $"       po.partner_manager_name,\n" +
-                        $"       po.partner_manager_phone_number,\n" +
-                        $"       po.partner_manager_email,\n" +
-                        $"       po.manager_id,\n" +
-                        $"       po.responsible_officer_id,\n" +
-                        $"       po.note,\n" +
-                        $"       po.created, po.creator, po.edited, po.editor, po.on_parking,\n" +
-                        $"       NULL::timestamp as deleted,\n" +
-                        $"       ''::varchar as deleter\n" +
-                        $"  from {YardSchema}.v_partner_operation po\n" +
-                        $" where not (po.plan_work_start_date > :to_date\n" +
-                        $"    or po.plan_work_finish_date < :from_date)\n" +
-                        $"   and po.partner_id = :partner_id order by po.plan_work_start_date";
-                    foreach (var partner in partners)
-                    {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = sql;
-                            command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
-                            command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
-                            command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
-                            using var reader = command.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                var operation = CreateOperation(reader);
-                                operations.Add(operation);
-                            }
-                            reader.Close();
-                        }
-                    }
-                }
-                else
-                {
-                    var sql =
-                        $"select distinct o.id,\n" +
-                        $"       o.type_id,\n" +
-                        $"       o.type_code,\n" +
-                        $"       o.type_name,\n" +
-                        $"       o.plan_work_start_date,\n" +
-                        $"       o.fact_work_start_date,\n" +
-                        $"       o.plan_work_finish_date,\n" +
-                        $"       o.fact_work_finish_date,\n" +
-                        $"       o.start_date,\n" +
-                        $"       o.finish_date,\n" +
-                        $"       o.vehicle_kind_id,\n" +
-                        $"       o.vehicle_kind_code,\n" +
-                        $"       o.vehicle_kind_name,\n" +
-                        $"       o.vehicle_brand,\n" +
-                        $"       o.vehicle_model,\n" +
-                        $"       o.vehicle_number,\n" +
-                        $"       o.trailer_number,\n" +
-                        $"       o.driver_name,\n" +
-                        $"       o.driver_phone_number,\n" +
-                        $"       o.logist_id,\n" +
-                        $"       o.logist_code,\n" +
-                        $"       o.logist_name,\n" +
-                        $"       o.gate_id,\n" +
-                        $"       o.gate_code,\n" +
-                        $"       o.gate_name,\n" +
-                        $"       o.state_id,\n" +
-                        $"       o.state_code,\n" +
-                        $"       o.state_name,\n" +
-                        $"       o.priority,\n" +
-                        $"       o.partner_manager_name,\n" +
-                        $"       o.partner_manager_phone_number,\n" +
-                        $"       o.partner_manager_email,\n" +
-                        $"       o.manager_id,\n" +
-                        $"       o.responsible_officer_id,\n" +
-                        $"       o.note,\n" +
-                        $"       o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
-                        $"       NULL::timestamp as deleted,\n" +
-                        $"       ''::varchar as deleter\n" +
-                        $"  from {YardSchema}.v_operation o\n" +
-                        $" where not (o.plan_work_start_date > :to_date\n" +
-                        $"    or o.plan_work_finish_date < :from_date)";
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = sql;
                         command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
                         command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
+                        command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar, partner.Id));
                         using var reader = command.ExecuteReader();
                         while (reader.Read())
                         {
@@ -1757,75 +1658,1133 @@ namespace TSLog.Yard.Data
                         reader.Close();
                     }
                 }
-                connection.Close();
             }
-            return operations.ToArray();
-        }
-        /// <summary>
-        /// Фильтрует и возвращает операции двора по ряду указаных признаков.
-        /// </summary>
-        /// <param name="id">Шаблон подобия идентификатора ("like").</param>
-        /// <param name="from">Начало периода (дата + время) - учитывается как плановая дата начала работ, так и фактическая.</param>
-        /// <param name="to">Окончание периода (дата + время) - учитывается как плановая дата окончания работ, так и фактическая 
-        /// (+ если работа в процессе, то план корректируется в зависимости от факта начала).</param>
-        /// <param name="type">Тип операции двора (ПРР).</param>
-        /// <param name="vehicleKind">Вид автомашины.</param>
-        /// <param name="state">Состояние (статус).</param>
-        /// <param name="gate">Ворота.</param>
-        /// <param name="partner">Партнёр (мандант).</param>
-        /// <param name="vehicleBrand">Марка автомашины.</param>
-        /// <param name="vehicleNumber">Гос. номер автомашины.</param>
-        /// <param name="driverName">Ф. И. О. водителя (шаблон "like").</param>
-        /// <param name="driverPhoneNumber">Номер телефона водителя.</param>
-        /// <param name="partnerActionId">Идентификатор заказа/прихода (складского дейтсва) в системе клиента (партнёра).</param>
-        /// <param name="workers">Массив назначенных работников (удовлетворяет условию поиска,
-        /// если хотя бы один работник из указанного набора назначен на операцию двора).</param>
-        /// <returns>Массив операций двора (ПРР).</returns>
-        public Operation[] GetOperations(string? id,
-            DateTime? from, DateTime? to,
-            OperationType? type,
-            VehicleKind? vehicleKind,
-            Entity? state,
-            Gate? gate,
-            Partner? partner,
-            string? vehicleBrand,
-            string? vehicleNumber,
-            string? driverName,
-            string? driverPhoneNumber,
-            string? partnerActionId,
-            Employee[] workers)
-        {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
+            else
             {
+                var sql =
+                    $"select distinct o.id,\n" +
+                    $"       o.type_id,\n" +
+                    $"       o.type_code,\n" +
+                    $"       o.type_name,\n" +
+                    $"       o.plan_work_start_date,\n" +
+                    $"       o.fact_work_start_date,\n" +
+                    $"       o.plan_work_finish_date,\n" +
+                    $"       o.fact_work_finish_date,\n" +
+                    $"       o.start_date,\n" +
+                    $"       o.finish_date,\n" +
+                    $"       o.vehicle_kind_id,\n" +
+                    $"       o.vehicle_kind_code,\n" +
+                    $"       o.vehicle_kind_name,\n" +
+                    $"       o.vehicle_brand,\n" +
+                    $"       o.vehicle_model,\n" +
+                    $"       o.vehicle_number,\n" +
+                    $"       o.trailer_number,\n" +
+                    $"       o.driver_name,\n" +
+                    $"       o.driver_phone_number,\n" +
+                    $"       o.logist_id,\n" +
+                    $"       o.logist_code,\n" +
+                    $"       o.logist_name,\n" +
+                    $"       o.gate_id,\n" +
+                    $"       o.gate_code,\n" +
+                    $"       o.gate_name,\n" +
+                    $"       o.state_id,\n" +
+                    $"       o.state_code,\n" +
+                    $"       o.state_name,\n" +
+                    $"       o.priority,\n" +
+                    $"       o.partner_manager_name,\n" +
+                    $"       o.partner_manager_phone_number,\n" +
+                    $"       o.partner_manager_email,\n" +
+                    $"       o.manager_id,\n" +
+                    $"       o.responsible_officer_id,\n" +
+                    $"       o.note,\n" +
+                    $"       o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
+                    $"       NULL::timestamp as deleted,\n" +
+                    $"       ''::varchar as deleter\n" +
+                    $"  from {YardSchema}.v_operation o\n" +
+                    $" where not (o.plan_work_start_date > :to_date\n" +
+                    $"    or o.plan_work_finish_date < :from_date)";
                 using (var command = connection.CreateCommand())
                 {
-                    var sql =
-                       $"select distinct po.id,\n" +
-                       $"       po.type_id, po.type_code, po.type_name,\n" +
-                       $"       po.plan_work_start_date, po.fact_work_start_date,\n" +
-                       $"       po.plan_work_finish_date, po.fact_work_finish_date,\n" +
-                       $"       po.start_date, po.finish_date,\n" +
-                       $"       po.vehicle_kind_id, po.vehicle_kind_code, po.vehicle_kind_name,\n" +
-                       $"       po.vehicle_brand,\n" +
-                       $"       po.vehicle_model,\n" +
-                       $"       po.vehicle_number,\n" +
-                       $"       po.trailer_number,\n" +
-                       $"       po.driver_name, po.driver_phone_number,\n" +
-                       $"       po.logist_id, po.logist_code, po.logist_name,\n" +
-                       $"       po.gate_id, po.gate_code, po.gate_name, po.on_parking,\n" +
-                       $"       po.state_id, po.state_code, po.state_name,\n" +
-                       $"       po.priority,\n" +
-                       $"       po.partner_manager_name,\n" +
-                       $"       po.partner_manager_phone_number,\n" +
-                       $"       po.partner_manager_email,\n" +
-                       $"       po.manager_id,\n" +
-                       $"       po.responsible_officer_id,\n" +
-                       $"       po.note,\n" +
-                       $"       po.created, po.creator, po.edited, po.editor,\n" +
-                       $"       NULL::timestamp as deleted,\n" + 
-                       $"       ''::varchar as deleter\n" + 
-                       $"  from {YardSchema}.v_partner_operation po\n" +
+                    command.CommandText = sql;
+                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
+                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var operation = CreateOperation(reader);
+                        operations.Add(operation);
+                    }
+                    reader.Close();
+                }
+            }
+            connection.Close();
+        }
+        return [.. operations];
+    }
+    /// <summary>
+    /// Фильтрует и возвращает операции двора по ряду указаных признаков.
+    /// </summary>
+    /// <param name="id">Шаблон подобия идентификатора ("like").</param>
+    /// <param name="from">Начало периода (дата + время) - учитывается как плановая дата начала работ, так и фактическая.</param>
+    /// <param name="to">Окончание периода (дата + время) - учитывается как плановая дата окончания работ, так и фактическая 
+    /// (+ если работа в процессе, то план корректируется в зависимости от факта начала).</param>
+    /// <param name="type">Тип операции двора (ПРР).</param>
+    /// <param name="vehicleKind">Вид автомашины.</param>
+    /// <param name="state">Состояние (статус).</param>
+    /// <param name="gate">Ворота.</param>
+    /// <param name="partner">Партнёр (мандант).</param>
+    /// <param name="vehicleBrand">Марка автомашины.</param>
+    /// <param name="vehicleNumber">Гос. номер автомашины.</param>
+    /// <param name="driverName">Ф. И. О. водителя (шаблон "like").</param>
+    /// <param name="driverPhoneNumber">Номер телефона водителя.</param>
+    /// <param name="partnerActionId">Идентификатор заказа/прихода (складского дейтсва) в системе клиента (партнёра).</param>
+    /// <param name="workers">Массив назначенных работников (удовлетворяет условию поиска,
+    /// если хотя бы один работник из указанного набора назначен на операцию двора).</param>
+    /// <returns>Массив операций двора (ПРР).</returns>
+    public Operation[] GetOperations(string? id,
+        DateTime? from, DateTime? to,
+        OperationType? type,
+        VehicleKind? vehicleKind,
+        Entity? state,
+        Gate? gate,
+        Partner? partner,
+        string? vehicleBrand,
+        string? vehicleNumber,
+        string? driverName,
+        string? driverPhoneNumber,
+        string? partnerActionId,
+        Employee[] workers)
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                   $"select distinct po.id,\n" +
+                   $"       po.type_id, po.type_code, po.type_name,\n" +
+                   $"       po.plan_work_start_date, po.fact_work_start_date,\n" +
+                   $"       po.plan_work_finish_date, po.fact_work_finish_date,\n" +
+                   $"       po.start_date, po.finish_date,\n" +
+                   $"       po.vehicle_kind_id, po.vehicle_kind_code, po.vehicle_kind_name,\n" +
+                   $"       po.vehicle_brand,\n" +
+                   $"       po.vehicle_model,\n" +
+                   $"       po.vehicle_number,\n" +
+                   $"       po.trailer_number,\n" +
+                   $"       po.driver_name, po.driver_phone_number,\n" +
+                   $"       po.logist_id, po.logist_code, po.logist_name,\n" +
+                   $"       po.gate_id, po.gate_code, po.gate_name, po.on_parking,\n" +
+                   $"       po.state_id, po.state_code, po.state_name,\n" +
+                   $"       po.priority,\n" +
+                   $"       po.partner_manager_name,\n" +
+                   $"       po.partner_manager_phone_number,\n" +
+                   $"       po.partner_manager_email,\n" +
+                   $"       po.manager_id,\n" +
+                   $"       po.responsible_officer_id,\n" +
+                   $"       po.note,\n" +
+                   $"       po.created, po.creator, po.edited, po.editor,\n" +
+                   $"       NULL::timestamp as deleted,\n" + 
+                   $"       ''::varchar as deleter\n" + 
+                   $"  from {YardSchema}.v_partner_operation po\n" +
+                   $"    /*\n" +
+                   $"    Важное пояснение по фильтру по датам.\n" +
+                   $"    Мы смотрим пересечение целевого временнОго окна с плановым и с фактическим окном операции двора.\n" +
+                   $"    Если плановое окно операции двора пересекается с целевым то всё хорошо - такая операция нам подходит.\n" +
+                   $"    Если плановое окно операции двора не песекается с целевым, то смотрим фактическое окно операции двора.\n" +
+                   $"    Фактическое окно операции двора существует если фактическая дата (+ время) начала работ по операции двора не пустое.\n" +
+                   $"    Фактическая дата окончания работ по операции двора определяется след. образом: если она заполнена (поле fact_work_finish_date), то берём её,\n" +
+                   $"    это говорит о том что работы по операции двора закончены; если она не заполнена, то значит сейчас операция двора в работе,\n" +
+                   $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительности операции двора),\n" +
+                   $"    если операция двора не просрочена, то к фактической дате (+ время) начала работ добавляем плановую продолжительность,\n" +
+                   $"    и берём эту дату (+ время) как фактическую дату окончания работ (по сути это план с учётом корректировки по фактическому началу работ),\n" +
+                   $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
+                   $"    и эту дату (+ время) считаем фактичской датой окончания работ по операции двора.\n" +
+                   $"    */\n" +
+                   $" where (not (:to_date is not null and po.plan_work_start_date > :to_date\n" +
+                   $"         or :from_date is not null and po.plan_work_finish_date < :from_date)\n" +
+                   $"       or\n" +
+                   $"       po.fact_work_start_date is not null\n" +
+                   $"           and not (:to_date is not null and po.fact_work_start_date > :to_date\n" +
+                   $"                 or :from_date is not null and coalesce(po.fact_work_finish_date, greatest(po.fact_work_start_date + (po.plan_work_finish_date - po.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))\n" +
+                   $"   and (trim(coalesce(:id, '')) = '' or cast(po.id as varchar) like '%' || :id || '%')\n" +
+                   $"   and (:type_id is null or :type_id = po.type_id)\n" +
+                   $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id)\n" +
+                   $"   and (:state_id is null or :state_id = po.state_id)\n" +
+                   $"   and (:gate_id is null or :gate_id = po.gate_id)\n" +
+                   $"   and (:partner_id is null or :partner_id = po.partner_id)\n" +
+                   $"   and (trim(coalesce(:vehicle_brand, '')) = '' or upper(po.vehicle_brand) like '%' || upper(:vehicle_brand) || '%')\n" +
+                   $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%')\n" +
+                   $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%')\n" +
+                   $"   and (trim(coalesce(:driver_phone_number, '')) = '' or upper(replace(replace(replace(replace(replace(po.driver_phone_number, '(', ''), ')', ''), ' ', ''), '+', ''), '-', '')) like '%' || upper(:driver_phone_number) || '%')\n" +
+                   $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
+
+                if (workers.Length > 0)
+                {
+                    var ids = string.Empty;
+                    foreach (var worker in workers)
+                    {
+                        if (ids.Length > 0)
+                            ids += ", ";
+                        ids += worker.Id.ToString();
+                    }
+                    sql += $"   and (po.worker_id in ({ids}))\n";
+                }
+                command.CommandText = sql;
+
+                command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Varchar, string.IsNullOrWhiteSpace(id) ? DBNull.Value : id));
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
+                command.Parameters.Add(CreateParameter("type_id", NpgsqlDbType.Smallint,
+                    type == null || type == OperationType.Null ? DBNull.Value : type.Id));
+                command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint,
+                    vehicleKind == null || vehicleKind == VehicleKind.Null ? DBNull.Value : vehicleKind.Id));
+                command.Parameters.Add(CreateParameter("state_id", NpgsqlDbType.Smallint,
+                    state == null || state == Entity.Null ? DBNull.Value : state.Id));
+                command.Parameters.Add(CreateParameter("gate_id", NpgsqlDbType.Smallint,
+                    gate == null || gate == Gate.Null ? DBNull.Value : gate.Id));
+                command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar,
+                    partner == null || partner == Partner.Null ? DBNull.Value : partner.Id));
+                command.Parameters.Add(CreateParameter("vehicle_brand", NpgsqlDbType.Varchar,
+                    string.IsNullOrWhiteSpace(vehicleBrand) ? DBNull.Value : vehicleBrand.ToUpper()));
+                command.Parameters.Add(CreateParameter("vehicle_number", NpgsqlDbType.Varchar,
+                    string.IsNullOrWhiteSpace(vehicleNumber) ? DBNull.Value : vehicleNumber.ToUpper()));
+                command.Parameters.Add(CreateParameter("driver_name", NpgsqlDbType.Varchar,
+                    string.IsNullOrWhiteSpace(driverName) ? DBNull.Value : driverName.ToUpper()));
+                command.Parameters.Add(CreateParameter("driver_phone_number", NpgsqlDbType.Varchar,
+                    string.IsNullOrWhiteSpace(driverPhoneNumber) ? DBNull.Value : driverPhoneNumber.ToUpper().Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "").Replace("+", "")));
+                command.Parameters.Add(CreateParameter("partner_action_id", NpgsqlDbType.Varchar,
+                    string.IsNullOrWhiteSpace(partnerActionId) ? DBNull.Value : partnerActionId.ToUpper()));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. operations];
+    }
+    /// <summary>
+    /// Возвращает операции двора (ПРР), которые "задевают" указанным интервал по
+    /// фактическому времени начала и окончания работ.
+    /// </summary>
+    /// <param name="from">Начало периода (дата + время).</param>
+    /// <param name="to">Окончание периода (дата + время).</param>
+    /// <returns></returns>
+    public Operation[] GetOperationsByFactWork(DateTime? from, DateTime? to)
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                   $"select o.id,\n" +
+                   $"       o.type_id,\n" +
+                   $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
+                   $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                   $"       o.start_date, o.finish_date,\n" +
+                   $"       o.vehicle_kind_id,\n" +
+                   $"       o.gate_id,\n" +
+                   $"       o.state_id,\n" +
+                   $"       o.priority,\n" +
+                   $"       o.manager_id,\n" +
+                   $"       o.responsible_officer_id,\n" +
+                   $"       o.created, o.creator, o.edited, o.editor\n" +
+                   $"  from {YardSchema}.v_operation o\n" +
+                   $" where not (:to_date is not null and o.fact_work_start_date > :to_date\n" +
+                   $"         or :from_date is not null and o.fact_work_finish_date < :from_date);";
+
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp,
+                    from == null || from == DateTime.MinValue ? DBNull.Value : from));
+                command.Parameters.Add(CreateParameter("to_date",
+                    NpgsqlDbType.Timestamp, to == null || to == DateTime.MinValue ? DBNull.Value : to));
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operation = CreateOperationLite(reader);
+                    operations.Add(operation);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. operations];
+    }
+    /// <summary>
+    /// Возвращает операции двора (ПРР), если автомашины находятся на территории складского комплекса.
+    /// </summary>
+    /// <returns>Массив операций двора (ПРР).</returns>
+    public Operation[] GetActiveOperations()
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectActiveOperationsSql =
+                   $"  select distinct ao.id,\n" +
+                   $"         ao.type_id, ao.type_code, ao.type_name,\n" +
+                   $"         ao.plan_work_start_date, ao.fact_work_start_date,\n" +
+                   $"         ao.plan_work_finish_date, ao.fact_work_finish_date,\n" +
+                   $"         ao.start_date, ao.finish_date,\n" +
+                   $"         ao.vehicle_kind_id, ao.vehicle_kind_code, ao.vehicle_kind_name,\n" +
+                   $"         ao.vehicle_brand,\n" +
+                   $"         ao.vehicle_model,\n" +
+                   $"         ao.vehicle_number,\n" +
+                   $"         ao.trailer_number,\n" +
+                   $"         ao.driver_name, ao.driver_phone_number,\n" +
+                   $"         ao.logist_id, ao.logist_code, ao.logist_name,\n" +
+                   $"         ao.gate_id, ao.gate_code, ao.gate_name,\n" +
+                   $"         ao.state_id, ao.state_code, ao.state_name,\n" +
+                   $"         ao.priority,\n" +
+                   $"         ao.partner_manager_name,\n" +
+                   $"         ao.partner_manager_phone_number,\n" +
+                   $"         ao.partner_manager_email,\n" +
+                   $"         ao.manager_id,\n" +
+                   $"         ao.responsible_officer_id,\n" +
+                   $"         ao.note,\n" +
+                   $"         ao.created, ao.creator, ao.edited, ao.editor, ao.on_parking,\n" +
+                   $"         NULL::timestamp as deleted,\n" +
+                   $"         ''::varchar as deleter\n" +
+                   $"    from {YardSchema}.v_active_operation ao\n" +
+                   $"order by ao.plan_work_start_date, ao.plan_work_finish_date, ao.fact_work_start_date, ao.fact_work_finish_date";
+                command.CommandText = SelectActiveOperationsSql;
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. operations];
+    }
+    /// <summary>
+    /// Возвращает все операции для сотрудников охраны (те машины, которые должны или приехать или уехать).
+    /// </summary>
+    /// <returns>Массив операций двора (ПРР).</returns>
+    public Operation[] GetGuardOperations()
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectOperationsForGuardSql =
+                   $"  select distinct o.id,\n" +
+                   $"         o.type_id, o.type_code, o.type_name,\n" +
+                   $"         o.plan_work_start_date, o.fact_work_start_date,\n" +
+                   $"         o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                   $"         o.start_date, o.finish_date,\n" +
+                   $"         o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                   $"         o.vehicle_brand,\n" +
+                   $"         o.vehicle_model,\n" +
+                   $"         o.vehicle_number,\n" +
+                   $"         o.trailer_number,\n" +
+                   $"         o.driver_name, o.driver_phone_number,\n" +
+                   $"         o.logist_id, o.logist_code, o.logist_name,\n" +
+                   $"         o.gate_id, o.gate_code, o.gate_name,\n" +
+                   $"         o.state_id, o.state_code, o.state_name,\n" +
+                   $"         o.priority,\n" +
+                   $"         o.partner_manager_name,\n" +
+                   $"         o.partner_manager_phone_number,\n" +
+                   $"         o.partner_manager_email,\n" +
+                   $"         o.manager_id,\n" +
+                   $"         o.responsible_officer_id,\n" +
+                   $"         o.note,\n" +
+                   $"         o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
+                   $"         NULL::timestamp as deleted,\n" +
+                   $"         ''::varchar as deleter\n" +
+                   $"    from {YardSchema}.v_operation_for_guard o\n" +
+                   $"order by o.vehicle_number";
+                command.CommandText = SelectOperationsForGuardSql;
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. operations];
+    }
+    /// <summary>
+    /// Возвращает массив уникальых партнёров (мандантов), у которых есть операции двора (ПРР) за указанный период.
+    /// </summary>
+    /// <param name="from">Начало периода (дата + время).</param>
+    /// <param name="to">Окочание периода (дата + время).</param>
+    /// <returns>Массив партнёров (мандантов).</returns>
+    public Partner[] GetOperationsPartners(DateTime from, DateTime to)
+    {
+        var partners = new HashSet<Partner>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select distinct partner_id, op.plan_work_start_date, op.plan_work_finish_date\n" +
+                    $"  from {YardSchema}.v_operation_partner op\n" +
+                    $" where not (op.plan_work_start_date > :finish_date or op.plan_work_finish_date < :start_date)";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, from));
+                command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, to));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
+                    if (!partners.Contains(partner))
+                        partners.Add(partner);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. partners];
+    }
+    /// <summary>
+    /// Назначает ворота на операцию двора (ПРР) и сохраняет их.
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="gate">Ворота.</param>
+    /// <param name="user">Имя полльзователя.</param>
+    /// <returns>Назначенные ворота.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select {YardSchema}.set_operation_gate(:p_id,\n" +
+                    $"   :p_gate_code,\n" +
+                    $"   :p_user);";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+                command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate != null ? gate.Code : DBNull.Value));
+                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+                var gateId = Convert.ToInt16(command.ExecuteScalar());
+                operation.Gate = GetGate(gateId);
+            }
+            connection.Close();
+        }
+        return operation.Gate;
+    }
+    /// <summary>
+    /// Назначает парковкинг на операцию двора (ПРР) и сохраняе ее в статусе "Подтверждено".
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя полльзователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void SetOperationParking(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.set_operation_parking(:p_id,\n" +
+                $"   :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteNonQuery();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Сбрасывает ворота у операции двора (снимает назначение).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void CancelOperationGate(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var CancelOperationGateSql = $"select {YardSchema}.cancel_operation_gate(:p_id, :p_user);";
+            command.CommandText = CancelOperationGateSql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteNonQuery();
+            operation.Gate = Gate.Null;
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Правит и сохраняет операцию двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void EditOperation(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.edit_operation(:p_id,\n" +
+                $"    :p_type_code,\n" +
+                $"    :p_plan_work_start_date,\n" +
+                $"    :p_plan_work_finish_date,\n" +
+                $"    :p_vehicle_kind_code,\n" +
+                $"    :p_vehicle_brand,\n" +
+                $"    :p_vehicle_model,\n" +
+                $"    :p_vehicle_number,\n" +
+                $"    :p_vehicle_trailer_number,\n" +
+                $"    :p_driver_name,\n" +
+                $"    :p_driver_phone_number,\n" +
+                $"    :p_logist_id,\n" +
+                $"    :p_priority,\n" +
+                $"    :p_parking, \n" +
+                $"    :p_partner_manager_name,\n" +
+                $"    :p_partner_manager_phone_number,\n" +
+                $"    :p_partner_manager_email,\n" +
+                $"    :p_manager_id,\n" +
+                $"    :p_note,\n" +
+                $"    :p_user);";
+            command.CommandText = sql;
+
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
+            command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
+            command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
+            command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
+            command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
+            command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
+            command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
+            command.Parameters.Add(CreateParameter("p_vehicle_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
+            command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
+            command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
+            command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
+                operation.Logist != null ? operation.Logist.Id : DBNull.Value));
+            command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
+            command.Parameters.Add(CreateParameter("p_parking", NpgsqlDbType.Boolean, operation.Parking));
+            command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
+            command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
+            command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
+            command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
+            command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Начинает операцию двора (ПРР) - запускает автомашину на территорию складского комплекса.
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void StartOperation(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.start_operation(:p_id, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Устанавливает ответственного сотрудника склада операции двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="officer">Ответственный сотрудник склада.</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(officer);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.set_operation_responsible_officer(:p_id, \n" +
+                $":p_responsible_officer_id,\n" +
+                $":p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_responsible_officer_id", NpgsqlDbType.Integer, officer.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+            operation.ResponsibleOfficer = officer;
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Сохраняет назначенных работников на операцию двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void SaveOperationWorkers(Operation operation)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        var oldWorkers = GetOperationWorkers(operation);
+        var oldKeys = new HashSet<string>();
+        foreach (var operationWorker in oldWorkers)
+            oldKeys.Add($"{operationWorker.Worker.Id}_{operationWorker.Position.Id}");
+
+        var newWorkers = operation.OperationWorkers;
+        var newKeys = new HashSet<string>();
+        foreach (var operationWorker in newWorkers)
+        {
+            var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
+            newKeys.Add(key);
+            if (!oldKeys.Contains(key))
+                AddOperationWorker(operation, operationWorker.Worker, operationWorker.Position, 0.0, MeasureUnit.Null);
+        }
+
+        foreach (var operationWorker in oldWorkers)
+        {
+            var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
+            if (!newKeys.Contains(key))
+                RemoveOperationWorker(operation, operationWorker.Worker, operationWorker.Position);
+        }
+    }
+    /// <summary>
+    /// Запускает работы по операции двора (ПРР) - ставит автомашину на ворота.
+    /// </summary>
+    /// <param name="operation">Опрация двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void StartOperationWork(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.start_operation_work(:p_id, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Завершает работы по операции двора (ПРР) - снимает автомашину с ворот.
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void FinishOperationWork(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.finish_operation_work(:p_id, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Правит (и сохраняет) примечания операции двора (ПРР), значение уще храниться в свойстве operation.Note.
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void SetOperationNote(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.set_operation_note(:p_id, :p_note, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Завершает операцию двора (ПРР) - выпускает автомашину с территории складского комплекса.
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void FinishOperation(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.finish_operation(:p_id, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Отмеяет операцию двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void CancelOperation(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.cancel_operation(:p_id, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    /// <summary>
+    /// Удаляет операцию двора (ПРР).
+    /// </summary>
+    /// <param name="operation">Операция двора (ПРР).</param>
+    /// <param name="user">Имя пользователя.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public void DeleteOperation(Operation operation, string user = "")
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = $"select {YardSchema}.delete_operation(:p_id, :p_user);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    #endregion
+
+    #region Actions
+    public void AddAction(Operation operation, WarehouseAction action)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(action);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.add_action(:p_operation_id,\n" +
+                $"    :p_action_kind,\n" +
+                $"    :p_action_id,\n" +
+                $"    :p_partner_id,\n" +
+                $"    :p_partner_action_id);";
+            command.CommandText = sql;
+            var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
+            command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
+            command.Parameters.Add(CreateParameter("p_partner_id", NpgsqlDbType.Varchar,
+                action.Partner != null ? action.Partner.Id : DBNull.Value));
+            command.Parameters.Add(CreateParameter("p_partner_action_id", NpgsqlDbType.Varchar,
+                !string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : DBNull.Value));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+
+    private WarehouseAction CreateWarehouseAction(DbDataReader reader)
+    {
+        var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+        var id = Utils.DbValueToString(reader["action_id"]);
+        var number = string.Empty;
+        var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
+        var partnerId = Utils.DbValueToString(reader["partner_action_id"]);
+        var planActionDate = DateTime.MinValue;
+        var insertDate = DateTime.MinValue;
+        var note = string.Empty;
+        var action = new WarehouseAction(kind,
+            id,
+            number,
+            partner,
+            partnerId,
+            planActionDate,
+            insertDate,
+            true,
+            note);
+        return action;
+    }
+    public WarehouseAction[] GetActions(Operation operation)
+    {
+        if (operation == null)
+            throw new ArgumentNullException(nameof(operation));
+        if (GetWarehouseAction == null)
+            throw new ArgumentNullException(nameof(GetWarehouseAction));
+        var actions = new List<WarehouseAction>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select oa.operation_id, oa.action_kind, oa.action_id, oa.partner_id, oa.partner_action_id\n" +
+                    $"  from {YardSchema}.v_operation_action oa\n" +
+                    $" where oa.operation_id = :operation_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
+                    var id = Utils.DbValueToString(reader["action_id"]);
+                    var action = GetWarehouseAction(kind, id);
+                    actions.Add(action);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. actions];
+    }
+    public void RemoveAction(Operation operation, WarehouseAction action)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(action);
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.remove_action(:p_operation_id,\n" +
+                $"    :p_action_kind,\n" +
+                $"    :p_action_id);";
+            command.CommandText = sql;
+            var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
+            command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    public void RemoveActions(Operation operation)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        var actions = operation.GetActions();
+        foreach (var action in actions)
+            RemoveAction(operation, action);
+    }
+    #endregion
+
+    #region Workers
+    public bool IsWorkerBusy(Employee employee)
+    {
+        ArgumentNullException.ThrowIfNull(employee);
+        var result = false;
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                /*
+                       select ow.worker_id,
+                              ow.operation_id,
+                              o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
+                              o.fact_work_start_date, o.fact_work_finish_date,
+                              o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date
+                         from {YardSchema}.v_operation_worker ow
+                    left join {YardSchema}.scheduler o on ow.operation_id = o.id
+                        where ow.worker_id = :worker_id
+                          and o.fact_work_finish_date is null
+                          and not (o.fact_work_start_date is null and (o.plan_work_start_date >= :finish_date or o.plan_work_finish_date <= :start_date)
+                                or o.fact_work_start_date is not null and (o.fact_work_start_date >= :finish_date or greatest(o.plan_work_finish_date, now() + interval'15 minutes') <= :start_date))
+                */
+                // По результатм обсуждений был приянто решене считать занятыми тех работников,
+                // которые привязаны к операциям, которые находятся на данный момент в работе. 
+                // 04.07.23 #5416 сотрудник считается занятым с момента добавления его в список назначенных в заявке в статусе "Прибыла".
+                var sql =
+                    $"   select ow.worker_id,\n" +
+                    $"          ow.operation_id,\n" +
+                    $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                    $"          o.fact_work_start_date, o.fact_work_finish_date\n" +
+                    $"     from {YardSchema}.v_operation_worker ow\n" +
+                    $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                    $"    where ow.worker_id = :worker_id\n" +
+                    $"      and o.fact_work_finish_date is null\n" +
+                    $"      and o.fact_work_start_date is not null\n" +
+                    $"      or state_id = 1003\n" +
+                    $"      and ow.worker_id = :worker_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("worker_id", NpgsqlDbType.Integer, employee.Id));
+
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                    result = true;
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return result;
+    }
+    public void AddOperationWorker(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(employee);
+        ArgumentNullException.ThrowIfNull(position);
+        ArgumentNullException.ThrowIfNull(costCurrency);
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.add_operation_worker(:p_operation_id,\n" +
+                $"    :p_worker_id,\n" +
+                $"    :p_position_id,\n" +
+                $"    :p_cost,\n" +
+                $"    :p_cost_currency);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
+            command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
+            command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? cost : DBNull.Value));
+            command.Parameters.Add(CreateParameter("p_cost_currency", NpgsqlDbType.Varchar, cost > 0.0 ? costCurrency.Code : DBNull.Value));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        var operationWorkers = new List<Operation.OperationWorker>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                    $"select ow.worker_id, ow.position_id\n" +
+                    $"  from {YardSchema}.v_operation_worker ow\n" +
+                    $" where ow.operation_id = :operation_id";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var workerId = Utils.DbValueToInt(reader["worker_id"]);
+                    var positionId = Utils.DbValueToShort(reader["position_id"]);
+                    var worker = GetEmployee(workerId);
+                    var position = GetPosition(positionId);
+                    var operationWorker = new Operation.OperationWorker(worker, position);
+                    operationWorkers.Add(operationWorker);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. operationWorkers];
+    }
+    private Interval[] GetBisyIntervals(Employee employee, DateTime from, DateTime to)
+    {
+        ArgumentNullException.ThrowIfNull(employee);
+        var intervals = new List<Interval>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var SelectBisyIntervals =
+                    $"select wbi.employee_id,\n" +
+                    $"       wbi.plan_work_start_date,\n" +
+                    $"       wbi.plan_work_finish_date\n" +
+                    $"  from {YardSchema}.v_worker_busy_intervals wbi\n" +
+                    $" where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)\n" +
+                    $"   and wbi.employee_id = :employee_id";
+                command.CommandText = SelectBisyIntervals;
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
+                command.Parameters.Add(CreateParameter("employee_id", NpgsqlDbType.Integer, employee.Id));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var fromTime = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+                    var toTime = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+                    var interval = new Interval(fromTime, toTime);
+                    intervals.Add(interval);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. intervals];
+    }
+    private double GetEmployeeBisyShare(Employee employee, DateTime from, DateTime to)
+    {
+        var result = 0.0;
+        var currentInterval = new Interval(from, to);
+        var intervals = GetBisyIntervals(employee, from, to);
+        foreach (var interval in intervals)
+        {
+            var share = interval.IntervalShare(currentInterval);
+            result += share;
+        }
+        return result;
+    }
+    public Employee[] GetLeastBusyEmployees(DateTime from, DateTime to, Position position, Employee[] emplyees, short count = 1)
+    {
+        if (count > emplyees.Length)
+            throw new ArgumentException($"Not enough employees (has - {emplyees.Length}, need - {count})!");
+        var queue = new PriorityQueue<Employee, double>();
+        foreach (var employee in emplyees)
+        {
+            var bisyShare = GetEmployeeBisyShare(employee, from, to);
+            queue.Enqueue(employee, bisyShare);
+        }
+        var result = new List<Employee>();
+        while (count > 0)
+        {
+            result.Add(queue.Dequeue());
+            count--;
+        }
+        return [.. result];
+    }
+    public void AllocateOperationWorkers(Operation operation, DateTime? date = null)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        // Удаляем текущие связи работников с операциями двора (ПРР).
+        var operationEmployees = GetOperationWorkers(operation);
+        foreach (var operationEmployee in operationEmployees)
+            RemoveOperationWorker(operation, operationEmployee.Worker, operationEmployee.Position);
+
+        date = date == null || date == DateTime.MinValue ? DateTime.Now : date;
+        date = date > operation.PlanWorkStartDate ? date : operation.PlanWorkStartDate;
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            // Получить смену, которая соответствует началу операции.
+            var shift = GetShift((DateTime)date);
+
+            // Определеить сотрудников данной смены, по указанным должностям.
+            //var employees = GetShiftEmployees(shift);
+            var employees = GetAllEmployees();
+
+            // Определить должности, с нужным количеством сотрудников по каждой должности.
+            var operationWorks = GetOperationWorks(operation.Type, operation.VehicleKind);
+            var workersCounts = new Dictionary<Position, short>();
+            foreach (var operationWork in operationWorks)
+            {
+                if (!workersCounts.ContainsKey(operationWork.Position))
+                    workersCounts.Add(operationWork.Position, 0);
+                workersCounts[operationWork.Position] =
+                    Math.Max(operationWork.WorkersCount, workersCounts[operationWork.Position]);
+            }
+
+            foreach (var pair in workersCounts)
+            {
+                if (!pair.Key.IsLinear)
+                    continue;
+
+                // Определяем наименее загруженных сотрудников.
+                var duration = operation.PlanWorkFinishDate - operation.PlanWorkStartDate;
+                var temp = GetLeastBusyEmployees((DateTime)date,
+                    (DateTime)date + duration,
+                    pair.Key,
+                    employees,
+                    pair.Value);
+
+                // Назначаем сотрудников.
+                foreach (var employee in temp)
+                    AddOperationWorker(operation, employee, pair.Key, employee.Cost, employee.CostMeasureUnit);
+            }
+        }
+        connection.Close();
+    }
+    public void RemoveOperationWorker(Operation operation, Employee employee, Position position)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(employee);
+        ArgumentNullException.ThrowIfNull(position);
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql =
+                $"select {YardSchema}.remove_operation_worker(:p_operation_id,\n" +
+                $"    :p_worker_id,\n" +
+                $"    :p_position_id);";
+            command.CommandText = sql;
+            command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
+            command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
+            command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    #endregion
+
+    #region Reporting
+    public Operation[] GetOperationalReportData(DateTime? fromDate, DateTime? toDate)
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
+                       $"select o.id,\n" +
+                       $"       o.type_id, o.type_code, o.type_name,\n" +
+                       $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
+                       $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                       $"       o.start_date, o.finish_date,\n" +
+                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                       $"       o.vehicle_brand,\n" +
+                       $"       o.vehicle_model,\n" +
+                       $"       o.vehicle_number,\n" +
+                       $"       o.trailer_number,\n" +
+                       $"       o.driver_name, o.driver_phone_number,\n" +
+                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                       $"       o.state_id, o.state_code, o.state_name,\n" +
+                       $"       o.priority,\n" +
+                       $"       o.partner_manager_name,\n" +
+                       $"       o.partner_manager_phone_number,\n" +
+                       $"       o.partner_manager_email,\n" +
+                       $"       o.manager_id,\n" +
+                       $"       o.responsible_officer_id,\n" +
+                       $"       o.note,\n" +
+                       $"       o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
+                       $"       NULL::timestamp as deleted,\n" +
+                       $"       ''::varchar as deleter\n" +
+                       $"  from {YardSchema}.v_operation o\n" +
                        $"    /*\n" +
                        $"    Важное пояснение по фильтру по датам.\n" +
                        $"    Мы смотрим пересечение целевого временнОго окна с плановым и с фактическим окном операции двора.\n" +
@@ -1840,1610 +2799,580 @@ namespace TSLog.Yard.Data
                        $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
                        $"    и эту дату (+ время) считаем фактичской датой окончания работ по операции двора.\n" +
                        $"    */\n" +
-                       $" where (not (:to_date is not null and po.plan_work_start_date > :to_date\n" +
-                       $"         or :from_date is not null and po.plan_work_finish_date < :from_date)\n" +
+                       $" where (not (:to_date is not null and o.plan_work_start_date >= :to_date\n" +
+                       $"         or :from_date is not null and o.plan_work_finish_date < :from_date)\n" +
                        $"       or\n" +
-                       $"       po.fact_work_start_date is not null\n" +
-                       $"           and not (:to_date is not null and po.fact_work_start_date > :to_date\n" +
-                       $"                 or :from_date is not null and coalesce(po.fact_work_finish_date, greatest(po.fact_work_start_date + (po.plan_work_finish_date - po.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))\n" +
-                       $"   and (trim(coalesce(:id, '')) = '' or cast(po.id as varchar) like '%' || :id || '%')\n" +
-                       $"   and (:type_id is null or :type_id = po.type_id)\n" +
-                       $"   and (:vehicle_kind_id is null or :vehicle_kind_id = po.vehicle_kind_id)\n" +
-                       $"   and (:state_id is null or :state_id = po.state_id)\n" +
-                       $"   and (:gate_id is null or :gate_id = po.gate_id)\n" +
-                       $"   and (:partner_id is null or :partner_id = po.partner_id)\n" +
-                       $"   and (trim(coalesce(:vehicle_brand, '')) = '' or upper(po.vehicle_brand) like '%' || upper(:vehicle_brand) || '%')\n" +
-                       $"   and (trim(coalesce(:vehicle_number, '')) = '' or upper(po.vehicle_number) like '%' || upper(:vehicle_number) || '%')\n" +
-                       $"   and (trim(coalesce(:driver_name, '')) = '' or upper(po.driver_name) like '%' || upper(:driver_name) || '%')\n" +
-                       $"   and (trim(coalesce(:driver_phone_number, '')) = '' or upper(replace(replace(replace(replace(replace(po.driver_phone_number, '(', ''), ')', ''), ' ', ''), '+', ''), '-', '')) like '%' || upper(:driver_phone_number) || '%')\n" +
-                       $"   and (trim(coalesce(:partner_action_id, '')) = '' or upper(po.partner_action_id) like '%' || upper(:partner_action_id) || '%')\n";
-
-                    if (workers.Length > 0)
-                    {
-                        var ids = string.Empty;
-                        foreach (var worker in workers)
-                        {
-                            if (ids.Length > 0)
-                                ids += ", ";
-                            ids += worker.Id.ToString();
-                        }
-                        sql += $"   and (po.worker_id in ({ids}))\n";
-                    }
-                    command.CommandText = sql;
-
-                    command.Parameters.Add(CreateParameter("id", NpgsqlDbType.Varchar, string.IsNullOrWhiteSpace(id) ? DBNull.Value : id));
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from == null ? DBNull.Value : from));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to == null ? DBNull.Value : to));
-                    command.Parameters.Add(CreateParameter("type_id", NpgsqlDbType.Smallint,
-                        type == null || type == OperationType.Null ? DBNull.Value : type.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_kind_id", NpgsqlDbType.Smallint,
-                        vehicleKind == null || vehicleKind == VehicleKind.Null ? DBNull.Value : vehicleKind.Id));
-                    command.Parameters.Add(CreateParameter("state_id", NpgsqlDbType.Smallint,
-                        state == null || state == Entity.Null ? DBNull.Value : state.Id));
-                    command.Parameters.Add(CreateParameter("gate_id", NpgsqlDbType.Smallint,
-                        gate == null || gate == Gate.Null ? DBNull.Value : gate.Id));
-                    command.Parameters.Add(CreateParameter("partner_id", NpgsqlDbType.Varchar,
-                        partner == null || partner == Partner.Null ? DBNull.Value : partner.Id));
-                    command.Parameters.Add(CreateParameter("vehicle_brand", NpgsqlDbType.Varchar,
-                        string.IsNullOrWhiteSpace(vehicleBrand) ? DBNull.Value : vehicleBrand.ToUpper()));
-                    command.Parameters.Add(CreateParameter("vehicle_number", NpgsqlDbType.Varchar,
-                        string.IsNullOrWhiteSpace(vehicleNumber) ? DBNull.Value : vehicleNumber.ToUpper()));
-                    command.Parameters.Add(CreateParameter("driver_name", NpgsqlDbType.Varchar,
-                        string.IsNullOrWhiteSpace(driverName) ? DBNull.Value : driverName.ToUpper()));
-                    command.Parameters.Add(CreateParameter("driver_phone_number", NpgsqlDbType.Varchar,
-                        string.IsNullOrWhiteSpace(driverPhoneNumber) ? DBNull.Value : driverPhoneNumber.ToUpper().Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "").Replace("+", "")));
-                    command.Parameters.Add(CreateParameter("partner_action_id", NpgsqlDbType.Varchar,
-                        string.IsNullOrWhiteSpace(partnerActionId) ? DBNull.Value : partnerActionId.ToUpper()));
-
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return operations.ToArray();
-        }
-        /// <summary>
-        /// Возвращает операции двора (ПРР), которые "задевают" указанным интервал по
-        /// фактическому времени начала и окончания работ.
-        /// </summary>
-        /// <param name="from">Начало периода (дата + время).</param>
-        /// <param name="to">Окончание периода (дата + время).</param>
-        /// <returns></returns>
-        public Operation[] GetOperationsByFactWork(DateTime? from, DateTime? to)
-        {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
+                       $"       o.fact_work_start_date is not null\n" +
+                       $"           and not (:to_date is not null and o.fact_work_start_date >= :to_date\n" +
+                       $"                 or :from_date is not null and coalesce(o.fact_work_finish_date, greatest(o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    var sql =
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
+                }
+                reader.Close();
+            }
+            connection.Close();
+        }
+        return [.. operations];
+    }
+    public Operation[] GetDispatcherReportData(DateTime? fromDate, DateTime? toDate)
+    {
+        var operations = new List<Operation>();
+        using (var connection = CloneConnection())
+        {
+            using (var command = connection.CreateCommand())
+            {
+                var sql =
                        $"select o.id,\n" +
-                       $"       o.type_id,\n" +
+                       $"       o.type_id, o.type_code, o.type_name,\n" +
                        $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
                        $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
                        $"       o.start_date, o.finish_date,\n" +
-                       $"       o.vehicle_kind_id,\n" +
-                       $"       o.gate_id,\n" +
-                       $"       o.state_id,\n" +
+                       $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
+                       $"       o.vehicle_brand,\n" +
+                       $"       o.vehicle_model,\n" +
+                       $"       o.vehicle_number,\n" +
+                       $"       o.trailer_number,\n" +
+                       $"       o.driver_name, o.driver_phone_number,\n" +
+                       $"       o.logist_id, o.logist_code, o.logist_name,\n" +
+                       $"       o.gate_id, o.gate_code, o.gate_name,\n" +
+                       $"       o.state_id, o.state_code, o.state_name,\n" +
                        $"       o.priority,\n" +
+                       $"       o.partner_manager_name,\n" +
+                       $"       o.partner_manager_phone_number,\n" +
+                       $"       o.partner_manager_email,\n" +
                        $"       o.manager_id,\n" +
                        $"       o.responsible_officer_id,\n" +
-                       $"       o.created, o.creator, o.edited, o.editor\n" +
-                       $"  from {YardSchema}.v_operation o\n" +
-                       $" where not (:to_date is not null and o.fact_work_start_date > :to_date\n" +
-                       $"         or :from_date is not null and o.fact_work_finish_date < :from_date);";
-
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp,
-                        from == null || from == DateTime.MinValue ? DBNull.Value : from));
-                    command.Parameters.Add(CreateParameter("to_date",
-                        NpgsqlDbType.Timestamp, to == null || to == DateTime.MinValue ? DBNull.Value : to));
-
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperationLite(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return operations.ToArray();
-        }
-        /// <summary>
-        /// Возвращает операции двора (ПРР), если автомашины находятся на территории складского комплекса.
-        /// </summary>
-        /// <returns>Массив операций двора (ПРР).</returns>
-        public Operation[] GetActiveOperations()
-        {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
+                       $"       o.note,\n" +
+                       $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter, o.on_parking\n" +
+                       $"  from {YardSchema}.v_dr_operation o\n" +
+                       $"    /*\n" +
+                       $"    */\n" +
+                       $" where o.created >= :from_date and o.created < :to_date\n" +
+                       $"    or o.plan_work_finish_date >= :from_date and o.plan_work_finish_date < :to_date\n" +
+                       $"    or o.fact_work_finish_date >= :from_date and o.fact_work_finish_date < :to_date\n";
+                command.CommandText = sql;
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    var SelectActiveOperationsSql =
-                       $"  select distinct ao.id,\n" +
-                       $"         ao.type_id, ao.type_code, ao.type_name,\n" +
-                       $"         ao.plan_work_start_date, ao.fact_work_start_date,\n" +
-                       $"         ao.plan_work_finish_date, ao.fact_work_finish_date,\n" +
-                       $"         ao.start_date, ao.finish_date,\n" +
-                       $"         ao.vehicle_kind_id, ao.vehicle_kind_code, ao.vehicle_kind_name,\n" +
-                       $"         ao.vehicle_brand,\n" +
-                       $"         ao.vehicle_model,\n" +
-                       $"         ao.vehicle_number,\n" +
-                       $"         ao.trailer_number,\n" +
-                       $"         ao.driver_name, ao.driver_phone_number,\n" +
-                       $"         ao.logist_id, ao.logist_code, ao.logist_name,\n" +
-                       $"         ao.gate_id, ao.gate_code, ao.gate_name,\n" +
-                       $"         ao.state_id, ao.state_code, ao.state_name,\n" +
-                       $"         ao.priority,\n" +
-                       $"         ao.partner_manager_name,\n" +
-                       $"         ao.partner_manager_phone_number,\n" +
-                       $"         ao.partner_manager_email,\n" +
-                       $"         ao.manager_id,\n" +
-                       $"         ao.responsible_officer_id,\n" +
-                       $"         ao.note,\n" +
-                       $"         ao.created, ao.creator, ao.edited, ao.editor, ao.on_parking,\n" +
-                       $"         NULL::timestamp as deleted,\n" +
-                       $"         ''::varchar as deleter\n" +
-                       $"    from {YardSchema}.v_active_operation ao\n" +
-                       $"order by ao.plan_work_start_date, ao.plan_work_finish_date, ao.fact_work_start_date, ao.fact_work_finish_date";
-                    command.CommandText = SelectActiveOperationsSql;
-
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
+                    var operation = CreateOperation(reader);
+                    operations.Add(operation);
                 }
-                connection.Close();
+                reader.Close();
             }
-            return operations.ToArray();
+            connection.Close();
         }
-        /// <summary>
-        /// Возвращает все операции для сотрудников охраны (те машины, которые должны или приехать или уехать).
-        /// </summary>
-        /// <returns>Массив операций двора (ПРР).</returns>
-        public Operation[] GetGuardOperations()
+        return operations.ToArray();
+    }
+    public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
+    {
+        var lines = new List<dynamic>();
+        using (var connection = CloneConnection())
         {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectOperationsForGuardSql =
-                       $"  select distinct o.id,\n" +
-                       $"         o.type_id, o.type_code, o.type_name,\n" +
-                       $"         o.plan_work_start_date, o.fact_work_start_date,\n" +
-                       $"         o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                       $"         o.start_date, o.finish_date,\n" +
-                       $"         o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                       $"         o.vehicle_brand,\n" +
-                       $"         o.vehicle_model,\n" +
-                       $"         o.vehicle_number,\n" +
-                       $"         o.trailer_number,\n" +
-                       $"         o.driver_name, o.driver_phone_number,\n" +
-                       $"         o.logist_id, o.logist_code, o.logist_name,\n" +
-                       $"         o.gate_id, o.gate_code, o.gate_name,\n" +
-                       $"         o.state_id, o.state_code, o.state_name,\n" +
-                       $"         o.priority,\n" +
-                       $"         o.partner_manager_name,\n" +
-                       $"         o.partner_manager_phone_number,\n" +
-                       $"         o.partner_manager_email,\n" +
-                       $"         o.manager_id,\n" +
-                       $"         o.responsible_officer_id,\n" +
-                       $"         o.note,\n" +
-                       $"         o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
-                       $"         NULL::timestamp as deleted,\n" +
-                       $"         ''::varchar as deleter\n" +
-                       $"    from {YardSchema}.v_operation_for_guard o\n" +
-                       $"order by o.vehicle_number";
-                    command.CommandText = SelectOperationsForGuardSql;
-
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return operations.ToArray();
-        }
-        /// <summary>
-        /// Возвращает массив уникальых партнёров (мандантов), у которых есть операции двора (ПРР) за указанный период.
-        /// </summary>
-        /// <param name="from">Начало периода (дата + время).</param>
-        /// <param name="to">Окочание периода (дата + время).</param>
-        /// <returns>Массив партнёров (мандантов).</returns>
-        public Partner[] GetOperationsPartners(DateTime from, DateTime to)
-        {
-            var partners = new HashSet<Partner>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select distinct partner_id, op.plan_work_start_date, op.plan_work_finish_date\n" +
-                        $"  from {YardSchema}.v_operation_partner op\n" +
-                        $" where not (op.plan_work_start_date > :finish_date or op.plan_work_finish_date < :start_date)";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, to));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
-                        if (!partners.Contains(partner))
-                            partners.Add(partner);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return partners.ToArray();
-        }
-        /// <summary>
-        /// Назначает ворота на операцию двора (ПРР) и сохраняет их.
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="gate">Ворота.</param>
-        /// <param name="user">Имя полльзователя.</param>
-        /// <returns>Назначенные ворота.</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Gate SetOperationGate(Operation operation, Gate? gate = null, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select {YardSchema}.set_operation_gate(:p_id,\n" +
-                        $"   :p_gate_code,\n" +
-                        $"   :p_user);";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                    command.Parameters.Add(CreateParameter("p_gate_code", NpgsqlDbType.Varchar, gate != null ? gate.Code : DBNull.Value));
-                    command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                    var gateId = Convert.ToInt16(command.ExecuteScalar());
-                    operation.Gate = GetGate(gateId);
-                }
-                connection.Close();
-            }
-            return operation.Gate;
-        }
-        /// <summary>
-        /// Назначает парковкинг на операцию двора (ПРР) и сохраняе ее в статусе "Подтверждено".
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя полльзователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void SetOperationParking(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
                 var sql =
-                    $"select {YardSchema}.set_operation_parking(:p_id,\n" +
-                    $"   :p_user);";
+                    $"with operation_labor as (\n" +
+                    $"   select o.id,\n" +
+                    $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
+                    $"          o.plan_work_finish_date, o.fact_work_finish_date,\n" +
+                    $"          o.plan_work_finish_date - o.plan_work_start_date plan_duration,\n" +
+                    $"          o.fact_work_finish_date - o.fact_work_start_date fact_duration,\n" +
+                    $"          case\n" +
+                    $"              when o.fact_work_finish_date is not null and o.fact_work_start_date is not null then 1\n" +
+                    $"              else 0\n" +
+                    $"          end work_finished,\n" +
+                    $"          case\n" +
+                    $"              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) < 0 then 0\n" +
+                    $"              else extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
+                    $"          end / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date)) plan_k,\n" +
+                    $"          case\n" +
+                    $"              when extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) < 0 then 0\n" +
+                    $"              else extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
+                    $"          end / (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date)) fact_k,\n" +
+                    $"          case\n" +
+                    $"              when o.fact_work_finish_date is null\n" +
+                    $"                or o.fact_work_start_date is null\n" +
+                    $"                or o.plan_work_finish_date is null\n" +
+                    $"                or o.plan_work_start_date is null\n" +
+                    $"                or o.plan_work_finish_date = o.plan_work_start_date then 1\n" +
+                    $"              else (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date))\n" +
+                    $"                 / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date))\n" +
+                    $"          end k,\n" +
+                    $"          --o.type_id,\n" +
+                    $"          --o.vehicle_kind_id,\n" +
+                    $"          ow.position_id,\n" +
+                    $"          --ow.work_id,\n" +
+                    $"          --ow.workers_count,\n" +
+                    $"          (select min(oa.partner_id) from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_id,\n" +
+                    $"          sum(ow.\"time\" * ow.workers_count) labor_cost\n" +
+                    $"     from {YardSchema}.v_operation o\n" +
+                    $"left join {YardSchema}.v_ot_vk_work ow on o.type_id = ow.operation_type_id and o.vehicle_kind_id = ow.vehicle_kind_id\n" +
+                    $" group by o.id,\n" +
+                    $"          ow.position_id,\n" +
+                    $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
+                    $"          o.plan_work_finish_date, o.fact_work_finish_date\n" +
+                    $")\n" +
+                    $"   select ol.partner_id, p.name partner_name,\n" +
+                    $"          ol.position_id, ps.name position_name,\n" +
+                    $"          round((sum(ol.labor_cost * ol.plan_k) / 3600)::numeric, 2) plan_labor_cost,\n" +
+                    $"          round((sum(ol.labor_cost * ol.fact_k * ol.k) / 3600)::numeric, 2) fact_labor_cost\n" +
+                    $"     from operation_labor ol\n" +
+                    $"left join {YardSchema}.v_partner p on ol.partner_id = p.id\n" +
+                    $"left join {YardSchema}.v_position ps on ol.position_id = ps.id\n" +
+                    $"    where ol.work_finished = 1\n" +
+                    $"          and(ol.position_id != 1005)\n" +
+                    $"          and(ol.position_id != 1008)\n" +
+                    $"          and(ol.position_id != 1015)\n" +
+                    $"          and(ol.position_id != 1017)\n" +
+                    $"          and not(ol.plan_work_start_date > :to_date or ol.plan_work_finish_date < :from_date)\n" +
+                    $" group by ol.partner_id, p.name,\n" +
+                    $"          ol.position_id, ps.name\n" +
+                    $" order by ol.partner_id,\n" +
+                    $"          ol.position_id";
                 command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteNonQuery();
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic line = new ExpandoObject();
+                    line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
+                    line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                    line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
+                    line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                    lines.Add(line);
+                }
+                reader.Close();
             }
             connection.Close();
         }
-        /// <summary>
-        /// Сбрасывает ворота у операции двора (снимает назначение).
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void CancelOperationGate(Operation operation, string user = "")
+        return [.. lines];
+    }
+    public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate)
+    {
+        var lines = new List<dynamic>();
+        using (var connection = CloneConnection())
         {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var CancelOperationGateSql = $"select {YardSchema}.cancel_operation_gate(:p_id, :p_user);";
-                command.CommandText = CancelOperationGateSql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteNonQuery();
-                operation.Gate = Gate.Null;
-            }
-            connection.Close();
-        }
-        /// <summary>
-        /// Правит и сохраняет операцию двора (ПРР).
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void EditOperation(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
                 var sql =
-                    $"select {YardSchema}.edit_operation(:p_id,\n" +
-                    $"    :p_type_code,\n" +
-                    $"    :p_plan_work_start_date,\n" +
-                    $"    :p_plan_work_finish_date,\n" +
-                    $"    :p_vehicle_kind_code,\n" +
-                    $"    :p_vehicle_brand,\n" +
-                    $"    :p_vehicle_model,\n" +
-                    $"    :p_vehicle_number,\n" +
-                    $"    :p_vehicle_trailer_number,\n" +
-                    $"    :p_driver_name,\n" +
-                    $"    :p_driver_phone_number,\n" +
-                    $"    :p_logist_id,\n" +
-                    $"    :p_priority,\n" +
-                    $"    :p_parking, \n" +
-                    $"    :p_partner_manager_name,\n" +
-                    $"    :p_partner_manager_phone_number,\n" +
-                    $"    :p_partner_manager_email,\n" +
-                    $"    :p_manager_id,\n" +
-                    $"    :p_note,\n" +
-                    $"    :p_user);";
+                    $"with data as (\n" +
+                    $"   select ow.worker_id,\n" +
+                    $"          ow.position_id, pos.\"name\" position_name,\n" +
+                    $"          par.id partner_id, par.\"name\" partner_name,\n" +
+                    $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                    $"          case\n" +
+                    $"              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) > 0\n" +
+                    $"                  then extract('epoch' from least(:to_date, o.plan_work_finish_date)) -extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
+                    $"              else 0\n" +
+                    $"          end plan_duration,\n" +
+                    $"          o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                    $"          case\n" +
+                    $"              when o.plan_work_start_date is not null\n" +
+                    $"               and o.plan_work_finish_date is not null\n" +
+                    $"               and o.fact_work_start_date is not null\n" +
+                    $"               and o.fact_work_finish_date is not null\n" +
+                    $"               and extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) > 0\n" +
+                    $"                   then extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
+                    $"              else 0\n" +
+                    $"          end fact_duration\n" +
+                    $"     from {YardSchema}.v_operation_worker ow\n" +
+                    $"left join {YardSchema}.v_position pos on ow.position_id = pos.id\n" +
+                    $"left join {YardSchema}.v_partner par on par.id = (select oa.partner_id from {YardSchema}.v_operation_action oa where oa.operation_id = ow.operation_id)\n" +
+                    $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                    $"    where not(o.plan_work_start_date >= :to_date or o.plan_work_finish_date <= :from_date)\n" +
+                    $"       or not(o.fact_work_start_date >= :to_date or o.fact_work_finish_date <= :from_date)\n" +
+                    $")\n" +
+                    $"  select d.partner_id, d.partner_name,\n" +
+                    $"         d.position_id, d.position_name,\n" +
+                    $"         count(distinct d.worker_id) workers_count,\n" +
+                    $"         round(sum(d.plan_duration)::numeric / 3600, 2) plan_labor_cost,\n" +
+                    $"         round(sum(d.plan_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_plan_labor_cost,\n" +
+                    $"         round(sum(d.fact_duration)::numeric / 3600, 2) fact_labor_cost,\n" +
+                    $"         round(sum(d.fact_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_fact_labor_cost\n" +
+                    $"    from data d\n" +
+                    $"group by d.partner_id, d.partner_name,\n" +
+                    $"         d.position_id, d.position_name\n" +
+                    $"  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" +
+                    $"order by d.partner_id,\n" +
+                    $"         d.position_id";
                 command.CommandText = sql;
-
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_type_code", NpgsqlDbType.Varchar, operation.Type.Code));
-                command.Parameters.Add(CreateParameter("p_plan_work_start_date", NpgsqlDbType.Timestamp, operation.PlanWorkStartDate));
-                command.Parameters.Add(CreateParameter("p_plan_work_finish_date", NpgsqlDbType.Timestamp, operation.PlanWorkFinishDate));
-                command.Parameters.Add(CreateParameter("p_vehicle_kind_code", NpgsqlDbType.Varchar, operation.VehicleKind.Code));
-                command.Parameters.Add(CreateParameter("p_vehicle_brand", NpgsqlDbType.Varchar, operation.VehicleBrand));
-                command.Parameters.Add(CreateParameter("p_vehicle_model", NpgsqlDbType.Varchar, operation.VehicleModel));
-                command.Parameters.Add(CreateParameter("p_vehicle_number", NpgsqlDbType.Varchar, operation.VehicleNumber));
-                command.Parameters.Add(CreateParameter("p_vehicle_trailer_number", NpgsqlDbType.Varchar, operation.TrailerNumber));
-                command.Parameters.Add(CreateParameter("p_driver_name", NpgsqlDbType.Varchar, operation.DriverName));
-                command.Parameters.Add(CreateParameter("p_driver_phone_number", NpgsqlDbType.Varchar, operation.DriverPhoneNumber));
-                command.Parameters.Add(CreateParameter("p_logist_id", NpgsqlDbType.Integer,
-                    operation.Logist != null ? operation.Logist.Id : DBNull.Value));
-                command.Parameters.Add(CreateParameter("p_priority", NpgsqlDbType.Smallint, operation.Priority));
-                command.Parameters.Add(CreateParameter("p_parking", NpgsqlDbType.Boolean, operation.Parking));
-                command.Parameters.Add(CreateParameter("p_partner_manager_name", NpgsqlDbType.Varchar, operation.PartnerManagerName));
-                command.Parameters.Add(CreateParameter("p_partner_manager_phone_number", NpgsqlDbType.Varchar, operation.PartnerManagerPhoneNumber));
-                command.Parameters.Add(CreateParameter("p_partner_manager_email", NpgsqlDbType.Varchar, operation.PartnerManagerEmail));
-                command.Parameters.Add(CreateParameter("p_manager_id", NpgsqlDbType.Integer, operation.Manager.Id));
-                command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-
-                command.ExecuteScalar();
+                command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
+                command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic line = new ExpandoObject();
+                    line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
+                    line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                    line.WorkersCount = Utils.DbValueToInt(reader["workers_count"]);
+                    line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
+                    line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
+                    lines.Add(line);
+                }
+                reader.Close();
             }
             connection.Close();
         }
-        /// <summary>
-        /// Начинает операцию двора (ПРР) - запускает автомашину на территорию складского комплекса.
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void StartOperation(Operation operation, string user = "")
+        return [.. lines];
+    }
+    public dynamic[] GetYardShiftLabocCosts(DateTime date)
+    {
+        var lines = new List<dynamic>();
+        using (var connection = CloneConnection())
         {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = $"select {YardSchema}.start_operation(:p_id, :p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        /// <summary>
-        /// Устанавливает ответственного сотрудника склада операции двора (ПРР).
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="officer">Ответственный сотрудник склада.</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void SetResponsibleOfficer(Operation operation, Employee officer, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (officer == null)
-                throw new ArgumentNullException(nameof(officer));
-
-            using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
                 var sql =
-                    $"select {YardSchema}.set_operation_responsible_officer(:p_id, \n" +
-                    $":p_responsible_officer_id,\n" +
-                    $":p_user);";
+                    $"with tempdate as (\n" +
+                    $"    select {YardSchema}.get_shift_start(:date::timestamp, 0::int2) start_date, {YardSchema}.get_shift_finish(:date::timestamp, 0::int2) finish_date\n" +
+                    $"),\n" +
+                    $"plan_data as (\n" +
+                    $"   select --o.id,\n" +
+                    $"          --o.plan_work_start_date, o.plan_work_finish_date,\n" +
+                    $"          --least(o.plan_work_finish_date, td.finish_date) - greatest(o.plan_work_start_date, td.start_date) plan_duration,\n" +
+                    $"          nw.position_id,\n" +
+                    $"          o.gate_id,\n" +
+                    $"          sum(nw.\"time\" * nw.workers_count) plan_lc\n" +
+                    $"     from {YardSchema}.v_ot_vk_work nw\n" +
+                    $"left join {YardSchema}.v_operation o on nw.operation_type_id = o.type_id and nw.vehicle_kind_id = o.vehicle_kind_id\n" +
+                    $"left join tempdate td on true\n" +
+                    $"    where o.fact_work_start_date is not null\n" +
+                    $"      and o.fact_work_finish_date is not null\n" +
+                    $"      and not (o.plan_work_start_date >= td.finish_date or o.plan_work_finish_date <= td.start_date)\n" +
+                    $" group by nw.position_id, o.gate_id\n" +
+                    $"),\n" +
+                    $"fact_data as (\n" +
+                    $"   select --o.id,\n" +
+                    $"          --o.fact_work_start_date, o.fact_work_finish_date,\n" +
+                    $"          --least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date) fact_duration,\n" +
+                    $"          ow.position_id,\n" +
+                    $"          o.gate_id,\n" +
+                    $"          sum(extract('epoch' from(least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date)))) fact_lc\n" +
+                    $"    from {YardSchema}.v_operation_worker ow\n" +
+                    $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
+                    $"left join tempdate td on true\n" +
+                    $"    where o.fact_work_start_date is not null\n" +
+                    $"      and o.fact_work_finish_date is not null\n" +
+                    $"      and not (o.fact_work_start_date >= td.finish_date or o.fact_work_finish_date <= td.start_date)\n" +
+                    $" group by ow.position_id, o.gate_id\n" +
+                    $"),\n" +
+                    $"gate_data as (\n" +
+                    $"   select coalesce(pd.position_id, fd.position_id) position_id, p.name position_name,\n" +
+                    $"          coalesce(pd.gate_id, fd.gate_id) gate_id, g.name gate_name,\n" +
+                    $"          round(coalesce(pd.plan_lc::numeric / 3600::numeric, 0)::numeric, 2) plan_lc,\n" +
+                    $"          round(coalesce(fd.fact_lc::numeric / 3600::numeric, 0)::numeric, 2) fact_lc,\n" +
+                    $"          case\n" +
+                    $"              when coalesce(fd.fact_lc, 0) <> 0 then coalesce(pd.plan_lc, 0) / coalesce(fd.fact_lc, 0) * 100\n" +
+                    $"              else 0\n" +
+                    $"          end perfomance\n" +
+                    $"     from plan_data pd\n" +
+                    $"full join fact_data fd on pd.position_id = fd.position_id and pd.gate_id = fd.gate_id\n" +
+                    $"left join {YardSchema}.v_position p on coalesce(pd.position_id, fd.position_id) = p.id\n" +
+                    $"left join {YardSchema}.v_gate g on coalesce(pd.gate_id, fd.gate_id) = g.id\n" +
+                    $"    where p.is_linear = 1\n" +
+                    $" order by coalesce(pd.position_id, fd.position_id),\n" +
+                    $"          coalesce(pd.gate_id, fd.gate_id)\n" +
+                    $")\n" +
+                    $"  select gd.position_id, gd.position_name,\n" +
+                    $"         round(case\n" +
+                    $"             when sum(coalesce(gd.fact_lc, 0)) <> 0 then sum(coalesce(gd.plan_lc, 0)) / sum(coalesce(gd.fact_lc, 0)) * 100\n" +
+                    $"             else 0\n" +
+                    $"         end::numeric, 2) total,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1001 then gd.perfomance::numeric end), 2), 0.0) pg1,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1002 then gd.perfomance::numeric end), 2), 0.0) pg2,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1003 then gd.perfomance::numeric end), 2), 0.0) pg3,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1004 then gd.perfomance::numeric end), 2), 0.0) pg4,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1005 then gd.perfomance::numeric end), 2), 0.0) pg5,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1006 then gd.perfomance::numeric end), 2), 0.0) pg6,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1007 then gd.perfomance::numeric end), 2), 0.0) pg7,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1008 then gd.perfomance::numeric end), 2), 0.0) pg8,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1009 then gd.perfomance::numeric end), 2), 0.0) pg9,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1010 then gd.perfomance::numeric end), 2), 0.0) pg10,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1011 then gd.perfomance::numeric end), 2), 0.0) pg11,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1012 then gd.perfomance::numeric end), 2), 0.0) pg12,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1013 then gd.perfomance::numeric end), 2), 0.0) pg13,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1014 then gd.perfomance::numeric end), 2), 0.0) pg14,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1015 then gd.perfomance::numeric end), 2), 0.0) pg15,\n" +
+                    $"         coalesce(round(avg(case when gd.gate_id = 1016 then gd.perfomance::numeric end), 2), 0.0) pg16\n" +
+                    $"    from gate_data gd\n" +
+                    $"group by gd.position_id, gd.position_name";
                 command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_responsible_officer_id", NpgsqlDbType.Integer, officer.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-                operation.ResponsibleOfficer = officer;
+                command.Parameters.Add(CreateParameter("date", NpgsqlDbType.Timestamp, date));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic line = new ExpandoObject();
+                    line.PositionId = Utils.DbValueToShort(reader["position_id"]);
+                    line.LaborCost = Utils.DbValueToDouble(reader["total"]);
+
+                    line.G01LaborCost = Utils.DbValueToDouble(reader["pg1"]);
+                    line.G02LaborCost = Utils.DbValueToDouble(reader["pg2"]);
+                    line.G03LaborCost = Utils.DbValueToDouble(reader["pg3"]);
+                    line.G04LaborCost = Utils.DbValueToDouble(reader["pg4"]);
+                    line.G05LaborCost = Utils.DbValueToDouble(reader["pg5"]);
+                    line.G06LaborCost = Utils.DbValueToDouble(reader["pg6"]);
+                    line.G07LaborCost = Utils.DbValueToDouble(reader["pg7"]);
+                    line.G08LaborCost = Utils.DbValueToDouble(reader["pg8"]);
+                    line.G09LaborCost = Utils.DbValueToDouble(reader["pg9"]);
+                    line.G10LaborCost = Utils.DbValueToDouble(reader["pg10"]);
+                    line.G11LaborCost = Utils.DbValueToDouble(reader["pg11"]);
+                    line.G12LaborCost = Utils.DbValueToDouble(reader["pg12"]);
+                    line.G13LaborCost = Utils.DbValueToDouble(reader["pg13"]);
+                    line.G14LaborCost = Utils.DbValueToDouble(reader["pg14"]);
+                    line.G15LaborCost = Utils.DbValueToDouble(reader["pg15"]);
+                    line.G16LaborCost = Utils.DbValueToDouble(reader["pg16"]);
+
+                    lines.Add(line);
+                }
+                reader.Close();
             }
             connection.Close();
         }
-        /// <summary>
-        /// Сохраняет назначенных работников на операцию двора (ПРР).
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void SaveOperationWorkers(Operation operation)
+        return [.. lines];
+    }
+    public dynamic[] GetYardPerfomanceData(DateTime fromDate, DateTime toDate)
+    {
+        var data = new List<dynamic>();
+        using (var connection = CloneConnection())
         {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            var oldWorkers = GetOperationWorkers(operation);
-            var oldKeys = new HashSet<string>();
-            foreach (var operationWorker in oldWorkers)
-                oldKeys.Add($"{operationWorker.Worker.Id}_{operationWorker.Position.Id}");
-
-            var newWorkers = operation.OperationWorkers;
-            var newKeys = new HashSet<string>();
-            foreach (var operationWorker in newWorkers)
-            {
-                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
-                newKeys.Add(key);
-                if (!oldKeys.Contains(key))
-                    AddOperationWorker(operation, operationWorker.Worker, operationWorker.Position, 0.0, MeasureUnit.Null);
-            }
-
-            foreach (var operationWorker in oldWorkers)
-            {
-                var key = $"{operationWorker.Worker.Id}_{operationWorker.Position.Id}";
-                if (!newKeys.Contains(key))
-                    RemoveOperationWorker(operation, operationWorker.Worker, operationWorker.Position);
-            }
-        }
-        /// <summary>
-        /// Запускает работы по операции двора (ПРР) - ставит автомашину на ворота.
-        /// </summary>
-        /// <param name="operation">Опрация двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void StartOperationWork(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
-                var sql = $"select {YardSchema}.start_operation_work(:p_id, :p_user);";
+                /*
+                    2022.09.07 - Буров Михаил.
+                    В результате исправления ошибки нулевой плановой продолжительности операции двора было принято решение
+                    брать операцию двора ВСЕГДА ЦЕЛИКОМ (а не тольо время пересечения со сменой).
+                    Дату и время начала смены относить к УКАЗАННОЙ смене, 
+                    дату и время окончания смены относить к СЛЕД. смене (как дату и время начала след смены).
+                    Операцию двора относить к той смене, в которую попадает дата и время ФАКТИЧЕСКОГО окончания операции двора.
+                */
+                var sql =
+                    $"   select o.id,\n" +
+                    $"          o.type_id,\n" +
+                    $"          o.vehicle_kind_id,\n" +
+                    $"          o.vehicle_number,\n" +
+                    $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
+                    $"          --greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
+                    $"          --least(o.plan_work_finish_date, :finish_date) plan_work_finish_date,\n" +
+                    $"          --greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +
+                    $"          --least(o.fact_work_finish_date, :finish_date) fact_work_finish_date,\n" +
+                    $"          o.plan_work_start_date,\n" +
+                    $"          o.plan_work_finish_date,\n" +
+                    $"          o.fact_work_start_date,\n" +
+                    $"          o.fact_work_finish_date,\n" +
+                    $"          o.gate_code, o.gate_name,\n" +
+                    $"          otvkt.linear_labor_cost\n" +
+                    $"     from {YardSchema}.v_operation o\n" +
+                    $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
+                    $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
+                    $"    where o.fact_work_start_date is not null\n" +
+                    $"      and o.fact_work_finish_date is not null\n" +
+                    $"      and (o.state_code = 'WORK_FINISHED' or o.state_code = 'FINISHED')\n" +
+                    $"      --and not (o.fact_work_start_date > :finish_date or o.fact_work_finish_date < :start_date)\n" +
+                    $"      and o.fact_work_finish_date >= :start_date and o.fact_work_finish_date < :finish_date\n" +
+                    $" order by o.fact_work_start_date, o.fact_work_finish_date";
                 command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
+                command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
+                command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dynamic operation = new ExpandoObject();
+                    operation.id = Utils.DbValueToLong(reader["id"]);
+                    operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+                    operation.partnerIds = Utils.DbValueToString(reader["partner_ids"]);
+                    operation.planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+                    operation.planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+                    operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
+                    operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
+
+                    operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
+                    operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
+                    operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
+                    operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
+
+                    operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
+                    operation.gateName = Utils.DbValueToString(reader["gate_name"]);
+
+                    // Скорректированы плановые трудозатарты в зависимости от заказов
+                    // В рамках задачи #2381 Сделать описание отчёта производительности смены.
+                    var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
+                    var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
+                    var operationType = GetOperationType(operationTypeId);
+                    operation.typeCode = operationType.Code;
+                    var vehicleKind = GetVehicleKind(vehicleKindId);
+                    operation.vehicleKindCode = vehicleKind.Code;
+                    var standardPlanDuration = GetDuration(operationType, vehicleKind,
+                        out int standardConstantDuration, out int standardVariableDuration);
+                    var planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalSeconds;
+                    if (planDuration > standardPlanDuration)
+                        planDuration = standardPlanDuration;
+                    double k = planDuration / standardPlanDuration;
+                    operation.planLaborCost = k * Utils.DbValueToDouble(reader["linear_labor_cost"]);
+
+                    data.Add(operation);
+                }
+                reader.Close();
             }
             connection.Close();
         }
-        /// <summary>
-        /// Завершает работы по операции двора (ПРР) - снимает автомашину с ворот.
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void FinishOperationWork(Operation operation, string user = "")
+        return [.. data];
+    }
+
+    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
+    {
+        var data = new List<dynamic>();
+        using (var connection = CloneConnection())
         {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = $"select {YardSchema}.finish_operation_work(:p_id, :p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        /// <summary>
-        /// Правит (и сохраняет) примечания операции двора (ПРР), значение уще храниться в свойстве operation.Note.
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void SetOperationNote(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = $"select {YardSchema}.set_operation_note(:p_id, :p_note, :p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_note", NpgsqlDbType.Varchar, operation.Note));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        /// <summary>
-        /// Завершает операцию двора (ПРР) - выпускает автомашину с территории складского комплекса.
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void FinishOperation(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = $"select {YardSchema}.finish_operation(:p_id, :p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        /// <summary>
-        /// Отмеяет операцию двора (ПРР).
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР).</param>
-        /// <param name="user">Имя пользователя.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void CancelOperation(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = $"select {YardSchema}.cancel_operation(:p_id, :p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        /// <summary>
-        /// Удаляет операцию двора (ПРР)
-        /// </summary>
-        /// <param name="operation">Операция двора (ПРР)</param>
-        /// <param name="user">Имя пользователя</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void DeleteOperation(Operation operation, string user = "")
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = $"select {YardSchema}.delete_operation(:p_id, :p_user);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_user", NpgsqlDbType.Varchar, user));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        #endregion
-
-        #region Actions
-        public void AddAction(Operation operation, WarehouseAction action)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
-
-            using var connection = CloneConnection();
             using (var command = connection.CreateCommand())
             {
                 var sql =
-                    $"select {YardSchema}.add_action(:p_operation_id,\n" +
-                    $"    :p_action_kind,\n" +
-                    $"    :p_action_id,\n" +
-                    $"    :p_partner_id,\n" +
-                    $"    :p_partner_action_id);";
+                    $"   select o.id,\n" +
+                    $"          o.type_id,\n" +
+                    $"          o.vehicle_kind_id,\n" +
+                    $"          o.vehicle_number,\n" +
+                    $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
+                    $"          o.plan_work_start_date,\n" +
+                    $"          o.plan_work_finish_date,\n" +
+                    $"          o.fact_work_start_date,\n" +
+                    $"          o.fact_work_finish_date,\n" +
+                    $"          o.gate_code, o.gate_name,\n" +
+                    $"          otvkt.linear_labor_cost\n" +
+                    $"     from {YardSchema}.v_operation o\n" +
+                    $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
+                    $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
+                    $"    where o.state_code in ('CONFIRMED', 'WORK_STARTED', 'STARTED','WORK_FINISHED', 'FINISHED')\n" +
+                    $"      and ((o.plan_work_start_date >= :start_date and o.plan_work_start_date <= :finish_date) or " +
+                    $"      (o.fact_work_start_date >= :start_date and o.fact_work_start_date <= :finish_date) or (o.plan_work_finish_date <= :finish_date and " +
+                    $"      o.plan_work_finish_date >= :start_date) or (o.fact_work_finish_date <= :finish_date and o.fact_work_finish_date >= :start_date))\n" +
+                    $"--      and o.id = 10025468\n" +
+                    $" order by o.fact_work_start_date, o.fact_work_finish_date";
                 command.CommandText = sql;
-                var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
-                command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
-                command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
-                command.Parameters.Add(CreateParameter("p_partner_id", NpgsqlDbType.Varchar,
-                    action.Partner != null ? action.Partner.Id : DBNull.Value));
-                command.Parameters.Add(CreateParameter("p_partner_action_id", NpgsqlDbType.Varchar,
-                    !string.IsNullOrWhiteSpace(action.PartnerActionId) ? action.PartnerActionId : DBNull.Value));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-
-        private WarehouseAction CreateWarehouseAction(DbDataReader reader)
-        {
-            var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
-            var id = Utils.DbValueToString(reader["action_id"]);
-            var number = string.Empty;
-            var partner = GetPartner(Utils.DbValueToString(reader["partner_id"]));
-            var partnerId = Utils.DbValueToString(reader["partner_action_id"]);
-            var planActionDate = DateTime.MinValue;
-            var insertDate = DateTime.MinValue;
-            var note = string.Empty;
-            var action = new WarehouseAction(kind,
-                id,
-                number,
-                partner,
-                partnerId,
-                planActionDate,
-                insertDate,
-                true,
-                note);
-            return action;
-        }
-        public WarehouseAction[] GetActions(Operation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (GetWarehouseAction == null)
-                throw new ArgumentNullException(nameof(GetWarehouseAction));
-            var actions = new List<WarehouseAction>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
+                command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
+                command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, toDate));
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    var sql =
-                        $"select oa.operation_id, oa.action_kind, oa.action_id, oa.partner_id, oa.partner_action_id\n" +
-                        $"  from {YardSchema}.v_operation_action oa\n" +
-                        $" where oa.operation_id = :operation_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var kind = Utils.DbValueToString(reader["action_kind"]) == "O" ? ActionKind.Outgo : ActionKind.Income;
-                        var id = Utils.DbValueToString(reader["action_id"]);
-                        var action = GetWarehouseAction(kind, id);
-                        actions.Add(action);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return actions.ToArray();
-        }
-        public void RemoveAction(Operation operation, WarehouseAction action)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
+                    dynamic operation = new ExpandoObject();
+                    dynamic splitOperation = new ExpandoObject();
+                    operation.id = Utils.DbValueToLong(reader["id"]);
+                    operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
+                    operation.partnerIds = Utils.DbValueToString(reader["partner_ids"]);
+                    operation.planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
+                    operation.planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
+                    operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
+                    operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
+                    var planDurationRef = (operation.planWorkFinishDate - operation.planWorkStartDate); // Для расчета скорректированного планового времени окончания работ.
 
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql =
-                    $"select {YardSchema}.remove_action(:p_operation_id,\n" +
-                    $"    :p_action_kind,\n" +
-                    $"    :p_action_id);";
-                command.CommandText = sql;
-                var kind = action.Kind == ActionKind.Outgo ? "O" : "I";
-                command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_action_kind", NpgsqlDbType.Varchar, kind));
-                command.Parameters.Add(CreateParameter("p_action_id", NpgsqlDbType.Varchar, action.Id));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        public void RemoveActions(Operation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            var actions = operation.GetActions();
-            foreach (var action in actions)
-                RemoveAction(operation, action);
-        }
-        #endregion
-
-        #region Workers
-        public bool IsWorkerBusy(Employee employee)
-        {
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            var result = false;
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    /*
-                           select ow.worker_id,
-                                  ow.operation_id,
-                                  o.plan_work_start_date, o.plan_work_finish_date, (o.plan_work_finish_date - o.plan_work_start_date)::interval plan_duration, 
-                                  o.fact_work_start_date, o.fact_work_finish_date,
-                                  o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval corrected_plan_work_finish_date
-                             from {YardSchema}.v_operation_worker ow
-                        left join {YardSchema}.scheduler o on ow.operation_id = o.id
-                            where ow.worker_id = :worker_id
-                              and o.fact_work_finish_date is null
-                              and not (o.fact_work_start_date is null and (o.plan_work_start_date >= :finish_date or o.plan_work_finish_date <= :start_date)
-                                    or o.fact_work_start_date is not null and (o.fact_work_start_date >= :finish_date or greatest(o.plan_work_finish_date, now() + interval'15 minutes') <= :start_date))
-                    */
-                    // По результатм обсуждений был приянто решене считать занятыми тех работников,
-                    // которые привязаны к операциям, которые находятся на данный момент в работе. 
-                    // 04.07.23 #5416 сотрудник считается занятым с момента добавления его в список назначенных в заявке в статусе "Прибыла"
-                    var sql =
-                        $"   select ow.worker_id,\n" +
-                        $"          ow.operation_id,\n" +
-                        $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                        $"          o.fact_work_start_date, o.fact_work_finish_date\n" +
-                        $"     from {YardSchema}.v_operation_worker ow\n" +
-                        $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
-                        $"    where ow.worker_id = :worker_id\n" +
-                        $"      and o.fact_work_finish_date is null\n" +
-                        $"      and o.fact_work_start_date is not null\n" +
-                        $"      or state_id = 1003\n" +
-                        $"      and ow.worker_id = :worker_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("worker_id", NpgsqlDbType.Integer, employee.Id));
-
-                    using var reader = command.ExecuteReader();
-                    if (reader.Read())
-                        result = true;
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return result;
-        }
-        public void AddOperationWorker(Operation operation, Employee employee, Position position, double cost, MeasureUnit costCurrency)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            if (costCurrency == null)
-                throw new ArgumentNullException(nameof(costCurrency));
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql =
-                    $"select {YardSchema}.add_operation_worker(:p_operation_id,\n" +
-                    $"    :p_worker_id,\n" +
-                    $"    :p_position_id,\n" +
-                    $"    :p_cost,\n" +
-                    $"    :p_cost_currency);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
-                command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
-                command.Parameters.Add(CreateParameter("p_cost", NpgsqlDbType.Smallint, cost > 0.0 ? cost : DBNull.Value));
-                command.Parameters.Add(CreateParameter("p_cost_currency", NpgsqlDbType.Varchar, cost > 0.0 ? costCurrency.Code : DBNull.Value));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        public Operation.OperationWorker[] GetOperationWorkers(Operation operation)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            var operationWorkers = new List<Operation.OperationWorker>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"select ow.worker_id, ow.position_id\n" +
-                        $"  from {YardSchema}.v_operation_worker ow\n" +
-                        $" where ow.operation_id = :operation_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("operation_id", NpgsqlDbType.Bigint, operation.Id));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var workerId = Utils.DbValueToInt(reader["worker_id"]);
-                        var positionId = Utils.DbValueToShort(reader["position_id"]);
-                        var worker = GetEmployee(workerId);
-                        var position = GetPosition(positionId);
-                        var operationWorker = new Operation.OperationWorker(worker, position);
-                        operationWorkers.Add(operationWorker);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return operationWorkers.ToArray();
-        }
-        private Interval[] GetBisyIntervals(Employee employee, DateTime from, DateTime to)
-        {
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            var intervals = new List<Interval>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var SelectBisyIntervals =
-                        $"select wbi.employee_id,\n" +
-                        $"       wbi.plan_work_start_date,\n" +
-                        $"       wbi.plan_work_finish_date\n" +
-                        $"  from {YardSchema}.v_worker_busy_intervals wbi\n" +
-                        $" where not(wbi.plan_work_start_date > :to_date or wbi.plan_work_finish_date < :from_date)\n" +
-                        $"   and wbi.employee_id = :employee_id";
-                    command.CommandText = SelectBisyIntervals;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, from));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, to));
-                    command.Parameters.Add(CreateParameter("employee_id", NpgsqlDbType.Integer, employee.Id));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var fromTime = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
-                        var toTime = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
-                        var interval = new Interval(fromTime, toTime);
-                        intervals.Add(interval);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return intervals.ToArray();
-        }
-        private double GetEmployeeBisyShare(Employee employee, DateTime from, DateTime to)
-        {
-            var result = 0.0;
-            var currentInterval = new Interval(from, to);
-            var intervals = GetBisyIntervals(employee, from, to);
-            foreach (var interval in intervals)
-            {
-                var share = interval.IntervalShare(currentInterval);
-                result += share;
-            }
-            return result;
-        }
-        public Employee[] GetLeastBusyEmployees(DateTime from, DateTime to, Position position, Employee[] emplyees, short count = 1)
-        {
-            if (count > emplyees.Length)
-                throw new ArgumentException($"Not enough employees (has - {emplyees.Length}, need - {count})!");
-            var queue = new PriorityQueue<Employee, double>();
-            foreach (var employee in emplyees)
-            {
-                var bisyShare = GetEmployeeBisyShare(employee, from, to);
-                queue.Enqueue(employee, bisyShare);
-            }
-            var result = new List<Employee>();
-            while (count > 0)
-            {
-                result.Add(queue.Dequeue());
-                count--;
-            }
-            return result.ToArray();
-        }
-        public void AllocateOperationWorkers(Operation operation, DateTime? date = null)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-
-            // Удаляем текущие связи работников с операциями двора (ПРР).
-            var operationEmployees = GetOperationWorkers(operation);
-            foreach (var operationEmployee in operationEmployees)
-                RemoveOperationWorker(operation, operationEmployee.Worker, operationEmployee.Position);
-
-            date = date == null || date == DateTime.MinValue ? DateTime.Now : date;
-            date = date > operation.PlanWorkStartDate ? date : operation.PlanWorkStartDate;
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                // Получить смену, которая соответствует началу операции.
-                var shift = GetShift((DateTime)date);
-
-                // Определеить сотрудников данной смены, по указанным должностям.
-                //var employees = GetShiftEmployees(shift);
-                var employees = GetAllEmployees();
-
-                // Определить должности, с нужным количеством сотрудников по каждой должности.
-                var operationWorks = GetOperationWorks(operation.Type, operation.VehicleKind);
-                var workersCounts = new Dictionary<Position, short>();
-                foreach (var operationWork in operationWorks)
-                {
-                    if (!workersCounts.ContainsKey(operationWork.Position))
-                        workersCounts.Add(operationWork.Position, 0);
-                    workersCounts[operationWork.Position] =
-                        Math.Max(operationWork.WorkersCount, workersCounts[operationWork.Position]);
-                }
-
-                foreach (var pair in workersCounts)
-                {
-                    if (!pair.Key.IsLinear)
+                    if ((operation.planWorkStartDate.Date == fromDate.Date) && (operation.planWorkStartDate.Date < operation.factWorkStartDate.Date)) // Отфильтровываем заявки с планом на выбранную дату, но фактом на день и более позже.
                         continue;
 
-                    // Определяем наименее загруженных сотрудников.
-                    var duration = operation.PlanWorkFinishDate - operation.PlanWorkStartDate;
-                    var temp = GetLeastBusyEmployees((DateTime)date,
-                        (DateTime)date + duration,
-                        pair.Key,
-                        employees,
-                        pair.Value);
+                    if (operation.planWorkStartDate < DateTime.Now && operation.factWorkStartDate == DateTime.MinValue) //Отфильтровываем просроченные заявки с устаревшим планом и без факта.
+                        continue;
 
-                    // Назначаем сотрудников.
-                    foreach (var employee in temp)
-                        AddOperationWorker(operation, employee, pair.Key, employee.Cost, employee.CostMeasureUnit);
-                }
-            }
-            connection.Close();
-        }
-        public void RemoveOperationWorker(Operation operation, Employee employee, Position position)
-        {
-            if (operation == null)
-                throw new ArgumentNullException(nameof(operation));
-            if (employee == null)
-                throw new ArgumentNullException(nameof(employee));
-            if (position == null)
-                throw new ArgumentNullException(nameof(position));
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql =
-                    $"select {YardSchema}.remove_operation_worker(:p_operation_id,\n" +
-                    $"    :p_worker_id,\n" +
-                    $"    :p_position_id);";
-                command.CommandText = sql;
-                command.Parameters.Add(CreateParameter("p_operation_id", NpgsqlDbType.Bigint, operation.Id));
-                command.Parameters.Add(CreateParameter("p_worker_id", NpgsqlDbType.Integer, employee.Id));
-                command.Parameters.Add(CreateParameter("p_position_id", NpgsqlDbType.Smallint, position.Id));
-                command.ExecuteScalar();
-            }
-            connection.Close();
-        }
-        #endregion
+                    if (operation.factWorkStartDate != DateTime.MinValue && operation.factWorkFinishDate != DateTime.MinValue)
+                    {
+                        operation.planWorkStartDate = operation.factWorkStartDate;
+                        operation.planWorkFinishDate = operation.factWorkFinishDate;
+                    }
+                    else if ((operation.factWorkStartDate != DateTime.MinValue) && (operation.factWorkFinishDate == DateTime.MinValue))
+                    {
+                        operation.planWorkStartDate = operation.factWorkStartDate;
+                        operation.planWorkFinishDate = operation.planWorkStartDate + planDurationRef;
+                    }
+                    operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
+                    operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
+                    operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
+                    operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
 
-        #region Reporting
-        public Operation[] GetOperationalReportData(DateTime? fromDate, DateTime? toDate)
-        {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                           $"select o.id,\n" +
-                           $"       o.type_id, o.type_code, o.type_name,\n" +
-                           $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
-                           $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                           $"       o.start_date, o.finish_date,\n" +
-                           $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                           $"       o.vehicle_brand,\n" +
-                           $"       o.vehicle_model,\n" +
-                           $"       o.vehicle_number,\n" +
-                           $"       o.trailer_number,\n" +
-                           $"       o.driver_name, o.driver_phone_number,\n" +
-                           $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                           $"       o.gate_id, o.gate_code, o.gate_name,\n" +
-                           $"       o.state_id, o.state_code, o.state_name,\n" +
-                           $"       o.priority,\n" +
-                           $"       o.partner_manager_name,\n" +
-                           $"       o.partner_manager_phone_number,\n" +
-                           $"       o.partner_manager_email,\n" +
-                           $"       o.manager_id,\n" +
-                           $"       o.responsible_officer_id,\n" +
-                           $"       o.note,\n" +
-                           $"       o.created, o.creator, o.edited, o.editor, o.on_parking,\n" +
-                           $"       NULL::timestamp as deleted,\n" +
-                           $"       ''::varchar as deleter\n" +
-                           $"  from {YardSchema}.v_operation o\n" +
-                           $"    /*\n" +
-                           $"    Важное пояснение по фильтру по датам.\n" +
-                           $"    Мы смотрим пересечение целевого временнОго окна с плановым и с фактическим окном операции двора.\n" +
-                           $"    Если плановое окно операции двора пересекается с целевым то всё хорошо - такая операция нам подходит.\n" +
-                           $"    Если плановое окно операции двора не песекается с целевым, то смотрим фактическое окно операции двора.\n" +
-                           $"    Фактическое окно операции двора существует если фактическая дата (+ время) начала работ по операции двора не пустое.\n" +
-                           $"    Фактическая дата окончания работ по операции двора определяется след. образом: если она заполнена (поле fact_work_finish_date), то берём её,\n" +
-                           $"    это говорит о том что работы по операции двора закончены; если она не заполнена, то значит сейчас операция двора в работе,\n" +
-                           $"    тогда мы должны посмотреть просрочена операция двора или нет (по плановой продолжительности операции двора),\n" +
-                           $"    если операция двора не просрочена, то к фактической дате (+ время) начала работ добавляем плановую продолжительность,\n" +
-                           $"    и берём эту дату (+ время) как фактическую дату окончания работ (по сути это план с учётом корректировки по фактическому началу работ),\n" +
-                           $"    если операция просрочена, то даём запас времени + 10 минут что бы завершить работы по операции,\n" +
-                           $"    и эту дату (+ время) считаем фактичской датой окончания работ по операции двора.\n" +
-                           $"    */\n" +
-                           $" where (not (:to_date is not null and o.plan_work_start_date >= :to_date\n" +
-                           $"         or :from_date is not null and o.plan_work_finish_date < :from_date)\n" +
-                           $"       or\n" +
-                           $"       o.fact_work_start_date is not null\n" +
-                           $"           and not (:to_date is not null and o.fact_work_start_date >= :to_date\n" +
-                           $"                 or :from_date is not null and coalesce(o.fact_work_finish_date, greatest(o.fact_work_start_date + (o.plan_work_finish_date - o.plan_work_start_date)::interval, now() + interval '10 minutes')) < :from_date))";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return operations.ToArray();
-        }
-        public Operation[] GetDispatcherReportData(DateTime? fromDate, DateTime? toDate)
-        {
-            var operations = new List<Operation>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                           $"select o.id,\n" +
-                           $"       o.type_id, o.type_code, o.type_name,\n" +
-                           $"       o.plan_work_start_date, o.fact_work_start_date,\n" +
-                           $"       o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                           $"       o.start_date, o.finish_date,\n" +
-                           $"       o.vehicle_kind_id, o.vehicle_kind_code, o.vehicle_kind_name,\n" +
-                           $"       o.vehicle_brand,\n" +
-                           $"       o.vehicle_model,\n" +
-                           $"       o.vehicle_number,\n" +
-                           $"       o.trailer_number,\n" +
-                           $"       o.driver_name, o.driver_phone_number,\n" +
-                           $"       o.logist_id, o.logist_code, o.logist_name,\n" +
-                           $"       o.gate_id, o.gate_code, o.gate_name,\n" +
-                           $"       o.state_id, o.state_code, o.state_name,\n" +
-                           $"       o.priority,\n" +
-                           $"       o.partner_manager_name,\n" +
-                           $"       o.partner_manager_phone_number,\n" +
-                           $"       o.partner_manager_email,\n" +
-                           $"       o.manager_id,\n" +
-                           $"       o.responsible_officer_id,\n" +
-                           $"       o.note,\n" +
-                           $"       o.created, o.creator, o.edited, o.editor, o.deleted, o.deleter, o.on_parking\n" +
-                           $"  from {YardSchema}.v_dr_operation o\n" +
-                           $"    /*\n" +
-                           $"    */\n" +
-                           $" where o.created >= :from_date and o.created < :to_date\n" +
-                           $"    or o.plan_work_finish_date >= :from_date and o.plan_work_finish_date < :to_date\n" +
-                           $"    or o.fact_work_finish_date >= :from_date and o.fact_work_finish_date < :to_date\n";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate == null || fromDate == DateTime.MinValue ? DBNull.Value : fromDate));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate == null || toDate == DateTime.MinValue ? DBNull.Value : toDate));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        var operation = CreateOperation(reader);
-                        operations.Add(operation);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return operations.ToArray();
-        }
-        public dynamic[] GetYardStandardLabocCosts(DateTime fromDate, DateTime toDate)
-        {
-            var lines = new List<dynamic>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"with operation_labor as (\n" +
-                        $"   select o.id,\n" +
-                        $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
-                        $"          o.plan_work_finish_date, o.fact_work_finish_date,\n" +
-                        $"          o.plan_work_finish_date - o.plan_work_start_date plan_duration,\n" +
-                        $"          o.fact_work_finish_date - o.fact_work_start_date fact_duration,\n" +
-                        $"          case\n" +
-                        $"              when o.fact_work_finish_date is not null and o.fact_work_start_date is not null then 1\n" +
-                        $"              else 0\n" +
-                        $"          end work_finished,\n" +
-                        $"          case\n" +
-                        $"              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) < 0 then 0\n" +
-                        $"              else extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
-                        $"          end / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date)) plan_k,\n" +
-                        $"          case\n" +
-                        $"              when extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) < 0 then 0\n" +
-                        $"              else extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
-                        $"          end / (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date)) fact_k,\n" +
-                        $"          case\n" +
-                        $"              when o.fact_work_finish_date is null\n" +
-                        $"                or o.fact_work_start_date is null\n" +
-                        $"                or o.plan_work_finish_date is null\n" +
-                        $"                or o.plan_work_start_date is null\n" +
-                        $"                or o.plan_work_finish_date = o.plan_work_start_date then 1\n" +
-                        $"              else (extract('epoch' from o.fact_work_finish_date) - extract('epoch' from o.fact_work_start_date))\n" +
-                        $"                 / (extract('epoch' from o.plan_work_finish_date) - extract('epoch' from o.plan_work_start_date))\n" +
-                        $"          end k,\n" +
-                        $"          --o.type_id,\n" +
-                        $"          --o.vehicle_kind_id,\n" +
-                        $"          ow.position_id,\n" +
-                        $"          --ow.work_id,\n" +
-                        $"          --ow.workers_count,\n" +
-                        $"          (select min(oa.partner_id) from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_id,\n" +
-                        $"          sum(ow.\"time\" * ow.workers_count) labor_cost\n" +
-                        $"     from {YardSchema}.v_operation o\n" +
-                        $"left join {YardSchema}.v_ot_vk_work ow on o.type_id = ow.operation_type_id and o.vehicle_kind_id = ow.vehicle_kind_id\n" +
-                        $" group by o.id,\n" +
-                        $"          ow.position_id,\n" +
-                        $"          o.plan_work_start_date, o.fact_work_start_date,\n" +
-                        $"          o.plan_work_finish_date, o.fact_work_finish_date\n" +
-                        $")\n" +
-                        $"   select ol.partner_id, p.name partner_name,\n" +
-                        $"          ol.position_id, ps.name position_name,\n" +
-                        $"          round((sum(ol.labor_cost * ol.plan_k) / 3600)::numeric, 2) plan_labor_cost,\n" +
-                        $"          round((sum(ol.labor_cost * ol.fact_k * ol.k) / 3600)::numeric, 2) fact_labor_cost\n" +
-                        $"     from operation_labor ol\n" +
-                        $"left join {YardSchema}.v_partner p on ol.partner_id = p.id\n" +
-                        $"left join {YardSchema}.v_position ps on ol.position_id = ps.id\n" +
-                        $"    where ol.work_finished = 1\n" +
-                        $"          and(ol.position_id != 1005)\n" +
-                        $"          and(ol.position_id != 1008)\n" +
-                        $"          and(ol.position_id != 1015)\n" +
-                        $"          and(ol.position_id != 1017)\n" +
-                        $"          and not(ol.plan_work_start_date > :to_date or ol.plan_work_finish_date < :from_date)\n" +
-                        $" group by ol.partner_id, p.name,\n" +
-                        $"          ol.position_id, ps.name\n" +
-                        $" order by ol.partner_id,\n" +
-                        $"          ol.position_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        dynamic line = new ExpandoObject();
-                        line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
-                        line.PositionId = Utils.DbValueToShort(reader["position_id"]);
-                        line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
-                        line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
-                        lines.Add(line);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return lines.ToArray();
-        }
-        public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate)
-        {
-            var lines = new List<dynamic>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"with data as (\n" +
-                        $"   select ow.worker_id,\n" +
-                        $"          ow.position_id, pos.\"name\" position_name,\n" +
-                        $"          par.id partner_id, par.\"name\" partner_name,\n" +
-                        $"          o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                        $"          case\n" +
-                        $"              when extract('epoch' from least(:to_date, o.plan_work_finish_date)) - extract('epoch' from greatest(:from_date, o.plan_work_start_date)) > 0\n" +
-                        $"                  then extract('epoch' from least(:to_date, o.plan_work_finish_date)) -extract('epoch' from greatest(:from_date, o.plan_work_start_date))\n" +
-                        $"              else 0\n" +
-                        $"          end plan_duration,\n" +
-                        $"          o.fact_work_start_date, o.fact_work_finish_date,\n" +
-                        $"          case\n" +
-                        $"              when o.plan_work_start_date is not null\n" +
-                        $"               and o.plan_work_finish_date is not null\n" +
-                        $"               and o.fact_work_start_date is not null\n" +
-                        $"               and o.fact_work_finish_date is not null\n" +
-                        $"               and extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date)) > 0\n" +
-                        $"                   then extract('epoch' from least(:to_date, o.fact_work_finish_date)) - extract('epoch' from greatest(:from_date, o.fact_work_start_date))\n" +
-                        $"              else 0\n" +
-                        $"          end fact_duration\n" +
-                        $"     from {YardSchema}.v_operation_worker ow\n" +
-                        $"left join {YardSchema}.v_position pos on ow.position_id = pos.id\n" +
-                        $"left join {YardSchema}.v_partner par on par.id = (select oa.partner_id from {YardSchema}.v_operation_action oa where oa.operation_id = ow.operation_id)\n" +
-                        $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
-                        $"    where not(o.plan_work_start_date >= :to_date or o.plan_work_finish_date <= :from_date)\n" +
-                        $"       or not(o.fact_work_start_date >= :to_date or o.fact_work_finish_date <= :from_date)\n" +
-                        $")\n" +
-                        $"  select d.partner_id, d.partner_name,\n" +
-                        $"         d.position_id, d.position_name,\n" +
-                        $"         count(distinct d.worker_id) workers_count,\n" +
-                        $"         round(sum(d.plan_duration)::numeric / 3600, 2) plan_labor_cost,\n" +
-                        $"         round(sum(d.plan_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_plan_labor_cost,\n" +
-                        $"         round(sum(d.fact_duration)::numeric / 3600, 2) fact_labor_cost,\n" +
-                        $"         round(sum(d.fact_duration)::numeric / 3600 / count(distinct d.worker_id), 2) norm_fact_labor_cost\n" +
-                        $"    from data d\n" +
-                        $"group by d.partner_id, d.partner_name,\n" +
-                        $"         d.position_id, d.position_name\n" +
-                        $"  having sum(d.plan_duration) <> 0 and sum(d.fact_duration) <> 0\n" +
-                        $"order by d.partner_id,\n" +
-                        $"         d.position_id";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("from_date", NpgsqlDbType.Timestamp, fromDate));
-                    command.Parameters.Add(CreateParameter("to_date", NpgsqlDbType.Timestamp, toDate));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        dynamic line = new ExpandoObject();
-                        line.PartnerId = Utils.DbValueToString(reader["partner_id"]);
-                        line.PositionId = Utils.DbValueToShort(reader["position_id"]);
-                        line.WorkersCount = Utils.DbValueToInt(reader["workers_count"]);
-                        line.PlanLaborCost = Utils.DbValueToDouble(reader["plan_labor_cost"]);
-                        line.FactLaborCost = Utils.DbValueToDouble(reader["fact_labor_cost"]);
-                        lines.Add(line);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return lines.ToArray();
-        }
-        public dynamic[] GetYardShiftLabocCosts(DateTime date)
-        {
-            var lines = new List<dynamic>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"with tempdate as (\n" +
-                        $"    select {YardSchema}.get_shift_start(:date::timestamp, 0::int2) start_date, {YardSchema}.get_shift_finish(:date::timestamp, 0::int2) finish_date\n" +
-                        $"),\n" +
-                        $"plan_data as (\n" +
-                        $"   select --o.id,\n" +
-                        $"          --o.plan_work_start_date, o.plan_work_finish_date,\n" +
-                        $"          --least(o.plan_work_finish_date, td.finish_date) - greatest(o.plan_work_start_date, td.start_date) plan_duration,\n" +
-                        $"          nw.position_id,\n" +
-                        $"          o.gate_id,\n" +
-                        $"          sum(nw.\"time\" * nw.workers_count) plan_lc\n" +
-                        $"     from {YardSchema}.v_ot_vk_work nw\n" +
-                        $"left join {YardSchema}.v_operation o on nw.operation_type_id = o.type_id and nw.vehicle_kind_id = o.vehicle_kind_id\n" +
-                        $"left join tempdate td on true\n" +
-                        $"    where o.fact_work_start_date is not null\n" +
-                        $"      and o.fact_work_finish_date is not null\n" +
-                        $"      and not (o.plan_work_start_date >= td.finish_date or o.plan_work_finish_date <= td.start_date)\n" +
-                        $" group by nw.position_id, o.gate_id\n" +
-                        $"),\n" +
-                        $"fact_data as (\n" +
-                        $"   select --o.id,\n" +
-                        $"          --o.fact_work_start_date, o.fact_work_finish_date,\n" +
-                        $"          --least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date) fact_duration,\n" +
-                        $"          ow.position_id,\n" +
-                        $"          o.gate_id,\n" +
-                        $"          sum(extract('epoch' from(least(o.fact_work_finish_date, td.finish_date) - greatest(o.fact_work_start_date, td.start_date)))) fact_lc\n" +
-                        $"    from {YardSchema}.v_operation_worker ow\n" +
-                        $"left join {YardSchema}.v_operation o on ow.operation_id = o.id\n" +
-                        $"left join tempdate td on true\n" +
-                        $"    where o.fact_work_start_date is not null\n" +
-                        $"      and o.fact_work_finish_date is not null\n" +
-                        $"      and not (o.fact_work_start_date >= td.finish_date or o.fact_work_finish_date <= td.start_date)\n" +
-                        $" group by ow.position_id, o.gate_id\n" +
-                        $"),\n" +
-                        $"gate_data as (\n" +
-                        $"   select coalesce(pd.position_id, fd.position_id) position_id, p.name position_name,\n" +
-                        $"          coalesce(pd.gate_id, fd.gate_id) gate_id, g.name gate_name,\n" +
-                        $"          round(coalesce(pd.plan_lc::numeric / 3600::numeric, 0)::numeric, 2) plan_lc,\n" +
-                        $"          round(coalesce(fd.fact_lc::numeric / 3600::numeric, 0)::numeric, 2) fact_lc,\n" +
-                        $"          case\n" +
-                        $"              when coalesce(fd.fact_lc, 0) <> 0 then coalesce(pd.plan_lc, 0) / coalesce(fd.fact_lc, 0) * 100\n" +
-                        $"              else 0\n" +
-                        $"          end perfomance\n" +
-                        $"     from plan_data pd\n" +
-                        $"full join fact_data fd on pd.position_id = fd.position_id and pd.gate_id = fd.gate_id\n" +
-                        $"left join {YardSchema}.v_position p on coalesce(pd.position_id, fd.position_id) = p.id\n" +
-                        $"left join {YardSchema}.v_gate g on coalesce(pd.gate_id, fd.gate_id) = g.id\n" +
-                        $"    where p.is_linear = 1\n" +
-                        $" order by coalesce(pd.position_id, fd.position_id),\n" +
-                        $"          coalesce(pd.gate_id, fd.gate_id)\n" +
-                        $")\n" +
-                        $"  select gd.position_id, gd.position_name,\n" +
-                        $"         round(case\n" +
-                        $"             when sum(coalesce(gd.fact_lc, 0)) <> 0 then sum(coalesce(gd.plan_lc, 0)) / sum(coalesce(gd.fact_lc, 0)) * 100\n" +
-                        $"             else 0\n" +
-                        $"         end::numeric, 2) total,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1001 then gd.perfomance::numeric end), 2), 0.0) pg1,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1002 then gd.perfomance::numeric end), 2), 0.0) pg2,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1003 then gd.perfomance::numeric end), 2), 0.0) pg3,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1004 then gd.perfomance::numeric end), 2), 0.0) pg4,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1005 then gd.perfomance::numeric end), 2), 0.0) pg5,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1006 then gd.perfomance::numeric end), 2), 0.0) pg6,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1007 then gd.perfomance::numeric end), 2), 0.0) pg7,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1008 then gd.perfomance::numeric end), 2), 0.0) pg8,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1009 then gd.perfomance::numeric end), 2), 0.0) pg9,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1010 then gd.perfomance::numeric end), 2), 0.0) pg10,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1011 then gd.perfomance::numeric end), 2), 0.0) pg11,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1012 then gd.perfomance::numeric end), 2), 0.0) pg12,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1013 then gd.perfomance::numeric end), 2), 0.0) pg13,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1014 then gd.perfomance::numeric end), 2), 0.0) pg14,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1015 then gd.perfomance::numeric end), 2), 0.0) pg15,\n" +
-                        $"         coalesce(round(avg(case when gd.gate_id = 1016 then gd.perfomance::numeric end), 2), 0.0) pg16\n" +
-                        $"    from gate_data gd\n" +
-                        $"group by gd.position_id, gd.position_name";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("date", NpgsqlDbType.Timestamp, date));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        dynamic line = new ExpandoObject();
-                        line.PositionId = Utils.DbValueToShort(reader["position_id"]);
-                        line.LaborCost = Utils.DbValueToDouble(reader["total"]);
+                    operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
+                    operation.gateName = Utils.DbValueToString(reader["gate_name"]);
+                    var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
+                    var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
+                    var operationType = GetOperationType(operationTypeId);
+                    operation.typeCode = operationType.Code;
+                    var vehicleKind = GetVehicleKind(vehicleKindId);
+                    operation.vehicleKindCode = vehicleKind.Code;
 
-                        line.G01LaborCost = Utils.DbValueToDouble(reader["pg1"]);
-                        line.G02LaborCost = Utils.DbValueToDouble(reader["pg2"]);
-                        line.G03LaborCost = Utils.DbValueToDouble(reader["pg3"]);
-                        line.G04LaborCost = Utils.DbValueToDouble(reader["pg4"]);
-                        line.G05LaborCost = Utils.DbValueToDouble(reader["pg5"]);
-                        line.G06LaborCost = Utils.DbValueToDouble(reader["pg6"]);
-                        line.G07LaborCost = Utils.DbValueToDouble(reader["pg7"]);
-                        line.G08LaborCost = Utils.DbValueToDouble(reader["pg8"]);
-                        line.G09LaborCost = Utils.DbValueToDouble(reader["pg9"]);
-                        line.G10LaborCost = Utils.DbValueToDouble(reader["pg10"]);
-                        line.G11LaborCost = Utils.DbValueToDouble(reader["pg11"]);
-                        line.G12LaborCost = Utils.DbValueToDouble(reader["pg12"]);
-                        line.G13LaborCost = Utils.DbValueToDouble(reader["pg13"]);
-                        line.G14LaborCost = Utils.DbValueToDouble(reader["pg14"]);
-                        line.G15LaborCost = Utils.DbValueToDouble(reader["pg15"]);
-                        line.G16LaborCost = Utils.DbValueToDouble(reader["pg16"]);
-
-                        lines.Add(line);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return lines.ToArray();
-        }
-        public dynamic[] GetYardPerfomanceData(DateTime fromDate, DateTime toDate)
-        {
-            var data = new List<dynamic>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    /*
-                        2022.09.07 - Буров Михаил.
-                        В результате исправления ошибки нулевой плановой продолжительности операции двора было принято решение
-                        брать операцию двора ВСЕГДА ЦЕЛИКОМ (а не тольо время пересечения со сменой).
-                        Дату и время начала смены относить к УКАЗАННОЙ смене, 
-                        дату и время окончания смены относить к СЛЕД. смене (как дату и время начала след смены).
-                        Операцию двора относить к той смене, в которую попадает дата и время ФАКТИЧЕСКОГО окончания операции двора.
-                    */
-                    var sql =
-                        $"   select o.id,\n" +
-                        $"          o.type_id,\n" +
-                        $"          o.vehicle_kind_id,\n" +
-                        $"          o.vehicle_number,\n" +
-                        $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
-                        $"          --greatest(o.plan_work_start_date, :start_date) plan_work_start_date,\n" +
-                        $"          --least(o.plan_work_finish_date, :finish_date) plan_work_finish_date,\n" +
-                        $"          --greatest(o.fact_work_start_date, :start_date) fact_work_start_date,\n" +
-                        $"          --least(o.fact_work_finish_date, :finish_date) fact_work_finish_date,\n" +
-                        $"          o.plan_work_start_date,\n" +
-                        $"          o.plan_work_finish_date,\n" +
-                        $"          o.fact_work_start_date,\n" +
-                        $"          o.fact_work_finish_date,\n" +
-                        $"          o.gate_code, o.gate_name,\n" +
-                        $"          otvkt.linear_labor_cost\n" +
-                        $"     from {YardSchema}.v_operation o\n" +
-                        $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
-                        $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
-                        $"    where o.fact_work_start_date is not null\n" +
-                        $"      and o.fact_work_finish_date is not null\n" +
-                        $"      and (o.state_code = 'WORK_FINISHED' or o.state_code = 'FINISHED')\n" +
-                        $"      --and not (o.fact_work_start_date > :finish_date or o.fact_work_finish_date < :start_date)\n" +
-                        $"      and o.fact_work_finish_date >= :start_date and o.fact_work_finish_date < :finish_date\n" +
-                        $" order by o.fact_work_start_date, o.fact_work_finish_date";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
-                    command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, toDate));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
+                    if (operation.planWorkFinishDate.Date > fromDate.Date) // Условие для обрезания заявок с переходом через день.
                     {
-                        dynamic operation = new ExpandoObject();
-                        operation.id = Utils.DbValueToLong(reader["id"]);
-                        operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
-                        operation.partnerIds = Utils.DbValueToString(reader["partner_ids"]);
-                        operation.planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
-                        operation.planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
-                        operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
-                        operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
-
+                        operation.planWorkFinishDate = operation.planWorkStartDate.Date.AddHours(23).AddMinutes(59);
+                        operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
+                    }
+                    else if (operation.planWorkFinishDate.Date == fromDate.Date && operation.planWorkStartDate.Date < fromDate.Date) //условие для обрезания заявок с переходом через день
+                    {
+                        operation.planWorkStartDate = operation.planWorkFinishDate.Date;
                         operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
                         operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
-                        operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
-                        operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
-
-                        operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
-                        operation.gateName = Utils.DbValueToString(reader["gate_name"]);
-
-                        // Скорректированы плановые трудозатарты в зависимости от заказов
-                        // В рамках задачи #2381 Сделать описание отчёта производительности смены.
-                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
-                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
-                        var operationType = GetOperationType(operationTypeId);
-                        operation.typeCode = operationType.Code;
-                        var vehicleKind = GetVehicleKind(vehicleKindId);
-                        operation.vehicleKindCode = vehicleKind.Code;
-                        var standardPlanDuration = GetDuration(operationType, vehicleKind,
-                            out int standardConstantDuration, out int standardVariableDuration);
-                        var planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalSeconds;
-                        if (planDuration > standardPlanDuration)
-                            planDuration = standardPlanDuration;
-                        double k = planDuration / standardPlanDuration;
-                        operation.planLaborCost = k * Utils.DbValueToDouble(reader["linear_labor_cost"]);
-
-                        data.Add(operation);
                     }
-                    reader.Close();
+
+                    data.Add(operation);
                 }
-                connection.Close();
-            }
-            return data.ToArray();
-        }
-
-        public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
-        {
-            var data = new List<dynamic>();
-            using (var connection = CloneConnection())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    var sql =
-                        $"   select o.id,\n" +
-                        $"          o.type_id,\n" +
-                        $"          o.vehicle_kind_id,\n" +
-                        $"          o.vehicle_number,\n" +
-                        $"          (select string_agg(oa.partner_id, ', ') from {YardSchema}.v_operation_action oa where oa.operation_id = o.id) partner_ids,\n" +
-                        $"          o.plan_work_start_date,\n" +
-                        $"          o.plan_work_finish_date,\n" +
-                        $"          o.fact_work_start_date,\n" +
-                        $"          o.fact_work_finish_date,\n" +
-                        $"          o.gate_code, o.gate_name,\n" +
-                        $"          otvkt.linear_labor_cost\n" +
-                        $"     from {YardSchema}.v_operation o\n" +
-                        $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
-                        $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
-                        $"    where o.state_code in ('CONFIRMED', 'WORK_STARTED', 'STARTED','WORK_FINISHED', 'FINISHED')\n" +
-                        $"      and ((o.plan_work_start_date >= :start_date and o.plan_work_start_date <= :finish_date) or " +
-                        $"      (o.fact_work_start_date >= :start_date and o.fact_work_start_date <= :finish_date) or (o.plan_work_finish_date <= :finish_date and " +
-                        $"      o.plan_work_finish_date >= :start_date) or (o.fact_work_finish_date <= :finish_date and o.fact_work_finish_date >= :start_date))\n" +
-                        $"--      and o.id = 10025468\n" +
-                        $" order by o.fact_work_start_date, o.fact_work_finish_date";
-                    command.CommandText = sql;
-                    command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
-                    command.Parameters.Add(CreateParameter("finish_date", NpgsqlDbType.Timestamp, toDate));
-                    using var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        dynamic operation = new ExpandoObject();
-                        dynamic splitOperation = new ExpandoObject();
-                        operation.id = Utils.DbValueToLong(reader["id"]);
-                        operation.vehicleNumber = Utils.DbValueToString(reader["vehicle_number"]);
-                        operation.partnerIds = Utils.DbValueToString(reader["partner_ids"]);
-                        operation.planWorkStartDate = Utils.DbValueToDateTime(reader["plan_work_start_date"]);
-                        operation.planWorkFinishDate = Utils.DbValueToDateTime(reader["plan_work_finish_date"]);
-                        operation.factWorkStartDate = Utils.DbValueToDateTime(reader["fact_work_start_date"]);
-                        operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
-                        var planDurationRef = (operation.planWorkFinishDate - operation.planWorkStartDate); // для расчета скорректированного планового времени окончания работ
-
-                        if ((operation.planWorkStartDate.Date == fromDate.Date) && (operation.planWorkStartDate.Date < operation.factWorkStartDate.Date)) // отфильтровываем заявки с планом на выбранную дату, но фактом на день и более позже
-                            continue;
-
-                        if (operation.planWorkStartDate < DateTime.Now && operation.factWorkStartDate == DateTime.MinValue) //отфильтровываем просроченные заявки с устаревшим планом и без факта
-                            continue;
-
-                        if (operation.factWorkStartDate != DateTime.MinValue && operation.factWorkFinishDate != DateTime.MinValue)
-                        {
-                            operation.planWorkStartDate = operation.factWorkStartDate;
-                            operation.planWorkFinishDate = operation.factWorkFinishDate;
-                        }
-                        else if ((operation.factWorkStartDate != DateTime.MinValue) && (operation.factWorkFinishDate == DateTime.MinValue))
-                        {
-                            operation.planWorkStartDate = operation.factWorkStartDate;
-                            operation.planWorkFinishDate = operation.planWorkStartDate + planDurationRef;
-                        }
-                        operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
-                        operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
-                        operation.factStart = (operation.factWorkStartDate - fromDate).TotalMinutes;
-                        operation.factDuration = (operation.factWorkFinishDate - operation.factWorkStartDate).TotalMinutes;
-
-                        operation.gateCode = Utils.DbValueToString(reader["gate_code"]);
-                        operation.gateName = Utils.DbValueToString(reader["gate_name"]);
-                        var operationTypeId = Utils.DbValueToShort(reader["type_id"]);
-                        var vehicleKindId = Utils.DbValueToShort(reader["vehicle_kind_id"]);
-                        var operationType = GetOperationType(operationTypeId);
-                        operation.typeCode = operationType.Code;
-                        var vehicleKind = GetVehicleKind(vehicleKindId);
-                        operation.vehicleKindCode = vehicleKind.Code;
-
-                        if (operation.planWorkFinishDate.Date > fromDate.Date) // Условие для обрезания заявок с переходом через день.
-                        {
-                            operation.planWorkFinishDate = operation.planWorkStartDate.Date.AddHours(23).AddMinutes(59);
-                            operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
-                        }
-                        else if (operation.planWorkFinishDate.Date == fromDate.Date && operation.planWorkStartDate.Date < fromDate.Date) //условие для обрезания заявок с переходом через день
-                        {
-                            operation.planWorkStartDate = operation.planWorkFinishDate.Date;
-                            operation.planStart = (operation.planWorkStartDate - fromDate).TotalMinutes;
-                            operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;
-                        }
-
-                        data.Add(operation);
-                    }
-                    reader.Close();
-                }
-                connection.Close();
-            }
-            return data.ToArray();
-        }
-        #endregion
-
-        #region Testing
-        private static readonly string[] ReferenceTables = {
-            "operation_state", "operation_type", "partner_operation_type", "vehicle_kind", "gate", "logist",
-            "work", "ot_vk_gate", "ot_vk_work"
-        };
-        private static readonly string[] DataTables = {
-            "operation_log", "operation_action", "operation_worker", "scheduler"
-        };
-        private void TruncateTables(string[] tables)
-        {
-            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
-            if (_host == "10.50.254.14")
-                throw new ApplicationException("You can't truncate tables on production database!");
-
-            using var connection = CloneConnection();
-            using (var command = connection.CreateCommand())
-            {
-                var sql = new StringBuilder("truncate");
-                bool first = true;
-                foreach (var table in tables)
-                {
-                    if (first)
-                        first = !first;
-                    else
-                        sql.Append(",");
-                    sql.Append($" {YardSchema}.{table}");
-                }
-
-                sql.Append(" restart identity;");
-                command.CommandText = sql.ToString();
-                command.ExecuteScalar();
+                reader.Close();
             }
             connection.Close();
         }
-        public void TruncateReferenceTables()
-        {
-            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
-            if (_host == "10.50.254.14")
-                throw new ApplicationException("You can't truncate tables on production database!");
-
-            TruncateTables(ReferenceTables);
-        }
-        public void TruncateDataTables()
-        {
-            // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
-            if (_host == "10.50.254.14")
-                throw new ApplicationException("You can't truncate tables on production database!");
-
-            TruncateTables(DataTables);
-        }
-        #endregion
+        return [.. data];
     }
+    #endregion
+
+    #region Testing
+    private static readonly string[] ReferenceTables = {
+        "operation_state", "operation_type", "partner_operation_type", "vehicle_kind", "gate", "logist",
+        "work", "ot_vk_gate", "ot_vk_work"
+    };
+    private static readonly string[] DataTables = {
+        "operation_log", "operation_action", "operation_worker", "scheduler"
+    };
+    private void TruncateTables(string[] tables)
+    {
+        // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+        if (_host == "10.50.254.14")
+            throw new ApplicationException("You can't truncate tables on production database!");
+
+        using var connection = CloneConnection();
+        using (var command = connection.CreateCommand())
+        {
+            var sql = new StringBuilder("truncate");
+            bool first = true;
+            foreach (var table in tables)
+            {
+                if (first)
+                    first = !first;
+                else
+                    sql.Append(",");
+                sql.Append($" {YardSchema}.{table}");
+            }
+
+            sql.Append(" restart identity;");
+            command.CommandText = sql.ToString();
+            command.ExecuteScalar();
+        }
+        connection.Close();
+    }
+    public void TruncateReferenceTables()
+    {
+        // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+        if (_host == "10.50.254.14")
+            throw new ApplicationException("You can't truncate tables on production database!");
+
+        TruncateTables(ReferenceTables);
+    }
+    public void TruncateDataTables()
+    {
+        // На всякий случай забью сюда этот костыль что бы нельзя было почистить данные на проде!
+        if (_host == "10.50.254.14")
+            throw new ApplicationException("You can't truncate tables on production database!");
+
+        TruncateTables(DataTables);
+    }
+    #endregion
 }

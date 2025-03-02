@@ -9,92 +9,91 @@ using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
 using TSLog.Partners.BO;
 
-namespace TSLog.Links.Services.Controllers
+namespace TSLog.Links.Services.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class IncomesController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class IncomesController : ControllerBase
+    private readonly ILinksIncomesStorage _storage = null;
+    private readonly Gs1EdiXmlConverter _xmlConverter = null;
+    private readonly bool DebugMode = true;
+
+    public IncomesController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
     {
-        private readonly ILinksIncomesStorage _storage = null;
-        private readonly Gs1EdiXmlConverter _xmlConverter = null;
-        private readonly bool DebugMode = true;
+        _storage = (ILinksIncomesStorage)storage;
+        _xmlConverter = xmlConverter;
+        DebugMode = configuration.GetValue<bool>("DebugMode");
+    }
 
-        public IncomesController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
+    [HttpPost]
+    public async Task<string> PostIncomeRequest()
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
+
+        string content = await new StreamReader(Request.Body).ReadToEndAsync(); // Get string data from body.
+
+        var reader = new XmlTextReader(content, XmlNodeType.Document, null);
+        var incomeRequest = _xmlConverter.IncomeRequestFromXml(reader);
+
+        if (user == incomeRequest.ServiceBuyer)
         {
-            _storage = (ILinksIncomesStorage)storage;
-            _xmlConverter = xmlConverter;
-            DebugMode = configuration.GetValue<bool>("DebugMode");
-        }
+            var incomesConverter = new EINWMSInboundsConverter();
 
-        [HttpPost]
-        public async Task<string> PostIncomeRequest()
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = incomesConverter.Convert(transactionId, incomeRequest);
+            IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
-            string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
-
-            var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var incomeRequest = _xmlConverter.IncomeRequestFromXml(reader);
-
-            if (user == incomeRequest.ServiceBuyer)
-            {
-                var incomesConverter = new EINWMSInboundsConverter();
-
-                var transactionId = _storage.GenerateTransactionId();
-                var fileContent = incomesConverter.Convert(transactionId, incomeRequest);
-                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
-
-                if (!DebugMode)
-                    return "<status code=\"0\">Запрос на приход отправлен на загрузку</status>";
-                else
-                    return "" + fileContent;
-            }
+            if (!DebugMode)
+                return "<status code=\"0\">Запрос на приход отправлен на загрузку</status>";
             else
-                return "<status code=\"1\">ошибка входных данных: неверный logisticServicesBuyer</status>";
+                return "" + fileContent;
         }
+        else
+            return "<status code=\"1\">ошибка входных данных: неверный logisticServicesBuyer</status>";
+    }
 
-        [HttpGet("IncomeResponses/{incomeId}")]
-        public string GetIncomeResponse(string incomeId)
-        {
-            var user = (Partner)HttpContext.Items["User"];
+    [HttpGet("IncomeResponses/{incomeId}")]
+    public string GetIncomeResponse(string incomeId)
+    {
+        var user = (Partner)HttpContext.Items["User"];
 
-            // TODO: realize
-            return string.Empty;
-        }
+        // TODO: realize.
+        return string.Empty;
+    }
 
-        [HttpGet("IncomeResponses")]
-        public string GetIncomeResponses()
-        {
-            var user = (Partner)HttpContext.Items["User"];
+    [HttpGet("IncomeResponses")]
+    public string GetIncomeResponses()
+    {
+        var user = (Partner)HttpContext.Items["User"];
 
-            // TODO: realize
-            return string.Empty;
-        }
+        // TODO: realize.
+        return string.Empty;
+    }
 
-        [HttpGet("ReceiptEndNotices/{incomeId}")]
-        public string GetReceiptEndNotice(string incomeId)
-        {
-            var user = (Partner)HttpContext.Items["User"];
+    [HttpGet("ReceiptEndNotices/{incomeId}")]
+    public string GetReceiptEndNotice(string incomeId)
+    {
+        var user = (Partner)HttpContext.Items["User"];
 
-            var receiptEndNotice = _storage.GetReceiptEndNotice(user, incomeId);
-            var xml = Gs1EdiXmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var receiptEndNotice = _storage.GetReceiptEndNotice(user, incomeId);
+        var xml = Gs1EdiXmlConverter.ReceiptEndNoticeToXml(receiptEndNotice);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
+    }
 
-        [HttpGet("ReceiptEndNotices")]
-        public string GetReceiptEndNotices()
-        {
-            var user = (Partner)HttpContext.Items["User"];
-            var partners = new Partner[] { user };
+    [HttpGet("ReceiptEndNotices")]
+    public string GetReceiptEndNotices()
+    {
+        var user = (Partner)HttpContext.Items["User"];
+        var partners = new Partner[] { user };
 
-            var receiptEndNotices = _storage.GetReceiptEndNotices(partners);
-            var xml = Gs1EdiXmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var receiptEndNotices = _storage.GetReceiptEndNotices(partners);
+        var xml = Gs1EdiXmlConverter.ReceiptEndNoticesToXml(receiptEndNotices);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
     }
 }

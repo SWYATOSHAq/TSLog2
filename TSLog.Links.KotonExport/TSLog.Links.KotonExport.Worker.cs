@@ -2,7 +2,6 @@
 using System.Text;
 
 namespace TSLog.Links.KotonExport;
-
 public class Worker
 {
     private const string DataSource = "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 10.50.255.106)(PORT = 1521))) (CONNECT_DATA = (SERVICE_NAME = eccopdb)))";

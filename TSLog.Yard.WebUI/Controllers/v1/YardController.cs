@@ -117,7 +117,7 @@ public class YardController : ControllerBase
         var result = new List<dynamic>();
         foreach (Gate gate in gates)
             result.Add(YardController.GateToDynamic(gate));
-        return result.ToArray();
+        return [.. result];
     }
    
     private dynamic[] OperationsToDynamic(Operation[] operations)
@@ -125,7 +125,7 @@ public class YardController : ControllerBase
         var result = new List<dynamic>();
         foreach (Operation operation in operations)
             result.Add(_processor.OperationToDynamic(operation));
-        return result.ToArray();
+        return [.. result];
     }
     private dynamic DoGetFillingPlanOperationLC(OperationType ot, VehicleKind vk, dynamic[] actions)
     {
@@ -499,7 +499,7 @@ public class YardController : ControllerBase
     [HttpPost("HoodManPlanOperationLaborCost")]
     async public Task<string> GetHoodManPlanOperationLaborCost()
     {
-        // Расширенный алгоритм Башлыкова
+        // Расширенный алгоритм Башлыкова.
         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", User);
         var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
@@ -1021,8 +1021,9 @@ public class YardController : ControllerBase
         var user = RightsChecker.GetUserName(User);
         _storage.SetOperationNote(operation, RightsChecker.GetUserName(User));
         string editStatus = "(записано примечение)";
-        _logger.LogWarning("Записано примечание в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
-        _storage.AddOperationLog(operation, editStatus, user); //логирование в бд
+        _logger.LogWarning("Записано примечание в заявку {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
+            operation, operation.Id, user);
+        _storage.AddOperationLog(operation, editStatus, user); // Логирование в БД.
         var text = _processor.OperationToJson(operation);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
@@ -1250,7 +1251,6 @@ public class YardController : ControllerBase
 
         var operation = _storage.GetOperation(id);
         var user = RightsChecker.GetUserName(User);
-        // var gate = _storage.GetGate(stringGateCode);
         _storage.FinishOperation(operation, RightsChecker.GetUserName(User));
         _logger.LogWarning("Убыла в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
             operation, operation.Id, user);
@@ -1416,7 +1416,8 @@ public class YardController : ControllerBase
         var actions = operation.GetActions();
         var objects = WarehouseActionsToDynamic(actions);
         var user = RightsChecker.GetUserName(User);
-        _logger.LogWarning("Отработал метод GetSelectedWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+        _logger.LogWarning("Отработал метод GetSelectedWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
+            operation, operation.Id, user);
         var text = JsonSerializer.Serialize(objects);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
@@ -1457,7 +1458,8 @@ public class YardController : ControllerBase
         var user = RightsChecker.GetUserName(User);
         _storage.AddAction(operation, action);
         var operationForLog = _storage.GetOperation(operationId);
-        _logger.LogWarning("Отработал метод AddOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operation.Id, action.Code, user);
+        _logger.LogWarning("Отработал метод AddOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. " +
+            "Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operation.Id, action.Code, user);
         var text = JsonSerializer.Serialize(operation);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
@@ -1495,7 +1497,8 @@ public class YardController : ControllerBase
 
         var operation = _storage.GetOperation(operationId);
         var user = RightsChecker.GetUserName(User);
-        _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+        _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. " +
+            "Пользователь: {Пользователь}", operation, operation.Id, user);
         var text = JsonSerializer.Serialize(operation);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
@@ -1527,7 +1530,8 @@ public class YardController : ControllerBase
         var operation = _storage.GetOperation(operationId);
         var user = RightsChecker.GetUserName(User);
         _storage.RemoveActions(operation);
-        _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operation, operation.Id, user);
+        _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. " +
+            "Пользователь: {Пользователь}", operation, operation.Id, user);
         var text = JsonSerializer.Serialize(operation);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
@@ -1541,11 +1545,6 @@ public class YardController : ControllerBase
         var file = Request.Form.Files[0];
         var reader = file.OpenReadStream();
 
-        //Request.EnableBuffering();
-        //var body = Request.Body;
-        //body.Seek(0, SeekOrigin.Begin);
-        //StreamReader reader = new StreamReader(body);
-
         StreamWriter output = new StreamWriter("C:\\test.jpg");
         byte[] buffer = new byte[8 * 1024];
         int len;
@@ -1553,7 +1552,7 @@ public class YardController : ControllerBase
             output.BaseStream.Write(buffer, 0, len);
         output.Close();
 
-        var text = "";
+        var text = string.Empty;
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
     }
@@ -1685,7 +1684,7 @@ public class YardController : ControllerBase
         foreach (var worker in workers)
             if (!_storage.IsWorkerBusy(worker))
                 temp.Add(worker);
-        var objects = EmployeesToDynamic(temp.ToArray());
+        var objects = EmployeesToDynamic([.. temp]);
         var text = JsonSerializer.Serialize(objects);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
@@ -2005,7 +2004,7 @@ public class YardController : ControllerBase
         var objects = new List<dynamic>();
         foreach (var element in elements)
             objects.Add(YardController.LaborReportElementToDynamic(element));
-        return objects.ToArray();
+        return [.. objects];
     }
     [HttpGet("LaborReport")]
     public string GetLaborReport()
@@ -2168,8 +2167,7 @@ public class YardController : ControllerBase
                 }
             }
             operation.partnerNames = partnerNames;
-
-            var siteCode = _storage.GetSiteCodeByGateCode(operation.gateCode);
+            _ = _storage.GetSiteCodeByGateCode(operation.gateCode);
         }
 
         var text = JsonSerializer.Serialize(operations);
@@ -2535,7 +2533,7 @@ public class YardController : ControllerBase
                 totalFactDuration += operation.FactDuration;
             }
             perfomance /= totalFactDuration;
-            perfomance2 /= totalFactDuration; // Для производительности = План. продолжительность / Факт. продолжительность
+            perfomance2 /= totalFactDuration; // Для производительности = План. продолжительность / Факт. продолжительность.
 
             dynamic element = new ExpandoObject();
             element.workerId = worker.Id;

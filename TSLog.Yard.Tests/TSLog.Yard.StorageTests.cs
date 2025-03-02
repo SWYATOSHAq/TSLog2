@@ -35,7 +35,7 @@ public class StorageTests : IDisposable
 
     private readonly string DefaultUser = "m.burov";
     private readonly IYardStorage _storage;
-    private LoggerFactory _loggerFactory = new LoggerFactory();
+    private readonly LoggerFactory _loggerFactory = new();
 
 
     public StorageTests()
@@ -131,6 +131,9 @@ public class StorageTests : IDisposable
 
         type = typeof(YardPgSqlStorage);
         fieldInfo = type.GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.IsNotNull(fieldInfo);
+        Assert.IsNotNull(fieldInfo.GetValue(pgSqlStorage));
+        Assert.IsTrue(fieldInfo.GetValue(pgSqlStorage) is NpgsqlConnection);
         var connection = (NpgsqlConnection)fieldInfo.GetValue(pgSqlStorage);
 
         return connection.ConnectionString ?? string.Empty;
@@ -142,8 +145,8 @@ public class StorageTests : IDisposable
         // Речь идёт о параметрах: Pooling, MaxPoolSize, ConnectionPruningInterval.
         var pgsqlConnectionString = GetPgSqlConnectionString(_storage);
         var pgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder(pgsqlConnectionString);
-        Assert.IsTrue(pgsqlConnectionStringBuilder.Pooling == _pgsqlPooling);
-        Assert.IsTrue(pgsqlConnectionStringBuilder.MaxPoolSize == _pgsqlMaxPoolSize);
+        Assert.AreEqual(_pgsqlPooling, pgsqlConnectionStringBuilder.Pooling);
+        Assert.AreEqual(_pgsqlMaxPoolSize, pgsqlConnectionStringBuilder.MaxPoolSize);
 
         // TODO: Fix it!
         //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
@@ -174,12 +177,12 @@ public class StorageTests : IDisposable
         var pgsqlConnectionString = GetPgSqlConnectionString(storage);
         var pgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder(pgsqlConnectionString);
         Assert.IsFalse(pgsqlConnectionStringBuilder.Pooling);
-        Assert.IsTrue(pgsqlConnectionStringBuilder.MaxPoolSize == 100);
+        Assert.AreEqual(100, pgsqlConnectionStringBuilder.MaxPoolSize);
 
         // TODO: Fix it!
         //Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionIdleLifetime == _pgsqlConnectionIdleLifetime);
         
-        Assert.IsTrue(pgsqlConnectionStringBuilder.ConnectionPruningInterval == 10);
+        Assert.AreEqual(10, pgsqlConnectionStringBuilder.ConnectionPruningInterval);
         storage.DisconnectPgsql();
     }
     [TestMethod]
@@ -192,64 +195,64 @@ public class StorageTests : IDisposable
         var filterFromDate = DateTime.Now.AddDays(+1);
         var filterToDate = DateTime.Now.AddDays(+8);
         var filteredOperations = _storage.GetOperations(string.Empty, filterFromDate, filterToDate, null, null, null, null, null,
-            string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<Employee>());
+            string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, []);
         Assert.IsTrue(filteredOperations.Length > 0);
     }
     private Entity GetOperationStateById(short id)
     {
         var operationState = _storage.GetOperationState(id);
-        Assert.IsTrue(operationState.Id == id);
+        Assert.AreEqual(id, operationState.Id);
         return operationState;
     }
     private Entity GetOperationStateByCode(string code)
     {
         Assert.IsTrue(!string.IsNullOrWhiteSpace(code));
         var operationState = _storage.GetOperationState(code);
-        Assert.IsTrue(operationState.Code == code);
+        Assert.AreEqual(code, operationState.Code);
         return operationState;
     }
     private BO.OperationType GetOperationTypeById(short id)
     {
         var operationType = _storage.GetOperationType(id);
-        Assert.IsTrue(operationType.Id == id);
+        Assert.AreEqual(id, operationType.Id);
         return operationType;
     }
     private BO.OperationType GetOperationTypeByCode(string code)
     {
         Assert.IsTrue(!string.IsNullOrWhiteSpace(code));
         var operationType = _storage.GetOperationType(code);
-        Assert.IsTrue(operationType.Code == code);
+        Assert.AreEqual(code, operationType.Code);
         return operationType;
     }
     private VehicleKind GetVehicleKindById(short id)
     {
         var vehicleKind = _storage.GetVehicleKind(id);
-        Assert.IsTrue(vehicleKind.Id == id);
+        Assert.AreEqual(id, vehicleKind.Id);
         return vehicleKind;
     }
     private VehicleKind GetVehicleKindByCode(string code)
     {
         Assert.IsTrue(!string.IsNullOrWhiteSpace(code));
         var vehicleKind = _storage.GetVehicleKind(code);
-        Assert.IsTrue(vehicleKind.Code == code);
+        Assert.AreEqual(code, vehicleKind.Code);
         return vehicleKind;
     }
     private Gate GetGateById(short id)
     {
         var gate = _storage.GetGate(id);
-        Assert.IsTrue(gate.Id == id);
+        Assert.AreEqual(id, gate.Id);
         return gate;
     }
     private Gate GetGateByCode(string code)
     {
         var gate = _storage.GetGate(code);
-        Assert.IsTrue(gate.Code == code);
+        Assert.AreEqual(code, gate.Code);
         return gate;
     }
     private Employee GetEmployee(int id)
     {
         var employee = _storage.GetEmployee(id);
-        Assert.IsTrue(employee != null);
+        Assert.IsNotNull(employee);
         return employee;
     }
     private short GetDuration(BO.OperationType operationType, VehicleKind vehicleKind)
@@ -262,13 +265,13 @@ public class StorageTests : IDisposable
     {
         Assert.IsTrue(!string.IsNullOrWhiteSpace(id));
         var partner = _storage.GetPartner(id);
-        Assert.IsTrue(partner.Code == id);
+        Assert.AreEqual(id, partner.Code);
         return partner;
     }
     private WarehouseAction GetWarehouseAction(ActionKind kind, Partner partner, string number)
     {
         var action = _storage.GetWarehouseAction(kind, partner, number);
-        Assert.IsTrue(action != null);
+        Assert.IsNotNull(action);
         return action;
     }
     [TestMethod]
@@ -277,7 +280,7 @@ public class StorageTests : IDisposable
         // Загрузка состояния операций по id и по коду.
         var operationState1 = GetOperationStateById(1001);
         var operationState2 = GetOperationStateByCode(operationState1.Code);
-        Assert.IsTrue(operationState1 == operationState2);
+        Assert.AreEqual(operationState2, operationState1);
     }
     [TestMethod]
     public void GetOperationType()
@@ -285,7 +288,7 @@ public class StorageTests : IDisposable
         // Загрузка типа операций по id и по коду.
         var operationType1 = GetOperationTypeById(1001);
         var operationType2 = GetOperationTypeByCode(operationType1.Code);
-        Assert.IsTrue(operationType1 == operationType2);
+        Assert.AreEqual(operationType2, operationType1);
     }
     [TestMethod]
     public void GetVehicleKind()
@@ -293,7 +296,7 @@ public class StorageTests : IDisposable
         // Загрузка типа тип машины по id и по коду.
         var vehicleKind1 = GetVehicleKindById(1001);
         var vehicleKind2 = GetVehicleKindByCode(vehicleKind1.Code);
-        Assert.IsTrue(vehicleKind1 == vehicleKind2);
+        Assert.AreEqual(vehicleKind2, vehicleKind1);
     }
     [TestMethod]
     public void GetGate()
@@ -301,7 +304,7 @@ public class StorageTests : IDisposable
         // Загрузка ворота по id и по коду.
         var gate1 = GetGateById(1001);
         var gate2 = GetGateByCode(gate1.Code);
-        Assert.IsTrue(gate1 == gate2);
+        Assert.AreEqual(gate2, gate1);
     }
     [TestMethod]
     public void GetEmployee()
@@ -335,7 +338,7 @@ public class StorageTests : IDisposable
         Assert.IsTrue(intervals.Length > 0);
 
         var union = Interval.Union(intervals);
-        Assert.IsTrue(union.Length == 1);
+        Assert.AreEqual(1, union.Length);
     }
     [TestMethod]
     public void GetPartner()
@@ -396,23 +399,23 @@ public class StorageTests : IDisposable
         operation.AddAction(newAction);
 
         var actions = operation.GetActions();
-        Assert.IsTrue(actions.Length == oldActionsCount + 1);
+        Assert.AreEqual(oldActionsCount + 1, actions.Length);
         var partners = operation.GetPartners();
         Assert.IsTrue(partners.Length > 0);
 
         _storage.AddAction(operation, newAction);
 
         var updatedOperation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.ActionsCount == updatedOperation.ActionsCount);
+        Assert.AreEqual(updatedOperation.ActionsCount, operation.ActionsCount);
 
         foreach (var warehouseAction in actions)
         {
             var addedWarehouseAction = updatedOperation.GetAction(warehouseAction.Kind, warehouseAction.Id);
-            Assert.IsTrue(addedWarehouseAction != null);
-            Assert.IsTrue(addedWarehouseAction.Kind == warehouseAction.Kind);
-            Assert.IsTrue(addedWarehouseAction.Id == warehouseAction.Id);
-            Assert.IsTrue(addedWarehouseAction.Partner == warehouseAction.Partner);
-            Assert.IsTrue(addedWarehouseAction.PartnerActionId == warehouseAction.PartnerActionId);
+            Assert.IsNotNull(addedWarehouseAction);
+            Assert.AreEqual(warehouseAction.Kind, addedWarehouseAction.Kind);
+            Assert.AreEqual(warehouseAction.Id, addedWarehouseAction.Id);
+            Assert.AreEqual(warehouseAction.Partner, addedWarehouseAction.Partner);
+            Assert.AreEqual(warehouseAction.PartnerActionId, addedWarehouseAction.PartnerActionId);
         }
     }
     private void AddSomeOperationWarehouseActions_Error(Operation operation, string partnerActionNumber = "ВБ00-008867")
@@ -421,7 +424,7 @@ public class StorageTests : IDisposable
         var partner = GetPartnerById("0003");
         var action = GetWarehouseAction(ActionKind.Outgo, partner, partnerActionNumber);
 
-        Assert.ThrowsException<PostgresException>(() => _storage.AddAction(operation, action));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.AddAction(operation, action));
     }
     private void EditSomeOperation_Ok(Operation operation)
     {
@@ -433,21 +436,20 @@ public class StorageTests : IDisposable
         var newDriverPhoneNumber = "987-654-321";
 
         operation.DriverName = newDriverName;
-        Assert.IsTrue(operation.DriverName != oldDriverName);
-        Assert.IsTrue(operation.DriverName == newDriverName);
+        Assert.AreNotEqual(oldDriverName, operation.DriverName);
+        Assert.AreEqual(newDriverName, operation.DriverName);
         operation.DriverPhoneNumber = newDriverPhoneNumber;
-        Assert.IsTrue(operation.DriverPhoneNumber != oldDriverPhoneNumber);
-        Assert.IsTrue(operation.DriverPhoneNumber == newDriverPhoneNumber);
+        Assert.AreNotEqual(oldDriverPhoneNumber, operation.DriverPhoneNumber);
+        Assert.AreEqual(newDriverPhoneNumber, operation.DriverPhoneNumber);
 
         _storage.EditOperation(operation);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.DriverName == newDriverName);
-        Assert.IsTrue(operation.DriverPhoneNumber == newDriverPhoneNumber);
+        Assert.AreEqual(newDriverName, operation.DriverName);
+        Assert.AreEqual(newDriverPhoneNumber, operation.DriverPhoneNumber);
 
         // Проверяем, что не создался дубликат запси.
-        var operations = _storage.GetOperations(DateTime.Now.AddYears(-64), DateTime.Now.AddYears(64),
-            Array.Empty<Partner>());
-        Assert.IsTrue(operations.Length == 1);
+        var operations = _storage.GetOperations(DateTime.Now.AddYears(-64), DateTime.Now.AddYears(64), []);
+        Assert.AreEqual(1, operations.Length);
     }
     private void EditSomeOperation_Error(Operation operation)
     {
@@ -459,44 +461,44 @@ public class StorageTests : IDisposable
         var newDriverPhoneNumber = "987-654-321";
 
         operation.DriverName = newDriverName;
-        Assert.IsTrue(operation.DriverName != oldDriverName);
-        Assert.IsTrue(operation.DriverName == newDriverName);
+        Assert.AreNotEqual(oldDriverName, operation.DriverName);
+        Assert.AreEqual(newDriverName, operation.DriverName);
         operation.DriverPhoneNumber = newDriverPhoneNumber;
-        Assert.IsTrue(operation.DriverPhoneNumber != oldDriverPhoneNumber);
-        Assert.IsTrue(operation.DriverPhoneNumber == newDriverPhoneNumber);
+        Assert.AreNotEqual(oldDriverPhoneNumber, operation.DriverPhoneNumber);
+        Assert.AreEqual(newDriverPhoneNumber, operation.DriverPhoneNumber);
 
-        Assert.ThrowsException<PostgresException>(() => _storage.EditOperation(operation));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.EditOperation(operation));
 
         // Проверяем, что не создался дубликат запси.
         var operations = _storage.GetOperations(DateTime.Now.AddYears(-64), DateTime.Now.AddYears(64),
             Array.Empty<Partner>());
-        Assert.IsTrue(operations.Length == 1);
+        Assert.AreEqual(1, operations.Length);
     }
     private void SetSomeOperationGate_Ok(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
         _storage.SetOperationGate(operation, null, DefaultUser);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.State.Code == "CONFIRMED");
-        Assert.IsTrue(operation.Gate != null);
+        Assert.AreEqual("CONFIRMED", operation.State.Code);
+        Assert.IsNotNull(operation.Gate);
     }
     private void SetSomeOperationGate_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.SetOperationGate(operation, null, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _ = _storage.SetOperationGate(operation, null, DefaultUser));
     }
     private void StartSomeOperation_Ok(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
         _storage.StartOperation(operation, DefaultUser);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.State.Code == "STARTED");
+        Assert.AreEqual("STARTED", operation.State.Code);
         Assert.IsTrue(operation.StartDate != DateTime.MinValue);
     }
     private void StartSomeOperation_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.StartOperation(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.StartOperation(operation, DefaultUser));
 
     }
     private void AddSomeOperationWorkers_Ok(Operation operation, int workerId = 100065)
@@ -510,7 +512,7 @@ public class StorageTests : IDisposable
         var position = _storage.GetPosition(stringPositionCode);
         _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null);
         var workers = _storage.GetOperationWorkers(operation);
-        Assert.IsTrue(oldCount == workers.Length - 1);
+        Assert.AreEqual(workers.Length - 1, oldCount);
     }
     private void AddSomeOperationWorkers_Error(Operation operation, int workerId = 100065)
     {
@@ -520,7 +522,7 @@ public class StorageTests : IDisposable
         operation = _storage.GetOperation(operation.Id);
         var worker = _storage.GetEmployee(workerId);
         var position = _storage.GetPosition(stringPositionCode);
-        Assert.ThrowsException<PostgresException>(() => _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.AddOperationWorker(operation, worker, position, 0.0, MeasureUnit.Null));
     }
     private void RemoveSomeOperationWorkers_Ok(Operation operation, int workerId = 100065)
     {
@@ -533,7 +535,7 @@ public class StorageTests : IDisposable
         var position = _storage.GetPosition(stringPositionCode);
         _storage.RemoveOperationWorker(operation, worker, position);
         var workers = _storage.GetOperationWorkers(operation);
-        Assert.IsTrue(oldCount == workers.Length + 1);
+        Assert.AreEqual(workers.Length + 1, oldCount);
     }
     private void RemoveSomeOperationWorkers_Error(Operation operation, int workerId = 100065)
     {
@@ -543,58 +545,58 @@ public class StorageTests : IDisposable
         operation = _storage.GetOperation(operation.Id);
         var worker = _storage.GetEmployee(workerId);
         var position = _storage.GetPosition(stringPositionCode);
-        Assert.ThrowsException<PostgresException>(() => _storage.RemoveOperationWorker(operation, worker, position));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.RemoveOperationWorker(operation, worker, position));
     }
     private void StartSomeOperationWork_Ok(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
         _storage.StartOperationWork(operation, DefaultUser);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.State.Code == "WORK_STARTED");
+        Assert.AreEqual("WORK_STARTED", operation.State.Code);
         Assert.IsTrue(operation.FactWorkStartDate !=DateTime.MinValue);
     }
     private void StartSomeOperationWork_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
     }
     private void FinishSomeOperationWork_Ok(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
         _storage.FinishOperationWork(operation, DefaultUser);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.State.Code == "WORK_FINISHED");
+        Assert.AreEqual("WORK_FINISHED", operation.State.Code);
         Assert.IsTrue(operation.FactWorkFinishDate != DateTime.MinValue);
     }
     private void FinishSomeOperationWork_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.FinishOperationWork(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.FinishOperationWork(operation, DefaultUser));
     }
     private void FinishSomeOperation_Ok(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
         _storage.FinishOperation(operation, DefaultUser);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.State.Code == "FINISHED");
+        Assert.AreEqual("FINISHED", operation.State.Code);
         Assert.IsTrue(operation.FinishDate != DateTime.MinValue);
     }
     private void FinishSomeOperation_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.FinishOperation(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.FinishOperation(operation, DefaultUser));
     }
     private void CancelSomeOperation_Ok(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
         _storage.CancelOperation(operation, DefaultUser);
         operation = _storage.GetOperation(operation.Id);
-        Assert.IsTrue(operation.State.Code == "CANCELED");
+        Assert.AreEqual("CANCELED", operation.State.Code);
     }
     private void CancelSomeOperation_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.CancelOperation(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.CancelOperation(operation, DefaultUser));
     }
     private void DeleteSomeOperation_Ok(Operation operation)
     {
@@ -604,7 +606,7 @@ public class StorageTests : IDisposable
     private void DeleteSomeOperation_Error(Operation operation)
     {
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.DeleteOperation(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.DeleteOperation(operation, DefaultUser));
     }
 
     [TestMethod]
@@ -780,7 +782,7 @@ public class StorageTests : IDisposable
         StartSomeOperation_Ok(operation);
         AddSomeOperationWorkers_Ok(operation);
         StartSomeOperationWork_Ok(operation);
-        // Аллашукуров Уктам Мухаммедович id = 100066
+        // Аллашукуров Уктам Мухаммедович id = 100066.
     }
     [TestMethod]
     public void RemoveWorkStartedOperationWorker()
@@ -791,7 +793,7 @@ public class StorageTests : IDisposable
         StartSomeOperation_Ok(operation);
         AddSomeOperationWorkers_Ok(operation, 100066);
         StartSomeOperationWork_Ok(operation);
-        // Аллашукуров Уктам Мухаммедович id = 100066
+        // Аллашукуров Уктам Мухаммедович id = 100066.
         RemoveSomeOperationWorkers_Ok(operation, 100066);
     }
     [TestMethod]
@@ -804,7 +806,7 @@ public class StorageTests : IDisposable
         AddSomeOperationWorkers_Ok(operation);
         StartSomeOperationWork_Ok(operation);
         FinishSomeOperationWork_Ok(operation);
-        // Аллашукуров Уктам Мухаммедович id = 100066
+        // Аллашукуров Уктам Мухаммедович id = 100066.
         AddSomeOperationWorkers_Error(operation, 100066);
     }
     [TestMethod]
@@ -817,7 +819,7 @@ public class StorageTests : IDisposable
         AddSomeOperationWorkers_Ok(operation, 100066);
         StartSomeOperationWork_Ok(operation);
         FinishSomeOperationWork_Ok(operation);
-        // Аллашукуров Уктам Мухаммедович id = 100066
+        // Аллашукуров Уктам Мухаммедович id = 100066.
         RemoveSomeOperationWorkers_Error(operation, 100066);
     }
     [TestMethod]
@@ -831,7 +833,7 @@ public class StorageTests : IDisposable
         StartSomeOperationWork_Ok(operation);
         FinishSomeOperationWork_Ok(operation);
         FinishSomeOperation_Ok(operation);
-        // Аллашукуров Уктам Мухаммедович id = 100066
+        // Аллашукуров Уктам Мухаммедович id = 100066.
         AddSomeOperationWorkers_Error(operation, 100066);
     }
     [TestMethod]
@@ -845,7 +847,7 @@ public class StorageTests : IDisposable
         StartSomeOperationWork_Ok(operation);
         FinishSomeOperationWork_Ok(operation);
         FinishSomeOperation_Ok(operation);
-        // Аллашукуров Уктам Мухаммедович id = 100066
+        // Аллашукуров Уктам Мухаммедович id = 100066.
         RemoveSomeOperationWorkers_Error(operation, 100066);
     }
     [TestMethod]
@@ -869,7 +871,7 @@ public class StorageTests : IDisposable
         AddSomeOperationWorkers_Ok(operation);
 
         operation = _storage.GetOperation(operation.Id);
-        Assert.ThrowsException<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
     }
     [TestMethod]
     public void StartOperationWorkWithoutWorkers()
@@ -878,7 +880,7 @@ public class StorageTests : IDisposable
         AddSomeOperationWarehouseActions_Ok(operation);
         SetSomeOperationGate_Ok(operation);
         StartSomeOperation_Ok(operation);
-        Assert.ThrowsException<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
+        Assert.ThrowsExactly<PostgresException>(() => _storage.StartOperationWork(operation, DefaultUser));
     }
     [TestMethod]
     public void ChangeOperationsStates()
@@ -938,42 +940,42 @@ public class StorageTests : IDisposable
     {
         var operation = CreateSomeOperation();
         var operations = _storage.GetGuardOperations();
-        Assert.IsTrue(operations.Length == 0);
+        Assert.AreEqual(0, operations.Length);
 
         SetSomeOperationGate_Ok(operation);
         operation = _storage.GetOperation(operation.Id);
         operations = _storage.GetGuardOperations();
-        Assert.IsTrue(operations.Length == 1);
-        Assert.IsTrue(operations[0].Id == operation.Id);
-        Assert.IsTrue(operations[0].State.Code == "CONFIRMED");
+        Assert.AreEqual(1, operations.Length);
+        Assert.AreEqual(operation.Id, operations[0].Id);
+        Assert.AreEqual("CONFIRMED", operations[0].State.Code);
 
         StartSomeOperation_Ok(operation);
         operations = _storage.GetGuardOperations();
-        Assert.IsTrue(operations.Length == 0);
+        Assert.AreEqual(0, operations.Length);
 
         AddSomeOperationWarehouseActions_Ok(operation);
         AddSomeOperationWorkers_Ok(operation);
         StartSomeOperationWork_Ok(operation);
         operations = _storage.GetGuardOperations();
-        Assert.IsTrue(operations.Length == 0);
+        Assert.AreEqual(0, operations.Length);
 
         FinishSomeOperationWork_Ok(operation);
         operation = _storage.GetOperation(operation.Id);
         operations = _storage.GetGuardOperations();
-        Assert.IsTrue(operations.Length == 1);
-        Assert.IsTrue(operations[0].Id == operation.Id);
-        Assert.IsTrue(operations[0].State.Code == "WORK_FINISHED");
+        Assert.AreEqual(1, operations.Length);
+        Assert.AreEqual(operation.Id, operations[0].Id);
+        Assert.AreEqual("WORK_FINISHED", operations[0].State.Code);
 
         FinishSomeOperation_Ok(operation);
         operations = _storage.GetGuardOperations();
-        Assert.IsTrue(operations.Length == 0);
+        Assert.AreEqual(0, operations.Length);
     }
     [TestMethod]
     public void GetActiveOperations()
     {
         var operation = CreateSomeOperation();
         var operations = _storage.GetActiveOperations();
-        Assert.AreEqual(operations.Length, 0);
+        Assert.AreEqual(0, operations.Length);
 
         SetSomeOperationGate_Ok(operation);
         operation = _storage.GetOperation(operation.Id);
@@ -983,29 +985,29 @@ public class StorageTests : IDisposable
         StartSomeOperation_Ok(operation);
         operation = _storage.GetOperation(operation.Id);
         operations = _storage.GetActiveOperations();
-        Assert.IsTrue(operations.Length == 1);
-        Assert.IsTrue(operations[0].Id == operation.Id);
-        Assert.IsTrue(operations[0].State.Code == "STARTED");
+        Assert.AreEqual(1, operations.Length);
+        Assert.AreEqual(operation.Id, operations[0].Id);
+        Assert.AreEqual("STARTED", operations[0].State.Code);
 
         AddSomeOperationWarehouseActions_Ok(operation);
         AddSomeOperationWorkers_Ok(operation);
         StartSomeOperationWork_Ok(operation);
         operation = _storage.GetOperation(operation.Id);
         operations = _storage.GetActiveOperations();
-        Assert.IsTrue(operations.Length == 1);
-        Assert.IsTrue(operations[0].Id == operation.Id);
-        Assert.IsTrue(operations[0].State.Code == "WORK_STARTED");
+        Assert.AreEqual(1, operations.Length);
+        Assert.AreEqual(operation.Id, operations[0].Id);
+        Assert.AreEqual("WORK_STARTED", operations[0].State.Code);
 
         FinishSomeOperationWork_Ok(operation);
         operation = _storage.GetOperation(operation.Id);
         operations = _storage.GetActiveOperations();
-        Assert.IsTrue(operations.Length == 1);
-        Assert.IsTrue(operations[0].Id == operation.Id);
-        Assert.IsTrue(operations[0].State.Code == "WORK_FINISHED");
+        Assert.AreEqual(1, operations.Length);
+        Assert.AreEqual(operation.Id, operations[0].Id);
+        Assert.AreEqual("WORK_FINISHED", operations[0].State.Code);
 
         FinishSomeOperation_Ok(operation);
         operations = _storage.GetActiveOperations();
-        Assert.IsTrue(operations.Length == 0);
+        Assert.AreEqual(0, operations.Length);
     }
 
     public void Dispose() => _storage.Dispose();

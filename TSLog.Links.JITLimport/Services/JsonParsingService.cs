@@ -1,14 +1,5 @@
-﻿using AngleSharp.Css;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using System.Threading.Tasks;
-using TSLog.Common.BO;
 using TSLog.Links.JITLimport.Helpers;
 using TSLog.Links.JITLimport.Interfaces;
 using TSLog.WarehouseActions.BO;
@@ -33,7 +24,7 @@ internal class JsonParsingService : IJsonParsingService
         {
             try
             {
-                string jsonString = File.ReadAllText(filePath);
+                var jsonString = File.ReadAllText(filePath);
                 using (JsonDocument doc = JsonDocument.Parse(jsonString))
                 {
                     JsonElement root = doc.RootElement;
@@ -51,7 +42,7 @@ internal class JsonParsingService : IJsonParsingService
                     string operationTypeCode = String.Empty;
                     string vehicleType = String.Empty;
                     string? partnerActionId = root.GetProperty("num").GetString().Trim();
-                    List<WarehouseAction> actionsToAdd = new();
+                    List<WarehouseAction> actionsToAdd = [];
                     dynamic[] actions;
 
                     if (operationTypePart == "out" && direction == "out")
@@ -111,9 +102,9 @@ internal class JsonParsingService : IJsonParsingService
                     }                       
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex, "Error parsing json file: {FilePath}", filePath);
+                _logger.LogError(exception, "Error parsing json file: {FilePath}", filePath);
             }
         }
     }

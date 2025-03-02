@@ -78,14 +78,11 @@ public class BossControlController : ControllerBase
         if (siteWorker == null)
             throw new ArgumentNullException(nameof(siteWorker));
         dynamic result = new ExpandoObject();
-        //result.site = BossControlController.SiteToDynamic(siteWorker.Site);
         result.siteId = siteWorker.Site.Id;
         result.siteCode = siteWorker.Site.Code;
         result.siteName = siteWorker.Site.Name;
-        //result.partner = BossControlController.PartnerToDynamic(siteWorker.Partner);
         result.partnerId = siteWorker.Partner.Id;
         result.partnerName = siteWorker.Partner.Name;
-        //result.worker = BossControlController.WorkerToDynamic(siteWorker.Worker);
         result.workerId = siteWorker.Worker.Id;
         result.workerFullName = siteWorker.Worker.FullName;
 
@@ -119,7 +116,7 @@ public class BossControlController : ControllerBase
         foreach (var siteWorker in siteWorkers)
             if (siteWorker != null)
                 result.Add(BossControlController.SiteWorkerToDynamic(siteWorker));
-        return result.ToArray();
+        return [.. result];
     }
     private static dynamic[] WorkersToDynamic(Employee[] workers)
     {
@@ -127,7 +124,7 @@ public class BossControlController : ControllerBase
         foreach (var worker in workers)
             if (worker != null)
                 result.Add(BossControlController.WorkerToDynamic(worker));
-        return result.ToArray();
+        return [.. result];
     }
 
     [HttpPatch("EnterSite")]
@@ -141,7 +138,7 @@ public class BossControlController : ControllerBase
                 return "Input data is null!";
 
             Response.StatusCode = 200;
-            return "";
+            return string.Empty;
         }
         catch (Exception exception)
         {

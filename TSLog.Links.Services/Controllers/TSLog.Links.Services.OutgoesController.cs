@@ -9,173 +9,171 @@ using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
 using TSLog.Partners.BO;
 
-namespace TSLog.Links.Services.Controllers
+namespace TSLog.Links.Services.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class OutgoesController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class OutgoesController : ControllerBase
+    private readonly ILinksOutgoesStorage _storage = null;
+    private readonly Gs1EdiXmlConverter _xmlConverter = null;
+    private readonly bool DebugMode = true;
+
+    public OutgoesController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
     {
-        private readonly ILinksOutgoesStorage _storage = null;
-        private readonly Gs1EdiXmlConverter _xmlConverter = null;
-        private readonly bool DebugMode = true;
+        _storage = (ILinksOutgoesStorage)storage;
+        _xmlConverter = xmlConverter;
+        DebugMode = configuration.GetValue<bool>("DebugMode");
+    }
 
-        public OutgoesController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
+    [HttpPost]
+    public async Task<string> PostOutgoRequest()
+    {
+
+        var user = (LegalEntity)HttpContext.Items["User"];
+
+        string content = await new StreamReader(Request.Body).ReadToEndAsync(); // Get string data from body.
+
+        var reader = new XmlTextReader(content, XmlNodeType.Document, null);
+        var outgoRequest = _xmlConverter.OutgoRequestFromXml(reader);
+
+        if (user == outgoRequest.ServiceBuyer)
         {
-            _storage = (ILinksOutgoesStorage)storage;
-            _xmlConverter = xmlConverter;
-            DebugMode = configuration.GetValue<bool>("DebugMode");
-        }
+            var outgoesConverter = new EINWMSOutboundsConverter();
 
-        [HttpPost]
-        public async Task<string> PostOutgoRequest()
-        {
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = outgoesConverter.Convert(transactionId, outgoRequest);
+            IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
-            var user = (LegalEntity)HttpContext.Items["User"];
-
-            string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
-
-            var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var outgoRequest = _xmlConverter.OutgoRequestFromXml(reader);
-
-            if (user == outgoRequest.ServiceBuyer)
-            {
-                var outgoesConverter = new EINWMSOutboundsConverter();
-
-                var transactionId = _storage.GenerateTransactionId();
-                var fileContent = outgoesConverter.Convert(transactionId, outgoRequest);
-                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
-
-                if (!DebugMode)
-                    return "<status code=\"0\">Запрос на расход отправлен на загрузку</status>";
-                else
-                    return "" + fileContent;
-            }
+            if (!DebugMode)
+                return "<status code=\"0\">Запрос на расход отправлен на загрузку</status>";
             else
-                return "<status code=\"1\">ошибка входных данных: неверный logisticServicesBuyer</status>";
-
+                return "" + fileContent;
         }
+        else
+            return "<status code=\"1\">ошибка входных данных: неверный logisticServicesBuyer</status>";
+    }
 
-        [HttpGet("OutgoResposes/{outgoId}")]
-        public string GetOutgoResponse(string outgoId)
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
+    [HttpGet("OutgoResposes/{outgoId}")]
+    public string GetOutgoResponse(string outgoId)
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
 
-            // TODO: realize
-            return string.Empty;
-        }
+        // TODO: realize.
+        return string.Empty;
+    }
 
-        [HttpGet("OutgoResposes")]
-        public string GetOutgoResponses()
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
+    [HttpGet("OutgoResposes")]
+    public string GetOutgoResponses()
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
 
-            // TODO: realize
-            return string.Empty;
-        }
+        // TODO: realize.
+        return string.Empty;
+    }
 
-        [HttpGet("PickingBeginNotices/{outgoId}")]
-        public string GetPickingBeginNotice(string outgoId)
-        {
-            /*
-            * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
-            * в данный запрос вшит фрагмент бизнес процесса
-            *
-            * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
-            *
-            * при переводе с KMW на PC - уведомление о том что заказ подобран
-            * при переводе с PC на WRS - уведомление о том что заказ упакован
-            * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
-            */
+    [HttpGet("PickingBeginNotices/{outgoId}")]
+    public string GetPickingBeginNotice(string outgoId)
+    {
+        /*
+        * На данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам.
+        * В данный запрос вшит фрагмент бизнес процесса.
+        *
+        * Например для котона уведомления происходят при переносе заказа с одной ТЕ на другую.
+        *
+        * При переводе с KMW на PC - уведомление о том что заказ подобран.
+        * При переводе с PC на WRS - уведомление о том что заказ упакован.
+        * При переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке.
+        */
 
-            var pickingBeginNotice = _storage.GetPickingBeginNotice(outgoId);
-            var xml = Gs1EdiXmlConverter.PickingBeginNoticeToXml(pickingBeginNotice);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var pickingBeginNotice = _storage.GetPickingBeginNotice(outgoId);
+        var xml = Gs1EdiXmlConverter.PickingBeginNoticeToXml(pickingBeginNotice);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
+    }
 
-        [HttpGet("PickingBeginNotices")]
-        public string GetPickingBeginNotices()
-        {
-            var user = (Partner)HttpContext.Items["User"];
-            var partners = new Partner[] { user };
+    [HttpGet("PickingBeginNotices")]
+    public string GetPickingBeginNotices()
+    {
+        var user = (Partner)HttpContext.Items["User"];
+        var partners = new Partner[] { user };
 
-            var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
-            var xml = Gs1EdiXmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var pickingBeginNotices = _storage.GetPickingBeginNotices(partners);
+        var xml = Gs1EdiXmlConverter.PickingBeginNoticesToXml(pickingBeginNotices);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
+    }
 
-        [HttpGet("PickingEndNotices/{outgoId}")]
-        public string GetPickingEndNotice(string outgoId)
-        {
-            /*
-            * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
-            * в данный запрос вшит фрагмент бизнес процесса
-            *
-            * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
-            *
-            * при переводе с KMW на PC - уведомление о том что заказ подобран
-            * при переводе с PC на WRS - уведомление о том что заказ упакован
-            * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
-            */
-            var user = (Partner)HttpContext.Items["User"];
+    [HttpGet("PickingEndNotices/{outgoId}")]
+    public string GetPickingEndNotice(string outgoId)
+    {
+        /*
+        * На данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам.
+        * В данный запрос вшит фрагмент бизнес процесса.
+        *
+        * Например для котона уведомления происходят при переносе заказа с одной ТЕ на другую.
+        *
+        * При переводе с KMW на PC - уведомление о том что заказ подобран.
+        * При переводе с PC на WRS - уведомление о том что заказ упакован.
+        * При переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке.
+        */
+        var user = (Partner)HttpContext.Items["User"];
 
-            var pickingEndNotice = _storage.GetPickingEndNotice(user, outgoId);
-            var xml = Gs1EdiXmlConverter.PickingEndNoticeToXml(pickingEndNotice);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var pickingEndNotice = _storage.GetPickingEndNotice(user, outgoId);
+        var xml = Gs1EdiXmlConverter.PickingEndNoticeToXml(pickingEndNotice);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
+    }
 
-        [HttpGet("PickingEndNotices")]
-        public string GetPickingEndNotices()
-        {
-            var user = (Partner)HttpContext.Items["User"];
-            var partners = new Partner[] { user };
+    [HttpGet("PickingEndNotices")]
+    public string GetPickingEndNotices()
+    {
+        var user = (Partner)HttpContext.Items["User"];
+        var partners = new Partner[] { user };
 
-            var pickingEndNotices = _storage.GetPickingEndNotices(partners);
-            var xml = Gs1EdiXmlConverter.PickingEndNoticesToXml(pickingEndNotices);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var pickingEndNotices = _storage.GetPickingEndNotices(partners);
+        var xml = Gs1EdiXmlConverter.PickingEndNoticesToXml(pickingEndNotices);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
+    }
 
-        [HttpGet("ShippingNotices/{outgoId}")]
-        public string GetShippingNotice(string outgoId)
-        {
-            /*
-             * на данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам
-             * в данный запрос вшит фрагмент бизнес процесса
-             *
-             * например для котона уведомления происходят при переносе заказа с одной ТЕ на другую
-             *
-             * при переводе с KMW на PC - уведомление о том что заказ подобран
-             * при переводе с PC на WRS - уведомление о том что заказ упакован
-             * при переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке
-             */
-            var user = (Partner)HttpContext.Items["User"];
+    [HttpGet("ShippingNotices/{outgoId}")]
+    public string GetShippingNotice(string outgoId)
+    {
+        /*
+         * На данный момент в системе уведомления об отгрузке формируются супер сложным запросом по триггерам.
+         * В данный запрос вшит фрагмент бизнес процесса.
+         *
+         * Например для котона уведомления происходят при переносе заказа с одной ТЕ на другую.
+         *
+         * При переводе с KMW на PC - уведомление о том что заказ подобран.
+         * При переводе с PC на WRS - уведомление о том что заказ упакован.
+         * При переводе с WRS на TOR - уведомление о том что заказ готов к отгрузке.
+         */
+        var user = (Partner)HttpContext.Items["User"];
 
-            var shippingNotice = _storage.GetShippingNotice(user, outgoId);
-            var xml = Gs1EdiXmlConverter.ShippingNoticeToXml(shippingNotice);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var shippingNotice = _storage.GetShippingNotice(user, outgoId);
+        var xml = Gs1EdiXmlConverter.ShippingNoticeToXml(shippingNotice);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
+    }
 
-        [HttpGet("ShippingNotices")]
-        public string GetShippingNotices()
-        {
-            var user = (Partner)HttpContext.Items["User"];
-            var partners = new Partner[] { user };
+    [HttpGet("ShippingNotices")]
+    public string GetShippingNotices()
+    {
+        var user = (Partner)HttpContext.Items["User"];
+        var partners = new Partner[] { user };
 
-            var shippingNotices = _storage.GetShippingNotices(partners);
-            var xml = Gs1EdiXmlConverter.ShippingNoticesToXml(shippingNotices);
-            if (DebugMode)
-                xml = Utils.PrepXml(xml);
-            return xml;
-        }
+        var shippingNotices = _storage.GetShippingNotices(partners);
+        var xml = Gs1EdiXmlConverter.ShippingNoticesToXml(shippingNotices);
+        if (DebugMode)
+            xml = Utils.PrepXml(xml);
+        return xml;
     }
 }

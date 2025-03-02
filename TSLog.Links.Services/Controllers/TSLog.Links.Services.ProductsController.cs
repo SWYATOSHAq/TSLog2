@@ -9,76 +9,72 @@ using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
 using TSLog.Products.BO;
 
-namespace TSLog.Links.Services.Controllers
+namespace TSLog.Links.Services.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class ProductsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class ProductsController : ControllerBase
+    private readonly ILinksProductsStorage _storage = null;
+    private readonly Gs1EdiXmlConverter _xmlConverter = null;
+    private readonly bool DebugMode = true;
+
+    public ProductsController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
     {
-        private readonly ILinksProductsStorage _storage = null;
-        private readonly Gs1EdiXmlConverter _xmlConverter = null;
-        private readonly bool DebugMode = true;
+        _storage = storage as ILinksProductsStorage;
+        _xmlConverter = xmlConverter;
+        DebugMode = configuration.GetValue<bool>("DebugMode");
+    }
 
-        public ProductsController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
+    [HttpPost]
+    public async Task<string> PostProducts()
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
+
+        string content = await new StreamReader(Request.Body).ReadToEndAsync(); // Get string data from body.
+
+        var reader = new XmlTextReader(content, XmlNodeType.Document, null);
+        var productsListRequest = _xmlConverter.ProductsListFromXml(reader);
+
+        if (user == productsListRequest.DataSource)
         {
-            _storage = storage as ILinksProductsStorage;
-            _xmlConverter = xmlConverter;
-            DebugMode = configuration.GetValue<bool>("DebugMode");
-        }
+            var productsConverter = new EINWMSProductsConverter();
 
-        [HttpPost]
-        public async Task<string> PostProducts()
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = productsConverter.Convert(transactionId, productsListRequest);
+            IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
-            string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
-
-            var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var productsListRequest = _xmlConverter.ProductsListFromXml(reader);
-
-            if (user == productsListRequest.DataSource)
-            {
-                var productsConverter = new EINWMSProductsConverter();
-
-                var transactionId = _storage.GenerateTransactionId();
-                var fileContent = productsConverter.Convert(transactionId, productsListRequest);
-                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
-
-                if (!DebugMode)
-                    return "<status code=\"0\">Справочник товаров отправлен на загрузку</status>";
-                else
-                    return "" + fileContent;
-            }
+            if (!DebugMode)
+                return "<status code=\"0\">Справочник товаров отправлен на загрузку</status>";
             else
-                return "<status code=\"1\">ошибка входных данных: неверный dataSource</status>";
-
-
-
+                return "" + fileContent;
         }
+        else
+            return "<status code=\"1\">ошибка входных данных: неверный dataSource</status>";
+    }
 
-        [HttpGet("{productId}")]
-        public Product GetClientById(string productId)
-        {
-            return _storage.GetProductByGtin(productId);
-        }
+    [HttpGet("{productId}")]
+    public Product GetClientById(string productId)
+    {
+        return _storage.GetProductByGtin(productId);
+    }
 
-        [HttpGet("balances/{productId}")]
-        public string GetBalance(string productId)
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
+    [HttpGet("balances/{productId}")]
+    public string GetBalance(string productId)
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
 
-            // TODO: realize
-            return string.Empty;
-        }
+        // TODO: realize.
+        return string.Empty;
+    }
 
-        [HttpGet("balances")]
-        public string GetBalances()
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
+    [HttpGet("balances")]
+    public string GetBalances()
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
 
-            // TODO: realize
-            return string.Empty;
-        }
+        // TODO: realize.
+        return string.Empty;
     }
 }

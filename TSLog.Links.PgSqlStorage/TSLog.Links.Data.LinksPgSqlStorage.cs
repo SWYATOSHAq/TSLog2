@@ -1,16 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Npgsql;
 using NpgsqlTypes;
-using System.Data.Common;
-using TSLog.Common;
 using TSLog.Common.BO;
 using TSLog.Common.Data;
-using TSLog.ExceptionHandler;
 using TSLog.LegalEntities.BO;
 using TSLog.Partners.BO;
 using TSLog.Products.BO;
-using TSLog.Staff.BO;
-using TSLog.Yard.BO;
 
 namespace TSLog.Links.Data;
 
@@ -29,12 +24,13 @@ public class LinksPgSqlStorage : PgSqlStorage, ILinksCommonStorage
     /// </summary>
     public int MaxRowsCount { protected get; set; } = DefaultMaxRowsCount;
     /// <summary>
-    /// Схема с объектами для различной интеграции (links)
+    /// Схема с объектами для различной интеграции (links).
     /// </summary>
     public string LinksSchema { private get; set; } = DefaultLinksSchema;
 
     public LinksPgSqlStorage(string host, string database, ILoggerFactory loggerFactory,
-        IDictionary<string, object>? extensionParameters = null) : base(host, database, loggerFactory.CreateLogger<PgSqlStorage>(), extensionParameters)
+        IDictionary<string, object>? extensionParameters = null)
+        : base(host, database, loggerFactory.CreateLogger<PgSqlStorage>(), extensionParameters)
     {
         _loggerFactory = loggerFactory;
     }

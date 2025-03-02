@@ -226,7 +226,7 @@ public class StaffOracleStorage : OracleStorage, IStaffStorage
             reader.Close();
         }
         positions.Sort();
-        return positions.ToArray();
+        return [.. positions];
     }
     public Position AddPosition(Position position)
     {
@@ -421,7 +421,7 @@ public class StaffOracleStorage : OracleStorage, IStaffStorage
             reader.Close();
         }
         departments.Sort();
-        return departments.ToArray();
+        return [.. departments];
     }
     public Department AddDepartment(Department department)
     {
@@ -631,12 +631,11 @@ public class StaffOracleStorage : OracleStorage, IStaffStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     public Employee[] FindEmployees(Position position, string pattern, string workMode = "")
     {
-        if (position == null)
-            throw new ArgumentNullException(nameof(position));
+        ArgumentNullException.ThrowIfNull(position);
         pattern = string.IsNullOrWhiteSpace(pattern) ? "%" : $"%{pattern.ToUpper()}%";
         var employees = new HashSet<Employee>();
         using (var command = _connection.CreateCommand())
@@ -683,7 +682,7 @@ public class StaffOracleStorage : OracleStorage, IStaffStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     public Employee[] GetEmployees()
     {
@@ -716,7 +715,7 @@ public class StaffOracleStorage : OracleStorage, IStaffStorage
             }
             reader.Close();
         }
-        return employees.ToArray();
+        return [.. employees];
     }
     public Employee GetEmployee(int id)
     {
@@ -1130,7 +1129,7 @@ public class StaffOracleStorage : OracleStorage, IStaffStorage
             }
             reader.Close();
         }
-        return shifts.ToArray();
+        return [.. shifts];
     }
     public Shift AddShift(Shift shift)
     {

@@ -350,9 +350,9 @@ public class Interval
         return result;
     }
     /// <summary>
-    /// Максимальное количество параллельно работающих сотрудников по должностям
+    /// Максимальное количество параллельно работающих сотрудников по должностям.
     /// </summary>
-    /// <param name="type">Направление</param>
+    /// <param name="type">Направление.</param>
     /// <returns>Количества сотрудников по элементарным работам</returns>
     public IDictionary<Work, short> MaxParallelWorkWorkers(TypeDirection? type = null)
     {

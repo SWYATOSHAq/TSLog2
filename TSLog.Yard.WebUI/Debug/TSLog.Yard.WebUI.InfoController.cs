@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 // [GET] https://localhost:5001/-/info/endpoints
 // https://stackoverflow.com/questions/28435734/how-to-get-a-list-of-all-routes-in-asp-net-core
-// TODO debug, delete on release
+// TODO: debug, delete on release.
 
 namespace TSLog.Yard.WebUI;
 

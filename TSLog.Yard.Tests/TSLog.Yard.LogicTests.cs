@@ -101,10 +101,10 @@ public class LogicTests : IDisposable
     {
         var claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, "testyarddisp"),
-            new Claim(ClaimTypes.NameIdentifier, "testyarddisp"),
-            new Claim(ClaimTypes.Role, "YardDispatchers"),
-            new Claim("name", "testyarddisp"),
+            new(ClaimTypes.Name, "testyarddisp"),
+            new(ClaimTypes.NameIdentifier, "testyarddisp"),
+            new(ClaimTypes.Role, "YardDispatchers"),
+            new("name", "testyarddisp"),
         };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         var user = new ClaimsPrincipal(identity);
@@ -112,8 +112,8 @@ public class LogicTests : IDisposable
         var objects = _processor.GetPositionWorkers(string.Empty, "EXT_LOADER", user,
             out int statusCode, out string statusMessage);
         Assert.IsTrue(objects.Length > 0);
-        Assert.IsTrue(statusCode == (int)HttpStatusCode.OK);
-        Assert.IsTrue(statusMessage == string.Empty);
+        Assert.AreEqual((int)HttpStatusCode.OK, statusCode);
+        Assert.AreEqual(string.Empty, statusMessage);
     }
 
     public void Dispose() => _storage.Dispose();

@@ -1,5 +1,4 @@
 ﻿namespace TSLog.Links.JITLimport.Interfaces;
-
 public interface IFtpMonitorService
 {
     IEnumerable<string> CheckForXlsFiles();

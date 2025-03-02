@@ -2,27 +2,26 @@
 using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 
-namespace TSLog.BossControl.BO
+namespace TSLog.BossControl.BO;
+
+public interface IBossControlStorage
 {
-    public interface IBossControlStorage
-    {
-        public Position[] GetPositions();
-        public LegalEntity[] GetCompanies();
-        public Site[] GetSites();
-        public Partner[] GetPartners();
-        public Employee GetEmployee(int id);        
+    public Position[] GetPositions();
+    public LegalEntity[] GetCompanies();
+    public Site[] GetSites();
+    public Partner[] GetPartners();
+    public Employee GetEmployee(int id);        
 
-        public SiteWorker[] GetBusyWorkers();
-        public Employee[] GetFreeWorkers();
-        public SiteWorker[] GetFreeShiftWorkers();
+    public SiteWorker[] GetBusyWorkers();
+    public Employee[] GetFreeWorkers();
+    public SiteWorker[] GetFreeShiftWorkers();
 
-        public void EnterSite(Employee worker, Site site, Partner partner, string note = "");
-        public void LeaveSite(Employee worker);
+    public void EnterSite(Employee worker, Site site, Partner partner, string note = "");
+    public void LeaveSite(Employee worker);
 
-        public SiteWorker[] GetWorks(DateTime fromDate, DateTime toDate);
-        public Position[] GetDistinstPositions(DateTime fromDate, DateTime toDate);
+    public SiteWorker[] GetWorks(DateTime fromDate, DateTime toDate);
+    public Position[] GetDistinstPositions(DateTime fromDate, DateTime toDate);
 
-        public dynamic[] CreatePositionsShiftReport(DateTime date);
-        public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate, bool onlyLinear = true);
-    }
+    public dynamic[] CreatePositionsShiftReport(DateTime date);
+    public dynamic[] CreateStaffReport(DateTime fromDate, DateTime toDate, bool onlyLinear = true);
 }

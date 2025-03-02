@@ -72,7 +72,7 @@ public class LinksOracleStorage : OracleStorage, ILinksCommonStorage
     public Catalog<Entity> IncomeStates { get; set; } = null;
 
     /// <summary>
-    /// Типы отгрузок
+    /// Типы отгрузок.
     /// </summary>
     public Catalog<Entity> OutgoTypes { get; set; } = null;
 

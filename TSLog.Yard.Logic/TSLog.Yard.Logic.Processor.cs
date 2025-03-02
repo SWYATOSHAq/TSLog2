@@ -94,7 +94,7 @@ public class Processor
         var result = new List<dynamic>();
         foreach (var employee in employees)
             result.Add(EmployeeToDynamic(employee));
-        return result.ToArray();
+        return [.. result];
     }
     /// <summary>
     /// Возвращает сотрудников, которые могут занимать указанную должность.
@@ -137,7 +137,7 @@ public class Processor
         {
             statusCode = 500;
             statusMessage = exception.Message;                
-            return Array.Empty<dynamic>();
+            return [];
         }
     }
 
@@ -337,11 +337,13 @@ public class Processor
         {
             _storage.AddAction(operationFromStorage, action);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction из метода CreateOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateOperation заявки {@Заявка}, с номером {Номер заявки}. " +
+                "Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
-        _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
-        _storage.AddOperationLog(operationWithActions, "Создана", userForLog); //логирование в бд
+        _logger.LogWarning("Создана заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
+            operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, "Создана", userForLog); // Логирование в БД.
 
         statusCode = (int)HttpStatusCode.Created;
         return operationWithActions;
@@ -394,7 +396,8 @@ public class Processor
         dynamic[] actions = ((JArray)data.warehouseActions).ToArray<dynamic>();
 
         temp = data.finishDate;
-        var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind, out int constantDuration, out int variableDuration)));
+        var finishDate = startDate.Add(new TimeSpan(0, 0, _storage.GetDuration(operationType, vehicleKind,
+            out int constantDuration, out int variableDuration)));
         if (!string.IsNullOrWhiteSpace(temp))
         {
             if (!DateTime.TryParse(temp, out DateTime tempFinishDate))
@@ -469,7 +472,7 @@ public class Processor
         // Эту строку (по поиску сотрудника по пользователю AD) перенёс сюда, что бы не найдя сотрудника (ответственного)
         // нельзя было присвоить ворота.
         var employee = _storage.GetEmployeeByAdLogin(userForLog);
-        //operation.Gate = _storage.SetOperationGate(operation, null, user); до 26.06.23 подтверждение было на воротах.
+        //operation.Gate = _storage.SetOperationGate(operation, null, user); До 26.06.23 подтверждение было на воротах.
         _storage.SetResponsibleOfficer(operation, employee, userForLog);
         var operationFromStorage = _storage.GetOperation(operation.Id);
         foreach (var action in actions)
@@ -491,11 +494,13 @@ public class Processor
             var actionFromStorage = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
             _storage.AddAction(operationFromStorage, actionFromStorage);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction из метода CreateConfirmOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода CreateConfirmOperation заявки {@Заявка}, с номером {Номер заявки}. " +
+                "Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
-        _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
-        _storage.AddOperationLog(operationWithActions, "Создана с подтверждением", userForLog); //логирование в бд
+        _logger.LogWarning("Создана заявка с подтверждением {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
+            operationWithActions, operationWithActions.Id, userForLog);
+        _storage.AddOperationLog(operationWithActions, "Создана с подтверждением", userForLog); // Логирование в БД.
 
         string? response = OperationToJson(operationWithActions);
         statusCode = (int)HttpStatusCode.Created;
@@ -865,7 +870,8 @@ public class Processor
             operationFromStorage.AddAction(actionFromStorage);            
             _storage.AddAction(operationFromStorage, actionFromStorage);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction из метода EditOperation заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода EditOperation заявки {@Заявка}, с номером {Номер заявки}. " +
+                "Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
         var actionsAfterEdit = operationFromStorage.GetActions();
         foreach (var action in actionsAfterEdit)
@@ -1065,7 +1071,8 @@ public class Processor
             operationFromStorage.AddAction(actionFromStorage);
             _storage.AddAction(operationFromStorage, actionFromStorage);
             var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-            _logger.LogWarning("Отработал метод AddAction из метода EditOperationByParner заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
+            _logger.LogWarning("Отработал метод AddAction из метода EditOperationByParner заявки {@Заявка}, с номером {Номер заявки}. " +
+                "Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, actionFromStorage.Code, userForLog);
         }
         var actionsAfterEdit = operationFromStorage.GetActions();
         foreach (var action in actionsAfterEdit)
@@ -1075,12 +1082,14 @@ public class Processor
                 operationFromStorage.RemoveAction(action);
                 _storage.RemoveAction(operationFromStorage, action);
                 var operationForLog = _storage.GetOperation(operationFromStorage.Id);
-                _logger.LogWarning("Отработал метод RemoveAction из метода EditOperationByParner заявки {@Заявка}, с номером {Номер заявки}. Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
+                _logger.LogWarning("Отработал метод RemoveAction из метода EditOperationByParner заявки {@Заявка}, с номером {Номер заявки}. " +
+                    "Добавлен заказ {Заказ}. Пользователь: {Пользователь}", operationForLog, operationForLog.Id, action.Code, userForLog);
             }
         }
         var operationWithActions = _storage.GetOperation(operationFromStorage.Id);
         string editStatus = operationWithActions.State.DisplayName + "(отредактирована партнером)";
-        _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", operationWithActions, operationWithActions.Id, userForLog);
+        _logger.LogWarning("Подтверждена(отредактирована) партнером заявка {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
+            operationWithActions, operationWithActions.Id, userForLog);
         _storage.AddOperationLog(operationWithActions, editStatus, userForLog); // Логирование в БД.
 
         string? response = OperationToJson(operationWithActions);
@@ -1295,8 +1304,7 @@ public class Processor
     public string GetDispatcherReport(HttpRequest requestData, ClaimsPrincipal? user, 
         out int statusCode, out string statusMessage)
     {
-        if (user == null)
-            throw new ArgumentNullException(nameof(user));
+        ArgumentNullException.ThrowIfNull(user);
         var useYard = _rightsChecker.CheckRight("USE_YARD", user);
         var getData = _rightsChecker.CheckRight("GET_DISPATCHER_REPORT", user);
         statusCode = (int)HttpStatusCode.InternalServerError;

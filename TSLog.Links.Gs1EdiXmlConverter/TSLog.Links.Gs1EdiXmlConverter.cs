@@ -1187,7 +1187,7 @@ public class Gs1EdiXmlConverter
         xmlBody.AppendChild(xmlDocument.CreateElement("documentActionCode")).InnerText = "ADD";
 
         var xmlIdentification = xmlBody.AppendChild(xmlDocument.CreateElement("warehousingOutboundNotificationIdentification"));
-        // outboundNotification.Id.ToString(); // TODO idk what tu use in entityIdentification.
+        // outboundNotification.Id.ToString(); // TODO: id, what tu use in entityIdentification.
         xmlIdentification.AppendChild(xmlDocument.CreateElement("entityIdentification")).InnerText = shippingNotice.Outgo.Code;
 
         var xmlServiceBuyer = xmlBody.AppendChild(xmlDocument.CreateElement("logisticServicesBuyer"));

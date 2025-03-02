@@ -1,13 +1,6 @@
-﻿using Ganss.Xss;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TSLog.Links.JITLimport.Interfaces;
-using TSLog.Links.JITLimport.Services;
 using TSLog.WarehouseActions.BO;
 using TSLog.Yard.BO;
 
@@ -65,15 +58,15 @@ public static class YardUtils
             var actionTime = 0.0;
             foreach (var line in lines)
             {
-                // Смотрим по затарке
+                // Смотрим по затарке.
                 var lineTime = 0.0;
                 if (line.PlanPalletsCount > 0.0 || line.PlanBoxesCount > 0.0)
                     lineTime += line.PlanPalletsCount * palletTime + line.PlanBoxesCount * boxTime;
                 else
                 {
-                    // Смотрим по весу
+                    // Смотрим по весу.
                     if (line.PlanGrossWeight > 0.0)
-                        // Килограммы переводим в милиграммы
+                        // Килограммы переводим в милиграммы.
                         lineTime += line.PlanGrossWeight / (vehicleKind.Capacity * 1000 * 1000) * standardTotalDuration;
                     // Смотрим по объёму
                     else if (line.PlanVolume > 0.0)
@@ -115,7 +108,7 @@ public static class YardUtils
 
         if (totalTime <= 0.0)
             totalTime = standardTotalDuration;
-        //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов) времени операции по указанию Алексея Охотникова 
+        //  2022.09.12 добавил учёт постоянного (не зависящего от состава заказов) времени операции по указанию Алексея Охотникова .
         else
             totalTime += DefaultConstantOperationDuration;
 
@@ -131,7 +124,7 @@ public static class YardUtils
         var result = new List<dynamic>();
         foreach (var action in actions)
             result.Add(WarehouseActionToDynamic(action));
-        return result.ToArray();
+        return [.. result];
     }
 
     private static dynamic WarehouseActionToDynamic(WarehouseAction action)

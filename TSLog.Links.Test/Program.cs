@@ -44,11 +44,11 @@ public class Program
             LinksStorage = storage
         };
 
-        // reader test
+        // Reader test.
         var fileName = "";
         XmlReader reader;
 
-        // inboud test
+        // Inbound test.
         Console.WriteLine(">Income<");
         fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\InboundInstruction0001.xml";
         reader = new XmlTextReader(fileName);
@@ -57,7 +57,7 @@ public class Program
         var converterInbounds = new EINWMSInboundsConverter();
         Console.WriteLine(converterInbounds.Convert(storage.GenerateTransactionId(), inboundInstruction));
 
-        // outbound test
+        // Outbound test.
         Console.WriteLine(">Outgo<");
         fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\OutboundInstruction0001.xml";
         reader = new XmlTextReader(fileName);
@@ -67,7 +67,7 @@ public class Program
         var converterOutbounds = new EINWMSOutboundsConverter();
         Console.WriteLine(converterOutbounds.Convert(storage.GenerateTransactionId(), outboundInstruction));
 
-        // item test
+        // Item test.
         Console.WriteLine(">item<");
         fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ItemDataNotification0001.xml";
         reader = new XmlTextReader(fileName);
@@ -77,7 +77,7 @@ public class Program
         var converterProducts = new EINWMSProductsConverter();
         Console.WriteLine(converterProducts.Convert(storage.GenerateTransactionId(), itemDataNotification));
 
-        // Clients test
+        // Clients test.
         Console.WriteLine(">Clients<");
         fileName = @"..\..\..\..\TSLog.Links.Services\TestMessages\In\ClientsDataNotification0001.xml";
         reader = new XmlTextReader(fileName);
@@ -90,11 +90,11 @@ public class Program
         Console.WriteLine(">finished<");
         reader.Close();
 
-        ////// test response
+        // Test response.
         Partner partner = storage.GetPartner("0014");
         string xml;
 
-        // GetInboundNotification
+        // GetInboundNotification.
         Console.WriteLine(">GetInboundNotification<");
 
         var notifocationInbound = storage.GetReceiptEndNotice(partner, "П-ВЖНФ-000400");
@@ -102,7 +102,7 @@ public class Program
         Console.WriteLine(xml);
 
 
-        // GetOutboundNotification
+        // GetOutboundNotification.
         Console.WriteLine(">GetOutboundNotification<");
         var notifocationOutbound = storage.GetPickingBeginNotice(partner, "З-ВЖНФ-006613");
         xml = Gs1EdiXmlConverter.PickingBeginNoticeToXml(notifocationOutbound);

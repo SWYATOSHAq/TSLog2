@@ -70,7 +70,7 @@ public class DailyReport
         NightShifts = nightShifts;
         _storage = storage;
     }
-    private HashSet<Shift> _shifts = new();
+    private readonly HashSet<Shift> _shifts = [];
     private readonly IDictionary<string, Mark> _marks = new Dictionary<string, Mark>();
     public readonly IDictionary<string, ShiftData> _shiftsData = new Dictionary<string, ShiftData>();
 
@@ -82,7 +82,7 @@ public class DailyReport
     }
     private void GetShifts()
     {
-        // Получаем все смены, которые попадают в указанный промежуток
+        // Получаем все смены, которые попадают в указанный промежуток.
         var shifts = Shift.GetShifts(FromDate, ToDate);
         foreach (var shift in shifts) 
             if (shift.Kind == "D" && DayShifts || shift.Kind == "N" && NightShifts)
@@ -92,7 +92,7 @@ public class DailyReport
     {
         // Проходим по всем сменам, попадающим в указанный промежуток,
         // формируем данные по работающим сотрудникам за смену - 
-        // Для каждого работника в смене отработанное им время плюс время всех работников на вспомогательных участках
+        // для каждого работника в смене отработанное им время плюс время всех работников на вспомогательных участках.
         foreach (var shift in _shifts)
         {
             var works = _storage.GetWorks(shift.From, shift.To);
@@ -120,7 +120,7 @@ public class DailyReport
     private void PrepareData()
     {
         // Обработка полученных данных:
-        // Не учитываем время тех работников, которые отработали менее 10% времени смены
+        // Не учитываем время тех работников, которые отработали менее 10% времени смены.
         foreach (var shiftData in _shiftsData.Values)
         {                
             foreach (var pair in shiftData.WorkersTime)
@@ -132,8 +132,8 @@ public class DailyReport
     }
     private void CalculateMarks()
     {
-        // Вычисление показателей
-        // Идём по всем сменам, считаем и при случае добавляем показатели
+        // Вычисление показателей.
+        // Идём по всем сменам, считаем и при случае добавляем показатели.
         foreach (var shiftData in _shiftsData.Values)
         {
             void AddMark(string markKey, string markName, string markDataType, ShiftData shiftData, double value)
@@ -149,22 +149,15 @@ public class DailyReport
             foreach (var workerTime in shiftData.WorkersTime)
             {
                 markKey = workerTime.Key.MajorPosition.Id + "_1WORKERS_COUNT";
-                //markName = workerTime.Key.MajorPosition.ShortName + " - людей";
                 markName = workerTime.Key.MajorPosition.Name + ", кол-во";
                 AddMark(markKey, markName, "INTEGER", shiftData, 1.0);
                 AddMark("A1_TOTAL_WORKERS_COUNT", "Всего сотрудников", "INTEGER", shiftData, 1.0);
 
-                //markKey = workerTime.Key.MajorPosition.Id + "_2PLAN_TIME";
-                //markName = workerTime.Key.MajorPosition.ShortName + " - вр. (пл.)";
-                //AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Key.ShiftLength);
                 AddMark("A3_TOTAL_PLAN_TIME", "Всего вр. пл. (чел. * час.)", "DOUBLE", shiftData, workerTime.Key.ShiftLength);
 
                 var factTime = workerTime.Value;
                 if (factTime > workerTime.Key.ShiftLength)
                     factTime = workerTime.Key.ShiftLength;
-                //markKey = workerTime.Key.MajorPosition.Id + "_3FACT_TIME";
-                //markName = workerTime.Key.MajorPosition.ShortName + " - вр. (ф.)";
-                //AddMark(markKey, markName, "DOUBLE", shiftData, factTime);
                 AddMark("A4_TOTAL_FACT_TIME", "Всего вр. ф. (чел. * час.)", "DOUBLE", shiftData, factTime);
 
                 var downTime = workerTime.Key.ShiftLength - workerTime.Value;
@@ -172,14 +165,8 @@ public class DailyReport
                     downTime = 0.0;
                 AddMark("A5_TOTAL_DOWN_TIME", "Всего простоев (чел. * час.)", "DOUBLE", shiftData, downTime);
 
-                //markKey = workerTime.Key.MajorPosition.Id + "_4PLAN_COST";
-                //markName = workerTime.Key.MajorPosition.ShortName + " - затр. (ф.)";
-                //AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Key.ShiftLength / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
                 AddMark("A6_TOTAL_PLAN_COST", "Всего затр. пл. (руб.)", "DOUBLE", shiftData, workerTime.Key.ShiftLength / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
 
-                //markKey = workerTime.Key.MajorPosition.Id + "_5FACT_COST";
-                //markName = workerTime.Key.MajorPosition.ShortName + " - затр. (пл.)";
-                //AddMark(markKey, markName, "DOUBLE", shiftData, workerTime.Value / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
                 AddMark("A7_TOTAL_6FACT_COST", "Всего затр. ф. (руб.)", "DOUBLE", shiftData, factTime / 60 / 60 * workerTime.Key.MajorPosition.LaborHourCost);
             }
         }
@@ -205,7 +192,6 @@ public class DailyReport
         GetData();
         PrepareData();
         CalculateMarks();
-        //CalculateTotalShift();
     }
     private static dynamic MarkToDynamic(Mark mark)
     {
@@ -254,7 +240,7 @@ public class DailyReport
     }
     public dynamic ToDynamic()
     {
-        // Готовим окончательную структуру данных отчёта
+        // Готовим окончательную структуру данных отчёта.
         dynamic data = new ExpandoObject();
         var elements = new List<dynamic>();
         var marks = _marks.Values.ToArray();

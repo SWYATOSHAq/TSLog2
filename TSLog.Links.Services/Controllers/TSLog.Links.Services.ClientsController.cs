@@ -8,54 +8,53 @@ using TSLog.Common;
 using TSLog.LegalEntities.BO;
 using TSLog.Links.Gs1EdiXml;
 
-namespace TSLog.Links.Services.Controllers
+namespace TSLog.Links.Services.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class ClientsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class ClientsController : ControllerBase
+    private readonly ILinksClientsStorage _storage = null;
+    private readonly Gs1EdiXmlConverter _xmlConverter = null;
+    private readonly bool DebugMode = true;
+
+    public ClientsController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
     {
-        private readonly ILinksClientsStorage _storage = null;
-        private readonly Gs1EdiXmlConverter _xmlConverter = null;
-        private readonly bool DebugMode = true;
+        _storage = (ILinksClientsStorage)storage;
+        _xmlConverter = xmlConverter;
+        DebugMode = configuration.GetValue<bool>("DebugMode");
+    }
 
-        public ClientsController(IConfiguration configuration, ILinksCommonStorage storage, Gs1EdiXmlConverter xmlConverter)
+    [HttpPost]
+    public async Task<string> PostClients()
+    {
+        var user = (LegalEntity)HttpContext.Items["User"];
+
+
+        string content = await new StreamReader(Request.Body).ReadToEndAsync(); // Get string data from body.
+
+        var reader = new XmlTextReader(content, XmlNodeType.Document, null);
+        var clientsListRequest = _xmlConverter.ClientsFromXml(reader);
+        if (clientsListRequest.DataSource == user)
         {
-            _storage = (ILinksClientsStorage)storage;
-            _xmlConverter = xmlConverter;
-            DebugMode = configuration.GetValue<bool>("DebugMode");
-        }
+            var clientsConverter = new EINWMSClientsConverter();
+            var transactionId = _storage.GenerateTransactionId();
+            var fileContent = clientsConverter.Convert(transactionId, clientsListRequest);
+            IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
 
-        [HttpPost]
-        public async Task<string> PostClients()
-        {
-            var user = (LegalEntity)HttpContext.Items["User"];
-
-
-            string content = await new StreamReader(Request.Body).ReadToEndAsync(); // get string data from body
-
-            var reader = new XmlTextReader(content, XmlNodeType.Document, null);
-            var clientsListRequest = _xmlConverter.ClientsFromXml(reader);
-            if (clientsListRequest.DataSource == user)
-            {
-                var clientsConverter = new EINWMSClientsConverter();
-                var transactionId = _storage.GenerateTransactionId();
-                var fileContent = clientsConverter.Convert(transactionId, clientsListRequest);
-                IOUtils.WriteFileToWmsINFolder(fileContent, transactionId);
-
-                if (!DebugMode)
-                    return "<status code=\"0\">Справочник клиентов отправлен на загрузку</status>";
-                else
-                    return "" + fileContent;
-            }
+            if (!DebugMode)
+                return "<status code=\"0\">Справочник клиентов отправлен на загрузку</status>";
             else
-                return "<status code=\"1\">ошибка входных данных: неверный dataSource</status>";
+                return "" + fileContent;
         }
+        else
+            return "<status code=\"1\">ошибка входных данных: неверный dataSource</status>";
+    }
 
-        [HttpGet("{clientId}")]
-        public LegalEntity GetClientById(string clientId)
-        {
-            return _storage.GetLegalEntity(clientId);
-        }
+    [HttpGet("{clientId}")]
+    public LegalEntity GetClientById(string clientId)
+    {
+        return _storage.GetLegalEntity(clientId);
     }
 }

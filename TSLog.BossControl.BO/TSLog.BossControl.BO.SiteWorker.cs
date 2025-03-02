@@ -1,61 +1,59 @@
 ﻿using TSLog.Partners.BO;
 using TSLog.Staff.BO;
 
-namespace TSLog.BossControl.BO
+namespace TSLog.BossControl.BO;
+
+/// <summary>
+/// Сотрудник, находящийся на участке работы.
+/// </summary>
+public class SiteWorker : IComparable<SiteWorker>
 {
     /// <summary>
-    /// Сотрудник, находящийся на участке работы
+    /// Участок.
     /// </summary>
-    public class SiteWorker : IComparable<SiteWorker>
+    public Site Site { get; set; }
+    /// <summary>
+    /// Партнёр (мандант).
+    /// </summary>
+    public Partner Partner { get; set; }
+    /// <summary>
+    /// Работник (сотрудник).
+    /// </summary>
+    public Employee Worker { get; set; }
+    /// <summary>
+    /// Дата начала работы на участке.
+    /// </summary>
+    public DateTime StartDate { get; set; }
+    /// <summary>
+    /// Дата окончания работы на участке.
+    /// </summary>
+    public DateTime FinishDate { get; set; } = DateTime.MinValue;
+    /// <summary>
+    /// Продолжительность промежутка работ в секундах.
+    /// </summary>
+    public double Duration
     {
-        /// <summary>
-        /// Участок
-        /// </summary>
-        public Site Site { get; set; }
-        /// <summary>
-        /// Партнёр (мандант)
-        /// </summary>
-        public Partner Partner { get; set; }
-        /// <summary>
-        /// Работник (сотрудник)
-        /// </summary>
-        public Employee Worker { get; set; }
-        /// <summary>
-        /// Дата начала работы на участке
-        /// </summary>
-        public DateTime StartDate { get; set; }
-        /// <summary>
-        /// Дата окончания работы на участке
-        /// </summary>
-        public DateTime FinishDate { get; set; } = DateTime.MinValue;
-        /// <summary>
-        /// Продолжительность промежутка работ в секундах
-        /// </summary>
-        public double Duration
+        get 
         {
-            get 
-            {
-                return (FinishDate - StartDate).TotalSeconds;
-            }
+            return (FinishDate - StartDate).TotalSeconds;
         }
-        public SiteWorker(Site site, Partner partner, Employee worker, DateTime startDate, DateTime? finishDate = null)
-        {
-            Site = site;
-            Partner = partner;
-            Worker = worker;
-            StartDate = startDate;
-            if (finishDate != null)
-                FinishDate = (DateTime)finishDate;
-        }
+    }
+    public SiteWorker(Site site, Partner partner, Employee worker, DateTime startDate, DateTime? finishDate = null)
+    {
+        Site = site;
+        Partner = partner;
+        Worker = worker;
+        StartDate = startDate;
+        if (finishDate != null)
+            FinishDate = (DateTime)finishDate;
+    }
 
-        public int CompareTo(SiteWorker? other)
-        {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
-            var result = other.StartDate.CompareTo(StartDate);
-            if (result == 0)
-                result = other.FinishDate.CompareTo(FinishDate);
-            return result;
-        }
+    public int CompareTo(SiteWorker? other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        var result = other.StartDate.CompareTo(StartDate);
+        if (result == 0)
+            result = other.FinishDate.CompareTo(FinishDate);
+        return result;
     }
 }

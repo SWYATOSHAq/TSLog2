@@ -41,8 +41,7 @@ public class Catalog<T> where T : Entity
     /// <param name="entity">Сущность</param>
     public void Add(T entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         if (entity.Id > 0 && !_entitiesIds.ContainsKey(entity.Id))
             _entitiesIds.Add(entity.Id, entity);
         if (!string.IsNullOrWhiteSpace(entity.Code) && !_entitiesCodes.ContainsKey(entity.Code))

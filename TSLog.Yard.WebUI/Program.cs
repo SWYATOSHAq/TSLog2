@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Reflection;
 using TSLog.Authorization;
 using TSLog.Common.Middleware;
-using TSLog.Yard;
 using TSLog.Yard.BO;
 using TSLog.Yard.WebUI.Data;
 
@@ -33,7 +31,7 @@ public class Program
 
         var loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.AddSerilog(); // Add Serilog as a logging provider
+            builder.AddSerilog(); // Add Serilog as a logging provider.
         });
         try
         {

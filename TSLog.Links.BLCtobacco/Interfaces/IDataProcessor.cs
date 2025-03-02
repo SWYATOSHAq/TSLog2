@@ -1,7 +1,6 @@
 ﻿using TSLog.Links.IntegrationModels;
 
 namespace TSLog.Links.BLCtobacco.Interfaces;
-
 public interface IDataProcessor
 {
     public void ParseResponse(string response);
