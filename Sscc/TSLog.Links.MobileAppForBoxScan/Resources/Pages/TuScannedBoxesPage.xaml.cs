@@ -85,7 +85,7 @@ public partial class TuScannedBoxesPage : ContentPage, IQueryAttributable
         ArgumentNullException.ThrowIfNull(sender);
         var button = (Button)sender;
         var sscc = button.StyleId;
-        bool result = await DisplayAlert("Подтвердите действие.", $"Удалить короб {sscc}?", "Да", "Нет");
+        bool result = await DisplayAlertAsync("Подтвердите действие.", $"Удалить короб {sscc}?", "Да", "Нет");
         if (result)
         {
             if (_scannedSsccs.Contains(sscc))
@@ -100,7 +100,7 @@ public partial class TuScannedBoxesPage : ContentPage, IQueryAttributable
     }
     private async void OnDeleteAllBoxesClicked(object sender, EventArgs e)
     {
-        bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ВСЕ короба?", "Да", "Нет");
+        bool result = await DisplayAlertAsync("Подтвердите действие.", $"Удалить ВСЕ короба?", "Да", "Нет");
         if (result)
         {
             if (await Api.RemoveTuSsccs(_tuId, this, _httpClient, _token))

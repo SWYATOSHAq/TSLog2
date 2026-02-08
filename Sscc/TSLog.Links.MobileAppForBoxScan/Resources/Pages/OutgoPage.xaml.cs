@@ -129,7 +129,7 @@ public partial class OutgoPage : ContentPage, IQueryAttributable
     {
         if (string.IsNullOrWhiteSpace(_outgoId))
         {
-            await DisplayAlert("Ошибка", "Сперва отсканируйте заказ!", "OK");
+            await DisplayAlertAsync("Ошибка", "Сперва отсканируйте заказ!", "OK");
 
             _tuId = string.Empty;
             tuIdEntry.Text = _tuId;

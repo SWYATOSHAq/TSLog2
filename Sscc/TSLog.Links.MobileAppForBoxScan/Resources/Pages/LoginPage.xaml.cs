@@ -49,7 +49,7 @@ public partial class LoginPage : ContentPage
         var password = passwordEntry.Text;
         if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
         {
-            await DisplayAlert("Ошибка", "Введите логин и пароль", "OK");
+            await DisplayAlertAsync("Ошибка", "Введите логин и пароль", "OK");
             loginButton.Text = "Войти";
             return;
         }
@@ -65,7 +65,7 @@ public partial class LoginPage : ContentPage
                 var responseContent = await response.Content.ReadFromJsonAsync<LoginResponse>();
                 if (responseContent == null || string.IsNullOrWhiteSpace(responseContent.Token))
                 {
-                    await DisplayAlert("Ошибка", $"Не удалось выполнить вход.", "OK");
+                    await DisplayAlertAsync("Ошибка", $"Не удалось выполнить вход.", "OK");
                     return;
                 }
 
@@ -77,15 +77,15 @@ public partial class LoginPage : ContentPage
                 await Shell.Current.GoToAsync($"///{nameof(OutgoPage)}", parameters);
             }
             else
-                await DisplayAlert("Ошибка", "Неверный логин или пароль", "OK");
+                await DisplayAlertAsync("Ошибка", "Неверный логин или пароль", "OK");
         }
         catch (HttpRequestException exception)
         {
-            await DisplayAlert("HTTP Error", $"Request error: {exception.Message}", "OK");
+            await DisplayAlertAsync("HTTP Error", $"Request error: {exception.Message}", "OK");
         }
         catch (Exception exception)
         {
-            await DisplayAlert("Ошибка", $"Не удалось выполнить вход: {exception.Message}", "OK");
+            await DisplayAlertAsync("Ошибка", $"Не удалось выполнить вход: {exception.Message}", "OK");
         }
         finally
         {

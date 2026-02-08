@@ -17,7 +17,7 @@ public class Api
         ArgumentNullException.ThrowIfNull(page);
         if (string.IsNullOrWhiteSpace(token))
         {
-            await page.DisplayAlert("Ошибка", "Токен отсутствует. Пожалуйста, войдите снова.", "OK");
+            await page.DisplayAlertAsync("Ошибка", "Токен отсутствует. Пожалуйста, войдите снова.", "OK");
             await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
             return false;
         }
@@ -26,7 +26,7 @@ public class Api
     private static async void HandleUnauthorized(ContentPage page)
     {
         ArgumentNullException.ThrowIfNull(page);
-        await page.DisplayAlert("Ошибка",
+        await page.DisplayAlertAsync("Ошибка",
             "Ваша сессия истекла. Пожалуйста, войдите снова.", "OK");
         await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
     }
@@ -57,7 +57,7 @@ public class Api
                 return true;
             else if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                await page.DisplayAlert("Ошибка", "Заказ не найден.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Заказ не найден.", "OK");
                 return false;
             }
             else if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -67,18 +67,18 @@ public class Api
             }
             else
             {
-                await page.DisplayAlert("Ошибка", "Заказ не найден.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Заказ не найден.", "OK");
                 return false;
             }
 
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return false;
     }
@@ -114,7 +114,7 @@ public class Api
                 return true;
             else if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                await page.DisplayAlert("Ошибка", "ТЕ в заказе не найдена.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "ТЕ в заказе не найдена.", "OK");
                 return false;
             }
             else if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -124,18 +124,18 @@ public class Api
             }
             else
             {
-                await page.DisplayAlert("Ошибка", "ТЕ в заказе не найдена.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "ТЕ в заказе не найдена.", "OK");
                 return false;
             }
 
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return false;
     }
@@ -171,7 +171,7 @@ public class Api
                     return responseContent.TusCount;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "В заказе отсутствуют ТЕ.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "В заказе отсутствуют ТЕ.", "OK");
                     return 0;
                 }
             }
@@ -181,15 +181,15 @@ public class Api
                 return 0;
             }
             else
-                await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return 0;
     }
@@ -225,7 +225,7 @@ public class Api
                     return responseContent.TusCount;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
                     return -1;
                 }
             }
@@ -235,15 +235,15 @@ public class Api
                 return -1;
             }
             else
-                await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return -1;
     }
@@ -279,7 +279,7 @@ public class Api
                     return responseContent.Tus;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
                     return [];
                 }
             }
@@ -289,15 +289,15 @@ public class Api
                 return [];
             }
             else
-                await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return [];
     }
@@ -332,23 +332,23 @@ public class Api
                     return responseContent.BoxesCount;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "На ТЕ нет коробок.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "На ТЕ нет коробок.", "OK");
                     return 0;
                 }
             }
             else
             {
-                await page.DisplayAlert("Ошибка", "На ТЕ нет коробок.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "На ТЕ нет коробок.", "OK");
                 return 0;
             }
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return 0;
     }
@@ -383,7 +383,7 @@ public class Api
                     return responseContent.BoxesCount;
                 else
                 {
-                    await page.DisplayAlert(
+                    await page.DisplayAlertAsync(
                         "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
                         "OK");
                     return -1;
@@ -391,7 +391,7 @@ public class Api
             }
             else
             {
-                await page.DisplayAlert(
+                await page.DisplayAlertAsync(
                     "Ошибка", "Не могу определить количество отсканированных коробов на ТЕ.",
                     "OK");
                 return -1;
@@ -399,11 +399,11 @@ public class Api
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return -1;
     }
@@ -439,7 +439,7 @@ public class Api
                     return responseContent.Boxes;
                 else
                 {
-                    await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
                     return [];
                 }
             }
@@ -449,15 +449,15 @@ public class Api
                 return [];
             }
             else
-                await page.DisplayAlert("Ошибка", "Ошибка.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Ошибка.", "OK");
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
+            await page.DisplayAlertAsync("HTTP ошибка", $"Ошибка запроса: {exception.Message}.", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка:{exception.Message}.", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка:{exception.Message}.", "OK");
         }
         return [];
     }
@@ -516,19 +516,19 @@ public class Api
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
                 if (responseContent != null)
-                    await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    await page.DisplayAlertAsync("Ошибка", responseContent.Detail, "OK");
                 else
-                    await page.DisplayAlert("Ошибка", "Не удалось принять короба. Попробуйте снова.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Не удалось принять короба. Попробуйте снова.", "OK");
                 return false;
             }
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка: {exception.Message}", "OK");
         }
         return false;
     }
@@ -569,19 +569,19 @@ public class Api
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
                 if (responseContent != null)
-                    await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    await page.DisplayAlertAsync("Ошибка", responseContent.Detail, "OK");
                 else
-                    await page.DisplayAlert("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
                 return false;
             }
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка: {exception.Message}", "OK");
         }
         return false;
     }
@@ -622,19 +622,19 @@ public class Api
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
                 if (responseContent != null)
-                    await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    await page.DisplayAlertAsync("Ошибка", responseContent.Detail, "OK");
                 else
-                    await page.DisplayAlert("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Не удалось удалить короба. Попробуйте снова.", "OK");
                 return false;
             }
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка: {exception.Message}", "OK");
         }
         return false;
     }
@@ -675,19 +675,19 @@ public class Api
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<ErrorResponse>();
                 if (responseContent != null)
-                    await page.DisplayAlert("Ошибка", responseContent.Detail, "OK");
+                    await page.DisplayAlertAsync("Ошибка", responseContent.Detail, "OK");
                 else
-                    await page.DisplayAlert("Ошибка", "Не удалось удалить короб. Попробуйте снова.", "OK");
+                    await page.DisplayAlertAsync("Ошибка", "Не удалось удалить короб. Попробуйте снова.", "OK");
                 return false;
             }
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("HTTP Ошибка", $"Ошибка HTTP: {exception.Message}", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Ошибка: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Ошибка: {exception.Message}", "OK");
         }
         return false;
     }

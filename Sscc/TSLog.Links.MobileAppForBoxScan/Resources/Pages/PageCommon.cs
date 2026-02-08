@@ -25,15 +25,15 @@ class UICommon
             if (response.IsSuccessStatusCode)
                 await Shell.Current.GoToAsync($"{nameof(LoginPage)}");
             else
-                await page.DisplayAlert("Ошибка", "Не удалось выполнить выход.", "OK");
+                await page.DisplayAlertAsync("Ошибка", "Не удалось выполнить выход.", "OK");
         }
         catch (HttpRequestException exception)
         {
-            await page.DisplayAlert("HTTP Error", $"Request error: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("HTTP Error", $"Request error: {exception.Message}", "OK");
         }
         catch (Exception exception)
         {
-            await page.DisplayAlert("Ошибка", $"Не удалось выполнить выход: {exception.Message}", "OK");
+            await page.DisplayAlertAsync("Ошибка", $"Не удалось выполнить выход: {exception.Message}", "OK");
         }
     }
     public static void FocusEntry(Entry entry, Color color)

@@ -101,13 +101,13 @@ public partial class TuPage : ContentPage, IQueryAttributable
             else 
             {
                 color = Colors.Coral;
-                await DisplayAlert("Ошибка", $"SSCC {text} уже просканирован.", "OK");
+                await DisplayAlertAsync("Ошибка", $"SSCC {text} уже просканирован.", "OK");
             }
         }
         else
         {
             color = Colors.Coral;
-            await DisplayAlert("Ошибка", $"Не корректный SSCC {text}.", "OK");
+            await DisplayAlertAsync("Ошибка", $"Не корректный SSCC {text}.", "OK");
         }
         UICommon.FocusEntry(ssccEntry, color);
     }

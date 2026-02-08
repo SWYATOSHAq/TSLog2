@@ -64,7 +64,7 @@ public partial class OutgoScannedTusPage : ContentPage, IQueryAttributable
     {
         var button = (Button)sender;
         var tuId = button.StyleId;
-        bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ТЕ {tuId}?", "Да", "Нет");
+        bool result = await DisplayAlertAsync("Подтвердите действие.", $"Удалить ТЕ {tuId}?", "Да", "Нет");
         if (result)
         {
             if (await Api.RemoveTuSsccs(tuId, this, _httpClient, _token))
@@ -74,7 +74,7 @@ public partial class OutgoScannedTusPage : ContentPage, IQueryAttributable
     }
     private async void OnDeleteAllTusClicked(object sender, EventArgs e)
     {
-        bool result = await DisplayAlert("Подтвердите действие.", $"Удалить ВСЕ ТЕ?", "Да", "Нет");
+        bool result = await DisplayAlertAsync("Подтвердите действие.", $"Удалить ВСЕ ТЕ?", "Да", "Нет");
         if (result)
         {
             if (await Api.RemoveOutgoSsccs(_outgoId, this, _httpClient, _token))
