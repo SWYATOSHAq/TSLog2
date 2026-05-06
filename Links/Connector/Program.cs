@@ -35,8 +35,8 @@ static class Program
             Environment.SetEnvironmentVariable("ITEXT_BOUNCY_CASTLE_FACTORY_NAME", "bouncy-castle");
             wmsStorage = new WmsStorage(storage);
 
-            // TODO: убрать после нормальной отладки подключения к DiaDoc API.
             /*
+            // TODO: убрать после нормальной отладки подключения к DiaDoc API.
             var clientId = Settings.Default.DiadocClientId;
             var apiUrl = Settings.Default.DiadocApiUrl;
             var login = Settings.Default.DiadocLogin;
@@ -44,8 +44,10 @@ static class Program
             var boxId = Settings.Default.DiadocBoxId;
             var certificatePath = Settings.Default.DiadocCertificatePath;
             diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
+            //diadocWorker.Test();
+            diadocWorker.Test2();
             */
-            /*
+
             var clientId = "2BM-5032315482-503201001-202003021005206859021";
             var apiUrl = "https://diadoc-api.kontur.ru";
             var login = "m.burov@tslog.ru";
@@ -53,7 +55,7 @@ static class Program
             var boxId = "";
             var certificatePath = Settings.Default.DiadocCertificatePath;
             diadocWorker = new DiadocWorker(clientId, apiUrl, login, password, boxId, certificatePath);
-            */
+            diadocWorker.Test2();
 
             diadocWorker = new FakeDiadocWorker();
 
