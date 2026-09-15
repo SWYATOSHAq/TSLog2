@@ -119,7 +119,7 @@ public class YardController : ControllerBase
             result.Add(YardController.GateToDynamic(gate));
         return [.. result];
     }
-   
+
     private dynamic[] OperationsToDynamic(Operation[] operations)
     {
         var result = new List<dynamic>();
@@ -151,6 +151,11 @@ public class YardController : ControllerBase
     }
 
     #region Reference data
+    private bool IsPartnerEditLocked(TSLog.Yard.BO.Operation operation)
+    {
+        return _rightsChecker.CheckRight("IS_PARTNER_USER", User)
+            && !operation.CanBeEditedByPartner;
+    }
     private bool CheckPartner(string partnerId)
     {
         var userName = RightsChecker.GetUserName(User);
@@ -177,7 +182,7 @@ public class YardController : ControllerBase
     public string GetStandardPlanOperationDuration()
     {
         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        var useYard = _rightsChecker.CheckRight("USE_YARD", User);            
+        var useYard = _rightsChecker.CheckRight("USE_YARD", User);
         var getOperationDuration = _rightsChecker.CheckRight("GET_OPERATION_DURATION", User);
         if (_useAuthentication && (!useYard || !getOperationDuration))
         {
@@ -200,7 +205,7 @@ public class YardController : ControllerBase
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
     }
-    
+
     [HttpPost("FillingPlanOperationDuration")]
     async public Task<string> GetFillingPlanOperationDuration()
     {
@@ -700,7 +705,7 @@ public class YardController : ControllerBase
             dynamicOperation.planLaborCost = Math.Round(dynamicOperation.planLaborCost * k);
             dynamicOperation.planLinearLaborCost = Math.Round(dynamicOperation.planLinearLaborCost * k);
             var user = RightsChecker.GetUserName(User);
-            _logger.LogWarning("Отработал метод Operation заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}", 
+            _logger.LogWarning("Отработал метод Operation заявки {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
                 operation, operation.Id, user);
             var text = JsonSerializer.Serialize(dynamicOperation);
             Response.StatusCode = (int)HttpStatusCode.OK;
@@ -871,7 +876,7 @@ public class YardController : ControllerBase
             Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             return "Input data is null!";
         }
-        else 
+        else
             Utils.SanitizeHtml(data); // Очищаем получаемый контент для предотвращения XSS-атак.
 
         var operation = _processor.CreateOperation(data, User, out int statusCode, out string response);
@@ -936,11 +941,11 @@ public class YardController : ControllerBase
         {
             Response.StatusCode = statusCode;
             return response;
-        }            
+        }
     }
     [HttpPost("EditOperation")]
     async public Task<string> EditOperation()
-    {            
+    {
         dynamic? data = await GetInputData(Request);
         if (data == null)
         {
@@ -961,7 +966,7 @@ public class YardController : ControllerBase
         {
             Response.StatusCode = statusCode;
             return response;
-        }           
+        }
     }
     [HttpPost("EditOperationByPartner")]
     async public Task<string> EditOperationByPartner()
@@ -986,7 +991,7 @@ public class YardController : ControllerBase
         {
             Response.StatusCode = statusCode;
             return response;
-        }            
+        }
     }
     [HttpPatch("SetOperationNote")]
     async public Task<string> SetOperationNote()
@@ -1017,6 +1022,13 @@ public class YardController : ControllerBase
             return $"Wrong operation id {temp}";
 
         var operation = _storage.GetOperation(id);
+
+        if (IsPartnerEditLocked(operation))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return "После подтверждения карточка доступна клиенту только для просмотра.";
+        }
+
         operation.Note = data.note;
         var user = RightsChecker.GetUserName(User);
         _storage.SetOperationNote(operation, RightsChecker.GetUserName(User));
@@ -1213,13 +1225,14 @@ public class YardController : ControllerBase
             var operationFinished = _storage.GetOperation(id);
             if (operation.PartnersIds == "0042")
                 await _processor.SendEmailAsync(operationFinished);
-            
+
             _logger.LogWarning("Работа завершена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
                 operationFinished, operationFinished.Id, user);
             _storage.AddOperationLog(operationFinished, "Работа завершена", user); // Логирование в БД.
             text = _processor.OperationToJson(operationFinished);
             Response.StatusCode = (int)HttpStatusCode.OK;
-        } else
+        }
+        else
         {
             Response.StatusCode = (int)HttpStatusCode.PreconditionFailed;
             text = "Precondition Failed. Сотрудникам сначала нужно покинуть ворота.";
@@ -1283,6 +1296,13 @@ public class YardController : ControllerBase
             return $"Wrong operation id {stringId}";
 
         var operation = _storage.GetOperation(id);
+
+        if (IsPartnerEditLocked(operation))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return "После подтверждения карточка доступна клиенту только для просмотра.";
+        }
+
         var user = RightsChecker.GetUserName(User);
         _storage.CancelOperation(operation, RightsChecker.GetUserName(User));
         _logger.LogWarning("Отменена в заявке {@Заявка}, с номером {Номер заявки}. Пользователь: {Пользователь}",
@@ -1454,6 +1474,13 @@ public class YardController : ControllerBase
             return $"Wrong operation id {stringOperationId}!";
 
         var operation = _storage.GetOperation(operationId);
+
+        if (IsPartnerEditLocked(operation))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return "После подтверждения карточка доступна клиенту только для просмотра.";
+        }
+
         var action = _storage.GetWarehouseAction(stringActionKind == "O" ? ActionKind.Outgo : ActionKind.Income, stringActionId);
         var user = RightsChecker.GetUserName(User);
         _storage.AddAction(operation, action);
@@ -1496,6 +1523,13 @@ public class YardController : ControllerBase
             return $"Wrong operation id {stringOperationId}!";
 
         var operation = _storage.GetOperation(operationId);
+
+        if (IsPartnerEditLocked(operation))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return "После подтверждения карточка доступна клиенту только для просмотра.";
+        }
+
         var user = RightsChecker.GetUserName(User);
         _logger.LogWarning("Отработал метод RemoveOperationWarehouseAction заявки {@Заявка}, с номером {Номер заявки}. " +
             "Пользователь: {Пользователь}", operation, operation.Id, user);
@@ -1528,6 +1562,13 @@ public class YardController : ControllerBase
             return $"Wrong operation id {stringOperationId}!";
 
         var operation = _storage.GetOperation(operationId);
+
+        if (IsPartnerEditLocked(operation))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return "После подтверждения карточка доступна клиенту только для просмотра.";
+        }
+
         var user = RightsChecker.GetUserName(User);
         _storage.RemoveActions(operation);
         _logger.LogWarning("Отработал метод RemoveOperationWarehouseActions заявки {@Заявка}, с номером {Номер заявки}. " +
@@ -2240,7 +2281,7 @@ public class YardController : ControllerBase
 
             if (tempOperation.Type.Direction == TypeDirection.Out)
             {
-                var outgoesIds = new List<string>();                    
+                var outgoesIds = new List<string>();
                 foreach (var outgo in outgoes)
                     outgoesIds.Add(outgo.Id);
                 var partner = ids.Length > 0 ? _storage.GetPartner(ids[0]) : Partner.Null;
@@ -2249,11 +2290,11 @@ public class YardController : ControllerBase
                     tempOperation.VehicleKind, partner,
                     tempOperation.FactWorkStartDate, tempOperation.FactWorkFinishDate,
                     siteCode,
-                    outgoesIds.ToArray());                               
+                    outgoesIds.ToArray());
             }
             else // Приходы - берём стадартный план.
                 operation.planLaborCost = operation.planLaborCost;
-            
+
             if (ids[0] == "0031")
             {
                 var operationType = _storage.GetOperationType(operation.typeCode);
