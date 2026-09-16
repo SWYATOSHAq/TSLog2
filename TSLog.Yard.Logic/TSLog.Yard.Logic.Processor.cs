@@ -555,7 +555,7 @@ public class Processor
         var now = DateTime.Now;
         var today = DateTime.Today;
         var today900 = today.AddHours(9);
-        if (userForLog != "mvi") // #3999 по заявке сделано исключние для клиента "MVI".
+        if (userForLog != "mvi" && userForLog != "homeoper" && userForLog != "primeauto_oper") // #3999 по заявке сделано исключние для клиента "MVI".
         {
             if (now >= today900 && startDate < today.AddHours(24 + 9))
             {
@@ -977,7 +977,7 @@ public class Processor
                 var now = DateTime.Now;
                 var today = DateTime.Today;
                 var today900 = today.AddHours(9);
-                if (userForLog != "mvi" && userForLog != "homeoper") // #3999 по заявке сделано исключние для клиента "MVI". uppdate 2026-15-09 sv.ohotnikov добавлено исключение и для homeoper
+                if (userForLog != "mvi" && userForLog != "homeoper" && userForLog != "primeauto_oper") // #3999 по заявке сделано исключние для клиента "MVI". uppdate 2026-15-09 sv.ohotnikov добавлено исключение и для homeoper
                 {
                     if (now >= today900 && tempPlanWorkStartDate < today.AddHours(24 + 9))
                     {
