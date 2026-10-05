@@ -76,17 +76,16 @@ class PresentVehiclesPage {
 
     showOperation(operation, operationTr) {
         operationTr.classList.add("table-row");   
-        const reservedGateColor = (operation.gateStatus === "Reserved" && operation.stateId !== 1005) ? "background-color: orange; box-shadow: none" : "";
-        viewUtils.createRowHeader(operationTr, ["table-cell"], [operation.id], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.trailerNumber], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.typeDisplayName], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId], `${reservedGateColor}`);
-        viewUtils.createHtmlCell(operationTr, ["table-cell"], [operation.note], `${reservedGateColor}`);
+        viewUtils.createRowHeader(operationTr, ["table-cell"], [operation.id]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.trailerNumber]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleBrand]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.typeDisplayName]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId]);
+        viewUtils.createHtmlCell(operationTr, ["table-cell"], [operation.note]);
 
         let date = new Date(operation.createDate);
         const createDateB = document.createElement("b");
@@ -94,7 +93,7 @@ class PresentVehiclesPage {
         let contents = [createDateB];
         contents.push(document.createElement("br"));
         contents.push(date.toLocaleDateString());
-        viewUtils.createCell(operationTr, ["table-cell"], contents, `${reservedGateColor}`);
+        viewUtils.createCell(operationTr, ["table-cell"], contents);
 
         date = new Date(operation.startDate);
         const startTimeB = document.createElement("b");
@@ -102,7 +101,7 @@ class PresentVehiclesPage {
         contents = [startTimeB];
         contents.push(document.createElement("br"));
         contents.push(date.toLocaleDateString());
-        viewUtils.createCell(operationTr, ["table-cell"], contents, `${reservedGateColor}`);
+        viewUtils.createCell(operationTr, ["table-cell"], contents);
 
         date = new Date(operation.planWorkStartDate);
         const planWorkStartTimeB = document.createElement("b");
@@ -115,10 +114,10 @@ class PresentVehiclesPage {
             contents.push(document.createElement("br"));
             contents.push("(" + date.toLocaleTimeString() + " - " + date.toLocaleDateString() + ")");
         }
-        viewUtils.createCell(operationTr, ["table-cell"], contents, `${reservedGateColor}`);
+        viewUtils.createCell(operationTr, ["table-cell"], contents);
 
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.responsibleOfficer], `${reservedGateColor}`);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.gateShortName], `${reservedGateColor}`);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.responsibleOfficer]);
+        viewUtils.createCell(operationTr, ["table-cell"], [operation.gateShortName]);
 
         const openButton = document.createElement("button");
         openButton.classList.add("btn");
