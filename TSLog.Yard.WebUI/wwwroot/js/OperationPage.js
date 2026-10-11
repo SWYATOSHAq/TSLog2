@@ -881,7 +881,7 @@ class OperationPage {
         workerFullNameB.textContent = action.partnerActionId != "" ? action.partnerActionId : "Б/Н";
         button.append(workerFullNameB);
 
-        const date = utils.stringToDate(action.insertDate);
+        const date = utils.stringToDate(action.kind === "O" ? action.planActionDate : action.insertDate);
         if (date > utils.nullDate) {
             button.append(" (" + utils.dateToString(date) + ") ");
         }
