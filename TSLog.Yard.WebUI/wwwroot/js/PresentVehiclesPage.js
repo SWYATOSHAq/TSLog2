@@ -304,6 +304,10 @@ class PresentVehiclesPage {
         await this.getOperations();
 
         viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeOperationType.bind(this));
+        const operationTypeFilter = document.getElementById("operation-types-select");
+        if (operationTypeFilter && operationTypeFilter.selectedIndex < 0) {
+            operationTypeFilter.value = "";
+        }
         viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
