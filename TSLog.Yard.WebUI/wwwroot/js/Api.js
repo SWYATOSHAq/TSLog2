@@ -227,22 +227,6 @@ class Api {
         return await this.getHttpResult("operation", url, options);
     }
 
-    // Устанавливает ворота для операции двора
-    async setOperationGate(id, gateCode) {
-        const url = "./api/v1/yard/SetOperationGate";
-        const data = {
-            id: id
-        }
-        if (gateCode != "")
-            data.gateCode = gateCode;
-        const options = {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        };
-        return await this.getHttpResult("operation", url, options);
-    }
-
     // Стартует операцию двора (автомашина заезжает на территорию складского комплекса)
     async startOperation(id) {
         const url = "./api/v1/yard/StartOperation";
@@ -311,20 +295,6 @@ class Api {
             workerId: workerId,
             positionCode: positionCode,
         };
-        const options = {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        };
-        return await this.getHttpResult("data", url, options);
-    }
-
-    // Автоматически распределяет работников на операцию двора в зависимости от нормативов (потребностей в персонале)
-    async allocateOperationWorkers(id) {
-        const url = "./api/v1/yard/AllocateOperationWorkers";
-        const data = {
-            id: id
-        }
         const options = {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },

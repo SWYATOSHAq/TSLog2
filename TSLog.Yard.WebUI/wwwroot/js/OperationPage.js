@@ -55,6 +55,28 @@ class OperationPage {
         this.blockDuration = 60 * 60 / this.hourBlocksCount;
     }
 
+    restrictOperationTypes(select, currentTypeCode, preserveCurrentType) {
+        // #22264: разрешённые типы из справочника yard.operation_type.
+        const allowedCodes = new Set([
+            "I_PALLET_MIX_MIX",
+            "I_BOX_MIX",
+            "O_PALLET",
+            "O_BOX_MIX"
+        ]);
+        for (const option of Array.from(select.options)) {
+            if (option.value === "") continue;
+            if (allowedCodes.has(option.value)) continue;
+            if (preserveCurrentType && option.value === currentTypeCode) {
+                // Старую заявку можно открыть и сохранить, но выбрать этот тип заново нельзя.
+                option.disabled = true;
+            } else {
+                option.remove();
+            }
+        }
+        select.value = Array.from(select.options).some(option => option.value === currentTypeCode)
+            ? currentTypeCode : "";
+    }
+
     getSelectedDate() {
         return $("#work-start-date-picker").datepicker('getDate');
     }
@@ -521,18 +543,11 @@ class OperationPage {
         const parkingCheckBox = document.getElementById("parkingCheck");
         const parkingActive = parkingCheckBox != null ? document.getElementById("parkingCheck").checked : false;
         const gatesSelect = document.getElementById("gates-select");
-        const setGateButton = document.getElementById("set-gate-button");
         if (parkingActive) {
             gatesSelect.disabled = true;
-            if (setGateButton !== null) {
-                setGateButton.style.display = 'none';
-            }
             gatesSelect.selectedIndex = 0;
         } else {
             gatesSelect.disabled = false;
-            if (setGateButton !== null) {
-                setGateButton.style.display = 'inline-block';
-            }
         }
     }
 
@@ -765,15 +780,6 @@ class OperationPage {
     async editOperationNote() {
         const note = document.getElementById("note-textarea").innerHTML;
         const result = await api.editOperationNote(this.id, note);
-        if (result.code === 0) {
-            location.reload();
-        } else {
-            viewUtils.showError(result.message);
-        }
-    }
-
-    async setOperationGate() {
-        const result = await api.setOperationGate(this.id, "");
         if (result.code === 0) {
             location.reload();
         } else {
@@ -1156,14 +1162,6 @@ class OperationPage {
         }
     }
 
-    async allocateWorkers() {
-        const result = await api.allocateOperationWorkers(this.id);
-        if (result.code === 0) {
-            location.reload();
-        } else {
-            viewUtils.showError(result.message);
-        }
-    }
     // #endregion
 
     async startOperationWork() {
@@ -1377,7 +1375,7 @@ class OperationPage {
 
         // Operation type
         const operationTypesSelect = document.getElementById("operation-types-select");
-        operationTypesSelect.value = operation != null ? operation.typeCode : "";
+        this.restrictOperationTypes(operationTypesSelect, operation != null ? operation.typeCode : "", !create && !copy);
         if (isPreparing && !isPartnerLocked) {
             if (!operationTypesSelect.disabled) {
                 operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
@@ -1669,10 +1667,8 @@ class OperationPage {
         viewUtils.removeElement("copy-button", this.id <= 0 || copy,
             isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
         viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
-        viewUtils.removeElement("set-gate-button", !isPreparing);
         viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
         viewUtils.removeElement("start-work-button", this.stateCode != "STARTED" || gatesSelect === null || gatesSelect.selectedIndex === 0);
-        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED" || gatesSelect === null || gatesSelect.selectedIndex === 0);
         viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
         viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
         viewUtils.removeElement("cancel-button", isPartnerLocked || this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");

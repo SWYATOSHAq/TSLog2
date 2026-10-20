@@ -413,15 +413,6 @@
                     title="Копировать карточку операции двора с подтверждением"
                     type="button">Копировать и подтвердить</button>
             }
-            @if (setGate)
-            {
-                <button id="set-gate-button"
-                    class="btn btn-outline-success" 
-                    style="width: 320px; margin: auto; margin-top: 8px"
-                    title="Автоматически назначить ворота для операции двора"
-                    type="button" 
-                    onclick="operationPage.setOperationGate()">(Авто) Назначить ворота</button>
-            }
             @if (start)
             {
                 <button id="start-button"
@@ -439,15 +430,6 @@
                     title="Поставить автомашину на ворота (начать работу по погрузке или разгрузке)"
                     type="button" 
                     onclick="operationPage.startOperationWork()">Поставить на ворота</button>
-            }
-            @if (manageOperationWorkers)
-            {
-                <button id="allocate-workers-button"
-                    class="btn btn-outline-success" 
-                    style="width: 320px; margin: auto; margin-top: 8px"
-                    title="Автоматически назначить работников на операцию двора (в зависимости от плановых должностей)"
-                    type="button" 
-                    onclick="operationPage.allocateWorkers()">(Авто) Назначить сотрудников</button>
             }
             @if (finishWork)
             {
