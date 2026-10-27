@@ -40,6 +40,40 @@
     window.addEventListener("pageshow", restoreTheme);
 })();
 
+(function initYardProfile() {
+    const toggle = document.getElementById("yard-profile-toggle");
+    const panel = document.getElementById("yard-profile-panel");
+    if (!toggle || !panel) return;
+    const profile = toggle.closest(".yard-profile");
+
+    function closeProfile(returnFocus) {
+        panel.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+        if (returnFocus) toggle.focus();
+    }
+
+    toggle.addEventListener("click", function () {
+        const open = panel.hidden;
+        panel.hidden = !open;
+        toggle.setAttribute("aria-expanded", String(open));
+    });
+    document.addEventListener("click", function (event) {
+        if (!panel.hidden && !profile.contains(event.target)) {
+            closeProfile(panel.contains(document.activeElement));
+        }
+    });
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !panel.hidden) {
+            event.preventDefault();
+            closeProfile(true);
+        }
+    });
+    document.addEventListener("focusin", function (event) {
+        if (!panel.hidden && !profile.contains(event.target)) closeProfile(false);
+    });
+    window.addEventListener("pageshow", function () { closeProfile(false); });
+})();
+
 // Класс, реализующий дополнительный и вспомогательный функционал (для пользовательского интерфейса)
 class ViewUtils {
     // Инициализирует элемент управления для выбора даты и времени
