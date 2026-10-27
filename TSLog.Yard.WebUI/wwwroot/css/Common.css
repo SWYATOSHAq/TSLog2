@@ -214,3 +214,212 @@ td {
 .table-sortable .th-sort-desc {
     background: rgba(0, 0, 0, 0.1);
 }
+
+/* Screen-only: preserve the existing print layouts and operational status colors. */
+@media screen {
+    body[data-yard-page] {
+        --yard-accent: #dce9f5;
+        --yard-accent-ink: #244c70;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) {
+        --yard-bg: #f3f4f6;
+        --yard-surface: #ffffff;
+        --yard-text: #202b39;
+        --yard-muted: #526173;
+        --yard-line: #aab5c2;
+        --yard-head: #e5eaf0;
+        --yard-hover: #edf1f5;
+        --yard-link: #245982;
+        color-scheme: light;
+        color: var(--yard-text);
+        background: var(--yard-bg);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        margin-bottom: 0;
+    }
+
+    body[data-yard-page]:has(.yard-theme input[value="dark"]:checked) {
+        --yard-bg: #171c23;
+        --yard-surface: #222a34;
+        --yard-text: #e8edf3;
+        --yard-muted: #bcc7d5;
+        --yard-line: #667589;
+        --yard-head: #323e4c;
+        --yard-hover: #2c3744;
+        --yard-link: #a8cef1;
+        color-scheme: dark;
+    }
+
+    body[data-yard-page="StaffPage"],
+    body[data-yard-page="WorkersPerfomanceReportPage"] {
+        --yard-accent: #e8e1f1;
+        --yard-accent-ink: #58436f;
+    }
+    body[data-yard-page="GatesPage"],
+    body[data-yard-page="GateManagementPage"] {
+        --yard-accent: #e0e6ed;
+        --yard-accent-ink: #3b4d60;
+    }
+    body[data-yard-page="ClientReportPage"],
+    body[data-yard-page="ECReportPage"],
+    body[data-yard-page="ECReportDetailedPage"] {
+        --yard-accent: #ecdce0;
+        --yard-accent-ink: #70434f;
+    }
+    body[data-yard-page="ShiftPerfomanceReportPage"],
+    body[data-yard-page="LaborReportPage"],
+    body[data-yard-page="ShiftLaborReportPage"] {
+        --yard-accent: #f3e5eb;
+        --yard-accent-ink: #75465e;
+    }
+    body[data-yard-page="GuardPage"],
+    body[data-yard-page="PresentVehiclesPage"] {
+        --yard-accent: #deeee6;
+        --yard-accent-ink: #315d4c;
+    }
+
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header {
+        padding: 16px 24px 0;
+        background: var(--yard-surface);
+        border-bottom: 2px solid var(--yard-line);
+    }
+    .yard-header-main { display: flex; align-items: center; gap: 24px; }
+    .yard-brand { flex: 0 0 auto; }
+    .yard-brand .navbar-brand { margin: 0; padding: 0; }
+    .yard-brand img { width: 84px; height: auto; background: #fff; padding: 6px; }
+    .yard-header-content { flex: 1; min-width: 0; }
+    .yard-nav { display: flex; flex-wrap: wrap; gap: 4px; }
+    body .yard-nav .nav-link {
+        color: var(--yard-muted, #526173) !important;
+        padding: 8px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        border-bottom-width: 3px;
+        text-decoration: none;
+    }
+    body .yard-nav .nav-link:hover {
+        color: var(--yard-text, #202b39) !important;
+        background: var(--yard-hover, #edf1f5);
+        border-color: var(--yard-line, #aab5c2);
+    }
+    .yard-user { padding: 8px 10px; color: var(--yard-muted, #526173); font-size: 12px; }
+    .yard-user b { color: var(--yard-text, #202b39); }
+    .yard-reports { margin-top: 12px; padding: 8px 0; border-top: 1px solid var(--yard-line, #aab5c2); }
+    .yard-theme { flex: 0 0 auto; margin: 0; padding: 8px 10px; border: 1px solid var(--yard-line, #aab5c2); }
+    .yard-theme legend { float: none; width: auto; margin: 0; padding: 0 4px; font-size: 11px; color: var(--yard-muted, #526173); }
+    .yard-theme label { display: block; font-size: 12px; cursor: pointer; padding: 3px 0; }
+    .yard-theme input { accent-color: var(--yard-accent-ink, #244c70); }
+
+    body:is([data-yard-page="OperationsPage"], [data-yard-page="OperationsPage2"]) .yard-nav a[href^="/OperationsPage2"],
+    body[data-yard-page="OperationPage"] .yard-nav a[href^="/OperationPage?"],
+    body[data-yard-page="StaffPage"] .yard-nav a[href^="/StaffPage?"],
+    body[data-yard-page="GatesPage"] .yard-nav a[href^="/GatesPage?"],
+    body[data-yard-page="ClientReportPage"] .yard-nav a[href="/ClientReportPage"],
+    body[data-yard-page="PresentVehiclesPage"] .yard-nav a[href="/PresentVehiclesPage"],
+    body[data-yard-page="GuardPage"] .yard-nav a[href="/GuardPage"],
+    body[data-yard-page="OperationalReportPage"] .yard-nav a[href="/OperationalReportPage"],
+    body[data-yard-page="DispatcherReportPage"] .yard-nav a[href="/DispatcherReportPage"],
+    body[data-yard-page="ShiftPerfomanceReportPage"] .yard-nav a[href="/ShiftPerfomanceReportPage"],
+    body[data-yard-page="GateManagementPage"] .yard-nav a[href="/GateManagementPage"],
+    body:is([data-yard-page="ECReportPage"], [data-yard-page="ECReportDetailedPage"]) .yard-nav a[href="/ECReportPage"],
+    body[data-yard-page="WorkersPerfomanceReportPage"] .yard-nav a[href="/WorkersPerfomanceReportPage"] {
+        background: var(--yard-accent);
+        color: var(--yard-accent-ink) !important;
+        border-color: var(--yard-accent-ink);
+    }
+
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace { padding: 24px !important; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace > .container { width: 100% !important; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) main { overflow-x: auto; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(h1, h2, h3, h4, h5) { font-weight: 600; letter-spacing: -.02em; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.filters-div, .sorts-div, .infoHeaders) {
+        background: var(--yard-surface);
+        border: 1px solid var(--yard-line);
+        padding: 12px !important;
+        margin: 0 0 12px !important;
+    }
+    body[data-yard-page] .sorts-div { flex-wrap: wrap; gap: 8px; align-items: center; }
+    body[data-yard-page] .sort_select { min-width: 160px; }
+    body[data-yard-page] .infoHeaders { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+    body[data-yard-page] .infoHeaders > h5 { margin: 0; font-size: 14px; letter-spacing: 0; }
+
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.form-control, .form-select, .filter-text-box, .datepicker2) {
+        color: var(--yard-text);
+        background-color: var(--yard-surface);
+        border: 1px solid var(--yard-line);
+        border-radius: 2px !important;
+        min-height: 34px;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+        font-size: 14px;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .form-select { background-image: none; appearance: auto; padding-right: 8px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) option { color: var(--yard-text); background: var(--yard-surface); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) input::placeholder { color: var(--yard-muted); opacity: 1; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.form-control, .form-select):disabled { background-color: var(--yard-head); color: var(--yard-muted); opacity: 1; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .btn { border-radius: 2px !important; font-weight: 600; }
+    body[data-yard-page] .create-operation-button { padding: 7px 12px !important; margin-bottom: 4px !important; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.btn-outline-secondary, .btn-outline-primary, .btn-outline-success) {
+        background: var(--yard-surface); color: var(--yard-text); border-color: var(--yard-line);
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.btn-outline-secondary, .btn-outline-primary, .btn-outline-success):is(:hover, :active, .active) {
+        background: var(--yard-accent); color: var(--yard-accent-ink); border-color: var(--yard-accent-ink);
+    }
+    body[data-yard-page] :is(a, button, input, select, textarea):focus-visible { outline: 3px solid var(--yard-link, #245982); outline-offset: 2px; box-shadow: none; }
+
+    /* Data grids retain a light canvas in both themes so server-supplied status colors stay legible. */
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) table {
+        color: #202b39;
+        background: #fff;
+        border-color: #aab5c2;
+        font-variant-numeric: tabular-nums;
+        --bs-table-bg: transparent;
+        --bs-table-color: #202b39;
+        --bs-table-striped-bg: #f1f4f7;
+        --bs-table-striped-color: #202b39;
+        --bs-table-hover-bg: #e6edf4;
+        --bs-table-hover-color: #202b39;
+        --bs-table-active-bg: #e0e8f0;
+        --bs-table-active-color: #202b39;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(td, th) { border-color: #aab5c2; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) th {
+        background-color: #e5eaf0;
+        color: #202b39;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) table a:not(.btn) { color: #245982; text-decoration: underline; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-menu { background: var(--yard-surface); border: 1px solid var(--yard-line); border-radius: 2px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item { color: var(--yard-text); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item:is(:hover, :focus) { background: var(--yard-hover); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item.active { color: var(--yard-accent-ink); background: var(--yard-accent); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.modal-content, .card, .operation-type-note-content, .bc-works-block-content, .dialog-block-content) { color: #202b39; background-color: #fff; border-radius: 2px; }
+    body[data-yard-page="ECReportPage"] div[style*="background-color: white"] { color: #202b39; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-footer { color: var(--yard-muted); border-color: var(--yard-line) !important; font-size: 12px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-footer a { color: var(--yard-link); }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]):has(.yard-theme input[value="auto"]:checked) {
+        --yard-bg: #171c23;
+        --yard-surface: #222a34;
+        --yard-text: #e8edf3;
+        --yard-muted: #bcc7d5;
+        --yard-line: #667589;
+        --yard-head: #323e4c;
+        --yard-hover: #2c3744;
+        --yard-link: #a8cef1;
+        color-scheme: dark;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .yard-header-main { flex-wrap: wrap; gap: 12px; }
+    .yard-header-content { flex-basis: calc(100% - 120px); }
+    .yard-theme { display: flex; flex-wrap: wrap; gap: 12px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header { padding: 12px 12px 0; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace { padding: 16px 12px !important; }
+}

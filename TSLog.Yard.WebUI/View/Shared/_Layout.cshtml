@@ -1,4 +1,4 @@
-﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Configuration
 @using System.Security.Principal
 @using TSLog.Authorization
 @using TSLog.Yard.WebUI.Pages
@@ -38,7 +38,7 @@
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="utf-8" />
@@ -125,16 +125,16 @@
     } 
 </head>
 
-<body>
-    <div class="hide-on-print" style="margin: 0; padding: 0.5% 1%; border-bottom: 1px solid lightgray">
-        <div style="padding: 0; margin: auto; display: flex; justify-content: center">
-            <div style="margin: 0; padding: 0">
+<body data-yard-page="@page">
+    <header class="yard-header hide-on-print">
+        <div class="yard-header-main">
+            <div class="yard-brand">
                 <a class="navbar-brand hide-on-print" asp-area="" asp-page="/Index">
                     <img src="/img/logo-min.png" alt="TSL">
                 </a>
             </div>
-            <div style="display: flex; align-items: center">
-                <div style="margin-right: 48px; display: flex">
+            <div class="yard-header-content">
+                <nav class="yard-nav" aria-label="Основные разделы">
                         <a class="nav-link text-dark hide-on-print" 
                             title="Открыть страницу со списком операций двора"
                             href="/OperationsPage2?from_date=@date&to_date=@date">Заявки</a>
@@ -174,11 +174,17 @@
                                 title="Открыть страницу сотрудника охраны (въезд и выезд машин)"
                                 href="/GuardPage">Въезд/выезд</a>
                         }
-                </div>
-                <div class="hide-on-print">Вы вошли как: <b>@userName</b></div>
+                </nav>
+                <div class="yard-user hide-on-print">Вы вошли как: <b>@userName</b></div>
             </div>
+            <fieldset class="yard-theme" title="Выбор действует до перехода на другую страницу; Авто следует теме устройства">
+                <legend>Тема</legend>
+                <label><input type="radio" name="yard-theme" value="auto" checked> Авто</label>
+                <label><input type="radio" name="yard-theme" value="light"> Светлая</label>
+                <label><input type="radio" name="yard-theme" value="dark"> Тёмная</label>
+            </fieldset>
         </div>
-        <div style="padding: 0; margin: auto; display: flex; justify-content: center">
+        <nav class="yard-nav yard-reports" aria-label="Отчёты и управление">
             @if (canViewOperationalReportPage)
             {
                 <a class="nav-link text-dark hide-on-print" 
@@ -224,10 +230,10 @@
                     title="Открыть страницу отчёта по производительности работников (с указанием основных должностей)"
                     href="/WorkersPerfomanceReportPage">Производительность работников</a>
             }
-        </div>
-    </div>
+        </nav>
+    </header>
 
-    <div style="margin: 0; padding: 0.5% 1%">
+    <div class="yard-workspace" style="margin: 0; padding: 0.5% 1%">
         <div class="container" style="margin: auto; padding: 0; width: fit-content; max-width:100%">
             <main role="main" class="pb-3 rem-outline-on-print">
                 @RenderBody()
@@ -235,7 +241,7 @@
         </div>
     </div>
 
-    <div class="hide-on-print" style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
+    <div class="yard-footer hide-on-print" style="margin: 0; padding: 0.5% 1%; border-top: 1px solid lightgray">
         <div style="margin: auto; padding: 0; width: fit-content">
             <div class="container" style="height: 36px !important; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center">
                 Версия&nbsp;<b>@release</b>
