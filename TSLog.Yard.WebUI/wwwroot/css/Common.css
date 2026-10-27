@@ -285,7 +285,7 @@ td {
         border-bottom: 2px solid var(--yard-line);
     }
     .yard-profile { position: relative; flex: 0 1 auto; margin-left: auto; min-width: 0; max-width: 100%; }
-    .yard-profile-toggle, .yard-profile-logout {
+    .yard-profile-toggle {
         display: flex; align-items: center; gap: 10px; max-width: 100%;
         padding: 8px 12px; border: 1px solid var(--yard-line, #aab5c2); border-radius: 2px;
         background: var(--yard-surface, #fff); color: var(--yard-text, #202b39);
@@ -293,7 +293,7 @@ td {
     }
     .yard-profile-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
     .yard-profile-toggle i { font-size: 10px; }
-    .yard-profile-toggle[aria-expanded="true"], .yard-profile-toggle:hover, .yard-profile-logout:hover {
+    .yard-profile-toggle[aria-expanded="true"], .yard-profile-toggle:hover {
         background: var(--yard-hover, #edf1f5);
     }
     .yard-profile-panel {
@@ -307,8 +307,6 @@ td {
     .yard-profile-panel .yard-user { padding: 0 0 12px; overflow-wrap: anywhere; }
     .yard-profile-panel .yard-theme { display: block; }
     .yard-profile-panel .yard-theme label { padding: 7px 0; }
-    .yard-profile-panel form { margin-top: 12px; }
-    .yard-profile-logout { width: 100%; justify-content: center; }
     .yard-header-main { display: flex; align-items: center; gap: 24px; }
     .yard-brand { flex: 0 0 auto; }
     .yard-brand .navbar-brand { margin: 0; padding: 0; }

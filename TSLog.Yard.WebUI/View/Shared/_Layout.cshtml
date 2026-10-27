@@ -190,12 +190,6 @@
                         <label><input type="radio" name="yard-theme" value="light"> Светлая</label>
                         <label><input type="radio" name="yard-theme" value="dark"> Тёмная</label>
                     </fieldset>
-                    @if (User.Identities.Any(identity => identity.AuthenticationType == "Identity.Application"))
-                    {
-                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = string.Empty })" method="post">
-                            <button type="submit" class="yard-profile-logout">Выйти из аккаунта</button>
-                        </form>
-                    }
                 </div>
             </div>
         </div>
