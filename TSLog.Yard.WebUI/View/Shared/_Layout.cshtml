@@ -175,14 +175,29 @@
                                 href="/GuardPage">Въезд/выезд</a>
                         }
                 </nav>
-                <div class="yard-user hide-on-print">Вы вошли как: <b>@userName</b></div>
             </div>
-            <fieldset class="yard-theme" title="Выбор сохраняется в этом браузере, если разрешены cookie; Авто следует теме устройства">
-                <legend>Тема</legend>
-                <label><input type="radio" name="yard-theme" value="auto" checked> Авто</label>
-                <label><input type="radio" name="yard-theme" value="light"> Светлая</label>
-                <label><input type="radio" name="yard-theme" value="dark"> Тёмная</label>
-            </fieldset>
+            <div class="yard-profile">
+                <button type="button" id="yard-profile-toggle" class="yard-profile-toggle"
+                        aria-expanded="false" aria-controls="yard-profile-panel" aria-label="Профиль пользователя @userName">
+                    <span>@userName</span>
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <div id="yard-profile-panel" class="yard-profile-panel" role="region" aria-label="Настройки профиля" hidden>
+                    <div class="yard-user">Вы вошли как: <b>@userName</b></div>
+                    <fieldset class="yard-theme" title="Выбор сохраняется в этом браузере, если разрешены cookie; Авто следует теме устройства">
+                        <legend>Тема</legend>
+                        <label><input type="radio" name="yard-theme" value="auto" checked> Авто</label>
+                        <label><input type="radio" name="yard-theme" value="light"> Светлая</label>
+                        <label><input type="radio" name="yard-theme" value="dark"> Тёмная</label>
+                    </fieldset>
+                    @if (User.Identities.Any(identity => identity.AuthenticationType == "Identity.Application"))
+                    {
+                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = string.Empty })" method="post">
+                            <button type="submit" class="yard-profile-logout">Выйти из аккаунта</button>
+                        </form>
+                    }
+                </div>
+            </div>
         </div>
         <nav class="yard-nav yard-reports" aria-label="Отчёты и управление">
             @if (canViewOperationalReportPage)
