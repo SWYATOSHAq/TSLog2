@@ -1,7 +1,44 @@
-﻿/*
+/*
     Общий функционал для отображения.
     Автор - Буров Михаил (m.burov@tslog.ru).
 */
+
+(function initYardTheme() {
+    const controls = document.querySelectorAll('.yard-theme input[name="yard-theme"]');
+    if (!controls.length) return;
+
+    const cookieName = "tslog-yard-theme";
+    const validThemes = ["auto", "light", "dark"];
+
+    function restoreTheme() {
+        let theme = "auto";
+        try {
+            const cookie = document.cookie.split(";").map(value => value.trim())
+                .find(value => value.startsWith(cookieName + "="));
+            const saved = cookie ? cookie.substring(cookieName.length + 1) : null;
+            if (validThemes.includes(saved)) theme = saved;
+        } catch (_) {
+            // Cookie access can be blocked by browser privacy settings.
+        }
+        controls.forEach(control => { control.checked = control.value === theme; });
+    }
+
+    controls.forEach(control => {
+        control.addEventListener("change", function () {
+            if (!this.checked || !validThemes.includes(this.value)) return;
+            try {
+                document.cookie = cookieName + "=" + this.value
+                    + "; Path=/; Max-Age=31536000; SameSite=Lax"
+                    + (location.protocol === "https:" ? "; Secure" : "");
+            } catch (_) {
+                // The CSS switch still works when persistence is unavailable.
+            }
+        });
+    });
+
+    restoreTheme();
+    window.addEventListener("pageshow", restoreTheme);
+})();
 
 // Класс, реализующий дополнительный и вспомогательный функционал (для пользовательского интерфейса)
 class ViewUtils {
