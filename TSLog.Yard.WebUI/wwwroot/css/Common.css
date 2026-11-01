@@ -409,7 +409,8 @@ td {
     }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(td, th) { border-color: #aab5c2; }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) th {
-        background-color: #e5eaf0;
+        /* Keep table headers readable in dark mode: data grids use a light canvas. */
+        background-color: #ffffff;
         color: #202b39;
         font-weight: 700;
         vertical-align: middle;
