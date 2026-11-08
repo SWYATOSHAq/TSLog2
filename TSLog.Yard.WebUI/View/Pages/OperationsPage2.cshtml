@@ -1,4 +1,4 @@
-﻿@page "/OperationsPage2"
+@page "/OperationsPage2"
 @using TSLog.Partners.BO
 @using TSLog.Yard.WebUI.Models
 @using TSLog.Yard.BO
@@ -91,6 +91,12 @@
     var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";
 }
 
+<div class="yard-operations-heading hide-on-print">
+    <div>
+        <p class="yard-eyebrow">Управление двором</p>
+        <h1>Заявки и операции</h1>
+        <p class="yard-page-description">Планирование заездов и контроль работ на территории</p>
+    </div>
 @if (createOperation)
 {
     <div class="row create-operation-div">
@@ -111,8 +117,15 @@
         </div>
     </div>        
 }
-<partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
-<partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+</div>
+<div class="yard-operations-tools">
+    <div class="yard-tools-heading hide-on-print">
+        <h2>Отбор заявок</h2>
+        <span>Фильтры и порядок отображения</span>
+    </div>
+    <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
+    <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+</div>
 <div class="infoHeaders">
     <h5 id="header3">Всего заявок</h5>
     <h5 id="onParkingHeader">Машин на парковке</h5>
