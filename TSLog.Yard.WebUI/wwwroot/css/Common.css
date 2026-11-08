@@ -232,6 +232,8 @@ td {
         --yard-link: #24523b;
         --yard-accent: #dce6ce;
         --yard-accent-ink: #244b34;
+        --yard-card: #ffffff;
+        --yard-logo-background: #e8eddf;
         color-scheme: light;
         color: var(--yard-text);
         background: var(--yard-bg);
@@ -250,6 +252,8 @@ td {
         --yard-head: #304532;
         --yard-hover: #344c39;
         --yard-link: #bdd4a4;
+        --yard-card: #303844;
+        --yard-logo-background: #18251f;
         color-scheme: dark;
     }
 
@@ -281,6 +285,14 @@ td {
         --yard-accent-ink: #315d4c;
     }
 
+    /* A selected accent is shared by every Yard page; page defaults above are fallbacks. */
+    body[data-yard-page][data-yard-accent="blue"] { --yard-accent: #dce9f5; --yard-accent-ink: #244c70; }
+    body[data-yard-page][data-yard-accent="sage"] { --yard-accent: #dce9df; --yard-accent-ink: #315d42; }
+    body[data-yard-page][data-yard-accent="blush"] { --yard-accent: #f3dfdf; --yard-accent-ink: #75464d; }
+    body[data-yard-page][data-yard-accent="lavender"] { --yard-accent: #e8e1f1; --yard-accent-ink: #58436f; }
+    body[data-yard-page][data-yard-accent="rose"] { --yard-accent: #f3e5eb; --yard-accent-ink: #75465e; }
+    body[data-yard-page][data-yard-accent="mint"] { --yard-accent: #d9eee6; --yard-accent-ink: #315d4c; }
+
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header {
         padding: 16px 24px 0;
         background: #203e30;
@@ -291,8 +303,6 @@ td {
         --yard-muted: #e1e9d9;
         --yard-hover: #315440;
         --yard-line: #8da581;
-        --yard-accent: #dce6ce;
-        --yard-accent-ink: #244b34;
     }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-reports {
         margin-top: 16px;
@@ -331,14 +341,24 @@ td {
         border: 1px solid var(--yard-line, #aab5c2); border-radius: 3px;
         box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
     }
+    .yard-profile-panel :is(.yard-user, fieldset, legend, label, span, button) { color: var(--yard-text, #202b39); }
     .yard-profile-panel[hidden] { display: none; }
+    .yard-profile-panel { max-height: 70vh; overflow-y: auto; }
     .yard-profile-panel .yard-user { padding: 0 0 12px; overflow-wrap: anywhere; }
     .yard-profile-panel .yard-theme { display: block; }
     .yard-profile-panel .yard-theme label { padding: 7px 0; }
+    .yard-profile-panel .yard-accent-picker { margin-top: 12px; }
     .yard-header-main { display: flex; align-items: center; gap: 24px; }
     .yard-brand { flex: 0 0 auto; }
     .yard-brand .navbar-brand { margin: 0; padding: 0; }
-    .yard-brand img { width: 84px; height: auto; background: #fff; padding: 6px; }
+    .yard-brand img {
+        width: 84px;
+        height: auto;
+        padding: 6px;
+        background: var(--yard-logo-background, #e8eddf);
+        border-radius: 7px;
+        box-shadow: inset 0 0 0 1px var(--yard-line, #b8c5b2);
+    }
     .yard-header-content { flex: 1; min-width: 0; }
     .yard-nav { display: flex; flex-wrap: wrap; gap: 4px; }
     body .yard-nav .nav-link {
@@ -362,6 +382,20 @@ td {
     .yard-theme legend { float: none; width: auto; margin: 0; padding: 0 4px; font-size: 11px; color: var(--yard-muted, #526173); }
     .yard-theme label { display: block; font-size: 12px; cursor: pointer; padding: 3px 0; }
     .yard-theme input { accent-color: var(--yard-accent-ink, #244c70); }
+    .yard-accent-picker { margin: 0; padding: 8px 10px 10px; border: 1px solid var(--yard-line, #aab5c2); }
+    .yard-accent-picker legend { float: none; width: auto; margin: 0; padding: 0 4px; font-size: 11px; color: var(--yard-muted, #526173); }
+    .yard-accent-options { display: flex; align-items: center; gap: 10px; }
+    .yard-accent-option { position: relative; display: inline-flex; padding: 3px; cursor: pointer; }
+    .yard-accent-option input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+    .yard-accent-swatch { display: block; width: 24px; height: 24px; border: 2px solid var(--yard-surface, #fff); border-radius: 50%; box-shadow: 0 0 0 1px var(--yard-line, #aab5c2); }
+    .yard-accent-option-blue .yard-accent-swatch { background: #dce9f5; }
+    .yard-accent-option-sage .yard-accent-swatch { background: #dce9df; }
+    .yard-accent-option-blush .yard-accent-swatch { background: #f3dfdf; }
+    .yard-accent-option-lavender .yard-accent-swatch { background: #e8e1f1; }
+    .yard-accent-option-rose .yard-accent-swatch { background: #f3e5eb; }
+    .yard-accent-option-mint .yard-accent-swatch { background: #d9eee6; }
+    .yard-accent-option input:checked + .yard-accent-swatch { box-shadow: 0 0 0 2px var(--yard-accent-ink, #244c70), 0 0 0 4px var(--yard-surface, #fff); }
+    .yard-accent-option input:focus-visible + .yard-accent-swatch { outline: 3px solid var(--yard-link, #245982); outline-offset: 2px; }
 
     body:is([data-yard-page="OperationsPage"], [data-yard-page="OperationsPage2"]) .yard-nav a[href^="/OperationsPage2"],
     body[data-yard-page="OperationPage"] .yard-nav a[href^="/OperationPage?"],
@@ -471,7 +505,23 @@ td {
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item { color: var(--yard-text); }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item:is(:hover, :focus) { background: var(--yard-hover); }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item.active { color: var(--yard-accent-ink); background: var(--yard-accent); }
-    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.modal-content, .card, .operation-type-note-content, .bc-works-block-content, .dialog-block-content) { color: #202b39; background-color: #fff; border-radius: 2px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.modal-content, .card, .operation-type-note-content, .bc-works-block-content, .dialog-block-content) {
+        color: var(--yard-text);
+        background-color: var(--yard-card);
+        border-radius: 2px;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .operation-div {
+        color: var(--yard-text);
+        background-color: var(--yard-card);
+        border-color: var(--yard-line);
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .operation-div .card-header {
+        color: #202b39;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .operation-div .card-body {
+        color: var(--yard-text);
+        background-color: var(--yard-card);
+    }
     body[data-yard-page="ECReportPage"] div[style*="background-color: white"] { color: #202b39; }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-footer { color: var(--yard-muted); border-color: var(--yard-line) !important; font-size: 12px; }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-footer a { color: var(--yard-link); }
@@ -487,6 +537,8 @@ td {
         --yard-head: #304532;
         --yard-hover: #344c39;
         --yard-link: #bdd4a4;
+        --yard-card: #303844;
+        --yard-logo-background: #18251f;
         color-scheme: dark;
     }
 }
@@ -593,4 +645,86 @@ td {
     .yard-theme { display: flex; flex-wrap: wrap; gap: 12px; }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header { padding: 12px 12px 0; }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace { padding: 16px 12px !important; }
+}
+
+/* Operations grid: concrete palette in both themes, including dynamically coloured cells. */
+@media screen {
+    body[data-yard-page="OperationsPage2"] table.operations-table {
+        background: #e8e8e8;
+        color: #0a0a0a;
+        border: 2px solid #161616;
+        border-radius: 0;
+        box-shadow: 4px 4px 0 #161616;
+        --bs-table-color: #0a0a0a;
+        --bs-table-striped-color: #0a0a0a;
+        --bs-table-hover-color: #0a0a0a;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table > thead > tr > th {
+        background-color: #e8e8e8 !important;
+        color: #0a0a0a !important;
+        border: 2px solid #161616;
+        box-shadow: none !important;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table > tbody > tr > td {
+        color: #0a0a0a;
+        border: 2px solid #161616;
+        box-shadow: none !important;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table a:not(.btn) { color: #0a0a0a; }
+    body[data-yard-page="OperationsPage2"] table.operations-table .table-cell-button {
+        max-width: 100%;
+        background: #e8e8e8;
+        color: #0a0a0a;
+        border: 2px solid #161616;
+        border-radius: 0;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table .table-cell-button:is(:hover, :focus-visible) {
+        background: #161616;
+        color: #fff;
+    }
+    body[data-yard-page] .yard-status-cell { color: #0a0a0a !important; }
+    body[data-yard-page] .yard-status-cell .table-cell-button {
+        color: #0a0a0a;
+        background: #e8e8e8;
+        border-color: #161616;
+    }
+    body[data-yard-page] .yard-status-cell .table-cell-button:is(:hover, :focus-visible) {
+        color: #fff;
+        background: #161616;
+    }
+    .yard-table-scroll { max-width: 100%; overflow-x: auto; padding: 0 6px 24px 0; }
+    .yard-table-scrollbar {
+        position: fixed; height: 24px; z-index: 1020;
+        overflow-x: scroll; overflow-y: hidden;
+        background: var(--yard-surface, #222a34);
+        border: 1px solid var(--yard-line, #667589);
+        scrollbar-width: auto;
+    }
+    .yard-table-scrollbar[hidden] { display: none; }
+    .yard-table-scrollbar > div { height: 1px; }
+    .yard-table-scrollbar::-webkit-scrollbar { height: 18px; }
+    .yard-table-scrollbar::-webkit-scrollbar-track { background: #222a34; }
+    .yard-table-scrollbar::-webkit-scrollbar-thumb { background: #8393a6; border: 3px solid #222a34; border-radius: 6px; }
+    body[data-yard-page="OperationsPage2"] table.yard-resizable-table { table-layout: fixed; max-width: none; }
+    body[data-yard-page="OperationsPage2"] table.yard-resizable-table :is(td, th) {
+        width: auto !important;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+    .yard-resizable-table th { position: relative; padding-right: 16px; }
+    .yard-column-resize {
+        position: absolute; right: -4px; top: 0; width: 8px;
+        z-index: 1; padding: 0; border: 0; background: transparent;
+        cursor: col-resize; touch-action: none;
+    }
+    .yard-column-resize:hover { background: rgb(22 22 22 / 20%); }
+    .yard-column-resize:focus-visible { background: rgb(22 22 22 / 20%); outline: 2px solid #244c70; outline-offset: -2px; }
+    .yard-table-resizing { cursor: col-resize; user-select: none; }
+}
+@media print {
+    .yard-column-resize, .yard-table-scrollbar { display: none !important; }
+    .yard-table-scroll { overflow: visible; padding: 0; }
+    table.yard-resizable-table { width: 100% !important; }
+    table.yard-resizable-table col { width: auto !important; }
 }

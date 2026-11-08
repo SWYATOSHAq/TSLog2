@@ -229,3 +229,8 @@ input[type="color"]:hover {
     background-color: #e0e9ff;
 }
 
+.yard-operation-card {
+    width: 1280px;
+    margin-inline: auto;
+}
+

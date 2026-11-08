@@ -1,4 +1,4 @@
-@using Microsoft.Extensions.Configuration
+﻿@using Microsoft.Extensions.Configuration
 @using System.Security.Principal
 @using TSLog.Authorization
 @using TSLog.Yard.WebUI.Pages
@@ -190,6 +190,35 @@
                         <label><input type="radio" name="yard-theme" value="light"> Светлая</label>
                         <label><input type="radio" name="yard-theme" value="dark"> Тёмная</label>
                     </fieldset>
+                    <fieldset class="yard-accent-picker" title="Выбор сохраняется в этом браузере">
+                        <legend>Цвет активного раздела</legend>
+                        <div class="yard-accent-options" role="radiogroup" aria-label="Цвет активного раздела">
+                            <label class="yard-accent-option yard-accent-option-blue" title="Синий">
+                                <input type="radio" name="yard-accent" value="blue" aria-label="Синий" checked>
+                                <span class="yard-accent-swatch" aria-hidden="true"></span>
+                            </label>
+                            <label class="yard-accent-option yard-accent-option-sage" title="Шалфейный">
+                                <input type="radio" name="yard-accent" value="sage" aria-label="Шалфейный">
+                                <span class="yard-accent-swatch" aria-hidden="true"></span>
+                            </label>
+                            <label class="yard-accent-option yard-accent-option-blush" title="Пудровый">
+                                <input type="radio" name="yard-accent" value="blush" aria-label="Пудровый">
+                                <span class="yard-accent-swatch" aria-hidden="true"></span>
+                            </label>
+                            <label class="yard-accent-option yard-accent-option-lavender" title="Лавандовый">
+                                <input type="radio" name="yard-accent" value="lavender" aria-label="Лавандовый">
+                                <span class="yard-accent-swatch" aria-hidden="true"></span>
+                            </label>
+                            <label class="yard-accent-option yard-accent-option-rose" title="Розовый">
+                                <input type="radio" name="yard-accent" value="rose" aria-label="Розовый">
+                                <span class="yard-accent-swatch" aria-hidden="true"></span>
+                            </label>
+                            <label class="yard-accent-option yard-accent-option-mint" title="Мятный">
+                                <input type="radio" name="yard-accent" value="mint" aria-label="Мятный">
+                                <span class="yard-accent-swatch" aria-hidden="true"></span>
+                            </label>
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
@@ -288,7 +317,8 @@
         }
         else if (page == "OperationsPage2")
         {
-            <script type="text/javascript" src="~/js/OperationsPage2.js"></script>
+            <script type="text/javascript" src="~/js/OperationsTableResize.js" asp-append-version="true"></script>
+            <script type="text/javascript" src="~/js/OperationsPage2.js" asp-append-version="true"></script>
         }
         else if (page == "StaffPage")
         {
@@ -304,7 +334,7 @@
         }
         else if (page == "PresentVehiclesPage")
         {        
-            <script type="text/javascript" src="~/js/PresentVehiclesPage.js"></script>
+            <script type="text/javascript" src="~/js/PresentVehiclesPage.js" asp-append-version="true"></script>
         }
         else if (page == "GuardPage")
         {        

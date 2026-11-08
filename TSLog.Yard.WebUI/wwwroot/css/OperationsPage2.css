@@ -76,3 +76,37 @@
     display: inline-block;
     margin-right: 30px;
 }
+
+/* Equal, neutral actions — profile accent remains reserved for navigation. */
+.yard-create-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+body[data-yard-page="OperationsPage2"] .yard-create-actions .create-operation-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 240px;
+    width: 240px;
+    max-width: 100%;
+    height: 44px;
+    padding: 0 16px !important;
+    margin: 0 !important;
+    border: 1px solid var(--yard-line);
+    border-radius: 4px !important;
+    background: var(--yard-surface);
+    color: var(--yard-text);
+    font: 600 14px/1.2 Arial, Helvetica, sans-serif;
+    white-space: nowrap;
+    box-shadow: none;
+}
+body[data-yard-page="OperationsPage2"] .yard-create-actions .create-operation-button:is(:hover, :active) {
+    background: var(--yard-hover);
+    color: var(--yard-text);
+    border-color: var(--yard-muted);
+}

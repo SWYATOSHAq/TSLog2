@@ -135,7 +135,7 @@ class PresentVehiclesPage {
         openP.textContent = operation.stateDisplayName;
         contents.push(openP);
 
-        viewUtils.createCell(operationTr, ["table-cell"], contents,
+        viewUtils.createCell(operationTr, ["table-cell", "yard-status-cell"], contents,
             "background-color: " + operation.displayColor + " !important; box-shadow:none");
 
     }

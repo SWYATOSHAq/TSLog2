@@ -40,6 +40,51 @@
     window.addEventListener("pageshow", restoreTheme);
 })();
 
+(function initYardAccent() {
+    const controls = document.querySelectorAll('.yard-accent-picker input[name="yard-accent"]');
+    const body = document.body;
+    if (!body || !controls.length) return;
+
+    const cookieName = "tslog-yard-accent";
+    const validAccents = ["blue", "sage", "blush", "lavender", "rose", "mint"];
+
+    function applyAccent(value) {
+        const accent = validAccents.includes(value) ? value : "blue";
+        body.dataset.yardAccent = accent;
+        controls.forEach(control => { control.checked = control.value === accent; });
+    }
+
+    function restoreAccent() {
+        let accent = "blue";
+        try {
+            const cookie = document.cookie.split(";").map(value => value.trim())
+                .find(value => value.startsWith(cookieName + "="));
+            const saved = cookie ? cookie.substring(cookieName.length + 1) : null;
+            if (validAccents.includes(saved)) accent = saved;
+        } catch (_) {
+            // Cookie access can be blocked by browser privacy settings.
+        }
+        applyAccent(accent);
+    }
+
+    controls.forEach(control => {
+        control.addEventListener("change", function () {
+            if (!this.checked || !validAccents.includes(this.value)) return;
+            applyAccent(this.value);
+            try {
+                document.cookie = cookieName + "=" + this.value
+                    + "; Path=/; Max-Age=31536000; SameSite=Lax"
+                    + (location.protocol === "https:" ? "; Secure" : "");
+            } catch (_) {
+                // The accent still works when persistence is unavailable.
+            }
+        });
+    });
+
+    restoreAccent();
+    window.addEventListener("pageshow", restoreAccent);
+})();
+
 (function initYardProfile() {
     const toggle = document.getElementById("yard-profile-toggle");
     const panel = document.getElementById("yard-profile-panel");

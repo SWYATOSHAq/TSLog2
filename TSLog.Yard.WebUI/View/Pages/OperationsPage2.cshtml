@@ -100,17 +100,15 @@
 @if (createOperation)
 {
     <div class="row create-operation-div">
-        <div style="flex-wrap: nowrap; width: auto; margin: auto; padding: 0">
-            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                style="width: 200px"
+        <div class="yard-create-actions">
+            <button class="btn hide-on-print create-operation-button"
                 type="button" 
                 title="Создать новую заявку на операцию двора (разгрузку или погрузку) без подтверждения"
                 onclick="location.href = '/OperationPage?action=@createAction'">Создать</button>
             @if (!isPartnerUser)
             {
-                <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                    style="width: 200px"
-                    type="button" 
+                <button class="btn hide-on-print create-operation-button"
+                    type="button"
                     title="Создать новую заявку на операцию двора (разгрузку или погрузку) с подтверждением"
                     onclick="location.href = '/OperationPage?action=CREATE_CONFIRM'">Создать и подтвердить</button>
             }            
