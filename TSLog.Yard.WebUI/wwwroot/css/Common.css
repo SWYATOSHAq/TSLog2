@@ -222,14 +222,16 @@ td {
         --yard-accent-ink: #244c70;
     }
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) {
-        --yard-bg: #f3f4f6;
-        --yard-surface: #ffffff;
-        --yard-text: #202b39;
-        --yard-muted: #526173;
-        --yard-line: #aab5c2;
-        --yard-head: #e5eaf0;
-        --yard-hover: #edf1f5;
-        --yard-link: #245982;
+        --yard-bg: #f3f3eb;
+        --yard-surface: #fffef8;
+        --yard-text: #20392d;
+        --yard-muted: #576b5d;
+        --yard-line: #b8c5b2;
+        --yard-head: #e8eddf;
+        --yard-hover: #e1e8d9;
+        --yard-link: #24523b;
+        --yard-accent: #dce6ce;
+        --yard-accent-ink: #244b34;
         color-scheme: light;
         color: var(--yard-text);
         background: var(--yard-bg);
@@ -240,14 +242,14 @@ td {
     }
 
     body[data-yard-page]:has(.yard-theme input[value="dark"]:checked) {
-        --yard-bg: #171c23;
-        --yard-surface: #222a34;
-        --yard-text: #e8edf3;
-        --yard-muted: #bcc7d5;
-        --yard-line: #667589;
-        --yard-head: #323e4c;
-        --yard-hover: #2c3744;
-        --yard-link: #a8cef1;
+        --yard-bg: #18251f;
+        --yard-surface: #22352a;
+        --yard-text: #eef1e5;
+        --yard-muted: #bdcbb8;
+        --yard-line: #6e8369;
+        --yard-head: #304532;
+        --yard-hover: #344c39;
+        --yard-link: #bdd4a4;
         color-scheme: dark;
     }
 
@@ -281,8 +283,34 @@ td {
 
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header {
         padding: 16px 24px 0;
-        background: var(--yard-surface);
-        border-bottom: 2px solid var(--yard-line);
+        background: #203e30;
+        border-bottom: 3px solid #a9bc91;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-nav {
+        --yard-text: #f4f5eb;
+        --yard-muted: #e1e9d9;
+        --yard-hover: #315440;
+        --yard-line: #8da581;
+        --yard-accent: #dce6ce;
+        --yard-accent-ink: #244b34;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-reports {
+        margin-top: 16px;
+        border-top-color: #69816a;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-profile-toggle {
+        color: #f4f5eb;
+        background: #2f503e;
+        border-color: #8da581;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-profile-toggle:is(:hover, [aria-expanded="true"]) {
+        background: #3e6249;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header :is(a, button):focus-visible {
+        outline-color: #dce6ce;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-profile-panel :is(a, button):focus-visible {
+        outline-color: var(--yard-link);
     }
     .yard-profile { position: relative; flex: 0 1 auto; margin-left: auto; min-width: 0; max-width: 100%; }
     .yard-profile-toggle {
@@ -363,6 +391,29 @@ td {
         padding: 12px !important;
         margin: 0 0 12px !important;
     }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.filters-div, .sorts-div, .infoHeaders) { border-radius: 3px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .infoHeaders {
+        border: 0;
+        border-top: 3px solid #91a67c;
+        background: var(--yard-head);
+        padding: 16px !important;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) main > :is(h1, h2) {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 400;
+        color: var(--yard-text);
+        margin-bottom: 20px;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .create-operation-button {
+        background: #28543b;
+        color: #fff;
+        border-color: #28543b;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .create-operation-button:hover {
+        background: #1d402c;
+        color: #fff;
+        border-color: #1d402c;
+    }
     body[data-yard-page] .sorts-div { flex-wrap: wrap; gap: 8px; align-items: center; }
     body[data-yard-page] .sort_select { min-width: 160px; }
     body[data-yard-page] .infoHeaders { display: flex; flex-wrap: wrap; gap: 12px 28px; }
@@ -428,14 +479,14 @@ td {
 
 @media screen and (prefers-color-scheme: dark) {
     body[data-yard-page]:not([data-yard-page="OperationPrintPage"]):has(.yard-theme input[value="auto"]:checked) {
-        --yard-bg: #171c23;
-        --yard-surface: #222a34;
-        --yard-text: #e8edf3;
-        --yard-muted: #bcc7d5;
-        --yard-line: #667589;
-        --yard-head: #323e4c;
-        --yard-hover: #2c3744;
-        --yard-link: #a8cef1;
+        --yard-bg: #18251f;
+        --yard-surface: #22352a;
+        --yard-text: #eef1e5;
+        --yard-muted: #bdcbb8;
+        --yard-line: #6e8369;
+        --yard-head: #304532;
+        --yard-hover: #344c39;
+        --yard-link: #bdd4a4;
         color-scheme: dark;
     }
 }
