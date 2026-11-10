@@ -2185,10 +2185,21 @@ public class YardController : ControllerBase
                 return $"Wrong to date {stringDate}";
         }
 
-        var fromDate = date.Date;
-        var toDate = fromDate.AddHours(23).AddMinutes(59);
+        string? shift = Request.Query["shift"];
+        shift = shift?.Trim().ToLowerInvariant();
+        var forShift = !string.IsNullOrEmpty(shift);
+        if (forShift && shift != "day" && shift != "night")
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return $"Unknown shift {shift}";
+        }
 
-        var operations = _storage.GetGateManagementData(fromDate, toDate);
+        var fromDate = date.Date.AddHours(shift == "night" ? 21 : shift == "day" ? 9 : 0);
+        var toDate = forShift ? fromDate.AddHours(12) : fromDate.AddHours(23).AddMinutes(59);
+        var operations = _storage.GetGateManagementData(fromDate, toDate, forShift);
+        if (forShift)
+            operations = operations.Where(operation => !string.IsNullOrWhiteSpace((string)operation.gateCode)).ToArray();
+
         foreach (dynamic operation in operations)
         {
             string partnerIds = operation.partnerIds;
@@ -2208,12 +2219,40 @@ public class YardController : ControllerBase
                 }
             }
             operation.partnerNames = partnerNames;
-            _ = _storage.GetSiteCodeByGateCode(operation.gateCode);
+            if (!forShift)
+                _ = _storage.GetSiteCodeByGateCode(operation.gateCode);
         }
 
-        var text = JsonSerializer.Serialize(operations);
+        var text = forShift ? BuildGateShiftReport(operations) : JsonSerializer.Serialize(operations);
         Response.StatusCode = (int)HttpStatusCode.OK;
         return text;
+    }
+
+    private string BuildGateShiftReport(dynamic[] operations)
+    {
+        var gateNames = _storage.GetGates()
+            .Where(gate => gate.IsActive && gate != Gate.Null && gate != Gate.Empty)
+            .ToDictionary(gate => gate.Code, gate => gate.DisplayName);
+        var occupancy = new Dictionary<string, double>();
+        foreach (var group in operations.GroupBy(operation => (string)operation.gateCode))
+        {
+            string gateName = group.First().gateName;
+            gateNames.TryAdd(group.Key, gateName);
+            occupancy[group.Key] = GateShiftOccupancy.Calculate(group.Select(operation =>
+            {
+                double start = operation.factStart;
+                double duration = operation.factDuration;
+                return (start, start + duration);
+            }));
+        }
+
+        var gates = gateNames.Select(gate => new
+        {
+            code = gate.Key,
+            name = string.IsNullOrWhiteSpace(gate.Value) ? gate.Key : gate.Value,
+            occupancyPercent = occupancy.GetValueOrDefault(gate.Key)
+        });
+        return JsonSerializer.Serialize(new { operations, gates });
     }
 
     [HttpGet("ShiftPerfomanceReport")]

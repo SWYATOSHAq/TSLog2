@@ -3227,13 +3227,20 @@ public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReporting
         return [.. data];
     }
 
-    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
+    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate, bool forShift = false)
     {
         var data = new List<dynamic>();
+        var now = DateTime.Now;
         using (var connection = CloneConnection())
         {
             using (var command = connection.CreateCommand())
             {
+                var dateFilter = forShift
+                    ? "      and ((o.fact_work_start_date < :finish_date and (o.fact_work_finish_date > :start_date or o.fact_work_finish_date is null))\n" +
+                      "        or (o.fact_work_start_date is null and o.plan_work_start_date < :finish_date and o.plan_work_finish_date > :start_date))\n"
+                    : "      and ((o.plan_work_start_date >= :start_date and o.plan_work_start_date <= :finish_date) or " +
+                      "      (o.fact_work_start_date >= :start_date and o.fact_work_start_date <= :finish_date) or (o.plan_work_finish_date <= :finish_date and " +
+                      "      o.plan_work_finish_date >= :start_date) or (o.fact_work_finish_date <= :finish_date and o.fact_work_finish_date >= :start_date))\n";
                 var sql =
                     $"   select o.id,\n" +
                     $"          o.type_id,\n" +
@@ -3250,10 +3257,7 @@ public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReporting
                     $"left join {YardSchema}.v_ot_vk_time otvkt on o.type_id = otvkt.operation_type_id\n " +
                     $"                                         and o.vehicle_kind_id = otvkt.vehicle_kind_id\n" +
                     $"    where o.state_code in ('CONFIRMED', 'WORK_STARTED', 'STARTED','WORK_FINISHED', 'FINISHED')\n" +
-                    $"      and ((o.plan_work_start_date >= :start_date and o.plan_work_start_date <= :finish_date) or " +
-                    $"      (o.fact_work_start_date >= :start_date and o.fact_work_start_date <= :finish_date) or (o.plan_work_finish_date <= :finish_date and " +
-                    $"      o.plan_work_finish_date >= :start_date) or (o.fact_work_finish_date <= :finish_date and o.fact_work_finish_date >= :start_date))\n" +
-                    $"--      and o.id = 10025468\n" +
+                    dateFilter +
                     $" order by o.fact_work_start_date, o.fact_work_finish_date";
                 command.CommandText = sql;
                 command.Parameters.Add(CreateParameter("start_date", NpgsqlDbType.Timestamp, fromDate));
@@ -3272,7 +3276,7 @@ public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReporting
                     operation.factWorkFinishDate = Utils.DbValueToDateTime(reader["fact_work_finish_date"]);
                     var planDurationRef = (operation.planWorkFinishDate - operation.planWorkStartDate); // Для расчета скорректированного планового времени окончания работ.
 
-                    if ((operation.planWorkStartDate.Date == fromDate.Date) && (operation.planWorkStartDate.Date < operation.factWorkStartDate.Date)) // Отфильтровываем заявки с планом на выбранную дату, но фактом на день и более позже.
+                    if (!forShift && (operation.planWorkStartDate.Date == fromDate.Date) && (operation.planWorkStartDate.Date < operation.factWorkStartDate.Date)) // Отфильтровываем заявки с планом на выбранную дату, но фактом на день и более позже.
                         continue;
 
                     if (operation.planWorkStartDate < DateTime.Now && operation.factWorkStartDate == DateTime.MinValue) //Отфильтровываем просроченные заявки с устаревшим планом и без факта.
@@ -3302,7 +3306,33 @@ public class YardPgSqlStorage : PgSqlStorage, IYardCommonStorage, IYardReporting
                     var vehicleKind = GetVehicleKind(vehicleKindId);
                     operation.vehicleKindCode = vehicleKind.Code;
 
-                    if (operation.planWorkFinishDate.Date > fromDate.Date) // Условие для обрезания заявок с переходом через день.
+                    if (forShift)
+                    {
+                        DateTime displayStart = operation.planWorkStartDate;
+                        DateTime displayFinish = operation.planWorkFinishDate;
+                        DateTime factStart = operation.factWorkStartDate;
+                        DateTime factFinish = operation.factWorkFinishDate;
+                        if (factStart != DateTime.MinValue && factFinish == DateTime.MinValue)
+                        {
+                            factFinish = now;
+                            if (displayFinish < factFinish)
+                                displayFinish = factFinish;
+                        }
+
+                        displayStart = displayStart < fromDate ? fromDate : displayStart;
+                        displayFinish = displayFinish > toDate ? toDate : displayFinish;
+                        if (displayFinish <= displayStart)
+                            continue;
+
+                        operation.planWorkStartDate = displayStart;
+                        operation.planWorkFinishDate = displayFinish;
+                        operation.planStart = (displayStart - fromDate).TotalMinutes;
+                        operation.planDuration = (displayFinish - displayStart).TotalMinutes;
+                        operation.factDuration = factStart != DateTime.MinValue && factFinish > factStart
+                            ? (factFinish - factStart).TotalMinutes
+                            : 0d;
+                    }
+                    else if (operation.planWorkFinishDate.Date > fromDate.Date) // Условие для обрезания заявок с переходом через день.
                     {
                         operation.planWorkFinishDate = operation.planWorkStartDate.Date.AddHours(23).AddMinutes(59);
                         operation.planDuration = (operation.planWorkFinishDate - operation.planWorkStartDate).TotalMinutes;

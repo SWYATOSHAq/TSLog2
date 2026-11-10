@@ -147,7 +147,7 @@ public interface IYardReportingStorage
     public dynamic[] GetYardAllocatedLabocCosts(DateTime fromDate, DateTime toDate);
     public dynamic[] GetYardShiftLabocCosts(DateTime date);
     public dynamic[] GetYardPerfomanceData(DateTime fromDate, DateTime toDate);
-    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate);
+    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate, bool forShift = false);
 }
 public interface IBcReportingStorage
 {

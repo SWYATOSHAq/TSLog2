@@ -10,6 +10,8 @@ class GateManagementPage {
     shortUrl;
 
     data = [];
+    reportRequest = 0;
+    shiftReport = null;
 
     constructor() {
         this.shortUrl = location.href.split('?')[0];
@@ -18,18 +20,9 @@ class GateManagementPage {
     createParameters() {
         let result = "";
         result = utils.addParameter(result, "date", "date-input");
-        //result = utils.addParameter(result, "shift", "shift-select");
+        if (document.getElementById("shift-select").value)
+            result = utils.addParameter(result, "shift", "shift-select");
         return result != "" ? "?" + result : "";
-    }
-
-    async getData(date) {
-        const result = await api.createGateManagement(date);
-        if (result.code === 0) {
-            this.data = result.data;
-        } else {
-            this.data = [];
-            viewUtils.showError(result.message);
-        }
     }
 
     clearReport() {
@@ -67,16 +60,17 @@ class GateManagementPage {
         return hourString + ":" + minuteString;
     }
 
-    showReport() {
+    showReport(shift, shiftGates) {
         let operations = { };
-        let intervalsCount = 96;
+        const intervalsCount = shift ? 48 : 96;
         for (let operation of this.data) {
             if (operations[operation.gateCode] == undefined) {
                 operations[operation.gateCode] = [];
             }
             operations[operation.gateCode].push(operation);
         }
-        const gatesCodes = Object.keys(operations);
+        const shiftGatesByCode = new Map(shiftGates.map(gate => [gate.code, gate]));
+        const gatesCodes = shift ? [...shiftGatesByCode.keys()] : Object.keys(operations);
         gatesCodes.sort();
 
         // Готовим шаблон заголовка
@@ -107,7 +101,7 @@ class GateManagementPage {
         for (let gateCode of gatesCodes) {
             columnHeader = document.createElement("th");
             columnHeader.classList.add("table-header");
-            columnHeader.textContent = gates[gateCode];
+            columnHeader.textContent = shift ? shiftGatesByCode.get(gateCode).name : gates[gateCode];
             headerRow.append(columnHeader);
         }        
 
@@ -115,16 +109,10 @@ class GateManagementPage {
         const tbody = document.getElementById("elements-tbody");
         tbody.replaceChildren();
         const gatesCount = gatesCodes.length;
-        //const shift = document.getElementById("shift-select").value;         
-        let startHour = 0;
-        //let finishHour = 10;
-        let finishHour = 24;
+        let startHour = shift === "night" ? 21 : shift === "day" ? 9 : 0;
+        let finishHour = startHour;
         let startMinutes = 0;
         let finishMinutes = 15;
-        //if (shift === "night") {
-        //    startHour = 21;
-        //    finishHour = 21;
-        //}
         for (let rowIndex = 0; rowIndex < intervalsCount; rowIndex++) {
             const row = document.createElement("tr");
             row.style.cssText = "height: 40px";
@@ -156,20 +144,21 @@ class GateManagementPage {
             }
             tbody.append(row);
         }
-        //const row = document.createElement("tr");
-        //row.style.cssText = "height: 40px";
-        //const cell = document.createElement("td");
-        //cell.classList.add("row-header");
-        //cell.textContent = "Итого:";
-        //row.append(cell);
-        //for (let columnIndex = 0; columnIndex < gatesCount; columnIndex++) {
-        //    const cell = document.createElement("td");
-        //    cell.classList.add("table-cell");
-        //    cell.textContent = "";
-        //    cell.id = gatesCodes[columnIndex] + "-total";
-        //    row.append(cell);
-        //}
-        //tbody.append(row);
+        if (shift && shiftGates.length > 0) {
+            const row = document.createElement("tr");
+            const label = document.createElement("th");
+            label.scope = "row";
+            label.textContent = "Занятость, %";
+            row.append(label);
+            for (const gateCode of gatesCodes) {
+                const cell = document.createElement("td");
+                cell.textContent = shiftGatesByCode.get(gateCode).occupancyPercent.toLocaleString("ru-RU", {
+                    maximumFractionDigits: 1
+                });
+                row.append(cell);
+            }
+            tbody.append(row);
+        }
 
         // Выводим непосредствено данные
         for (let gateCode in operations) {
@@ -235,62 +224,81 @@ class GateManagementPage {
         }
     }
 
-    showReportTitle() {
-        const reportHeaderB = document.getElementById("report-header-b")
-        let date = utils.getUrlParameter("date");
-        if (date == "")
-            date = utils.getNowDate();
-        //const shiftCode = utils.getUrlParameter("shift");
-        //const shift = shiftCode === "day" ? "ДНЕВНУЮ" : "НОЧНУЮ";
-        //reportHeaderB.textContent = "Отчёт по производительности за " + date + " за " + shift + " смену";
-        reportHeaderB.textContent = "Управление воротами за " + date;
+    showReportTitle(date, shift) {
+        const reportHeaderB = document.getElementById("report-header-b");
+        const shiftTitle = shift === "night" ? " · ночная смена (21:00–09:00)" :
+            shift === "day" ? " · дневная смена (09:00–21:00)" : "";
+        reportHeaderB.textContent = "Управление воротами за " + (date || utils.getNowDate()) + shiftTitle;
     }
-
-    //showShiftInfo() {
-    //    const shiftDiv = document.getElementById("shift-info");
-    //    if (document.getElementById("shift-select").value == "day") {
-    //        const date = utils.getUrlParameter("date");
-    //        shiftDiv.innerHTML = "Дневная смена с <b>9:00</b> (" + date + ") по <b>21:00</b> (" + date + ")";
-    //    }
-    //    else if (document.getElementById("shift-select").value == "night") {
-    //        const fromDate = utils.stringToDate(utils.getUrlParameter("date"));
-    //        let toDate = utils.stringToDate(utils.getUrlParameter("date"));
-    //        toDate.setDate(toDate.getDate() + 1);
-    //        shiftDiv.innerHTML = "Ночная смена с <b>21:00</b> (" + fromDate.toLocaleDateString() + ") по <b>9:00</b> (" + toDate.toLocaleDateString() + ")";
-    //    }
-    //    else {
-    //        shiftDiv.textContent = "Смена не определена!";
-    //    }
-    //}
 
     onChangeParameters() {        
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        //this.showShiftInfo();
     }
 
     async createReport() {
+        const request = ++this.reportRequest;
+        const date = utils.getUrlParameter("date");
+        const shift = document.getElementById("shift-select").value;
+        const exportButton = document.getElementById("export-gate-management-button");
+        this.shiftReport = null;
+        exportButton.disabled = true;
         this.clearReport();
-        //await this.getData(utils.getUrlParameter("date"), utils.getUrlParameter("shift"));
-        await this.getData(utils.getUrlParameter("date"));
-        this.showReport()
-        this.showReportTitle();
+        const result = await api.createGateManagement(date, shift);
+        if (request !== this.reportRequest)
+            return;
+
+        this.data = [];
+        let shiftGates = [];
+        if (result.code === 0) {
+            this.data = shift ? result.data.operations : result.data;
+            if (shift) {
+                shiftGates = result.data.gates;
+                this.shiftReport = { date: date || utils.getNowDate(), shift, gates: shiftGates, operations: this.data };
+                exportButton.disabled = false;
+            }
+        } else {
+            viewUtils.showError(result.message);
+        }
+        this.showReport(shift, shiftGates);
+        this.showReportTitle(date, shift);
     }
 
-    //exportToExcel() {
-    //    const reportTable = document.getElementById("report-table");
+    exportToExcel() {
+        if (!this.shiftReport)
+            return;
+        if (typeof XLSX === "undefined") {
+            viewUtils.showError("Не удалось загрузить модуль выгрузки в Excel.");
+            return;
+        }
 
-    //    let date = utils.getUrlParameter("date");
-    //    if (date === "")
-    //        date = utils.getNowDate();
-    //    let shift = utils.getUrlParameter("shift");
-    //    if (shift === "")
-    //        shift = "day";
-    //    const fileName = "ecReport_" + date + "_" + shift;
-    //    const sheetName = date + " - " + shift;
+        const { date, shift, gates, operations } = this.shiftReport;
+        const shiftTitle = shift === "night" ? "Ночная" : "Дневная";
+        const gateNames = new Map(gates.map(gate => [gate.code, gate.name]));
+        const summary = [
+            ["Дата начала смены", "Смена", "Код ворот", "Ворота", "Занятость, %"],
+            ...gates.map(gate => [
+                date, shiftTitle, gate.code, gate.name, Math.round(gate.occupancyPercent * 10) / 10
+            ])
+        ];
+        const details = [
+            ["Ворота", "Заявка", "Автомобиль", "Клиенты", "Начало на диаграмме", "Конец на диаграмме",
+                "Фактическое начало", "Фактическое окончание"],
+            ...operations.map(operation => [
+                gateNames.get(operation.gateCode), operation.id, operation.vehicleNumber, operation.partnerNames,
+                this.formatExportDate(operation.planWorkStartDate), this.formatExportDate(operation.planWorkFinishDate),
+                this.formatExportDate(operation.factWorkStartDate), this.formatExportDate(operation.factWorkFinishDate)
+            ])
+        ];
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(summary), "Занятость");
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(details), "Операции");
+        XLSX.writeFile(workbook, `Занятость ворот ${date.replaceAll("/", "-")} ${shiftTitle}.xlsx`);
+    }
 
-    //    viewUtils.tableToExcel_v2(reportTable, fileName, "xlsx", sheetName);
-    //}
+    formatExportDate(value) {
+        return value && !value.startsWith("0001-") ? value.slice(0, 19).replace("T", " ") : "";
+    }
 
     print() {
         window.print();
@@ -314,15 +322,14 @@ class GateManagementPage {
         let date = utils.getUrlParameter("date");
         if (date == "")
             date = utils.getNowDate();
-        //let shift = utils.getUrlParameter("shift");
-        //if (shift == "")
-        //    shift = "day";        
         viewUtils.initDatePicker("date-input", date, this.onChangeParameters.bind(this));
-        //viewUtils.initSelect("shift-select", shift, this.onChangeParameters.bind(this));        
+        const shiftSelect = document.getElementById("shift-select");
+        const shift = utils.getUrlParameter("shift");
+        shiftSelect.value = shift === "day" || shift === "night" ? shift : "";
+        shiftSelect.addEventListener("change", this.onChangeParameters.bind(this));
         
         const url = this.shortUrl + this.createParameters();
         history.pushState({}, null, url);
-        //this.showShiftInfo();
 
         this.createReport();
     }
