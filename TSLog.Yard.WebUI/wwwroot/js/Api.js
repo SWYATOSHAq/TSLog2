@@ -409,9 +409,11 @@ class Api {
         return await this.getHttpResult("data", url);
     }
 
-    // Формирует отчёт по трудозатратам за смену 3
-    async createGateManagement(date) {
-        const url = "./api/v1/yard/GateManagement?date=" + date;
+    // Формирует отчёт «Управление воротами»
+    async createGateManagement(date, shift) {
+        let url = "./api/v1/yard/GateManagement?date=" + date;
+        if (shift)
+            url += "&shift=" + encodeURIComponent(shift);
         return await this.getHttpResult("data", url);
     }
 
