@@ -95,7 +95,6 @@
     <div>
         <p class="yard-eyebrow">Управление двором</p>
         <h1>Заявки и операции</h1>
-        <p class="yard-page-description">Планирование заездов и контроль работ на территории</p>
     </div>
 @if (createOperation)
 {
@@ -116,17 +115,32 @@
     </div>        
 }
 </div>
-<div class="yard-operations-tools">
+<div class="yard-operations-tools" data-partner-user="@(isPartnerUser ? "true" : "false")">
     <div class="yard-tools-heading hide-on-print">
         <h2>Отбор заявок</h2>
         <span>Фильтры и порядок отображения</span>
     </div>
     <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
-    <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+    <div class="yard-operations-sort">
+        <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+        <details class="yard-visibility hide-on-print">
+            <summary>Показать фильтры</summary>
+            <fieldset id="operation-filter-options" aria-label="Видимые поля отбора"></fieldset>
+        </details>
+    </div>
+    <div class="yard-applied-filters hide-on-print" id="operation-applied-filters">
+        <div id="operation-filter-tags" role="group" aria-label="Применённые отборы"></div>
+        <button type="button" id="operation-reset-filters" hidden>Сбросить отборы</button>
+    </div>
+    <p id="operation-filter-status" class="visually-hidden" role="status"></p>
 </div>
 <div class="infoHeaders">
     <h5 id="header3">Всего заявок</h5>
     <h5 id="onParkingHeader">Машин на парковке</h5>
     <h5 id="onGatesCarsHeader">Машин на воротах</h5>
+    <details class="yard-visibility hide-on-print">
+        <summary>Столбцы таблицы</summary>
+        <fieldset id="operation-column-options" aria-label="Видимые столбцы таблицы"></fieldset>
+    </details>
 </div>
 <partial name="Blocks/Lists/_OperationsTable" model="operationsModel" />

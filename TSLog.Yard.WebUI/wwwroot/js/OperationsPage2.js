@@ -5,14 +5,21 @@
 class OperationsPage {
     shortUrl;
     operations = [];
-    sortedOperations = [];
     sortField = "driverName";
     sortDirection = "forward";
     header = document.getElementById("header3");
     onParkingHeader = document.getElementById("onParkingHeader");
     onGatesCarsHeader = document.getElementById("onGatesCarsHeader");
-    onParkingCarsCounter = 0;
-    onGatesCarsCounter = 0;
+    filterOptions = document.getElementById("operation-filter-options");
+    filterTags = document.getElementById("operation-filter-tags");
+    resetFiltersButton = document.getElementById("operation-reset-filters");
+    filterStatus = document.getElementById("operation-filter-status");
+    tableBody = document.getElementById("operations-table-body");
+    headers = new Map(Array.from(this.tableBody.closest("table").tHead.rows[0].cells,
+        header => [header.dataset.column, header]));
+    isPartnerUser = document.querySelector(".yard-operations-tools").dataset.partnerUser === "true";
+    appliedFilters = new URLSearchParams();
+    filterRequest = 0;
     refreshTime = 180000; // In milliseconds.
 
     constructor() {
@@ -28,17 +35,19 @@ class OperationsPage {
     }
 
     saveScrollPosition() {
-        sessionStorage.setItem('scrollpos', window.scrollY);
+        try { sessionStorage.setItem("scrollpos", window.scrollY); } catch (_) { }
     }
 
     restoreScrollPosition() {
-        var scrollpos = sessionStorage.getItem('scrollpos');
-        if (scrollpos) window.scrollTo(0, scrollpos);
+        try {
+            const scrollpos = sessionStorage.getItem("scrollpos");
+            if (scrollpos) window.scrollTo(0, Number(scrollpos));
+        } catch (_) { }
     }
 
     createOpenOperationFunction(id, isPartnerUser) {
         return function () {
-            sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href);
+            try { sessionStorage.setItem("OPERATIONS_PAGE_URL", location.href); } catch (_) { }
             location.href = "/OperationPage?id=" + id + "&action=" + (!isPartnerUser ? "VIEW" : "VIEW_BY_PARTNER");
         }
     }
@@ -50,7 +59,17 @@ class OperationsPage {
         operation.planWorkFinishDate = new Date(operation.planWorkFinishDate);
         operation.factWorkFinishDate = new Date(operation.factWorkFinishDate);
         operation.finishDate = new Date(operation.finishDate);
-        let contents = [];
+        const cells = new Map();
+        const style = "box-shadow: none; background-color: " + operation.displayColor;
+        const addCell = (key, contents, html = false) => {
+            const cell = html
+                ? viewUtils.createHtmlCell(operationTr, ["table-cell"], contents, style)
+                : viewUtils.createCell(operationTr, ["table-cell"], contents, style);
+            cell.dataset.column = key;
+            cell.hidden = this.headers.get(key).hidden;
+            cells.set(key, cell);
+        };
+        let contents;
 
         const openP = document.createElement("p");
         openP.classList.add("text-center");
@@ -68,44 +87,47 @@ class OperationsPage {
         openButton.title = "Открыть карточку операции двора";
         contents.push(openButton);
 
-        viewUtils.createCell(operationTr, ["table-cell"], contents, "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.typeShortName], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnerActionId], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.partnersNames], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverName], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.driverPhoneNumber], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.stateName], "box-shadow: none; background-color: " + operation.displayColor);
+        addCell("id", contents);
+        addCell("type", [operation.typeShortName]);
+        addCell("orders", [operation.partnerActionId]);
+        addCell("client", [operation.partnersNames]);
+        addCell("driver", [operation.driverName]);
+        addCell("phone", [operation.driverPhoneNumber]);
+        addCell("state", [operation.stateName]);
 
         let text = operation.startDate > utils.nullDate ?
             operation.startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.startDate.toLocaleDateString() :
             "Ожидается";
-        viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
+        addCell("arrival", [text]);
 
         contents = [operation.planWorkStartDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.planWorkStartDate.toLocaleDateString()];
         if (operation.factWorkStartDate > utils.nullDate) {
             contents.push(document.createElement("br"));
             contents.push("(" + operation.factWorkStartDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.factWorkStartDate.toLocaleDateString() + ")");
         }
-        viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
+        addCell("workStart", contents);
 
         contents = [operation.planWorkFinishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.planWorkFinishDate.toLocaleDateString()];
         if (operation.factWorkFinishDate > utils.nullDate) {
             contents.push(document.createElement("br"));
             contents.push("(" + operation.factWorkFinishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.factWorkFinishDate.toLocaleDateString() + ")");
         }
-        viewUtils.createCell(operationTr, ["table-cell"], contents, "width: 13% !important; box-shadow: none; background-color: " + operation.displayColor);
+        addCell("workFinish", contents);
 
         text = operation.finishDate > utils.nullDate ?
             operation.finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + operation.finishDate.toLocaleDateString() : "";
 
-        viewUtils.createCell(operationTr, ["table-cell"], [text], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [(operation.finishDate - operation.startDate) > 0 ? utils.millisecondsToString(operation.finishDate - operation.startDate) : ""], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.factDuration > 0 ? utils.secondsToString(operation.factDuration) : ""], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleNumber], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.trailerNumber], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.gateShortName], "box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createCell(operationTr, ["table-cell"], [operation.vehicleKindShortName], "width: 10% !important; box-shadow: none; background-color: " + operation.displayColor);
-        viewUtils.createHtmlCell(operationTr, ["table-cell"], [operation.note], "box-shadow: none; background-color: " + operation.displayColor);
+        addCell("departure", [text]);
+        addCell("onSiteDuration", [(operation.finishDate - operation.startDate) > 0 ? utils.millisecondsToString(operation.finishDate - operation.startDate) : ""]);
+        addCell("workDuration", [operation.factDuration > 0 ? utils.secondsToString(operation.factDuration) : ""]);
+        addCell("vehicle", [operation.vehicleNumber]);
+        addCell("trailer", [operation.trailerNumber]);
+        addCell("gate", [operation.gateShortName]);
+        addCell("vehicleKind", [operation.vehicleKindShortName]);
+        addCell("note", [operation.note], true);
+
+        // Use the Razor header order for every row, including after filtering or sorting.
+        operationTr.replaceChildren(...Array.from(this.headers.keys(), key => cells.get(key)));
     }
 
     sortCompare(operation1, operation2) {
@@ -139,193 +161,209 @@ class OperationsPage {
                 let workDuration2 = operation2.factDuration > 0 ? utils.secondsToString(operation2.factDuration) : "";
                 return workDuration1.localeCompare(workDuration2);
             case "stateId":
-                return operation1.stateDisplayName.localeCompare(operation2.stateDisplayName);
+                return operation1.stateName.localeCompare(operation2.stateName);
         }
     }
 
-    sortOperations(compare) {
-        this.sortedOperations = [...this.operations];
-        this.sortedOperations.sort(compare);
+    initFilters() {
+        const fields = [
+            { label: "Период", controls: [["from_date", "from-date-input"], ["to_date", "to-date-input"]] },
+            { label: "Тип операции", controls: [["operation_type_code", "operation-types-select"]] },
+            { label: "Тип машины", controls: [["vehicle_kind_code", "vehicle-kinds-select"]] },
+            { label: "Ворота", controls: [["gate_code", "gates-select"]] },
+            { label: "Состояние", controls: [["state_code", "operation-states-select"]] },
+            { label: "Партнёр", controls: [["partner_id", "partners-select"]] },
+            { label: "№ заявки", controls: [["id", "id-number-input"]] },
+            { label: "Номер машины", controls: [["vehicle_number", "vehicle-number-input"]] },
+            { label: "Водитель", controls: [["driver_name", "driver-name-input"]] },
+            { label: "Заказ/приход", controls: [["partner_action_id", "partner-action-id-input"]] },
+            { label: "Работник", controls: [["worker", "worker-input"]] },
+            { label: "Телефон водителя", controls: [["driver_phone_number", "driver-phone-number-input"]] }
+        ];
+        this.filters = fields.map(field => ({
+            label: field.label,
+            controls: field.controls.map(([parameter, id]) => ({
+                parameter, input: document.getElementById(id)
+            })).filter(({ input }) => input && !input.disabled)
+        })).filter(field => field.controls.length > 0);
+
+        const storageKey = "tslog-yard-hidden-filters";
+        const hidden = new Set();
+        try {
+            const saved = JSON.parse(localStorage.getItem(storageKey));
+            if (Array.isArray(saved)) saved.forEach(key => hidden.add(key));
+        } catch (_) { }
+
+        for (const field of this.filters) {
+            const { parameter, input } = field.controls[0];
+            field.isPeriod = parameter === "from_date";
+            const container = input.closest(".filter-div, .dates-div");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = !hidden.has(parameter);
+            container.hidden = !checkbox.checked;
+            checkbox.addEventListener("change", () => {
+                container.hidden = !checkbox.checked;
+                if (checkbox.checked) hidden.delete(parameter);
+                else hidden.add(parameter);
+                try { localStorage.setItem(storageKey, JSON.stringify([...hidden])); } catch (_) { }
+            });
+            const label = document.createElement("label");
+            label.append(checkbox, field.label);
+            this.filterOptions.append(label);
+
+            for (const control of field.controls) {
+                const { parameter: name, input: element } = control;
+                const value = utils.getUrlParameter(name);
+                if (field.isPeriod) {
+                    const date = value || utils.getUrlParameter("from_date") || utils.getNowDate();
+                    viewUtils.initDatePicker(element.id, date, () => this.onChangeFilter());
+                } else {
+                    element.value = value;
+                    if (element.tagName === "SELECT" && element.selectedIndex < 0) element.value = "";
+                    element.addEventListener("change", () => {
+                        this.updateOperationTypeHint();
+                        this.onChangeFilter();
+                    });
+                }
+            }
+        }
+        this.resetFiltersButton.addEventListener("click", () => this.resetFilters(this.filters));
+        this.updateOperationTypeHint();
     }
 
-    createParameters() {
-        let result = "";
-
-        result = utils.addParameter(result, "from_date", "from-date-input");
-        result = utils.addParameter(result, "to_date", "to-date-input");
-        result = utils.addParameter(result, "gate_code", "gates-select");
-        result = utils.addParameter(result, "partner_id", "partners-select");
-        result = utils.addParameter(result, "operation_type_code", "operation-types-select");
-        result = utils.addParameter(result, "vehicle_kind_code", "vehicle-kinds-select");
-        result = utils.addParameter(result, "state_code", "operation-states-select");
-        result = utils.addParameter(result, "id", "id-number-input");
-        result = utils.addParameter(result, "vehicle_number", "vehicle-number-input");
-        result = utils.addParameter(result, "driver_name", "driver-name-input");
-        result = utils.addParameter(result, "partner_action_id", "partner-action-id-input");
-        result = utils.addParameter(result, "worker", "worker-input");
-        result = utils.addParameter(result, "driver_phone_number", "driver-phone-number-input");
-        result = utils.addParameter(result, "sort_field", "sort-field-select");
-        result = utils.addParameterValue(result, "sort_direction", this.sortDirection);
-
-        return result != "" ? "?" + result : "";
+    resetFilters(fields) {
+        for (const field of fields) {
+            for (const { input } of field.controls) {
+                if (field.isPeriod) $(input).datepicker("update", utils.getNowDate());
+                else input.value = "";
+            }
+        }
+        this.updateOperationTypeHint();
+        this.onChangeFilter();
     }
 
-    async getOperations() {
-        const parameters = this.createParameters();
+    renderAppliedFilters() {
+        const tags = [];
+        for (const field of this.filters) {
+            const values = field.controls.map(({ input, parameter }) => {
+                const value = this.appliedFilters.get(parameter);
+                if (!value || input.tagName !== "SELECT") return value;
+                return Array.from(input.options).find(option => option.value === value)?.textContent.trim() ?? value;
+            }).filter(Boolean);
+            if (values.length === 0 || (field.isPeriod && values.every(value => value === utils.getNowDate()))) continue;
 
-        this.operations = [];
-        const result = await api.getOperations(parameters);
-        if (result.code === 0) {
+            const caption = field.label + ": " + (values.every(value => value === values[0]) ? values[0] : values.join(" — "));
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = caption + " ×";
+            button.setAttribute("aria-label", "Сбросить отбор «" + caption + "»");
+            button.addEventListener("click", () => this.resetFilters([field]));
+            tags.push(button);
+        }
+        const priorFocus = Array.from(this.filterTags.children).indexOf(document.activeElement);
+        const resetHadFocus = document.activeElement === this.resetFiltersButton;
+        this.filterTags.replaceChildren(...tags);
+        this.resetFiltersButton.hidden = tags.length === 0;
+        if (priorFocus >= 0 || (resetHadFocus && this.resetFiltersButton.hidden)) {
+            const next = tags[Math.min(Math.max(priorFocus, 0), tags.length - 1)]
+                ?? this.filterOptions.parentElement.querySelector("summary");
+            next.focus();
+        }
+    }
+
+    updateLocation(replace = false) {
+        const parameters = new URLSearchParams(this.appliedFilters);
+        parameters.set("sort_field", this.sortField);
+        parameters.set("sort_direction", this.sortDirection);
+        const url = this.shortUrl + "?" + parameters;
+        if (url === location.href) return;
+        if (replace) history.replaceState({}, "", url);
+        else history.pushState({}, "", url);
+    }
+
+    renderOperations() {
+        const operations = [...this.operations].sort(this.sortCompare.bind(this));
+        if (this.sortDirection === "reverse") operations.reverse();
+        const rows = document.createDocumentFragment();
+        let parkingCount = 0;
+        let gatesCount = 0;
+        for (const operation of operations) {
+            if (operation.stateCode === "STARTED" || operation.stateCode === "WORK_FINISHED") parkingCount++;
+            else if (operation.stateCode === "WORK_STARTED") gatesCount++;
+            const row = document.createElement("tr");
+            this.showOperation(operation, row, this.isPartnerUser);
+            rows.append(row);
+        }
+        this.tableBody.replaceChildren(rows);
+        this.header.textContent = "Всего заявок: " + operations.length;
+        this.onParkingHeader.textContent = "Машин на парковке: " + parkingCount;
+        this.onGatesCarsHeader.textContent = "Машин на воротах: " + gatesCount;
+    }
+
+    async onChangeFilter(replace = false) {
+        const parameters = new URLSearchParams();
+        for (const field of this.filters) {
+            for (const { parameter, input } of field.controls) {
+                if (input.value) parameters.set(parameter, input.value);
+            }
+        }
+
+        const requestId = ++this.filterRequest;
+        const table = this.tableBody.closest("table");
+        table.setAttribute("aria-busy", "true");
+        this.filterStatus.classList.add("visually-hidden");
+        this.filterStatus.textContent = "";
+        try {
+            const result = await api.getOperations("?" + parameters);
+            if (requestId !== this.filterRequest) return;
+            if (result.code !== 0) throw new Error(result.message);
             this.operations = result.operations;
-        } else {
-            console.log(result.message);
-        }
-
-        const url = this.shortUrl + parameters;
-        history.pushState({}, null, url);
-    }
-
-    clearOperations() {
-        const container = document.getElementById("operations-table-body");
-        container.replaceChildren();
-        this.header.textContent = "Всего заявок";
-        this.onParkingHeader.textContent = "Машин на парковке";
-        this.onGatesCarsHeader.textContent = "Машин на воротах";
-        this.onParkingCarsCounter = 0;
-        this.onGatesCarsCounter = 0;
-    }
-
-    async showOperations() {
-        let isPartnerUser = false;
-        const response = await api.getIsPartnerUser();
-        if (response.code === 0) {
-            isPartnerUser = response.isPartnerUser;
-        } else {
-            viewUtils.showError(response.message);
-        }
-
-        const operationsTbody = document.getElementById("operations-table-body");
-        let operationTr = null;
-        if (this.sortDirection === "forward") {
-            for (let operation of this.sortedOperations) {
-                if (operation.stateCode === "STARTED" || operation.stateCode === "WORK_FINISHED") {
-                    this.onParkingCarsCounter++;
-                } else if (operation.stateCode === "WORK_STARTED") {
-                    this.onGatesCarsCounter++;
-                }
-                operationTr = document.createElement("tr");
-                this.showOperation(operation, operationTr, isPartnerUser);
-                operationsTbody.append(operationTr);
+            this.appliedFilters = parameters;
+            this.renderOperations();
+            this.renderAppliedFilters();
+            this.updateLocation(replace);
+            this.filterStatus.textContent = this.header.textContent;
+        } catch (error) {
+            if (requestId === this.filterRequest) {
+                console.error(error);
+                this.filterStatus.textContent = "Не удалось обновить заявки. Повторите отбор.";
+                this.filterStatus.classList.remove("visually-hidden");
             }
-        } else if (this.sortDirection === "reverse") {
-            for (let i = this.sortedOperations.length - 1; i >= 0; i--) {
-                if (this.sortedOperations[i].stateCode === "STARTED" || this.sortedOperations[i].stateCode === "WORK_FINISHED") {
-                    this.onParkingCarsCounter++;
-                } else if (this.sortedOperations[i].stateCode === "WORK_STARTED") {
-                    this.onGatesCarsCounter++;
-                }
-                operationTr = document.createElement("tr");
-                this.showOperation(this.sortedOperations[i], operationTr, isPartnerUser);
-                operationsTbody.append(operationTr);
-            }
+        } finally {
+            if (requestId === this.filterRequest) table.removeAttribute("aria-busy");
         }
-        this.header.textContent = this.header.textContent + ": " + this.sortedOperations.length;
-        this.onParkingHeader.textContent = this.onParkingHeader.textContent + ": " + this.onParkingCarsCounter;
-        this.onGatesCarsHeader.textContent = this.onGatesCarsHeader.textContent + ": " + this.onGatesCarsCounter; 
     }
 
-    async onChangeFilter() {
-        this.clearOperations();
-        await this.getOperations();
-        this.sortOperations(this.sortCompare.bind(this));
-        await this.showOperations();
-    }
-
-    async onChangeSortField() {
-        this.sortField = document.querySelector(".select_sort").value;
-        this.clearOperations();
-        this.sortOperations(this.sortCompare.bind(this));
-        await this.showOperations();
-        const url = this.shortUrl + this.createParameters();
-        history.pushState({}, null, url);
-    }
-
-    async onChangeSortDirection() {
-        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']:checked")
-        if (sortDirectionInputs[0].id === "forward-sort-input") {
-            this.sortDirection = "forward";
-        } else if (sortDirectionInputs[0].id === "reverse-sort-input") {
-            this.sortDirection = "reverse";
-        }
-        this.clearOperations();
-        await this.showOperations();
-        const url = this.shortUrl + this.createParameters();
-        history.pushState({}, null, url);
-    }
-
-    getOperationTypeHint() {
+    updateOperationTypeHint() {
         const select = document.getElementById("operation-types-select");
-        if (select.selectedIndex >= 0) {
-            select.title = select.options[select.selectedIndex].getAttribute("note");
-        }
-    }
-
-    async onChangeOperationType() {
-        await this.onChangeFilter();
-        this.getOperationTypeHint();
+        if (select) select.title = select.selectedOptions[0]?.getAttribute("note") ?? "";
     }
 
     async show() {
-        let fromDate = utils.getUrlParameter("from_date");
-        if (fromDate == "")
-            fromDate = utils.getNowDate();
-        let toDate = utils.getUrlParameter("to_date");
-        if (toDate == "")
-            toDate = fromDate;
-        viewUtils.initDatePicker("from-date-input", fromDate, this.onChangeFilter.bind(this));
-        viewUtils.initDatePicker("to-date-input", toDate, this.onChangeFilter.bind(this));
+        this.initFilters();
+        const sortSelect = document.getElementById("sort-field-select");
+        const savedSortField = utils.getUrlParameter("sort_field");
+        if (Array.from(sortSelect.options).some(option => option.value === savedSortField)) sortSelect.value = savedSortField;
+        this.sortField = sortSelect.value;
+        sortSelect.addEventListener("change", () => {
+            this.sortField = sortSelect.value;
+            this.renderOperations();
+            this.updateLocation();
+        });
 
-        viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("partners-select", utils.getUrlParameter("partner_id"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeOperationType.bind(this));
-        const operationTypeFilter = document.getElementById("operation-types-select");
-        if (operationTypeFilter && operationTypeFilter.selectedIndex < 0) {
-            operationTypeFilter.value = "";
+        this.sortDirection = utils.getUrlParameter("sort_direction") === "reverse" ? "reverse" : "forward";
+        document.getElementById(this.sortDirection + "-sort-input").checked = true;
+        for (const input of document.querySelectorAll("input[name='sort-input']")) {
+            input.addEventListener("change", () => {
+                this.sortDirection = input.id === "reverse-sort-input" ? "reverse" : "forward";
+                this.renderOperations();
+                this.updateLocation();
+            });
         }
-        viewUtils.initSelect("vehicle-kinds-select", utils.getUrlParameter("vehicle_kind_code"), this.onChangeFilter.bind(this));
-        viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("id-number-input", utils.getUrlParameter("id"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("vehicle-number-input", utils.getUrlParameter("vehicle_number"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("driver-name-input", utils.getUrlParameter("driver_name"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("partner-action-id-input", utils.getUrlParameter("partner_action_id"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("worker-input", utils.getUrlParameter("worker"), this.onChangeFilter.bind(this));
-        viewUtils.initInput("driver-phone-number-input", utils.getUrlParameter("driver_phone_number"), this.onChangeFilter.bind(this));
+        window.addEventListener("popstate", () => location.reload());
 
-        this.sortField = utils.getUrlParameter("sort_field");
-        if (this.sortField === "")
-            this.sortField = "driverName";
-        viewUtils.initSelect("sort-field-select", this.sortField, this.onChangeSortField.bind(this));
-
-        const sortDirectionInputs = document.querySelectorAll("input[name='sort-input']")
-        for (const sortDirectionInput of sortDirectionInputs) {
-            sortDirectionInput.onchange = this.onChangeSortDirection.bind(this);
-        }
-
-        this.sortDirection = utils.getUrlParameter("sort_direction");
-        if (this.sortDirection != "reverse")
-            this.sortDirection = "forward";
-        if (this.sortDirection === "forward")
-            document.getElementById("forward-sort-input").checked = true;
-        else
-            document.getElementById("reverse-sort-input").checked = true;
-
-        await this.getOperations();
-        this.sortOperations(this.sortCompare.bind(this));
-        await this.showOperations();
-
-        this.getOperationTypeHint();
-        const url = this.shortUrl + this.createParameters();
-        history.pushState({}, null, url);
+        await this.onChangeFilter(true);
         this.restoreScrollPosition();
     }
 }

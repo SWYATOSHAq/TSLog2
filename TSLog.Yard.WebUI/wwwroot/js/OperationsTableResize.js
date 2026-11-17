@@ -1,19 +1,39 @@
 (function initOperationsTableResize() {
     const table = document.querySelector('table.operations-table');
-    if (!table || !table.tHead) return;
+    const options = document.getElementById('operation-column-options');
+    if (!table || !table.tHead || !options) return;
     const headers = Array.from(table.tHead.rows[0].cells);
-    const storageKey = 'tslog-yard-operations-column-widths';
+    const visibilityKey = 'tslog-yard-hidden-columns';
+    const storageKey = 'tslog-yard-operations-column-widths-by-key';
+    const legacyKey = 'tslog-yard-operations-column-widths';
+    const legacyOrder = [
+        'id', 'type', 'orders', 'client', 'driver', 'phone', 'state', 'arrival', 'workStart',
+        'workFinish', 'departure', 'onSiteDuration', 'workDuration', 'vehicle', 'trailer',
+        'gate', 'vehicleKind', 'note'
+    ];
     const minWidth = 90;
     const maxWidth = 480;
     const clamp = width => Math.min(maxWidth, Math.max(minWidth, width));
     const initialWidths = headers.map(th => clamp(Math.round(th.getBoundingClientRect().width)));
-    let widths = initialWidths.slice();
+    const widths = initialWidths.slice();
+    const hidden = new Set(headers.filter(th => th.hasAttribute('data-hidden-by-default')).map(th => th.dataset.column));
     try {
         const saved = JSON.parse(localStorage.getItem(storageKey));
-        if (Array.isArray(saved) && saved.length === headers.length && saved.every(Number.isFinite)) {
-            widths = saved.map(clamp);
+        const legacy = JSON.parse(localStorage.getItem(legacyKey));
+        headers.forEach((th, index) => {
+            const key = th.dataset.column;
+            const legacyWidth = legacy?.length === legacyOrder.length ? legacy[legacyOrder.indexOf(key)] : undefined;
+            const width = saved?.[key] ?? legacyWidth;
+            if (Number.isFinite(width)) widths[index] = clamp(width);
+        });
+    } catch (_) { }
+    try {
+        const saved = JSON.parse(localStorage.getItem(visibilityKey));
+        if (Array.isArray(saved)) {
+            hidden.clear();
+            saved.forEach(key => hidden.add(key));
         }
-    } catch (_) { /* Resizing works even if storage is unavailable. */ }
+    } catch (_) { }
 
     const viewport = document.createElement('div');
     viewport.className = 'yard-table-scroll';
@@ -23,7 +43,7 @@
     table.before(viewport);
     viewport.append(table);
     const colgroup = document.createElement('colgroup');
-    const columns = headers.map(() => colgroup.appendChild(document.createElement('col')));
+    const columns = headers.map(() => document.createElement('col'));
     table.prepend(colgroup);
     table.classList.add('yard-resizable-table');
 
@@ -76,24 +96,61 @@
     observer.observe(viewport);
 
     function save() {
-        try { localStorage.setItem(storageKey, JSON.stringify(widths)); } catch (_) { }
+        const byColumn = Object.fromEntries(headers.map((th, index) => [th.dataset.column, widths[index]]));
+        try { localStorage.setItem(storageKey, JSON.stringify(byColumn)); } catch (_) { }
     }
+
     function render() {
-        columns.forEach((col, index) => { col.style.width = widths[index] + 'px'; });
-        table.style.width = (widths.reduce((sum, width) => sum + width, 0) + 2) + 'px';
+        let tableWidth = 2;
         headers.forEach((th, index) => {
+            const col = columns[index];
+            col.style.width = widths[index] + 'px';
+            if (!th.hidden) tableWidth += widths[index];
             const handle = th.querySelector('.yard-column-resize');
             if (handle) handle.setAttribute('aria-valuenow', String(Math.round(widths[index])));
         });
+        table.style.width = tableWidth + 'px';
         scheduleLayout();
     }
+
+    function renderVisibility() {
+        const visibleColumns = [];
+        headers.forEach((th, index) => {
+            th.hidden = !th.hasAttribute('data-always-visible') && hidden.has(th.dataset.column);
+            if (!th.hidden) visibleColumns.push(columns[index]);
+        });
+        colgroup.replaceChildren(...visibleColumns);
+
+        const hiddenHeaders = new Set(headers.filter(th => th.hidden).map(th => th.dataset.column));
+        for (const cell of table.tBodies[0].querySelectorAll('td[data-column]')) {
+            cell.hidden = hiddenHeaders.has(cell.dataset.column);
+        }
+        render();
+    }
+
     headers.forEach((th, index) => {
+        const columnName = th.innerText.replace(/\s+/g, ' ').trim();
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        const alwaysVisible = th.hasAttribute('data-always-visible');
+        checkbox.checked = alwaysVisible || !hidden.has(th.dataset.column);
+        checkbox.disabled = alwaysVisible;
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) hidden.delete(th.dataset.column);
+            else hidden.add(th.dataset.column);
+            try { localStorage.setItem(visibilityKey, JSON.stringify([...hidden])); } catch (_) { }
+            renderVisibility();
+        });
+        const label = document.createElement('label');
+        label.append(checkbox, columnName);
+        options.append(label);
+
         const handle = document.createElement('span');
         handle.className = 'yard-column-resize';
         handle.tabIndex = 0;
         handle.setAttribute('role', 'separator');
         handle.setAttribute('aria-orientation', 'vertical');
-        handle.setAttribute('aria-label', 'Ширина столбца «' + th.textContent.trim() + '»');
+        handle.setAttribute('aria-label', 'Ширина столбца «' + columnName + '»');
         handle.setAttribute('aria-valuemin', String(minWidth));
         handle.setAttribute('aria-valuemax', String(maxWidth));
         handle.title = 'Потяните границу столбца; двойной щелчок — исходная ширина';
@@ -139,5 +196,6 @@
             save();
         });
     });
-    render();
+    new ResizeObserver(scheduleLayout).observe(table);
+    renderVisibility();
 })();

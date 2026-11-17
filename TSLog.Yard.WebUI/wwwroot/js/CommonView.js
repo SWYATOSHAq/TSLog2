@@ -40,49 +40,45 @@
     window.addEventListener("pageshow", restoreTheme);
 })();
 
-(function initYardAccent() {
-    const controls = document.querySelectorAll('.yard-accent-picker input[name="yard-accent"]');
-    const body = document.body;
-    if (!body || !controls.length) return;
+(function initYardFontSize() {
+    const control = document.getElementById("yard-font-size");
+    const output = document.getElementById("yard-font-size-value");
+    if (!control || !output) return;
 
-    const cookieName = "tslog-yard-accent";
-    const validAccents = ["blue", "sage", "blush", "lavender", "rose", "mint"];
+    const labels = ["Обычный", "Крупнее", "Самый крупный"];
+    const cookieName = "tslog-yard-font-size";
 
-    function applyAccent(value) {
-        const accent = validAccents.includes(value) ? value : "blue";
-        body.dataset.yardAccent = accent;
-        controls.forEach(control => { control.checked = control.value === accent; });
+    function applySize(value) {
+        const size = /^[0-2]$/.test(value) ? value : "0";
+        document.documentElement.dataset.yardFontSize = size;
+        control.value = size;
+        output.value = labels[Number(size)];
+        control.setAttribute("aria-valuetext", output.value);
     }
 
-    function restoreAccent() {
-        let accent = "blue";
+    function restoreSize() {
         try {
             const cookie = document.cookie.split(";").map(value => value.trim())
                 .find(value => value.startsWith(cookieName + "="));
-            const saved = cookie ? cookie.substring(cookieName.length + 1) : null;
-            if (validAccents.includes(saved)) accent = saved;
+            applySize(cookie ? cookie.slice(cookieName.length + 1) : document.documentElement.dataset.yardFontSize);
         } catch (_) {
-            // Cookie access can be blocked by browser privacy settings.
+            applySize(document.documentElement.dataset.yardFontSize);
         }
-        applyAccent(accent);
     }
 
-    controls.forEach(control => {
-        control.addEventListener("change", function () {
-            if (!this.checked || !validAccents.includes(this.value)) return;
-            applyAccent(this.value);
-            try {
-                document.cookie = cookieName + "=" + this.value
-                    + "; Path=/; Max-Age=31536000; SameSite=Lax"
-                    + (location.protocol === "https:" ? "; Secure" : "");
-            } catch (_) {
-                // The accent still works when persistence is unavailable.
-            }
-        });
+    control.addEventListener("input", function () {
+        applySize(control.value);
+        try {
+            document.cookie = cookieName + "=" + control.value
+                + "; Path=/; Max-Age=31536000; SameSite=Lax"
+                + (location.protocol === "https:" ? "; Secure" : "");
+        } catch (_) {
+            // The current page still reflects the chosen size.
+        }
     });
 
-    restoreAccent();
-    window.addEventListener("pageshow", restoreAccent);
+    restoreSize();
+    window.addEventListener("pageshow", restoreSize);
 })();
 
 (function initYardProfile() {
