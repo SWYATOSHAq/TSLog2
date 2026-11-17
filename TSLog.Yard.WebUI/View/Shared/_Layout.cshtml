@@ -38,7 +38,11 @@
     var page = System.IO.Path.GetFileNameWithoutExtension(Context.Request.Path);
 }
 <!DOCTYPE html>
-<html lang="ru">
+@{
+    var fontSize = Context.Request.Cookies["tslog-yard-font-size"];
+    fontSize = fontSize is "1" or "2" ? fontSize : "0";
+}
+<html lang="ru" data-yard-font-size="@fontSize">
 
 <head>
     <meta charset="utf-8" />
@@ -190,35 +194,12 @@
                         <label><input type="radio" name="yard-theme" value="light"> Светлая</label>
                         <label><input type="radio" name="yard-theme" value="dark"> Тёмная</label>
                     </fieldset>
-                    <fieldset class="yard-accent-picker" title="Выбор сохраняется в этом браузере">
-                        <legend>Цвет активного раздела</legend>
-                        <div class="yard-accent-options" role="radiogroup" aria-label="Цвет активного раздела">
-                            <label class="yard-accent-option yard-accent-option-blue" title="Синий">
-                                <input type="radio" name="yard-accent" value="blue" aria-label="Синий" checked>
-                                <span class="yard-accent-swatch" aria-hidden="true"></span>
-                            </label>
-                            <label class="yard-accent-option yard-accent-option-sage" title="Шалфейный">
-                                <input type="radio" name="yard-accent" value="sage" aria-label="Шалфейный">
-                                <span class="yard-accent-swatch" aria-hidden="true"></span>
-                            </label>
-                            <label class="yard-accent-option yard-accent-option-blush" title="Пудровый">
-                                <input type="radio" name="yard-accent" value="blush" aria-label="Пудровый">
-                                <span class="yard-accent-swatch" aria-hidden="true"></span>
-                            </label>
-                            <label class="yard-accent-option yard-accent-option-lavender" title="Лавандовый">
-                                <input type="radio" name="yard-accent" value="lavender" aria-label="Лавандовый">
-                                <span class="yard-accent-swatch" aria-hidden="true"></span>
-                            </label>
-                            <label class="yard-accent-option yard-accent-option-rose" title="Розовый">
-                                <input type="radio" name="yard-accent" value="rose" aria-label="Розовый">
-                                <span class="yard-accent-swatch" aria-hidden="true"></span>
-                            </label>
-                            <label class="yard-accent-option yard-accent-option-mint" title="Мятный">
-                                <input type="radio" name="yard-accent" value="mint" aria-label="Мятный">
-                                <span class="yard-accent-swatch" aria-hidden="true"></span>
-                            </label>
-                        </div>
-                    </fieldset>
+                    <div class="yard-font-size">
+                        <label for="yard-font-size">Размер шрифта</label>
+                        <input type="range" id="yard-font-size" min="0" max="2" step="1" value="0"
+                               aria-valuetext="Обычный" />
+                        <output id="yard-font-size-value" for="yard-font-size">Обычный</output>
+                    </div>
                 </div>
             </div>
         </div>

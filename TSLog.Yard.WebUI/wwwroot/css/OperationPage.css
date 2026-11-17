@@ -57,7 +57,7 @@
 .operation-type-note-close {
     color: #aaaaaa;
     float: right;
-    font-size: 28px;
+    font-size: 1.75rem;
     font-weight: bold;
 }
 
@@ -94,7 +94,7 @@
 .bc-works-block-close {
     color: #aaaaaa;
     float: right;
-    font-size: 28px;
+    font-size: 1.75rem;
     font-weight: bold;
 }
 
@@ -136,7 +136,7 @@
 .dialog-block-close {
     color: #aaaaaa;
     float: right;
-    font-size: 28px;
+    font-size: 1.75rem;
     font-weight: bold;
 }
 
