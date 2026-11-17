@@ -76,3 +76,99 @@
     display: inline-block;
     margin-right: 30px;
 }
+
+.yard-create-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+body[data-yard-page="OperationsPage2"] .yard-create-actions .create-operation-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 0 16px !important;
+    margin: 0 !important;
+    border: 1px solid var(--yard-line);
+    border-radius: 4px !important;
+    background: var(--yard-surface);
+    color: var(--yard-text);
+    font: 600 .875rem/1.2 Arial, Helvetica, sans-serif;
+    white-space: normal;
+    box-shadow: none;
+}
+body[data-yard-page="OperationsPage2"] .yard-create-actions .create-operation-button:is(:hover, :active) {
+    background: var(--yard-hover);
+    color: var(--yard-text);
+    border-color: var(--yard-muted);
+}
+
+body[data-yard-page="OperationsPage2"] .yard-operations-sort {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 16px;
+    border-top: 1px solid var(--yard-line);
+    padding-top: 8px;
+    margin-top: 8px;
+}
+body[data-yard-page="OperationsPage2"] .yard-operations-sort .sorts-div {
+    flex: 1 1 24rem;
+    min-width: 0;
+    border: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+#sort-field-select { max-width: 100%; }
+.yard-visibility { margin-inline-start: auto; }
+.yard-visibility summary,
+.yard-applied-filters button {
+    padding: 6px 10px;
+    border: 1px solid var(--yard-line);
+    border-radius: 6px;
+    color: var(--yard-text);
+    background: var(--yard-surface);
+    cursor: pointer;
+}
+.yard-visibility summary:hover,
+.yard-applied-filters button:hover { background: var(--yard-hover); }
+.yard-visibility fieldset {
+    display: grid;
+    gap: 6px;
+    max-height: 40vh;
+    overflow: auto;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border: 1px solid var(--yard-line);
+    border-radius: 6px;
+    background: var(--yard-surface);
+}
+.yard-visibility fieldset label {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    cursor: pointer;
+}
+.yard-applied-filters,
+#operation-filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+}
+.yard-applied-filters button {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    text-align: start;
+}
+.yard-applied-filters button:not([hidden]) { margin-top: 6px; }
+#filters > [hidden],
+.operations-table [data-column][hidden] { display: none !important; }

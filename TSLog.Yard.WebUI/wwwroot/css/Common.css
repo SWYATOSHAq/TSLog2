@@ -1,10 +1,10 @@
 html {
-    font-size: 14px;
+    font-size: 87.5%;
 }
 
 @media (min-width: 768px) {
     html {
-        font-size: 16px;
+        font-size: 100%;
     }
 }
 
@@ -213,4 +213,499 @@ td {
 .table-sortable .th-sort-asc,
 .table-sortable .th-sort-desc {
     background: rgba(0, 0, 0, 0.1);
+}
+
+/* Screen-only: preserve the existing print layouts and operational status colors. */
+@media screen {
+    html[data-yard-font-size="1"] { font-size: 112.5%; }
+    html[data-yard-font-size="2"] { font-size: 125%; }
+
+    .yard-font-size {
+        display: grid;
+        gap: 4px;
+        margin-top: 12px;
+    }
+    .yard-font-size input {
+        width: 100%;
+        accent-color: var(--yard-accent-ink, #244c70);
+    }
+    body[data-yard-page] {
+        --yard-accent: #dce9f5;
+        --yard-accent-ink: #244c70;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) {
+        --yard-bg: #f3f3eb;
+        --yard-surface: #fffef8;
+        --yard-text: #20392d;
+        --yard-muted: #576b5d;
+        --yard-line: #b8c5b2;
+        --yard-head: #e8eddf;
+        --yard-hover: #e1e8d9;
+        --yard-link: #24523b;
+        --yard-accent: #dce6ce;
+        --yard-accent-ink: #244b34;
+        --yard-card: #ffffff;
+        --yard-logo-background: #e8eddf;
+        color-scheme: light;
+        color: var(--yard-text);
+        background: var(--yard-bg);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 0.875rem;
+        line-height: 1.45;
+        margin-bottom: 0;
+    }
+
+    body[data-yard-page]:has(.yard-theme input[value="dark"]:checked) {
+        --yard-bg: #18251f;
+        --yard-surface: #22352a;
+        --yard-text: #eef1e5;
+        --yard-muted: #bdcbb8;
+        --yard-line: #6e8369;
+        --yard-head: #304532;
+        --yard-hover: #344c39;
+        --yard-link: #bdd4a4;
+        --yard-card: #303844;
+        --yard-logo-background: #18251f;
+        color-scheme: dark;
+    }
+
+    body[data-yard-page="StaffPage"],
+    body[data-yard-page="WorkersPerfomanceReportPage"] {
+        --yard-accent: #e8e1f1;
+        --yard-accent-ink: #58436f;
+    }
+    body[data-yard-page="GatesPage"],
+    body[data-yard-page="GateManagementPage"] {
+        --yard-accent: #e0e6ed;
+        --yard-accent-ink: #3b4d60;
+    }
+    body[data-yard-page="ClientReportPage"],
+    body[data-yard-page="ECReportPage"],
+    body[data-yard-page="ECReportDetailedPage"] {
+        --yard-accent: #ecdce0;
+        --yard-accent-ink: #70434f;
+    }
+    body[data-yard-page="ShiftPerfomanceReportPage"],
+    body[data-yard-page="LaborReportPage"],
+    body[data-yard-page="ShiftLaborReportPage"] {
+        --yard-accent: #f3e5eb;
+        --yard-accent-ink: #75465e;
+    }
+    body[data-yard-page="GuardPage"],
+    body[data-yard-page="PresentVehiclesPage"] {
+        --yard-accent: #deeee6;
+        --yard-accent-ink: #315d4c;
+    }
+
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header {
+        padding: 16px 24px 0;
+        background: #203e30;
+        border-bottom: 3px solid #a9bc91;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-nav {
+        --yard-text: #f4f5eb;
+        --yard-muted: #e1e9d9;
+        --yard-hover: #315440;
+        --yard-line: #8da581;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-reports {
+        margin-top: 16px;
+        border-top-color: #69816a;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-profile-toggle {
+        color: #f4f5eb;
+        background: #2f503e;
+        border-color: #8da581;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header .yard-profile-toggle:is(:hover, [aria-expanded="true"]) {
+        background: #3e6249;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header :is(a, button):focus-visible {
+        outline-color: #dce6ce;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-profile-panel :is(a, button):focus-visible {
+        outline-color: var(--yard-link);
+    }
+    .yard-profile { position: relative; flex: 0 1 auto; margin-left: auto; min-width: 0; max-width: 100%; }
+    .yard-profile-toggle {
+        display: flex; align-items: center; gap: 10px; max-width: 100%;
+        padding: 8px 12px; border: 1px solid var(--yard-line, #aab5c2); border-radius: 2px;
+        background: var(--yard-surface, #fff); color: var(--yard-text, #202b39);
+        font: inherit; cursor: pointer;
+    }
+    .yard-profile-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+    .yard-profile-toggle i { font-size: 0.625rem; }
+    .yard-profile-toggle[aria-expanded="true"], .yard-profile-toggle:hover {
+        background: var(--yard-hover, #edf1f5);
+    }
+    .yard-profile-panel {
+        position: absolute; top: calc(100% + 8px); right: 0; z-index: 1030;
+        width: 280px; max-width: calc(100vw - 24px); padding: 16px;
+        background: var(--yard-surface, #fff); color: var(--yard-text, #202b39);
+        border: 1px solid var(--yard-line, #aab5c2); border-radius: 3px;
+        box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+    }
+    .yard-profile-panel :is(.yard-user, fieldset, legend, label, span, button) { color: var(--yard-text, #202b39); }
+    .yard-profile-panel[hidden] { display: none; }
+    .yard-profile-panel { max-height: 70vh; overflow-y: auto; }
+    .yard-profile-panel .yard-user { padding: 0 0 12px; overflow-wrap: anywhere; }
+    .yard-profile-panel .yard-theme { display: block; }
+    .yard-profile-panel .yard-theme label { padding: 7px 0; }
+    .yard-header-main { display: flex; align-items: center; gap: 24px; }
+    .yard-brand { flex: 0 0 auto; }
+    .yard-brand .navbar-brand { margin: 0; padding: 0; }
+    .yard-brand img {
+        width: 84px;
+        height: auto;
+        padding: 6px;
+        background: var(--yard-logo-background, #e8eddf);
+        border-radius: 7px;
+        box-shadow: inset 0 0 0 1px var(--yard-line, #b8c5b2);
+    }
+    .yard-header-content { flex: 1; min-width: 0; }
+    .yard-nav { display: flex; flex-wrap: wrap; gap: 4px; }
+    body .yard-nav .nav-link {
+        color: var(--yard-muted, #526173) !important;
+        padding: 8px 10px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        border-bottom-width: 3px;
+        text-decoration: none;
+    }
+    body .yard-nav .nav-link:hover {
+        color: var(--yard-text, #202b39) !important;
+        background: var(--yard-hover, #edf1f5);
+        border-color: var(--yard-line, #aab5c2);
+    }
+    .yard-user { padding: 8px 10px; color: var(--yard-muted, #526173); font-size: 0.75rem; }
+    .yard-user b { color: var(--yard-text, #202b39); }
+    .yard-reports { margin-top: 12px; padding: 8px 0; border-top: 1px solid var(--yard-line, #aab5c2); }
+    .yard-theme { flex: 0 0 auto; margin: 0; padding: 8px 10px; border: 1px solid var(--yard-line, #aab5c2); }
+    .yard-theme legend { float: none; width: auto; margin: 0; padding: 0 4px; font-size: 0.6875rem; color: var(--yard-muted, #526173); }
+    .yard-theme label { display: block; font-size: 0.75rem; cursor: pointer; padding: 3px 0; }
+    .yard-theme input { accent-color: var(--yard-accent-ink, #244c70); }
+
+    body:is([data-yard-page="OperationsPage"], [data-yard-page="OperationsPage2"]) .yard-nav a[href^="/OperationsPage2"],
+    body[data-yard-page="OperationPage"] .yard-nav a[href^="/OperationPage?"],
+    body[data-yard-page="StaffPage"] .yard-nav a[href^="/StaffPage?"],
+    body[data-yard-page="GatesPage"] .yard-nav a[href^="/GatesPage?"],
+    body[data-yard-page="ClientReportPage"] .yard-nav a[href="/ClientReportPage"],
+    body[data-yard-page="PresentVehiclesPage"] .yard-nav a[href="/PresentVehiclesPage"],
+    body[data-yard-page="GuardPage"] .yard-nav a[href="/GuardPage"],
+    body[data-yard-page="OperationalReportPage"] .yard-nav a[href="/OperationalReportPage"],
+    body[data-yard-page="DispatcherReportPage"] .yard-nav a[href="/DispatcherReportPage"],
+    body[data-yard-page="ShiftPerfomanceReportPage"] .yard-nav a[href="/ShiftPerfomanceReportPage"],
+    body[data-yard-page="GateManagementPage"] .yard-nav a[href="/GateManagementPage"],
+    body:is([data-yard-page="ECReportPage"], [data-yard-page="ECReportDetailedPage"]) .yard-nav a[href="/ECReportPage"],
+    body[data-yard-page="WorkersPerfomanceReportPage"] .yard-nav a[href="/WorkersPerfomanceReportPage"] {
+        background: var(--yard-accent);
+        color: var(--yard-accent-ink) !important;
+        border-color: var(--yard-accent-ink);
+    }
+
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace { padding: 24px !important; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace > .container { width: 100% !important; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) main { overflow-x: auto; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(h1, h2, h3, h4, h5) { font-weight: 600; letter-spacing: -.02em; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.filters-div, .sorts-div, .infoHeaders) {
+        background: var(--yard-surface);
+        border: 1px solid var(--yard-line);
+        padding: 12px !important;
+        margin: 0 0 12px !important;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.filters-div, .sorts-div, .infoHeaders) { border-radius: 3px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .infoHeaders {
+        border: 0;
+        border-top: 3px solid #91a67c;
+        background: var(--yard-head);
+        padding: 16px !important;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) main > :is(h1, h2) {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 400;
+        color: var(--yard-text);
+        margin-bottom: 20px;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .create-operation-button {
+        background: #28543b;
+        color: #fff;
+        border-color: #28543b;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .create-operation-button:hover {
+        background: #1d402c;
+        color: #fff;
+        border-color: #1d402c;
+    }
+    body[data-yard-page] .sorts-div { flex-wrap: wrap; gap: 8px; align-items: center; }
+    body[data-yard-page] .sort_select { min-width: 160px; }
+    body[data-yard-page] .infoHeaders { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+    body[data-yard-page] .infoHeaders > h5 { margin: 0; font-size: 0.875rem; letter-spacing: 0; }
+
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.form-control, .form-select, .filter-text-box, .datepicker2) {
+        color: var(--yard-text);
+        background-color: var(--yard-surface);
+        border: 1px solid var(--yard-line);
+        border-radius: 2px !important;
+        min-height: 34px;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+        font-size: 0.875rem;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .form-select { background-image: none; appearance: auto; padding-right: 8px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) option { color: var(--yard-text); background: var(--yard-surface); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) input::placeholder { color: var(--yard-muted); opacity: 1; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.form-control, .form-select):disabled { background-color: var(--yard-head); color: var(--yard-muted); opacity: 1; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .btn { border-radius: 2px !important; font-weight: 600; }
+    body[data-yard-page] .create-operation-button { padding: 7px 12px !important; margin-bottom: 4px !important; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.btn-outline-secondary, .btn-outline-primary, .btn-outline-success) {
+        background: var(--yard-surface); color: var(--yard-text); border-color: var(--yard-line);
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.btn-outline-secondary, .btn-outline-primary, .btn-outline-success):is(:hover, :active, .active) {
+        background: var(--yard-accent); color: var(--yard-accent-ink); border-color: var(--yard-accent-ink);
+    }
+    body[data-yard-page] :is(a, button, input, select, textarea):focus-visible { outline: 3px solid var(--yard-link, #245982); outline-offset: 2px; box-shadow: none; }
+
+    /* Data grids retain a light canvas in both themes so server-supplied status colors stay legible. */
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) table {
+        color: #202b39;
+        background: #fff;
+        border-color: #aab5c2;
+        font-variant-numeric: tabular-nums;
+        --bs-table-bg: transparent;
+        --bs-table-color: #202b39;
+        --bs-table-striped-bg: #f1f4f7;
+        --bs-table-striped-color: #202b39;
+        --bs-table-hover-bg: #e6edf4;
+        --bs-table-hover-color: #202b39;
+        --bs-table-active-bg: #e0e8f0;
+        --bs-table-active-color: #202b39;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(td, th) { border-color: #aab5c2; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) th {
+        /* Keep table headers readable in dark mode: data grids use a light canvas. */
+        background-color: #ffffff;
+        color: #202b39;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) table a:not(.btn) { color: #245982; text-decoration: underline; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-menu { background: var(--yard-surface); border: 1px solid var(--yard-line); border-radius: 2px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item { color: var(--yard-text); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item:is(:hover, :focus) { background: var(--yard-hover); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .dropdown-item.active { color: var(--yard-accent-ink); background: var(--yard-accent); }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) :is(.modal-content, .card, .operation-type-note-content, .bc-works-block-content, .dialog-block-content) {
+        color: var(--yard-text);
+        background-color: var(--yard-card);
+        border-radius: 2px;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .operation-div {
+        color: var(--yard-text);
+        background-color: var(--yard-card);
+        border-color: var(--yard-line);
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .operation-div .card-header {
+        color: #202b39;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .operation-div .card-body {
+        color: var(--yard-text);
+        background-color: var(--yard-card);
+    }
+    body[data-yard-page="ECReportPage"] div[style*="background-color: white"] { color: #202b39; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-footer { color: var(--yard-muted); border-color: var(--yard-line) !important; font-size: 0.75rem; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-footer a { color: var(--yard-link); }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]):has(.yard-theme input[value="auto"]:checked) {
+        --yard-bg: #18251f;
+        --yard-surface: #22352a;
+        --yard-text: #eef1e5;
+        --yard-muted: #bdcbb8;
+        --yard-line: #6e8369;
+        --yard-head: #304532;
+        --yard-hover: #344c39;
+        --yard-link: #bdd4a4;
+        --yard-card: #303844;
+        --yard-logo-background: #18251f;
+        color-scheme: dark;
+    }
+}
+
+@media screen {
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-nav .nav-link {
+        border-radius: 6px;
+        padding: 9px 12px;
+    }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-profile-toggle { border-radius: 8px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-profile-panel {
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 12px 36px rgb(10 30 18 / 18%);
+    }
+    body[data-yard-page="OperationsPage2"] .yard-operations-heading {
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 20px; margin: 8px 0 28px;
+    }
+    body[data-yard-page="OperationsPage2"] .yard-eyebrow {
+        color: var(--yard-muted); text-transform: uppercase;
+        letter-spacing: .12em; font-size: 0.6875rem; font-weight: 700; margin: 0 0 10px;
+    }
+    body[data-yard-page="OperationsPage2"] .yard-operations-heading h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.75rem, calc(1rem + 1.5vw), 2.5rem); font-weight: 400; line-height: 1.2;
+        margin: 0 0 10px; letter-spacing: -.025em;
+    }
+    body[data-yard-page="OperationsPage2"] .create-operation-div { margin: 0 !important; }
+    body[data-yard-page="OperationsPage2"] .create-operation-div > div {
+        display: flex; flex-wrap: wrap !important; gap: 8px;
+    }
+    body[data-yard-page="OperationsPage2"] .create-operation-button {
+        width: auto !important; min-height: 40px; margin: 0 !important;
+        padding: 9px 16px !important; border-radius: 7px !important;
+        flex: 0 1 auto;
+    }
+    body[data-yard-page="OperationsPage2"] .create-operation-button + .create-operation-button {
+        background: var(--yard-surface); color: var(--yard-text); border-color: var(--yard-line);
+    }
+    body[data-yard-page="OperationsPage2"] .create-operation-button + .create-operation-button:hover { background: var(--yard-hover); }
+    body[data-yard-page="OperationsPage2"] .yard-operations-tools {
+        border: 1px solid var(--yard-line); border-radius: 12px;
+        background: var(--yard-surface); padding: 20px;
+        box-shadow: 0 3px 12px rgb(20 45 25 / 3%); margin-bottom: 20px;
+    }
+    body[data-yard-page="OperationsPage2"] .yard-tools-heading {
+        display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 16px;
+    }
+    body[data-yard-page="OperationsPage2"] .yard-tools-heading h2 { font-size: 0.9375rem; margin: 0; }
+    body[data-yard-page="OperationsPage2"] .yard-tools-heading span { font-size: 0.75rem; color: var(--yard-muted); }
+    body[data-yard-page="OperationsPage2"] .yard-operations-tools :is(.filters-div, .sorts-div) {
+        border: 0; padding: 0 !important; margin: 0 !important; background: transparent;
+    }
+    body[data-yard-page="OperationsPage2"] .sorts-div > .row { align-items: center; row-gap: 10px; }
+    body[data-yard-page="OperationsPage2"] .sorts-div .btn-group { height: 36px; }
+    body[data-yard-page="OperationsPage2"] .sorts-div .btn-group label { display: flex; align-items: center; }
+    body[data-yard-page="OperationsPage2"] .yard-operations-tools :is(.form-control, .form-select, .filter-text-box, .datepicker2) {
+        min-height: 38px; border-radius: 6px !important;
+    }
+    body[data-yard-page="OperationsPage2"] .infoHeaders {
+        display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px;
+        border: 0; padding: 0 !important; background: transparent; margin-bottom: 12px !important;
+    }
+    body[data-yard-page="OperationsPage2"] .infoHeaders > h5 {
+        flex: 1 1 auto; padding: 6px 12px; border: 1px solid var(--yard-line); border-radius: 6px;
+        background: var(--yard-surface); font-size: 0.875rem; line-height: 1.5;
+        font-variant-numeric: tabular-nums; font-weight: 500; overflow-wrap: anywhere;
+        box-shadow: 0 3px 12px rgb(20 45 25 / 3%);
+    }
+    body[data-yard-page="OperationsPage2"] .infoHeaders > h5:first-child {
+        background: var(--yard-head); border-top: 3px solid #91a67c;
+    }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+    .yard-profile-panel:not([hidden]) { animation: yard-profile-reveal 160ms ease-out; }
+    .yard-header :is(.nav-link, .yard-profile-toggle),
+    body[data-yard-page="OperationsPage2"] .yard-operations-heading .btn {
+        transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+    @keyframes yard-profile-reveal {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+@media screen and (max-width: 640px) {
+    body[data-yard-page="OperationsPage2"] .yard-operations-tools { padding: 14px; }
+    body[data-yard-page="OperationsPage2"] .yard-operations-heading { margin-bottom: 20px; }
+}
+
+@media screen and (max-width: 900px) {
+    .yard-header-main { flex-wrap: wrap; gap: 12px; }
+    .yard-header-content { flex-basis: calc(100% - 120px); }
+    .yard-theme { display: flex; flex-wrap: wrap; gap: 12px; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-header { padding: 12px 12px 0; }
+    body[data-yard-page]:not([data-yard-page="OperationPrintPage"]) .yard-workspace { padding: 16px 12px !important; }
+}
+
+/* Operations grid: concrete palette in both themes, including dynamically coloured cells. */
+@media screen {
+    body[data-yard-page="OperationsPage2"] table.operations-table {
+        background: #e8e8e8;
+        color: #0a0a0a;
+        border: 2px solid #161616;
+        border-radius: 0;
+        box-shadow: 4px 4px 0 #161616;
+        --bs-table-color: #0a0a0a;
+        --bs-table-striped-color: #0a0a0a;
+        --bs-table-hover-color: #0a0a0a;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table > thead > tr > th {
+        background-color: #e8e8e8 !important;
+        color: #0a0a0a !important;
+        border: 2px solid #161616;
+        box-shadow: none !important;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table > tbody > tr > td {
+        color: #0a0a0a;
+        border: 2px solid #161616;
+        box-shadow: none !important;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table a:not(.btn) { color: #0a0a0a; }
+    body[data-yard-page="OperationsPage2"] table.operations-table .table-cell-button {
+        max-width: 100%;
+        background: #e8e8e8;
+        color: #0a0a0a;
+        border: 2px solid #161616;
+        border-radius: 0;
+    }
+    body[data-yard-page="OperationsPage2"] table.operations-table .table-cell-button:is(:hover, :focus-visible) {
+        background: #161616;
+        color: #fff;
+    }
+    body[data-yard-page] .yard-status-cell { color: #0a0a0a !important; }
+    body[data-yard-page] .yard-status-cell .table-cell-button {
+        color: #0a0a0a;
+        background: #e8e8e8;
+        border-color: #161616;
+    }
+    body[data-yard-page] .yard-status-cell .table-cell-button:is(:hover, :focus-visible) {
+        color: #fff;
+        background: #161616;
+    }
+    .yard-table-scroll { max-width: 100%; overflow-x: auto; padding: 0 6px 24px 0; }
+    .yard-table-scrollbar {
+        position: fixed; height: 24px; z-index: 1020;
+        overflow-x: scroll; overflow-y: hidden;
+        background: var(--yard-surface, #222a34);
+        border: 1px solid var(--yard-line, #667589);
+        scrollbar-width: auto;
+    }
+    .yard-table-scrollbar[hidden] { display: none; }
+    .yard-table-scrollbar > div { height: 1px; }
+    .yard-table-scrollbar::-webkit-scrollbar { height: 18px; }
+    .yard-table-scrollbar::-webkit-scrollbar-track { background: #222a34; }
+    .yard-table-scrollbar::-webkit-scrollbar-thumb { background: #8393a6; border: 3px solid #222a34; border-radius: 6px; }
+    body[data-yard-page="OperationsPage2"] table.yard-resizable-table { table-layout: fixed; max-width: none; }
+    body[data-yard-page="OperationsPage2"] table.yard-resizable-table :is(td, th) {
+        width: auto !important;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+    .yard-resizable-table th { position: relative; padding-right: 16px; }
+    .yard-column-resize {
+        position: absolute; right: -4px; top: 0; width: 8px;
+        z-index: 1; padding: 0; border: 0; background: transparent;
+        cursor: col-resize; touch-action: none;
+    }
+    .yard-column-resize:hover { background: rgb(22 22 22 / 20%); }
+    .yard-column-resize:focus-visible { background: rgb(22 22 22 / 20%); outline: 2px solid #244c70; outline-offset: -2px; }
+    .yard-table-resizing { cursor: col-resize; user-select: none; }
+}
+@media print {
+    .yard-column-resize, .yard-table-scrollbar { display: none !important; }
+    .yard-table-scroll { overflow: visible; padding: 0; }
+    table.yard-resizable-table { width: 100% !important; }
+    table.yard-resizable-table col { width: auto !important; }
 }

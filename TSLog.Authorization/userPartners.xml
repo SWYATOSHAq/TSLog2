@@ -5,43 +5,22 @@
 	</user>
 	<user name="Оператор БЛС" login="blcoper">
 		<partner code="0021" name="0021. БЛС"/>
-	</user>
-	<user name="Оператор Аквариус" login="operatorakvarius">
-		<partner code="0011" name="0011. Аквариус"/>
-	</user>
+	</user>	
 	<user name="Оператор Метрот" login="Metrot_Operator">
 		<partner code="0028" name="0028. Метрот"/>
 	</user>
 	<user name="Оператор Юмайнерс" login="Uminersoper">
-		<partner code="0017" name="0017. ИП Зейнетдинов"/>
-	</user>
-	<user name="Оператор Вкусная жизнь" login="vkzhoper">
-		<partner code="0014" name="0014. Вкусная жизнь"/>
-	</user>
-	<user name="Оператор Манипула" login="Manipulaoper">
-		<partner code="0029" name="0029. Манипула"/>
-	</user>
+		<partner code="0017" name="0017. РусТехМаш"/>
+	</user>	
 	<user name="Оператор MVI" login="mvi">
 		<partner code="0031" name="0031. MVI"/>
-	</user>
-	<user name="Оператор БЛС2" login="testblcoper">
-		<partner code="0021" name="0021. БЛС2"/>
-	</user>
-	<user name="Оператор Детского мира" login="dmoper">
-		<partner code="0130" name="0130. ДМ"/>
-	</user>
+	</user>	
 	<user name="Оператор Home Expert" login="homeoper">
 		<partner code="0036" name="0036. Home Expert"/>
 	</user>
 	<user name="Оператор O'Shade" login="oshadeOper">
 		<partner code="0037" name="0037. O'Shade"/>
-	</user>
-	<user name="Оператор ВИЛИНА" login="viloper">
-		<partner code="0038" name="0038. ВИЛИНА"/>
-	</user>
-	<user name="Оператор СКМ" login="Skmoper">
-		<partner code="0039" name="0039. СКМ"/>
-	</user>
+	</user>	
 	<user name="Оператор JITL" login="jitloper">
 		<partner code="0042" name="0042. JITL"/>
 	</user>
@@ -53,20 +32,42 @@
 	</user>
 	<user name="Оператор CandyFlow" login="kendyflow_oper">
 		<partner code="0043" name="0043. CandyFlow"/>
-	</user>
-	<user name="Оператор Лидер" login="Leader_oper">
-		<partner code="0048" name="0048. Лидер"/>
-	</user>
-	<user name="Оператор RVI" login="rvioper">
-		<partner code="0060" name="0060. RVI"/>
-	</user>
-	<user name="Оператор КирэйКемикал" login="kireichemical_oper">
-		<partner code="0049" name="0049. КирэйКемикал"/>
-	</user>
+	</user>		
 	<user name="Оператор Большой Мир" login="bolshoimir_oper">
 		<partner code="0046" name="0046. Большой Мир"/>
+	</user>	
+	<user name="Оператор ООО «Макрохим»" login="macroper
+">
+		<partner code="0064" name="0064. ООО «Макрохим»"/>
+	</user>		
+	<user name="ООО Фудзи Оператор" login="fujioper
+
+">
+		<partner code="0061" name="0061. ООО Фудзи Оператор"/>
 	</user>
-	<user name="Оператор Миле" login="miloper">
-		<partner code="0052" name="0052. Миле"/>
+	<user name="ООО Евроэталон Оператор" login="evroetalon_oper
+
+">
+		<partner code="0068" name="0068. ООО Евроэталон Оператор"/>
+	</user>	
+	<user name="Пилигримм Оператор" login="0071oper
+
+">
+		<partner code="0071" name="0071. Пилигримм Оператор"/>
+	</user>
+	<user name="Кофе Эксперт Оператор" login="cofeexprt
+
+">
+		<partner code="0072" name="0072. Кофе Эксперт Оператор"/>
+	</user>
+	<user name="ООО Евразия оператор" login="eurazoper
+
+">
+		<partner code="0073" name="0073. ООО Евразия оператор"/>
+	</user>
+	<user name="ООО Светол Инвест" login="svetol_oper
+
+">
+		<partner code="0074" name="0074. ООО Светол Инвест"/>
 	</user>
 </userPartners>

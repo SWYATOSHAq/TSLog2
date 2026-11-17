@@ -158,6 +158,10 @@
         viewUtils.initDatePicker("to-date-picker", toDate, this.onChangeFilter.bind(this));
 
         viewUtils.initSelect("operation-types-select", utils.getUrlParameter("operation_type_code"), this.onChangeFilter.bind(this));
+        const operationTypeFilter = document.getElementById("operation-types-select");
+        if (operationTypeFilter && operationTypeFilter.selectedIndex < 0) {
+            operationTypeFilter.value = "";
+        }
         viewUtils.initSelect("vehicle-kinds-select", utils.getUrlParameter("vehicle_kind_code"), this.onChangeOperationType.bind(this));
         viewUtils.initSelect("gates-select", utils.getUrlParameter("gate_code"), this.onChangeFilter.bind(this));
         viewUtils.initSelect("operation-states-select", utils.getUrlParameter("state_code"), this.onChangeFilter.bind(this));

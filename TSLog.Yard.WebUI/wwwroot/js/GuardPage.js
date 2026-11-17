@@ -122,7 +122,7 @@ class GuardPage {
             passVehicleButton.onclick = null;
             passVehicleButton.textContent = "?";
         }
-        viewUtils.createCell(operationTr, ["table-cell"], [passVehicleP, passVehicleButton],
+        viewUtils.createCell(operationTr, ["table-cell", "yard-status-cell"], [passVehicleP, passVehicleButton],
             "background-color: " + operation.displayColor + " !important; box-shadow:none");
     }
 

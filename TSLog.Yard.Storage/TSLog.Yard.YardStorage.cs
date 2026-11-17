@@ -541,9 +541,9 @@ public class YardStorage : IDisposable, IYardStorage
     {
         return _pgsqlStorage.GetYardPerfomanceData(fromDate, toDate);
     }
-    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate)
+    public dynamic[] GetGateManagementData(DateTime fromDate, DateTime toDate, bool forShift = false)
     {
-        return _pgsqlStorage.GetGateManagementData(fromDate, toDate);
+        return _pgsqlStorage.GetGateManagementData(fromDate, toDate, forShift);
     }
     public dynamic[] GetBcPerfomanceData(DateTime fromDate, DateTime toDate, string siteCode)
     {

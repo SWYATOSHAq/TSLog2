@@ -55,6 +55,28 @@ class OperationPage {
         this.blockDuration = 60 * 60 / this.hourBlocksCount;
     }
 
+    restrictOperationTypes(select, currentTypeCode, preserveCurrentType) {
+        // #22264: разрешённые типы из справочника yard.operation_type.
+        const allowedCodes = new Set([
+            "I_PALLET_MIX_MIX",
+            "I_BOX_MIX",
+            "O_PALLET",
+            "O_BOX_MIX"
+        ]);
+        for (const option of Array.from(select.options)) {
+            if (option.value === "") continue;
+            if (allowedCodes.has(option.value)) continue;
+            if (preserveCurrentType && option.value === currentTypeCode) {
+                // Старую заявку можно открыть и сохранить, но выбрать этот тип заново нельзя.
+                option.disabled = true;
+            } else {
+                option.remove();
+            }
+        }
+        select.value = Array.from(select.options).some(option => option.value === currentTypeCode)
+            ? currentTypeCode : "";
+    }
+
     getSelectedDate() {
         return $("#work-start-date-picker").datepicker('getDate');
     }
@@ -521,18 +543,11 @@ class OperationPage {
         const parkingCheckBox = document.getElementById("parkingCheck");
         const parkingActive = parkingCheckBox != null ? document.getElementById("parkingCheck").checked : false;
         const gatesSelect = document.getElementById("gates-select");
-        const setGateButton = document.getElementById("set-gate-button");
         if (parkingActive) {
             gatesSelect.disabled = true;
-            if (setGateButton !== null) {
-                setGateButton.style.display = 'none';
-            }
             gatesSelect.selectedIndex = 0;
         } else {
             gatesSelect.disabled = false;
-            if (setGateButton !== null) {
-                setGateButton.style.display = 'inline-block';
-            }
         }
     }
 
@@ -772,15 +787,6 @@ class OperationPage {
         }
     }
 
-    async setOperationGate() {
-        const result = await api.setOperationGate(this.id, "");
-        if (result.code === 0) {
-            location.reload();
-        } else {
-            viewUtils.showError(result.message);
-        }
-    }
-
     async startOperation() {
         const result = await api.startOperation(this.id);
         if (result.code == 0) {
@@ -881,7 +887,7 @@ class OperationPage {
         workerFullNameB.textContent = action.partnerActionId != "" ? action.partnerActionId : "Б/Н";
         button.append(workerFullNameB);
 
-        const date = utils.stringToDate(action.insertDate);
+        const date = utils.stringToDate(action.kind === "O" ? action.planActionDate : action.insertDate);
         if (date > utils.nullDate) {
             button.append(" (" + utils.dateToString(date) + ") ");
         }
@@ -1156,14 +1162,6 @@ class OperationPage {
         }
     }
 
-    async allocateWorkers() {
-        const result = await api.allocateOperationWorkers(this.id);
-        if (result.code === 0) {
-            location.reload();
-        } else {
-            viewUtils.showError(result.message);
-        }
-    }
     // #endregion
 
     async startOperationWork() {
@@ -1313,7 +1311,7 @@ class OperationPage {
         } else if (event.target == dialogBlockDiv) {
             this.hideDialogBlock();
         }
-    }   
+    }
 
     async show() {
         // CREATE, CREATE_CONFIRM, CREATE_BY_PARTNER, COPY, COPY_BY_PARTNER, VIEW, VIEW_BY_PARTNER
@@ -1347,6 +1345,11 @@ class OperationPage {
         this.stateCode = operation != null && !copy ? operation.stateCode : "";
         this.stateName = operation != null && !copy ? operation.stateName : "";
 
+        const isPartnerLocked =
+            isPartnerUser &&
+            this.stateCode !== "" &&
+            this.stateCode !== "CREATED";
+
         // Header
         const h1 = document.getElementById("header");
         if (this.action === "CREATE") {
@@ -1372,8 +1375,8 @@ class OperationPage {
 
         // Operation type
         const operationTypesSelect = document.getElementById("operation-types-select");
-        operationTypesSelect.value = operation != null ? operation.typeCode : "";
-        if (isPreparing) {
+        this.restrictOperationTypes(operationTypesSelect, operation != null ? operation.typeCode : "", !create && !copy);
+        if (isPreparing && !isPartnerLocked) {
             if (!operationTypesSelect.disabled) {
                 operationTypesSelect.onchange = this.onChangeOperationType.bind(this);
             }
@@ -1390,7 +1393,7 @@ class OperationPage {
         // Vehicle kind
         const vehiclekindsSelect = document.getElementById("vehicle-kinds-select");
         vehiclekindsSelect.value = operation != null ? operation.vehicleKindCode : "";
-        if (isPreparing) {
+        if (isPreparing && !isPartnerLocked) {
             vehiclekindsSelect.onchange = this.onChangeDuration.bind(this);
         } else {
             vehiclekindsSelect.disabled = true;
@@ -1413,7 +1416,7 @@ class OperationPage {
             this.planWorkStartDate = utils.nullDate;
             this.factWorkStartDate = utils.nullDate;
         }
-        
+
 
         // Warehouse actions (and partner)        
         const partnersSelect = document.getElementById("partners-select");
@@ -1431,8 +1434,14 @@ class OperationPage {
         this.factDuration = operation != null && !copy ? Number(operation.factDuration) : 0;
         this.showDuration();
         const timetableFieldset = document.getElementById("timetable-fieldset");
-        const timeTableDisabled = this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED" || this.stateCode === "FINISHED" ||
-            this.stateCode === "CANCELED" || operationTypesSelect.disabled;
+        const timeTableDisabled =
+            isPartnerLocked ||
+            this.stateCode === "WORK_STARTED" ||
+            this.stateCode === "WORK_FINISHED" ||
+            this.stateCode === "FINISHED" ||
+            this.stateCode === "CANCELED" ||
+            operationTypesSelect.disabled;
+
         timetableFieldset.disabled = timeTableDisabled;
         let tempDate = operation != null && !copy && !isLate ? new Date(this.planWorkStartDate) : new Date();
         tempDate.setHours(0, 0, 0, 0);
@@ -1478,7 +1487,7 @@ class OperationPage {
         const warehouseActionsFieldset = document.getElementById("warehouse-actions-fieldset");
         const actionFiltersDiv = document.getElementById("action-filter-div");
         const allActionsDiv = document.getElementById("all-actions-div");
-        if (isPreparing) {
+        if (isPreparing && !isPartnerLocked) {
             warehouseActionsFieldset.disabled = operationTypesSelect.disabled;
             const actionsFilterInput = document.getElementById("action-filter-input");
             if (actionsFilterInput != undefined && actionsFilterInput != null) {
@@ -1509,23 +1518,23 @@ class OperationPage {
             creatorInput.value = operation.creator + " (" + utils.dateTimeToString(new Date(operation.createDate)) + ")";
             if (operation.editor != "") {
                 editorInput.value = operation.editor + " (" + utils.dateTimeToString(new Date(operation.editDate)) + ")";
-            }            
+            }
         } else {
             document.getElementById("creator-div").remove();
             document.getElementById("editor-div").remove();
-        }        
+        }
 
         // Gates and parking
-        const parkingCheckBox = document.getElementById("parkingCheck");        
+        const parkingCheckBox = document.getElementById("parkingCheck");
         let parkingActive = parkingCheckBox != null ? document.getElementById("parkingCheck").checked : false;
         if (parkingCheckBox != null) {
             if (operation.onParking) {
                 parkingCheckBox.checked = true;
                 this.onChangeParking();
-            }                            
+            }
             parkingCheckBox.onchange = this.onChangeParking.bind(this);
         }
-                    
+
         const gatesSelect = document.getElementById("gates-select");
         if (gatesSelect != undefined && parkingActive != undefined && !parkingActive) {
             const gateCode = operation != null && !copy && !isLate ? operation.gateCode : "";
@@ -1552,7 +1561,7 @@ class OperationPage {
         document.getElementById("partner-manager-email-input").value = operation != null ? operation.partnerManagerEmail : "";
         document.getElementById("note-textarea").innerHTML = operation != null ? operation.note : "";
 
-        const disableAdditionalAttributes = operationTypesSelect.disabled || !isPreparing;
+        const disableAdditionalAttributes = isPartnerLocked || operationTypesSelect.disabled || !isPreparing;
         document.getElementById("vehicle-brand-input").disabled = disableAdditionalAttributes;
         document.getElementById("vehicle-model-input").disabled = disableAdditionalAttributes;
         document.getElementById("vehicle-number-input").disabled = disableAdditionalAttributes;
@@ -1565,15 +1574,15 @@ class OperationPage {
 
         const saveButton = document.getElementById("save-button");
         if (saveButton != undefined && saveButton != null) {
-            if (this.stateCode === "FINISHED" || this.stateCode === "CANCELED") {
+            if (isPartnerLocked || this.stateCode === "FINISHED" || this.stateCode === "CANCELED") {
                 document.getElementById("note-textarea").setAttribute("contenteditable", "false");
-            }           
+            }
         } else {
             document.getElementById("note-textarea").setAttribute("contenteditable", "false");
-        }        
+        }
 
         // Workers
-        const workersDiv = document.getElementById("workers-div");        
+        const workersDiv = document.getElementById("workers-div");
         const workersFilterDiv = document.getElementById("workers-filter-div");
         if (workersDiv != null && workersDiv != undefined) {
             const states = ["STARTED", "WORK_STARTED", "WORK_FINISHED", "FINISHED"];
@@ -1582,12 +1591,11 @@ class OperationPage {
 
                 await this.getSelectedWorkers();
                 await this.showSelectedWorkers();
-                const workersFieldset = document.getElementById("workers-fieldset");                
+                const workersFieldset = document.getElementById("workers-fieldset");
                 const linearWorkersDiv = document.getElementById("linear-workers-div");
                 if ((this.stateCode === "STARTED" || this.stateCode === "WORK_STARTED")
                     && workersFilterDiv != undefined && workersFilterDiv != null
-                    && linearWorkersDiv != undefined && linearWorkersDiv != null)
-                {
+                    && linearWorkersDiv != undefined && linearWorkersDiv != null) {
                     const workersFilterInput = document.getElementById("worker-filter-input");
                     workersFilterInput.onchange = this.onChangeWorkersFilter.bind(this);
 
@@ -1600,10 +1608,10 @@ class OperationPage {
                     workersFieldset.disabled = true;
                     if (workersFilterDiv != undefined && workersFilterDiv != null) {
                         workersFilterDiv.remove();
-                    }                    
+                    }
                     if (linearWorkersDiv != undefined && linearWorkersDiv != null) {
                         linearWorkersDiv.remove();
-                    }                    
+                    }
                 }
                 this.showWorkersDivs();
             } else {
@@ -1653,19 +1661,17 @@ class OperationPage {
                 else if (this.stateCode === "WORK_STARTED" || this.stateCode === "WORK_FINISHED") {
                     saveButton.onclick = this.editOperationNote.bind(this);
                 }
-            }            
+            }
         }
 
         viewUtils.removeElement("copy-button", this.id <= 0 || copy,
             isPartnerUser ? this.copyOperationByPartner.bind(this) : this.copyOperation.bind(this));
         viewUtils.removeElement("copy-confirm-button", this.id <= 0 || copy, this.copyConfirmOperation.bind(this));
-        viewUtils.removeElement("set-gate-button", !isPreparing);
         viewUtils.removeElement("start-button", this.stateCode != "CONFIRMED");
         viewUtils.removeElement("start-work-button", this.stateCode != "STARTED" || gatesSelect === null || gatesSelect.selectedIndex === 0);
-        viewUtils.removeElement("allocate-workers-button", this.stateCode != "STARTED" || gatesSelect === null || gatesSelect.selectedIndex === 0);
         viewUtils.removeElement("finish-work-button", this.stateCode != "WORK_STARTED");
         viewUtils.removeElement("finish-button", this.stateCode != "WORK_FINISHED");
-        viewUtils.removeElement("cancel-button", this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");
+        viewUtils.removeElement("cancel-button", isPartnerLocked || this.stateCode != "CREATED" && this.stateCode != "CONFIRMED");
         viewUtils.removeElement("delete-button", this.stateCode === "");
 
         const closeButton = document.getElementById("close-button");

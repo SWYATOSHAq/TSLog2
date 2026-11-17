@@ -353,7 +353,9 @@ public partial class Operation : Entity
     }    
     /// <summary>
     /// Цвет, соответствующий состоянию, для отображения в интерфейсе.
-    /// </summary>
+    /// </summary> 
+    public bool CanBeEditedByPartner => State.Code == "CREATED";
+
     public string DisplayColor
     {
         get

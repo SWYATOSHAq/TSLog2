@@ -1,7 +1,119 @@
-﻿/*
+/*
     Общий функционал для отображения.
     Автор - Буров Михаил (m.burov@tslog.ru).
 */
+
+(function initYardTheme() {
+    const controls = document.querySelectorAll('.yard-theme input[name="yard-theme"]');
+    if (!controls.length) return;
+
+    const cookieName = "tslog-yard-theme";
+    const validThemes = ["auto", "light", "dark"];
+
+    function restoreTheme() {
+        let theme = "auto";
+        try {
+            const cookie = document.cookie.split(";").map(value => value.trim())
+                .find(value => value.startsWith(cookieName + "="));
+            const saved = cookie ? cookie.substring(cookieName.length + 1) : null;
+            if (validThemes.includes(saved)) theme = saved;
+        } catch (_) {
+            // Cookie access can be blocked by browser privacy settings.
+        }
+        controls.forEach(control => { control.checked = control.value === theme; });
+    }
+
+    controls.forEach(control => {
+        control.addEventListener("change", function () {
+            if (!this.checked || !validThemes.includes(this.value)) return;
+            try {
+                document.cookie = cookieName + "=" + this.value
+                    + "; Path=/; Max-Age=31536000; SameSite=Lax"
+                    + (location.protocol === "https:" ? "; Secure" : "");
+            } catch (_) {
+                // The CSS switch still works when persistence is unavailable.
+            }
+        });
+    });
+
+    restoreTheme();
+    window.addEventListener("pageshow", restoreTheme);
+})();
+
+(function initYardFontSize() {
+    const control = document.getElementById("yard-font-size");
+    const output = document.getElementById("yard-font-size-value");
+    if (!control || !output) return;
+
+    const labels = ["Обычный", "Крупнее", "Самый крупный"];
+    const cookieName = "tslog-yard-font-size";
+
+    function applySize(value) {
+        const size = /^[0-2]$/.test(value) ? value : "0";
+        document.documentElement.dataset.yardFontSize = size;
+        control.value = size;
+        output.value = labels[Number(size)];
+        control.setAttribute("aria-valuetext", output.value);
+    }
+
+    function restoreSize() {
+        try {
+            const cookie = document.cookie.split(";").map(value => value.trim())
+                .find(value => value.startsWith(cookieName + "="));
+            applySize(cookie ? cookie.slice(cookieName.length + 1) : document.documentElement.dataset.yardFontSize);
+        } catch (_) {
+            applySize(document.documentElement.dataset.yardFontSize);
+        }
+    }
+
+    control.addEventListener("input", function () {
+        applySize(control.value);
+        try {
+            document.cookie = cookieName + "=" + control.value
+                + "; Path=/; Max-Age=31536000; SameSite=Lax"
+                + (location.protocol === "https:" ? "; Secure" : "");
+        } catch (_) {
+            // The current page still reflects the chosen size.
+        }
+    });
+
+    restoreSize();
+    window.addEventListener("pageshow", restoreSize);
+})();
+
+(function initYardProfile() {
+    const toggle = document.getElementById("yard-profile-toggle");
+    const panel = document.getElementById("yard-profile-panel");
+    if (!toggle || !panel) return;
+    const profile = toggle.closest(".yard-profile");
+
+    function closeProfile(returnFocus) {
+        panel.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+        if (returnFocus) toggle.focus();
+    }
+
+    toggle.addEventListener("click", function () {
+        const open = panel.hidden;
+        panel.hidden = !open;
+        toggle.setAttribute("aria-expanded", String(open));
+    });
+    document.addEventListener("click", function (event) {
+        if (!panel.hidden && !profile.contains(event.target)) {
+            closeProfile(panel.contains(document.activeElement));
+        }
+    });
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !panel.hidden) {
+            event.preventDefault();
+            closeProfile(true);
+        }
+    });
+    document.addEventListener("focusin", function (event) {
+        if (!panel.hidden && !profile.contains(event.target)) closeProfile(false);
+    });
+    window.addEventListener("pageshow", function () { closeProfile(false); });
+})();
 
 // Класс, реализующий дополнительный и вспомогательный функционал (для пользовательского интерфейса)
 class ViewUtils {

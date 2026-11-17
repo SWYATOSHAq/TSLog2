@@ -50,6 +50,8 @@
     var vehicleKindsModel = new VehicleKindsModel(storage.GetVehicleKinds(), selectedVehicleKind ?? string.Empty, true, true, "Все типы машин", divClasses, selectClasses);
     var operationStatesModel = new OperationStatesModel(storage.GetOperationStates(), selectedState ?? string.Empty, true, true, "Все состояния", divClasses, selectClasses);
 
+    selectedType = operationTypesModel.SelectedType;
+
     var span = 1;
     var operations = storage.GetOperations(string.Empty, fromDate.Date, toDate.AddDays(span).AddTicks(-1),
         !string.IsNullOrWhiteSpace(selectedType) ? storage.GetOperationType(selectedType) : null,

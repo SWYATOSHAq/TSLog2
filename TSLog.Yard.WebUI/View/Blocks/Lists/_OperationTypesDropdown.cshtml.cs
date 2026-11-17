@@ -33,8 +33,14 @@ namespace TSLog.Yard.WebUI.Models
         public OperationTypesModel(OperationType[] types, string selectedType, bool isEnabled, bool isSmall, string defaultText, 
             string divClasses, string selectClasses)
         {
-            OperationTypes = types;
+            // Компактные списки используются в фильтрах заявок и машин во дворе.
+            // Полный список нужен карточке и печати для отображения исторических типов.
+            OperationTypes = isSmall
+                ? types.Where(type => type.Code is "I_PALLET_MIX_MIX" or "I_BOX_MIX" or "O_PALLET" or "O_BOX_MIX").ToArray()
+                : types;
             SelectedType = !string.IsNullOrWhiteSpace(selectedType) ? selectedType.Trim() : string.Empty;
+            if (isSmall && !OperationTypes.Any(type => type.Code == SelectedType))
+                SelectedType = string.Empty;
             IsEnabled = isEnabled;
             IsSmall = isSmall;
             IsRequired = false;

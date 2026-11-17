@@ -1,4 +1,4 @@
-﻿@page "/OperationsPage2"
+@page "/OperationsPage2"
 @using TSLog.Partners.BO
 @using TSLog.Yard.WebUI.Models
 @using TSLog.Yard.BO
@@ -91,31 +91,56 @@
     var createAction = !isPartnerUser ? "CREATE" : "CREATE_BY_PARTNER";
 }
 
+<div class="yard-operations-heading hide-on-print">
+    <div>
+        <p class="yard-eyebrow">Управление двором</p>
+        <h1>Заявки и операции</h1>
+    </div>
 @if (createOperation)
 {
     <div class="row create-operation-div">
-        <div style="flex-wrap: nowrap; width: auto; margin: auto; padding: 0">
-            <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                style="width: 200px"
+        <div class="yard-create-actions">
+            <button class="btn hide-on-print create-operation-button"
                 type="button" 
                 title="Создать новую заявку на операцию двора (разгрузку или погрузку) без подтверждения"
                 onclick="location.href = '/OperationPage?action=@createAction'">Создать</button>
             @if (!isPartnerUser)
             {
-                <button class="btn btn-outline-success hide-on-print col-4 mx-auto create-operation-button" 
-                    style="width: 200px"
-                    type="button" 
+                <button class="btn hide-on-print create-operation-button"
+                    type="button"
                     title="Создать новую заявку на операцию двора (разгрузку или погрузку) с подтверждением"
                     onclick="location.href = '/OperationPage?action=CREATE_CONFIRM'">Создать и подтвердить</button>
             }            
         </div>
     </div>        
 }
-<partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
-<partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+</div>
+<div class="yard-operations-tools" data-partner-user="@(isPartnerUser ? "true" : "false")">
+    <div class="yard-tools-heading hide-on-print">
+        <h2>Отбор заявок</h2>
+        <span>Фильтры и порядок отображения</span>
+    </div>
+    <partial name="Blocks/_OperationsFiltersBlock" model="filtersModel" />
+    <div class="yard-operations-sort">
+        <partial name="Blocks/_OperationsSortBlock" model="sortModel" />
+        <details class="yard-visibility hide-on-print">
+            <summary>Показать фильтры</summary>
+            <fieldset id="operation-filter-options" aria-label="Видимые поля отбора"></fieldset>
+        </details>
+    </div>
+    <div class="yard-applied-filters hide-on-print" id="operation-applied-filters">
+        <div id="operation-filter-tags" role="group" aria-label="Применённые отборы"></div>
+        <button type="button" id="operation-reset-filters" hidden>Сбросить отборы</button>
+    </div>
+    <p id="operation-filter-status" class="visually-hidden" role="status"></p>
+</div>
 <div class="infoHeaders">
     <h5 id="header3">Всего заявок</h5>
     <h5 id="onParkingHeader">Машин на парковке</h5>
     <h5 id="onGatesCarsHeader">Машин на воротах</h5>
+    <details class="yard-visibility hide-on-print">
+        <summary>Столбцы таблицы</summary>
+        <fieldset id="operation-column-options" aria-label="Видимые столбцы таблицы"></fieldset>
+    </details>
 </div>
 <partial name="Blocks/Lists/_OperationsTable" model="operationsModel" />
