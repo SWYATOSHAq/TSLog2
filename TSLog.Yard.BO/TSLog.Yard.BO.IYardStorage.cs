@@ -113,6 +113,7 @@ public interface IYardWmsStorage
     public WarehouseAction GetWarehouseAction(ActionKind actionKind, string id);
     public WarehouseAction GetWarehouseAction(ActionKind actionKind, Partner partner, string partnerActionId);
     public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser);
+    public WarehouseAction[] FindWarehouseActionsByNumbers(ActionKind kind, Partner? partner, string[] numbers, bool isPartnerUser);
     public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount);
     public long GetOutgoPlanTime(string outgoId, bool isPallet, Partner partner);
     public int GetIngoPlanTime(string outgoId, bool isPallet, Partner partner);

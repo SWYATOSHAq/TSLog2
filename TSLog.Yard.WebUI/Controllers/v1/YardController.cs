@@ -1369,7 +1369,12 @@ public class YardController : ControllerBase
         return result.ToArray();
     }
     [HttpGet("WarehouseActions")]
-    public string GetWarehouseActions()
+    public string GetWarehouseActions() => SearchWarehouseActions();
+
+    [HttpPost("WarehouseActions")]
+    public string GetWarehouseActionsByNumbers([FromBody] string[] numbers) => SearchWarehouseActions(numbers);
+
+    private string SearchWarehouseActions(string[]? numbers = null)
     {
         Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         var useYard = _rightsChecker.CheckRight("USE_YARD", User);
@@ -1407,7 +1412,9 @@ public class YardController : ControllerBase
 
         var isPartnerUser = _rightsChecker.CheckRight("IS_PARTNER_USER", User);
 
-        var actions = _storage.FindWarehouseActions(actionKind, partner, pattern ?? string.Empty, isPartnerUser);
+        var actions = numbers is null
+            ? _storage.FindWarehouseActions(actionKind, partner, pattern ?? string.Empty, isPartnerUser)
+            : _storage.FindWarehouseActionsByNumbers(actionKind, partner, numbers, isPartnerUser);
         var objects = WarehouseActionsToDynamic(actions);
 
         var text = JsonSerializer.Serialize(objects);

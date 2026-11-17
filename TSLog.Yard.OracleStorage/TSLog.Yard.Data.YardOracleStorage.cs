@@ -510,70 +510,61 @@ public class YardOracleStorage : OracleStorage, IYardWmsStorage
     /// <returns>Массив складских действ.</returns>
     public WarehouseAction[] FindWarehouseActions(ActionKind kind, Partner? partner, string pattern, bool isPartnerUser = false)
     {
-        var actions = new List<WarehouseAction>();
         pattern = !string.IsNullOrWhiteSpace(pattern) ? $"%{pattern.Trim().ToUpper()}%" : "%";
+        return QueryWarehouseActions(kind, partner, [pattern], isPartnerUser, exactMatch: false);
+    }
 
-        using (var command = _connection.CreateCommand())
+    public WarehouseAction[] FindWarehouseActionsByNumbers(ActionKind kind, Partner? partner, string[] numbers, bool isPartnerUser)
+    {
+        // Keep each IN clause within Oracle's limit.
+        return numbers
+            .Where(number => !string.IsNullOrWhiteSpace(number))
+            .Select(number => number.Trim().ToUpperInvariant())
+            .Distinct()
+            .Chunk(500)
+            .SelectMany(batch => QueryWarehouseActions(kind, partner, batch, isPartnerUser, exactMatch: true))
+            .DistinctBy(action => action.Id)
+            .ToArray();
+    }
+
+    private WarehouseAction[] QueryWarehouseActions(
+        ActionKind kind, Partner? partner, string[] patterns, bool isPartnerUser, bool exactMatch)
+    {
+        using var command = _connection.CreateCommand();
+        command.BindByName = true;
+        var parameterNames = new string[patterns.Length];
+        for (var i = 0; i < patterns.Length; i++)
         {
-            command.BindByName = true;
-            var SelectWarehouseActionByPartnerActionIdSql = String.Empty;
-            if (isPartnerUser)
-            {
-                SelectWarehouseActionByPartnerActionIdSql =
-                $"select a.kind,\n" +
-                $"       a.id, a.action_number,\n" +
-                $"       a.partner_id,\n" +
-                $"       a.partner_number,\n" +
-                $"       a.state_code,\n" +
-                $"       a.plan_action_date,\n" +
-                $"       a.insert_date,\n" +
-                $"       a.tu_count\n" +
-                $"  from {CommonSchema}.act_warehouse_action#v a\n" +
-                $" where (upper(trim(a.id)) like :pattern\n" +
-                $"     or upper(trim(a.action_number)) like :pattern\n" +
-                $"     or upper(trim(a.partner_number)) like :pattern)\n" +
-                $"   and a.kind = :kind\n" +
-                $"   and a.state_code <= 100\n" +
-                $"   and a.state_code > 0\n" +
-                $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
-                $"   and rownum < {MaxRowsCount}";
-            }
-            else
-            {
-                SelectWarehouseActionByPartnerActionIdSql =
-                $"select a.kind,\n" +
-                $"       a.id, a.action_number,\n" +
-                $"       a.partner_id,\n" +
-                $"       a.partner_number,\n" +
-                $"       a.state_code,\n" +
-                $"       a.plan_action_date,\n" +
-                $"       a.insert_date,\n" +
-                $"       a.tu_count\n" +
-                $"  from {CommonSchema}.act_warehouse_action#v a\n" +
-                $" where (upper(trim(a.id)) like :pattern\n" +
-                $"     or upper(trim(a.action_number)) like :pattern\n" +
-                $"     or upper(trim(a.partner_number)) like :pattern)\n" +
-                $"   and a.kind = :kind\n" +
-                $"   and a.state_code <= 100\n" +
-                $"   and (:partner_id is null or a.partner_id = :partner_id)\n" +
-                $"   and rownum < {MaxRowsCount}";
-            }
-
-            command.CommandText = SelectWarehouseActionByPartnerActionIdSql;
-            command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
-            command.Parameters.Add(new OracleParameter("pattern", pattern));
-            command.Parameters.Add(new OracleParameter("partner_id",
-                partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                var action = CreateWarehouseAction(reader);
-                //var lines = GetWarehouseActionLines(action);
-                //action.AddLines(lines);
-                actions.Add(action);
-            }
-            reader.Close();
+            var name = $"pattern{i}";
+            parameterNames[i] = ":" + name;
+            command.Parameters.Add(new OracleParameter(name, patterns[i]));
         }
+
+        var comparison = exactMatch ? $"in ({string.Join(", ", parameterNames)})" : $"like {parameterNames[0]}";
+        var stateFilter = isPartnerUser ? "and a.state_code > 0" : string.Empty;
+        var rowLimit = exactMatch ? string.Empty : $"and rownum < {MaxRowsCount}";
+        command.CommandText = $"""
+            select a.kind, a.id, a.action_number, a.partner_id, a.partner_number,
+                   a.state_code, a.plan_action_date, a.insert_date, a.tu_count
+              from {CommonSchema}.act_warehouse_action#v a
+             where (upper(trim(a.id)) {comparison}
+                 or upper(trim(a.action_number)) {comparison}
+                 or upper(trim(a.partner_number)) {comparison})
+               and a.kind = :kind
+               and a.state_code <= 100
+               {stateFilter}
+               and (:partner_id is null or a.partner_id = :partner_id)
+               {rowLimit}
+            """;
+
+        command.Parameters.Add(new OracleParameter("kind", kind == ActionKind.Outgo ? "O" : "I"));
+        command.Parameters.Add(new OracleParameter("partner_id",
+            partner != null && partner != Partner.Null && partner != Partner.Empty ? partner.Id : DBNull.Value));
+
+        var actions = new List<WarehouseAction>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+            actions.Add(CreateWarehouseAction(reader));
         return [.. actions];
     }
     /// <summary>

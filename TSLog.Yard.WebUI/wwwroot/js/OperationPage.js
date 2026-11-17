@@ -800,21 +800,32 @@ class OperationPage {
     async getAllWarehouseActions() {
         const allWarehouseActionDiv = document.getElementById("all-actions-div");
         if (allWarehouseActionDiv != undefined && allWarehouseActionDiv != null) {
-            this.warehouseActions = {};
+            const request = {};
+            this.warehouseActionsRequest = request;
 
             const kind = this.getKind();
             if (kind != "O" && kind != "I") {
+                this.warehouseActions = {};
                 return;
             }
 
             const partnersSelect = document.getElementById("partners-select");
             const partnerId = partnersSelect.value;
             if (partnerId === "") {
+                this.warehouseActions = {};
                 return;
             }
 
-            const pattern = document.getElementById("action-filter-input").value.trim().toLowerCase();
-            const result = await api.findWarehouseActions(kind, pattern, partnerId);
+            const pattern = document.getElementById("action-filter-input").value.trim();
+            const tokens = pattern.split(/[\s,]+/).filter(Boolean);
+            const isIncomeList = kind === "I" && (tokens.length > 1 || pattern.includes(","));
+            const result = isIncomeList
+                ? await api.findWarehouseActionsByNumbers(kind, tokens, partnerId)
+                : await api.findWarehouseActions(kind, pattern.toLowerCase(), partnerId);
+            if (this.warehouseActionsRequest !== request || partnersSelect.value !== partnerId || this.getKind() !== kind) {
+                return false;
+            }
+            this.warehouseActions = {};
             if (result.code === 0) {
                 for (let warehouseAction of result.data) {
                     this.warehouseActions[warehouseAction.id] = warehouseAction;
@@ -927,8 +938,9 @@ class OperationPage {
             if (partnersSelect.value != "" && operationTypesSelect.value != "") {
                 actionFilterDiv.classList.remove("d-none");
                 actionsDiv.classList.remove("d-none");
-                await this.getAllWarehouseActions();
-                await this.showAllWarehouseActions();
+                if (await this.getAllWarehouseActions() !== false) {
+                    await this.showAllWarehouseActions();
+                }
             } else {
                 actionFilterDiv.classList.add("d-none");
                 actionsDiv.classList.add("d-none");
@@ -954,7 +966,9 @@ class OperationPage {
     }
 
     async onChangeActionsFilter() {
-        await this.getAllWarehouseActions();
+        if (await this.getAllWarehouseActions() === false) {
+            return;
+        }
         await this.showAllWarehouseActions();
         this.resizeWarehouseActionsDivs();
     }
@@ -1492,8 +1506,13 @@ class OperationPage {
             const actionsFilterInput = document.getElementById("action-filter-input");
             if (actionsFilterInput != undefined && actionsFilterInput != null) {
                 actionsFilterInput.onchange = this.onChangeActionsFilter.bind(this);
+                actionsFilterInput.onkeydown = event => {
+                    if (event.key === "Enter" && !event.isComposing) {
+                        event.preventDefault();
+                        actionsFilterInput.blur();
+                    }
+                };
             }
-            await this.getAllWarehouseActions();
             await this.displayWarehouseActions();
         } else {
             warehouseActionsFieldset.disabled = true;

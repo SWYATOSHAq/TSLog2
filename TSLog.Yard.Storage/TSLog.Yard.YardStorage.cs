@@ -451,6 +451,10 @@ public class YardStorage : IDisposable, IYardStorage
     {
         return _oracleStorage.FindWarehouseActions(kind, partner, pattern, isPartnerUser);
     }
+    public WarehouseAction[] FindWarehouseActionsByNumbers(ActionKind kind, Partner? partner, string[] numbers, bool isPartnerUser)
+    {
+        return _oracleStorage.FindWarehouseActionsByNumbers(kind, partner, numbers, isPartnerUser);
+    }
     public void GetAssembliedOutgo(string id, out double palletsCount, out double eachesCount)
     {
         _oracleStorage.GetAssembliedOutgo(id, out palletsCount, out eachesCount);

@@ -443,8 +443,18 @@ class Api {
 
     // Возвращает складские действа (приходы, расходы) по подобию номера
     async findWarehouseActions(kind, pattern, partnerId = "") {
-        const url = "./api/v1/yard/WarehouseActions?" + "kind=" + kind + "&pattern=" + pattern + "&partner_id=" + partnerId;
+        const query = new URLSearchParams({ kind, pattern, partner_id: partnerId });
+        const url = "./api/v1/yard/WarehouseActions?" + query;
         return await this.getHttpResult("data", url);
+    }
+
+    async findWarehouseActionsByNumbers(kind, numbers, partnerId) {
+        const query = new URLSearchParams({ kind, partner_id: partnerId });
+        return await this.getHttpResult("data", "./api/v1/yard/WarehouseActions?" + query, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(numbers)
+        });
     }
 
     // Возвращает складские действа (приходы, расходы), которые привязаны к указанной операции двора
