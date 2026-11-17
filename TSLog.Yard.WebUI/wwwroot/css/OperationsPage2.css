@@ -127,7 +127,10 @@ body[data-yard-page="OperationsPage2"] .yard-operations-sort .sorts-div {
     margin: 0 !important;
 }
 #sort-field-select { max-width: 100%; }
-.yard-visibility { margin-inline-start: auto; }
+.yard-visibility {
+    position: relative;
+    margin-inline-start: auto;
+}
 .yard-visibility summary,
 .yard-applied-filters button {
     padding: 6px 10px;
@@ -138,17 +141,28 @@ body[data-yard-page="OperationsPage2"] .yard-operations-sort .sorts-div {
     cursor: pointer;
 }
 .yard-visibility summary:hover,
+.yard-visibility[open] summary,
 .yard-applied-filters button:hover { background: var(--yard-hover); }
 .yard-visibility fieldset {
+    position: absolute;
+    inset-block-start: calc(100% + 6px);
+    inset-inline-end: 0;
+    z-index: 1030;
     display: grid;
     gap: 6px;
-    max-height: 40vh;
+    inline-size: min(15rem, calc(100vw - 56px));
+    min-inline-size: 0;
+    max-block-size: 40vh;
     overflow: auto;
-    margin-top: 4px;
-    padding: 8px 10px;
+    padding: 12px;
     border: 1px solid var(--yard-line);
-    border-radius: 6px;
+    border-radius: 12px;
+    color: var(--yard-text);
     background: var(--yard-surface);
+    box-shadow: 0 12px 36px rgb(10 30 18 / 18%);
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+    .yard-visibility[open] fieldset { animation: yard-profile-reveal 160ms ease-out; }
 }
 .yard-visibility fieldset label {
     display: flex;

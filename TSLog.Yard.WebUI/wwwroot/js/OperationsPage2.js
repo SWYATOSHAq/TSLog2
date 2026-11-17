@@ -340,8 +340,27 @@ class OperationsPage {
         if (select) select.title = select.selectedOptions[0]?.getAttribute("note") ?? "";
     }
 
+    initVisibilityMenus() {
+        const closeOutsideMenus = ({ target }) => {
+            for (const menu of document.querySelectorAll(".yard-visibility[open]")) {
+                if (!menu.contains(target)) menu.open = false;
+            }
+        };
+        document.addEventListener("click", closeOutsideMenus);
+        document.addEventListener("focusin", closeOutsideMenus);
+        for (const menu of document.querySelectorAll(".yard-visibility")) {
+            menu.addEventListener("keydown", event => {
+                if (event.key !== "Escape" || !menu.open) return;
+                event.preventDefault();
+                menu.open = false;
+                menu.querySelector("summary").focus();
+            });
+        }
+    }
+
     async show() {
         this.initFilters();
+        this.initVisibilityMenus();
         const sortSelect = document.getElementById("sort-field-select");
         const savedSortField = utils.getUrlParameter("sort_field");
         if (Array.from(sortSelect.options).some(option => option.value === savedSortField)) sortSelect.value = savedSortField;
